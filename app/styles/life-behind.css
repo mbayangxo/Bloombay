@@ -1,0 +1,707 @@
+/* Life leaking out behind the opened invitation */
+
+.life-behind {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.life-behind__atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.life-behind__gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 55%, #fffbfd 0%, transparent 58%),
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(26, 5, 20, 0.04) 0%, transparent 70%),
+    linear-gradient(168deg, #fff5f8 0%, var(--blush) 50%, #ffd8e8 100%);
+}
+
+.life-behind__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(70vw, 540px);
+  height: min(68vh, 520px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 214, 228, 0.4);
+  filter: blur(72px);
+}
+
+.life-behind__back {
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  margin: clamp(0.5rem, 1.5vh, 0.85rem) 0 0 clamp(0.75rem, 2vw, 1.25rem);
+  align-self: flex-start;
+}
+
+.life-behind__scene {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.life-behind__leak {
+  position: absolute;
+  inset: 0 0 14% 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.life-behind__leak--open {
+  pointer-events: auto;
+}
+
+/* —— Discovered artifacts (peek from behind) —— */
+
+.life-moment {
+  position: absolute;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+  opacity: 0;
+  transition:
+    opacity 0.55s ease,
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease;
+  transition-delay: calc(var(--moment-delay, 0) * 90ms + 180ms);
+}
+
+.life-moment--out {
+  opacity: 0.58;
+}
+
+.life-moment--held {
+  box-shadow: 0 0 0 1px rgba(255, 0, 85, 0.2);
+}
+
+.life-artifact {
+  background-color: #faf7f2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 10px 28px rgba(26, 5, 20, 0.09),
+    0 2px 5px rgba(26, 5, 20, 0.05);
+}
+
+/* —— Book club invitation —— */
+.life-artifact--book {
+  left: calc(47% - 88px);
+  top: 30%;
+  max-width: 148px;
+  padding: 0.65rem 0.75rem 0.7rem;
+  transform: rotate(-10deg) translateY(20px) scale(0.82);
+  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+  z-index: 3;
+}
+
+.life-artifact--book.life-moment--out {
+  transform: rotate(-10deg) translateY(0) scale(0.82);
+}
+
+.life-artifact__small {
+  font-size: 7px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 42%, transparent);
+}
+
+.life-artifact__club {
+  margin-top: 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.life-artifact__meta {
+  margin-top: 0.3rem;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ink) 62%, transparent);
+}
+
+.life-artifact__meta--hood {
+  margin-top: 0.1rem;
+  font-style: italic;
+}
+
+.life-artifact__hand {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
+  transform: rotate(-0.6deg);
+}
+
+/* —— Birthday place card —— */
+.life-artifact--place {
+  left: calc(47% + 52px);
+  right: auto;
+  top: 28%;
+  width: min(124px, 28vw);
+  padding: 0.75rem 0.7rem 0.65rem;
+  transform: rotate(8deg) translateY(20px) scale(0.82);
+  background: linear-gradient(175deg, #fffdf9, #f8f0ea);
+  border: none;
+  border-left: 2px solid color-mix(in srgb, var(--rose-gold) 55%, transparent);
+  z-index: 3;
+}
+
+.life-artifact--place.life-moment--out {
+  transform: rotate(8deg) translateY(0) scale(0.82);
+}
+
+.life-artifact__place-label {
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+
+.life-artifact__guest {
+  margin-top: 0.15rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--ink) 85%, transparent);
+}
+
+.life-artifact__place-rule {
+  height: 1px;
+  margin: 0.45rem 0 0.35rem;
+  background: linear-gradient(90deg, var(--rose-gold), transparent);
+  opacity: 0.5;
+}
+
+.life-artifact__place-occ {
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.life-artifact__place-detail {
+  margin-top: 0.25rem;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.life-artifact__place-whisper {
+  margin-top: 0.35rem;
+  font-size: 8px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--ink) 48%, transparent);
+}
+
+/* —— Brunch reservation —— */
+.life-artifact--brunch {
+  left: calc(47% - 76px);
+  top: 64%;
+  bottom: auto;
+  width: min(140px, 32vw);
+  padding: 0.7rem 0.8rem;
+  transform: rotate(-6deg) translateY(20px) scale(0.84);
+  text-align: center;
+  background: #fffefb;
+  border: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+  z-index: 8;
+}
+
+.life-artifact--brunch.life-moment--out {
+  transform: rotate(-6deg) translateY(0) scale(0.84);
+}
+
+.life-artifact__brunch-venue {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.life-artifact__brunch-rule {
+  height: 1px;
+  margin: 0.4rem auto;
+  width: 70%;
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
+}
+
+.life-artifact__brunch-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 58%, transparent);
+}
+
+.life-artifact__brunch-party {
+  margin-top: 0.35rem;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 50%, transparent);
+}
+
+.life-artifact__brunch-stamp {
+  margin-top: 0.45rem;
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--hot-pink) 75%, var(--ink));
+}
+
+/* —— Girls night photo strip —— */
+.life-artifact--strip {
+  left: calc(47% + 40px);
+  right: auto;
+  top: 44%;
+  width: min(168px, 38vw);
+  padding: 8px 8px 22px;
+  transform: rotate(5deg) translateY(20px) scale(0.78);
+  background: #f8f8f6;
+  border-bottom: 3px dashed color-mix(in srgb, var(--ink) 12%, transparent);
+  z-index: 2;
+}
+
+.life-artifact--strip::after {
+  content: "03 · 14";
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 6px;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--ink) 38%, transparent);
+}
+
+.life-artifact--strip.life-moment--out {
+  transform: rotate(5deg) translateY(0) scale(0.78);
+}
+
+.life-artifact__strip-photos {
+  display: flex;
+  gap: 5px;
+}
+
+.life-artifact__strip-photo {
+  flex: 1;
+  aspect-ratio: 0.72;
+  background-color: #e8ddd4;
+  box-shadow:
+    inset 0 0 24px rgba(255, 255, 255, 0.15),
+    0 1px 2px rgba(26, 5, 20, 0.08);
+}
+
+/* Candid implied light — not stock, not designed */
+.life-artifact__strip-photo--0 {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 80%, rgba(255, 220, 200, 0.5), transparent),
+    linear-gradient(160deg, #d4c4bc 0%, #9a8a82 100%);
+  filter: saturate(0.85) contrast(0.95);
+}
+
+.life-artifact__strip-photo--1 {
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 70% 55%, rgba(180, 120, 130, 0.4) 0%, transparent 50%),
+    linear-gradient(145deg, #c9b8b0, #8a7a75);
+  filter: saturate(0.9);
+}
+
+.life-artifact__strip-photo--2 {
+  background:
+    linear-gradient(0deg, rgba(40, 30, 35, 0.25), transparent 35%),
+    linear-gradient(135deg, #b8a89e, #6e625c);
+  filter: saturate(0.8) brightness(1.05);
+}
+
+.life-artifact__strip-cap {
+  position: absolute;
+  bottom: 7px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+/* —— Handwritten note (scrap) —— */
+.life-note {
+  position: absolute;
+  left: calc(47% - min(6vw, 48px));
+  top: 66%;
+  bottom: auto;
+  max-width: 180px;
+  padding: 0.35rem 0.5rem;
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  transform: rotate(-4deg) translateY(16px);
+  opacity: 0;
+  transition:
+    opacity 0.6s ease 0.45s,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.life-note__paper {
+  position: absolute;
+  inset: -4px -8px;
+  z-index: -1;
+  background: #fff9f4;
+  box-shadow: 0 8px 20px rgba(26, 5, 20, 0.08);
+  transform: rotate(1deg);
+  clip-path: polygon(2% 0%, 98% 3%, 100% 97%, 0% 100%);
+}
+
+.life-note--out {
+  opacity: 0.65;
+  transform: rotate(-4deg) translateY(0);
+}
+
+/* —— Doorway invitation (foreground) —— */
+
+.life-doorway {
+  position: absolute;
+  left: 47%;
+  top: 48%;
+  bottom: auto;
+  width: min(96vw, calc(94dvh * 5 / 7), 760px);
+  aspect-ratio: 5 / 7;
+  transform: translate(-47%, -50%) rotate(-1deg);
+  z-index: 20;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.life-doorway--open {
+  transform: translate(-47%, -51%) rotate(-1deg) scale(1);
+}
+
+.life-doorway__stack {
+  position: absolute;
+  inset: 4% 6%;
+  z-index: 0;
+}
+
+.life-doorway__stack span {
+  position: absolute;
+  inset: 0;
+  background: #fffaf5;
+  border: 1px solid color-mix(in srgb, var(--ink) 5%, transparent);
+  box-shadow: 0 6px 20px rgba(26, 5, 20, 0.08);
+}
+
+.life-doorway__stack span:first-child {
+  transform: rotate(-3deg) translate(-14px, 18px);
+  opacity: 0.45;
+}
+
+.life-doorway__stack span:last-child {
+  transform: rotate(1.5deg) translate(10px, 10px);
+  opacity: 0.72;
+}
+
+.life-doorway__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(175deg, #fffefb 0%, #f9f3eb 55%, #f5ebe2 100%);
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 88px 160px -28px rgba(26, 5, 20, 0.34),
+    0 28px 56px rgba(26, 5, 20, 0.12);
+  overflow: hidden;
+}
+
+.life-doorway__flap {
+  position: absolute;
+  top: 0;
+  left: -1%;
+  right: 2%;
+  height: 44%;
+  z-index: 3;
+  clip-path: polygon(0 0, 52% 100%, 100% 0);
+  transform-origin: top center;
+  transition: transform 0.65s ease;
+  filter: drop-shadow(0 5px 12px rgba(26, 5, 20, 0.07));
+}
+
+.life-doorway__flap-inner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #fffefb, #f7f0e8);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+.life-doorway--open .life-doorway__flap {
+  transform: rotateX(-10deg);
+}
+
+.life-doorway__interior {
+  position: absolute;
+  inset: 0 0 42%;
+  z-index: 1;
+  overflow: visible;
+}
+
+.life-doorway__paper-base {
+  position: absolute;
+  inset: 12% 10% 10% 6%;
+  background: linear-gradient(155deg, #f4ece4, #ebe3d8);
+  border: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+  box-shadow: 0 4px 12px rgba(26, 5, 20, 0.08);
+  transform: rotate(-2deg);
+}
+
+.life-doorway__paper-insert {
+  position: absolute;
+  top: 18%;
+  right: 8%;
+  width: 36%;
+  height: 28%;
+  background: #fffdf9;
+  border: 1px solid color-mix(in srgb, var(--ink) 5%, transparent);
+  box-shadow: 0 6px 18px rgba(26, 5, 20, 0.09);
+  transform: rotate(4deg);
+}
+
+.life-doorway__copy {
+  position: absolute;
+  left: 10%;
+  right: 22%;
+  bottom: 28%;
+  text-align: left;
+  z-index: 4;
+}
+
+.life-doorway__script {
+  font-size: clamp(1.25rem, 4vw, 1.85rem);
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+
+.life-doorway__name {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin-top: 0.1rem;
+}
+
+.life-doorway__seal {
+  position: absolute;
+  left: auto;
+  right: 10%;
+  bottom: 22%;
+  transform: rotate(8deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(3rem, 12vw, 4rem);
+  height: clamp(3rem, 12vw, 4rem);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ff6b9d, var(--hot-pink) 50%, #c40042);
+  box-shadow:
+    0 10px 28px rgba(26, 5, 20, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35);
+  z-index: 7;
+}
+
+.life-doorway__seal-b {
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* —— Footer copy + CTA —— */
+
+.life-behind__footer {
+  position: relative;
+  z-index: 15;
+  flex-shrink: 0;
+  padding: 0.75rem 1.5rem 1.25rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.5s ease 0.5s,
+    transform 0.5s ease 0.5s;
+}
+
+.life-behind__footer--shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.life-behind__headline {
+  font-size: clamp(1.2rem, 3.5vw, 1.55rem);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.life-behind__sub {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 58%, transparent);
+  max-width: 360px;
+  margin-inline: auto;
+}
+
+.life-behind .bloom-save-cta {
+  margin: 0.65rem auto 0;
+}
+
+.flow-slide__inner--bloom {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.flow-slide--bloom {
+  background: transparent;
+}
+
+@media (min-aspect-ratio: 5/4) {
+  .life-doorway {
+    transform: translate(-47%, -50%) rotate(-1deg) scale(1.18);
+  }
+
+  .life-doorway--open {
+    transform: translate(-47%, -51%) rotate(-1deg) scale(1.18);
+  }
+}
+
+@media (min-width: 768px) {
+  .life-doorway {
+    width: min(96vw, calc(94dvh * 5 / 7), 760px);
+  }
+
+  .life-artifact--book {
+    left: calc(50% - min(20vw, 220px));
+    top: 30%;
+  }
+
+  .life-artifact--place {
+    left: calc(50% + min(14vw, 160px));
+  }
+
+  .life-artifact--strip {
+    left: calc(50% + min(10vw, 120px));
+    top: 44%;
+  }
+
+  .life-artifact--brunch {
+    left: calc(50% - min(16vw, 180px));
+    top: 64%;
+  }
+}
+
+@media (max-width: 640px) {
+  .life-artifact--book {
+    max-width: 132px;
+    left: max(0.25rem, calc(50% - 46vw));
+    top: 18%;
+  }
+
+  .life-artifact--place {
+    left: calc(50% + 26vw);
+    top: 16%;
+    width: min(118px, 34vw);
+  }
+
+  .life-artifact--brunch {
+    max-width: 132px;
+    left: max(0.25rem, calc(50% - 42vw));
+    top: 56%;
+  }
+
+  .life-artifact--strip {
+    width: min(168px, 48vw);
+    left: calc(50% + 20vw);
+    top: 34%;
+  }
+
+  .life-doorway {
+    width: min(96vw, 420px);
+  }
+
+  .life-note {
+    left: calc(50% - 20vw);
+    top: 62%;
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .life-moment,
+  .life-note,
+  .life-behind__footer,
+  .life-doorway,
+  .life-doorway__flap {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .life-artifact--book.life-moment--out {
+    transform: rotate(-10deg) scale(0.82);
+  }
+
+  .life-artifact--place.life-moment--out {
+    transform: rotate(8deg) scale(0.82);
+  }
+
+  .life-artifact--brunch.life-moment--out {
+    transform: rotate(-6deg) scale(0.84);
+  }
+
+  .life-artifact--strip.life-moment--out {
+    transform: rotate(5deg) scale(0.78);
+  }
+
+  .life-note--out {
+    transform: rotate(-4deg);
+  }
+
+  .life-doorway {
+    transform: translate(-47%, -50%) rotate(-1deg);
+  }
+
+  .life-doorway--open {
+    transform: translate(-47%, -51%) rotate(-1deg) scale(1);
+  }
+}
