@@ -1,5 +1,5 @@
-import { BloomSuite } from "./components/bloom-suite/bloom-suite";
+import { LandingPage } from "./components/portal/landing-page";
 
 export default function Home() {
-  return <BloomSuite />;
+  return <LandingPage />;
 }

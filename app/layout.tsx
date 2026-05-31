@@ -37,7 +37,7 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${jost.variable} ${caveat.variable} h-full antialiased`}
     >
-      <body className="h-full overflow-hidden bg-ivory text-ink">
+      <body className="min-h-full bg-white text-bb-black">
         {children}
       </body>
     </html>

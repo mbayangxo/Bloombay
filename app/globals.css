@@ -12,6 +12,14 @@
   --white: #ffffff;
   --background: var(--ivory);
   --foreground: var(--ink);
+  /* Portal brand tokens */
+  --bb-pink: #FF1F7D;
+  --barbie-pink: #FF69B4;
+  --bb-black: #0A0A0A;
+  --dark-plum: #1A0514;
+  --pale-pink-bg: #FFF5F8;
+  --mid-pink: #FFB6D0;
+  --light-pink: #FFE0EE;
 }
 
 @theme inline {
@@ -23,6 +31,13 @@
   --color-ink: var(--ink);
   --color-rose-gold: var(--rose-gold);
   --color-white: var(--white);
+  --color-bb-pink: var(--bb-pink);
+  --color-barbie-pink: var(--barbie-pink);
+  --color-bb-black: var(--bb-black);
+  --color-dark-plum: var(--dark-plum);
+  --color-pale-pink-bg: var(--pale-pink-bg);
+  --color-mid-pink: var(--mid-pink);
+  --color-light-pink: var(--light-pink);
   --font-sans: var(--font-jost);
   --font-display: var(--font-playfair);
   --font-serif: var(--font-playfair);
@@ -31,7 +46,7 @@
 
 html {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 body {
