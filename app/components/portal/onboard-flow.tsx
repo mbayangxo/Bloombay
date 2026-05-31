@@ -178,34 +178,87 @@ export function OnboardFlow() {
 
         {/* Step 0: Welcome */}
         {step === 0 && (
-          <div className="flex flex-col items-center text-center flex-1">
-            <div
-              className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6"
-              style={{ background: "var(--bb-pink)" }}
-            >
-              <span className="text-4xl">🌸</span>
-            </div>
-            <h1
-              className="text-4xl font-bold mb-3 leading-tight"
-              style={{ color: "var(--bb-black)" }}
-            >
-              It&apos;s a girls world.{" "}
-              <span
-                className="italic"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+          <div className="flex flex-col flex-1">
+            {/* Hero mark */}
+            <div className="flex flex-col items-center text-center mb-6">
+              <div
+                className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
+                style={{ background: "var(--bb-pink)" }}
               >
-                We&apos;re living in it.
-              </span>
-            </h1>
-            <p className="text-gray-500 text-base mb-4 leading-relaxed">
-              BloomBay is where NYC women build real friendships — through
-              motion, timing, and intent. Not algorithms. Not swiping.
-            </p>
-            <p className="text-xs text-gray-400 tracking-widest uppercase mb-10">
-              Women only · Live verification · NYC first
-            </p>
-            <div className="mt-auto w-full">
+                <span className="text-4xl">🌸</span>
+              </div>
+              <h1
+                className="text-4xl font-bold mb-3 leading-tight"
+                style={{ color: "var(--bb-black)" }}
+              >
+                It&apos;s a girls world.{" "}
+                <span
+                  className="italic"
+                  style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+                >
+                  We&apos;re living in it.
+                </span>
+              </h1>
+              <p className="text-gray-500 text-base leading-relaxed">
+                BloomBay is where NYC women build real friendships — through motion, timing, and intent.
+              </p>
+            </div>
+
+            {/* Member social proof */}
+            <div
+              className="rounded-3xl p-4 mb-4"
+              style={{ background: "var(--light-pink)" }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                {[
+                  { i: "A", c: "#FF6B6B" }, { i: "S", c: "#C06BE8" },
+                  { i: "P", c: "#6B9EFF" }, { i: "K", c: "#FF69B4" },
+                  { i: "M", c: "#4CAF9A" },
+                ].map((a) => (
+                  <div
+                    key={a.i}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                    style={{ background: a.c }}
+                  >
+                    {a.i}
+                  </div>
+                ))}
+                <p className="text-xs font-bold ml-1" style={{ color: "var(--bb-pink)" }}>
+                  +242 inside
+                </p>
+              </div>
+              <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>
+                247 verified women are already inside.{" "}
+                <span className="font-normal text-gray-500">
+                  Founding wave — 253 spots left.
+                </span>
+              </p>
+            </div>
+
+            {/* Feature trio */}
+            <div className="flex flex-col gap-2.5 mb-6">
+              {[
+                { emoji: "🔒", title: "Women only", sub: "Live selfie verification — every single member" },
+                { emoji: "🤝", title: "Real friendships", sub: "Girl Match AI finds your people by energy + values" },
+                { emoji: "✨", title: "Your city is alive", sub: "Girl Happenings, drops, and clubs — always something" },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3"
+                  style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+                >
+                  <span className="text-xl flex-shrink-0">{f.emoji}</span>
+                  <div>
+                    <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{f.title}</p>
+                    <p className="text-xs text-gray-400">{f.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-auto">
               <PinkButton onClick={next}>Let&apos;s go 🌸</PinkButton>
+              <p className="text-center text-xs text-gray-400 mt-3">Free to join · Women only · NYC</p>
             </div>
           </div>
         )}

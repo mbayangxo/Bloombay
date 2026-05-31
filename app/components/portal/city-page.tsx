@@ -9,19 +9,25 @@ const SEATS = [
     badge: "2 SEATS",
     title: "Girls dinner · Carbone",
     detail: "Tonight 7:30PM · Individual pay",
-    bg: "#F5F5F5",
+    emoji: "🍷",
+    gradientFrom: "#FF1F7D",
+    gradientTo: "#1A0514",
   },
   {
     badge: "3 SEATS",
     title: "Pilates + matcha morning",
     detail: "Sunday 9AM · $20 · 3 spots",
-    bg: "#F5F5F5",
+    emoji: "🧘",
+    gradientFrom: "#6B9EFF",
+    gradientTo: "#1A0514",
   },
   {
     badge: "4 SEATS",
     title: "MoMA + froyo after",
     detail: "Saturday 2PM · $1 deposit",
-    bg: "#F5F5F5",
+    emoji: "🎨",
+    gradientFrom: "#C06BE8",
+    gradientTo: "#1A0514",
   },
 ];
 
@@ -91,7 +97,7 @@ export function CityPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-4">
         <h1 className="text-4xl font-bold" style={{ color: "var(--bb-black)" }}>
@@ -132,12 +138,16 @@ export function CityPage() {
             {SEATS.map((seat, i) => (
               <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-sm">
                 <div
-                  className="relative"
-                  style={{ height: "120px", background: "linear-gradient(135deg, #E0E0E0, #C8C8C8)" }}
+                  className="relative flex items-center justify-center"
+                  style={{
+                    height: "120px",
+                    background: `linear-gradient(135deg, ${seat.gradientFrom}, ${seat.gradientTo})`,
+                  }}
                 >
+                  <span className="text-5xl">{seat.emoji}</span>
                   <span
                     className="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full text-white flex items-center gap-1"
-                    style={{ background: "var(--bb-pink)" }}
+                    style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}
                   >
                     ● {seat.badge}
                   </span>

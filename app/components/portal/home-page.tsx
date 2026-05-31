@@ -1,11 +1,11 @@
 import { TopBar } from "./top-bar";
 
 const nearbyWave = [
-  { name: "Aaliyah", color: "#FF6B6B" },
-  { name: "Sofia", color: "#C06BE8" },
-  { name: "Priya", color: "#6B9EFF" },
-  { name: "Cam", color: "#FFB347" },
-  { name: "Kezia", color: "#FF69B4" },
+  { name: "Aaliyah", initial: "A", color: "#FF6B6B" },
+  { name: "Sofia",   initial: "S", color: "#C06BE8" },
+  { name: "Priya",   initial: "P", color: "#6B9EFF" },
+  { name: "Cam",     initial: "C", color: "#FFB347" },
+  { name: "Kezia",   initial: "K", color: "#FF69B4" },
 ];
 
 const openSeats = [
@@ -15,6 +15,7 @@ const openSeats = [
     title: "Girls dinner · Carbone",
     detail: "Tonight 7PM",
     bg: "#FFF0F5",
+    emoji: "🍷",
   },
   {
     id: 2,
@@ -44,7 +45,7 @@ const openSeats = [
 
 export function HomePage() {
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
       <TopBar />
 
       {/* Greeting */}
@@ -119,12 +120,14 @@ export function HomePage() {
             <div key={person.name} className="flex flex-col items-center gap-1.5">
               <div className="relative">
                 <div
-                  className="w-14 h-14 rounded-full"
-                  style={{ background: `${person.color}33` }}
-                />
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold text-white"
+                  style={{ background: person.color }}
+                >
+                  {person.initial}
+                </div>
                 <div
                   className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-white"
-                  style={{ background: person.color }}
+                  style={{ background: "#4CAF50" }}
                 />
               </div>
               <p className="text-xs text-gray-500 font-medium">{person.name}</p>

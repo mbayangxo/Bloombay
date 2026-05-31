@@ -101,6 +101,34 @@ export function LoginPage() {
         >
           New? Join BloomBay 🌸
         </Link>
+
+        {/* Social proof */}
+        <div className="mt-8 rounded-3xl p-4" style={{ background: "var(--light-pink)" }}>
+          <div className="flex items-center gap-2 mb-2">
+            {[
+              { i: "A", c: "#FF6B6B" }, { i: "S", c: "#C06BE8" },
+              { i: "P", c: "#6B9EFF" }, { i: "K", c: "#FF69B4" },
+              { i: "C", c: "#FFB347" },
+            ].map((a) => (
+              <div
+                key={a.i}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{ background: a.c }}
+              >
+                {a.i}
+              </div>
+            ))}
+          </div>
+          <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>
+            247 women already inside.
+          </p>
+          <p
+            className="text-xs italic mt-0.5"
+            style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)" }}
+          >
+            &ldquo;First birthday I actually celebrated.&rdquo; — Aaliyah
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -45,7 +45,7 @@ export function LoungePage() {
   const MOODS = ["🌸 Soft", "🔥 Lit", "☕ Cozy", "💪 Focused", "🌙 Low-key"];
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-4">
         <h1 className="text-4xl font-bold" style={{ color: "var(--bb-black)" }}>
