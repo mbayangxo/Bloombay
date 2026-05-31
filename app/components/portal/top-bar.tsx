@@ -1,3 +1,5 @@
+import { BBLogo } from "./bb-logo";
+
 export function TopBar({
   location = "Williamsburg",
   day = "Friday",
@@ -8,7 +10,7 @@ export function TopBar({
   return (
     <header className="flex items-center justify-between px-4 pt-12 pb-3">
       <div className="flex items-center gap-2">
-        <span className="text-xl" aria-hidden>🌸</span>
+        <BBLogo size={22} />
         <span
           className="text-lg font-bold tracking-tight"
           style={{ color: "var(--bb-black)" }}

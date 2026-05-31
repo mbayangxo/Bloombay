@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BBLogo } from "./bb-logo";
 import { useState } from "react";
 
 export function LoginPage() {
@@ -22,11 +23,8 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div
-            className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4"
-            style={{ background: "var(--bb-pink)" }}
-          >
-            <span className="text-3xl">🌸</span>
+          <div className="mb-4">
+            <BBLogo size={52} />
           </div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--bb-black)" }}>
             Bloom<span style={{ color: "var(--bb-pink)" }}>Bay</span>

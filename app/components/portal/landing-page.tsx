@@ -1,30 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-function BBMark({ size = 48, light = false }: { size?: number; light?: boolean }) {
-  const darkFill = light ? "white" : "#1A0514";
-  return (
-    <svg width={size} height={Math.round(size * 0.72)} viewBox="0 0 60 43" fill="none">
-      {/* Left B */}
-      <path
-        fillRule="evenodd"
-        d="M 2 1.5 h 15 a 10 10 0 0 1 0 20 a 10 10 0 0 1 0 20 H 2 Z
-           M 22 7.5 a 3.5 4 0 1 0 0 8 a 3.5 4 0 1 0 0 -8 Z
-           M 22 27.5 a 3.5 4 0 1 0 0 8 a 3.5 4 0 1 0 0 -8 Z"
-        fill={darkFill}
-      />
-      {/* Right B – mirrored, hot pink */}
-      <path
-        fillRule="evenodd"
-        d="M 58 1.5 h -15 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 20 H 58 Z
-           M 38 7.5 a 3.5 4 0 1 0 0 8 a 3.5 4 0 1 0 0 -8 Z
-           M 38 27.5 a 3.5 4 0 1 0 0 8 a 3.5 4 0 1 0 0 -8 Z"
-        fill="#FF1F7D"
-      />
-    </svg>
-  );
-}
+import { BBLogo } from "./bb-logo";
 
 const AVATARS = [
   { initials: "A", color: "#FF6B6B" },
@@ -47,7 +24,7 @@ export function LandingPage() {
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
           style={{ opacity: 0.04 }}
         >
-          <BBMark size={340} light />
+          <BBLogo size={340} light />
         </div>
 
         {/* Radial glow */}
@@ -62,7 +39,7 @@ export function LandingPage() {
         {/* Nav */}
         <nav className="relative flex items-center justify-between pb-10">
           <div className="flex items-center gap-2.5">
-            <BBMark size={30} light />
+            <BBLogo size={30} light />
             <span className="text-white font-bold text-base tracking-widest uppercase">
               BLOOM<span style={{ color: "#FF1F7D" }}>BAY</span>
             </span>
@@ -420,7 +397,7 @@ export function LandingPage() {
         style={{ background: "#1A0514" }}
       >
         <div className="flex items-center gap-2.5">
-          <BBMark size={22} light />
+          <BBLogo size={22} light />
           <span
             className="text-xs font-bold tracking-widest uppercase"
             style={{ color: "rgba(255,255,255,0.4)" }}

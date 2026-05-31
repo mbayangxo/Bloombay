@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BBLogo } from "./bb-logo";
 
 const GOALS = [
   { emoji: "🌸", label: "Find my people in NYC" },
@@ -181,11 +182,8 @@ export function OnboardFlow() {
           <div className="flex flex-col flex-1">
             {/* Hero mark */}
             <div className="flex flex-col items-center text-center mb-6">
-              <div
-                className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
-                style={{ background: "var(--bb-pink)" }}
-              >
-                <span className="text-4xl">🌸</span>
+              <div className="mb-5">
+                <BBLogo size={52} />
               </div>
               <h1
                 className="text-4xl font-bold mb-3 leading-tight"
