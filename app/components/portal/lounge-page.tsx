@@ -13,11 +13,11 @@ const STAMPS = [
 
 const MEMORIES = [
   { emoji: "🌅", title: "Williamsburg morning", date: "May 12", bg: "#FFF0F5" },
-  { emoji: "🍷", title: "Rooftop wine hour", date: "May 8", bg: "#EDE7F6" },
-  { emoji: "🎨", title: "Paint + sip night", date: "Apr 30", bg: "#E3F2FD" },
-  { emoji: "🏃‍♀️", title: "Run club Sunday", date: "Apr 27", bg: "#E8F5E9" },
-  { emoji: "🧘", title: "Pilates morning", date: "Apr 20", bg: "#FFFDE7" },
-  { emoji: "☕", title: "Matcha café crawl", date: "Apr 14", bg: "#FCE4EC" },
+  { emoji: "🍷", title: "Rooftop wine hour", date: "May 8", bg: "#FFE0EE" },
+  { emoji: "🎨", title: "Paint + sip night", date: "Apr 30", bg: "#FFF5F8" },
+  { emoji: "🏃‍♀️", title: "Run club Sunday", date: "Apr 27", bg: "#FFE0EE" },
+  { emoji: "🧘", title: "Pilates morning", date: "Apr 20", bg: "#FFF0F5" },
+  { emoji: "☕", title: "Matcha café crawl", date: "Apr 14", bg: "#FFF5F8" },
 ];
 
 const YANDE_MEMORIES = [
@@ -32,9 +32,9 @@ const YANDE_MEMORIES = [
 ];
 
 const CIRCLE = [
-  { name: "Aaliyah M.", color: "#FF6B6B", mutual: true },
-  { name: "Sofia K.", color: "#C06BE8", mutual: true },
-  { name: "Priya R.", color: "#6B9EFF", mutual: false },
+  { name: "Aaliyah M.", color: "#FF1F7D", mutual: true },
+  { name: "Sofia K.", color: "#FF69B4", mutual: true },
+  { name: "Priya R.", color: "#FFB6D0", mutual: false },
 ];
 
 export function LoungePage() {

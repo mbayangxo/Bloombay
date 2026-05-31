@@ -209,9 +209,9 @@ export function OnboardFlow() {
             >
               <div className="flex items-center gap-2 mb-2">
                 {[
-                  { i: "A", c: "#FF6B6B" }, { i: "S", c: "#C06BE8" },
-                  { i: "P", c: "#6B9EFF" }, { i: "K", c: "#FF69B4" },
-                  { i: "M", c: "#4CAF9A" },
+                  { i: "A", c: "#FF1F7D" }, { i: "S", c: "#FF69B4" },
+                  { i: "P", c: "#c40060" }, { i: "K", c: "#FF69B4" },
+                  { i: "M", c: "#1A0514" },
                 ].map((a) => (
                   <div
                     key={a.i}
@@ -482,15 +482,15 @@ export function OnboardFlow() {
                     onClick={() => toggleSet(lifestyle, setLifestyle, i)}
                     className="w-full rounded-2xl px-4 py-4 flex items-center justify-between text-left transition-all"
                     style={{
-                      background: on ? "#E8F5E9" : "white",
-                      border: `2px solid ${on ? "#4CAF50" : "#F0F0F0"}`,
+                      background: on ? "var(--light-pink)" : "white",
+                      border: `2px solid ${on ? "var(--bb-pink)" : "#F0F0F0"}`,
                       color: "var(--bb-black)",
                     }}
                   >
                     <span className="text-sm font-medium">
                       {item.emoji} {item.label}
                     </span>
-                    {on && <span className="text-green-600 font-bold">✓</span>}
+                    {on && <span style={{ color: "var(--bb-pink)" }} className="font-bold">✓</span>}
                   </button>
                 );
               })}
@@ -530,13 +530,13 @@ export function OnboardFlow() {
                     onClick={() => toggleSet(schedule, setSchedule, i)}
                     className="w-full rounded-2xl px-4 py-4 flex items-center justify-between text-left transition-all"
                     style={{
-                      background: on ? "#FFFDE7" : "white",
-                      border: `2px solid ${on ? "#F9A825" : "#F0F0F0"}`,
+                      background: on ? "var(--light-pink)" : "white",
+                      border: `2px solid ${on ? "var(--bb-pink)" : "#F0F0F0"}`,
                       color: "var(--bb-black)",
                     }}
                   >
                     <span className="text-sm font-medium">{item}</span>
-                    {on && <span className="text-yellow-600 font-bold">✓</span>}
+                    {on && <span style={{ color: "var(--bb-pink)" }} className="font-bold">✓</span>}
                   </button>
                 );
               })}

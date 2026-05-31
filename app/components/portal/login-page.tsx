@@ -104,9 +104,9 @@ export function LoginPage() {
         <div className="mt-8 rounded-3xl p-4" style={{ background: "var(--light-pink)" }}>
           <div className="flex items-center gap-2 mb-2">
             {[
-              { i: "A", c: "#FF6B6B" }, { i: "S", c: "#C06BE8" },
-              { i: "P", c: "#6B9EFF" }, { i: "K", c: "#FF69B4" },
-              { i: "C", c: "#FFB347" },
+              { i: "A", c: "#FF1F7D" }, { i: "S", c: "#FF69B4" },
+              { i: "P", c: "#c40060" }, { i: "K", c: "#FF69B4" },
+              { i: "C", c: "#1A0514" },
             ].map((a) => (
               <div
                 key={a.i}

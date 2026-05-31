@@ -4,12 +4,12 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
 const AVATARS = [
-  { initials: "A", color: "#FF6B6B" },
-  { initials: "S", color: "#C06BE8" },
-  { initials: "P", color: "#6B9EFF" },
+  { initials: "A", color: "#FF1F7D" },
+  { initials: "S", color: "#FF69B4" },
+  { initials: "P", color: "#c40060" },
   { initials: "K", color: "#FF69B4" },
-  { initials: "C", color: "#FFB347" },
-  { initials: "M", color: "#4CAF9A" },
+  { initials: "C", color: "#FFB6D0" },
+  { initials: "M", color: "#1A0514" },
 ];
 
 export function LandingPage() {
@@ -65,7 +65,7 @@ export function LandingPage() {
                 className="w-1.5 h-1.5 rounded-full inline-block"
                 style={{ background: "#FF69B4", animation: "pulse 2s infinite" }}
               />
-              NYC · Founding Wave · 247 Members
+              NYC · Founding Wave · 100 Mothers Only
             </span>
           </div>
 
@@ -127,9 +127,9 @@ export function LandingPage() {
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
         >
           {[
-            { n: "247", label: "Girls inside" },
-            { n: "500", label: "Founding spots" },
+            { n: "100", label: "Founding Mothers" },
             { n: "NYC", label: "First city" },
+            { n: "Only", label: "Invite · Verified" },
           ].map((s, i) => (
             <div key={i} className="text-center flex-1">
               <p className="text-white font-bold text-xl leading-none">{s.n}</p>
@@ -154,13 +154,13 @@ export function LandingPage() {
             </div>
           ))}
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-            style={{ background: "#E8E8E8", color: "#999" }}>
-            +241
+            style={{ background: "#FFE0EE", color: "var(--bb-pink)" }}>
+            +94
           </div>
         </div>
         <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>
-          247 women already inside.{" "}
-          <span style={{ color: "var(--bb-pink)" }}>253 founding spots left.</span>
+          100 Founding Mothers only.{" "}
+          <span style={{ color: "var(--bb-pink)" }}>Spots are filling fast.</span>
         </p>
         <p className="text-xs text-gray-400 mt-0.5">Every member live-verified · NYC founding wave</p>
       </section>
@@ -353,7 +353,7 @@ export function LandingPage() {
             className="text-xs font-bold tracking-widest uppercase mb-5"
             style={{ color: "rgba(255,255,255,0.65)" }}
           >
-            JOIN THE FOUNDING 500
+            JOIN THE FOUNDING 100
           </p>
           <h2
             className="text-white font-bold leading-[1.0] mb-1"
@@ -376,7 +376,7 @@ export function LandingPage() {
             className="text-sm leading-relaxed mb-8"
             style={{ color: "rgba(255,255,255,0.7)" }}
           >
-            253 founding spots remaining. No algorithm. No men. Just women — and a world built entirely around you.
+            Only 100 Founding Mothers. No algorithm. No men. Just women — and a world built entirely around you.
           </p>
           <Link
             href="/onboard"

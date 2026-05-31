@@ -46,7 +46,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
       <div
         className="pointer-events-auto mx-4 mb-4 flex items-center gap-1 px-3 py-2 rounded-full"
         style={{ background: "#1A0514" }}
