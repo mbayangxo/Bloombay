@@ -510,18 +510,28 @@ function PendingSection() {
   const [members, setMembers] = useState(PENDING_MEMBERS.map((m) => ({ ...m, status: "pending" as "pending" | "approved" | "declined" })));
   const [expanded, setExpanded] = useState<number | null>(null);
   const [declineNote, setDeclineNote] = useState<Record<number, string>>({});
+  const [toast, setToast] = useState<string | null>(null);
 
   const pending = members.filter((m) => m.status === "pending");
   const reviewed = members.filter((m) => m.status !== "pending");
 
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
+
   function approve(id: number) {
+    const member = members.find((m) => m.id === id);
+    const name = member ? member.name.split(" ")[0] : "her";
     setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "approved" } : m));
     setExpanded(null);
+    showToast("✓ Approved — invite sent to " + name);
   }
 
   function decline(id: number) {
     setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "declined" } : m));
     setExpanded(null);
+    showToast("Application declined");
   }
 
   return (
@@ -639,7 +649,7 @@ function PendingSection() {
                             {m.name[0]}
                           </div>
                           <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Photo submitted — {m.name.split(" ")[0]}</p>
-                          <p className="text-[10px] px-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>Connect Supabase Storage to display real photos</p>
+                          <p className="text-[10px] px-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>Photo submitted for review</p>
                         </div>
                       </div>
 
@@ -751,6 +761,11 @@ function PendingSection() {
           </div>
         </div>
       )}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
@@ -792,12 +807,9 @@ function WomenSection() {
         <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
           17 women are awaiting identity verification before they can access clubs and open seats.
         </p>
-        <button
-          className="mt-4 px-4 py-2 rounded-full text-sm font-bold text-white"
-          style={{ background: "#FF1F7D" }}
-        >
-          Review Queue
-        </button>
+        <a href="/admin/dashboard" className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+          Review Queue →
+        </a>
       </div>
 
       {/* Applications */}
@@ -967,7 +979,7 @@ function HostsSection() {
                         <div
                           key={n}
                           className="w-2.5 h-2.5 rounded-full"
-                          style={{ background: n <= h.warnings ? (h.warnings >= 3 ? "#FF1F7D" : "#FF6B35") : "rgba(255,255,255,0.1)" }}
+                          style={{ background: n <= h.warnings ? (h.warnings >= 3 ? "#FF1F7D" : "#FF1F7D") : "rgba(255,255,255,0.1)" }}
                         />
                       ))}
                     </div>
@@ -989,11 +1001,11 @@ function HostsSection() {
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Events</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ color: h.rating < 3.5 ? "#FF6B35" : "white" }}>{h.rating}</p>
+                  <p className="text-xl font-bold" style={{ color: h.rating < 3.5 ? "#FF1F7D" : "white" }}>{h.rating}</p>
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Rating</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ color: h.warnings > 0 ? "#FF6B35" : "rgba(255,255,255,0.2)" }}>{h.warnings}/3</p>
+                  <p className="text-xl font-bold" style={{ color: h.warnings > 0 ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>{h.warnings}/3</p>
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Warnings</p>
                 </div>
               </div>
@@ -1018,7 +1030,7 @@ function HostsSection() {
                     className="flex-1 py-2 rounded-full text-xs font-bold transition-all"
                     style={h.warnings >= 2
                       ? { background: "#FF1F7D", color: "white" }
-                      : { background: "rgba(255,100,50,0.15)", color: "#FF6B35", border: "1px solid rgba(255,100,50,0.3)" }}
+                      : { background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}
                   >
                     {h.warnings >= 2 ? "Archive Host" : `Warn (${h.warnings + 1} of 3)`}
                   </button>

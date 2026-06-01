@@ -523,7 +523,7 @@ function MyImpact() {
             </svg>
           </div>
           <p className="text-xs font-bold tracking-widest" style={{ color: "#FF1F7D" }}>
-            YANDE AI INSIGHT
+            BLOOMSIGHT
           </p>
         </div>
         <p className="text-white font-medium leading-relaxed">

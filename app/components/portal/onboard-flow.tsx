@@ -891,16 +891,16 @@ export function OnboardFlow() {
               STEP 9 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
-              Yande picked
+              Clubs picked
             </h2>
             <p
               className="text-3xl font-bold italic mb-2"
               style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
             >
-              your clubs.
+              for you.
             </p>
             <p className="text-sm text-gray-400 mb-5">
-              Based on your vibe and interests. Join one to start.
+              Based on your interests and vibe{name ? `, ${name.split(" ")[0]}` : ""}. Join one to get started.
             </p>
 
             <div className="flex flex-col gap-3 mb-6">
@@ -1034,7 +1034,7 @@ export function OnboardFlow() {
                 Submit application →
               </PinkButton>
               <p className="text-center text-xs text-gray-400 mt-2">
-                Yande reviews every member personally.
+                Every application is reviewed personally before access is granted.
               </p>
             </div>
           </div>

@@ -9,10 +9,11 @@ export function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showReset, setShowReset] = useState(false);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    router.push("/home");
+    router.push("/member/home");
   }
 
   return (
@@ -81,10 +82,20 @@ export function LoginPage() {
         </form>
 
         <p className="text-center mt-4">
-          <button className="text-sm text-gray-400 underline hover:text-gray-600">
+          <button
+            onClick={() => setShowReset(!showReset)}
+            className="text-sm text-gray-400 underline hover:text-gray-600"
+          >
             Forgot password?
           </button>
         </p>
+        {showReset && (
+          <div className="mt-3 p-4 rounded-2xl text-sm text-center" style={{ background: "#FFF0F5" }}>
+            <p style={{ color: "#FF1F7D" }}>
+              Email <strong>hello@bloombay.app</strong> to reset your password. We&apos;ll get back to you within 24 hours.
+            </p>
+          </div>
+        )}
 
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-gray-200" />
@@ -93,11 +104,11 @@ export function LoginPage() {
         </div>
 
         <Link
-          href="/onboard"
+          href="/waitlist"
           className="block text-center w-full py-4 rounded-full border-2 font-bold text-base hover:bg-pink-50 transition-all"
           style={{ borderColor: "var(--bb-pink)", color: "var(--bb-pink)" }}
         >
-          New? Join BloomBay 🌸
+          New? Join the Waitlist 🌸
         </Link>
 
         {/* Social proof */}

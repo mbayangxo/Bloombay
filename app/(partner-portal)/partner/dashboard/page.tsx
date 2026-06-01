@@ -208,7 +208,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
 
 // ── Section Components ─────────────────────────────────────────────────────
 
-function ProfileSection() {
+function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div className="max-w-2xl">
       <div className="mb-5">
@@ -229,7 +229,7 @@ function ProfileSection() {
           <p className="text-sm leading-relaxed" style={{ color: "#444" }}>
             Parisian patisserie meets NYC girl culture. The perfect brunch spot.
           </p>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Edit description</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Description editor coming soon")}>Edit description</button>
         </div>
 
         {/* Neighborhood */}
@@ -252,7 +252,7 @@ function ProfileSection() {
               </div>
             ))}
           </div>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Upload photos</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Photo upload coming soon")}>Upload photos</button>
         </div>
       </div>
     </div>
@@ -523,7 +523,7 @@ function MailboxSection() {
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-              style={{ background: m.unread ? "#111111" : "#C8B0C0" }}
+              style={{ background: m.unread ? "#111111" : "#FFE0EE" }}
             >
               {m.from[0]}
             </div>
@@ -698,8 +698,14 @@ function PerksSection() {
 
 export default function YourVenue() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [toast, setToast] = useState<string | null>(null);
 
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
@@ -798,7 +804,7 @@ export default function YourVenue() {
 
       {/* ── Content ── */}
       <div className="px-8 py-6">
-        {activeTab === "profile" && <ProfileSection />}
+        {activeTab === "profile" && <ProfileSection showToast={showToast} />}
         {activeTab === "gatherings" && <GatheringsSection />}
         {activeTab === "women-hosted" && <WomenHostedSection />}
         {activeTab === "rating" && <RatingSection />}
@@ -806,6 +812,11 @@ export default function YourVenue() {
         {activeTab === "mailbox" && <MailboxSection />}
         {activeTab === "perks" && <PerksSection />}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#111111" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

@@ -268,7 +268,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
 
 // ── Section Components ─────────────────────────────────────────────────────
 
-function WomenSection() {
+function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
@@ -279,6 +279,10 @@ function WomenSection() {
         <button
           className="px-4 py-2 rounded-full text-sm font-semibold text-white"
           style={{ background: "#FF1F7D" }}
+          onClick={() => {
+            navigator.clipboard?.writeText("https://bloombay.app/waitlist").catch(() => {});
+            showToast("Invite link copied!");
+          }}
         >
           + Invite a woman
         </button>
@@ -1133,8 +1137,14 @@ function FormBuilderSection() {
 
 export default function TheClubhouse() {
   const [activeTab, setActiveTab] = useState<Tab>("women");
+  const [toast, setToast] = useState<string | null>(null);
 
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>

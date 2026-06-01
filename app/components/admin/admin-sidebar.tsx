@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BBLogo } from "../portal/bb-logo";
+import { logout } from "@/lib/auth/actions";
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 
@@ -221,24 +222,22 @@ export function AdminSidebar() {
 
       {/* User */}
       <div className="px-4 py-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-3">
           <div className="relative">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: "#FF1F7D" }}
-            >
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
               M
             </div>
-            <div
-              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2"
-              style={{ background: "#22c55e", borderColor: "#111" }}
-            />
           </div>
           <div>
             <p className="text-white text-xs font-semibold">Maya</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Founder · CEO</p>
           </div>
         </div>
+        <form action={logout}>
+          <button type="submit" className="w-full py-2 rounded-xl text-xs font-bold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)" }}>
+            Log out
+          </button>
+        </form>
       </div>
     </aside>
   );
