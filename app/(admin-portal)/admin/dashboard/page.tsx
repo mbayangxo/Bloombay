@@ -80,24 +80,25 @@ const WOMEN_STATS = {
 };
 
 const HOSTS = [
-  { name: "Ciara M.", venue: "The Parlour, SoHo", events: 4, rating: 4.9 },
-  { name: "Nadia B.", venue: "Loft 19, Brooklyn", events: 2, rating: 4.7 },
-  { name: "Tara L.", venue: "The Den, West Village", events: 3, rating: 4.8 },
+  { name: "Ciara M.", venue: "The Parlour, SoHo",    events: 4, rating: 4.9, warnings: 0, archived: false },
+  { name: "Nadia B.", venue: "Loft 19, Brooklyn",     events: 2, rating: 4.7, warnings: 1, archived: false },
+  { name: "Tara L.",  venue: "The Den, West Village", events: 3, rating: 4.8, warnings: 0, archived: false },
+  { name: "Dawn K.",  venue: "Studio K, Midtown",     events: 1, rating: 2.1, warnings: 2, archived: false },
 ];
 
 const CLUBS = [
-  { name: "Museum Club", city: "NYC", curator: "Amanda R.", members: 18, seats: 2 },
-  { name: "Book Club", city: "NYC", curator: "Amanda R.", members: 14, seats: 1 },
-  { name: "Jazz & Wine", city: "NYC", curator: "Yemi O.", members: 16, seats: 3 },
-  { name: "Creative Writing", city: "NYC", curator: "Yemi O.", members: 12, seats: 0 },
-  { name: "Soft Life", city: "NYC", curator: "Priya S.", members: 11, seats: 1 },
-  { name: "Pilates Club", city: "NYC", curator: "Priya S.", members: 9, seats: 2 },
-  { name: "Indigenous African NYC", city: "NYC", curator: "Sofia K.", members: 10, seats: 0 },
-  { name: "Girl Tech Collective", city: "NYC", curator: "Kezia N.", members: 14, seats: 4 },
-  { name: "The Artist Circle", city: "NYC", curator: "—", members: 0, seats: 0 },
-  { name: "Wellness Circle", city: "NYC", curator: "—", members: 100, seats: 0 },
-  { name: "Ladurée Society", city: "NYC", curator: "—", members: 6, seats: 2 },
-  { name: "Sunday Rooftop", city: "NYC", curator: "—", members: 8, seats: 3 },
+  { name: "African Girls Club",    city: "NYC", curator: "BloomBay",  members: 284, seats: 3, type: "hq",   attendance: 91, growth: "+18%", events: 12 },
+  { name: "Soft Life Club NYC",    city: "NYC", curator: "BloomBay",  members: 312, seats: 1, type: "hq",   attendance: 87, growth: "+24%", events: 18 },
+  { name: "Muslim Women NYC",      city: "NYC", curator: "BloomBay",  members: 76,  seats: 0, type: "hq",   attendance: 93, growth: "+9%",  events: 7  },
+  { name: "Museum Club",           city: "NYC", curator: "Amanda R.", members: 18,  seats: 2, type: "user", attendance: 85, growth: "+5%",  events: 4  },
+  { name: "Book Club",             city: "NYC", curator: "Amanda R.", members: 14,  seats: 1, type: "user", attendance: 80, growth: "+3%",  events: 6  },
+  { name: "Jazz & Wine",           city: "NYC", curator: "Yemi O.",   members: 16,  seats: 3, type: "user", attendance: 78, growth: "+12%", events: 5  },
+  { name: "Creative Writing",      city: "NYC", curator: "Yemi O.",   members: 12,  seats: 0, type: "user", attendance: 82, growth: "+7%",  events: 3  },
+  { name: "Girl Tech Collective",  city: "NYC", curator: "Kezia N.",  members: 14,  seats: 4, type: "user", attendance: 70, growth: "+2%",  events: 2  },
+  { name: "Pilates Club",          city: "NYC", curator: "Priya S.",  members: 9,   seats: 2, type: "user", attendance: 88, growth: "+15%", events: 8  },
+  { name: "The Artist Circle",     city: "NYC", curator: "—",         members: 0,   seats: 0, type: "user", attendance: 0,  growth: "new",  events: 0  },
+  { name: "Ladurée Society",       city: "NYC", curator: "—",         members: 6,   seats: 2, type: "user", attendance: 60, growth: "+1%",  events: 1  },
+  { name: "Sunday Rooftop",        city: "NYC", curator: "—",         members: 8,   seats: 3, type: "user", attendance: 75, growth: "+4%",  events: 2  },
 ];
 
 const OPEN_SEATS = [
@@ -622,38 +623,120 @@ function CuratorsSection() {
 // ─── Section: Hosts ───────────────────────────────────────────────────────────
 
 function HostsSection() {
+  type HostRecord = typeof HOSTS[number] & { warnings: number; archived: boolean };
+  const [hosts, setHosts] = useState<HostRecord[]>(HOSTS as HostRecord[]);
+
+  function warnHost(name: string) {
+    setHosts((prev) => prev.map((h) => {
+      if (h.name !== name) return h;
+      const next = h.warnings + 1;
+      return { ...h, warnings: next, archived: next >= 3 };
+    }));
+  }
+
+  function unarchiveHost(name: string) {
+    setHosts((prev) => prev.map((h) => h.name === name ? { ...h, archived: false, warnings: 0 } : h));
+  }
+
   return (
     <div>
-      <SectionHeader title="Hosts" sub="Venues and event hosts powering BloomBay gatherings." />
-      <div className="grid grid-cols-3 gap-4">
-        {HOSTS.map((h) => (
-          <div
-            key={h.name}
-            className="rounded-2xl p-6"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
+      <SectionHeader title="Hosts" sub="Venues and event hosts. 3 warnings = soft archive." />
+
+      <div className="grid grid-cols-2 gap-4">
+        {hosts.map((h) => {
+          const isAtRisk = h.warnings >= 1 && !h.archived;
+          const isArchived = h.archived;
+          return (
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mb-4"
-              style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}
+              key={h.name}
+              className="rounded-2xl p-6"
+              style={{
+                background: isArchived ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.05)",
+                border: isArchived ? "1px solid rgba(255,255,255,0.05)" : isAtRisk ? "1px solid rgba(255,100,0,0.25)" : "1px solid rgba(255,255,255,0.07)",
+                opacity: isArchived ? 0.6 : 1,
+              }}
             >
-              {h.name[0]}
-            </div>
-            <h3 className="text-base font-bold mb-1">{h.name}</h3>
-            <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
-              {h.venue}
-            </p>
-            <div className="flex gap-6">
-              <div>
-                <p className="text-xl font-bold" style={{ color: "#FF1F7D" }}>{h.events}</p>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Events hosted</p>
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold"
+                  style={{ background: isArchived ? "rgba(255,255,255,0.06)" : "rgba(255,31,125,0.15)", color: isArchived ? "rgba(255,255,255,0.3)" : "#FF1F7D" }}
+                >
+                  {h.name[0]}
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Warning pips */}
+                  {h.warnings > 0 && (
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map((n) => (
+                        <div
+                          key={n}
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ background: n <= h.warnings ? (h.warnings >= 3 ? "#FF1F7D" : "#FF6B35") : "rgba(255,255,255,0.1)" }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {isArchived && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)" }}>
+                      ARCHIVED
+                    </span>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold">{h.rating}</p>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Rating</p>
+
+              <h3 className="text-base font-bold mb-0.5">{h.name}</h3>
+              <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>{h.venue}</p>
+
+              <div className="flex gap-6 mb-4">
+                <div>
+                  <p className="text-xl font-bold" style={{ color: "#FF1F7D" }}>{h.events}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Events</p>
+                </div>
+                <div>
+                  <p className="text-xl font-bold" style={{ color: h.rating < 3.5 ? "#FF6B35" : "white" }}>{h.rating}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Rating</p>
+                </div>
+                <div>
+                  <p className="text-xl font-bold" style={{ color: h.warnings > 0 ? "#FF6B35" : "rgba(255,255,255,0.2)" }}>{h.warnings}/3</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Warnings</p>
+                </div>
               </div>
+
+              {isArchived ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs rounded-xl p-3" style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)" }}>
+                    This host has been soft archived after 3 warnings. They have been notified.
+                  </p>
+                  <button
+                    onClick={() => unarchiveHost(h.name)}
+                    className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    Reinstate Host
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => warnHost(h.name)}
+                    className="flex-1 py-2 rounded-full text-xs font-bold transition-all"
+                    style={h.warnings >= 2
+                      ? { background: "#FF1F7D", color: "white" }
+                      : { background: "rgba(255,100,50,0.15)", color: "#FF6B35", border: "1px solid rgba(255,100,50,0.3)" }}
+                  >
+                    {h.warnings >= 2 ? "Archive Host" : `Warn (${h.warnings + 1} of 3)`}
+                  </button>
+                  <button
+                    className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    Message
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -662,43 +745,120 @@ function HostsSection() {
 // ─── Section: Clubs ───────────────────────────────────────────────────────────
 
 function ClubsSection() {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "hq" | "user">("all");
+
+  const shown = filter === "all" ? CLUBS : CLUBS.filter((c) => c.type === filter);
+  const hqCount   = CLUBS.filter((c) => c.type === "hq").length;
+  const userCount = CLUBS.filter((c) => c.type === "user").length;
+
   return (
     <div>
-      <SectionHeader title="Clubs" sub={`${CLUBS.length} clubs across all cities.`} />
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ border: "1px solid rgba(255,255,255,0.07)" }}
-      >
+      <SectionHeader title="Clubs" sub={`${CLUBS.length} clubs · ${hqCount} HQ · ${userCount} user-created`} />
+
+      {/* Filter chips */}
+      <div className="flex gap-2 mb-5">
+        {(["all", "hq", "user"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all"
+            style={filter === f
+              ? { background: "#FF1F7D", color: "white" }
+              : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            {f === "all" ? "All Clubs" : f === "hq" ? "✦ HQ (Official)" : "User-Created"}
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
         {/* Table header */}
         <div
-          className="grid grid-cols-[1fr_80px_160px_80px_80px] px-5 py-3 text-xs font-bold uppercase tracking-widest"
+          className="grid grid-cols-[28px_1fr_80px_140px_70px_70px] px-5 py-3 text-xs font-bold uppercase tracking-widest"
           style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)" }}
         >
+          <span />
           <span>Club</span>
           <span>City</span>
           <span>Curator</span>
           <span className="text-right">Members</span>
-          <span className="text-right">Open Seats</span>
+          <span className="text-right">Seats</span>
         </div>
-        {CLUBS.map((club, i) => (
-          <div
-            key={club.name}
-            className="grid grid-cols-[1fr_80px_160px_80px_80px] px-5 py-4 items-center"
-            style={{
-              background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
-              borderTop: "1px solid rgba(255,255,255,0.05)",
-            }}
-          >
-            <span className="text-sm font-medium">{club.name}</span>
-            <span className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{club.city}</span>
-            <span className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{club.curator}</span>
-            <span className="text-sm font-bold text-right">{club.members}</span>
-            <span
-              className="text-sm font-bold text-right"
-              style={{ color: club.seats > 0 ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}
+        {shown.map((club, i) => (
+          <div key={club.name}>
+            <div
+              className="grid grid-cols-[28px_1fr_80px_140px_70px_70px] px-5 py-4 items-center cursor-pointer transition-all hover:bg-white/5"
+              style={{
+                background: expanded === club.name ? "rgba(255,31,125,0.06)" : i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
+                borderTop: "1px solid rgba(255,255,255,0.05)",
+              }}
+              onClick={() => setExpanded(expanded === club.name ? null : club.name)}
             >
-              {club.seats}
-            </span>
+              {/* Expand chevron */}
+              <svg
+                width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"
+                style={{ transform: expanded === club.name ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}
+              >
+                <polyline points="4 2 8 6 4 10" />
+              </svg>
+
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm font-medium truncate">{club.name}</span>
+                {club.type === "hq" && (
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(255,31,125,0.2)", color: "#FF1F7D" }}>✦ HQ</span>
+                )}
+              </div>
+              <span className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{club.city}</span>
+              <span className="text-sm truncate" style={{ color: "rgba(255,255,255,0.45)" }}>{club.curator}</span>
+              <span className="text-sm font-bold text-right">{club.members}</span>
+              <span className="text-sm font-bold text-right" style={{ color: club.seats > 0 ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>
+                {club.seats}
+              </span>
+            </div>
+
+            {/* Analytics panel */}
+            {expanded === club.name && (
+              <div
+                className="px-8 py-5 grid grid-cols-4 gap-4"
+                style={{ background: "rgba(255,31,125,0.05)", borderTop: "1px solid rgba(255,31,125,0.15)" }}
+              >
+                <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Members</p>
+                  <p className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>{club.members}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>Growth {club.growth}</p>
+                </div>
+                <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Events Run</p>
+                  <p className="text-2xl font-bold">{club.events}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>All time</p>
+                </div>
+                <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Attendance</p>
+                  <p className="text-2xl font-bold" style={{ color: club.attendance >= 80 ? "#FF1F7D" : "rgba(255,255,255,0.6)" }}>{club.attendance}%</p>
+                  <ScoreBar score={club.attendance} color="#FF1F7D" />
+                </div>
+                <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Open Seats</p>
+                  <p className="text-2xl font-bold" style={{ color: club.seats > 0 ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>{club.seats}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>Available now</p>
+                </div>
+                <div className="col-span-4 flex gap-2 mt-1">
+                  <span className="text-xs px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                    Type: {club.type === "hq" ? "✦ HQ Official" : "User-Created"}
+                  </span>
+                  <span className="text-xs px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                    Curator: {club.curator}
+                  </span>
+                  <button className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
+                    Edit Club
+                  </button>
+                  <button className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    Archive
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -708,10 +868,63 @@ function ClubsSection() {
 
 // ─── Section: Open Seats ──────────────────────────────────────────────────────
 
+const EVENT_ANALYTICS = {
+  totalOpenSeats:   OPEN_SEATS.reduce((s, e) => s + e.seats, 0),
+  totalEvents:      OPEN_SEATS.length,
+  avgSeats:         Math.round(OPEN_SEATS.reduce((s, e) => s + e.seats, 0) / OPEN_SEATS.length),
+  topEvent:         [...OPEN_SEATS].sort((a, b) => b.seats - a.seats)[0],
+  lowestEvent:      [...OPEN_SEATS].sort((a, b) => a.seats - b.seats)[0],
+};
+
 function OpenSeatsSection() {
   return (
     <div>
-      <SectionHeader title="Open Seats" sub="Everything happening soon — upcoming gatherings with availability." />
+      <SectionHeader title="Events & Open Seats" sub="Live analytics — upcoming gatherings and availability." />
+
+      {/* Analytics summary row */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Open Seats</p>
+          <p className="text-4xl font-bold" style={{ color: "#FF1F7D" }}>{EVENT_ANALYTICS.totalOpenSeats}</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Across {EVENT_ANALYTICS.totalEvents} events</p>
+        </div>
+        <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Avg Seats/Event</p>
+          <p className="text-4xl font-bold">{EVENT_ANALYTICS.avgSeats}</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Per gathering</p>
+        </div>
+        <div className="rounded-2xl p-5" style={{ background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)" }}>
+          <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Most Available</p>
+          <p className="text-sm font-bold truncate" style={{ color: "#FF1F7D" }}>{EVENT_ANALYTICS.topEvent.club}</p>
+          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{EVENT_ANALYTICS.topEvent.seats} seats open</p>
+        </div>
+        <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Filling Fast</p>
+          <p className="text-sm font-bold truncate" style={{ color: "rgba(255,255,255,0.8)" }}>{EVENT_ANALYTICS.lowestEvent.club}</p>
+          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{EVENT_ANALYTICS.lowestEvent.seats} seat left</p>
+        </div>
+      </div>
+
+      {/* Top curators (by events in open seats) */}
+      <div className="rounded-2xl p-5 mb-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Top Curators This Cycle</p>
+        <div className="flex gap-4">
+          {Object.entries(
+            OPEN_SEATS.reduce<Record<string, number>>((acc, e) => {
+              if (e.curator !== "—") acc[e.curator] = (acc[e.curator] || 0) + 1;
+              return acc;
+            }, {})
+          ).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => (
+            <div key={name} className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: "rgba(255,31,125,0.2)", color: "#FF1F7D" }}>
+                {name[0]}
+              </div>
+              <span className="text-xs font-semibold">{name}</span>
+              <span className="text-xs font-bold" style={{ color: "#FF1F7D" }}>{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="flex flex-col gap-3">
         {OPEN_SEATS.map((s, i) => (
           <div

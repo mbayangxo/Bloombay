@@ -27,6 +27,7 @@ const CLUBS_PREVIEW = [
 export function HomePage() {
   const [greeting, setGreeting] = useState("Good morning");
   const [isNight, setIsNight] = useState(false);
+  const [socialDismissed, setSocialDismissed] = useState(false);
 
   useEffect(() => {
     const tod = getTimeOfDay(new Date().getHours());
@@ -168,42 +169,45 @@ export function HomePage() {
           </div>
 
           {/* Social trigger */}
-          <div className="px-5 mb-4 md:px-0">
-            <div
-              className="rounded-3xl p-4"
-              style={{ background: "white", border: "2px solid var(--light-pink)", boxShadow: "0 1px 8px rgba(255,31,125,0.07)" }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                  style={{ background: "#111111" }}
-                >
-                  ✦
+          {!socialDismissed && (
+            <div className="px-5 mb-4 md:px-0">
+              <div
+                className="rounded-3xl p-4"
+                style={{ background: "white", border: "2px solid var(--light-pink)", boxShadow: "0 1px 8px rgba(255,31,125,0.07)" }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                    style={{ background: "#111111" }}
+                  >
+                    ✦
+                  </div>
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#111111" }}>HAPPENING NOW</p>
                 </div>
-                <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#111111" }}>HAPPENING NOW</p>
-              </div>
-              <p className="text-sm font-semibold leading-snug mb-0.5" style={{ color: "var(--bb-black)" }}>
-                Aminah and 3 women from African Girls Club are going to{" "}
-                <span style={{ color: "var(--bb-pink)" }}>Jollof + Movie Night Friday.</span>
-              </p>
-              <p className="text-xs text-gray-400 mb-3">Are you coming?</p>
-              <div className="flex gap-2">
-                <Link
-                  href="/member/happenings"
-                  className="flex-1 py-2.5 rounded-full text-sm font-bold text-center transition-all active:scale-95"
-                  style={{ background: "var(--bb-pink)", color: "white" }}
-                >
-                  I&apos;m in →
-                </Link>
-                <button
-                  className="px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-95"
-                  style={{ background: "var(--pale-pink-bg)", color: "#999" }}
-                >
-                  Not this time
-                </button>
+                <p className="text-sm font-semibold leading-snug mb-0.5" style={{ color: "var(--bb-black)" }}>
+                  Aminah and 3 women from African Girls Club are going to{" "}
+                  <span style={{ color: "var(--bb-pink)" }}>Jollof + Movie Night Friday.</span>
+                </p>
+                <p className="text-xs text-gray-400 mb-3">Are you coming?</p>
+                <div className="flex gap-2">
+                  <Link
+                    href="/member/happenings"
+                    className="flex-1 py-2.5 rounded-full text-sm font-bold text-center transition-all active:scale-95"
+                    style={{ background: "var(--bb-pink)", color: "white" }}
+                  >
+                    I&apos;m in →
+                  </Link>
+                  <button
+                    onClick={() => setSocialDismissed(true)}
+                    className="px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-95"
+                    style={{ background: "var(--pale-pink-bg)", color: "#999" }}
+                  >
+                    Not this time
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Plan something */}
           <div className="px-5 mb-6 md:px-0">

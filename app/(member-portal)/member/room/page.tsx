@@ -3,34 +3,148 @@
 import { useState } from "react";
 
 type RoomTab = "wall" | "girlbar";
+type WallFilter = "all" | "trending" | "career" | "style" | "apartments" | "events" | "wellness";
+type WallCategory = "career" | "style" | "apartments" | "events" | "wellness";
 
-const WALL_POSTS = [
-  { id: 1, author: "Aaliyah M.", initial: "A", color: "#FF1F7D", time: "2h ago", text: "Anyone going to the Carbone dinner tonight? Let's meet beforehand for drinks at Don Ciccio.", likes: 12, replies: 4, pinned: true },
-  { id: 2, author: "Sofia K.",   initial: "S", color: "#FF69B4", time: "4h ago", text: "PSA: The pilates class on Sunday has 3 spots left. Worth every penny. DM me if you want the link.", likes: 8, replies: 2, pinned: false },
-  { id: 3, author: "Priya R.",   initial: "P", color: "#FF69B4", time: "6h ago", text: "Just discovered the best matcha in Williamsburg — not telling you where until you come with me.", likes: 23, replies: 9, pinned: false },
-  { id: 4, author: "Kezia N.",   initial: "K", color: "#FF1F7D", time: "Yesterday", text: "Reminder that the Soft Life Club brunch is this Saturday 11AM. Hoboken girls, this one's for you.", likes: 17, replies: 6, pinned: false },
-  { id: 5, author: "Imani J.",   initial: "I", color: "#FF1F7D", time: "Yesterday", text: "I just negotiated a $40K raise. The best thing I ever did was stop treating my salary as a fixed number.", likes: 87, replies: 23, pinned: false },
-  { id: 6, author: "Naomi B.",   initial: "N", color: "#FF69B4", time: "2d ago", text: "Anyone here have experience pitching to female investors? About to raise a seed round and want to connect.", likes: 19, replies: 11, pinned: false },
+interface WallPost {
+  id: number;
+  author: string;
+  initial: string;
+  color: string;
+  time: string;
+  text: string;
+  likes: number;
+  replies: number;
+  pinned: boolean;
+  category: WallCategory;
+}
+
+const SEED_POSTS: WallPost[] = [
+  { id: 1, author: "Aaliyah M.", initial: "A", color: "#FF1F7D",  time: "2h ago",   text: "Anyone going to the Carbone dinner tonight? Let's meet beforehand for drinks at Don Ciccio.",                likes: 12, replies: 4,  pinned: true,  category: "events"     },
+  { id: 2, author: "Sofia K.",   initial: "S", color: "#FF69B4",  time: "4h ago",   text: "PSA: The pilates class on Sunday has 3 spots left. Worth every penny. DM me if you want the link.",          likes: 8,  replies: 2,  pinned: false, category: "wellness"   },
+  { id: 3, author: "Priya R.",   initial: "P", color: "#FF69B4",  time: "6h ago",   text: "Just discovered the best matcha in Williamsburg — not telling you where until you come with me.",             likes: 23, replies: 9,  pinned: false, category: "style"      },
+  { id: 4, author: "Kezia N.",   initial: "K", color: "#FF1F7D",  time: "Yesterday", text: "Reminder that the Soft Life Club brunch is this Saturday 11AM. Hoboken girls, this one's for you.",           likes: 17, replies: 6,  pinned: false, category: "events"     },
+  { id: 5, author: "Imani J.",   initial: "I", color: "#FF1F7D",  time: "Yesterday", text: "I just negotiated a $40K raise. The best thing I ever did was stop treating my salary as a fixed number.",    likes: 87, replies: 23, pinned: false, category: "career"     },
+  { id: 6, author: "Naomi B.",   initial: "N", color: "#FF69B4",  time: "2d ago",   text: "Anyone here have experience pitching to female investors? About to raise a seed round and want to connect.",   likes: 19, replies: 11, pinned: false, category: "career"     },
+  { id: 7, author: "Zara M.",    initial: "Z", color: "#FF1F7D",  time: "2d ago",   text: "Looking for a 2BR in Bushwick max $2,800. Anyone have leads? DM me.",                                         likes: 5,  replies: 14, pinned: false, category: "apartments" },
+  { id: 8, author: "Temi A.",    initial: "T", color: "#FF69B4",  time: "3d ago",   text: "Hot take: The best wellness ritual isn't a $200 facial. It's 8 hours of sleep and a slow morning.",           likes: 34, replies: 7,  pinned: false, category: "wellness"   },
+  { id: 9, author: "Jade O.",    initial: "J", color: "#FF1F7D",  time: "3d ago",   text: "Anyone else building a capsule wardrobe? I've been wearing only 12 pieces for a month and I feel so free.",   likes: 41, replies: 15, pinned: false, category: "style"      },
+];
+
+const WALL_FILTERS: { label: string; value: WallFilter }[] = [
+  { label: "All",        value: "all"        },
+  { label: "🔥 Trending", value: "trending"   },
+  { label: "Career",     value: "career"     },
+  { label: "Style",      value: "style"      },
+  { label: "Apartments", value: "apartments" },
+  { label: "Events",     value: "events"     },
+  { label: "Wellness",   value: "wellness"   },
 ];
 
 const GIRL_BAR_ROOMS = [
-  { id: 1, name: "Morning Room",  desc: "Coffee talk, soft energy",         women: 8,  live: true  },
-  { id: 2, name: "Night Owl",     desc: "Late night conversations",         women: 14, live: true  },
-  { id: 3, name: "Study With Me", desc: "Silent co-working vibes",          women: 5,  live: true  },
-  { id: 4, name: "Vent Room",     desc: "Private, supportive space",        women: 3,  live: false },
+  { id: 1, name: "Morning Room",  desc: "Coffee talk, soft energy",    women: 8,  live: true  },
+  { id: 2, name: "Night Owl",     desc: "Late night conversations",     women: 14, live: true  },
+  { id: 3, name: "Study With Me", desc: "Silent co-working vibes",      women: 5,  live: true  },
+  { id: 4, name: "Vent Room",     desc: "Private, supportive space",    women: 3,  live: false },
 ];
 
-// ── Post board ────────────────────────────────────────────────────────────────
+function CategoryBadge({ category }: { category: WallCategory }) {
+  const labels: Record<WallCategory, string> = {
+    career: "Career", style: "Style", apartments: "Apartments", events: "Events", wellness: "Wellness",
+  };
+  return (
+    <span
+      className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
+      style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}
+    >
+      {labels[category]}
+    </span>
+  );
+}
 
 function WallBoard() {
-  const [liked, setLiked] = useState<Set<number>>(new Set());
-  const [text, setText] = useState("");
+  const [liked,       setLiked]       = useState<Set<number>>(new Set());
+  const [text,        setText]        = useState("");
+  const [filter,      setFilter]      = useState<WallFilter>("all");
+  const [newCategory, setNewCategory] = useState<WallCategory>("events");
+  const [posts,       setPosts]       = useState<WallPost[]>(SEED_POSTS);
+
+  const trending = [...posts]
+    .sort((a, b) => (b.likes + b.replies * 2) - (a.likes + a.replies * 2))
+    .slice(0, 4);
+
+  const shown =
+    filter === "all"      ? posts :
+    filter === "trending" ? trending :
+    posts.filter((p) => p.category === filter);
+
+  function handlePost() {
+    if (!text.trim()) return;
+    setPosts((prev) => [{
+      id: Date.now(), author: "Maya", initial: "M", color: "#FF1F7D",
+      time: "now", text: text.trim(), likes: 0, replies: 0,
+      pinned: false, category: newCategory,
+    }, ...prev]);
+    setText("");
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Compose */}
+
+      {/* Trending strip — only show on "all" */}
+      {filter === "all" && (
+        <div>
+          <p className="text-xs font-bold tracking-widest uppercase mb-2.5" style={{ color: "var(--bb-pink)" }}>
+            🔥 TRENDING
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {trending.map((post) => (
+              <div
+                key={post.id}
+                className="flex-shrink-0 w-52 rounded-2xl p-3.5 bg-white"
+                style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                    style={{ background: post.color }}
+                  >
+                    {post.initial}
+                  </div>
+                  <p className="text-xs font-bold truncate flex-1" style={{ color: "var(--bb-black)" }}>{post.author}</p>
+                  <CategoryBadge category={post.category} />
+                </div>
+                <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "#555" }}>{post.text}</p>
+                <p className="text-[10px] font-semibold mt-2.5" style={{ color: "var(--bb-pink)" }}>
+                  ♥ {post.likes} · {post.replies} replies
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Filter chips */}
+      <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+        {WALL_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all active:scale-95"
+            style={
+              filter === f.value
+                ? { background: "#111111", color: "white" }
+                : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }
+            }
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Compose box */}
       <div className="bg-white rounded-2xl p-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-start gap-3 mb-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
             style={{ background: "var(--bb-pink)" }}
@@ -46,9 +160,26 @@ function WallBoard() {
             style={{ background: "var(--pale-pink-bg)", color: "var(--bb-black)" }}
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: "none" }}>
+            {(["career", "style", "apartments", "events", "wellness"] as WallCategory[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setNewCategory(cat)}
+                className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap capitalize flex-shrink-0 transition-all"
+                style={
+                  newCategory === cat
+                    ? { background: "var(--bb-pink)", color: "white" }
+                    : { background: "var(--light-pink)", color: "var(--bb-pink)" }
+                }
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
           <button
-            className="px-5 py-2 rounded-full text-xs font-bold text-white transition-all active:scale-95"
+            onClick={handlePost}
+            className="flex-shrink-0 px-5 py-2 rounded-full text-xs font-bold text-white transition-all active:scale-95"
             style={{ background: text.trim() ? "var(--bb-pink)" : "#E0C0CC" }}
             disabled={!text.trim()}
           >
@@ -57,7 +188,8 @@ function WallBoard() {
         </div>
       </div>
 
-      {WALL_POSTS.map((post) => (
+      {/* Post list */}
+      {shown.map((post) => (
         <div key={post.id} className="bg-white rounded-2xl p-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
           {post.pinned && (
             <div className="flex items-center gap-1 mb-2">
@@ -75,11 +207,12 @@ function WallBoard() {
               {post.initial}
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{post.author}</p>
+                <CategoryBadge category={post.category} />
                 <p className="text-xs text-gray-400">{post.time}</p>
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed">{post.text}</p>
+              <p className="text-sm leading-relaxed" style={{ color: "#444" }}>{post.text}</p>
               <div className="flex items-center gap-4 mt-3">
                 <button
                   onClick={() => {
@@ -122,10 +255,7 @@ function GirlBar() {
             GIRL BAR · LIVE
           </p>
         </div>
-        <p
-          className="text-white text-2xl font-bold italic mb-1"
-          style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}
-        >
+        <p className="text-white text-2xl font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}>
           Girls Talk Late.
         </p>
         <p className="text-white/50 text-sm">
@@ -151,9 +281,7 @@ function GirlBar() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{r.name}</p>
-                {r.live && (
-                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
-                )}
+                {r.live && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />}
               </div>
               <p className="text-xs text-gray-400 mt-0.5">{r.desc}</p>
               <p className="text-xs font-semibold mt-1" style={{ color: "var(--bb-pink)" }}>
@@ -162,11 +290,9 @@ function GirlBar() {
             </div>
             <button
               className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-              style={
-                r.live
-                  ? { background: "var(--bb-pink)", color: "white" }
-                  : { background: "var(--light-pink)", color: "var(--bb-pink)" }
-              }
+              style={r.live
+                ? { background: "var(--bb-pink)", color: "white" }
+                : { background: "var(--light-pink)", color: "var(--bb-pink)" }}
             >
               {r.live ? "Join" : "Notify me"}
             </button>
@@ -184,39 +310,23 @@ export default function TheRoomPage() {
 
   return (
     <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
-        <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: "var(--bb-pink)" }}>
-          BLOOMBAY
-        </p>
-        <h1 className="text-3xl font-bold leading-tight" style={{ color: "var(--bb-black)" }}>
-          The Room
-        </h1>
+        <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: "var(--bb-pink)" }}>BLOOMBAY</p>
+        <h1 className="text-3xl font-bold leading-tight" style={{ color: "var(--bb-black)" }}>The Room</h1>
       </div>
 
-      {/* Tab switcher */}
       <div className="px-5 md:px-8 mb-5">
-        <div
-          className="inline-flex rounded-full p-1 gap-1"
-          style={{ background: "#F0E8EC" }}
-        >
+        <div className="inline-flex rounded-full p-1 gap-1" style={{ background: "#F0E8EC" }}>
           {(["wall", "girlbar"] as RoomTab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className="px-5 py-2 rounded-full text-sm font-semibold transition-all"
-              style={
-                tab === t
-                  ? { background: "#111111", color: "white" }
-                  : { color: "#888" }
-              }
+              style={tab === t ? { background: "#111111", color: "white" } : { color: "#888" }}
             >
               {t === "wall" ? "The Wall" : "Girl Bar"}
               {t === "girlbar" && (
-                <span
-                  className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ background: "var(--bb-pink)", color: "white" }}
-                >
+                <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "var(--bb-pink)", color: "white" }}>
                   LIVE
                 </span>
               )}
