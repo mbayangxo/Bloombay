@@ -109,6 +109,14 @@ function ObjectCard({ k }: { k: string }) {
   return null;
 }
 
+function Sparkle({ color = "#FF1F7D", size = 14 }: { color?: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }}>
+      <path d="M7 1v12M1 7h12M2.5 2.5l9 9M11.5 2.5l-9 9" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ClubCrest({ name, dark, icon, outline }: { name: string; dark: boolean; outline?: boolean; icon: string }) {
   const bg = dark ? "#1A0514" : outline ? "white" : "#FF1F7D";
   const stroke = dark ? "#FF1F7D" : outline ? "#FF1F7D" : "white";
@@ -202,10 +210,10 @@ export function LandingPage() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden" style={{ background: "#FDF8F2", minHeight: "92vh" }}>
-        {/* BIG PINK CIRCLE — prominent, overflows left edge */}
+      <section className="relative overflow-hidden bg-[#FF1F7D] md:bg-[#FDF8F2]" style={{ minHeight: "92vh" }}>
+        {/* BIG PINK CIRCLE — desktop only, not needed on mobile since whole section is pink */}
         <div
-          className="absolute pointer-events-none"
+          className="hidden md:block absolute pointer-events-none"
           style={{
             width: "min(90vw, 820px)",
             height: "min(90vw, 820px)",
@@ -217,13 +225,13 @@ export function LandingPage() {
           }}
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-12 pb-16 grid md:grid-cols-2 gap-8 items-center min-h-[85vh]">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-12 pb-16 grid md:grid-cols-2 gap-8 items-center md:min-h-[85vh]">
 
           {/* LEFT: text over the circle */}
           <div className="relative">
             {/* Asterisk mark */}
             <div className="mb-6">
-              <span className="text-2xl font-light" style={{ color: "rgba(255,255,255,0.6)" }}>✳</span>
+              <Sparkle color="rgba(255,255,255,0.6)" size={22} />
             </div>
 
             <h1 className="mb-6 leading-[0.95]">
@@ -350,17 +358,6 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Mobile hero CTA */}
-        <div className="md:hidden px-6 pb-10 relative z-10">
-          <div className="flex gap-3">
-            <Link href="/onboard" className="flex-1 py-3.5 rounded-full text-center font-bold text-sm text-white" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)" }}>
-              Join
-            </Link>
-            <Link href="/portals" className="flex-1 py-3.5 rounded-full text-center font-semibold text-sm border" style={{ borderColor: "rgba(255,255,255,0.3)", color: "rgba(255,255,255,0.8)" }}>
-              Log in
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* ─── TONIGHT ON BLOOMBAY ─── */}
@@ -372,7 +369,7 @@ export function LandingPage() {
               <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
                 Tonight on{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
-                {" "}<span style={{ color: "#FF1F7D" }}>✳</span>
+                {" "}<Sparkle />
               </h2>
               <div className="w-10 h-0.5 mb-4" style={{ background: "#FF1F7D" }} />
               <p className="text-sm leading-relaxed" style={{ color: "#888" }}>
@@ -427,7 +424,7 @@ export function LandingPage() {
               <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
                 The world of{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
-                {" "}<span style={{ color: "#FF1F7D" }}>✳</span>
+                {" "}<Sparkle />
               </h2>
               <div className="w-10 h-0.5 mb-4" style={{ background: "#FF1F7D" }} />
               <p className="text-sm leading-relaxed mb-5" style={{ color: "#888" }}>
@@ -461,7 +458,7 @@ export function LandingPage() {
             <div>
               <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
                 Clubs that feel like home.
-                {" "}<span style={{ color: "#FF1F7D" }}>✳</span>
+                {" "}<Sparkle />
               </h2>
               <div className="w-10 h-0.5 mb-4" style={{ background: "#FF1F7D" }} />
               <p className="text-sm leading-relaxed mb-5" style={{ color: "#888" }}>
