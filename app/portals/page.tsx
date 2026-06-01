@@ -1,94 +1,6 @@
 import Link from "next/link";
 import { BBLogo } from "@/app/components/portal/bb-logo";
 
-interface PortalCard {
-  href: string;
-  label: string;
-  headline: string;
-  sub: string;
-  bg: string;
-  textColor: string;
-  labelColor: string;
-  subColor: string;
-  border: string;
-  btnBg: string;
-  btnText: string;
-  logoDark?: boolean;
-}
-
-const portals: PortalCard[] = [
-  {
-    href: "/member/login",
-    label: "Member App",
-    headline: "Welcome home.",
-    sub: "For BloomBay Members",
-    bg: "#FFF5F8",
-    textColor: "#0A0A0A",
-    labelColor: "#FF1F7D",
-    subColor: "#9e6070",
-    border: "rgba(255,31,125,0.15)",
-    btnBg: "#FF1F7D",
-    btnText: "white",
-    logoDark: false,
-  },
-  {
-    href: "/admin/login",
-    label: "Founder Portal",
-    headline: "Mission Control",
-    sub: "For Founders & Admins — Mission control for BloomBay.",
-    bg: "#1A0514",
-    textColor: "white",
-    labelColor: "#FF1F7D",
-    subColor: "#9e7a8a",
-    border: "rgba(255,31,125,0.2)",
-    btnBg: "#FF1F7D",
-    btnText: "white",
-    logoDark: true,
-  },
-  {
-    href: "/club-owner/login",
-    label: "Club Owner Portal",
-    headline: "Your Clubhouse",
-    sub: "Run Your Club",
-    bg: "#FF1F7D",
-    textColor: "white",
-    labelColor: "rgba(255,255,255,0.85)",
-    subColor: "rgba(255,255,255,0.75)",
-    border: "rgba(255,255,255,0.25)",
-    btnBg: "white",
-    btnText: "#FF1F7D",
-    logoDark: true,
-  },
-  {
-    href: "/partner/login",
-    label: "Partner Portal",
-    headline: "Your Venue",
-    sub: "For Partners & Venues",
-    bg: "#120009",
-    textColor: "white",
-    labelColor: "#FF1F7D",
-    subColor: "#7a4560",
-    border: "rgba(255,31,125,0.2)",
-    btnBg: "#FF1F7D",
-    btnText: "white",
-    logoDark: true,
-  },
-  {
-    href: "/curator/login",
-    label: "Curator Portal",
-    headline: "You create culture.",
-    sub: "For BloomBay Curators — the women who build the world.",
-    bg: "#FFF5F8",
-    textColor: "#0A0A0A",
-    labelColor: "#FF1F7D",
-    subColor: "#9e6070",
-    border: "rgba(255,31,125,0.15)",
-    btnBg: "#FF1F7D",
-    btnText: "white",
-    logoDark: false,
-  },
-];
-
 export default function PortalsPage() {
   return (
     <div
@@ -96,7 +8,7 @@ export default function PortalsPage() {
       style={{ background: "#0D000A" }}
     >
       {/* Header */}
-      <div className="flex flex-col items-center mb-14">
+      <div className="flex flex-col items-center mb-12">
         <BBLogo size={56} light />
         <h1
           className="mt-5 text-3xl font-bold tracking-tight text-white"
@@ -108,100 +20,70 @@ export default function PortalsPage() {
           className="mt-2 text-sm tracking-widest uppercase"
           style={{ color: "#7a4560", letterSpacing: "0.22em" }}
         >
-          Choose your portal
+          Welcome back
         </p>
       </div>
 
-      {/* Portal grid */}
-      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {portals.map((portal) => (
-          <Link
-            key={portal.href}
-            href={portal.href}
-            className="group relative flex flex-col rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-            style={{
-              background: portal.bg,
-              border: `1px solid ${portal.border}`,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-              textDecoration: "none",
-            }}
+      {/* Member portal — only public entry point */}
+      <div className="w-full max-w-sm">
+        <Link
+          href="/member/login"
+          className="group relative flex flex-col rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          style={{
+            background: "#FFF5F8",
+            border: "1px solid rgba(255,31,125,0.15)",
+            boxShadow: "0 4px 32px rgba(0,0,0,0.4)",
+            textDecoration: "none",
+          }}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <BBLogo size={40} />
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase" style={{ color: "#FF1F7D" }}>
+              Member App
+            </span>
+          </div>
+
+          <h2 className="text-2xl font-bold leading-tight mb-2" style={{ color: "#0A0A0A" }}>
+            Welcome home.
+          </h2>
+          <p className="text-sm leading-relaxed mb-6" style={{ color: "#9e6070" }}>
+            For BloomBay Members
+          </p>
+
+          <span
+            className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide uppercase px-6 py-3 rounded-full self-start transition-all group-hover:brightness-110"
+            style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}
           >
-            {/* Logo + label row */}
-            <div className="flex items-center gap-3 mb-5">
-              <BBLogo size={36} light={portal.logoDark} />
-              <span
-                className="text-xs font-semibold tracking-[0.18em] uppercase"
-                style={{ color: portal.labelColor }}
-              >
-                {portal.label}
-              </span>
-            </div>
+            Enter
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
 
-            {/* Headline */}
-            <h2
-              className="text-xl font-bold leading-tight mb-2"
-              style={{ color: portal.textColor }}
-            >
-              {portal.headline}
-            </h2>
+          <div
+            className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(255,31,125,0.06), transparent 65%)" }}
+          />
+        </Link>
 
-            {/* Subtext */}
-            <p
-              className="text-sm font-normal leading-relaxed flex-1"
-              style={{ color: portal.subColor }}
-            >
-              {portal.sub}
-            </p>
-
-            {/* CTA */}
-            <div className="mt-6 flex items-center justify-between">
-              <span
-                className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide uppercase px-5 py-2.5 rounded-full transition-all duration-200"
-                style={{
-                  background: portal.btnBg,
-                  color: portal.btnText,
-                  boxShadow:
-                    portal.btnBg === "white"
-                      ? "0 4px 16px rgba(255,255,255,0.2)"
-                      : "0 4px 16px rgba(255,31,125,0.4)",
-                }}
-              >
-                Enter
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M2 6h8M6 2l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </div>
-
-            {/* Hover glow overlay */}
-            <div
-              className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{
-                background:
-                  "radial-gradient(ellipse at 30% 20%, rgba(255,31,125,0.06), transparent 65%)",
-              }}
-            />
+        <div className="mt-6 text-center">
+          <p className="text-sm mb-3" style={{ color: "#5a2a45" }}>
+            Not a member yet?
+          </p>
+          <Link
+            href="/onboard"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold tracking-widest text-white transition-all hover:brightness-110 active:scale-95"
+            style={{ background: "#FF1F7D" }}
+          >
+            JOIN BLOOMBAY
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </Link>
-        ))}
+        </div>
       </div>
 
-      {/* Footer note */}
-      <p
-        className="mt-12 text-xs tracking-widest uppercase"
-        style={{ color: "#3d1a30" }}
-      >
+      <p className="mt-14 text-xs tracking-widest uppercase" style={{ color: "#3d1a30" }}>
         100 Founding Mothers · NYC
       </p>
     </div>

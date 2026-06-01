@@ -109,15 +109,10 @@ export default function MemberLoginPage() {
           </button>
         </form>
 
-        {/* Other portals link */}
         <p className="text-center mt-5 text-sm text-gray-400">
-          Not a member?{" "}
-          <Link
-            href="/portals"
-            className="font-semibold underline"
-            style={{ color: "var(--bb-pink)" }}
-          >
-            Other portals
+          Not a member yet?{" "}
+          <Link href="/onboard" className="font-semibold underline" style={{ color: "var(--bb-pink)" }}>
+            Join BloomBay
           </Link>
         </p>
 
