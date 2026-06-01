@@ -173,6 +173,14 @@ function IconCalendar() {
   );
 }
 
+function IconEdit() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconShield() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -216,6 +224,7 @@ type Section =
   | "hosts"
   | "clubs"
   | "open-seats"
+  | "happenings"
   | "safety"
   | "mailroom";
 
@@ -227,6 +236,7 @@ const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: numbe
   { id: "hosts", label: "Hosts", Icon: IconHome },
   { id: "clubs", label: "Clubs", Icon: IconDiamond },
   { id: "open-seats", label: "Open Seats", Icon: IconCalendar },
+  { id: "happenings", label: "Happenings", Icon: IconCalendar },
   { id: "safety", label: "Safety Center", Icon: IconShield, badge: 6 },
   { id: "mailroom", label: "Mailroom", Icon: IconMail, badge: 35 },
 ];
@@ -849,6 +859,380 @@ function MailroomSection() {
   );
 }
 
+// ─── Section: Happenings ─────────────────────────────────────────────────────
+
+type HappeningAdminType = "gallery" | "popup" | "rooftop" | "workshop" | "class" | "festival";
+type PlaceAdminType = "place" | "eat" | "gem";
+
+interface AdminEvent {
+  id: number;
+  type: HappeningAdminType;
+  title: string;
+  venue: string;
+  neighborhood: string;
+  time: string;
+  price: string;
+}
+
+interface AdminPopup {
+  id: number;
+  title: string;
+  submittedBy: string;
+  time: string;
+  featured: boolean;
+}
+
+interface AdminPlace {
+  id: number;
+  type: PlaceAdminType;
+  name: string;
+  neighborhood: string;
+  submittedBy: string;
+  stamps: number;
+  featured: boolean;
+}
+
+const ADMIN_EVENTS: AdminEvent[] = [
+  { id: 1, type: "gallery",  title: "Soft Opening: Women in Lens",       venue: "The Parlor Gallery",    neighborhood: "Bushwick",     time: "Tonight · 7PM",           price: "Free" },
+  { id: 2, type: "workshop", title: "Wheel Throwing for Beginners",       venue: "Brooklyn Clay",         neighborhood: "Williamsburg", time: "Tonight · 6:30PM",        price: "$45" },
+  { id: 3, type: "rooftop",  title: "Golden Hour at Westlight",           venue: "Westlight Hotel",       neighborhood: "Williamsburg", time: "Tonight · 8PM",           price: "$20" },
+  { id: 4, type: "popup",    title: "Local Designers Pop-Up Market",      venue: "The Canvas Space",      neighborhood: "SoHo",         time: "This Weekend · Sat 12–6PM", price: "Free" },
+  { id: 5, type: "festival", title: "Brooklyn Night Bazaar",              venue: "Industry City",         neighborhood: "Sunset Park",  time: "This Weekend · Sat–Sun",  price: "Free" },
+];
+
+const ADMIN_POPUPS: AdminPopup[] = [
+  { id: 1, title: "Ceramics Pop-Up in the Village",   submittedBy: "Mia T.",    time: "Sat · 2PM–6PM",    featured: false },
+  { id: 2, title: "Vintage Market · Brooklyn",        submittedBy: "Remi O.",   time: "Sun · 11AM–4PM",   featured: true  },
+  { id: 3, title: "Art Book Fair · Lower East Side",  submittedBy: "Yara L.",   time: "Fri · 6PM–9PM",    featured: false },
+];
+
+const ADMIN_PLACES: AdminPlace[] = [
+  { id: 1, type: "place", name: "The High Line",            neighborhood: "Chelsea",         submittedBy: "Sofia K.",   stamps: 127, featured: false },
+  { id: 2, type: "place", name: "Brooklyn Bridge Park",     neighborhood: "DUMBO",           submittedBy: "Priya R.",   stamps: 203, featured: false },
+  { id: 3, type: "eat",   name: "Sadelle's",                neighborhood: "SoHo",            submittedBy: "Aaliyah M.", stamps: 89,  featured: true  },
+  { id: 4, type: "eat",   name: "Bangkok Supper Club",      neighborhood: "Lower East Side", submittedBy: "Jade O.",    stamps: 64,  featured: false },
+  { id: 5, type: "gem",   name: "McNally Jackson Café",     neighborhood: "Nolita",          submittedBy: "Rachel M.",  stamps: 71,  featured: false },
+  { id: 6, type: "gem",   name: "Russ & Daughters Café",    neighborhood: "Lower East Side", submittedBy: "Deja W.",    stamps: 55,  featured: false },
+];
+
+const ADMIN_TYPE_LABELS: Record<HappeningAdminType, string> = {
+  gallery: "GALLERY", popup: "POP-UP", rooftop: "ROOFTOP",
+  workshop: "WORKSHOP", class: "CLASS", festival: "FESTIVAL",
+};
+
+const ADMIN_PLACE_LABELS: Record<PlaceAdminType, string> = {
+  place: "PLACE", eat: "EAT", gem: "GEM",
+};
+
+function HappeningsSection() {
+  const [subTab, setSubTab] = useState<"events" | "popups" | "girl-picks">("events");
+  const [events, setEvents]   = useState<AdminEvent[]>(ADMIN_EVENTS);
+  const [popups, setPopups]   = useState<AdminPopup[]>(ADMIN_POPUPS);
+  const [places, setPlaces]   = useState<AdminPlace[]>(ADMIN_PLACES);
+  const [showAddEvent, setShowAddEvent] = useState(false);
+
+  // Add event form state
+  const [newType, setNewType]           = useState<HappeningAdminType>("popup");
+  const [newTitle, setNewTitle]         = useState("");
+  const [newVenue, setNewVenue]         = useState("");
+  const [newNeighborhood, setNewNeighborhood] = useState("");
+  const [newTime, setNewTime]           = useState("");
+  const [newPrice, setNewPrice]         = useState("");
+
+  const eventTypes: HappeningAdminType[] = ["gallery", "popup", "workshop", "rooftop", "class", "festival"];
+
+  function handlePostEvent() {
+    if (!newTitle.trim()) return;
+    const e: AdminEvent = {
+      id: Date.now(),
+      type: newType,
+      title: newTitle.trim(),
+      venue: newVenue.trim() || "TBD",
+      neighborhood: newNeighborhood.trim() || "NYC",
+      time: newTime.trim() || "TBD",
+      price: newPrice.trim() || "Free",
+    };
+    setEvents((prev) => [e, ...prev]);
+    setNewTitle(""); setNewVenue(""); setNewNeighborhood(""); setNewTime(""); setNewPrice("");
+    setShowAddEvent(false);
+  }
+
+  function removeEvent(id: number) { setEvents((prev) => prev.filter((e) => e.id !== id)); }
+  function removePopup(id: number) { setPopups((prev) => prev.filter((p) => p.id !== id)); }
+  function featurePopup(id: number) { setPopups((prev) => prev.map((p) => p.id === id ? { ...p, featured: !p.featured } : p)); }
+  function removePlace(id: number) { setPlaces((prev) => prev.filter((p) => p.id !== id)); }
+  function featurePlace(id: number) { setPlaces((prev) => prev.map((p) => p.id === id ? { ...p, featured: !p.featured } : p)); }
+
+  const subTabStyle = (t: string) => ({
+    borderBottomColor: subTab === t ? "#FF1F7D" : "transparent" as const,
+    color: subTab === t ? "#FF1F7D" : "rgba(255,255,255,0.4)",
+  });
+
+  return (
+    <div>
+      <SectionHeader title="Happenings" sub="Content management — events, pop-ups, and Girl Picks." />
+
+      {/* Sub-tabs */}
+      <div className="flex gap-0 mb-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        {(["events", "popups", "girl-picks"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setSubTab(t)}
+            className="px-5 py-3 text-sm font-medium capitalize border-b-2 transition-all"
+            style={subTabStyle(t)}
+          >
+            {t === "events" ? "Events" : t === "popups" ? "Pop-ups" : "Girl Picks"}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Events sub-tab ── */}
+      {subTab === "events" && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{events.length} events</p>
+            <button
+              onClick={() => setShowAddEvent((v) => !v)}
+              className="px-4 py-2 rounded-full text-sm font-bold text-white"
+              style={{ background: "#FF1F7D" }}
+            >
+              {showAddEvent ? "Cancel" : "+ Add Event"}
+            </button>
+          </div>
+
+          {/* Inline add form */}
+          {showAddEvent && (
+            <div
+              className="rounded-2xl p-5 mb-5 flex flex-col gap-4"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,31,125,0.25)" }}
+            >
+              <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>New Event</p>
+
+              {/* Type chips */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>Type</p>
+                <div className="flex flex-wrap gap-2">
+                  {eventTypes.map((t) => (
+                    <button key={t} onClick={() => setNewType(t)}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize"
+                      style={newType === t
+                        ? { background: "#FF1F7D", color: "white" }
+                        : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>Title</p>
+                  <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="Event title"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>Venue</p>
+                  <input type="text" value={newVenue} onChange={(e) => setNewVenue(e.target.value)}
+                    placeholder="Venue name"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>Neighborhood</p>
+                  <input type="text" value={newNeighborhood} onChange={(e) => setNewNeighborhood(e.target.value)}
+                    placeholder="e.g. SoHo"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>Time</p>
+                  <input type="text" value={newTime} onChange={(e) => setNewTime(e.target.value)}
+                    placeholder="Tonight · 7PM"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>Price</p>
+                  <input type="text" value={newPrice} onChange={(e) => setNewPrice(e.target.value)}
+                    placeholder="Free or $25"
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }} />
+                </div>
+              </div>
+
+              <button onClick={handlePostEvent}
+                className="self-start px-6 py-2.5 rounded-full text-sm font-bold text-white"
+                style={{ background: "#FF1F7D" }}>
+                Post Event
+              </button>
+            </div>
+          )}
+
+          {/* Events list */}
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+            {events.map((ev, i) => (
+              <div
+                key={ev.id}
+                className="flex items-center gap-4 px-5 py-4"
+                style={{
+                  background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
+                  borderTop: i > 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                }}
+              >
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 tracking-wider"
+                  style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}
+                >
+                  {ADMIN_TYPE_LABELS[ev.type]}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{ev.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    {ev.neighborhood} · {ev.time}
+                  </p>
+                </div>
+                <span className="text-sm font-bold flex-shrink-0" style={{ color: "rgba(255,255,255,0.6)" }}>{ev.price}</span>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    <IconEdit /> Edit
+                  </button>
+                  <button
+                    onClick={() => removeEvent(ev.id)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                    style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                      <line x1="1" y1="1" x2="9" y2="9" /><line x1="9" y1="1" x2="1" y2="9" />
+                    </svg>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Pop-ups sub-tab ── */}
+      {subTab === "popups" && (
+        <div className="flex flex-col gap-3">
+          {popups.map((p) => (
+            <div
+              key={p.id}
+              className="rounded-2xl px-5 py-4 flex items-center gap-4"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+            >
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
+              >
+                USER SUBMITTED
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{p.title}</p>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  by {p.submittedBy} · {p.time}
+                </p>
+              </div>
+              {p.featured && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{ background: "rgba(255,31,125,0.2)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
+                  Featured
+                </span>
+              )}
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  onClick={() => featurePopup(p.id)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={p.featured
+                    ? { background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }
+                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  {p.featured ? "Unfeature" : "Feature"}
+                </button>
+                <button
+                  onClick={() => removePopup(p.id)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <line x1="1" y1="1" x2="9" y2="9" /><line x1="9" y1="1" x2="1" y2="9" />
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Girl Picks sub-tab ── */}
+      {subTab === "girl-picks" && (
+        <div className="flex flex-col gap-3">
+          {places.map((p) => (
+            <div
+              key={p.id}
+              className="rounded-2xl px-5 py-4 flex items-center gap-4"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+            >
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}
+              >
+                {ADMIN_PLACE_LABELS[p.type]}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{p.name}</p>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {p.neighborhood} · by {p.submittedBy}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FF1F7D">
+                  <path d="M12 2C9.795 2 8 3.795 8 6c0 1.856 1.297 3.41 3.055 3.875.28 1.16 1.31 2.025 2.555 2.075C15.385 12 17 10.432 17 8.5c0-1.036-.43-1.97-1.121-2.637C15.866 3.8 14.08 2 12 2z" />
+                </svg>
+                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>{p.stamps} stamps</span>
+              </div>
+              {p.featured && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{ background: "rgba(255,31,125,0.2)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
+                  Featured
+                </span>
+              )}
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  onClick={() => featurePlace(p.id)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={p.featured
+                    ? { background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }
+                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  {p.featured ? "Unfeature" : "Feature"}
+                </button>
+                <button
+                  onClick={() => removePlace(p.id)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <line x1="1" y1="1" x2="9" y2="9" /><line x1="9" y1="1" x2="1" y2="9" />
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MissionControlPage() {
@@ -862,9 +1246,10 @@ export default function MissionControlPage() {
       case "curators":   return <CuratorsSection />;
       case "hosts":      return <HostsSection />;
       case "clubs":      return <ClubsSection />;
-      case "open-seats": return <OpenSeatsSection />;
-      case "safety":     return <SafetySection />;
-      case "mailroom":   return <MailroomSection />;
+      case "open-seats":  return <OpenSeatsSection />;
+      case "happenings":  return <HappeningsSection />;
+      case "safety":      return <SafetySection />;
+      case "mailroom":    return <MailroomSection />;
     }
   };
 
