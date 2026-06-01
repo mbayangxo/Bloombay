@@ -1,2 +1,4 @@
-import { LoungePage } from "@/app/components/portal/lounge-page";
-export default function YouPage() { return <LoungePage />; }
+import { redirect } from "next/navigation";
+export default function YouPage() {
+  redirect("/member/lounge");
+}

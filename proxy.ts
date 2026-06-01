@@ -36,6 +36,7 @@ export async function proxy(request: NextRequest) {
     "/city": "/member/happenings",
     "/clubs": "/member/clubs",
     "/lounge": "/member/lounge",
+    "/member/you": "/member/lounge",
   };
   if (oldToNew[pathname]) {
     return NextResponse.redirect(new URL(oldToNew[pathname], request.url));

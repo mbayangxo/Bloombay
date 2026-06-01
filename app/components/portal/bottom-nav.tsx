@@ -15,10 +15,10 @@ const tabs = [
   },
   {
     href: "/member/happenings",
-    label: "City",
+    label: "Happenings",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
       </svg>
     ),
   },
@@ -32,17 +32,17 @@ const tabs = [
     ),
   },
   {
-    href: "/member/lounge",
-    label: "Lounge",
+    href: "/member/room",
+    label: "The Room",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
       </svg>
     ),
   },
   {
-    href: "/member/you",
-    label: "You",
+    href: "/member/lounge",
+    label: "Lounge",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
@@ -57,7 +57,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
       <div
-        className="pointer-events-auto mx-4 mb-4 flex items-center gap-1 px-3 py-2 rounded-full"
+        className="pointer-events-auto mx-4 mb-4 flex items-center gap-1 px-2 py-2 rounded-full"
         style={{ background: "#1A0514" }}
       >
         {tabs.map((tab) => {
@@ -65,7 +65,7 @@ export function BottomNav() {
           return (
             <Link key={tab.href} href={tab.href} className="flex flex-col items-center">
               <span
-                className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full transition-all"
+                className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-full transition-all"
                 style={
                   active
                     ? { background: "var(--bb-pink)", color: "white" }
@@ -73,7 +73,7 @@ export function BottomNav() {
                 }
               >
                 {tab.icon}
-                <span className="text-[10px] font-medium tracking-wide leading-none">
+                <span className="text-[9px] font-medium tracking-wide leading-none">
                   {tab.label}
                 </span>
               </span>
