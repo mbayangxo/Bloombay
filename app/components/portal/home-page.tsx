@@ -1,5 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
+import { getTimeOfDay, getGreeting } from "./time-wrapper";
 
 const openSeats = [
   { id: 1, badge: "2 SEATS", title: "Girls dinner · Carbone", detail: "Tonight 7PM · Individual pay", grad: "linear-gradient(135deg,#FF1F7D,#111111)" },
@@ -21,6 +25,20 @@ const CLUBS_PREVIEW = [
 ];
 
 export function HomePage() {
+  const [greeting, setGreeting] = useState("Good morning");
+  const [isNight, setIsNight] = useState(false);
+
+  useEffect(() => {
+    const tod = getTimeOfDay(new Date().getHours());
+    setGreeting(getGreeting(tod));
+    setIsNight(tod === "night" || tod === "evening");
+  }, []);
+
+  const textMuted = isNight ? "rgba(255,255,255,0.5)" : "var(--bb-black)";
+  const headingColor = isNight ? "white" : "var(--bb-black)";
+  const cardBg = isNight ? "#1A1A1A" : "white";
+  const cardBorder = isNight ? "rgba(255,255,255,0.07)" : "transparent";
+
   return (
     <div
       className="min-h-screen pb-36 md:pb-10"
@@ -30,15 +48,35 @@ export function HomePage() {
       <header className="flex items-center justify-between px-4 pt-12 pb-3 md:hidden">
         <div className="flex items-center gap-2">
           <BBLogo size={26} />
-          <span className="text-lg font-bold tracking-tight" style={{ color: "var(--bb-black)" }}>
+          <span className="text-lg font-bold tracking-tight" style={{ color: headingColor }}>
             Bloom<span style={{ color: "var(--bb-pink)" }}>Bay</span>
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/member/happenings" className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: "var(--light-pink)" }}>
+          {/* Mailbox */}
+          <Link
+            href="/member/messages"
+            className="w-8 h-8 flex items-center justify-center rounded-full relative"
+            style={{ background: "var(--light-pink)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            {/* unread dot */}
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "var(--bb-pink)" }} />
+          </Link>
+          {/* Notifications */}
+          <Link
+            href="/member/notifications"
+            className="w-8 h-8 flex items-center justify-center rounded-full relative"
+            style={{ background: "var(--light-pink)" }}
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
+            {/* unread dot */}
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "var(--bb-pink)" }} />
           </Link>
           <Link href="/member/lounge">
             <div
@@ -54,9 +92,9 @@ export function HomePage() {
       {/* ── DESKTOP HEADER ── */}
       <div className="hidden md:flex items-center justify-between px-8 pt-8 pb-6">
         <div>
-          <p className="text-sm text-gray-400 mb-1">Friday · Williamsburg, NYC</p>
-          <h1 className="text-3xl font-bold" style={{ color: "var(--bb-black)" }}>
-            Good morning,{" "}
+          <p className="text-sm mb-1" style={{ color: textMuted }}>Williamsburg, NYC</p>
+          <h1 className="text-3xl font-bold" style={{ color: headingColor }}>
+            {greeting},{" "}
             <span className="italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}>Maya.</span>
           </h1>
         </div>
@@ -66,18 +104,39 @@ export function HomePage() {
             { n: "8", label: "Active clubs" },
             { n: "3", label: "Your Bloomies" },
           ].map((s) => (
-            <div key={s.label} className="text-center px-4 py-2 bg-white rounded-2xl" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+            <div key={s.label} className="text-center px-4 py-2 rounded-2xl" style={{ background: cardBg, border: `1px solid ${cardBorder}`, boxShadow: "0 1px 8px rgba(0,0,0,0.08)" }}>
               <p className="font-bold text-lg leading-none" style={{ color: "var(--bb-pink)" }}>{s.n}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: textMuted }}>{s.label}</p>
             </div>
           ))}
-          <Link href="/member/lounge" className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white ml-2" style={{ background: "var(--bb-pink)" }}>M</Link>
+          <Link
+            href="/member/messages"
+            className="w-9 h-9 rounded-full flex items-center justify-center relative"
+            style={{ background: "var(--light-pink)" }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "var(--bb-pink)" }} />
+          </Link>
+          <Link
+            href="/member/notifications"
+            className="w-9 h-9 rounded-full flex items-center justify-center relative"
+            style={{ background: "var(--light-pink)" }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "var(--bb-pink)" }} />
+          </Link>
+          <Link href="/member/lounge" className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white ml-1" style={{ background: "var(--bb-pink)" }}>M</Link>
         </div>
       </div>
 
       {/* ── MOBILE GREETING ── */}
       <div className="px-5 pb-4 md:hidden">
-        <h1 className="text-4xl font-bold leading-tight" style={{ color: "var(--bb-black)" }}>Good morning,</h1>
+        <h1 className="text-4xl font-bold leading-tight" style={{ color: headingColor }}>{greeting},</h1>
         <h1 className="text-4xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}>Maya.</h1>
         <div className="mt-1 h-0.5 w-12 rounded-full" style={{ background: "var(--bb-pink)" }} />
       </div>
