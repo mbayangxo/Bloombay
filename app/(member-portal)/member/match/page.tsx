@@ -128,9 +128,9 @@ function ProfileAvatar({ initial, color, size = 48 }: { initial: string; color: 
   );
 }
 
-// ── GirlMate Tab ─────────────────────────────────────────────────────────────
+// ── Connect Tab ─────────────────────────────────────────────────────────────
 
-function GirlMateTab() {
+function ConnectTab() {
   const [queue, setQueue] = useState(GIRL_MATE_QUEUE);
   const [connected, setConnected] = useState<Set<number>>(new Set());
 
@@ -406,11 +406,11 @@ function FindTab() {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
-const TABS = ["GirlMate", "Requests", "Find"] as const;
+const TABS = ["Connect", "Requests", "Find"] as const;
 type Tab = typeof TABS[number];
 
 export default function MatchPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("GirlMate");
+  const [activeTab, setActiveTab] = useState<Tab>("Connect");
   const incomingCount = REQUESTS.filter((r) => r.direction === "incoming").length;
 
   return (
@@ -450,12 +450,12 @@ export default function MatchPage() {
         </div>
       </div>
 
-      {activeTab === "GirlMate"  && <GirlMateTab />}
+      {activeTab === "Connect"  && <ConnectTab />}
       {activeTab === "Requests"  && <RequestsTab />}
       {activeTab === "Find"      && <FindTab />}
 
       {/* Bouquet note */}
-      {activeTab === "GirlMate" && (
+      {activeTab === "Connect" && (
         <div className="mx-5 mt-6 rounded-2xl p-4 flex items-center gap-3" style={{ background: "#1A0514" }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,31,125,0.2)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.8" strokeLinecap="round">

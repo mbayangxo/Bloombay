@@ -108,6 +108,72 @@ export function HomePage() {
             </div>
           </div>
 
+          {/* Social trigger */}
+          <div className="px-5 mb-4 md:px-0">
+            <div
+              className="rounded-3xl p-4"
+              style={{ background: "white", border: "2px solid var(--light-pink)", boxShadow: "0 1px 8px rgba(255,31,125,0.07)" }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                  style={{ background: "#1A0514" }}
+                >
+                  ✦
+                </div>
+                <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#1A0514" }}>HAPPENING NOW</p>
+              </div>
+              <p className="text-sm font-semibold leading-snug mb-0.5" style={{ color: "var(--bb-black)" }}>
+                Aminah and 3 women from African Girls Club are going to{" "}
+                <span style={{ color: "var(--bb-pink)" }}>Jollof + Movie Night Friday.</span>
+              </p>
+              <p className="text-xs text-gray-400 mb-3">Are you coming?</p>
+              <div className="flex gap-2">
+                <Link
+                  href="/member/happenings"
+                  className="flex-1 py-2.5 rounded-full text-sm font-bold text-center transition-all active:scale-95"
+                  style={{ background: "var(--bb-pink)", color: "white" }}
+                >
+                  I&apos;m in →
+                </Link>
+                <button
+                  className="px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-95"
+                  style={{ background: "var(--pale-pink-bg)", color: "#999" }}
+                >
+                  Not this time
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Plan something */}
+          <div className="px-5 mb-6 md:px-0">
+            <div
+              className="rounded-3xl p-4 flex items-center gap-4"
+              style={{ background: "linear-gradient(135deg, #1A0514 0%, #3D0A2A 100%)" }}
+            >
+              <div className="flex-1">
+                <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "var(--mid-pink)" }}>
+                  PLAN SOMETHING
+                </p>
+                <p
+                  className="text-white font-bold text-base italic leading-snug"
+                  style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}
+                >
+                  4 of your clubs are free this Sunday.
+                </p>
+                <p className="text-white/50 text-xs mt-0.5">You could make something happen.</p>
+              </div>
+              <Link
+                href="/member/happenings"
+                className="flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                style={{ background: "var(--bb-pink)", color: "white" }}
+              >
+                Plan it →
+              </Link>
+            </div>
+          </div>
+
           {/* Open Seats */}
           <div className="px-5 mb-6 md:px-0">
             <div className="flex items-center justify-between mb-4">
