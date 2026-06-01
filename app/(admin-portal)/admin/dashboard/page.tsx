@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -219,7 +219,7 @@ type Section =
   | "safety"
   | "mailroom";
 
-const NAV: { id: Section; label: string; Icon: () => JSX.Element; badge?: number }[] = [
+const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: number }[] = [
   { id: "overview", label: "Overview", Icon: IconGrid },
   { id: "cities", label: "Cities", Icon: IconMap },
   { id: "women", label: "Women", Icon: IconUsers },

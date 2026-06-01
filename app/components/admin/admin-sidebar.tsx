@@ -4,52 +4,152 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BBLogo } from "../portal/bb-logo";
 
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
+
+function IconGrid() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function IconMap() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1C5.79 1 4 2.79 4 5c0 3.25 4 9 4 9s4-5.75 4-9c0-2.21-1.79-4-4-4z" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="8" cy="5" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function IconUsers() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1 14c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M11 7.5c1.38 0 2.5 1.12 2.5 2.5v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M13.5 4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconStar() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.5l1.85 3.74 4.15.6-3 2.93.71 4.12L8 10.77l-3.71 1.95.71-4.12L2 5.84l4.15-.6L8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconHome() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.5L1.5 7V14.5h4.5v-4h4v4h4.5V7L8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconDiamond() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.5L14.5 8 8 14.5 1.5 8 8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconCalendar() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <rect x="1.5" y="3" width="13" height="11.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5 1.5V4M11 1.5V4M1.5 7h13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconShield() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1.5L2 4v4c0 3.31 2.67 6.4 6 7 3.33-.6 6-3.69 6-7V4L8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconMail() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 5.5l6.5 4.5 6.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconSettings() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconBilling() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 7h13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// ─── Nav config ───────────────────────────────────────────────────────────────
+
 const SECTIONS = [
   {
     title: null,
     items: [
-      { href: "/admin/dashboard", label: "Overview", icon: "⬡" },
-      { href: "/admin/mission", label: "Mission Control", icon: "✦" },
+      { href: "/admin/dashboard", label: "Mission Control", Icon: IconGrid },
     ],
   },
   {
     title: "COMMUNITY",
     items: [
-      { href: "/admin/women", label: "Women", icon: "👤" },
-      { href: "/admin/clubs", label: "Clubs", icon: "◆" },
-      { href: "/admin/cities", label: "Cities", icon: "◎" },
-      { href: "/admin/members", label: "Members", icon: "◻" },
-      { href: "/admin/curators", label: "Curators", icon: "★" },
-      { href: "/admin/moderators", label: "Moderators", icon: "◈" },
+      { href: "/admin/cities", label: "Cities", Icon: IconMap },
+      { href: "/admin/women", label: "Women", Icon: IconUsers },
+      { href: "/admin/curators", label: "Curators", Icon: IconStar },
+      { href: "/admin/hosts", label: "Hosts", Icon: IconHome },
+      { href: "/admin/clubs", label: "Clubs", Icon: IconDiamond },
     ],
   },
   {
     title: "OPERATIONS",
     items: [
-      { href: "/admin/happenings", label: "Happenings", icon: "◇" },
-      { href: "/admin/safety", label: "Safety", icon: "⬟" },
-      { href: "/admin/verification", label: "Verification", icon: "✓", badge: 12 },
-      { href: "/admin/bloom-requests", label: "Bloom Requests", icon: "◐" },
-      { href: "/admin/mailroom", label: "Mailroom", icon: "✉" },
-      { href: "/admin/analytics", label: "Analytics", icon: "◈" },
-      { href: "/admin/reports", label: "Reports", icon: "◧" },
+      { href: "/admin/open-seats", label: "Open Seats", Icon: IconCalendar },
+      { href: "/admin/safety", label: "Safety Center", Icon: IconShield, badge: 6 },
+      { href: "/admin/mailroom", label: "Mailroom", Icon: IconMail, badge: 35 },
     ],
   },
   {
     title: "SYSTEM",
     items: [
-      { href: "/admin/settings", label: "Settings", icon: "⊙" },
-      { href: "/admin/billing", label: "Billing", icon: "◱" },
+      { href: "/admin/settings", label: "Settings", Icon: IconSettings },
+      { href: "/admin/billing", label: "Billing", Icon: IconBilling },
     ],
   },
 ];
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function AdminSidebar() {
   const pathname = usePathname();
+
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col z-40 overflow-y-auto"
-      style={{ background: "#111111" }}
+      style={{ background: "#111111", borderRight: "1px solid rgba(255,255,255,0.06)" }}
     >
       {/* Logo */}
       <div className="px-5 py-6 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
@@ -71,14 +171,16 @@ export function AdminSidebar() {
             {section.title && (
               <p
                 className="text-[10px] font-bold tracking-widest uppercase px-3 mb-2"
-                style={{ color: "rgba(255,255,255,0.28)" }}
+                style={{ color: "rgba(255,255,255,0.25)" }}
               >
                 {section.title}
               </p>
             )}
             <div className="flex flex-col gap-0.5">
               {section.items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                const active =
+                  pathname === item.href || pathname.startsWith(item.href + "/");
+                const { Icon } = item;
                 return (
                   <Link
                     key={item.href}
@@ -87,15 +189,24 @@ export function AdminSidebar() {
                     style={
                       active
                         ? { background: "#FF1F7D", color: "white" }
-                        : { color: "rgba(255,255,255,0.5)" }
+                        : { color: "rgba(255,255,255,0.45)" }
                     }
                   >
-                    <span className="text-base w-5 text-center flex-shrink-0">{item.icon}</span>
+                    <span
+                      className="w-4 flex-shrink-0 flex items-center justify-center"
+                      style={{ color: active ? "white" : "rgba(255,255,255,0.4)" }}
+                    >
+                      <Icon />
+                    </span>
                     <span className="flex-1">{item.label}</span>
-                    {"badge" in item && item.badge && (
+                    {"badge" in item && item.badge != null && (
                       <span
-                        className="text-xs font-bold px-1.5 py-0.5 rounded-full"
-                        style={{ background: "#FF1F7D", color: "white" }}
+                        className="text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"
+                        style={
+                          active
+                            ? { background: "rgba(255,255,255,0.25)", color: "white" }
+                            : { background: "#FF1F7D", color: "white" }
+                        }
                       >
                         {item.badge}
                       </span>
@@ -119,8 +230,8 @@ export function AdminSidebar() {
               M
             </div>
             <div
-              className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
-              style={{ background: "#FF1F7D", borderColor: "#111" }}
+              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2"
+              style={{ background: "#22c55e", borderColor: "#111" }}
             />
           </div>
           <div>

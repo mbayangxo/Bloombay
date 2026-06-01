@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { logout } from "@/lib/auth/actions";
 
 const TABS = ["Home", "Memories", "My Circle", "My Link", "Profile"];
 
@@ -40,16 +41,27 @@ const CIRCLE = [
 export function LoungePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [matchOn, setMatchOn] = useState(true);
-  const [moodSelected, setMoodSelected] = useState<string | null>("🌸 Soft");
+  const [moodSelected, setMoodSelected] = useState<string | null>("Soft");
+  const [waved, setWaved] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState(false);
 
-  const MOODS = ["🌸 Soft", "🔥 Lit", "☕ Cozy", "💪 Focused", "🌙 Low-key"];
+  const MOODS = ["Soft", "Lit", "Cozy", "Focused", "Low-key"];
+
+  function wave(name: string) {
+    setWaved((prev) => new Set([...prev, name]));
+  }
+
+  function copyLink() {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
 
   return (
     <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-4">
         <h1 className="text-4xl font-bold" style={{ color: "var(--bb-black)" }}>
-          My Lounge
+          Lounge
         </h1>
         <p
           className="italic text-gray-400 mt-1"
@@ -321,16 +333,21 @@ export function LoungePage() {
                   </p>
                   <p className="text-xs text-gray-400">{c.mutual ? "Mutual connection" : "Pending"}</p>
                 </div>
-                <button
-                  className="px-4 py-1.5 rounded-full text-xs font-bold"
-                  style={
-                    c.mutual
-                      ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
-                      : { background: "#F5F5F5", color: "#999" }
-                  }
-                >
-                  {c.mutual ? "Wave 🌸" : "Pending"}
-                </button>
+                {c.mutual ? (
+                  <button
+                    onClick={() => wave(c.name)}
+                    className="px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
+                    style={
+                      waved.has(c.name)
+                        ? { background: "var(--bb-pink)", color: "white" }
+                        : { background: "var(--light-pink)", color: "var(--bb-pink)" }
+                    }
+                  >
+                    {waved.has(c.name) ? "Waved ✓" : "Wave"}
+                  </button>
+                ) : (
+                  <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: "#F5F5F5", color: "#bbb" }}>Pending</span>
+                )}
               </div>
             ))}
           </div>
@@ -355,10 +372,15 @@ export function LoungePage() {
                   bloombay.app/maya
                 </p>
                 <button
-                  className="text-xs font-bold px-3 py-1.5 rounded-full"
-                  style={{ background: "var(--bb-pink)", color: "white" }}
+                  onClick={copyLink}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90"
+                  style={
+                    copied
+                      ? { background: "#1A0514", color: "white" }
+                      : { background: "var(--bb-pink)", color: "white" }
+                  }
                 >
-                  Copy
+                  {copied ? "Copied ✓" : "Copy"}
                 </button>
               </div>
               <div className="flex gap-3">
@@ -454,31 +476,33 @@ export function LoungePage() {
             {/* Settings links */}
             <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
               {[
-                { icon: "✏️", label: "Edit profile" },
-                { icon: "🔔", label: "Notifications" },
-                { icon: "🛡️", label: "Privacy & Safety" },
-                { icon: "💎", label: "BloomBay Premium" },
-                { icon: "🚪", label: "Sign out" },
+                { label: "Edit profile" },
+                { label: "Notifications" },
+                { label: "Privacy & Safety" },
+                { label: "BloomBay Premium" },
               ].map((item, i, arr) => (
                 <button
                   key={item.label}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-pink-50 transition-colors"
-                  style={i < arr.length - 1 ? { borderBottom: "1px solid #F5F5F5" } : {}}
+                  style={{ borderBottom: "1px solid #F5F5F5" }}
                 >
-                  <span className="text-base w-6 text-center">{item.icon}</span>
-                  <p
-                    className="flex-1 text-sm font-semibold"
-                    style={{ color: item.label === "Sign out" ? "#999" : "var(--bb-black)" }}
-                  >
-                    {item.label}
-                  </p>
-                  {item.label !== "Sign out" && (
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-300">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "var(--bb-black)" }}>{item.label}</p>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               ))}
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-red-50 transition-colors"
+                >
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#c40060" }}>Sign out</p>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c40060" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                  </svg>
+                </button>
+              </form>
             </div>
           </div>
         )}
