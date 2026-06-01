@@ -1141,7 +1141,7 @@ export default function TheClubhouse() {
       {/* ── Header ── */}
       <div style={{ background: "#111111" }}>
         {/* Top crest area */}
-        <div className="px-8 pt-8 pb-6 flex items-center gap-6">
+        <div className="px-4 md:px-8 pt-8 pb-6 flex items-center gap-6">
           {/* Crest */}
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0"
@@ -1219,7 +1219,7 @@ export default function TheClubhouse() {
       </div>
 
       {/* ── Content ── */}
-      <div className="px-8 py-6">
+      <div className="px-4 md:px-8 py-6">
         {activeTab === "women" && <WomenSection />}
         {activeTab === "open-seats" && <OpenSeatsSection />}
         {activeTab === "applications" && <ApplicationsSection />}

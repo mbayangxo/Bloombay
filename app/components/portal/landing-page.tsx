@@ -455,7 +455,7 @@ export function LandingPage() {
               <p className="text-sm leading-relaxed mb-5" style={{ color: "#888" }}>
                 Every detail.<br />Designed for<br />real life together.
               </p>
-              <Link href="#" className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: "#FF1F7D" }}>
+              <Link href="/about" className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: "#FF1F7D" }}>
                 LEARN MORE
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" /></svg>
               </Link>

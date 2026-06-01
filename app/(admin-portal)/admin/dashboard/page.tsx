@@ -112,6 +112,49 @@ const OPEN_SEATS = [
   { club: "Pilates Club", date: "Jun 11", time: "8:00 AM", venue: "Studio Move, Brooklyn", seats: 2, curator: "Priya S." },
 ];
 
+const PENDING_MEMBERS = [
+  {
+    id: 1, name: "Simone T.", neighborhood: "Crown Heights, Brooklyn", age: "28", city: "New York City",
+    bio: "I'm a marketing director who moved to Brooklyn two years ago. Still finding my people here — I know they exist.",
+    vibe: "The warm one — everyone feels safe around me",
+    goals: ["Find my people in NYC", "Build real friendships"],
+    interests: ["Brunch and dinners", "Museums and culture", "Fashion and style"],
+    foundingMother: true, photo: null, submittedAt: "2h ago",
+  },
+  {
+    id: 2, name: "Anya M.", neighborhood: "Williamsburg, Brooklyn", age: "25", city: "New York City",
+    bio: "Software engineer, new to NYC from Toronto. I work remotely so it's harder to meet people. Looking for a real community.",
+    vibe: "The driven one — always building something",
+    goals: ["Network with ambitious women", "Get out of my routine"],
+    interests: ["Building and tech", "City walks and cafés", "Gym and fitness"],
+    foundingMother: false, photo: null, submittedAt: "4h ago",
+  },
+  {
+    id: 3, name: "Remi O.", neighborhood: "Harlem, NYC", age: "31", city: "New York City",
+    bio: "Nurse practitioner. I work nights and weekends so my social life has shrunk. I want to meet women who understand that.",
+    vibe: "The calm one — peaceful vibes only",
+    goals: ["Build real friendships", "Find my girl group"],
+    interests: ["Wellness", "Faith community", "Brunch and dinners"],
+    foundingMother: false, photo: null, submittedAt: "6h ago",
+  },
+  {
+    id: 4, name: "Fatima A.", neighborhood: "Upper East Side, NYC", age: "29", city: "New York City",
+    bio: "Architect and part-time ceramics artist. I have a good life but I want women to share it with. Food, culture, conversation.",
+    vibe: "The thoughtful one — deep conversations always",
+    goals: ["Find my people in NYC", "Get out of my routine"],
+    interests: ["Museums and culture", "Fashion and style", "Brunch and dinners"],
+    foundingMother: true, photo: null, submittedAt: "Yesterday",
+  },
+  {
+    id: 5, name: "Zara W.", neighborhood: "Chelsea, NYC", age: "33", city: "New York City",
+    bio: "Finance by day, Afrobeats at night. I'm Nigerian-British and moved here 3 years ago. Still feel like a transplant.",
+    vibe: "The energetic one — always down for something",
+    goals: ["Find my girl group", "Build real friendships"],
+    interests: ["Afrobeats and events", "Fashion and style", "Brunch and dinners"],
+    foundingMother: true, photo: null, submittedAt: "Yesterday",
+  },
+];
+
 const SAFETY = [
   { type: "Reports", count: 3, items: ["Inappropriate behavior · Chelsea", "No-show host · SoHo", "Concern raised · Brooklyn"] },
   { type: "Flags", count: 2, items: ["Profile mismatch · Williamsburg", "Duplicate account · Midtown"] },
@@ -219,6 +262,7 @@ function IconDiamond() {
 
 type Section =
   | "overview"
+  | "pending"
   | "cities"
   | "women"
   | "curators"
@@ -231,6 +275,7 @@ type Section =
 
 const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: number }[] = [
   { id: "overview", label: "Overview", Icon: IconGrid },
+  { id: "pending", label: "Member Queue", Icon: IconUsers, badge: 24 },
   { id: "cities", label: "Cities", Icon: IconMap },
   { id: "women", label: "Women", Icon: IconUsers },
   { id: "curators", label: "Curators", Icon: IconStar },
@@ -316,7 +361,7 @@ function OverviewSection() {
       <SectionHeader title="Mission Control" sub="Live operations — BloomBay is growing." />
 
       {/* Live stat cards */}
-      <div className="grid grid-cols-5 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         {LIVE_STATS.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
         ))}
@@ -415,7 +460,7 @@ function CitiesSection() {
   return (
     <div>
       <SectionHeader title="Cities" sub="Where BloomBay lives and where she's going next." />
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {CITIES.map((city) => (
           <div
             key={city.name}
@@ -459,6 +504,257 @@ function CitiesSection() {
   );
 }
 
+// ─── Section: Pending Members ─────────────────────────────────────────────────
+
+function PendingSection() {
+  const [members, setMembers] = useState(PENDING_MEMBERS.map((m) => ({ ...m, status: "pending" as "pending" | "approved" | "declined" })));
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [declineNote, setDeclineNote] = useState<Record<number, string>>({});
+
+  const pending = members.filter((m) => m.status === "pending");
+  const reviewed = members.filter((m) => m.status !== "pending");
+
+  function approve(id: number) {
+    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "approved" } : m));
+    setExpanded(null);
+  }
+
+  function decline(id: number) {
+    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "declined" } : m));
+    setExpanded(null);
+  }
+
+  return (
+    <div>
+      <SectionHeader
+        title="Member Queue"
+        sub={`${pending.length} pending review · ${reviewed.filter((m) => m.status === "approved").length} approved today`}
+      />
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: "Pending Review", value: String(pending.length), sub: "Awaiting Yande" },
+          { label: "Approved Today", value: String(reviewed.filter((m) => m.status === "approved").length), sub: "Sent welcome email" },
+          { label: "Total Waitlist", value: "1,847", sub: "NYC" },
+        ].map((s) => <StatCard key={s.label} {...s} />)}
+      </div>
+
+      {/* Review note */}
+      <div
+        className="rounded-2xl px-5 py-4 mb-6 flex items-start gap-3"
+        style={{ background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)" }}
+      >
+        <div className="w-2 h-2 rounded-full mt-1 flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+        <div>
+          <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Review every member personally</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Check photo clarity, bio authenticity, and profile completeness. Approved women receive an immediate email + SMS invite to sign in.
+          </p>
+        </div>
+      </div>
+
+      {/* Pending cards */}
+      <div className="flex flex-col gap-4 mb-8">
+        {pending.length === 0 ? (
+          <div className="rounded-2xl p-8 text-center" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <p className="text-white/40 text-sm">No pending applications — queue is clear.</p>
+          </div>
+        ) : pending.map((m) => {
+          const isOpen = expanded === m.id;
+          return (
+            <div
+              key={m.id}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              {/* Summary row */}
+              <button
+                onClick={() => setExpanded(isOpen ? null : m.id)}
+                className="w-full px-5 py-4 flex items-center gap-4 text-left"
+              >
+                {/* Photo placeholder */}
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                  style={{ background: "#FF1F7D", color: "white" }}
+                >
+                  {m.name[0]}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="font-bold text-sm text-white">{m.name}</p>
+                    {m.foundingMother && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+                        FOUNDING MOTHER
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    {m.neighborhood} · {m.age}yo · {m.submittedAt}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); approve(m.id); }}
+                    className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+                    style={{ background: "#FF1F7D", color: "white" }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); decline(m.id); }}
+                    className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+                  >
+                    Decline
+                  </button>
+                  <svg
+                    width="12" height="12" viewBox="0 0 12 12" fill="none"
+                    style={{ color: "rgba(255,255,255,0.3)", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+                  >
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </div>
+              </button>
+
+              {/* Expanded detail */}
+              {isOpen && (
+                <div className="px-5 pb-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <div className="pt-4 grid md:grid-cols-2 gap-5">
+                    {/* Left: photo + bio */}
+                    <div className="flex flex-col gap-4">
+                      {/* Photo area */}
+                      <div>
+                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>PHOTO</p>
+                        <div
+                          className="w-full h-48 rounded-2xl flex flex-col items-center justify-center gap-2"
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px dashed rgba(255,255,255,0.15)" }}
+                        >
+                          <div
+                            className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold"
+                            style={{ background: "#FF1F7D", color: "white" }}
+                          >
+                            {m.name[0]}
+                          </div>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Photo submitted — {m.name.split(" ")[0]}</p>
+                          <p className="text-[10px] px-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>Connect Supabase Storage to display real photos</p>
+                        </div>
+                      </div>
+
+                      {/* Bio */}
+                      <div>
+                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>BIO</p>
+                        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>&ldquo;{m.bio}&rdquo;</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>VIBE</p>
+                        <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{m.vibe}</p>
+                      </div>
+                    </div>
+
+                    {/* Right: profile details */}
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>GOALS</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {m.goals.map((g) => (
+                            <span key={g} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>{g}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>INTERESTS</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {m.interests.map((i) => (
+                            <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>{i}</span>
+                          ))}
+                        </div>
+                      </div>
+                      {m.foundingMother && (
+                        <div
+                          className="rounded-xl px-4 py-3"
+                          style={{ background: "rgba(255,31,125,0.1)", border: "1px solid rgba(255,31,125,0.2)" }}
+                        >
+                          <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>★ Founding Mother candidate</p>
+                          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>She checked the Founding Mothers box on the waitlist.</p>
+                        </div>
+                      )}
+
+                      {/* Decision */}
+                      <div className="flex flex-col gap-2 pt-2">
+                        <button
+                          onClick={() => approve(m.id)}
+                          className="w-full py-3 rounded-full font-bold text-sm"
+                          style={{ background: "#FF1F7D", color: "white" }}
+                        >
+                          ✓ Approve — send her invite
+                        </button>
+                        <div className="flex flex-col gap-1.5">
+                          <textarea
+                            value={declineNote[m.id] ?? ""}
+                            onChange={(e) => setDeclineNote((p) => ({ ...p, [m.id]: e.target.value }))}
+                            placeholder="Optional note for declining (not shown to applicant)…"
+                            rows={2}
+                            className="w-full px-3 py-2.5 rounded-xl text-xs resize-none outline-none"
+                            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}
+                          />
+                          <button
+                            onClick={() => decline(m.id)}
+                            className="w-full py-2.5 rounded-full text-xs font-bold"
+                            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}
+                          >
+                            Decline application
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Reviewed */}
+      {reviewed.length > 0 && (
+        <div>
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>REVIEWED TODAY</p>
+          <div className="flex flex-col gap-2">
+            {reviewed.map((m) => (
+              <div
+                key={m.id}
+                className="rounded-xl px-4 py-3 flex items-center gap-3"
+                style={{ background: "rgba(255,255,255,0.03)" }}
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: "#FF1F7D", color: "white" }}>
+                  {m.name[0]}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-white">{m.name}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{m.neighborhood}</p>
+                </div>
+                <span
+                  className="text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={m.status === "approved"
+                    ? { background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }
+                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.35)" }
+                  }
+                >
+                  {m.status === "approved" ? "Approved ✓" : "Declined"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Section: Women ───────────────────────────────────────────────────────────
 
 function WomenSection() {
@@ -466,7 +762,7 @@ function WomenSection() {
     <div>
       <SectionHeader title="Women" sub="Verification queue, applications, and member growth." />
 
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Total Members", value: String(WOMEN_STATS.totalMembers), sub: "Active in BloomBay" },
           { label: "Verification Queue", value: String(WOMEN_STATS.verificationQueue), sub: "Awaiting review" },
@@ -1454,6 +1750,7 @@ export default function MissionControlPage() {
   const renderSection = () => {
     switch (active) {
       case "overview":   return <OverviewSection />;
+      case "pending":    return <PendingSection />;
       case "cities":     return <CitiesSection />;
       case "women":      return <WomenSection />;
       case "curators":   return <CuratorsSection />;
@@ -1470,7 +1767,7 @@ export default function MissionControlPage() {
     <div className="min-h-screen pb-16" style={{ background: "#111111", color: "white" }}>
       {/* Page header */}
       <div
-        className="px-8 pt-8 pb-0"
+        className="px-4 md:px-8 pt-8 pb-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         <div className="flex items-end justify-between mb-6">
@@ -1533,7 +1830,7 @@ export default function MissionControlPage() {
       </div>
 
       {/* Section content */}
-      <div className="px-8 pt-8">
+      <div className="px-4 md:px-8 pt-8">
         {renderSection()}
       </div>
     </div>

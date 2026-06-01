@@ -160,6 +160,10 @@ export function OnboardFlow() {
   const [name, setName] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [age, setAge] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [bio, setBio] = useState("");
+  const [vibe, setVibe] = useState<number | null>(null);
+  const [pending, setPending] = useState(false);
   const [goals, setGoals] = useState<MultiSet>(new Set());
   const [era, setEra] = useState<number | null>(null);
   const [interests, setInterests] = useState<MultiSet>(new Set());
@@ -168,7 +172,7 @@ export function OnboardFlow() {
   const [joinedClubId, setJoinedClubId] = useState<number | null>(null);
   const [rssvpd, setRsvpd] = useState(false);
 
-  const TOTAL_STEPS = 9;
+  const TOTAL_STEPS = 11;
 
   function toggleSet(set: MultiSet, setFn: (s: MultiSet) => void, i: number) {
     const next = new Set(set);
@@ -179,7 +183,7 @@ export function OnboardFlow() {
 
   function next() {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
-    else router.push("/member/home");
+    else setPending(true);
   }
 
   function back() {
@@ -255,6 +259,84 @@ export function OnboardFlow() {
           >
             ← Go back
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (pending) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: "var(--pale-pink-bg)" }}>
+        <div className="w-full max-w-md flex flex-col items-center text-center gap-5">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center"
+            style={{ background: "#111111" }}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-black mb-2" style={{ color: "var(--bb-black)" }}>
+              Application submitted.
+            </h2>
+            <p
+              className="text-xl italic mb-4"
+              style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+            >
+              Yande will review you personally.
+            </p>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              We read every application. This isn&apos;t automated — a real person looks at who you are before welcoming you in.
+            </p>
+          </div>
+
+          <div className="w-full flex flex-col gap-3">
+            {[
+              { icon: "📸", title: "Your photo is being reviewed", sub: "Clear and real — that's what we need." },
+              { icon: "📝", title: "Your answers are being read", sub: "Yande reads your bio personally." },
+              { icon: "⏰", title: "Usually within 24 hours", sub: "We'll email + text you when you're approved." },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-3 p-4 rounded-2xl text-left"
+                style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
+              >
+                <span className="text-xl flex-shrink-0">{item.icon}</span>
+                <div>
+                  <p className="text-sm font-bold" style={{ color: "var(--bb-black)" }}>{item.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="w-full rounded-2xl p-4"
+            style={{ background: "var(--light-pink)" }}
+          >
+            <p className="text-sm font-bold mb-1" style={{ color: "var(--bb-pink)" }}>
+              While you wait…
+            </p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Tell a friend. BloomBay grows through women who already know someone inside.{" "}
+              <button
+                className="font-bold underline"
+                style={{ color: "var(--bb-pink)" }}
+                onClick={() => navigator.clipboard?.writeText("https://bloombay.app/waitlist")}
+              >
+                Copy your invite link
+              </button>
+            </p>
+          </div>
+
+          <p className="text-xs text-gray-400">
+            Questions?{" "}
+            <a href="mailto:hello@bloombay.app" className="font-bold underline" style={{ color: "var(--bb-pink)" }}>
+              hello@bloombay.app
+            </a>
+          </p>
         </div>
       </div>
     );
@@ -422,17 +504,6 @@ export function OnboardFlow() {
                   onBlur={(e) => (e.target.style.borderColor = "transparent")}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2">
-                  ADD A PHOTO
-                </label>
-                <button
-                  className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center text-2xl hover:border-pink-400 transition-colors"
-                  style={{ borderColor: "var(--bb-pink)" }}
-                >
-                  📷
-                </button>
-              </div>
             </div>
 
             <div className="mt-auto">
@@ -443,11 +514,173 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 2: What brings you here */}
+        {/* Step 2: Your Photo */}
         {step === 2 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
               STEP 2 OF {TOTAL_STEPS - 1}
+            </p>
+            <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
+              Add your photo.
+            </h2>
+            <p
+              className="text-xl font-bold italic mb-2"
+              style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+            >
+              We verify every member personally.
+            </p>
+            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+              Your photo is reviewed by Yande before you&apos;re approved. This keeps BloomBay safe and real for every woman here.
+            </p>
+
+            <div className="flex flex-col items-center gap-5 mb-8">
+              {/* Photo circle */}
+              <label className="cursor-pointer flex flex-col items-center gap-3">
+                <div
+                  className="w-36 h-36 rounded-full flex items-center justify-center overflow-hidden relative"
+                  style={{
+                    border: `3px dashed ${photoPreview ? "var(--bb-pink)" : "#DDD"}`,
+                    background: photoPreview ? "transparent" : "white",
+                  }}
+                >
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Your photo" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#DDD" strokeWidth="1.5">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                      </svg>
+                      <span className="text-xs text-gray-300 font-medium">Tap to upload</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setPhotoPreview(URL.createObjectURL(file));
+                  }}
+                />
+                {photoPreview ? (
+                  <span className="text-xs font-bold" style={{ color: "var(--bb-pink)" }}>Tap to change photo</span>
+                ) : (
+                  <span className="text-sm font-semibold text-gray-400">Take a selfie or upload a clear photo of your face</span>
+                )}
+              </label>
+
+              {/* Requirements */}
+              <div className="w-full rounded-2xl p-4" style={{ background: "var(--light-pink)" }}>
+                <p className="text-xs font-bold mb-2" style={{ color: "var(--bb-pink)" }}>PHOTO REQUIREMENTS</p>
+                {[
+                  "Clear, well-lit photo of your face",
+                  "Just you — no group photos",
+                  "No filters or heavy edits",
+                  "Recent photo (not from years ago)",
+                ].map((req) => (
+                  <div key={req} className="flex items-center gap-2 mb-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "var(--bb-pink)" }} />
+                    <p className="text-xs text-gray-500">{req}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-auto">
+              <PinkButton onClick={next} disabled={!photoPreview}>
+                {photoPreview ? "Looking good — continue →" : "Upload your photo first"}
+              </PinkButton>
+              <p className="text-center text-xs text-gray-400 mt-2">
+                Your photo is only visible to Yande during review. Never public without your consent.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: About You */}
+        {step === 3 && (
+          <div className="flex flex-col flex-1">
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
+              STEP 3 OF {TOTAL_STEPS - 1}
+            </p>
+            <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
+              Tell us about
+            </h2>
+            <p
+              className="text-3xl font-bold italic mb-2"
+              style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+            >
+              yourself.
+            </p>
+            <p className="text-sm text-gray-400 mb-6">This helps Yande understand who you are before welcoming you in.</p>
+
+            <div className="flex flex-col gap-5 mb-6">
+              {/* Bio */}
+              <div>
+                <label className="block text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2">
+                  IN 1–2 SENTENCES, WHO ARE YOU?
+                </label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="I'm a graphic designer in Brooklyn. I moved here two years ago and I'm still building my people."
+                  rows={3}
+                  maxLength={200}
+                  className="w-full bg-white rounded-2xl px-4 py-3.5 text-base outline-none border-2 border-transparent resize-none leading-relaxed"
+                  style={{ color: "var(--bb-black)" }}
+                  onFocus={(e) => (e.target.style.borderColor = "var(--bb-pink)")}
+                  onBlur={(e) => (e.target.style.borderColor = "transparent")}
+                />
+                <p className="text-xs text-gray-400 mt-1 text-right">{bio.length}/200</p>
+              </div>
+
+              {/* Vibe */}
+              <div>
+                <label className="block text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">
+                  HOW WOULD YOUR FRIENDS DESCRIBE YOU?
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {[
+                    { emoji: "🌸", label: "The warm one — everyone feels safe around me" },
+                    { emoji: "⚡", label: "The energetic one — always down for something" },
+                    { emoji: "🧠", label: "The thoughtful one — deep conversations always" },
+                    { emoji: "😂", label: "The funny one — no dull moments with me" },
+                    { emoji: "🏗️", label: "The driven one — always building something" },
+                    { emoji: "🌿", label: "The calm one — peaceful vibes only" },
+                  ].map((v, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setVibe(i)}
+                      className="rounded-2xl p-3 text-left transition-all"
+                      style={{
+                        background: vibe === i ? "var(--light-pink)" : "white",
+                        border: `2px solid ${vibe === i ? "var(--bb-pink)" : "#F0F0F0"}`,
+                      }}
+                    >
+                      <span className="text-lg block mb-1">{v.emoji}</span>
+                      <p className="text-xs font-medium leading-snug" style={{ color: "var(--bb-black)" }}>{v.label}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto">
+              <PinkButton onClick={next} disabled={!bio || vibe === null}>
+                Continue →
+              </PinkButton>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: What brings you here */}
+        {step === 4 && (
+          <div className="flex flex-col flex-1">
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
+              STEP 4 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               What brings
@@ -474,11 +707,11 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 3: Vibe */}
-        {step === 3 && (
+        {/* Step 5: Vibe */}
+        {step === 5 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
-              STEP 3 OF {TOTAL_STEPS - 1}
+              STEP 5 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               What&apos;s your vibe
@@ -524,11 +757,11 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 4: Interests */}
-        {step === 4 && (
+        {/* Step 6: Interests */}
+        {step === 6 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
-              STEP 4 OF {TOTAL_STEPS - 1}
+              STEP 6 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               What are you
@@ -555,11 +788,11 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 5: Lifestyle */}
-        {step === 5 && (
+        {/* Step 7: Lifestyle */}
+        {step === 7 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
-              STEP 5 OF {TOTAL_STEPS - 1}
+              STEP 7 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               A few things about
@@ -603,11 +836,11 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 6: Schedule */}
-        {step === 6 && (
+        {/* Step 8: Schedule */}
+        {step === 8 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
-              STEP 6 OF {TOTAL_STEPS - 1}
+              STEP 8 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               When are you
@@ -651,11 +884,11 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 7: Club Recommendations */}
-        {step === 7 && (
+        {/* Step 9: Club Recommendations */}
+        {step === 9 && (
           <div className="flex flex-col flex-1">
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
-              STEP 7 OF {TOTAL_STEPS - 1}
+              STEP 9 OF {TOTAL_STEPS - 1}
             </p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
               Yande picked
@@ -732,8 +965,8 @@ export function OnboardFlow() {
           </div>
         )}
 
-        {/* Step 8: First Event */}
-        {step === 8 && (
+        {/* Step 10: First Event */}
+        {step === 10 && (
           <div className="flex flex-col flex-1">
             <div
               className="rounded-3xl p-5 mb-5 relative overflow-hidden"
@@ -798,10 +1031,10 @@ export function OnboardFlow() {
 
             <div className="mt-auto">
               <PinkButton onClick={next}>
-                Enter BloomBay →
+                Submit application →
               </PinkButton>
               <p className="text-center text-xs text-gray-400 mt-2">
-                Your city is waiting.
+                Yande reviews every member personally.
               </p>
             </div>
           </div>
@@ -810,3 +1043,7 @@ export function OnboardFlow() {
     </div>
   );
 }
+
+// ── Pending Review Screen ────────────────────────────────────────────────────
+// rendered when pending === true (inside the main OnboardFlow return, guarded
+// at the top before the step-based render path)
