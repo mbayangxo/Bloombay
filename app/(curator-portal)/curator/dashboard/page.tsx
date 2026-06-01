@@ -127,7 +127,7 @@ function Avatar({ initials, size = 40, bg = "#FF1F7D" }: { initials: string; siz
 
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
-function MyClubs() {
+function MyClubs({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div>
       <div className="grid gap-5 md:grid-cols-2">
@@ -205,6 +205,7 @@ function MyClubs() {
           e.currentTarget.style.background = "transparent";
           e.currentTarget.style.color = "#FF1F7D";
         }}
+        onClick={() => showToast("Contact BloomBay to start a new club")}
       >
         + Start a new club
       </button>
@@ -575,6 +576,12 @@ const TABS: { id: Tab; label: string }[] = [
 
 export default function CuratorDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("clubs");
+  const [toast, setToast] = useState<string | null>(null);
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
@@ -637,13 +644,18 @@ export default function CuratorDashboard() {
 
       {/* Content */}
       <div className="px-8 py-6 max-w-3xl">
-        {activeTab === "clubs" && <MyClubs />}
+        {activeTab === "clubs" && <MyClubs showToast={showToast} />}
         {activeTab === "welcomed" && <WomenWelcomed />}
         {activeTab === "gatherings" && <UpcomingGatherings />}
         {activeTab === "applications" && <Applications />}
         {activeTab === "growth" && <ClubGrowth />}
         {activeTab === "impact" && <MyImpact />}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

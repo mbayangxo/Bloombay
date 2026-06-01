@@ -1230,7 +1230,7 @@ export default function TheClubhouse() {
 
       {/* ── Content ── */}
       <div className="px-4 md:px-8 py-6">
-        {activeTab === "women" && <WomenSection />}
+        {activeTab === "women" && <WomenSection showToast={showToast} />}
         {activeTab === "open-seats" && <OpenSeatsSection />}
         {activeTab === "applications" && <ApplicationsSection />}
         {activeTab === "settings" && <ClubSettingsSection />}
@@ -1240,6 +1240,11 @@ export default function TheClubhouse() {
         {activeTab === "club-health" && <ClubHealthSection />}
         {activeTab === "crest" && <CrestSection />}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

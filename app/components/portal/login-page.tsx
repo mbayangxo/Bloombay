@@ -83,17 +83,15 @@ export function LoginPage() {
 
         <p className="text-center mt-4">
           <button
-            onClick={() => setShowReset(!showReset)}
+            onClick={() => setShowReset(true)}
             className="text-sm text-gray-400 underline hover:text-gray-600"
           >
             Forgot password?
           </button>
         </p>
         {showReset && (
-          <div className="mt-3 p-4 rounded-2xl text-sm text-center" style={{ background: "#FFF0F5" }}>
-            <p style={{ color: "#FF1F7D" }}>
-              Email <strong>hello@bloombay.app</strong> to reset your password. We&apos;ll get back to you within 24 hours.
-            </p>
+          <div className="mt-3 p-4 rounded-2xl text-sm text-center" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+            Email <strong>hello@bloombay.app</strong> to reset your password.
           </div>
         )}
 
