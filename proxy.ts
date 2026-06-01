@@ -46,7 +46,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/member") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/club-owner") ||
-    pathname.startsWith("/partner");
+    pathname.startsWith("/partner") ||
+    pathname.startsWith("/curator");
 
   if (isProtected && !user) {
     // Redirect to appropriate login
@@ -54,6 +55,7 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith("/admin")) loginPath = "/admin/login";
     else if (pathname.startsWith("/club-owner")) loginPath = "/club-owner/login";
     else if (pathname.startsWith("/partner")) loginPath = "/partner/login";
+    else if (pathname.startsWith("/curator")) loginPath = "/curator/login";
     return NextResponse.redirect(new URL(loginPath, request.url));
   }
 
@@ -62,7 +64,8 @@ export async function proxy(request: NextRequest) {
     (pathname === "/member/login" ||
       pathname === "/admin/login" ||
       pathname === "/club-owner/login" ||
-      pathname === "/partner/login")
+      pathname === "/partner/login" ||
+      pathname === "/curator/login")
   ) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -75,6 +78,7 @@ export async function proxy(request: NextRequest) {
       admin: "/admin/dashboard",
       club_owner: "/club-owner/dashboard",
       partner: "/partner/dashboard",
+      curator: "/curator/dashboard",
     };
     return NextResponse.redirect(
       new URL(homes[role] ?? "/member/home", request.url)

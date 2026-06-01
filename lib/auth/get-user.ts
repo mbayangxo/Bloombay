@@ -46,6 +46,8 @@ export function getPortalHomeForRole(role: UserRole): string {
       return "/club-owner/dashboard";
     case "partner":
       return "/partner/dashboard";
+    case "curator":
+      return "/curator/dashboard";
     default:
       return "/member/home";
   }

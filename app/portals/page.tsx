@@ -62,7 +62,7 @@ const portals: PortalCard[] = [
   {
     href: "/partner/login",
     label: "Partner Portal",
-    headline: "Your Partnership",
+    headline: "Your Venue",
     sub: "For Partners & Venues",
     bg: "#120009",
     textColor: "white",
@@ -72,6 +72,20 @@ const portals: PortalCard[] = [
     btnBg: "#FF1F7D",
     btnText: "white",
     logoDark: true,
+  },
+  {
+    href: "/curator/login",
+    label: "Curator Portal",
+    headline: "You create culture.",
+    sub: "For BloomBay Curators — the women who build the world.",
+    bg: "#FFF5F8",
+    textColor: "#0A0A0A",
+    labelColor: "#FF1F7D",
+    subColor: "#9e6070",
+    border: "rgba(255,31,125,0.15)",
+    btnBg: "#FF1F7D",
+    btnText: "white",
+    logoDark: false,
   },
 ];
 
