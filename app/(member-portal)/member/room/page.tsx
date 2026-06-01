@@ -246,6 +246,9 @@ function WallBoard() {
 // ── Girl Bar ──────────────────────────────────────────────────────────────────
 
 function GirlBar() {
+  const [joined,   setJoined]   = useState<Set<number>>(new Set());
+  const [notified, setNotified] = useState<Set<number>>(new Set());
+
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-3xl p-5" style={{ background: "#111111" }}>
@@ -289,12 +292,21 @@ function GirlBar() {
               </p>
             </div>
             <button
+              onClick={() => r.live
+                ? setJoined((p) => { const n = new Set(p); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })
+                : setNotified((p) => new Set([...p, r.id]))}
               className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
               style={r.live
-                ? { background: "var(--bb-pink)", color: "white" }
-                : { background: "var(--light-pink)", color: "var(--bb-pink)" }}
+                ? joined.has(r.id)
+                  ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
+                  : { background: "var(--bb-pink)", color: "white" }
+                : notified.has(r.id)
+                  ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
+                  : { background: "var(--light-pink)", color: "var(--bb-pink)" }}
             >
-              {r.live ? "Join" : "Notify me"}
+              {r.live
+                ? joined.has(r.id) ? "In room ✓" : "Join"
+                : notified.has(r.id) ? "Notified ✓" : "Notify me"}
             </button>
           </div>
         ))}

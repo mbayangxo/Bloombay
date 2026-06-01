@@ -57,6 +57,13 @@ export function ClubsPage() {
   const [womenCounts, setWomenCounts]     = useState<Record<number, number>>(
     Object.fromEntries([FEATURED, ...CLUBS].map((c) => [c.id, c.women]))
   );
+  const [query, setQuery] = useState("");
+
+  const q = query.toLowerCase();
+  const filteredClubs = q
+    ? CLUBS.filter((c) => c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.tags.some((t) => t.toLowerCase().includes(q)))
+    : CLUBS;
+  const showFeatured = !q || FEATURED.name.toLowerCase().includes(q) || FEATURED.desc.toLowerCase().includes(q);
 
   function joinClub(id: number, type: ClubType) {
     if (type === "hq") {
@@ -127,7 +134,7 @@ export function ClubsPage() {
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="flex-shrink-0" style={{ color: "#aaa" }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input type="text" placeholder="Search clubs…" className="flex-1 text-sm outline-none bg-transparent" style={{ color: "var(--bb-black)" }} />
+          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search clubs…" className="flex-1 text-sm outline-none bg-transparent" style={{ color: "var(--bb-black)" }} />
         </div>
       </div>
 
@@ -204,7 +211,7 @@ export function ClubsPage() {
             <div className="flex flex-col gap-5">
 
               {/* Featured club (always HQ) */}
-              <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
+              {showFeatured && <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
                 <div className="h-32 flex items-end p-4 relative" style={{ background: `linear-gradient(135deg,${FEATURED.color},#FF1F7D,#111111)` }}>
                   <div className="absolute top-3 right-3 flex gap-2">
                     <span className="text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(0,0,0,0.6)", color: "white" }}>
@@ -248,7 +255,7 @@ export function ClubsPage() {
                     <p className="text-white/70 text-xs font-semibold">{womenCounts[FEATURED.id]} women</p>
                   </div>
                 </div>
-              </div>
+              </div>}
 
               {/* The Room teaser */}
               <Link href="/member/room" className="rounded-3xl p-4 flex items-center gap-4 block" style={{ background: "#111111", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
@@ -265,7 +272,7 @@ export function ClubsPage() {
               <div>
                 <p className="text-base font-bold italic mb-3" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>All Clubs</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {CLUBS.map((club) => (
+                  {filteredClubs.map((club) => (
                     <div
                       key={club.id}
                       className="rounded-2xl overflow-hidden bg-white"

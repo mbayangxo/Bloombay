@@ -5,9 +5,9 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
 const TONIGHT = [
-  { id: 1, tag: "2 SEATS LEFT", title: "Coffee Walk", location: "Williamsburg", time: "10:00 AM", grad: "linear-gradient(160deg,#2d1a26 0%,#5a1a35 100%)" },
-  { id: 2, tag: "3 SPOTS LEFT", title: "Museum Girls", location: "The Met", time: "2:00 PM", grad: "linear-gradient(160deg,#1a1a2e 0%,#3d1a4a 100%)" },
-  { id: 3, tag: "1 SEAT LEFT", title: "Dinner Society", location: "West Village", time: "7:30 PM", grad: "linear-gradient(160deg,#2a0a1a 0%,#6b1a3a 100%)" },
+  { id: 1, tag: "2 SEATS LEFT", title: "Coffee Walk", location: "Williamsburg", time: "10:00 AM", grad: "linear-gradient(160deg,#FF1F7D 0%,#111111 100%)" },
+  { id: 2, tag: "3 SPOTS LEFT", title: "Museum Girls", location: "The Met", time: "2:00 PM", grad: "linear-gradient(160deg,#111111 0%,#FF1F7D 100%)" },
+  { id: 3, tag: "1 SEAT LEFT", title: "Dinner Society", location: "West Village", time: "7:30 PM", grad: "linear-gradient(160deg,#FF69B4 0%,#111111 100%)" },
 ];
 
 const OBJECTS = [
@@ -196,7 +196,7 @@ export function LandingPage() {
               LOG IN
             </Link>
             <Link
-              href="/onboard"
+              href="/waitlist"
               className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest text-white transition-all hover:brightness-110 active:scale-95"
               style={{ background: "#FF1F7D" }}
             >
@@ -228,7 +228,7 @@ export function LandingPage() {
             <Link href="/about" className="text-sm font-semibold py-0.5" style={{ color: "#555" }}>About Us</Link>
             <div className="pt-3 border-t flex flex-col gap-3" style={{ borderColor: "#f0e8e0" }}>
               <Link href="/portals" className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Log in</Link>
-              <Link href="/onboard" className="text-sm font-bold" style={{ color: "#888" }}>Join BloomBay →</Link>
+              <Link href="/waitlist" className="text-sm font-bold" style={{ color: "#888" }}>Join BloomBay →</Link>
             </div>
           </div>
         )}
@@ -279,11 +279,11 @@ export function LandingPage() {
 
             <div className="flex gap-3 mt-8">
               <Link
-                href="/onboard"
+                href="/waitlist"
                 className="px-7 py-3.5 rounded-full font-bold text-sm tracking-wide transition-all hover:bg-white/90 active:scale-95"
                 style={{ background: "white", color: "#FF1F7D" }}
               >
-                Join BloomBay
+                Join the Waitlist
               </Link>
               <Link
                 href="/portals"
@@ -373,7 +373,7 @@ export function LandingPage() {
             {/* City photo placeholder */}
             <div
               className="absolute rounded-2xl overflow-hidden"
-              style={{ width: "100px", height: "130px", top: "60px", right: "290px", transform: "rotate(5deg)", zIndex: 2, background: "linear-gradient(160deg,#2d1a26,#8b2252)", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+              style={{ width: "100px", height: "130px", top: "60px", right: "290px", transform: "rotate(5deg)", zIndex: 2, background: "linear-gradient(160deg,#111111,#FF1F7D)", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
             >
               <div className="w-full h-full flex flex-col justify-end p-2">
                 <div className="w-full h-2 rounded-sm opacity-30 mb-1" style={{ background: "white" }} />
@@ -516,11 +516,11 @@ export function LandingPage() {
             <span className="italic" style={{ fontFamily: "var(--font-playfair)", fontWeight: 400 }}>here.</span>
           </p>
           <Link
-            href="/onboard"
+            href="/waitlist"
             className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold text-sm tracking-widest transition-all hover:bg-white/90 active:scale-95"
             style={{ background: "white", color: "#FF1F7D" }}
           >
-            JOIN NOW
+            JOIN THE WAITLIST
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </Link>
         </div>

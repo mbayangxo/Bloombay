@@ -767,7 +767,7 @@ function ApplicationsSection() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-sm" style={{ color: "#111111" }}>{app.name}</p>
                       {app.verified && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#E8F9F0", color: "#FF1F7D" }}>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
                           Verified
                         </span>
                       )}

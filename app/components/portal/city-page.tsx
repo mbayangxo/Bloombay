@@ -66,7 +66,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     time: "Tonight · 7PM", timeTag: "tonight",
     price: 0, priceLabel: "Free",
     womenLoved: true, featured: true,
-    gradient: "linear-gradient(160deg, #1a0a22 0%, #5a1a4a 100%)",
+    gradient: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
   },
   {
     id: 2, type: "workshop",
@@ -76,7 +76,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     price: 45, priceLabel: "$45",
     womenLoved: true, featured: false,
     partner: "Brooklyn Clay",
-    gradient: "linear-gradient(160deg, #1a1208 0%, #4a3010 100%)",
+    gradient: "linear-gradient(160deg, #FF1F7D 0%, #FF69B4 100%)",
   },
   {
     id: 3, type: "rooftop",
@@ -85,7 +85,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     time: "Tonight · 8PM", timeTag: "tonight",
     price: 20, priceLabel: "$20",
     womenLoved: false, featured: false,
-    gradient: "linear-gradient(160deg, #0a0a1a 0%, #1a2a4a 100%)",
+    gradient: "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
   },
   {
     id: 4, type: "popup",
@@ -94,7 +94,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     time: "This Weekend · Sat 12–6PM", timeTag: "weekend",
     price: 0, priceLabel: "Free",
     womenLoved: true, featured: false,
-    gradient: "linear-gradient(160deg, #2a0a10 0%, #6a1a2a 100%)",
+    gradient: "linear-gradient(160deg, #FF69B4 0%, #111111 100%)",
   },
   {
     id: 5, type: "class",
@@ -104,7 +104,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     price: 15, priceLabel: "$15",
     womenLoved: true, featured: false,
     partner: "Form Pilates",
-    gradient: "linear-gradient(160deg, #0a1a0a 0%, #1a3a1a 100%)",
+    gradient: "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
   },
   {
     id: 6, type: "festival",
@@ -113,7 +113,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     time: "This Weekend · Sat–Sun", timeTag: "weekend",
     price: 0, priceLabel: "Free",
     womenLoved: true, featured: false,
-    gradient: "linear-gradient(160deg, #0a0a20 0%, #2a0a3a 100%)",
+    gradient: "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
   },
   {
     id: 7, type: "class",
@@ -123,7 +123,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     price: 30, priceLabel: "$30",
     womenLoved: false, featured: false,
     partner: "McNally Jackson",
-    gradient: "linear-gradient(160deg, #1a0808 0%, #3a1010 100%)",
+    gradient: "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
   },
   {
     id: 8, type: "gallery",
@@ -132,7 +132,7 @@ const INITIAL_HAPPENINGS: Happening[] = [
     time: "This Weekend · Fri 6PM", timeTag: "weekend",
     price: 0, priceLabel: "Free",
     womenLoved: false, featured: false,
-    gradient: "linear-gradient(160deg, #1a1a1a 0%, #3a1a3a 100%)",
+    gradient: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
   },
 ];
 
@@ -198,19 +198,19 @@ const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
 };
 
 const PRIVACY_STYLE: Record<Privacy, { bg: string; color: string; symbol: string }> = {
-  "Public":        { bg: "#E8F9F0", color: "#FF1F7D", symbol: "○" },
+  "Public":        { bg: "#FFE0EE", color: "#FF1F7D", symbol: "○" },
   "Bloomies Only": { bg: "#FFF0F5", color: "#FF1F7D", symbol: "⬡" },
-  "Club Only":     { bg: "#EEF0FF", color: "#FF1F7D", symbol: "◈" },
-  "Invited Only":  { bg: "#FFF8E8", color: "#FF69B4", symbol: "◆" },
+  "Club Only":     { bg: "#FFE0EE", color: "#FF1F7D", symbol: "◈" },
+  "Invited Only":  { bg: "#FFF0F5", color: "#FF69B4", symbol: "◆" },
 };
 
 const HAPPENING_GRADIENTS: Record<HappeningType, string> = {
-  gallery: "linear-gradient(160deg, #1a0a22 0%, #5a1a4a 100%)",
-  popup: "linear-gradient(160deg, #2a0a10 0%, #6a1a2a 100%)",
-  rooftop: "linear-gradient(160deg, #0a0a1a 0%, #1a2a4a 100%)",
-  workshop: "linear-gradient(160deg, #1a1208 0%, #4a3010 100%)",
-  class: "linear-gradient(160deg, #0a1a0a 0%, #1a3a1a 100%)",
-  festival: "linear-gradient(160deg, #0a0a20 0%, #2a0a3a 100%)",
+  gallery:  "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
+  popup:    "linear-gradient(160deg, #FF69B4 0%, #111111 100%)",
+  rooftop:  "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
+  workshop: "linear-gradient(160deg, #FF1F7D 0%, #FF69B4 100%)",
+  class:    "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
+  festival: "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
 };
 
 // ── Happening Card ────────────────────────────────────────────────────────────
@@ -292,7 +292,7 @@ function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
               <span
                 className="ml-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full"
                 style={{
-                  background: h.price === 0 ? "rgba(34,168,90,0.4)" : "rgba(255,255,255,0.18)",
+                  background: h.price === 0 ? "rgba(255,31,125,0.35)" : "rgba(255,255,255,0.18)",
                   color: "white",
                 }}
               >
@@ -709,8 +709,8 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
 function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
   const typeColors: Record<PlaceType, { bg: string; color: string }> = {
     place: { bg: "#FFF0F5", color: "#FF1F7D" },
-    eat: { bg: "#FFF8E8", color: "#FF69B4" },
-    gem: { bg: "#EEF0FF", color: "#FF1F7D" },
+    eat:   { bg: "#FFE0EE", color: "#FF69B4" },
+    gem:   { bg: "#FFF0F5", color: "#FF1F7D" },
   };
   const tc = typeColors[place.type];
 

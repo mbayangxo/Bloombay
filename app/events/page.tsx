@@ -9,7 +9,7 @@ const EVENTS = [
     title: "Museum Evening at The Met",
     location: "Upper East Side, NYC",
     seats: "4 seats left",
-    color: "linear-gradient(160deg, #1a1a2e 0%, #3d1a4a 100%)",
+    color: "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
     official: true,
   },
   {
@@ -29,7 +29,7 @@ const EVENTS = [
     title: "Dinner Society: Long Table Edition",
     location: "West Village, NYC",
     seats: "2 seats left",
-    color: "linear-gradient(160deg, #2d1a26 0%, #6b1a3a 100%)",
+    color: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
     official: true,
   },
   {

@@ -155,6 +155,7 @@ function SelectGrid({
 
 export function OnboardFlow() {
   const router = useRouter();
+  const [genderConfirmed, setGenderConfirmed] = useState<boolean | null>(null);
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
@@ -183,6 +184,80 @@ export function OnboardFlow() {
 
   function back() {
     if (step > 0) setStep(step - 1);
+  }
+
+  // ── Gender gate ─────────────────────────────────────────────────────────────
+  if (genderConfirmed === null) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-5" style={{ background: "var(--pale-pink-bg)" }}>
+        <div className="w-full max-w-md flex flex-col items-center text-center gap-6">
+          <BBLogo size={52} />
+          <div>
+            <h2 className="text-3xl font-black mb-2" style={{ color: "var(--bb-black)" }}>
+              BloomBay is a{" "}
+              <span style={{ color: "var(--bb-pink)", fontStyle: "italic", fontFamily: "var(--font-playfair)" }}>
+                women-only
+              </span>{" "}
+              space.
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Your safety and the safety of every woman here is our top priority. This platform is exclusively for women.
+            </p>
+          </div>
+          <div
+            className="w-full rounded-3xl p-5 flex flex-col gap-2"
+            style={{ background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.08)" }}
+          >
+            <p className="text-sm font-semibold text-gray-500 mb-2">Are you a woman?</p>
+            <button
+              onClick={() => setGenderConfirmed(true)}
+              className="w-full py-4 rounded-full text-white font-bold text-base"
+              style={{ background: "var(--bb-pink)" }}
+            >
+              Yes, I am a woman ♥
+            </button>
+            <button
+              onClick={() => setGenderConfirmed(false)}
+              className="w-full py-3 rounded-full text-sm font-semibold"
+              style={{ background: "#F5F5F5", color: "#888" }}
+            >
+              I am not a woman
+            </button>
+          </div>
+          <p className="text-xs text-gray-400">
+            BloomBay is a private, invitation-only community for women.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (genderConfirmed === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-5" style={{ background: "var(--pale-pink-bg)" }}>
+        <div className="w-full max-w-md flex flex-col items-center text-center gap-6">
+          <BBLogo size={52} />
+          <div>
+            <h2 className="text-2xl font-black mb-3" style={{ color: "var(--bb-black)" }}>
+              We&apos;re sorry
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">
+              BloomBay is an exclusively women-only platform. For the safety of our members, we cannot grant access to men.
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              We take the safety of every woman in this community very seriously.
+            </p>
+          </div>
+          <button
+            onClick={() => setGenderConfirmed(null)}
+            className="text-sm font-bold underline"
+            style={{ color: "var(--bb-pink)" }}
+          >
+            ← Go back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

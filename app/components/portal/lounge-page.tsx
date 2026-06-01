@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { logout } from "@/lib/auth/actions";
 
 const TABS = ["Bouquet", "Memories", "My Link", "Profile"];
@@ -37,6 +38,12 @@ export function LoungePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [waved, setWaved] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2200);
+  }
 
   function wave(name: string) {
     setWaved((prev) => new Set([...prev, name]));
@@ -204,12 +211,13 @@ export function LoungePage() {
                 Your Bouquet is your inner circle — the women you&apos;ve genuinely connected with through BloomBay.
                 Connect through Match first, then invite to your Bouquet. Max 12. No exceptions.
               </p>
-              <button
-                className="mt-3 w-full py-3 rounded-full text-sm font-bold"
+              <Link
+                href="/member/match"
+                className="mt-3 block w-full py-3 rounded-full text-sm font-bold text-center"
                 style={{ background: "var(--bb-pink)", color: "white" }}
               >
                 Invite to Bouquet →
-              </button>
+              </Link>
             </div>
           </div>
         )}
@@ -290,12 +298,14 @@ export function LoungePage() {
               </div>
               <div className="flex gap-3">
                 <button
-                  className="flex-1 py-3 rounded-full text-sm font-bold border-2 transition-all hover:bg-pink-50"
+                  onClick={() => { if (typeof navigator !== "undefined" && navigator.share) { navigator.share({ title: "BloomBay", url: "https://bloombay.app/maya" }); } else { navigator.clipboard?.writeText("https://bloombay.app/maya"); showToast("Link copied!"); } }}
+                  className="flex-1 py-3 rounded-full text-sm font-bold border-2 transition-all active:scale-95"
                   style={{ borderColor: "var(--bb-pink)", color: "var(--bb-pink)" }}
                 >
                   Share to Instagram
                 </button>
                 <button
+                  onClick={() => { navigator.clipboard?.writeText("https://bloombay.app/maya"); showToast("Invite link copied!"); }}
                   className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all"
                   style={{ background: "var(--bb-black)" }}
                 >
@@ -307,7 +317,7 @@ export function LoungePage() {
               className="rounded-3xl p-4"
               style={{ background: "#111111" }}
             >
-              <p className="text-xs font-bold tracking-widest uppercase text-pink-400 mb-2">
+              <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "var(--bb-pink)" }}>
                 REFERRAL CODE
               </p>
               <p className="text-white text-2xl font-bold mb-1">GF-NYC-7842</p>
@@ -375,10 +385,17 @@ export function LoungePage() {
             </div>
 
             <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              {["Edit profile", "Notifications", "Privacy & Safety", "BloomBay Premium"].map((label) => (
+              <Link href="/member/notifications" className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block" style={{ borderBottom: "1px solid #F5F5F5" }}>
+                <p className="flex-1 text-sm font-semibold" style={{ color: "var(--bb-black)" }}>Notifications</p>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+              {["Edit profile", "Privacy & Safety", "BloomBay Premium"].map((label) => (
                 <button
                   key={label}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-pink-50 transition-colors"
+                  onClick={() => showToast("Coming soon")}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
                   style={{ borderBottom: "1px solid #F5F5F5" }}
                 >
                   <p className="flex-1 text-sm font-semibold" style={{ color: "var(--bb-black)" }}>{label}</p>
@@ -402,6 +419,16 @@ export function LoungePage() {
           </div>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className="fixed bottom-24 left-1/2 z-50 px-5 py-3 rounded-full text-sm font-semibold text-white shadow-lg"
+          style={{ background: "#111111", transform: "translateX(-50%)" }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

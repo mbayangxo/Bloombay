@@ -6,7 +6,7 @@ const EVENTS = [
     title: "The Summer Table",
     desc: "A long-table dinner for 60 women across 6 clubs. One night. One city. New York City.",
     date: "August 2026",
-    color: "linear-gradient(160deg, #2d1a26 0%, #6b1a3a 100%)",
+    color: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
   },
   {
     title: "Bloom in the Park",
@@ -18,7 +18,7 @@ const EVENTS = [
     title: "The First Year Party",
     desc: "BloomBay turns one. The members who built it celebrate together.",
     date: "Fall 2026",
-    color: "linear-gradient(160deg, #1a1a2e 0%, #3d1a4a 100%)",
+    color: "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
   },
 ];
 
