@@ -1,0 +1,52 @@
+import { createClient } from "../supabase/server";
+
+export type UserRole =
+  | "member"
+  | "founder"
+  | "admin"
+  | "club_owner"
+  | "partner"
+  | "moderator"
+  | "curator";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  full_name?: string;
+}
+
+export async function getAuthUser(): Promise<AuthUser | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name")
+    .eq("id", user.id)
+    .single();
+
+  return {
+    id: user.id,
+    email: user.email ?? "",
+    role: (profile?.role ?? "member") as UserRole,
+    full_name: profile?.full_name,
+  };
+}
+
+export function getPortalHomeForRole(role: UserRole): string {
+  switch (role) {
+    case "founder":
+    case "admin":
+      return "/admin/dashboard";
+    case "club_owner":
+      return "/club-owner/dashboard";
+    case "partner":
+      return "/partner/dashboard";
+    default:
+      return "/member/home";
+  }
+}
