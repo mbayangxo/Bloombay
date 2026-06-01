@@ -263,7 +263,7 @@ export function OnboardFlow() {
             <div className="flex flex-col gap-2.5 mb-6">
               {[
                 { emoji: "🔒", title: "Women only", sub: "Live selfie verification — every single member" },
-                { emoji: "🤝", title: "Real friendships", sub: "Girl Match AI finds your people by energy + values" },
+                { emoji: "🤝", title: "Real friendships", sub: "Girl Match finds your people by energy + values" },
                 { emoji: "✨", title: "Your city is alive", sub: "Girl Happenings, drops, and clubs — always something" },
               ].map((f) => (
                 <div
@@ -715,7 +715,7 @@ export function OnboardFlow() {
                         : { background: club.color, color: "white" }
                     }
                   >
-                    {rssvpd ? "You&apos;re going ✓" : "RSVP — I&apos;m going →"}
+                    {rssvpd ? "You're going ✓" : "RSVP — I'm going →"}
                   </button>
                 </div>
               ) : null;

@@ -64,7 +64,7 @@ export function HomePage() {
           {[
             { n: "3", label: "Open seats" },
             { n: "8", label: "Active clubs" },
-            { n: "420", label: "Bloom points" },
+            { n: "3", label: "Your Bloomies" },
           ].map((s) => (
             <div key={s.label} className="text-center px-4 py-2 bg-white rounded-2xl" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
               <p className="font-bold text-lg leading-none" style={{ color: "var(--bb-pink)" }}>{s.n}</p>

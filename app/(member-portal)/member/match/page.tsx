@@ -42,7 +42,7 @@ const GIRL_MATE_QUEUE: GirlProfile[] = [
     id: 2, initial: "S", name: "Sofia K.", neighborhood: "Greenpoint",
     clubs: ["Pilates Club", "Museum Girls"],
     vibe: "Wellness · Art · Long walks",
-    matchNote: "Yande thinks you'd love her energy — both early birds with an art habit.",
+    matchNote: "Both early birds who love art and wellness. 3 shared interests.",
     color: "#8B5CF6", verified: true,
   },
   {
@@ -151,7 +151,7 @@ function GirlMateTab() {
           </svg>
         </div>
         <p className="font-bold text-base mb-1" style={{ color: "#1A0514" }}>You&apos;re all caught up</p>
-        <p className="text-sm text-gray-400">Yande is finding your next match. Check back soon.</p>
+        <p className="text-sm text-gray-400">More women are joining. Check back soon.</p>
       </div>
     );
   }
@@ -159,8 +159,7 @@ function GirlMateTab() {
   return (
     <div className="px-5 flex flex-col gap-4">
       <div className="rounded-2xl p-4 mb-1" style={{ background: "#FFF0F5" }}>
-        <p className="text-xs font-bold tracking-widest uppercase mb-0.5" style={{ color: "#FF1F7D" }}>YANDE SAYS</p>
-        <p className="text-sm text-gray-600">These women share your rhythm. Connect when it feels right — no pressure.</p>
+        <p className="text-sm text-gray-600">Women who share your rhythm and clubs. Connect when it feels right — no pressure.</p>
       </div>
 
       {queue.map((girl) => (
