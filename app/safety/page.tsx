@@ -7,7 +7,7 @@ export default function SafetyPage() {
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-24">
         <div className="mb-12 text-center">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>SAFETY FIRST</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Safety at BloomBay
           </h1>
           <p className="text-base text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -60,14 +60,14 @@ export default function SafetyPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-base mb-1.5" style={{ color: "#1A0514" }}>{item.title}</h3>
+                <h3 className="font-bold text-base mb-1.5" style={{ color: "#111111" }}>{item.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{item.body}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="rounded-3xl p-8 text-center" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 text-center" style={{ background: "#111111" }}>
           <h2 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: "var(--font-playfair)" }}>
             See something. Say something.
           </h2>

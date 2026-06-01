@@ -67,7 +67,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
       <div
         className="pointer-events-auto mx-3 mb-4 flex items-center gap-0.5 px-2 py-2 rounded-full overflow-x-auto max-w-full"
-        style={{ background: "#1A0514", scrollbarWidth: "none" }}
+        style={{ background: "#111111", scrollbarWidth: "none" }}
       >
         {tabs.map((tab) => {
           const active = pathname === tab.href || pathname.startsWith(tab.href + "/");

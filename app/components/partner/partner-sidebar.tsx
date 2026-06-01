@@ -22,7 +22,7 @@ export function PartnerSidebar() {
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col z-40"
-      style={{ background: "#1A0514" }}
+      style={{ background: "#111111" }}
     >
       {/* Logo */}
       <div className="px-5 py-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>

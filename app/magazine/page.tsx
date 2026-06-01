@@ -40,7 +40,7 @@ export default function MagazinePage() {
         {/* Masthead */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.35em] uppercase mb-4" style={{ color: "#FF1F7D" }}>EST. 2026</p>
-          <h1 className="text-5xl md:text-8xl font-bold leading-none mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-5xl md:text-8xl font-bold leading-none mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             BloomBay
           </h1>
           <p className="text-xl font-light tracking-[0.25em] uppercase mb-6" style={{ color: "#888" }}>
@@ -78,7 +78,7 @@ export default function MagazinePage() {
               <div className="h-40" style={{ background: story.color }} />
               <div className="p-6">
                 <span className="text-xs font-bold tracking-wider" style={{ color: "#FF1F7D" }}>{story.tag}</span>
-                <h3 className="font-bold text-sm leading-snug mt-2 mb-4" style={{ color: "#1A0514" }}>{story.title}</h3>
+                <h3 className="font-bold text-sm leading-snug mt-2 mb-4" style={{ color: "#111111" }}>{story.title}</h3>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-400">By {story.author}</span>
                   <span className="text-xs text-gray-400">{story.read}</span>
@@ -90,7 +90,7 @@ export default function MagazinePage() {
 
         {/* Write for us */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Have a story to tell?
           </h2>
           <p className="text-sm text-gray-500 mb-5">We want to hear from women in the community. Pitch us something real.</p>

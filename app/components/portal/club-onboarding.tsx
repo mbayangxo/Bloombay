@@ -80,7 +80,7 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
               </p>
               <h1
                 className="text-3xl font-bold leading-tight mb-3"
-                style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}
+                style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}
               >
                 {data.hostWelcome}
               </h1>
@@ -90,7 +90,7 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
               </p>
             </div>
 
-            <div className="rounded-3xl p-5" style={{ background: "#1A0514" }}>
+            <div className="rounded-3xl p-5" style={{ background: "#111111" }}>
               <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 YOU JOINED
               </p>
@@ -118,7 +118,7 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
           <div className="flex flex-col gap-5">
             <div>
               <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: data.color }}>THE STORY</p>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
                 How {data.clubName} was built.
               </h2>
               <p className="text-sm leading-relaxed text-gray-600">{data.clubStory}</p>
@@ -147,7 +147,7 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
           <div className="flex flex-col gap-5">
             <div>
               <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: data.color }}>HOW IT WORKS</p>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
                 How gatherings work.
               </h2>
             </div>
@@ -183,13 +183,13 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
           <div className="flex flex-col gap-5">
             <div>
               <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: data.color }}>CLUB RULES</p>
-              <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+              <h2 className="text-2xl font-bold mb-1" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
                 The house rules.
               </h2>
               <p className="text-sm text-gray-400 mb-4">You must accept these to enter the Clubhouse.</p>
             </div>
 
-            <div className="rounded-3xl overflow-hidden" style={{ background: "#1A0514" }}>
+            <div className="rounded-3xl overflow-hidden" style={{ background: "#111111" }}>
               {data.rules.map((rule, i) => (
                 <div
                   key={i}
@@ -235,7 +235,7 @@ export function ClubOnboarding({ data = DEFAULT }: { data?: ClubOnboardingData }
 
             <div>
               <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: data.color }}>YOU&apos;RE IN</p>
-              <h2 className="text-2xl font-bold leading-tight" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+              <h2 className="text-2xl font-bold leading-tight" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
                 Welcome to {data.clubName}.
               </h2>
               <p className="text-sm text-gray-400 mt-2">The table is set. Your seat is waiting.</p>

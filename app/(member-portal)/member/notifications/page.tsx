@@ -82,7 +82,7 @@ const EARLIER: Notif[] = [
 function NotifIcon({ type }: { type: Notif["type"] }) {
   if (type === "stamp") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#1A0514" }}>
+      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#111111" }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF1F7D">
           <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
         </svg>
@@ -112,7 +112,7 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   if (type === "celebrate") {
     return (
       <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF8E8" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2" strokeLinecap="round">
           <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
         </svg>
       </div>
@@ -121,7 +121,7 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   if (type === "intro") {
     return (
       <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#E8F9F0" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22A85A" strokeWidth="2" strokeLinecap="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
@@ -132,7 +132,7 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   if (type === "message") {
     return (
       <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#EEF0FF" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
       </div>
@@ -159,7 +159,7 @@ function NotifRow({ n }: { n: Notif }) {
       <div className="flex-1 min-w-0">
         <p
           className="text-sm leading-snug"
-          style={{ color: "#1A0514", fontWeight: n.unread ? 700 : 500 }}
+          style={{ color: "#111111", fontWeight: n.unread ? 700 : 500 }}
         >
           {n.title}
         </p>

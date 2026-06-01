@@ -27,7 +27,7 @@ export default function ContactPage() {
       <div className="max-w-2xl mx-auto px-6 pt-20 pb-24">
         <div className="text-center mb-12">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>GET IN TOUCH</p>
-          <h1 className="text-4xl md:text-5xl font-bold" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-5xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Contact Us
           </h1>
           <p className="text-base text-gray-500 mt-4 leading-relaxed">
@@ -42,7 +42,7 @@ export default function ContactPage() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>Message received.</h2>
+            <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>Message received.</h2>
             <p className="text-sm text-gray-500">We will get back to you within 48 hours.</p>
           </div>
         ) : (
@@ -73,7 +73,7 @@ export default function ContactPage() {
               <input
                 type="text" required
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }}
+                style={{ borderColor: "#FFE0EE", color: "#111111" }}
                 placeholder="First name is fine"
               />
             </div>
@@ -83,7 +83,7 @@ export default function ContactPage() {
               <input
                 type="email" required
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }}
+                style={{ borderColor: "#FFE0EE", color: "#111111" }}
                 placeholder="your@email.com"
               />
             </div>
@@ -95,7 +95,7 @@ export default function ContactPage() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }}
+                style={{ borderColor: "#FFE0EE", color: "#111111" }}
                 placeholder="Tell us what's on your mind..."
               />
             </div>

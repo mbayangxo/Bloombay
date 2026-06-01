@@ -48,7 +48,7 @@ export default function HostResourcesPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>HOST RESOURCES</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Everything you need<br />to host well.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -73,7 +73,7 @@ export default function HostResourcesPage() {
                 </div>
                 <div>
                   <span className="text-xs font-bold tracking-wider" style={{ color: "#FF1F7D" }}>{guide.tag}</span>
-                  <h3 className="font-bold text-sm mt-1 mb-1.5" style={{ color: "#1A0514" }}>{guide.title}</h3>
+                  <h3 className="font-bold text-sm mt-1 mb-1.5" style={{ color: "#111111" }}>{guide.title}</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">{guide.desc}</p>
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function HostResourcesPage() {
         </div>
 
         {/* Bloom Guard callout */}
-        <div className="rounded-3xl p-8 md:p-10 mb-16" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-10 mb-16" style={{ background: "#111111" }}>
           <div className="flex items-start gap-5">
             <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
@@ -104,7 +104,7 @@ export default function HostResourcesPage() {
 
         {/* CTA */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Ready to start hosting?
           </h2>
           <p className="text-sm text-gray-500 mb-5">Apply to start a club and get access to your full host dashboard.</p>

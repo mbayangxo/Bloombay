@@ -7,7 +7,7 @@ const TABS = ["Bouquet", "Memories", "My Link", "Profile"];
 
 const BOUQUET_MEMBERS = [
   { name: "Aaliyah M.", neighborhood: "Crown Heights", color: "#FF1F7D", initial: "A", since: "Jan 2026" },
-  { name: "Sofia K.", neighborhood: "Williamsburg", color: "#8B5CF6", initial: "S", since: "Feb 2026" },
+  { name: "Sofia K.", neighborhood: "Williamsburg", color: "#FF69B4", initial: "S", since: "Feb 2026" },
   { name: "Kelechi O.", neighborhood: "Flatbush", color: "#FF69B4", initial: "K", since: "Mar 2026" },
 ];
 
@@ -92,7 +92,7 @@ export function LoungePage() {
             {/* Banner */}
             <div
               className="rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: "#1A0514" }}
+              style={{ background: "#111111" }}
             >
               <div
                 className="absolute top-0 right-0 w-36 h-36 rounded-full opacity-10"
@@ -226,7 +226,7 @@ export function LoungePage() {
                   <div
                     key={i}
                     className="rounded-2xl p-4"
-                    style={{ background: "#1A0514" }}
+                    style={{ background: "#111111" }}
                   >
                     <p
                       className="text-white/90 text-sm italic leading-relaxed"
@@ -283,7 +283,7 @@ export function LoungePage() {
                 <button
                   onClick={copyLink}
                   className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90"
-                  style={copied ? { background: "#1A0514", color: "white" } : { background: "var(--bb-pink)", color: "white" }}
+                  style={copied ? { background: "#111111", color: "white" } : { background: "var(--bb-pink)", color: "white" }}
                 >
                   {copied ? "Copied ✓" : "Copy"}
                 </button>
@@ -305,7 +305,7 @@ export function LoungePage() {
             </div>
             <div
               className="rounded-3xl p-4"
-              style={{ background: "#1A0514" }}
+              style={{ background: "#111111" }}
             >
               <p className="text-xs font-bold tracking-widest uppercase text-pink-400 mb-2">
                 REFERRAL CODE
@@ -392,8 +392,8 @@ export function LoungePage() {
                   type="submit"
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-red-50 transition-colors"
                 >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: "#c40060" }}>Sign out</p>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c40060" strokeWidth={2}>
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#FF1F7D" }}>Sign out</p>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
                   </svg>
                 </button>

@@ -32,7 +32,7 @@ export default function PressPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>PRESS</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Media & Press
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -48,7 +48,7 @@ export default function PressPage() {
         </div>
 
         {/* Fast facts */}
-        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-8" style={{ color: "#FF1F7D" }}>FAST FACTS</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -73,7 +73,7 @@ export default function PressPage() {
               <div key={c.outlet} className="bg-white rounded-2xl p-6 flex flex-col md:flex-row md:items-center gap-3 justify-between" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
                 <div>
                   <p className="text-xs font-bold tracking-wider mb-1.5" style={{ color: "#FF1F7D" }}>{c.outlet}</p>
-                  <p className="font-semibold text-sm leading-snug" style={{ color: "#1A0514" }}>{c.headline}</p>
+                  <p className="font-semibold text-sm leading-snug" style={{ color: "#111111" }}>{c.headline}</p>
                 </div>
                 <span className="text-xs text-gray-400 flex-shrink-0">{c.date}</span>
               </div>
@@ -83,7 +83,7 @@ export default function PressPage() {
 
         {/* Assets */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Brand assets & media kit
           </h2>
           <p className="text-sm text-gray-500 mb-5">Logos, photography, founder bios, and brand guidelines — available on request.</p>

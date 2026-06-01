@@ -30,7 +30,7 @@ export default function IRLPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>BLOOMBAY IRL</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             The city is<br />our venue.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -39,7 +39,7 @@ export default function IRLPage() {
         </div>
 
         {/* What is IRL */}
-        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-6" style={{ color: "#FF1F7D" }}>WHAT IS BLOOMBAY IRL?</p>
           <p className="text-white/80 text-base leading-relaxed max-w-2xl">
             Most BloomBay gatherings happen inside clubs — intimate, curated, by invitation. But a few times a year, we open the city up. BloomBay IRL events are bigger: long tables, rooftop evenings, morning markets, walking tours. They are open to all members and designed to help women from different clubs cross paths.
@@ -67,7 +67,7 @@ export default function IRLPage() {
                 <div className="w-full md:w-48 h-36 md:h-auto flex-shrink-0" style={{ background: ev.color }} />
                 <div className="p-6 bg-white flex flex-col justify-center flex-1">
                   <span className="text-xs font-bold tracking-wider mb-1.5" style={{ color: "#FF1F7D" }}>{ev.date}</span>
-                  <h3 className="font-bold text-lg mb-1.5" style={{ color: "#1A0514" }}>{ev.title}</h3>
+                  <h3 className="font-bold text-lg mb-1.5" style={{ color: "#111111" }}>{ev.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{ev.desc}</p>
                 </div>
               </div>
@@ -77,7 +77,7 @@ export default function IRLPage() {
 
         {/* Notify */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Members get first access.
           </h2>
           <p className="text-sm text-gray-500 mb-5">BloomBay IRL events are announced inside the app first. Join to be first to know.</p>

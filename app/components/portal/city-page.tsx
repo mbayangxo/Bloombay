@@ -198,10 +198,10 @@ const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
 };
 
 const PRIVACY_STYLE: Record<Privacy, { bg: string; color: string; symbol: string }> = {
-  "Public":        { bg: "#E8F9F0", color: "#22A85A", symbol: "○" },
+  "Public":        { bg: "#E8F9F0", color: "#FF1F7D", symbol: "○" },
   "Bloomies Only": { bg: "#FFF0F5", color: "#FF1F7D", symbol: "⬡" },
-  "Club Only":     { bg: "#EEF0FF", color: "#6366F1", symbol: "◈" },
-  "Invited Only":  { bg: "#FFF8E8", color: "#D97706", symbol: "◆" },
+  "Club Only":     { bg: "#EEF0FF", color: "#FF1F7D", symbol: "◈" },
+  "Invited Only":  { bg: "#FFF8E8", color: "#FF69B4", symbol: "◆" },
 };
 
 const HAPPENING_GRADIENTS: Record<HappeningType, string> = {
@@ -307,7 +307,7 @@ function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
       <div className="px-4 py-3.5 flex items-center gap-3">
         <div className="flex-1 min-w-0">
           {!featured && (
-            <p className="font-bold text-sm leading-snug" style={{ color: "#1A0514" }}>
+            <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>
               {h.title}
             </p>
           )}
@@ -381,7 +381,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
         <div className="p-5 pb-10">
           <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
               Add a pop-up
             </h2>
             <button onClick={onClose} className="text-gray-300 p-1">
@@ -397,7 +397,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Ceramics Pop-Up in the Village"
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div>
@@ -420,7 +420,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
               <input type="text" value={dateTime} onChange={(e) => setDateTime(e.target.value)}
                 placeholder="e.g. Saturday · 2PM–6PM"
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -429,14 +429,14 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
                 <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
                   placeholder="Venue name or address"
                   className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Neighborhood</label>
                 <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}
                   placeholder="e.g. SoHo"
                   className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
               </div>
             </div>
 
@@ -446,7 +446,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
                 <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
                 <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
                   min="0" placeholder="0"
-                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#1A0514" }} />
+                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
               </div>
             </div>
 
@@ -458,7 +458,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
                 placeholder="Tell us about this event..."
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <button onClick={handlePost}
@@ -508,7 +508,7 @@ function SeatTicket({
               </span>
             )}
           </div>
-          <p className="font-bold text-sm leading-snug" style={{ color: "#1A0514" }}>{seat.title}</p>
+          <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{seat.title}</p>
           <p className="text-xs text-gray-400 mt-0.5">{seat.time}</p>
           <p className="text-xs font-semibold mt-0.5" style={{ color: "#FF1F7D" }}>{seat.host}</p>
           <p className="text-[11px] text-gray-400 mt-2">{payLine}</p>
@@ -520,7 +520,7 @@ function SeatTicket({
           {seat.deposit > 0 && (
             <>
               <div className="w-8 my-1" style={{ borderTop: "1px solid #FECDD5" }} />
-              <p className="text-sm font-bold" style={{ color: "#1A0514" }}>${seat.deposit}</p>
+              <p className="text-sm font-bold" style={{ color: "#111111" }}>${seat.deposit}</p>
               <p className="text-[10px] text-gray-400">deposit</p>
             </>
           )}
@@ -578,7 +578,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
         <div className="p-5 pb-10">
           <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
               Post a Seat
             </h2>
             <button onClick={onClose} className="text-gray-300 p-1">
@@ -594,7 +594,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Girls dinner · Carbone"
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -603,14 +603,14 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                 <input type="text" value={time} onChange={(e) => setTime(e.target.value)}
                   placeholder="Friday 7:30PM"
                   className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Where</label>
                 <input type="text" value={venue} onChange={(e) => setVenue(e.target.value)}
                   placeholder="Carbone, SoHo"
                   className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
               </div>
             </div>
 
@@ -620,7 +620,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                 <button onClick={() => setSeats((s) => Math.max(1, s - 1))}
                   className="w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center"
                   style={{ background: "#FFF0F5", color: "#FF1F7D" }}>−</button>
-                <p className="text-2xl font-bold w-8 text-center" style={{ color: "#1A0514" }}>{seats}</p>
+                <p className="text-2xl font-bold w-8 text-center" style={{ color: "#111111" }}>{seats}</p>
                 <button onClick={() => setSeats((s) => Math.min(20, s + 1))}
                   className="w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center"
                   style={{ background: "#FFF0F5", color: "#FF1F7D" }}>+</button>
@@ -641,7 +641,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                         : { borderColor: "#EEE", background: "white" }}>
                       <span className="text-sm mt-0.5">{ps.symbol}</span>
                       <div>
-                        <p className="text-xs font-bold" style={{ color: privacy === key ? "#FF1F7D" : "#1A0514" }}>{key}</p>
+                        <p className="text-xs font-bold" style={{ color: privacy === key ? "#FF1F7D" : "#111111" }}>{key}</p>
                         <p className="text-[10px] text-gray-400">{desc}</p>
                       </div>
                     </button>
@@ -668,7 +668,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                   <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
                   <input type="number" value={cashAmount} onChange={(e) => setCashAmount(e.target.value)}
                     placeholder="Exact cash amount"
-                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#1A0514" }} />
+                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
                 </div>
               )}
               {paymentType === "advance" && (
@@ -676,7 +676,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                   <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
                   <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
                     placeholder="Price (0 = free)"
-                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#1A0514" }} />
+                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
                 </div>
               )}
             </div>
@@ -688,7 +688,7 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
                 <input type="number" value={deposit}
                   onChange={(e) => setDeposit(String(Math.min(50, Math.max(0, parseInt(e.target.value) || 0))))}
                   min="0" max="50"
-                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#1A0514" }} />
+                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
               </div>
               <p className="text-[11px] text-gray-400 mt-1">Returns as wallet credit when she shows up.</p>
             </div>
@@ -709,8 +709,8 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
 function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
   const typeColors: Record<PlaceType, { bg: string; color: string }> = {
     place: { bg: "#FFF0F5", color: "#FF1F7D" },
-    eat: { bg: "#FFF8E8", color: "#D97706" },
-    gem: { bg: "#EEF0FF", color: "#6366F1" },
+    eat: { bg: "#FFF8E8", color: "#FF69B4" },
+    gem: { bg: "#EEF0FF", color: "#FF1F7D" },
   };
   const tc = typeColors[place.type];
 
@@ -735,7 +735,7 @@ function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean
                 {place.neighborhood}
               </span>
             </div>
-            <p className="font-bold text-sm leading-snug" style={{ color: "#1A0514" }}>{place.name}</p>
+            <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{place.name}</p>
           </div>
           {/* Star rating */}
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -746,7 +746,7 @@ function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
             ))}
-            <span className="text-xs font-bold ml-0.5" style={{ color: "#1A0514" }}>{place.rating.toFixed(1)}</span>
+            <span className="text-xs font-bold ml-0.5" style={{ color: "#111111" }}>{place.rating.toFixed(1)}</span>
           </div>
         </div>
 
@@ -839,7 +839,7 @@ function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pla
         <div className="p-5 pb-10">
           <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
               Add a place
             </h2>
             <button onClick={onClose} className="text-gray-300 p-1">
@@ -855,7 +855,7 @@ function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pla
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Sadelle's"
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div>
@@ -878,7 +878,7 @@ function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pla
               <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}
                 placeholder="e.g. SoHo"
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div>
@@ -904,7 +904,7 @@ function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pla
                 placeholder="Your honest review..."
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
-                style={{ borderColor: "#FFE0EE", color: "#1A0514" }} />
+                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
             </div>
 
             <div>
@@ -976,7 +976,7 @@ function WhatsOnTab() {
               onClick={() => setActiveFilter(f)}
               className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
               style={activeFilter === f
-                ? { background: "#1A0514", color: "white" }
+                ? { background: "#111111", color: "white" }
                 : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
             >
               {f}
@@ -1002,7 +1002,7 @@ function WhatsOnTab() {
         <button
           onClick={() => setShowAddPopup(true)}
           className="w-full mt-4 rounded-3xl p-5 flex items-center gap-4 transition-all active:scale-[0.98]"
-          style={{ background: "#1A0514" }}
+          style={{ background: "#111111" }}
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -1067,7 +1067,7 @@ function WhatsOnTab() {
                   {c.initial}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{c.name} · <span className="font-normal text-gray-500">{c.event}</span></p>
+                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{c.name} · <span className="font-normal text-gray-500">{c.event}</span></p>
                   <p className="italic text-xs text-gray-500 mt-0.5 truncate" style={{ fontFamily: "var(--font-playfair)" }}>
                     &ldquo;{c.quote}&rdquo;
                   </p>
@@ -1209,7 +1209,7 @@ export function CityPage() {
             onClick={() => setActiveTab("whats-on")}
             className="px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
             style={activeTab === "whats-on"
-              ? { background: "#1A0514", color: "white" }
+              ? { background: "#111111", color: "white" }
               : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
           >
             What&apos;s On
@@ -1218,7 +1218,7 @@ export function CityPage() {
             onClick={() => setActiveTab("girl-picks")}
             className="px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
             style={activeTab === "girl-picks"
-              ? { background: "#1A0514", color: "white" }
+              ? { background: "#111111", color: "white" }
               : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
           >
             Girl Picks

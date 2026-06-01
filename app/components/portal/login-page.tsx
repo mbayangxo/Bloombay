@@ -105,8 +105,8 @@ export function LoginPage() {
           <div className="flex items-center gap-2 mb-2">
             {[
               { i: "A", c: "#FF1F7D" }, { i: "S", c: "#FF69B4" },
-              { i: "P", c: "#c40060" }, { i: "K", c: "#FF69B4" },
-              { i: "C", c: "#1A0514" },
+              { i: "P", c: "#FF1F7D" }, { i: "K", c: "#FF69B4" },
+              { i: "C", c: "#111111" },
             ].map((a) => (
               <div
                 key={a.i}

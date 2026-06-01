@@ -7,8 +7,8 @@ type RoomTab = "wall" | "girlbar";
 const WALL_POSTS = [
   { id: 1, author: "Aaliyah M.", initial: "A", color: "#FF1F7D", time: "2h ago", text: "Anyone going to the Carbone dinner tonight? Let's meet beforehand for drinks at Don Ciccio.", likes: 12, replies: 4, pinned: true },
   { id: 2, author: "Sofia K.",   initial: "S", color: "#FF69B4", time: "4h ago", text: "PSA: The pilates class on Sunday has 3 spots left. Worth every penny. DM me if you want the link.", likes: 8, replies: 2, pinned: false },
-  { id: 3, author: "Priya R.",   initial: "P", color: "#8B5CF6", time: "6h ago", text: "Just discovered the best matcha in Williamsburg — not telling you where until you come with me.", likes: 23, replies: 9, pinned: false },
-  { id: 4, author: "Kezia N.",   initial: "K", color: "#c40060", time: "Yesterday", text: "Reminder that the Soft Life Club brunch is this Saturday 11AM. Hoboken girls, this one's for you.", likes: 17, replies: 6, pinned: false },
+  { id: 3, author: "Priya R.",   initial: "P", color: "#FF69B4", time: "6h ago", text: "Just discovered the best matcha in Williamsburg — not telling you where until you come with me.", likes: 23, replies: 9, pinned: false },
+  { id: 4, author: "Kezia N.",   initial: "K", color: "#FF1F7D", time: "Yesterday", text: "Reminder that the Soft Life Club brunch is this Saturday 11AM. Hoboken girls, this one's for you.", likes: 17, replies: 6, pinned: false },
   { id: 5, author: "Imani J.",   initial: "I", color: "#FF1F7D", time: "Yesterday", text: "I just negotiated a $40K raise. The best thing I ever did was stop treating my salary as a fixed number.", likes: 87, replies: 23, pinned: false },
   { id: 6, author: "Naomi B.",   initial: "N", color: "#FF69B4", time: "2d ago", text: "Anyone here have experience pitching to female investors? About to raise a seed round and want to connect.", likes: 19, replies: 11, pinned: false },
 ];
@@ -115,7 +115,7 @@ function WallBoard() {
 function GirlBar() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl p-5" style={{ background: "#1A0514" }}>
+      <div className="rounded-3xl p-5" style={{ background: "#111111" }}>
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
           <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--mid-pink)" }}>
@@ -207,7 +207,7 @@ export default function TheRoomPage() {
               className="px-5 py-2 rounded-full text-sm font-semibold transition-all"
               style={
                 tab === t
-                  ? { background: "#1A0514", color: "white" }
+                  ? { background: "#111111", color: "white" }
                   : { color: "#888" }
               }
             >

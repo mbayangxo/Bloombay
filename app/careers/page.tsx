@@ -36,7 +36,7 @@ export default function CareersPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>CAREERS</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Build the world<br />women deserve.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -45,7 +45,7 @@ export default function CareersPage() {
         </div>
 
         {/* Values */}
-        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-12 mb-16" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-8" style={{ color: "#FF1F7D" }}>WHAT WE BELIEVE</p>
           <div className="grid md:grid-cols-2 gap-8">
             {[
@@ -73,7 +73,7 @@ export default function CareersPage() {
                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{role.team}</span>
                     <span className="text-xs text-gray-400">{role.type}</span>
                   </div>
-                  <p className="font-bold text-base mb-1" style={{ color: "#1A0514" }}>{role.title}</p>
+                  <p className="font-bold text-base mb-1" style={{ color: "#111111" }}>{role.title}</p>
                   <p className="text-sm text-gray-500 leading-relaxed max-w-lg">{role.desc}</p>
                 </div>
                 <Link
@@ -90,7 +90,7 @@ export default function CareersPage() {
 
         {/* General */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Don&apos;t see your role?
           </h2>
           <p className="text-sm text-gray-500 mb-5">We are always open to meeting the right people. Send us a note.</p>

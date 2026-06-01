@@ -41,7 +41,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-24">
         <div className="mb-12">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>LEGAL</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Terms of Service
           </h1>
           <p className="text-sm text-gray-400">Last updated: June 1, 2026</p>
@@ -53,7 +53,7 @@ export default function TermsPage() {
         <div className="flex flex-col gap-10">
           {SECTIONS.map((s, i) => (
             <div key={i} className="pb-10" style={{ borderBottom: i < SECTIONS.length - 1 ? "1px solid #ecddd4" : "none" }}>
-              <h2 className="text-xl font-bold mb-3" style={{ color: "#1A0514" }}>{s.title}</h2>
+              <h2 className="text-xl font-bold mb-3" style={{ color: "#111111" }}>{s.title}</h2>
               <p className="text-base text-gray-500 leading-relaxed">{s.body}</p>
             </div>
           ))}

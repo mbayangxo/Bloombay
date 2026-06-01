@@ -9,7 +9,7 @@ export default function PartnerPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>PARTNERS</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Reach women who<br />actually show up.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -59,14 +59,14 @@ export default function PartnerPage() {
                   </svg>
                 </div>
               </div>
-              <h3 className="font-bold text-base mb-2" style={{ color: "#1A0514" }}>{item.title}</h3>
+              <h3 className="font-bold text-base mb-2" style={{ color: "#111111" }}>{item.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
 
         {/* Stats */}
-        <div className="rounded-3xl p-10 mb-16" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-10 mb-16" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-8 text-center" style={{ color: "#FF1F7D" }}>THE BLOOMBAY WOMAN</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -85,7 +85,7 @@ export default function PartnerPage() {
 
         {/* CTA */}
         <div className="rounded-3xl p-10 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-2xl font-bold mb-3" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-2xl font-bold mb-3" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Let&apos;s build something together.
           </h2>
           <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">

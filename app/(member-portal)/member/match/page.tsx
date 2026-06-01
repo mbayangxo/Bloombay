@@ -43,21 +43,21 @@ const GIRL_MATE_QUEUE: GirlProfile[] = [
     clubs: ["Pilates Club", "Museum Girls"],
     vibe: "Wellness · Art · Long walks",
     matchNote: "Both early birds who love art and wellness. 3 shared interests.",
-    color: "#8B5CF6", verified: true,
+    color: "#FF69B4", verified: true,
   },
   {
     id: 3, initial: "J", name: "Jade O.", neighborhood: "Crown Heights",
     clubs: ["Dinner Society", "Sunday Rooftop"],
     vibe: "Restaurants · Rooftops · Great tables",
     matchNote: "She's hosted two dinners you saved to your wishlist.",
-    color: "#059669", verified: true,
+    color: "#FF69B4", verified: true,
   },
   {
     id: 4, initial: "N", name: "Naomi B.", neighborhood: "SoHo",
     clubs: ["Girl Tech Collective", "Jazz & Wine"],
     vibe: "Tech · Live music · Late dinners",
     matchNote: "Mutual connection through Jazz & Wine. 3 shared interests.",
-    color: "#D97706", verified: false,
+    color: "#FF69B4", verified: false,
   },
 ];
 
@@ -72,37 +72,37 @@ const REQUESTS: Request[] = [
   {
     id: 2, initial: "K", name: "Kezia N.", neighborhood: "Chelsea",
     clubs: ["Girl Tech Collective", "Museum Girls"],
-    color: "#6366F1",
+    color: "#FF1F7D",
     direction: "incoming", status: "pending",
   },
   {
     id: 3, initial: "F", name: "Fatima A.", neighborhood: "Harlem",
     clubs: ["African Girls Club"],
-    color: "#059669",
+    color: "#FF69B4",
     message: "Saw your Girl Picks — you have the best taste in hidden gems.",
     direction: "incoming", status: "pending",
   },
   {
     id: 4, initial: "C", name: "Ciara M.", neighborhood: "Brooklyn Heights",
     clubs: ["Dinner Society"],
-    color: "#D97706",
+    color: "#FF69B4",
     direction: "outgoing", status: "pending",
   },
   {
     id: 5, initial: "Z", name: "Zara F.", neighborhood: "DUMBO",
     clubs: ["Sunday Rooftop"],
-    color: "#8B5CF6",
+    color: "#FF69B4",
     direction: "outgoing", status: "pending",
   },
 ];
 
 const FIND_PROFILES: GirlProfile[] = [
   { id: 10, initial: "T", name: "Tara L.", neighborhood: "West Village", clubs: ["Dinner Society"], vibe: "Food · Art · Walks", matchNote: "", color: "#FF1F7D", verified: true },
-  { id: 11, initial: "Y", name: "Yemi O.", neighborhood: "SoHo", clubs: ["Jazz & Wine", "Creative Writing"], vibe: "Music · Writing · Culture", matchNote: "", color: "#8B5CF6", verified: true },
-  { id: 12, initial: "P", name: "Priya S.", neighborhood: "Brooklyn Heights", clubs: ["Soft Life", "Pilates Club"], vibe: "Wellness · Slow living", matchNote: "", color: "#059669", verified: true },
-  { id: 13, initial: "D", name: "Deja W.", neighborhood: "Prospect Heights", clubs: ["Book Club"], vibe: "Books · Coffee · Museums", matchNote: "", color: "#D97706", verified: false },
-  { id: 14, initial: "L", name: "Leila M.", neighborhood: "Williamsburg", clubs: ["Sunday Rooftop", "Museum Girls"], vibe: "Rooftops · Art · Architecture", matchNote: "", color: "#EC4899", verified: true },
-  { id: 15, initial: "B", name: "Bea T.", neighborhood: "Crown Heights", clubs: ["African Girls Club"], vibe: "Community · Culture · Food", matchNote: "", color: "#14B8A6", verified: true },
+  { id: 11, initial: "Y", name: "Yemi O.", neighborhood: "SoHo", clubs: ["Jazz & Wine", "Creative Writing"], vibe: "Music · Writing · Culture", matchNote: "", color: "#FF69B4", verified: true },
+  { id: 12, initial: "P", name: "Priya S.", neighborhood: "Brooklyn Heights", clubs: ["Soft Life", "Pilates Club"], vibe: "Wellness · Slow living", matchNote: "", color: "#FF69B4", verified: true },
+  { id: 13, initial: "D", name: "Deja W.", neighborhood: "Prospect Heights", clubs: ["Book Club"], vibe: "Books · Coffee · Museums", matchNote: "", color: "#FF69B4", verified: false },
+  { id: 14, initial: "L", name: "Leila M.", neighborhood: "Williamsburg", clubs: ["Sunday Rooftop", "Museum Girls"], vibe: "Rooftops · Art · Architecture", matchNote: "", color: "#FF69B4", verified: true },
+  { id: 15, initial: "B", name: "Bea T.", neighborhood: "Crown Heights", clubs: ["African Girls Club"], vibe: "Community · Culture · Food", matchNote: "", color: "#FF1F7D", verified: true },
 ];
 
 const FIND_FILTERS = ["Near Me", "Same Clubs", "New In Town", "Verified"] as const;
@@ -111,7 +111,7 @@ const FIND_FILTERS = ["Near Me", "Same Clubs", "New In Town", "Verified"] as con
 
 function VerifiedBadge() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#22A85A">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF1F7D">
       <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
     </svg>
   );
@@ -150,7 +150,7 @@ function ConnectTab() {
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
           </svg>
         </div>
-        <p className="font-bold text-base mb-1" style={{ color: "#1A0514" }}>You&apos;re all caught up</p>
+        <p className="font-bold text-base mb-1" style={{ color: "#111111" }}>You&apos;re all caught up</p>
         <p className="text-sm text-gray-400">More women are joining. Check back soon.</p>
       </div>
     );
@@ -176,7 +176,7 @@ function ConnectTab() {
               <ProfileAvatar initial={girl.initial} color={girl.color} size={52} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <p className="font-bold text-base" style={{ color: "#1A0514" }}>{girl.name}</p>
+                  <p className="font-bold text-base" style={{ color: "#111111" }}>{girl.name}</p>
                   {girl.verified && <VerifiedBadge />}
                 </div>
                 <p className="text-sm text-gray-400">{girl.neighborhood}</p>
@@ -254,7 +254,7 @@ function RequestsTab() {
                 <div className="flex items-start gap-3 mb-3">
                   <ProfileAvatar initial={req.initial} color={req.color} size={44} />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{req.name}</p>
+                    <p className="font-bold text-sm" style={{ color: "#111111" }}>{req.name}</p>
                     <p className="text-xs text-gray-400">{req.neighborhood}</p>
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {req.clubs.map((c) => (
@@ -274,12 +274,12 @@ function RequestsTab() {
                 )}
                 {req.status === "accepted" ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#22A85A" }}>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#FF1F7D" }}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
                         <path d="M1.5 5l2 2 5-4" />
                       </svg>
                     </div>
-                    <span className="text-sm font-semibold" style={{ color: "#22A85A" }}>You&apos;re Bloomies now</span>
+                    <span className="text-sm font-semibold" style={{ color: "#FF1F7D" }}>You&apos;re Bloomies now</span>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -311,7 +311,7 @@ function RequestsTab() {
             <div key={req.id} className="bg-white rounded-2xl p-4 flex items-center gap-3" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
               <ProfileAvatar initial={req.initial} color={req.color} size={40} />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{req.name}</p>
+                <p className="font-bold text-sm" style={{ color: "#111111" }}>{req.name}</p>
                 <p className="text-xs text-gray-400">{req.neighborhood}</p>
               </div>
               <span className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "#F5F5F5", color: "#888" }}>
@@ -385,7 +385,7 @@ function FindTab() {
               <ProfileAvatar initial={p.initial} color={p.color} size={38} />
               {p.verified && <VerifiedBadge />}
             </div>
-            <p className="font-bold text-sm leading-tight mb-0.5" style={{ color: "#1A0514" }}>{p.name}</p>
+            <p className="font-bold text-sm leading-tight mb-0.5" style={{ color: "#111111" }}>{p.name}</p>
             <p className="text-xs text-gray-400 mb-2">{p.neighborhood}</p>
             <p className="text-[11px] text-gray-400 leading-snug mb-3">{p.vibe}</p>
             <button
@@ -433,7 +433,7 @@ export default function MatchPage() {
               onClick={() => setActiveTab(tab)}
               className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 relative"
               style={activeTab === tab
-                ? { background: "#1A0514", color: "white" }
+                ? { background: "#111111", color: "white" }
                 : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
             >
               {tab}
@@ -456,7 +456,7 @@ export default function MatchPage() {
 
       {/* Bouquet note */}
       {activeTab === "Connect" && (
-        <div className="mx-5 mt-6 rounded-2xl p-4 flex items-center gap-3" style={{ background: "#1A0514" }}>
+        <div className="mx-5 mt-6 rounded-2xl p-4 flex items-center gap-3" style={{ background: "#111111" }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,31,125,0.2)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.8" strokeLinecap="round">
               <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />

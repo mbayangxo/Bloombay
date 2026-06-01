@@ -92,24 +92,24 @@ interface ChatMessage {
 
 const CHAT_MESSAGES: ChatMessage[] = [
   { id: 1, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "Has anyone tried the jollof at that new spot on Atlantic Ave?", time: "2:14 PM" },
-  { id: 2, author: "Kelechi O.", initial: "K", color: "#8B5CF6", text: "YES the smoky base is exactly right 🔥 I went twice last week", time: "2:16 PM", reactions: [{ emoji: "♡", count: 4 }] },
-  { id: 3, author: "You", initial: "M", color: "#059669", text: "Ok we need a club outing asap. I've been waiting for a reason to go back", time: "2:17 PM", mine: true },
+  { id: 2, author: "Kelechi O.", initial: "K", color: "#FF69B4", text: "YES the smoky base is exactly right 🔥 I went twice last week", time: "2:16 PM", reactions: [{ emoji: "♡", count: 4 }] },
+  { id: 3, author: "You", initial: "M", color: "#FF69B4", text: "Ok we need a club outing asap. I've been waiting for a reason to go back", time: "2:17 PM", mine: true },
   { id: 4, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "The Jollof + Movie Night is confirmed for Friday btw!! Amanda just posted it 🎉", time: "2:19 PM", reactions: [{ emoji: "♡", count: 8 }, { emoji: "✦", count: 3 }] },
-  { id: 5, author: "Bea T.", initial: "B", color: "#D97706", text: "Friday works! What movie are we watching?", time: "2:21 PM" },
-  { id: 6, author: "You", initial: "M", color: "#059669", text: "I vote Half of a Yellow Sun or The Burial of Kojo", time: "2:22 PM", mine: true },
-  { id: 7, author: "Kelechi O.", initial: "K", color: "#8B5CF6", text: "I'm bringing garri and puff puff 😂 somebody else handle dessert", time: "2:24 PM", reactions: [{ emoji: "😂", count: 6 }] },
-  { id: 8, author: "Fatima A.", initial: "F", color: "#14B8A6", text: "I'll bring zobo 🍹 the hibiscus one from that vendor at the weekend market", time: "2:25 PM" },
+  { id: 5, author: "Bea T.", initial: "B", color: "#FF69B4", text: "Friday works! What movie are we watching?", time: "2:21 PM" },
+  { id: 6, author: "You", initial: "M", color: "#FF69B4", text: "I vote Half of a Yellow Sun or The Burial of Kojo", time: "2:22 PM", mine: true },
+  { id: 7, author: "Kelechi O.", initial: "K", color: "#FF69B4", text: "I'm bringing garri and puff puff 😂 somebody else handle dessert", time: "2:24 PM", reactions: [{ emoji: "😂", count: 6 }] },
+  { id: 8, author: "Fatima A.", initial: "F", color: "#FF1F7D", text: "I'll bring zobo 🍹 the hibiscus one from that vendor at the weekend market", time: "2:25 PM" },
   { id: 9, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "This is going to be such a good night. See everyone Friday 🌸", time: "2:26 PM", reactions: [{ emoji: "♡", count: 11 }] },
 ];
 
 const CLUB_MEMBERS = [
   { initial: "A", name: "Aminah C.", color: "#FF1F7D", role: "Host" },
-  { initial: "K", name: "Kelechi O.", color: "#8B5CF6", role: "Member" },
-  { initial: "B", name: "Bea T.", color: "#D97706", role: "Member" },
-  { initial: "F", name: "Fatima A.", color: "#14B8A6", role: "Member" },
-  { initial: "R", name: "Remi O.", color: "#EC4899", role: "Member" },
-  { initial: "N", name: "Ngozi M.", color: "#6366F1", role: "Member" },
-  { initial: "T", name: "Temi A.", color: "#059669", role: "Member" },
+  { initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member" },
+  { initial: "B", name: "Bea T.", color: "#FF69B4", role: "Member" },
+  { initial: "F", name: "Fatima A.", color: "#FF1F7D", role: "Member" },
+  { initial: "R", name: "Remi O.", color: "#FF69B4", role: "Member" },
+  { initial: "N", name: "Ngozi M.", color: "#FF1F7D", role: "Member" },
+  { initial: "T", name: "Temi A.", color: "#FF69B4", role: "Member" },
   { initial: "C", name: "Chidera L.", color: "#0EA5E9", role: "Member" },
 ];
 
@@ -131,7 +131,7 @@ function ClubChat({ club }: { club: ClubLandingData }) {
     if (!input.trim()) return;
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), author: "You", initial: "M", color: "#059669", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true },
+      { id: Date.now(), author: "You", initial: "M", color: "#FF69B4", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true },
     ]);
     setInput("");
   }
@@ -151,7 +151,7 @@ function ClubChat({ club }: { club: ClubLandingData }) {
             </div>
           ))}
         </div>
-        <span className="text-xs text-gray-400">{CLUB_MEMBERS.length} members · <span style={{ color: "#22A85A" }}>5 online</span></span>
+        <span className="text-xs text-gray-400">{CLUB_MEMBERS.length} members · <span style={{ color: "#FF1F7D" }}>5 online</span></span>
       </div>
 
       {/* Messages */}
@@ -178,7 +178,7 @@ function ClubChat({ club }: { club: ClubLandingData }) {
                 className="px-4 py-2.5 text-sm leading-relaxed"
                 style={{
                   background: msg.mine ? club.color : "white",
-                  color: msg.mine ? "white" : "#1A0514",
+                  color: msg.mine ? "white" : "#111111",
                   borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
                   boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
                 }}
@@ -218,7 +218,7 @@ function ClubChat({ club }: { club: ClubLandingData }) {
             onKeyDown={handleKey}
             placeholder="Say something..."
             className="flex-1 bg-transparent text-sm outline-none"
-            style={{ color: "#1A0514" }}
+            style={{ color: "#111111" }}
           />
           <button className="text-gray-300 hover:text-gray-400 transition-colors">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -310,13 +310,13 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
       <div
         className="relative overflow-hidden"
         style={{
-          background: club.darkBg ? "#1A0514" : `linear-gradient(160deg, ${club.color}22 0%, #FFF5F8 60%)`,
+          background: club.darkBg ? "#111111" : `linear-gradient(160deg, ${club.color}22 0%, #FFF5F8 60%)`,
           minHeight: "280px",
         }}
       >
         {/* Back nav */}
         <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-12 flex items-center justify-between">
-          <Link href="/member/clubs" className="flex items-center gap-1.5 text-sm font-medium" style={{ color: club.darkBg ? "rgba(255,255,255,0.7)" : "#1A0514" }}>
+          <Link href="/member/clubs" className="flex items-center gap-1.5 text-sm font-medium" style={{ color: club.darkBg ? "rgba(255,255,255,0.7)" : "#111111" }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
             All Clubs
           </Link>
@@ -349,7 +349,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
               </div>
               <h1
                 className="text-2xl font-bold leading-tight"
-                style={{ color: club.darkBg ? "white" : "#1A0514", fontFamily: "var(--font-playfair)" }}
+                style={{ color: club.darkBg ? "white" : "#111111", fontFamily: "var(--font-playfair)" }}
               >
                 {club.name}
               </h1>
@@ -405,7 +405,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
           {club.upcomingSeats.map((seat, i) => (
             <div key={i} className="bg-white rounded-2xl p-5 flex items-center justify-between" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
               <div>
-                <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{seat.title}</p>
+                <p className="font-bold text-sm" style={{ color: "#111111" }}>{seat.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{seat.date}</p>
                 {seat.price && <p className="text-xs font-semibold mt-1" style={{ color: club.color }}>{seat.price}</p>}
               </div>
@@ -436,7 +436,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
                   {m.initial}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{m.name}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{m.name}</p>
                   {m.role === "Host" && (
                     <span className="text-xs font-bold" style={{ color: club.color }}>Host</span>
                   )}
@@ -456,7 +456,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
         {/* Tagline */}
         <p
           className="text-xl font-bold leading-snug italic"
-          style={{ fontFamily: "var(--font-playfair)", color: "#1A0514" }}
+          style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}
         >
           &ldquo;{club.tagline}&rdquo;
         </p>
@@ -470,7 +470,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
         {/* Who it's for */}
         <div className="rounded-3xl p-5" style={{ background: `${club.color}12`, border: `1px solid ${club.color}30` }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: club.color }}>WHO IT&apos;S FOR</p>
-          <p className="text-sm leading-relaxed font-medium" style={{ color: "#1A0514" }}>{club.whoItsFor}</p>
+          <p className="text-sm leading-relaxed font-medium" style={{ color: "#111111" }}>{club.whoItsFor}</p>
         </div>
 
         {/* What members do */}
@@ -498,7 +498,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
             {club.upcomingSeats.map((seat, i) => (
               <div key={i} className="bg-white rounded-2xl p-4 flex items-center justify-between" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
                 <div>
-                  <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{seat.title}</p>
+                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{seat.title}</p>
                   <p className="text-xs text-gray-400 mt-0.5">{seat.date}</p>
                   {seat.price && <p className="text-xs font-semibold mt-0.5" style={{ color: club.color }}>{seat.price}</p>}
                 </div>
@@ -519,7 +519,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
               {club.hostName[0]}
             </div>
             <div>
-              <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{club.hostName}</p>
+              <p className="font-bold text-sm" style={{ color: "#111111" }}>{club.hostName}</p>
               <p className="text-xs font-medium mt-0.5" style={{ color: club.color }}>{club.hostTitle}</p>
               <p className="text-sm text-gray-500 mt-2 leading-relaxed">{club.hostBio}</p>
             </div>
@@ -528,7 +528,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
 
         {/* Rules */}
         {club.rules && club.rules.length > 0 && (
-          <div className="rounded-3xl p-5" style={{ background: "#1A0514" }}>
+          <div className="rounded-3xl p-5" style={{ background: "#111111" }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>CLUB RULES</p>
             <ul className="flex flex-col gap-2">
               {club.rules.map((rule, i) => (
@@ -547,13 +547,13 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
             <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: club.color }}>ACCESS</p>
             {club.accessType === "one_time" && (
               <>
-                <p className="text-3xl font-bold" style={{ color: "#1A0514" }}>${club.price}</p>
+                <p className="text-3xl font-bold" style={{ color: "#111111" }}>${club.price}</p>
                 <p className="text-sm text-gray-500 mt-1">One-time fee · Full club access after approval</p>
               </>
             )}
             {club.accessType === "subscription" && (
               <>
-                <p className="text-3xl font-bold" style={{ color: "#1A0514" }}>${club.price}<span className="text-base font-normal text-gray-400">/{club.billingInterval ?? "month"}</span></p>
+                <p className="text-3xl font-bold" style={{ color: "#111111" }}>${club.price}<span className="text-base font-normal text-gray-400">/{club.billingInterval ?? "month"}</span></p>
                 <p className="text-sm text-gray-500 mt-1">Recurring subscription · Cancel any time</p>
               </>
             )}
@@ -589,7 +589,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
             <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>APPLY</p>
-                <h3 className="text-xl font-bold" style={{ color: "#1A0514" }}>{club.name}</h3>
+                <h3 className="text-xl font-bold" style={{ color: "#111111" }}>{club.name}</h3>
               </div>
               <button onClick={() => setShowForm(false)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#F5F5F5" }}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" strokeWidth="1.8" strokeLinecap="round" /></svg>
@@ -603,7 +603,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
                   rows={3}
                   placeholder="Tell the host what draws you to this club..."
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent resize-none"
-                  style={{ color: "#1A0514" }}
+                  style={{ color: "#111111" }}
                   onFocus={(e) => (e.target.style.borderColor = club.color)}
                   onBlur={(e) => (e.target.style.borderColor = "transparent")}
                 />
@@ -614,7 +614,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
                   rows={3}
                   placeholder="A little about you — work, vibe, what you love..."
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent resize-none"
-                  style={{ color: "#1A0514" }}
+                  style={{ color: "#111111" }}
                   onFocus={(e) => (e.target.style.borderColor = club.color)}
                   onBlur={(e) => (e.target.style.borderColor = "transparent")}
                 />
@@ -625,7 +625,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
                   type="text"
                   placeholder="@handle"
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3.5 text-sm outline-none border-2 border-transparent"
-                  style={{ color: "#1A0514" }}
+                  style={{ color: "#111111" }}
                   onFocus={(e) => (e.target.style.borderColor = club.color)}
                   onBlur={(e) => (e.target.style.borderColor = "transparent")}
                 />

@@ -8,7 +8,7 @@ export default function StartAClubPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>CLUB OWNERS</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Start a Club
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -32,14 +32,14 @@ export default function StartAClubPage() {
           ].map((item) => (
             <div key={item.title} className="rounded-3xl p-6" style={{ background: "#FFF5F8" }}>
               <div className="w-10 h-10 rounded-full mb-4" style={{ background: "#FF1F7D" }} />
-              <h3 className="font-bold text-base mb-2" style={{ color: "#1A0514" }}>{item.title}</h3>
+              <h3 className="font-bold text-base mb-2" style={{ color: "#111111" }}>{item.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
 
         {/* Steps */}
-        <div className="rounded-3xl p-8 md:p-12" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-12" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-8" style={{ color: "#FF1F7D" }}>HOW IT WORKS</p>
           <div className="flex flex-col gap-8">
             {[

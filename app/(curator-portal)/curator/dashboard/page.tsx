@@ -25,7 +25,7 @@ const CLUBS = [
     lastGathering: "Last Thursday",
     nextGathering: "This Wednesday",
     neighborhood: "Williamsburg",
-    color: "#1A0514",
+    color: "#111111",
   },
 ];
 
@@ -111,7 +111,7 @@ const RECENT_ACTIVITY = [
 function statusColor(status: string) {
   if (status === "Tonight") return { bg: "#FF1F7D", text: "white" };
   if (status === "This week") return { bg: "rgba(255,31,125,0.12)", text: "#FF1F7D" };
-  return { bg: "rgba(26,5,20,0.08)", text: "#1A0514" };
+  return { bg: "rgba(26,5,20,0.08)", text: "#111111" };
 }
 
 function Avatar({ initials, size = 40, bg = "#FF1F7D" }: { initials: string; size?: number; bg?: string }) {
@@ -135,7 +135,7 @@ function MyClubs() {
           <div key={club.id} className="bg-white rounded-3xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-bold text-lg" style={{ color: "#1A0514" }}>
+                <h3 className="font-bold text-lg" style={{ color: "#111111" }}>
                   {club.name}
                 </h3>
                 <p className="text-sm mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
@@ -154,7 +154,7 @@ function MyClubs() {
 
             <div
               className="text-3xl font-bold mb-1"
-              style={{ color: "#1A0514" }}
+              style={{ color: "#111111" }}
             >
               {club.members}
             </div>
@@ -170,7 +170,7 @@ function MyClubs() {
                 <p className="text-xs" style={{ color: "rgba(26,5,20,0.45)" }}>
                   Last gathering
                 </p>
-                <p className="text-sm font-semibold mt-0.5" style={{ color: "#1A0514" }}>
+                <p className="text-sm font-semibold mt-0.5" style={{ color: "#111111" }}>
                   {club.lastGathering}
                 </p>
               </div>
@@ -246,7 +246,7 @@ function WomenWelcomed() {
               bg={w.attended ? "#FF1F7D" : "rgba(26,5,20,0.15)"}
             />
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>
+              <p className="font-semibold text-sm" style={{ color: "#111111" }}>
                 You welcomed{" "}
                 <span style={{ color: "#FF1F7D" }}>{w.name}</span>{" "}
                 to {w.club}
@@ -282,7 +282,7 @@ function UpcomingGatherings() {
           <div key={g.id} className="bg-white rounded-3xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-bold text-base" style={{ color: "#1A0514" }}>
+                <h3 className="font-bold text-base" style={{ color: "#111111" }}>
                   {g.name}
                 </h3>
                 <p className="text-xs mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
@@ -343,7 +343,7 @@ function Applications() {
               <Avatar initials={app.initials} size={48} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <h3 className="font-bold text-base" style={{ color: "#1A0514" }}>
+                  <h3 className="font-bold text-base" style={{ color: "#111111" }}>
                     {app.name}
                   </h3>
                   <span className="text-xs" style={{ color: "rgba(26,5,20,0.4)" }}>
@@ -412,7 +412,7 @@ function ClubGrowth() {
             <div className="text-3xl font-bold mb-1" style={{ color: "#FF1F7D" }}>
               {stat.value}
             </div>
-            <p className="text-sm font-semibold" style={{ color: "#1A0514" }}>
+            <p className="text-sm font-semibold" style={{ color: "#111111" }}>
               {stat.label}
             </p>
             <p className="text-xs mt-0.5" style={{ color: "rgba(26,5,20,0.4)" }}>
@@ -440,7 +440,7 @@ function ClubGrowth() {
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: "#FF1F7D" }}
               />
-              <p className="flex-1 text-sm" style={{ color: "#1A0514" }}>
+              <p className="flex-1 text-sm" style={{ color: "#111111" }}>
                 {item.text}
               </p>
               <p className="text-xs flex-shrink-0" style={{ color: "rgba(26,5,20,0.35)" }}>
@@ -487,7 +487,7 @@ function MyImpact() {
         <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "rgba(26,5,20,0.35)" }}>
           Curator since
         </p>
-        <p className="text-xl font-bold" style={{ color: "#1A0514" }}>
+        <p className="text-xl font-bold" style={{ color: "#111111" }}>
           January 2025
         </p>
         <div className="mt-3 flex items-center gap-2">
@@ -499,7 +499,7 @@ function MyImpact() {
           </div>
           <div
             className="px-3 py-1.5 rounded-full text-xs font-bold"
-            style={{ background: "rgba(26,5,20,0.07)", color: "#1A0514" }}
+            style={{ background: "rgba(26,5,20,0.07)", color: "#111111" }}
           >
             Williamsburg
           </div>
@@ -510,7 +510,7 @@ function MyImpact() {
       <div
         className="rounded-3xl p-6 mb-4"
         style={{
-          background: "linear-gradient(135deg, #1A0514 0%, #2d0a22 100%)",
+          background: "linear-gradient(135deg, #111111 0%, #2d0a22 100%)",
         }}
       >
         <div className="flex items-center gap-2 mb-3">
@@ -541,7 +541,7 @@ function MyImpact() {
         </p>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-bold text-base" style={{ color: "#1A0514" }}>
+            <p className="font-bold text-base" style={{ color: "#111111" }}>
               Brooklyn Museum Rooftop
             </p>
             <p className="text-sm mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
@@ -591,7 +591,7 @@ export default function CuratorDashboard() {
           <p className="text-xs font-bold tracking-widest uppercase mb-0.5" style={{ color: "#FF1F7D" }}>
             CURATOR
           </p>
-          <h1 className="text-2xl font-bold" style={{ color: "#1A0514" }}>
+          <h1 className="text-2xl font-bold" style={{ color: "#111111" }}>
             Amanda R.&rsquo;s Culture
           </h1>
           <p className="text-sm mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>

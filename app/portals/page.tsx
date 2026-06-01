@@ -48,7 +48,7 @@ export default function PortalsPage() {
         <div>
           <h2
             className="text-2xl font-bold leading-tight"
-            style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}
+            style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}
           >
             Welcome home.
           </h2>

@@ -2,22 +2,22 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
 const openSeats = [
-  { id: 1, badge: "2 SEATS", title: "Girls dinner · Carbone", detail: "Tonight 7PM · Individual pay", grad: "linear-gradient(135deg,#FF1F7D,#1A0514)" },
-  { id: 2, badge: "3 SEATS", title: "Pilates + matcha morning", detail: "Sunday 9AM · $20 · 3 spots", grad: "linear-gradient(135deg,#FF69B4,#1A0514)" },
-  { id: 3, badge: "2 SEATS", title: "MoMA + froyo after", detail: "Saturday 2PM · $1 deposit", grad: "linear-gradient(135deg,#FF1F7D,#3D0A2A)" },
-  { id: 4, badge: "4 SEATS", title: "Rooftop wine hour", detail: "Friday 7PM · SoHo · Free entry", grad: "linear-gradient(135deg,#c40060,#1A0514)" },
+  { id: 1, badge: "2 SEATS", title: "Girls dinner · Carbone", detail: "Tonight 7PM · Individual pay", grad: "linear-gradient(135deg,#FF1F7D,#111111)" },
+  { id: 2, badge: "3 SEATS", title: "Pilates + matcha morning", detail: "Sunday 9AM · $20 · 3 spots", grad: "linear-gradient(135deg,#FF69B4,#111111)" },
+  { id: 3, badge: "2 SEATS", title: "MoMA + froyo after", detail: "Saturday 2PM · $1 deposit", grad: "linear-gradient(135deg,#FF1F7D,#111111)" },
+  { id: 4, badge: "4 SEATS", title: "Rooftop wine hour", detail: "Friday 7PM · SoHo · Free entry", grad: "linear-gradient(135deg,#FF1F7D,#111111)" },
 ];
 
 const EVENTS_PREVIEW = [
   { title: "Paint + sip + dinner", detail: "Fri 7PM · $65 · 8 seats", host: "BloomBay Official", color: "#FF1F7D" },
   { title: "Book club and sip", detail: "Sat 4PM · $35 · 12 seats", host: "Girl Creatives", color: "#FF69B4" },
-  { title: "Gym and juice morning", detail: "Sun 8AM · $25 · 10 seats", host: "Girls Who Move", color: "#c40060" },
+  { title: "Gym and juice morning", detail: "Sun 8AM · $25 · 10 seats", host: "Girls Who Move", color: "#FF1F7D" },
 ];
 
 const CLUBS_PREVIEW = [
   { name: "Soft Life Club NYC", members: "312 women", color: "#FF1F7D" },
   { name: "Girl Tech Collective", members: "89 women", color: "#FF69B4" },
-  { name: "Girls Who Move", members: "142 women", color: "#c40060" },
+  { name: "Girls Who Move", members: "142 women", color: "#FF1F7D" },
 ];
 
 export function HomePage() {
@@ -89,7 +89,7 @@ export function HomePage() {
         <div>
           {/* THE DAILY card */}
           <div className="px-5 mb-6 md:px-0">
-            <div className="rounded-3xl p-5 relative overflow-hidden" style={{ background: "#1A0514" }}>
+            <div className="rounded-3xl p-5 relative overflow-hidden" style={{ background: "#111111" }}>
               <div className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--bb-pink)" }}>
                 <BBLogo size={20} light />
               </div>
@@ -117,11 +117,11 @@ export function HomePage() {
               <div className="flex items-center gap-2 mb-2">
                 <div
                   className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                  style={{ background: "#1A0514" }}
+                  style={{ background: "#111111" }}
                 >
                   ✦
                 </div>
-                <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#1A0514" }}>HAPPENING NOW</p>
+                <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#111111" }}>HAPPENING NOW</p>
               </div>
               <p className="text-sm font-semibold leading-snug mb-0.5" style={{ color: "var(--bb-black)" }}>
                 Aminah and 3 women from African Girls Club are going to{" "}
@@ -150,7 +150,7 @@ export function HomePage() {
           <div className="px-5 mb-6 md:px-0">
             <div
               className="rounded-3xl p-4 flex items-center gap-4"
-              style={{ background: "linear-gradient(135deg, #1A0514 0%, #3D0A2A 100%)" }}
+              style={{ background: "linear-gradient(135deg, #111111 0%, #111111 100%)" }}
             >
               <div className="flex-1">
                 <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "var(--mid-pink)" }}>
@@ -205,7 +205,7 @@ export function HomePage() {
             <div className="flex flex-col gap-3">
               {EVENTS_PREVIEW.map((evt, i) => (
                 <Link key={i} href="/member/happenings" className="bg-white rounded-2xl p-4 flex items-center gap-4 block" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-                  <div className="w-12 h-12 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${evt.color},#1A0514)` }} />
+                  <div className="w-12 h-12 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${evt.color},#111111)` }} />
                   <div className="flex-1">
                     <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{evt.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{evt.detail}</p>
@@ -222,7 +222,7 @@ export function HomePage() {
         <div className="hidden md:flex flex-col gap-5">
 
           {/* About BloomBay */}
-          <div className="rounded-3xl overflow-hidden" style={{ background: "#1A0514" }}>
+          <div className="rounded-3xl overflow-hidden" style={{ background: "#111111" }}>
             <div className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <BBLogo size={22} light />
@@ -246,7 +246,7 @@ export function HomePage() {
             <div className="flex flex-col gap-2">
               {CLUBS_PREVIEW.map((club, i) => (
                 <Link key={i} href="/member/clubs" className="bg-white rounded-2xl p-3.5 flex items-center gap-3 block" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-                  <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }} />
+                  <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }} />
                   <div className="flex-1">
                     <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{club.name}</p>
                     <p className="text-xs text-gray-400">{club.members}</p>
@@ -258,7 +258,7 @@ export function HomePage() {
           </div>
 
           {/* The Room teaser */}
-          <Link href="/member/room" className="rounded-3xl p-5 block" style={{ background: "#1A0514" }}>
+          <Link href="/member/room" className="rounded-3xl p-5 block" style={{ background: "#111111" }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "var(--mid-pink)" }}>THE ROOM</p>
             <p className="text-white font-bold text-base mb-1">Girl Bar is live now</p>
             <p className="text-white/50 text-xs mb-3">8 women in Morning Room · Bulletin has 3 new posts</p>
@@ -276,7 +276,7 @@ export function HomePage() {
         <div className="flex flex-col gap-2">
           {CLUBS_PREVIEW.slice(0, 2).map((club, i) => (
             <Link key={i} href="/member/clubs" className="bg-white rounded-2xl p-3.5 flex items-center gap-3 block" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-              <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }} />
+              <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }} />
               <div className="flex-1">
                 <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{club.name}</p>
                 <p className="text-xs text-gray-400">{club.members}</p>

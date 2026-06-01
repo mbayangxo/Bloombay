@@ -57,7 +57,7 @@ function MarketingFooter() {
           <div className="max-w-xs">
             <div className="flex items-center gap-3 mb-4">
               <BBLogo size={40} />
-              <span className="font-bold text-2xl tracking-[0.18em]" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+              <span className="font-bold text-2xl tracking-[0.18em]" style={{ color: "#111111" }}>BLOOMBAY</span>
             </div>
             <p
               className="text-base leading-relaxed mb-2"
@@ -132,7 +132,7 @@ function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-x-6 gap-y-10 mb-16">
           {NAV_COLS.map((col) => (
             <div key={col.title}>
-              <p className="text-xs font-bold tracking-[0.18em] mb-5" style={{ color: "#1A0514" }}>
+              <p className="text-xs font-bold tracking-[0.18em] mb-5" style={{ color: "#111111" }}>
                 {col.title}
               </p>
               <div className="flex flex-col gap-3.5">
@@ -181,7 +181,7 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
       >
         <Link href="/" className="flex items-center gap-2">
           <BBLogo size={26} />
-          <span className="font-bold text-sm tracking-[0.18em]" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+          <span className="font-bold text-sm tracking-[0.18em]" style={{ color: "#111111" }}>BLOOMBAY</span>
         </Link>
         <Link
           href="/onboard"

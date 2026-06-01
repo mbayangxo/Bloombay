@@ -47,7 +47,7 @@ export default function GirlRightsPage() {
         {/* Hero */}
         <div className="mb-14">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>GIRL RIGHTS</p>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Your rights as a<br />BloomBay member.
           </h1>
           <p className="text-base text-gray-500 leading-relaxed max-w-xl">
@@ -65,7 +65,7 @@ export default function GirlRightsPage() {
             >
               <span className="text-2xl font-bold flex-shrink-0 w-10 text-right" style={{ color: "#FF1F7D" }}>{right.n}</span>
               <div>
-                <h3 className="font-bold text-base mb-2" style={{ color: "#1A0514" }}>{right.title}</h3>
+                <h3 className="font-bold text-base mb-2" style={{ color: "#111111" }}>{right.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{right.body}</p>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function GirlRightsPage() {
         </div>
 
         {/* Footer CTA */}
-        <div className="rounded-3xl p-8 text-center" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 text-center" style={{ background: "#111111" }}>
           <h2 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: "var(--font-playfair)" }}>
             Something feels wrong?
           </h2>

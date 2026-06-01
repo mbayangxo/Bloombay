@@ -7,7 +7,7 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="px-6 pt-20 pb-16 max-w-4xl mx-auto text-center">
         <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>OUR STORY</p>
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
           A world built<br />for women.
         </h1>
         <p className="text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto">
@@ -17,7 +17,7 @@ export default function AboutPage() {
 
       {/* Story sections */}
       <section className="max-w-3xl mx-auto px-6 pb-20 flex flex-col gap-16">
-        <div className="rounded-3xl p-8 md:p-12" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-12" style={{ background: "#111111" }}>
           <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "#FF1F7D" }}>WHERE IT STARTED</p>
           <p className="text-white text-lg leading-relaxed" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
             &ldquo;I moved to New York at 27, knowing no one. I spent six months going to events, downloading apps, making small talk — and feeling more alone every time. I wanted a table to sit at. I wanted to know the women in my neighbourhood. I wanted something real.&rdquo;
@@ -44,7 +44,7 @@ export default function AboutPage() {
         ].map((s) => (
           <div key={s.label}>
             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>{s.label}</p>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>{s.title}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{s.title}</h2>
             <p className="text-base text-gray-500 leading-relaxed">{s.body}</p>
           </div>
         ))}

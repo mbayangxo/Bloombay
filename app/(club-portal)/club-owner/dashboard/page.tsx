@@ -273,7 +273,7 @@ function WomenSection() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Members</h2>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Members</h2>
           <p className="text-sm text-gray-400 mt-0.5">312 women in the club</p>
         </div>
         <button
@@ -311,7 +311,7 @@ function WomenSection() {
               >
                 {m.name[0]}
               </div>
-              <span className="font-semibold text-sm" style={{ color: "#1A0514" }}>{m.name}</span>
+              <span className="font-semibold text-sm" style={{ color: "#111111" }}>{m.name}</span>
             </div>
 
             <span className="text-sm text-gray-500">{m.neighborhood}</span>
@@ -319,7 +319,7 @@ function WomenSection() {
 
             {/* Attendance + status */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold" style={{ color: "#1A0514" }}>{m.attendance}%</span>
+              <span className="text-sm font-semibold" style={{ color: "#111111" }}>{m.attendance}%</span>
               <span
                 className="text-xs px-2 py-0.5 rounded-full font-medium"
                 style={
@@ -343,7 +343,7 @@ function OpenSeatsSection() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Open Seats</h2>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Open Seats</h2>
           <p className="text-sm text-gray-400 mt-0.5">8 upcoming gatherings</p>
         </div>
         <button
@@ -362,7 +362,7 @@ function OpenSeatsSection() {
             style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
           >
             <div>
-              <p className="font-semibold text-base" style={{ color: "#1A0514" }}>{s.title}</p>
+              <p className="font-semibold text-base" style={{ color: "#111111" }}>{s.title}</p>
               <p className="text-sm text-gray-400 mt-0.5">{s.day} · {s.time} · {s.venue}</p>
             </div>
             <div className="text-right flex-shrink-0 ml-6">
@@ -382,7 +382,7 @@ function RequestsSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Join Requests</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Join Requests</h2>
         <p className="text-sm text-gray-400 mt-0.5">{REQUESTS.length} pending approval</p>
       </div>
 
@@ -406,7 +406,7 @@ function RequestsSection() {
                   {r.name[0]}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{r.name}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{r.name}</p>
                   <p className="text-xs text-gray-400">{r.neighborhood} · {r.requestedAt}</p>
                   <p
                     className="text-sm mt-2 leading-relaxed"
@@ -451,7 +451,7 @@ function MailboxSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Mailbox</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Mailbox</h2>
         <p className="text-sm text-gray-400 mt-0.5">{unread} unread messages</p>
       </div>
 
@@ -474,7 +474,7 @@ function MailboxSection() {
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm truncate"
-                style={{ color: "#1A0514", fontWeight: m.unread ? 700 : 500 }}
+                style={{ color: "#111111", fontWeight: m.unread ? 700 : 500 }}
               >
                 {m.from}
               </p>
@@ -507,7 +507,7 @@ function GatheringsSection() {
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
             >
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.venue}</p>
               </div>
               <span
@@ -532,14 +532,14 @@ function GatheringsSection() {
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
             >
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.attendees} women</p>
               </div>
               <div className="flex items-center gap-1 ml-3 flex-shrink-0">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF1F7D">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
-                <span className="text-xs font-semibold" style={{ color: "#1A0514" }}>{g.rating}</span>
+                <span className="text-xs font-semibold" style={{ color: "#111111" }}>{g.rating}</span>
               </div>
             </div>
           ))}
@@ -562,7 +562,7 @@ function ClubHealthSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Club Health</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Health</h2>
         <p className="text-sm text-gray-400 mt-0.5">How the Soft Life Club is doing</p>
       </div>
 
@@ -579,7 +579,7 @@ function ClubHealthSection() {
             >
               {s.value}
             </p>
-            <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>{s.label}</p>
+            <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>{s.label}</p>
             <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
           </div>
         ))}
@@ -610,7 +610,7 @@ function CrestSection() {
   return (
     <div className="max-w-xl">
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Edit Crest</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Edit Crest</h2>
         <p className="text-sm text-gray-400 mt-0.5">Your club's symbol, color, and motto</p>
       </div>
 
@@ -620,7 +620,7 @@ function CrestSection() {
         style={{ background: "#FFF0F5" }}
       >
         <ClubCrestSVG symbol={symbol} color={color} size={100} />
-        <p className="font-bold text-base text-center" style={{ color: "#1A0514" }}>Soft Life Club NYC</p>
+        <p className="font-bold text-base text-center" style={{ color: "#111111" }}>Soft Life Club NYC</p>
         <p className="text-xs text-center text-gray-500 italic max-w-xs">{motto || "Your motto here..."}</p>
       </div>
 
@@ -662,8 +662,8 @@ function CrestSection() {
                 className="w-9 h-9 rounded-full border-2 transition-all"
                 style={{
                   background: c.hex,
-                  borderColor: color === c.hex ? "#1A0514" : "transparent",
-                  boxShadow: color === c.hex ? "0 0 0 2px white, 0 0 0 4px #1A0514" : "none",
+                  borderColor: color === c.hex ? "#111111" : "transparent",
+                  boxShadow: color === c.hex ? "0 0 0 2px white, 0 0 0 4px #111111" : "none",
                 }}
               />
               <span className="text-xs text-gray-400">{c.label}</span>
@@ -683,7 +683,7 @@ function CrestSection() {
           className="w-full text-sm px-4 py-3 rounded-xl border outline-none"
           style={{
             borderColor: "#FFE0EE",
-            color: "#1A0514",
+            color: "#111111",
             background: "#FFFAFA",
           }}
           placeholder="Your motto here..."
@@ -725,7 +725,7 @@ function ApplicationsSection() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Applications</h2>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Applications</h2>
           <p className="text-sm text-gray-400 mt-0.5">{pendingCount} pending review</p>
         </div>
       </div>
@@ -765,9 +765,9 @@ function ApplicationsSection() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{app.name}</p>
+                      <p className="font-semibold text-sm" style={{ color: "#111111" }}>{app.name}</p>
                       {app.verified && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#E8F9F0", color: "#22A85A" }}>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#E8F9F0", color: "#FF1F7D" }}>
                           Verified
                         </span>
                       )}
@@ -885,7 +885,7 @@ function ClubSettingsSection() {
   return (
     <div className="max-w-xl flex flex-col gap-5">
       <div>
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Club Settings</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Settings</h2>
         <p className="text-sm text-gray-400 mt-0.5">Configure how women join and pay for your club.</p>
       </div>
 
@@ -901,7 +901,7 @@ function ClubSettingsSection() {
                 {accessType === opt.id && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
               <div>
-                <p className="text-sm font-semibold" style={{ color: "#1A0514" }}>{opt.label}</p>
+                <p className="text-sm font-semibold" style={{ color: "#111111" }}>{opt.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
               </div>
             </label>
@@ -919,7 +919,7 @@ function ClubSettingsSection() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="flex-1 px-3 py-2.5 text-sm outline-none"
-                  style={{ color: "#1A0514" }}
+                  style={{ color: "#111111" }}
                   placeholder="0"
                   min="0"
                 />
@@ -932,7 +932,7 @@ function ClubSettingsSection() {
                   value={billingInterval}
                   onChange={(e) => setBillingInterval(e.target.value as "monthly" | "annually")}
                   className="w-full px-3 py-2.5 text-sm rounded-xl border outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#1A0514", background: "white" }}
+                  style={{ borderColor: "#FFE0EE", color: "#111111", background: "white" }}
                 >
                   <option value="monthly">Monthly</option>
                   <option value="annually">Annually</option>
@@ -963,7 +963,7 @@ function ClubSettingsSection() {
                 {entryStyle === opt.id && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
               <div>
-                <p className="text-sm font-semibold" style={{ color: "#1A0514" }}>{opt.label}</p>
+                <p className="text-sm font-semibold" style={{ color: "#111111" }}>{opt.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
               </div>
             </label>
@@ -979,7 +979,7 @@ function ClubSettingsSection() {
       <button
         onClick={handleSave}
         className="px-8 py-3.5 rounded-full font-bold text-sm text-white transition-all self-start"
-        style={{ background: saved ? "#22A85A" : "#FF1F7D" }}
+        style={{ background: saved ? "#FF1F7D" : "#FF1F7D" }}
       >
         {saved ? "Settings saved" : "Save Settings"}
       </button>
@@ -1045,13 +1045,13 @@ function FormBuilderSection() {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Application Form</h2>
+            <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Application Form</h2>
             <p className="text-sm text-gray-400 mt-0.5">{questions.length} questions · shown to applicants</p>
           </div>
           <button
             onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500); }}
             className="px-5 py-2 rounded-full text-sm font-bold text-white transition-all"
-            style={{ background: saved ? "#22A85A" : "#FF1F7D" }}
+            style={{ background: saved ? "#FF1F7D" : "#FF1F7D" }}
           >
             {saved ? "Saved" : "Save Form"}
           </button>
@@ -1070,7 +1070,7 @@ function FormBuilderSection() {
                     value={q.label}
                     onChange={(e) => updateLabel(q.id, e.target.value)}
                     className="w-full text-sm font-semibold outline-none bg-transparent"
-                    style={{ color: "#1A0514" }}
+                    style={{ color: "#111111" }}
                   />
                   <p className="text-xs text-gray-400 mt-1">{TYPE_LABEL[q.type]}</p>
                 </div>
@@ -1120,7 +1120,7 @@ function FormBuilderSection() {
               >
                 {p.abbr}
               </span>
-              <span className="text-xs font-semibold" style={{ color: "#1A0514" }}>{p.label}</span>
+              <span className="text-xs font-semibold" style={{ color: "#111111" }}>{p.label}</span>
             </button>
           ))}
         </div>
@@ -1139,7 +1139,7 @@ export default function TheClubhouse() {
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
       {/* ── Header ── */}
-      <div style={{ background: "#1A0514" }}>
+      <div style={{ background: "#111111" }}>
         {/* Top crest area */}
         <div className="px-8 pt-8 pb-6 flex items-center gap-6">
           {/* Crest */}

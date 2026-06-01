@@ -54,7 +54,7 @@ export default function VenuesPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>VENUE DIRECTORY</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Spaces worth<br />gathering in.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -84,7 +84,7 @@ export default function VenuesPage() {
             <div key={v.name} className="rounded-2xl p-6 bg-white" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-bold text-base" style={{ color: "#1A0514" }}>{v.name}</h3>
+                  <h3 className="font-bold text-base" style={{ color: "#111111" }}>{v.name}</h3>
                   <p className="text-xs text-gray-400 mt-0.5">{v.neighborhood}</p>
                 </div>
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ml-2" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
@@ -103,7 +103,7 @@ export default function VenuesPage() {
         </div>
 
         {/* Add your venue */}
-        <div className="rounded-3xl p-8 md:p-10" style={{ background: "#1A0514" }}>
+        <div className="rounded-3xl p-8 md:p-10" style={{ background: "#111111" }}>
           <div className="flex flex-col md:flex-row md:items-center gap-6 justify-between">
             <div>
               <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#FF1F7D" }}>VENUE OWNERS</p>

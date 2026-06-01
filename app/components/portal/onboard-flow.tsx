@@ -69,7 +69,7 @@ const CLUB_RECS = [
     nextDetail: "Sun 11AM · Williamsburg · $45",
   },
   {
-    id: 3, name: "Girl Tech Collective", members: 89, color: "#7C3AED",
+    id: 3, name: "Girl Tech Collective", members: 89, color: "#FF69B4",
     tagline: "Founders, builders, and ambitious women in NYC tech",
     tags: ["Career", "Tech", "Networking"],
     nextEvent: "Pitch Night + Dinner",
@@ -236,8 +236,8 @@ export function OnboardFlow() {
               <div className="flex items-center gap-2 mb-2">
                 {[
                   { i: "A", c: "#FF1F7D" }, { i: "S", c: "#FF69B4" },
-                  { i: "P", c: "#c40060" }, { i: "K", c: "#FF69B4" },
-                  { i: "M", c: "#1A0514" },
+                  { i: "P", c: "#FF1F7D" }, { i: "K", c: "#FF69B4" },
+                  { i: "M", c: "#111111" },
                 ].map((a) => (
                   <div
                     key={a.i}
@@ -612,7 +612,7 @@ export function OnboardFlow() {
                     <div className="flex items-center gap-3 mb-2">
                       <div
                         className="w-10 h-10 rounded-xl flex-shrink-0"
-                        style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }}
+                        style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}
                       />
                       <div className="flex-1">
                         <p className="font-bold text-sm leading-snug" style={{ color: "var(--bb-black)" }}>
@@ -662,7 +662,7 @@ export function OnboardFlow() {
           <div className="flex flex-col flex-1">
             <div
               className="rounded-3xl p-5 mb-5 relative overflow-hidden"
-              style={{ background: "#1A0514" }}
+              style={{ background: "#111111" }}
             >
               <div
                 className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
@@ -711,7 +711,7 @@ export function OnboardFlow() {
                     className="w-full py-3.5 rounded-full font-bold text-sm transition-all"
                     style={
                       rssvpd
-                        ? { background: "#1A0514", color: "white" }
+                        ? { background: "#111111", color: "white" }
                         : { background: club.color, color: "white" }
                     }
                   >

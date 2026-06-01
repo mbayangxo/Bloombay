@@ -28,10 +28,10 @@ const FEATURED: Club = {
 const CLUBS: Club[] = [
   { id: 1, name: "Girl Tech Collective", women: 89, desc: "Tech, startups, side projects. Monthly hackathons and mentorship.", color: "#FF1F7D", curator: "Sofia K.", tags: ["Tech", "Career"] },
   { id: 2, name: "Girls Who Move", women: 142, desc: "Run clubs, gym check-ins, yoga flows, hikes. Move together.", color: "#FF69B4", curator: "Priya R.", tags: ["Fitness", "Outdoor"] },
-  { id: 3, name: "Indigenous African NYC", women: 54, desc: "Culture, community, and joy for African women in the city.", color: "#c40060", curator: "Kezia N.", tags: ["Culture", "Community"] },
+  { id: 3, name: "Indigenous African NYC", women: 54, desc: "Culture, community, and joy for African women in the city.", color: "#FF1F7D", curator: "Kezia N.", tags: ["Culture", "Community"] },
   { id: 4, name: "Muslim Women NYC", women: 76, desc: "Faith, fashion, food, and sisterhood. Halal outings every week.", color: "#FF1F7D", curator: "Fatima A.", tags: ["Faith", "Social"] },
   { id: 5, name: "Girl Creatives", women: 98, desc: "Writers, artists, photographers. Monthly showcases and collabs.", color: "#FF69B4", curator: "Yemi O.", tags: ["Art", "Creative"] },
-  { id: 6, name: "Jazz & Wine Girls", women: 61, desc: "Jazz nights, wine bars, vinyl listening sessions.", color: "#c40060", curator: "Amanda R.", tags: ["Music", "Social"] },
+  { id: 6, name: "Jazz & Wine Girls", women: 61, desc: "Jazz nights, wine bars, vinyl listening sessions.", color: "#FF1F7D", curator: "Amanda R.", tags: ["Music", "Social"] },
 ];
 
 export function ClubsPage() {
@@ -128,7 +128,7 @@ export function ClubsPage() {
             <div className="flex flex-col gap-4">
               {myClubs.map((club) => (
                 <div key={club.id} className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                  <div className="h-20 flex items-end p-3" style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }}>
+                  <div className="h-20 flex items-end p-3" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>MEMBER</span>
                   </div>
                   <div className="p-4 flex items-center justify-between gap-3">
@@ -153,7 +153,7 @@ export function ClubsPage() {
 
               {/* Featured club */}
               <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
-                <div className="h-32 flex items-end p-4 relative" style={{ background: `linear-gradient(135deg,${FEATURED.color},#c40060,#1A0514)` }}>
+                <div className="h-32 flex items-end p-4 relative" style={{ background: `linear-gradient(135deg,${FEATURED.color},#FF1F7D,#111111)` }}>
                   <span className="absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
                     <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: "white" }} />
                     FEATURED
@@ -194,7 +194,7 @@ export function ClubsPage() {
               </div>
 
               {/* The Room teaser */}
-              <Link href="/member/room" className="rounded-3xl p-4 flex items-center gap-4 block" style={{ background: "#1A0514", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
+              <Link href="/member/room" className="rounded-3xl p-4 flex items-center gap-4 block" style={{ background: "#111111", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,31,125,0.2)" }}>
                   <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
                 </div>
@@ -218,7 +218,7 @@ export function ClubsPage() {
                         transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
                       }}
                     >
-                      <div className="h-16 flex items-end p-2" style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }}>
+                      <div className="h-16 flex items-end p-2" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
                         {joined.has(club.id) && (
                           <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>✓</span>
                         )}
@@ -259,7 +259,7 @@ export function ClubsPage() {
                   <div className="flex flex-col gap-2">
                     {myClubs.map((c) => (
                       <div key={c.id} className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ background: `linear-gradient(135deg,${c.color},#1A0514)` }} />
+                        <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ background: `linear-gradient(135deg,${c.color},#111111)` }} />
                         <p className="text-xs font-semibold" style={{ color: "var(--bb-black)" }}>{c.name}</p>
                       </div>
                     ))}

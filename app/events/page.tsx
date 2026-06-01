@@ -62,7 +62,7 @@ export default function EventsPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>BLOOMBAY EVENTS</p>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Official BloomBay<br />Gatherings
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
@@ -99,7 +99,7 @@ export default function EventsPage() {
                       </div>
                     )}
                   </div>
-                  <h3 className="font-bold text-base mb-1" style={{ color: "#1A0514" }}>{ev.title}</h3>
+                  <h3 className="font-bold text-base mb-1" style={{ color: "#111111" }}>{ev.title}</h3>
                   <p className="text-sm text-gray-400">{ev.date} · {ev.time} · {ev.location}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
@@ -119,7 +119,7 @@ export default function EventsPage() {
 
         {/* Join CTA */}
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Members reserve seats first.
           </h2>
           <p className="text-sm text-gray-500 mb-5">BloomBay events open to members before the public. Join to get early access.</p>

@@ -30,7 +30,7 @@ const CLUBS = [
 function ObjectCard({ k }: { k: string }) {
   const base = "rounded-2xl flex items-center justify-center";
   if (k === "seat") return (
-    <div className={`${base} w-full h-36`} style={{ background: "linear-gradient(135deg,#FF1F7D,#c40060)" }}>
+    <div className={`${base} w-full h-36`} style={{ background: "linear-gradient(135deg,#FF1F7D,#FF1F7D)" }}>
       <svg viewBox="0 0 48 48" width="60" height="60" fill="none">
         <rect x="10" y="8" width="28" height="18" rx="4" stroke="white" strokeWidth="1.8" />
         <rect x="8" y="24" width="32" height="6" rx="2" stroke="white" strokeWidth="1.8" />
@@ -79,7 +79,7 @@ function ObjectCard({ k }: { k: string }) {
       </div>
       <div className="ml-6 text-center px-2">
         <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-        <p className="font-bold text-sm" style={{ color: "#1A0514" }}>TICKET</p>
+        <p className="font-bold text-sm" style={{ color: "#111111" }}>TICKET</p>
         <div className="w-6 h-px mx-auto my-1" style={{ background: "#FF1F7D" }} />
         <p className="text-xs text-gray-500">ADMIT ONE</p>
         <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center mx-auto mt-1" style={{ borderColor: "#FF1F7D" }}>
@@ -118,9 +118,9 @@ function Sparkle({ color = "#FF1F7D", size = 14 }: { color?: string; size?: numb
 }
 
 function ClubCrest({ name, dark, icon, outline }: { name: string; dark: boolean; outline?: boolean; icon: string }) {
-  const bg = dark ? "#1A0514" : outline ? "white" : "#FF1F7D";
+  const bg = dark ? "#111111" : outline ? "white" : "#FF1F7D";
   const stroke = dark ? "#FF1F7D" : outline ? "#FF1F7D" : "white";
-  const textColor = dark || !outline ? "white" : "#1A0514";
+  const textColor = dark || !outline ? "white" : "#111111";
   const border = outline ? "2px solid #FF1F7D" : "none";
 
   const icons: Record<string, React.ReactNode> = {
@@ -170,7 +170,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
             <BBLogo size={32} />
-            <span className="font-bold text-base tracking-widest" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+            <span className="font-bold text-base tracking-widest" style={{ color: "#111111" }}>BLOOMBAY</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
@@ -338,7 +338,7 @@ export function LandingPage() {
               className="absolute rounded-2xl p-4 flex flex-col justify-center"
               style={{ width: "130px", height: "110px", background: "#FDF8F2", top: "260px", right: "170px", transform: "rotate(-6deg)", zIndex: 5, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
             >
-              <p className="italic font-medium" style={{ fontFamily: "var(--font-playfair)", color: "#1A0514", fontSize: "16px", lineHeight: 1.3 }}>See you Saturday!</p>
+              <p className="italic font-medium" style={{ fontFamily: "var(--font-playfair)", color: "#111111", fontSize: "16px", lineHeight: 1.3 }}>See you Saturday!</p>
               <p className="mt-2 text-lg" style={{ color: "#FF1F7D" }}>♡</p>
             </div>
 
@@ -353,7 +353,7 @@ export function LandingPage() {
                 ))}
               </div>
               <div className="ml-7 p-2.5">
-                <p className="font-bold" style={{ color: "#1A0514", fontSize: "11px" }}>MUSEUM GIRLS</p>
+                <p className="font-bold" style={{ color: "#111111", fontSize: "11px" }}>MUSEUM GIRLS</p>
                 <p className="text-xs text-gray-500">SAT, MAY 24 · 2:00 PM</p>
                 <div className="flex items-center gap-1 mt-1">
                   <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
@@ -391,7 +391,7 @@ export function LandingPage() {
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-start">
             {/* Left label */}
             <div className="pt-2">
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 Tonight on{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
                 {" "}<Sparkle />
@@ -413,7 +413,7 @@ export function LandingPage() {
                   </div>
                   <div className="pt-3 pb-2 flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-bold text-sm leading-snug" style={{ color: "#1A0514" }}>{ev.title}</p>
+                      <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{ev.title}</p>
                       <p className="text-xs mt-0.5" style={{ color: "#888" }}>{ev.location} · {ev.time}</p>
                     </div>
                     <Link
@@ -446,7 +446,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-start">
             <div className="pt-2">
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 The world of{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
                 {" "}<Sparkle />
@@ -466,7 +466,7 @@ export function LandingPage() {
                 <div key={obj.key} className="flex-shrink-0" style={{ width: "150px" }}>
                   <ObjectCard k={obj.key} />
                   <div className="mt-3">
-                    <p className="font-bold tracking-widest" style={{ fontSize: "10px", color: "#1A0514" }}>{obj.label}</p>
+                    <p className="font-bold tracking-widest" style={{ fontSize: "10px", color: "#111111" }}>{obj.label}</p>
                     <p className="text-xs mt-0.5" style={{ color: "#888" }}>{obj.sub}</p>
                   </div>
                 </div>
@@ -481,7 +481,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-center">
             <div>
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 Clubs that feel like home.
                 {" "}<Sparkle />
               </h2>
@@ -538,7 +538,7 @@ export function LandingPage() {
             <div className="max-w-xs">
               <div className="flex items-center gap-3 mb-4">
                 <BBLogo size={40} />
-                <span className="font-bold text-2xl tracking-[0.18em]" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+                <span className="font-bold text-2xl tracking-[0.18em]" style={{ color: "#111111" }}>BLOOMBAY</span>
               </div>
               <p className="text-base leading-relaxed mb-2" style={{ color: "#888", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 A world built for women.
@@ -591,7 +591,7 @@ export function LandingPage() {
               { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "FAQ", h: "/faq" }] },
             ].map((col) => (
               <div key={col.title}>
-                <p className="text-xs font-bold tracking-[0.18em] mb-5" style={{ color: "#1A0514" }}>{col.title}</p>
+                <p className="text-xs font-bold tracking-[0.18em] mb-5" style={{ color: "#111111" }}>{col.title}</p>
                 <div className="flex flex-col gap-3.5">
                   {col.links.map((link) => (
                     <Link key={link.l} href={link.h} className="text-sm transition-colors hover:text-pink-500" style={{ color: "#888" }}>

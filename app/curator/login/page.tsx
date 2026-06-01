@@ -28,7 +28,7 @@ export default function CuratorLoginPage() {
         </div>
 
         {state?.error && (
-          <div className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium" style={{ background: "#FFE0EE", color: "#c40060" }}>
+          <div className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
             {state.error}
           </div>
         )}

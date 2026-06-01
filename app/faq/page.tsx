@@ -60,7 +60,7 @@ export default function FAQPage() {
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-24">
         <div className="text-center mb-12">
           <p className="text-xs font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>FAQ</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Frequently Asked Questions
           </h1>
           <div className="relative max-w-md mx-auto">
@@ -89,7 +89,7 @@ export default function FAQPage() {
                       className="w-full flex items-center justify-between px-5 py-4 text-left"
                       onClick={() => setOpen(open === item.q ? null : item.q)}
                     >
-                      <span className="font-semibold text-sm pr-4" style={{ color: "#1A0514" }}>{item.q}</span>
+                      <span className="font-semibold text-sm pr-4" style={{ color: "#111111" }}>{item.q}</span>
                       <svg
                         width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2"
                         className="flex-shrink-0 transition-transform"
@@ -111,12 +111,12 @@ export default function FAQPage() {
         </div>
 
         <div className="rounded-3xl p-8 text-center" style={{ background: "#FFF5F8" }}>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#1A0514", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             Still have questions?
           </h2>
           <p className="text-sm text-gray-500 mb-5">Visit our Help Centre or contact us directly.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/help" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-sm" style={{ background: "#1A0514", color: "white" }}>
+            <Link href="/help" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-sm" style={{ background: "#111111", color: "white" }}>
               Help Centre
             </Link>
             <Link href="/contact" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white" style={{ background: "#FF1F7D" }}>
