@@ -53,6 +53,30 @@ const SCHEDULE = [
   "Spontaneous — just send me things",
 ];
 
+const CLUB_RECS = [
+  {
+    id: 1, name: "African Girls Club NYC", members: 127, color: "#FF1F7D",
+    tagline: "Jollof nights, Afrobeats events, real sisterhood",
+    tags: ["Cultural", "Food", "Community"],
+    nextEvent: "Jollof + Movie Night Friday",
+    nextDetail: "Fri 8PM · Crown Heights · $15",
+  },
+  {
+    id: 2, name: "Soft Life Club NYC", members: 312, color: "#FF69B4",
+    tagline: "Brunches, slow Sundays, luxury feels on a budget",
+    tags: ["Lifestyle", "Food", "Wellness"],
+    nextEvent: "Sunday Brunch at Lilia",
+    nextDetail: "Sun 11AM · Williamsburg · $45",
+  },
+  {
+    id: 3, name: "Girl Tech Collective", members: 89, color: "#7C3AED",
+    tagline: "Founders, builders, and ambitious women in NYC tech",
+    tags: ["Career", "Tech", "Networking"],
+    nextEvent: "Pitch Night + Dinner",
+    nextDetail: "Wed 7PM · SoHo · Free",
+  },
+];
+
 type MultiSet = Set<number>;
 
 function ProgressDots({ total, current }: { total: number; current: number }) {
@@ -140,8 +164,10 @@ export function OnboardFlow() {
   const [interests, setInterests] = useState<MultiSet>(new Set());
   const [lifestyle, setLifestyle] = useState<MultiSet>(new Set());
   const [schedule, setSchedule] = useState<MultiSet>(new Set());
+  const [joinedClubId, setJoinedClubId] = useState<number | null>(null);
+  const [rssvpd, setRsvpd] = useState(false);
 
-  const TOTAL_STEPS = 7;
+  const TOTAL_STEPS = 9;
 
   function toggleSet(set: MultiSet, setFn: (s: MultiSet) => void, i: number) {
     const next = new Set(set);
@@ -152,7 +178,7 @@ export function OnboardFlow() {
 
   function next() {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
-    else router.push("/home");
+    else router.push("/member/home");
   }
 
   function back() {
@@ -544,8 +570,164 @@ export function OnboardFlow() {
 
             <div className="mt-auto">
               <PinkButton onClick={next} disabled={schedule.size === 0}>
-                One more thing →
+                Almost there →
               </PinkButton>
+            </div>
+          </div>
+        )}
+
+        {/* Step 7: Club Recommendations */}
+        {step === 7 && (
+          <div className="flex flex-col flex-1">
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-1">
+              STEP 7 OF {TOTAL_STEPS - 1}
+            </p>
+            <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
+              Yande picked
+            </h2>
+            <p
+              className="text-3xl font-bold italic mb-2"
+              style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+            >
+              your clubs.
+            </p>
+            <p className="text-sm text-gray-400 mb-5">
+              Based on your vibe and interests. Join one to start.
+            </p>
+
+            <div className="flex flex-col gap-3 mb-6">
+              {CLUB_RECS.map((club) => {
+                const joined = joinedClubId === club.id;
+                return (
+                  <button
+                    key={club.id}
+                    onClick={() => setJoinedClubId(club.id)}
+                    className="rounded-2xl p-4 text-left transition-all"
+                    style={{
+                      background: joined ? "var(--light-pink)" : "white",
+                      border: `2px solid ${joined ? club.color : "#F0F0F0"}`,
+                      boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className="w-10 h-10 rounded-xl flex-shrink-0"
+                        style={{ background: `linear-gradient(135deg,${club.color},#1A0514)` }}
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-sm leading-snug" style={{ color: "var(--bb-black)" }}>
+                          {club.name}
+                        </p>
+                        <p className="text-xs text-gray-400">{club.members} women</p>
+                      </div>
+                      {joined && (
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ background: club.color }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 italic mb-2">{club.tagline}</p>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {club.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          style={{ background: joined ? `${club.color}22` : "#F5F5F5", color: joined ? club.color : "#999" }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-auto">
+              <PinkButton onClick={next} disabled={joinedClubId === null}>
+                Join and continue →
+              </PinkButton>
+              <p className="text-center text-xs text-gray-400 mt-2">You can join more clubs anytime</p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 8: First Event */}
+        {step === 8 && (
+          <div className="flex flex-col flex-1">
+            <div
+              className="rounded-3xl p-5 mb-5 relative overflow-hidden"
+              style={{ background: "#1A0514" }}
+            >
+              <div
+                className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
+                style={{ background: "var(--bb-pink)", transform: "translate(30%, -30%)" }}
+              />
+              <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "var(--mid-pink)" }}>
+                YOU&apos;RE IN ✦
+              </p>
+              <p className="text-white text-2xl font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}>
+                {CLUB_RECS.find((c) => c.id === joinedClubId)?.name}
+              </p>
+              <p className="text-white/50 text-sm">
+                {CLUB_RECS.find((c) => c.id === joinedClubId)?.members} women are already inside.
+              </p>
+            </div>
+
+            <h2 className="text-2xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>
+              Your first moment
+            </h2>
+            <p
+              className="text-2xl font-bold italic mb-4"
+              style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
+            >
+              is already here.
+            </p>
+
+            {(() => {
+              const club = CLUB_RECS.find((c) => c.id === joinedClubId);
+              return club ? (
+                <div
+                  className="rounded-3xl p-5 mb-6"
+                  style={{ background: "white", border: `2px solid var(--light-pink)`, boxShadow: "0 2px 16px rgba(255,31,125,0.10)" }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: club.color }} />
+                    <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>
+                      NEXT UP IN YOUR CLUB
+                    </p>
+                  </div>
+                  <p className="text-xl font-bold leading-snug mb-1" style={{ color: "var(--bb-black)" }}>
+                    {club.nextEvent}
+                  </p>
+                  <p className="text-sm text-gray-400 mb-4">{club.nextDetail}</p>
+                  <button
+                    onClick={() => setRsvpd(true)}
+                    className="w-full py-3.5 rounded-full font-bold text-sm transition-all"
+                    style={
+                      rssvpd
+                        ? { background: "#1A0514", color: "white" }
+                        : { background: club.color, color: "white" }
+                    }
+                  >
+                    {rssvpd ? "You&apos;re going ✓" : "RSVP — I&apos;m going →"}
+                  </button>
+                </div>
+              ) : null;
+            })()}
+
+            <div className="mt-auto">
+              <PinkButton onClick={next}>
+                Enter BloomBay →
+              </PinkButton>
+              <p className="text-center text-xs text-gray-400 mt-2">
+                Your city is waiting.
+              </p>
             </div>
           </div>
         )}
