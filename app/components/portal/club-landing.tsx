@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
@@ -77,6 +77,170 @@ const DEFAULT_CLUB: ClubLandingData = {
   ],
 };
 
+// ─── Chat Mock Data ──────────────────────────────────────────────────────────
+
+interface ChatMessage {
+  id: number;
+  author: string;
+  initial: string;
+  color: string;
+  text: string;
+  time: string;
+  mine?: boolean;
+  reactions?: { emoji: string; count: number }[];
+}
+
+const CHAT_MESSAGES: ChatMessage[] = [
+  { id: 1, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "Has anyone tried the jollof at that new spot on Atlantic Ave?", time: "2:14 PM" },
+  { id: 2, author: "Kelechi O.", initial: "K", color: "#8B5CF6", text: "YES the smoky base is exactly right 🔥 I went twice last week", time: "2:16 PM", reactions: [{ emoji: "♡", count: 4 }] },
+  { id: 3, author: "You", initial: "M", color: "#059669", text: "Ok we need a club outing asap. I've been waiting for a reason to go back", time: "2:17 PM", mine: true },
+  { id: 4, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "The Jollof + Movie Night is confirmed for Friday btw!! Amanda just posted it 🎉", time: "2:19 PM", reactions: [{ emoji: "♡", count: 8 }, { emoji: "✦", count: 3 }] },
+  { id: 5, author: "Bea T.", initial: "B", color: "#D97706", text: "Friday works! What movie are we watching?", time: "2:21 PM" },
+  { id: 6, author: "You", initial: "M", color: "#059669", text: "I vote Half of a Yellow Sun or The Burial of Kojo", time: "2:22 PM", mine: true },
+  { id: 7, author: "Kelechi O.", initial: "K", color: "#8B5CF6", text: "I'm bringing garri and puff puff 😂 somebody else handle dessert", time: "2:24 PM", reactions: [{ emoji: "😂", count: 6 }] },
+  { id: 8, author: "Fatima A.", initial: "F", color: "#14B8A6", text: "I'll bring zobo 🍹 the hibiscus one from that vendor at the weekend market", time: "2:25 PM" },
+  { id: 9, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "This is going to be such a good night. See everyone Friday 🌸", time: "2:26 PM", reactions: [{ emoji: "♡", count: 11 }] },
+];
+
+const CLUB_MEMBERS = [
+  { initial: "A", name: "Aminah C.", color: "#FF1F7D", role: "Host" },
+  { initial: "K", name: "Kelechi O.", color: "#8B5CF6", role: "Member" },
+  { initial: "B", name: "Bea T.", color: "#D97706", role: "Member" },
+  { initial: "F", name: "Fatima A.", color: "#14B8A6", role: "Member" },
+  { initial: "R", name: "Remi O.", color: "#EC4899", role: "Member" },
+  { initial: "N", name: "Ngozi M.", color: "#6366F1", role: "Member" },
+  { initial: "T", name: "Temi A.", color: "#059669", role: "Member" },
+  { initial: "C", name: "Chidera L.", color: "#0EA5E9", role: "Member" },
+];
+
+type ClubTab = "about" | "chat" | "events" | "members";
+
+// ─── Club Chat Component ──────────────────────────────────────────────────────
+
+function ClubChat({ club }: { club: ClubLandingData }) {
+  const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
+  const [input, setInput]         = useState("");
+  const [likedIds, setLikedIds]   = useState<Set<number>>(new Set());
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  function send() {
+    if (!input.trim()) return;
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), author: "You", initial: "M", color: "#059669", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true },
+    ]);
+    setInput("");
+  }
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100vh - 280px)", minHeight: "400px" }}>
+      {/* Online indicator */}
+      <div className="flex items-center gap-2 px-5 py-3 border-b" style={{ borderColor: "#F0E8E0" }}>
+        <div className="flex -space-x-1.5">
+          {CLUB_MEMBERS.slice(0, 5).map((m) => (
+            <div key={m.name} className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" style={{ background: m.color }}>
+              {m.initial}
+            </div>
+          ))}
+        </div>
+        <span className="text-xs text-gray-400">{CLUB_MEMBERS.length} members · <span style={{ color: "#22A85A" }}>5 online</span></span>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+        {/* Date divider */}
+        <div className="flex items-center gap-3 my-1">
+          <div className="flex-1 h-px" style={{ background: "#F0E8E0" }} />
+          <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wider">Today</span>
+          <div className="flex-1 h-px" style={{ background: "#F0E8E0" }} />
+        </div>
+
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex items-end gap-2 ${msg.mine ? "flex-row-reverse" : "flex-row"}`}>
+            {!msg.mine && (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mb-1" style={{ background: msg.color }}>
+                {msg.initial}
+              </div>
+            )}
+            <div className={`flex flex-col ${msg.mine ? "items-end" : "items-start"} max-w-[75%]`}>
+              {!msg.mine && (
+                <span className="text-[11px] font-semibold mb-1 ml-1" style={{ color: msg.color }}>{msg.author}</span>
+              )}
+              <div
+                className="px-4 py-2.5 text-sm leading-relaxed"
+                style={{
+                  background: msg.mine ? club.color : "white",
+                  color: msg.mine ? "white" : "#1A0514",
+                  borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
+                }}
+              >
+                {msg.text}
+              </div>
+              {msg.reactions && (
+                <div className="flex items-center gap-1.5 mt-1.5 ml-1">
+                  {msg.reactions.map((r) => (
+                    <button
+                      key={r.emoji}
+                      onClick={() => setLikedIds((p) => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all"
+                      style={likedIds.has(msg.id)
+                        ? { background: "#FFF0F5", color: "#FF1F7D" }
+                        : { background: "#F5F5F5", color: "#888" }}
+                    >
+                      {r.emoji} {likedIds.has(msg.id) ? r.count + 1 : r.count}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <span className="text-[10px] text-gray-300 mt-1 mx-1">{msg.time}</span>
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: "1px solid #F0E8E0", background: "white" }}>
+        <div className="flex-1 flex items-center rounded-full px-4 py-2.5 gap-2" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE" }}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Say something..."
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "#1A0514" }}
+          />
+          <button className="text-gray-300 hover:text-gray-400 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
+            </svg>
+          </button>
+        </div>
+        <button
+          onClick={send}
+          disabled={!input.trim()}
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 disabled:opacity-30"
+          style={{ background: club.color }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function CrestMark({ name, color, size = 72 }: { name: string; color: string; size?: number }) {
@@ -129,8 +293,9 @@ function EntryBadge({ style }: { style: ClubEntryStyle }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingData }) {
-  const [applied, setApplied] = useState(false);
+  const [applied, setApplied]   = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [clubTab, setClubTab]   = useState<ClubTab>("about");
 
   const ctaLabel =
     club.entryStyle === "open"
@@ -214,8 +379,79 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
         </button>
       </div>
 
+      {/* ── Club Tabs ──────────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-1 px-5 py-3 overflow-x-auto" style={{ borderBottom: "1px solid #F0E0E8" }}>
+        {(["about", "chat", "events", "members"] as ClubTab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setClubTab(t)}
+            className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap capitalize transition-all"
+            style={clubTab === t
+              ? { background: club.color, color: "white" }
+              : { color: "#888", background: "transparent" }}
+          >
+            {t === "about" ? "About" : t === "chat" ? "Chat 💬" : t === "events" ? "Events" : "Members"}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Chat Tab ───────────────────────────────────────────────────────── */}
+      {clubTab === "chat" && <ClubChat club={club} />}
+
+      {/* ── Events Tab ─────────────────────────────────────────────────────── */}
+      {clubTab === "events" && (
+        <div className="max-w-xl mx-auto px-5 pt-5 flex flex-col gap-4 pb-20">
+          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>OPEN SEATS</p>
+          {club.upcomingSeats.map((seat, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 flex items-center justify-between" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+              <div>
+                <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{seat.title}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{seat.date}</p>
+                {seat.price && <p className="text-xs font-semibold mt-1" style={{ color: club.color }}>{seat.price}</p>}
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-2xl font-bold" style={{ color: club.color }}>{seat.seats}</p>
+                  <p className="text-xs text-gray-400">seats</p>
+                </div>
+                <button className="px-4 py-2 rounded-full text-sm font-bold text-white" style={{ background: club.color }}>
+                  RSVP
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Members Tab ────────────────────────────────────────────────────── */}
+      {clubTab === "members" && (
+        <div className="max-w-xl mx-auto px-5 pt-5 pb-20">
+          <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: club.color }}>
+            {club.memberCount.toLocaleString()} MEMBERS
+          </p>
+          <div className="flex flex-col gap-2">
+            {CLUB_MEMBERS.map((m) => (
+              <div key={m.name} className="bg-white rounded-2xl p-4 flex items-center gap-3" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ background: m.color }}>
+                  {m.initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{m.name}</p>
+                  {m.role === "Host" && (
+                    <span className="text-xs font-bold" style={{ color: club.color }}>Host</span>
+                  )}
+                </div>
+                <button className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+                  Connect
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Body ───────────────────────────────────────────────────────────── */}
-      <div className="max-w-xl mx-auto px-5 pt-6 flex flex-col gap-6">
+      {clubTab === "about" && <div className="max-w-xl mx-auto px-5 pt-6 flex flex-col gap-6">
 
         {/* Tagline */}
         <p
@@ -340,7 +576,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB }: { club?: ClubLandingDat
             </p>
           )}
         </div>
-      </div>
+      </div>}
+
 
       {/* ── Application Sheet ───────────────────────────────────────────────── */}
       {showForm && (

@@ -41,6 +41,15 @@ const tabs = [
     ),
   },
   {
+    href: "/member/match",
+    label: "Match",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
+      </svg>
+    ),
+  },
+  {
     href: "/member/lounge",
     label: "Lounge",
     icon: (
@@ -57,8 +66,8 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
       <div
-        className="pointer-events-auto mx-4 mb-4 flex items-center gap-1 px-2 py-2 rounded-full"
-        style={{ background: "#1A0514" }}
+        className="pointer-events-auto mx-3 mb-4 flex items-center gap-0.5 px-2 py-2 rounded-full overflow-x-auto max-w-full"
+        style={{ background: "#1A0514", scrollbarWidth: "none" }}
       >
         {tabs.map((tab) => {
           const active = pathname === tab.href || pathname.startsWith(tab.href + "/");
