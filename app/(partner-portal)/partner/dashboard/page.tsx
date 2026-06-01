@@ -1,172 +1,810 @@
-const UPCOMING_EVENTS = [
-  { emoji: "🍷", title: "Sunset Dinner", detail: "Jun 5, 2025 · 7:00 PM", going: 12 },
-  { emoji: "☕", title: "Coffee & Connections", detail: "Jun 12, 2025 · 10:00 AM", going: 16 },
-  { emoji: "🌸", title: "BloomBay Brunch", detail: "Jun 19, 2025 · 11:00 AM", going: 16 },
+"use client";
+
+import { useState } from "react";
+
+// ── Types ──────────────────────────────────────────────────────────────────
+
+type Tab =
+  | "profile"
+  | "gatherings"
+  | "women-hosted"
+  | "rating"
+  | "requests"
+  | "mailbox"
+  | "perks";
+
+// ── Mock data ──────────────────────────────────────────────────────────────
+
+const UPCOMING_GATHERINGS = [
+  {
+    title: "Girls Brunch",
+    club: "Soft Life Club NYC",
+    date: "Jun 7, 2025",
+    time: "11:00 AM",
+    guests: 12,
+    status: "Confirmed",
+  },
+  {
+    title: "Book Club Evening",
+    club: "The Lit Circle",
+    date: "Jun 13, 2025",
+    time: "7:00 PM",
+    guests: 8,
+    status: "Confirmed",
+  },
+  {
+    title: "Sunday Brunch",
+    club: "Uptown Girls",
+    date: "Jun 22, 2025",
+    time: "12:00 PM",
+    guests: 16,
+    status: "Pending",
+  },
 ];
 
-const RECENT_BOOKINGS = [
-  { name: "Maya W.", detail: "May 29 · 7:00 PM · 6 guests" },
-  { name: "Leila K.", detail: "May 27 · 12:00 PM · 4 guests" },
-  { name: "Tara S.", detail: "May 26 · 11:00 AM · 3 guests" },
+const RECENT_VISITORS = [
+  { name: "Aaliyah M.", club: "Soft Life Club NYC", date: "Jun 1", guests: 1 },
+  { name: "Sofia K.", club: "Soft Life Club NYC", date: "May 29", guests: 4 },
+  { name: "Priya R.", club: "Soft Life Club NYC", date: "May 28", guests: 2 },
+  { name: "Camille T.", club: "The Lit Circle", date: "May 27", guests: 6 },
+  { name: "Zara F.", club: "Uptown Girls", date: "May 26", guests: 3 },
 ];
 
-const PERKS = [
-  "Priority Placement",
-  "Partner Badge",
-  "Event Promotion",
-  "Access to Bloomies",
+const REVIEWS = [
+  {
+    author: "Aaliyah M.",
+    club: "Soft Life Club NYC",
+    rating: 5,
+    text: "Perfect for a girl brunch. The space is intimate and the staff made us feel so welcome. We'll be back.",
+    date: "May 2025",
+  },
+  {
+    author: "Sofia K.",
+    club: "Soft Life Club NYC",
+    rating: 5,
+    text: "The macarons are unreal. Honestly the whole experience was like being in Paris for two hours.",
+    date: "Apr 2025",
+  },
+  {
+    author: "Camille T.",
+    club: "The Lit Circle",
+    rating: 4,
+    text: "Beautiful venue. Slightly loud on a Saturday but the food made up for it completely.",
+    date: "Apr 2025",
+  },
+];
+
+const BOOKING_REQUESTS = [
+  {
+    club: "The Bloom Collective",
+    contact: "Nadia K.",
+    event: "Afternoon Tea Gathering",
+    requestedDate: "Jul 5, 2025",
+    guests: 10,
+    message: "We'd love to book a private corner for 10 women. Prefer the garden seating area.",
+  },
+  {
+    club: "SoHo Sisterhood",
+    contact: "Lena O.",
+    event: "Birthday Brunch",
+    requestedDate: "Jul 12, 2025",
+    guests: 14,
+    message: "Celebrating our founder's birthday. Can you accommodate a birthday arrangement?",
+  },
 ];
 
 const MESSAGES = [
-  { from: "BloomBay Team", preview: "Partnership update", time: "2h ago" },
-  { from: "Leila K.", preview: "Event inquiry", time: "1d ago" },
-  { from: "Maya W.", preview: "Special request", time: "2d ago" },
+  { from: "BloomBay Team", preview: "Your venue was featured in our weekly digest", time: "1h ago", unread: true },
+  { from: "Nadia K.", preview: "Quick follow-up on our July request", time: "4h ago", unread: true },
+  { from: "Aaliyah M.", preview: "Thank you for the lovely afternoon!", time: "2d ago", unread: false },
 ];
 
-export default function PartnerDashboardPage() {
+// ── SVG Icons ──────────────────────────────────────────────────────────────
+
+function IconBuilding({ size = 16 }: { size?: number }) {
   return (
-    <div className="min-h-screen pb-10" style={{ background: "#FFF5F8" }}>
-      {/* Header */}
-      <div className="px-8 pt-8 pb-6" style={{ background: "white", borderBottom: "1px solid #FFE0EE" }}>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-5">
-            <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-              style={{ background: "var(--light-pink)" }}
-            >
-              🌹
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-3xl font-bold" style={{ color: "var(--bb-black)" }}>Ladurée SoHo</h1>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>✓ Verified Partner</span>
-              </div>
-              <p className="text-sm text-gray-400">Café &amp; Restaurant · SoHo, New York</p>
-              <p className="italic text-sm mt-1" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)" }}>Merci!</p>
-            </div>
-          </div>
-          {/* Bloom Partner stamp */}
-          <div
-            className="rounded-2xl px-5 py-4 text-center border-2 border-dashed"
-            style={{ borderColor: "var(--bb-pink)" }}
-          >
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>BLOOM</p>
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>PARTNER</p>
-          </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 9h1v1H9zM14 9h1v1h-1zM9 14h1v1H9zM14 14h1v1h-1z" strokeWidth="0" fill="currentColor" />
+      <line x1="9" y1="21" x2="9" y2="9" />
+      <line x1="15" y1="21" x2="15" y2="9" />
+    </svg>
+  );
+}
+
+function IconCalendar({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+
+function IconUsers({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function IconStar({ size = 16, filled = false }: { size?: number; filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
+function IconInbox({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+      <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+    </svg>
+  );
+}
+
+function IconClipboard({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    </svg>
+  );
+}
+
+function IconAward({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+    </svg>
+  );
+}
+
+function IconCheck({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+// ── Star Rating Display ────────────────────────────────────────────────────
+
+function StarRating({ rating, max = 5, size = 16 }: { rating: number; max?: number; size?: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: max }, (_, i) => (
+        <span
+          key={i}
+          style={{ color: i < Math.round(rating) ? "#FF1F7D" : "#E5D0DC" }}
+        >
+          <IconStar size={size} filled={i < Math.round(rating)} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ── Tab configuration ──────────────────────────────────────────────────────
+
+const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
+  { id: "profile", label: "Profile", icon: <IconBuilding size={15} /> },
+  { id: "gatherings", label: "Upcoming Gatherings", icon: <IconCalendar size={15} /> },
+  { id: "women-hosted", label: "Women Hosted", icon: <IconUsers size={15} /> },
+  { id: "rating", label: "Rating", icon: <IconStar size={15} /> },
+  { id: "requests", label: "Requests", icon: <IconClipboard size={15} /> },
+  { id: "mailbox", label: "Mailbox", icon: <IconInbox size={15} /> },
+  { id: "perks", label: "Partner Perks", icon: <IconAward size={15} /> },
+];
+
+// ── Section Components ─────────────────────────────────────────────────────
+
+function ProfileSection() {
+  return (
+    <div className="max-w-2xl">
+      <div className="mb-5">
+        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Venue Profile</h2>
+        <p className="text-sm text-gray-400 mt-0.5">How BloomBay women see your venue</p>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {/* Venue name */}
+        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Venue Name</p>
+          <p className="font-bold text-xl" style={{ color: "#1A0514" }}>Ladurée SoHo</p>
         </div>
 
-        {/* Stats */}
-        <div className="flex gap-8 mt-6">
-          {[
-            { n: "8", l: "Events Hosted" },
-            { n: "412", l: "Women Hosted" },
-            { n: "$8,240", l: "Revenue" },
-            { n: "4.9 ⭐", l: "Rating" },
-          ].map((s) => (
-            <div key={s.l}>
-              <p className="text-2xl font-bold" style={{ color: "var(--bb-black)" }}>{s.n}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{s.l}</p>
+        {/* Description */}
+        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Description</p>
+          <p className="text-sm leading-relaxed" style={{ color: "#444" }}>
+            Parisian patisserie meets NYC girl culture. The perfect brunch spot.
+          </p>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Edit description</button>
+        </div>
+
+        {/* Neighborhood */}
+        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Neighborhood</p>
+          <p className="text-sm font-semibold" style={{ color: "#1A0514" }}>SoHo, Manhattan</p>
+        </div>
+
+        {/* Photos placeholder */}
+        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Photos</p>
+          <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="aspect-video rounded-xl flex items-center justify-center text-xs text-gray-400 border-2 border-dashed"
+                style={{ borderColor: "#FFE0EE", background: "#FFF8FB" }}
+              >
+                {n === 1 ? "Add photo" : "+"}
+              </div>
+            ))}
+          </div>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Upload photos</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GatheringsSection() {
+  return (
+    <div>
+      <div className="mb-5">
+        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Upcoming Gatherings</h2>
+        <p className="text-sm text-gray-400 mt-0.5">3 BloomBay events booked at your venue</p>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {UPCOMING_GATHERINGS.map((g, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl p-5 flex items-center gap-5"
+            style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+          >
+            {/* Date block */}
+            <div
+              className="w-14 flex-shrink-0 rounded-xl py-2 text-center"
+              style={{ background: "#FFF0F5" }}
+            >
+              <p className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>
+                {g.date.split(",")[0].split(" ")[0]}
+              </p>
+              <p className="text-xl font-bold" style={{ color: "#1A0514" }}>
+                {g.date.split(" ")[1].replace(",", "")}
+              </p>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{g.club} · {g.time}</p>
+            </div>
+
+            <div className="text-right flex-shrink-0">
+              <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.guests} guests</p>
+              <span
+                className="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block"
+                style={
+                  g.status === "Confirmed"
+                    ? { background: "#FFF0F5", color: "#FF1F7D" }
+                    : { background: "#F5F5F5", color: "#999" }
+                }
+              >
+                {g.status}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WomenHostedSection() {
+  return (
+    <div>
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div
+          className="bg-white rounded-2xl p-6"
+          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+        >
+          <p
+            className="text-4xl font-bold"
+            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
+          >
+            156
+          </p>
+          <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>Total Women Hosted</p>
+          <p className="text-xs text-gray-400 mt-0.5">via BloomBay</p>
+        </div>
+        <div
+          className="bg-white rounded-2xl p-6"
+          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+        >
+          <p
+            className="text-4xl font-bold"
+            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
+          >
+            12
+          </p>
+          <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>This Week</p>
+          <p className="text-xs text-gray-400 mt-0.5">Jun 1 – Jun 7, 2025</p>
+        </div>
+      </div>
+
+      {/* Recent visits */}
+      <div className="mb-4">
+        <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Recent Visits</h3>
+        <div className="flex flex-col gap-2">
+          {RECENT_VISITORS.map((v, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl px-5 py-3.5 flex items-center gap-4"
+              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+            >
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{ background: "#FF1F7D" }}
+              >
+                {v.name[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{v.name}</p>
+                <p className="text-xs text-gray-400 truncate">{v.club}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs font-semibold" style={{ color: "#1A0514" }}>{v.guests} {v.guests === 1 ? "guest" : "guests"}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{v.date}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="px-8 pt-6 grid grid-cols-[1fr_320px] gap-6">
-        {/* Left */}
-        <div className="flex flex-col gap-5">
-          {/* Upcoming Events */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>Upcoming Events</p>
-              <button className="text-sm font-semibold" style={{ color: "var(--bb-pink)" }}>View all →</button>
-            </div>
-            <div className="flex flex-col gap-3">
-              {UPCOMING_EVENTS.map((e, i) => (
-                <div key={i} className="flex items-center gap-4 py-3 border-b last:border-0" style={{ borderColor: "#FFF0F5" }}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: "var(--light-pink)" }}>
-                    {e.emoji}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm" style={{ color: "var(--bb-black)" }}>{e.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{e.detail}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{e.going}</p>
-                    <p className="text-xs text-gray-400">Going</p>
-                  </div>
+function RatingSection() {
+  const overallRating = 4.8;
+  const totalReviews = 23;
+
+  return (
+    <div>
+      {/* Overall rating */}
+      <div
+        className="bg-white rounded-2xl p-6 mb-5 flex items-center gap-6"
+        style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+      >
+        <div className="text-center flex-shrink-0">
+          <p
+            className="text-6xl font-bold"
+            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", lineHeight: 1 }}
+          >
+            {overallRating}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">out of 5</p>
+        </div>
+        <div>
+          <StarRating rating={overallRating} size={22} />
+          <p className="text-sm text-gray-500 mt-2">
+            From <span className="font-semibold" style={{ color: "#1A0514" }}>{totalReviews}</span> BloomBay women
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">BloomBay Rating — verified visits only</p>
+        </div>
+      </div>
+
+      {/* Reviews */}
+      <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Written Reviews</h3>
+      <div className="flex flex-col gap-3">
+        {REVIEWS.map((r, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl p-5"
+            style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                  style={{ background: "#FF1F7D" }}
+                >
+                  {r.author[0]}
                 </div>
-              ))}
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{r.author}</p>
+                  <p className="text-xs text-gray-400">{r.club} · {r.date}</p>
+                </div>
+              </div>
+              <StarRating rating={r.rating} size={13} />
+            </div>
+            <p className="text-sm leading-relaxed" style={{ color: "#555", fontStyle: "italic" }}>
+              &ldquo;{r.text}&rdquo;
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RequestsSection() {
+  const [handled, setHandled] = useState<Set<number>>(new Set());
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Booking Requests</h2>
+        <p className="text-sm text-gray-400 mt-0.5">{BOOKING_REQUESTS.length} pending requests</p>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {BOOKING_REQUESTS.map((r, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl p-5"
+            style={{
+              boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+              opacity: handled.has(i) ? 0.45 : 1,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{r.event}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {r.club} · via {r.contact} · {r.requestedDate} · {r.guests} guests
+                </p>
+              </div>
+              {!handled.has(i) && (
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => setHandled(prev => new Set([...prev, i]))}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                    style={{ background: "#1A0514" }}
+                  >
+                    <IconCheck size={12} />
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setHandled(prev => new Set([...prev, i]))}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                    style={{ background: "#F5F5F5", color: "#999" }}
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
+            </div>
+            <p
+              className="text-sm leading-relaxed rounded-xl px-4 py-3"
+              style={{ background: "#FFF8FB", color: "#555", fontStyle: "italic", borderLeft: "2px solid #FFE0EE" }}
+            >
+              &ldquo;{r.message}&rdquo;
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MailboxSection() {
+  const unread = MESSAGES.filter(m => m.unread).length;
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Mailbox</h2>
+        <p className="text-sm text-gray-400 mt-0.5">{unread} unread messages</p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {MESSAGES.map((m, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 cursor-pointer"
+            style={{
+              boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+              borderLeft: m.unread ? "3px solid #1A0514" : "3px solid transparent",
+            }}
+          >
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+              style={{ background: m.unread ? "#1A0514" : "#C8B0C0" }}
+            >
+              {m.from[0]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-sm truncate"
+                style={{ color: "#1A0514", fontWeight: m.unread ? 700 : 500 }}
+              >
+                {m.from}
+              </p>
+              <p className="text-xs text-gray-400 truncate mt-0.5">{m.preview}</p>
+            </div>
+            <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+              <p className="text-xs text-gray-400">{m.time}</p>
+              {m.unread && (
+                <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
+              )}
             </div>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-          {/* Recent Bookings */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>Recent Bookings</p>
-              <button className="text-sm font-semibold" style={{ color: "var(--bb-pink)" }}>View all →</button>
-            </div>
-            <div className="flex flex-col gap-3">
-              {RECENT_BOOKINGS.map((b, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
-                    {b.name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>{b.name}</p>
-                    <p className="text-xs text-gray-400">{b.detail}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+function PerksSection() {
+  return (
+    <div className="max-w-xl">
+      <div className="mb-5">
+        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Partner Perks</h2>
+        <p className="text-sm text-gray-400 mt-0.5">Your active benefits as a Bloom Partner</p>
+      </div>
+
+      {/* Bloom Partner Badge */}
+      <div
+        className="rounded-2xl p-6 mb-4 flex items-center gap-5"
+        style={{ background: "#1A0514" }}
+      >
+        {/* Badge graphic */}
+        <div className="flex-shrink-0">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" stroke="#FF1F7D" strokeWidth="2" />
+            <circle cx="32" cy="32" r="24" stroke="#FF1F7D" strokeWidth="0.75" strokeDasharray="2 3" />
+            {/* Star / award icon */}
+            <polygon
+              points="32,14 35.8,25.3 47.8,25.3 38.5,32.3 42.3,43.6 32,36.6 21.7,43.6 25.5,32.3 16.2,25.3 28.2,25.3"
+              fill="#FF1F7D"
+              fillOpacity="0.2"
+              stroke="#FF1F7D"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <polygon
+              points="32,18 34.6,26.4 43.6,26.4 36.5,31.6 39.1,40 32,34.8 24.9,40 27.5,31.6 20.4,26.4 29.4,26.4"
+              fill="#FF1F7D"
+            />
+          </svg>
+        </div>
+        <div>
+          <p className="text-xs font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
+            BLOOM PARTNER
+          </p>
+          <p className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "var(--font-playfair)" }}>
+            Ladurée SoHo
+          </p>
+          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Active since January 2025
+          </p>
+        </div>
+        <div className="ml-auto flex-shrink-0">
+          <span
+            className="text-xs font-bold px-3 py-1.5 rounded-full"
+            style={{ background: "#FF1F7D", color: "white" }}
+          >
+            Active
+          </span>
+        </div>
+      </div>
+
+      {/* Individual perks */}
+      <div className="flex flex-col gap-3">
+        {/* Priority placement */}
+        <div
+          className="bg-white rounded-2xl p-5 flex items-center gap-4"
+          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FFF0F5" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Priority Placement</p>
+            <p className="text-xs text-gray-400 mt-0.5">Your venue appears first in search results for BloomBay women in SoHo</p>
+          </div>
+          <span
+            className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+            style={{ background: "#FFF0F5", color: "#FF1F7D" }}
+          >
+            Active
+          </span>
         </div>
 
-        {/* Right */}
-        <div className="flex flex-col gap-4">
-          {/* Partner Perks */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-            <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>PARTNER PERKS · Thank you!</p>
-            <div className="flex flex-col gap-2">
-              {PERKS.map((p) => (
-                <div key={p} className="flex items-center gap-2">
-                  <span style={{ color: "var(--bb-pink)" }}>◆</span>
-                  <p className="text-sm" style={{ color: "var(--bb-black)" }}>{p}</p>
-                </div>
-              ))}
-            </div>
-            <button className="mt-3 text-xs font-semibold" style={{ color: "var(--bb-pink)" }}>Learn more about perks →</button>
+        {/* Bloom Partner Badge */}
+        <div
+          className="bg-white rounded-2xl p-5 flex items-center gap-4"
+          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FFF0F5" }}
+          >
+            <IconAward size={20} />
           </div>
-
-          {/* Messages */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>Messages</p>
-              <button className="text-xs font-semibold" style={{ color: "var(--bb-pink)" }}>View all →</button>
-            </div>
-            <div className="flex flex-col gap-3">
-              {MESSAGES.map((m, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
-                    {m.from[0]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: "var(--bb-black)" }}>{m.from}</p>
-                    <p className="text-xs text-gray-400 truncate">{m.preview}</p>
-                  </div>
-                  <p className="text-xs text-gray-400 flex-shrink-0">{m.time}</p>
-                </div>
-              ))}
-            </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Bloom Partner Badge</p>
+            <p className="text-xs text-gray-400 mt-0.5">Displayed on your venue profile, visible to all BloomBay members</p>
           </div>
+          <span
+            className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+            style={{ background: "#FFF0F5", color: "#FF1F7D" }}
+          >
+            Active
+          </span>
+        </div>
 
-          {/* Bloom Partner card */}
-          <div className="rounded-3xl p-5" style={{ background: "var(--bb-pink)" }}>
-            <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.7)" }}>BLOOM PARTNER</p>
-            <p className="text-white font-bold italic text-lg leading-snug" style={{ fontFamily: "var(--font-playfair)", fontWeight: 400 }}>
-              &ldquo;Let&apos;s create magic together.&rdquo;
+        {/* Promotion */}
+        <div
+          className="rounded-2xl p-5 flex items-start gap-4"
+          style={{
+            background: "white",
+            border: "1.5px solid #FFE0EE",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FFF0F5" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+              <line x1="7" y1="7" x2="7.01" y2="7" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Current Promotion</p>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ background: "#FF1F7D", color: "white" }}
+              >
+                Live
+              </span>
+            </div>
+            <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>
+              15% off for BloomBay groups
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Automatically applied to bookings of 4+ women from any BloomBay club
             </p>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Page Component ─────────────────────────────────────────────────────────
+
+export default function YourVenue() {
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
+
+  const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  return (
+    <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
+      {/* ── Header ── */}
+      <div style={{ background: "#1A0514" }}>
+        {/* Top venue info area */}
+        <div className="px-8 pt-8 pb-6 flex items-center gap-6">
+          {/* Venue initial / logo block */}
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
+            <span
+              className="text-3xl font-bold"
+              style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
+            >
+              L
+            </span>
+          </div>
+
+          {/* Title block */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "rgba(255,255,255,0.45)" }}>
+                Your Venue
+              </p>
+              {/* Bloom Partner badge inline */}
+              <span
+                className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+                style={{ background: "#FF1F7D", color: "white", letterSpacing: "0.08em" }}
+              >
+                BLOOM PARTNER
+              </span>
+            </div>
+            <h1
+              className="text-2xl font-bold leading-tight text-white"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              Ladurée SoHo
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
+              Parisian patisserie meets NYC girl culture. The perfect brunch spot.
+            </p>
+          </div>
+
+          {/* Quick stats */}
+          <div className="flex gap-8 flex-shrink-0">
+            {[
+              { n: "4.8", l: "Rating" },
+              { n: "156", l: "Women Hosted" },
+              { n: "3", l: "Upcoming" },
+            ].map((s) => (
+              <div key={s.l} className="text-center">
+                <p className="text-2xl font-bold text-white">{s.n}</p>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{s.l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Tab Bar ── */}
+        <div className="flex items-end px-6 gap-1 overflow-x-auto">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            const badgeCount = tab.id === "mailbox" ? unreadMessages : undefined;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className="relative flex items-center gap-2 px-4 py-3 text-sm font-semibold whitespace-nowrap rounded-t-xl transition-all"
+                style={
+                  isActive
+                    ? { background: "#FFF5F8", color: "#1A0514" }
+                    : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }
+                }
+              >
+                <span style={{ opacity: isActive ? 1 : 0.7 }}>{tab.icon}</span>
+                {tab.label}
+                {badgeCount !== undefined && badgeCount > 0 && (
+                  <span
+                    className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                    style={{
+                      background: isActive ? "#FF1F7D" : "rgba(255,31,125,0.7)",
+                      color: "white",
+                      fontSize: "10px",
+                    }}
+                  >
+                    {badgeCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      <div className="px-8 py-6">
+        {activeTab === "profile" && <ProfileSection />}
+        {activeTab === "gatherings" && <GatheringsSection />}
+        {activeTab === "women-hosted" && <WomenHostedSection />}
+        {activeTab === "rating" && <RatingSection />}
+        {activeTab === "requests" && <RequestsSection />}
+        {activeTab === "mailbox" && <MailboxSection />}
+        {activeTab === "perks" && <PerksSection />}
       </div>
     </div>
   );
