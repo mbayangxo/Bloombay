@@ -20,7 +20,7 @@ const UTILITY = [
 
 interface NavUser { name: string; initial: string; role: string; }
 
-export function BottomNav({ user }: { user: NavUser }) {
+export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
 
   return (

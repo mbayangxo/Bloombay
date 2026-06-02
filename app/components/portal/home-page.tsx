@@ -129,7 +129,7 @@ function EventPoster({ ev, idx }: { ev: typeof CITY_EVENTS[0]; idx: number }) {
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
-export function HomePage({ firstName, initial }: { firstName: string; initial: string }) {
+export function HomePage({ firstName = "there", initial = "M" }: { firstName?: string; initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const [greeting, setGreeting] = useState("Good morning");
   const [witnessShown, setWitnessShown] = useState(true);
