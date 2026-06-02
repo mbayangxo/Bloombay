@@ -8,7 +8,7 @@ import { logout } from "@/lib/auth/actions";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 const NAV = [
-  { href: "/member/home",          label: "TONIGHT",    n: "01" },
+  { href: "/member/home",          label: "THE DAILY",  n: "01" },
   { href: "/member/clubs",         label: "CLUBS",      n: "02" },
   { href: "/member/room",          label: "LOBBY",      n: "03" },
   { href: "/member/lounge",        label: "APARTMENT",  n: "04" },
@@ -27,20 +27,20 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
     setTod(getTimeOfDay(new Date().getHours()));
   }, []);
 
-  const isNight = tod === "evening" || tod === "night";
-  const isCacao = tod === "evening";
+  const isNight   = tod === "evening" || tod === "night";
+  const isEvening = tod === "evening";
 
-  const sidebarBg    = isNight ? (isCacao ? "#2C1A0E" : "#1E0A14") : "#FDFAF5";
-  const borderColor  = isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
-  const divider      = isNight ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
-  const brandText    = isNight ? "rgba(255,255,255,0.9)" : "#111111";
-  const mutedText    = isNight ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.3)";
-  const navInactive  = isNight ? "rgba(255,255,255,0.42)" : "rgba(0,0,0,0.45)";
-  const navNum       = isNight ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.2)";
-  const tagline      = isNight ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.22)";
-  const userText     = isNight ? "rgba(255,255,255,0.8)" : "#111111";
-  const userRole     = isNight ? "rgba(255,255,255,0.28)" : "#888";
-  const logoutStroke = isNight ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.28)";
+  const sidebarBg    = isNight ? (isEvening ? "#16092A" : "#0A0617") : "#FDFAF5";
+  const borderColor  = isNight ? "rgba(255,200,235,0.08)" : "rgba(0,0,0,0.07)";
+  const divider      = isNight ? "rgba(255,200,235,0.05)" : "rgba(0,0,0,0.05)";
+  const brandText    = isNight ? "rgba(255,228,245,0.92)" : "#111111";
+  const mutedText    = isNight ? "rgba(200,165,210,0.38)" : "rgba(0,0,0,0.3)";
+  const navInactive  = isNight ? "rgba(215,175,210,0.55)" : "rgba(0,0,0,0.45)";
+  const navNum       = isNight ? "rgba(195,155,205,0.28)" : "rgba(0,0,0,0.2)";
+  const tagline      = isNight ? "rgba(195,155,205,0.35)" : "rgba(0,0,0,0.22)";
+  const userText     = isNight ? "rgba(255,228,245,0.88)" : "#111111";
+  const userRole     = isNight ? "rgba(200,165,210,0.45)" : "#888";
+  const logoutStroke = isNight ? "rgba(200,165,210,0.35)" : "rgba(0,0,0,0.28)";
 
   return (
     <aside

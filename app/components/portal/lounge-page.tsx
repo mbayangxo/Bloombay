@@ -193,12 +193,12 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     setTod(getTimeOfDay(new Date().getHours()));
   }, []);
 
-  const isNight   = tod === "evening" || tod === "night";
-  const isCacao   = tod === "evening";
-  const headingColor = isNight ? "rgba(255,245,235,0.93)" : "#0A0A0A";
-  const mutedColor   = isNight ? "rgba(255,215,190,0.5)"  : "#aaa";
-  const cardBg       = isNight ? (isCacao ? "#3D2418" : "#32101E") : "white";
-  const darkCard     = isNight ? (isCacao ? "#3A2010" : "#2A0E1A") : "#111111";
+  const isNight      = tod === "evening" || tod === "night";
+  const isEvening    = tod === "evening";
+  const headingColor = isNight ? "rgba(255,228,245,0.92)" : "#0A0A0A";
+  const mutedColor   = isNight ? "rgba(200,165,210,0.58)"  : "#aaa";
+  const cardBg       = isNight ? (isEvening ? "#1E0E38" : "#130A24") : "white";
+  const darkCard     = isNight ? (isEvening ? "#1A0A30" : "#100820") : "#111111";
   const tabActiveBg  = "#FF1F7D";
   const tabInactive  = isNight
     ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }

@@ -142,11 +142,11 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
   const mood = CITY_MOOD[tod];
   const isNight      = tod === "evening" || tod === "night";
-  const isCacao      = tod === "evening";
-  const textMuted    = isNight ? "rgba(220,180,150,0.6)" : "#888";
-  const headingColor = isNight ? "rgba(255,245,235,0.93)" : "#111111";
-  const cardBg       = isNight ? (isCacao ? "#3D2418" : "#32101E") : "white";
-  const surfaceBg    = isNight ? (isCacao ? "#342010" : "#280A18") : "#FFF5F8";
+  const isEvening    = tod === "evening";
+  const textMuted    = isNight ? "rgba(200,165,210,0.58)" : "#888";
+  const headingColor = isNight ? "rgba(255,228,245,0.92)" : "#111111";
+  const cardBg       = isNight ? (isEvening ? "#1E0E38" : "#130A24") : "white";
+  const surfaceBg    = isNight ? (isEvening ? "#1A0C30" : "#100820") : "#FFF5F8";
   const heroBg       = HERO_BG[tod];
 
   return (
@@ -167,14 +167,14 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         </div>
         <div className="flex items-center gap-2">
           <Link href="/member/messages" className="w-9 h-9 flex items-center justify-center rounded-full"
-            style={{ background: isNight ? "#2A1E16" : "#FFE0EC" }}>
+            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#FFE0EC" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
           </Link>
           <Link href="/member/notifications" className="w-9 h-9 flex items-center justify-center rounded-full relative"
-            style={{ background: isNight ? "#2A1E16" : "#FFE0EC" }}>
+            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#FFE0EC" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
@@ -215,7 +215,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             <div>
               <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4"
                 style={{ color: "rgba(255,255,255,0.7)" }}>
-                ✦ TONIGHT IN WILLIAMSBURG
+                ✦ {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "THIS AFTERNOON" : tod === "evening" ? "THIS EVENING" : "TONIGHT"} IN WILLIAMSBURG
               </p>
               <p className="text-white leading-snug mb-2"
                 style={{ fontFamily: "var(--font-instrument)", fontSize: "1.5rem", fontStyle: "italic" }}>
@@ -324,7 +324,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold italic"
                 style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
-                The City, this week
+                Your city, your week
               </h2>
               <Link href="/member/happenings" className="text-xs font-bold tracking-wider" style={{ color: "#FF1F7D" }}>
                 The City →
@@ -370,7 +370,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* LOBBY TEASER — mobile only */}
           <div className="px-5 mb-6 md:hidden">
             <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: isNight ? (isCacao ? "#3D2418" : "#280A18") : "#111111" }}>
+              style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#111111" }}>
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.18) 0%, transparent 60%)" }} />
               <div className="relative">
@@ -451,7 +451,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* Yande pick */}
           <div className="rounded-3xl overflow-hidden relative"
             style={{
-              background: isNight ? (isCacao ? "#3D2418" : "#28101E") : "#FFF0F5",
+              background: isNight ? (isEvening ? "#1E0E38" : "#130A24") : "#FFF0F5",
               boxShadow: isNight ? "0 8px 28px rgba(0,0,0,0.25)" : "0 4px 20px rgba(255,31,125,0.12)",
               border: isNight ? "none" : "1px solid rgba(255,31,125,0.12)",
             }}>
@@ -479,7 +479,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
           {/* Enter the Lobby */}
           <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-            style={{ background: isNight ? (isCacao ? "#3D2418" : "#280A18") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.15) 0%, transparent 60%)" }} />
             <div className="relative">
