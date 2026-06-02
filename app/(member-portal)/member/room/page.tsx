@@ -62,7 +62,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header with back */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
@@ -174,7 +174,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
   const [notified, setNotified] = useState<Set<number>>(new Set());
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "#130E09" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#130E09" }}>
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -245,7 +245,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
 
 function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBack: () => void }) {
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
@@ -346,7 +346,7 @@ export default function TheLobbyPage() {
   if (room === "closet")    return <ComingSoonRoom   name="The Closet"  sub="Outfit questions, style finds, and dressing for the city." onBack={() => setRoom("lobby")} />;
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* Header */}
       <div className="px-5 pt-12 pb-5 md:px-8 md:pt-8">

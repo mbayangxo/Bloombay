@@ -213,7 +213,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-12 pb-6">
         <div className="flex items-center gap-3 mb-4">

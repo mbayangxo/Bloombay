@@ -270,10 +270,12 @@ function ConnectTab() {
       {/* Individual recommendations */}
       {queue.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-          <p className="text-2xl font-bold italic mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          <p className="text-xl font-bold italic mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
             All caught up.
           </p>
-          <p className="text-sm text-gray-400 leading-relaxed">More women are joining every day.<br />Check back soon.</p>
+          <p className="text-sm italic leading-relaxed" style={{ color: "#FF1F7D", fontFamily: "var(--font-caveat)", fontSize: "17px" }}>
+            Yande says: I&apos;m always looking. Your next match is closer than you think.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -333,7 +335,8 @@ function ConnectTab() {
               </button>
             </div>
           </div>
-        ))
+        ))}
+        </div>
       )}
     </div>
   );
@@ -362,7 +365,12 @@ function RequestsTab() {
           BLOOM REQUESTS · {incoming.length}
         </p>
         {incoming.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-10">No incoming requests right now.</p>
+          <div className="rounded-2xl p-6 text-center" style={{ background: "#FFF5F8" }}>
+            <p className="text-sm italic leading-relaxed" style={{ color: "#FF1F7D", fontFamily: "var(--font-caveat)", fontSize: "17px" }}>
+              The invitations are coming. Your energy precedes you.
+            </p>
+            <p className="text-xs mt-1" style={{ color: "#bbb" }}>— Yande</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-3">
             {incoming.map((req) => (
@@ -593,7 +601,7 @@ export default function MatchPage() {
   const incomingCount = REQUESTS.filter((r) => r.direction === "incoming").length;
 
   return (
-    <div className="min-h-screen pb-36 md:pb-12" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-12" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header — large Playfair italic headline */}
       <div className="px-5 pt-14 pb-6 md:px-8 md:pt-10">
         <p

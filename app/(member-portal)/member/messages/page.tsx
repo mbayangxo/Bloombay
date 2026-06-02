@@ -160,7 +160,7 @@ export default function MessagesPage() {
 
   if (activeMsg) {
     return (
-      <div className="min-h-screen flex flex-col pb-36 md:pb-0" style={{ background: "var(--pale-pink-bg)" }}>
+      <div className="min-h-screen flex flex-col pb-24 md:pb-0" style={{ background: "var(--pale-pink-bg)" }}>
         {/* Thread header */}
         <div className="px-5 pt-14 pb-4 md:px-8 md:pt-10 flex items-center gap-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
           <button
@@ -222,7 +222,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
         <div className="flex items-start gap-3">

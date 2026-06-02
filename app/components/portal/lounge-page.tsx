@@ -37,7 +37,14 @@ const BORDER_COLORS = ["#FF1F7D", "#FF69B4", "#FFB6D0"];
 
 const BOUQUET_MAX = 12;
 
-export function LoungePage() {
+interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
+
+export function LoungePage({ user }: { user?: LoungeUser }) {
+  const displayName = user?.name ?? "May";
+  const displayInitial = user?.initial ?? "M";
+  const displayNeighborhood = user?.neighborhood ?? "NYC";
+  const displayBio = user?.bio ?? "Part of the world made for women.";
+  const displayHandle = (user?.name?.split(" ")[0] ?? "member").toLowerCase();
   const [activeTab, setActiveTab] = useState(0);
   const [waved, setWaved] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
@@ -60,7 +67,7 @@ export function LoungePage() {
   const emptySlots = BOUQUET_MAX - BOUQUET_MEMBERS.length;
 
   return (
-    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header — elegant, large Playfair italic "Lounge" */}
       <div className="px-5 pt-14 pb-5">
         <p
@@ -358,7 +365,7 @@ export function LoungePage() {
                 style={{ background: "var(--pale-pink-bg)" }}
               >
                 <p className="text-sm font-bold" style={{ color: "var(--bb-black)" }}>
-                  bloombay.app/maya
+                  bloombay.app/{displayHandle}
                 </p>
                 <button
                   onClick={copyLink}
@@ -371,10 +378,11 @@ export function LoungePage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
+                    const url = `https://bloombay.app/${displayHandle}`;
                     if (typeof navigator !== "undefined" && navigator.share) {
-                      navigator.share({ title: "BloomBay", url: "https://bloombay.app/maya" });
+                      navigator.share({ title: "BloomBay", url });
                     } else {
-                      navigator.clipboard?.writeText("https://bloombay.app/maya");
+                      navigator.clipboard?.writeText(url);
                       showToast("Link copied!");
                     }
                   }}
@@ -385,7 +393,7 @@ export function LoungePage() {
                 </button>
                 <button
                   onClick={() => {
-                    navigator.clipboard?.writeText("https://bloombay.app/maya");
+                    navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`);
                     showToast("Invite link copied!");
                   }}
                   className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all active:scale-95"
@@ -432,15 +440,15 @@ export function LoungePage() {
                   fontStyle: "italic",
                 }}
               >
-                M
+                {displayInitial}
               </div>
               <h2
                 className="text-2xl font-bold italic mb-1"
                 style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
               >
-                Maya L.
+                {displayName}
               </h2>
-              <p className="text-sm text-gray-400 mb-2">Brooklyn · NYC</p>
+              <p className="text-sm text-gray-400 mb-2">{displayNeighborhood} · NYC</p>
               {/* Founding Mother badge */}
               <span
                 className="text-xs font-bold px-3.5 py-1.5 rounded-full mb-4"
@@ -483,12 +491,12 @@ export function LoungePage() {
             </div>
 
             <div className="bg-white rounded-3xl p-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <p className="font-bold text-sm mb-2" style={{ color: "var(--bb-black)" }}>About Maya</p>
+              <p className="font-bold text-sm mb-2" style={{ color: "var(--bb-black)" }}>About {displayName.split(" ")[0]}</p>
               <p
                 className="italic text-sm text-gray-500 leading-relaxed"
                 style={{ fontFamily: "var(--font-playfair)" }}
               >
-                &quot;Lover of matcha mornings, rooftop sunsets, and finding my people in the city.&quot;
+                &quot;{displayBio}&quot;
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {["Soft Life", "Art", "Wellness", "Food", "Music"].map((tag) => (

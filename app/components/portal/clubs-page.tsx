@@ -53,92 +53,6 @@ function HQBadge() {
   );
 }
 
-function RankedBoardView({ onBack }: { onBack: () => void }) {
-  return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header */}
-      <div className="px-5 pt-12 pb-6 md:px-8 md:pt-8 flex items-center gap-4">
-        <button onClick={onBack}
-          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-        <div>
-          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>GIRL CLUBS</p>
-          <h1 className="text-3xl font-bold italic leading-tight"
-            style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
-            Club Board
-          </h1>
-        </div>
-        {/* Crest */}
-        <div className="ml-auto w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "#111111" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-          </svg>
-        </div>
-      </div>
-
-      <div className="px-5 md:px-8 flex flex-col gap-3">
-        {ALL_CLUBS_RANKED.map((club, i) => {
-          const rank = i + 1;
-          const isTop3 = rank <= 3;
-          return (
-            <Link key={club.id} href={`/member/clubs/${club.id}`}
-              className="flex items-center gap-4 rounded-2xl p-4"
-              style={{
-                background: "white",
-                boxShadow: isTop3 ? "0 4px 20px rgba(255,31,125,0.1)" : "0 1px 8px rgba(0,0,0,0.05)",
-                border: isTop3 ? "1.5px solid rgba(255,31,125,0.15)" : "1.5px solid transparent",
-                textDecoration: "none",
-              }}>
-              {/* Rank number */}
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-lg"
-                style={
-                  rank === 1 ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" }
-                  : rank === 2 ? { background: "#111111", color: "white" }
-                  : rank === 3 ? { background: "linear-gradient(135deg,#FF69B4,#111111)", color: "white" }
-                  : { background: "#F5F5F5", color: "#999" }
-                }>
-                {rank === 1 ? "✦" : `${rank}`}
-              </div>
-
-              {/* Club color swatch */}
-              <div className="w-10 h-10 rounded-xl flex-shrink-0"
-                style={{ background: `linear-gradient(135deg,${club.color},#111111)` }} />
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <p className="font-bold text-sm truncate" style={{ color: "#111111" }}>{club.name}</p>
-                  {club.type === "hq" && <span className="text-[8px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✦</span>}
-                </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {/🔥|⚡|🎉/.test(club.activity) && (
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
-                  )}
-                  <p className="text-xs font-medium truncate"
-                    style={{ color: /🔥|⚡|🎉/.test(club.activity) ? "#FF1F7D" : "#999" }}>
-                    {club.activity}
-                  </p>
-                </div>
-                <p className="text-[10px] mt-0.5" style={{ color: "#ccc" }}>{club.women} women</p>
-              </div>
-
-              {/* Arrow */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export function ClubsPage() {
   const [activeTab, setActiveTab]     = useState(0);
   const [joined, setJoined]           = useState<Set<number>>(INITIAL_JOINED);
@@ -190,7 +104,7 @@ export function ClubsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── HEADER ── */}
       <div className="px-5 pt-12 pb-3 md:px-8 md:pt-8">

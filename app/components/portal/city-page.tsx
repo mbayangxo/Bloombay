@@ -471,7 +471,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
   );
 }
 
-// ── Seat Ticket ───────────────────────────────────────────────────────────────
+// ── Seat Ticket — invitation card ────────────────────────────────────────────
 
 function SeatTicket({
   seat, reserved, onReserve, onDrop,
@@ -481,66 +481,115 @@ function SeatTicket({
   const ps = PRIVACY_STYLE[seat.privacy];
   const payLine =
     seat.paymentType === "pay_in_person"
-      ? `Exact cash · $${seat.cashAmount}`
-      : seat.price === 0 ? "Free" : `$${seat.price} · through app`;
+      ? `Cash · $${seat.cashAmount}`
+      : seat.price === 0 ? "Free" : `$${seat.price} through app`;
 
   return (
     <div
-      className="bg-white rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-hidden relative"
       style={{
-        boxShadow: reserved ? "0 2px 16px rgba(255,31,125,0.1)" : "0 2px 12px rgba(0,0,0,0.06)",
+        background: "#FDFAF5",
+        border: "1px solid rgba(0,0,0,0.07)",
+        boxShadow: reserved
+          ? "0 8px 32px rgba(255,31,125,0.14), 0 2px 8px rgba(0,0,0,0.06)"
+          : "0 4px 20px rgba(0,0,0,0.08)",
       }}
     >
-      <div className="flex">
-        <div className="flex-1 p-4 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
-                  style={{ background: ps.bg, color: ps.color }}>
-              {ps.symbol} {seat.privacy}
-            </span>
-            {reserved && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
-                ✓ Reserved
-              </span>
-            )}
-          </div>
-          <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{seat.title}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{seat.time}</p>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: "#FF1F7D" }}>{seat.host}</p>
-          <p className="text-[11px] text-gray-400 mt-2">{payLine}</p>
-        </div>
-        <div className="w-[76px] flex-shrink-0 flex flex-col items-center justify-center gap-0.5 py-4 px-2"
-             style={{ background: "#FFF5F8", borderLeft: "1.5px dashed #FECDD5" }}>
-          <p className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>{seat.seats}</p>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">seats</p>
-          {seat.deposit > 0 && (
-            <>
-              <div className="w-8 my-1" style={{ borderTop: "1px solid #FECDD5" }} />
-              <p className="text-sm font-bold" style={{ color: "#111111" }}>${seat.deposit}</p>
-              <p className="text-[10px] text-gray-400">deposit</p>
-            </>
-          )}
-        </div>
+      {/* Privacy banner */}
+      <div
+        className="px-5 py-2 flex items-center gap-2"
+        style={{ background: "#F5EDE5", borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+      >
+        <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#999" }}>
+          {ps.symbol} {seat.privacy}
+        </span>
+        {reserved && (
+          <span
+            className="ml-auto text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full"
+            style={{ background: "#FF1F7D", color: "white" }}
+          >
+            ✓ RESERVED
+          </span>
+        )}
       </div>
-      <div className="px-4 py-2.5 flex items-center justify-between gap-2" style={{ borderTop: "1px solid #FFF0F5" }}>
-        <p className="text-[11px] text-gray-400 flex-1 min-w-0 truncate">
-          {seat.deposit > 0 ? `$${seat.deposit} back as credit when you show up` : "No deposit"}
+
+      {/* Invitation body */}
+      <div className="px-6 py-6 flex flex-col items-center text-center">
+        {/* Host – Caveat handwriting */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "#999", marginBottom: "6px" }}>
+          {seat.host}
         </p>
+        <div style={{ width: "28px", height: "1px", background: "rgba(0,0,0,0.1)", marginBottom: "10px" }} />
+
+        {/* Title – large serif */}
+        <h3
+          style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: "18px",
+            fontWeight: 700,
+            color: "#111111",
+            lineHeight: 1.2,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            marginBottom: "10px",
+          }}
+        >
+          {seat.title}
+        </h3>
+
+        {/* Date – Caveat */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "16px", color: "#555", marginBottom: "3px" }}>
+          {seat.time}
+        </p>
+        <p style={{ fontSize: "11px", color: "#aaa", marginBottom: "10px" }}>{seat.venue}</p>
+
+        {/* Seats + pay */}
+        <div className="flex items-center gap-2 mb-6">
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "#FF1F7D" }}>
+            {seat.seats} {seat.seats === 1 ? "seat" : "seats"} left
+          </span>
+          <span style={{ fontSize: "10px", color: "#ddd" }}>·</span>
+          <span style={{ fontSize: "10px", color: "#bbb" }}>{payLine}</span>
+        </div>
+
+        {/* Wax-seal RSVP */}
         {reserved ? (
-          <button onClick={onDrop}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold"
-                  style={{ background: "#FFF0F5", color: "#FF1F7D", border: "1px solid #FECDD5" }}>
-            Drop spot
-          </button>
+          <div className="flex items-center gap-4">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{ background: "#FF1F7D", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}
+            >
+              <span style={{ color: "white", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em" }}>GOING</span>
+            </div>
+            <button onClick={onDrop} style={{ fontSize: "11px", color: "#bbb", fontWeight: 500 }}>
+              Drop
+            </button>
+          </div>
         ) : (
-          <button onClick={onReserve}
-                  className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-white"
-                  style={{ background: "#FF1F7D" }}>
-            Grab a seat
+          <button
+            onClick={onReserve}
+            className="w-16 h-16 rounded-full flex flex-col items-center justify-center transition-all active:scale-95"
+            style={{ background: "#111111", boxShadow: "0 6px 20px rgba(0,0,0,0.28)" }}
+          >
+            <span style={{ color: "rgba(255,105,180,0.8)", fontSize: "12px", lineHeight: 1 }}>✦</span>
+            <span style={{ color: "white", fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", marginTop: "3px" }}>
+              RSVP
+            </span>
           </button>
         )}
       </div>
+
+      {/* Deposit strip */}
+      {seat.deposit > 0 && (
+        <div
+          className="px-5 py-2.5 text-center"
+          style={{ borderTop: "1px dashed rgba(0,0,0,0.08)", background: "#FAF4EC" }}
+        >
+          <p style={{ fontSize: "10px", color: "#bbb" }}>
+            ${seat.deposit} deposit · returned as credit when you show up
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -690,8 +739,10 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
               <p className="text-[11px] text-gray-400 mt-1">Returns as wallet credit when she shows up.</p>
             </div>
 
-            <button className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
-                    style={{ background: "#FF1F7D" }}>
+            <button
+                    onClick={() => { if (title.trim()) onClose(); }}
+                    className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
+                    style={{ background: title.trim() ? "#FF1F7D" : "#ccc", transition: "background 0.2s" }}>
               Post Seat
             </button>
           </div>
@@ -967,7 +1018,7 @@ export function CityPage() {
   const restTonight = tonight.filter((h) => !h.featured);
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
@@ -1039,8 +1090,13 @@ export function CityPage() {
 
         {/* ── OPEN SEATS ── */}
         <section>
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Open Seats</h2>
+          <div className="flex items-baseline justify-between mb-5">
+            <div>
+              <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Open Seats</h2>
+              <p className="text-sm font-bold mt-0.5" style={{ fontFamily: "var(--font-caveat)", color: "var(--bb-black)", fontSize: "15px" }}>
+                You&apos;ve been invited.
+              </p>
+            </div>
             <button
               onClick={() => setShowCreate(true)}
               className="text-xs"
@@ -1049,7 +1105,7 @@ export function CityPage() {
               + seat
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {SEATS.map((seat) => (
               <SeatTicket
                 key={seat.id}
