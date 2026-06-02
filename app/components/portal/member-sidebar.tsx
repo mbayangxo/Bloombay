@@ -6,12 +6,16 @@ import { BBLogo } from "./bb-logo";
 import { logout } from "@/lib/auth/actions";
 
 const NAV = [
-  { href: "/member/home",       label: "TONIGHT",    n: "01" },
-  { href: "/member/clubs",      label: "CLUBS",      n: "02" },
-  { href: "/member/room",       label: "LOBBY",      n: "03" },
-  { href: "/member/lounge",     label: "APARTMENT",  n: "04" },
-  { href: "/member/match",      label: "CONNECT",    n: "05" },
-  { href: "/member/happenings", label: "THE CITY",   n: "06" },
+  { href: "/member/home",          label: "TONIGHT",    n: "01" },
+  { href: "/member/clubs",         label: "CLUBS",      n: "02" },
+  { href: "/member/room",          label: "LOBBY",      n: "03" },
+  { href: "/member/lounge",        label: "APARTMENT",  n: "04" },
+  { href: "/member/match",         label: "CONNECT",    n: "05" },
+  { href: "/member/city",          label: "GIRL PICKS", n: "06" },
+  { href: "/member/happenings",    label: "HAPPENINGS", n: "07" },
+  { href: "/member/messages",      label: "MESSAGES",   n: "08" },
+  { href: "/member/notifications", label: "PING",       n: "09" },
+  { href: "/member/plans",         label: "PLANS",      n: "10" },
 ];
 
 interface SidebarUser { name: string; initial: string; role: string; }
@@ -36,19 +40,21 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
       </div>
 
       {/* ✦ marker */}
-      <div className="px-6 py-5">
+      <div className="px-6 py-4">
         <span style={{ color: "#FF1F7D", fontSize: "12px" }}>✦</span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col gap-0">
+      <nav className="flex-1 flex flex-col gap-0 overflow-y-auto">
         {NAV.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isPing  = item.label === "PING";
+          const isPlans = item.label === "PLANS";
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-baseline gap-2.5 py-3 transition-all group"
+              className="flex items-center gap-2.5 py-2.5 transition-all group relative"
               style={{
                 borderBottom: "1px solid rgba(255,255,255,0.04)",
                 borderLeft: active ? "2px solid #FF1F7D" : "2px solid transparent",
@@ -56,45 +62,38 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
                 paddingRight: "24px",
               }}
             >
-              <span
-                className="text-[9px] font-mono tabular-nums flex-shrink-0"
-                style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.18)" }}
-              >
+              <span className="text-[9px] font-mono tabular-nums flex-shrink-0"
+                style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.18)" }}>
                 {item.n}
               </span>
-              <span
-                className="text-[11px] font-bold tracking-[0.18em] leading-none"
-                style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.42)" }}
-              >
+              <span className="text-[11px] font-bold tracking-[0.18em] leading-none"
+                style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.42)" }}>
                 {item.label}
               </span>
+              {isPing && (
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
+              )}
+              {isPlans && (
+                <span className="text-[8px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0"
+                  style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>2</span>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Italic tagline */}
+      {/* Tagline */}
       <div className="px-6 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-        <p
-          style={{
-            fontFamily: "var(--font-caveat)",
-            fontSize: "13px",
-            color: "rgba(255,255,255,0.22)",
-            lineHeight: 1.4,
-            fontStyle: "italic",
-          }}
-        >
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(255,255,255,0.22)", lineHeight: 1.4, fontStyle: "italic" }}>
           A world made<br />for women.
         </p>
       </div>
 
       {/* User */}
-      <div className="px-5 py-5 flex items-center gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="px-5 py-4 flex items-center gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <Link href="/member/lounge">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-            style={{ background: "#FF1F7D" }}
-          >
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "#FF1F7D" }}>
             {user.initial}
           </div>
         </Link>
@@ -107,14 +106,10 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
           </p>
         </div>
         <form action={logout}>
-          <button
-            type="submit"
-            title="Sign out"
-            style={{ color: "rgba(255,255,255,0.2)" }}
-            className="transition-colors hover:text-white/40"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+          <button type="submit" title="Sign out" style={{ color: "rgba(255,255,255,0.2)" }}
+            className="transition-colors hover:text-white/40">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>
           </button>
         </form>

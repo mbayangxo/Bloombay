@@ -1,2 +1,2 @@
-import { CityPage } from "@/app/components/portal/city-page";
-export default function HappeningsPage() { return <CityPage />; }
+import { HappeningsPage } from "@/app/components/portal/happenings-page";
+export default function HappeningsRoute() { return <HappeningsPage />; }
