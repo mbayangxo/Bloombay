@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const TABS = ["All", "My Clubs", "Popular", "New"];
+const TABS = ["All", "My Clubs"];
 
 type ClubType = "hq" | "user";
 
@@ -115,7 +115,16 @@ function RankedBoardView({ onBack }: { onBack: () => void }) {
                   <p className="font-bold text-sm truncate" style={{ color: "#111111" }}>{club.name}</p>
                   {club.type === "hq" && <span className="text-[8px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✦</span>}
                 </div>
-                <p className="text-xs" style={{ color: "#999" }}>{club.women} members · {club.activity}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  {/🔥|⚡|🎉/.test(club.activity) && (
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+                  )}
+                  <p className="text-xs font-medium truncate"
+                    style={{ color: /🔥|⚡|🎉/.test(club.activity) ? "#FF1F7D" : "#999" }}>
+                    {club.activity}
+                  </p>
+                </div>
+                <p className="text-[10px] mt-0.5" style={{ color: "#ccc" }}>{club.women} women</p>
               </div>
 
               {/* Arrow */}
@@ -276,7 +285,16 @@ export function ClubsPage() {
                   <div className="p-4 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm" style={{ color: "#111111" }}>{club.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{womenCounts[club.id]} members · {club.activity}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {/🔥|⚡|🎉/.test(club.activity) && (
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+                        )}
+                        <p className="text-xs font-medium"
+                          style={{ color: /🔥|⚡|🎉/.test(club.activity) ? "#FF1F7D" : "#888" }}>
+                          {club.activity}
+                        </p>
+                      </div>
+                      <p className="text-[10px] mt-0.5" style={{ color: "#ccc" }}>{womenCounts[club.id]} women</p>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {club.tags.map((tag) => (
                           <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{tag}</span>
@@ -382,10 +400,19 @@ export function ClubsPage() {
                           )}
                         </div>
                         <div className="p-3">
-                          <p className="font-bold text-sm leading-snug mb-1" style={{ color: "#111111" }}>{club.name}</p>
+                          <p className="font-bold text-sm leading-snug mb-2" style={{ color: "#111111" }}>{club.name}</p>
                           {club.type === "hq" && <div className="mb-1.5"><HQBadge /></div>}
-                          <p className="text-[11px] mb-1.5" style={{ color: "#FF1F7D" }}>{womenCounts[club.id]} members</p>
-                          <p className="text-[10px] mb-2 truncate" style={{ color: "#aaa" }}>{club.activity}</p>
+                          {/* Activity — the life signal */}
+                          <div className="flex items-center gap-1.5 mb-2">
+                            {/🔥|⚡|🎉/.test(club.activity) && (
+                              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+                            )}
+                            <p className="text-xs font-medium leading-snug"
+                              style={{ color: /🔥|⚡|🎉/.test(club.activity) ? "#FF1F7D" : "#888" }}>
+                              {club.activity}
+                            </p>
+                          </div>
+                          <p className="text-[10px] mb-2" style={{ color: "#ccc" }}>{womenCounts[club.id]} women</p>
                           <div className="flex justify-end">
                             <span className="text-xs font-bold px-3 py-1.5 rounded-full"
                               style={{ background: isJoinedCard ? "#FFE0EC" : "#111111", color: isJoinedCard ? "#FF1F7D" : "white" }}>
