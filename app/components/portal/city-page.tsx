@@ -948,6 +948,8 @@ export function CityPage() {
   const [showCreate, setShowCreate]       = useState(false);
   const [showAddPopup, setShowAddPopup]   = useState(false);
   const [showAddPlace, setShowAddPlace]   = useState(false);
+  const [showFilters, setShowFilters]     = useState(false);
+  const [activeFilter, setActiveFilter]   = useState<string | null>(null);
 
   function reserveSeat(id: number) { setReservedSeats((p) => new Set([...p, id])); }
   function dropSeat(id: number)    { setReservedSeats((p) => { const n = new Set(p); n.delete(id); return n; }); }
@@ -968,14 +970,47 @@ export function CityPage() {
     <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-6 md:px-8 md:pt-8">
+      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
           ✦ NYC · WILLIAMSBURG
         </p>
-        <h1 className="text-4xl font-bold leading-none" style={{ color: "var(--bb-black)" }}>The City</h1>
-        <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
-          What&apos;s happening around you.
-        </p>
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-4xl font-bold leading-none" style={{ color: "var(--bb-black)" }}>The City</h1>
+            <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+              What&apos;s happening around you.
+            </p>
+          </div>
+          {/* Hidden filter toggle */}
+          <button
+            onClick={() => setShowFilters(f => !f)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
+            style={{ background: showFilters ? "#111111" : "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+            title="Filter"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showFilters ? "white" : "#888"} strokeWidth="2" strokeLinecap="round">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Collapsible filters */}
+        {showFilters && (
+          <div className="flex gap-2 flex-wrap mt-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+            {["Free", "Women-Loved", "Near Me", "This Weekend"].map((f) => (
+              <button
+                key={f}
+                onClick={() => setActiveFilter(a => a === f ? null : f)}
+                className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
+                style={activeFilter === f
+                  ? { background: "#111111", color: "white" }
+                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="px-5 md:px-8 flex flex-col gap-12 pb-6">
@@ -984,12 +1019,8 @@ export function CityPage() {
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Tonight</h2>
-            <button
-              onClick={() => setShowAddPopup(true)}
-              className="text-xs font-semibold"
-              style={{ color: "#FF1F7D" }}
-            >
-              + Add a pop-up
+            <button onClick={() => setShowAddPopup(true)} className="text-xs" style={{ color: "rgba(0,0,0,0.28)" }}>
+              + pop-up
             </button>
           </div>
           {tonight.length === 0 ? (
@@ -1012,10 +1043,10 @@ export function CityPage() {
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Open Seats</h2>
             <button
               onClick={() => setShowCreate(true)}
-              className="text-xs font-semibold"
-              style={{ color: "#FF1F7D" }}
+              className="text-xs"
+              style={{ color: "rgba(0,0,0,0.28)" }}
             >
-              + Post a seat
+              + seat
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1099,10 +1130,10 @@ export function CityPage() {
             </div>
             <button
               onClick={() => setShowAddPlace(true)}
-              className="text-xs font-semibold"
-              style={{ color: "#FF1F7D" }}
+              className="text-xs"
+              style={{ color: "rgba(0,0,0,0.28)" }}
             >
-              + Add a place
+              + place
             </button>
           </div>
           <div className="flex flex-col gap-3">

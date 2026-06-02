@@ -147,10 +147,7 @@ export function ClubsPage() {
   const [womenCounts, setWomenCounts] = useState<Record<number, number>>(
     Object.fromEntries([FEATURED, ...CLUBS].map((c) => [c.id, c.women]))
   );
-  const [query, setQuery]     = useState("");
-  const [showBoard, setShowBoard] = useState(false);
-
-  if (showBoard) return <RankedBoardView onBack={() => setShowBoard(false)} />;
+  const [query, setQuery] = useState("");
 
   const q = query.toLowerCase();
   const filteredClubs = q
@@ -205,16 +202,6 @@ export function ClubsPage() {
               Girl Clubs
             </h1>
           </div>
-          {/* Ranked crest button */}
-          <button
-            onClick={() => setShowBoard(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-2xl transition-all active:scale-95"
-            style={{ background: "#111111", color: "white" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-            </svg>
-            <span className="text-xs font-bold tracking-wide">Ranked</span>
-          </button>
         </div>
 
         {/* Search + discover on same row */}
@@ -265,10 +252,10 @@ export function ClubsPage() {
                   <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold italic mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>No clubs yet</h3>
-              <p className="text-sm mb-6" style={{ color: "#aaa" }}>Join a club and find your people</p>
-              <button onClick={() => setActiveTab(0)} className="px-6 py-3 rounded-full text-white font-bold text-sm" style={{ background: "#FF1F7D" }}>
-                Explore clubs
+              <h3 className="text-xl font-bold italic mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>You haven&apos;t joined a club yet.</h3>
+              <p className="text-sm mb-1" style={{ color: "#aaa" }}>Yande says: I found three that match your energy.</p>
+              <button onClick={() => setActiveTab(0)} className="mt-4 px-6 py-3 rounded-full text-white font-bold text-sm" style={{ background: "#FF1F7D" }}>
+                Show me →
               </button>
             </div>
           ) : (
@@ -432,7 +419,7 @@ export function ClubsPage() {
               <div className="rounded-2xl p-4 bg-white" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
                 <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "#FF1F7D" }}>YOUR CLUBS</p>
                 {myClubs.length === 0 ? (
-                  <p className="text-xs" style={{ color: "#aaa" }}>Join a club to see it here.</p>
+                  <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Your circles will live here.</p>
                 ) : (
                   <div className="flex flex-col gap-2">
                     {myClubs.map((c) => (
@@ -445,24 +432,6 @@ export function ClubsPage() {
                   </div>
                 )}
               </div>
-              {/* Club Board entry */}
-              <button onClick={() => setShowBoard(true)}
-                className="rounded-2xl p-4 flex items-center gap-3 w-full transition-all active:scale-95"
-                style={{ background: "#111111", textAlign: "left" }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(255,31,125,0.2)" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF1F7D">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-bold text-sm">Club Board</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Ranked by members</p>
-                </div>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" className="ml-auto">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </button>
               {/* HQ legend */}
               <div className="rounded-2xl p-4" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
                 <div className="flex items-center gap-2 mb-2">
@@ -475,6 +444,68 @@ export function ClubsPage() {
             </div>
           </div>
         )}
+
+        {/* ── CLUB BOARD — inline ranked section ── */}
+        {activeTab === 0 && !query && (
+          <div className="mt-10 mb-2">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "#111111" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Club Board</h2>
+                <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-instrument)", color: "#111111" }}>Ranked by the city</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              {ALL_CLUBS_RANKED.map((club, i) => {
+                const rank = i + 1;
+                const isTop3 = rank <= 3;
+                return (
+                  <Link key={club.id} href={`/member/clubs/${club.id}`}
+                    className="flex items-center gap-4 rounded-2xl p-4"
+                    style={{
+                      background: "white",
+                      boxShadow: isTop3 ? "0 4px 20px rgba(255,31,125,0.08)" : "0 1px 6px rgba(0,0,0,0.04)",
+                      border: isTop3 ? "1.5px solid rgba(255,31,125,0.12)" : "1.5px solid transparent",
+                      textDecoration: "none",
+                    }}>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold"
+                      style={
+                        rank === 1 ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white", fontSize: "14px" }
+                        : rank === 2 ? { background: "#111111", color: "white", fontSize: "13px" }
+                        : rank === 3 ? { background: "linear-gradient(135deg,#FF69B4,#111111)", color: "white", fontSize: "13px" }
+                        : { background: "#F5F5F5", color: "#bbb", fontSize: "12px" }
+                      }>
+                      {rank === 1 ? "✦" : rank}
+                    </div>
+                    <div className="w-8 h-8 rounded-lg flex-shrink-0"
+                      style={{ background: `linear-gradient(135deg,${club.color},#111111)` }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate" style={{ color: "#111111" }}>{club.name}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {/🔥|⚡|🎉/.test(club.activity) && (
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+                        )}
+                        <p className="text-xs truncate"
+                          style={{ color: /🔥|⚡|🎉/.test(club.activity) ? "#FF1F7D" : "#aaa" }}>
+                          {club.activity}
+                        </p>
+                      </div>
+                    </div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
