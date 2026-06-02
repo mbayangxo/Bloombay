@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { logout } from "@/lib/auth/actions";
+import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 const TABS = ["Bouquet", "Memories", "My Link", "Profile"];
 
@@ -186,6 +187,22 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight   = tod === "evening" || tod === "night";
+  const isCacao   = tod === "evening";
+  const headingColor = isNight ? "rgba(255,245,235,0.93)" : "#0A0A0A";
+  const mutedColor   = isNight ? "rgba(255,215,190,0.5)"  : "#aaa";
+  const cardBg       = isNight ? (isCacao ? "#3D2418" : "#32101E") : "white";
+  const darkCard     = isNight ? (isCacao ? "#3A2010" : "#2A0E1A") : "#111111";
+  const tabActiveBg  = "#FF1F7D";
+  const tabInactive  = isNight
+    ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }
+    : { background: "white", color: "#0A0A0A", border: "1.5px solid #E0E0E0" };
 
   function showToast(msg: string) {
     setToast(msg);
@@ -207,45 +224,32 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header — elegant, large Playfair italic "Lounge" */}
-      <div className="px-5 pt-14 pb-5">
-        <p
-          className="text-xs font-bold tracking-widest uppercase mb-2"
-          style={{ color: "var(--bb-pink)" }}
-        >
+      <div className="md:max-w-[760px] md:mx-auto">
+      {/* Header */}
+      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-8">
+        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#FF1F7D" }}>
           YOUR SPACE
         </p>
         <h1
           className="font-bold italic leading-none mb-2"
-          style={{
-            color: "var(--bb-black)",
-            fontFamily: "var(--font-playfair)",
-            fontSize: "clamp(56px, 15vw, 80px)",
-          }}
+          style={{ color: headingColor, fontFamily: "var(--font-playfair)", fontSize: "clamp(52px, 12vw, 72px)" }}
         >
-          Lounge
+          Apt
         </h1>
-        <p
-          className="italic text-sm"
-          style={{ fontFamily: "var(--font-playfair)", color: "#BBBBBB" }}
-        >
+        <p className="italic text-sm" style={{ fontFamily: "var(--font-playfair)", color: mutedColor }}>
           Your private world
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="px-5 mb-6 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+      <div className="px-5 mb-6 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
         <div className="flex gap-2 w-max pb-1">
           {TABS.map((tab, i) => (
             <button
               key={tab}
               onClick={() => setActiveTab(i)}
               className="px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
-              style={
-                activeTab === i
-                  ? { background: "var(--bb-black)", color: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
-                  : { background: "white", color: "var(--bb-black)", border: "1.5px solid #E0E0E0" }
-              }
+              style={activeTab === i ? { background: tabActiveBg, color: "white", boxShadow: "0 2px 8px rgba(255,31,125,0.3)" } : tabInactive}
             >
               {tab}
             </button>
@@ -253,7 +257,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      <div className="px-5">
+      <div className="px-5 md:px-8">
 
         {/* ── Bouquet Tab ── */}
         {activeTab === 0 && (
@@ -261,7 +265,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             {/* Banner with bloom pattern overlay */}
             <div
               className="rounded-3xl p-6 relative overflow-hidden"
-              style={{ background: "#111111", minHeight: "140px" }}
+              style={{ background: darkCard, minHeight: "120px" }}
             >
               {/* Large bloom orbs for visual drama */}
               <div
@@ -308,7 +312,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             <div>
               <p
                 className="text-sm font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
+                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
               >
                 Your Circle
               </p>
@@ -349,7 +353,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             <div>
               <p
                 className="text-sm font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
+                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
               >
                 Your Bloomies
               </p>
@@ -358,8 +362,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   <div
                     key={m.name}
                     onClick={() => setSelectedBloomie(m)}
-                    className="bg-white rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                    className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
                     style={{
+                      background: cardBg,
                       boxShadow: "0 2px 12px rgba(255,31,125,0.07)",
                       borderLeft: `3px solid ${BORDER_COLORS[idx % BORDER_COLORS.length]}`,
                     }}
@@ -374,7 +379,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                       {m.initial}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{m.name}</p>
+                      <p className="font-bold text-sm" style={{ color: headingColor }}>{m.name}</p>
                       <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood} · since {m.since}</p>
                     </div>
                     <button
@@ -404,7 +409,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               >
                 HOW IT WORKS
               </p>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--bb-black)" }}>
+              <p className="text-sm leading-relaxed" style={{ color: headingColor }}>
                 Your Bouquet is your inner circle — the women you&apos;ve genuinely connected with through BloomBay.
                 Connect through Match first, then invite to your Bouquet. Max 12. No exceptions.
               </p>
@@ -439,7 +444,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   <div
                     key={i}
                     className="rounded-2xl p-5 relative overflow-hidden"
-                    style={{ background: "#111111" }}
+                    style={{ background: darkCard }}
                   >
                     {/* Glowing orb */}
                     <div
@@ -470,7 +475,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             <div>
               <p
                 className="text-base font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
+                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
               >
                 My Moments
               </p>
@@ -479,7 +484,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   <div key={i} className="rounded-2xl overflow-hidden" style={{ background: mem.bg, boxShadow: "0 2px 10px rgba(255,31,125,0.07)" }}>
                     <div className="h-28 flex items-center justify-center text-5xl">{mem.emoji}</div>
                     <div className="p-3">
-                      <p className="font-semibold text-sm leading-snug" style={{ color: "var(--bb-black)" }}>{mem.title}</p>
+                      <p className="font-semibold text-sm leading-snug" style={{ color: headingColor }}>{mem.title}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{mem.date}</p>
                     </div>
                   </div>
@@ -495,7 +500,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
               <p
                 className="text-base font-bold italic mb-1"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
+                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
               >
                 My BloomBay Link
               </p>
@@ -504,7 +509,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 className="rounded-2xl px-4 py-3 flex items-center justify-between mb-4"
                 style={{ background: "var(--pale-pink-bg)" }}
               >
-                <p className="text-sm font-bold" style={{ color: "var(--bb-black)" }}>
+                <p className="text-sm font-bold" style={{ color: headingColor }}>
                   bloombay.app/{displayHandle}
                 </p>
                 <button
@@ -537,7 +542,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     showToast("Invite link copied!");
                   }}
                   className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all active:scale-95"
-                  style={{ background: "var(--bb-black)" }}
+                  style={{ background: "#FF1F7D", color: "white" }}
                 >
                   Invite Girls
                 </button>
@@ -584,7 +589,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               </div>
               <h2
                 className="text-2xl font-bold italic mb-1"
-                style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}
+                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
               >
                 {displayName}
               </h2>
@@ -631,7 +636,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
 
             <div className="bg-white rounded-3xl p-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <p className="font-bold text-sm mb-2" style={{ color: "var(--bb-black)" }}>About {displayName.split(" ")[0]}</p>
+              <p className="font-bold text-sm mb-2" style={{ color: headingColor }}>About {displayName.split(" ")[0]}</p>
               <p
                 className="italic text-sm text-gray-500 leading-relaxed"
                 style={{ fontFamily: "var(--font-playfair)" }}
@@ -657,7 +662,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block"
                 style={{ borderBottom: "1px solid #F5F5F5" }}
               >
-                <p className="flex-1 text-sm font-semibold" style={{ color: "var(--bb-black)" }}>Notifications</p>
+                <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>Notifications</p>
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
@@ -669,7 +674,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
                   style={{ borderBottom: "1px solid #F5F5F5" }}
                 >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: "var(--bb-black)" }}>{label}</p>
+                  <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>{label}</p>
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
@@ -690,6 +695,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           </div>
         )}
       </div>
+      </div>{/* md:max-w wrapper */}
 
       {/* Bloomie profile sheet */}
       {selectedBloomie && (
@@ -701,7 +707,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         <div
           className="fixed bottom-24 left-1/2 z-50 px-6 py-3.5 rounded-full text-sm font-semibold text-white"
           style={{
-            background: "#111111",
+            background: "#FF1F7D",
             transform: "translateX(-50%)",
             boxShadow: "0 8px 24px rgba(0,0,0,0.22)",
             animation: "slideUpToast 0.25s ease-out",

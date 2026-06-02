@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // ── Extended event data ───────────────────────────────────────────────────────
 
@@ -302,15 +303,16 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
         </div>
 
         {/* Action buttons */}
-        <div className="px-5 md:px-8 grid grid-cols-2 gap-3 mb-5">
-          <button className="py-4 rounded-2xl text-sm font-bold text-white transition-all active:scale-[0.97]"
+        <div className="px-5 md:px-8 flex flex-wrap gap-3 mb-5">
+          <button className="px-6 py-3.5 rounded-2xl text-sm font-bold text-white transition-all active:scale-[0.97]"
             style={{ background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.35)" }}>
             Invite a Bloomie ✦
           </button>
-          <button className="py-4 rounded-2xl text-sm font-bold transition-all active:scale-[0.97]"
-            style={{ background: "#111111", color: "white" }}>
+          <Link href="/member/messages"
+            className="px-6 py-3.5 rounded-2xl text-sm font-bold text-white transition-all active:scale-[0.97] inline-flex items-center"
+            style={{ background: "#2C1A0E" }}>
             Enter Plan Room →
-          </button>
+          </Link>
         </div>
 
         <div className="px-5 md:px-8">
@@ -393,7 +395,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
   // ── DISCOVERY VIEW (idle) ─────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FDFAF5" }}>
 
       {/* Header */}
       <div className="px-5 pt-12 pb-3 md:px-8 md:pt-8 flex items-center justify-between">

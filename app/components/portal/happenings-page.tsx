@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { EventDetail } from "@/app/components/portal/event-detail";
 import type { EventData } from "@/app/components/portal/event-detail";
 
@@ -394,9 +395,9 @@ function ConfettiSheet({ c, accepted, onAccept, onClose }: { c: Celebration; acc
                 </div>
               </div>
               <p className="text-xs text-center mb-4 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Your ticket is saved in Plans. Show the QR at the door.</p>
-              <div className="grid grid-cols-2 gap-3">
-                <button className="py-3.5 rounded-2xl font-bold text-sm" style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>💌 Invite a Bloomie</button>
-                <button onClick={onClose} className="py-3.5 rounded-2xl font-bold text-sm" style={{ background: "#111", color: "white" }}>Enter Plan Room →</button>
+              <div className="flex flex-wrap gap-3">
+                <button className="px-6 py-3.5 rounded-2xl font-bold text-sm" style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>💌 Invite a Bloomie</button>
+                <Link href="/member/messages" onClick={onClose} className="px-6 py-3.5 rounded-2xl font-bold text-sm inline-flex items-center" style={{ background: "#2C1A0E", color: "white" }}>Enter Plan Room →</Link>
               </div>
             </>
           )}
@@ -436,7 +437,7 @@ export function HappeningsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FDFAF5" }}>
 
       {/* Header */}
       <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">

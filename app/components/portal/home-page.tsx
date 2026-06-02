@@ -370,7 +370,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* LOBBY TEASER — mobile only */}
           <div className="px-5 mb-6 md:hidden">
             <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: "#111111" }}>
+              style={{ background: isNight ? (isCacao ? "#3D2418" : "#280A18") : "#111111" }}>
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.18) 0%, transparent 60%)" }} />
               <div className="relative">
@@ -451,7 +451,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* Yande pick */}
           <div className="rounded-3xl overflow-hidden relative"
             style={{
-              background: isNight ? "#111111" : "#FFF0F5",
+              background: isNight ? (isCacao ? "#3D2418" : "#28101E") : "#FFF0F5",
               boxShadow: isNight ? "0 8px 28px rgba(0,0,0,0.25)" : "0 4px 20px rgba(255,31,125,0.12)",
               border: isNight ? "none" : "1px solid rgba(255,31,125,0.12)",
             }}>
@@ -479,7 +479,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
           {/* Enter the Lobby */}
           <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-            style={{ background: "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+            style={{ background: isNight ? (isCacao ? "#3D2418" : "#280A18") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.15) 0%, transparent 60%)" }} />
             <div className="relative">
