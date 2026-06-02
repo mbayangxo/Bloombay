@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // ── Extended event data ───────────────────────────────────────────────────────
 
@@ -647,4 +648,24 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
       </div>
     </div>
   );
+}
+
+// ── Catalog for direct-link event pages ──────────────────────────────────────
+
+const DIRECT_EVENTS: Record<number, EventData> = {
+  1: { id: 1, type: "gallery",  title: "Museum Girls",      venue: "Brooklyn Museum",      neighborhood: "Crown Heights", time: "Tonight · 7PM",    priceLabel: "Free", price: 0 },
+  2: { id: 2, type: "class",    title: "Book Society",       venue: "McNally Jackson",      neighborhood: "West Village",  time: "Thursday · 7PM",   priceLabel: "Free", price: 0 },
+  3: { id: 3, type: "rooftop",  title: "Dinner Society",     venue: "Carbone",              neighborhood: "SoHo",          time: "Friday · 8PM",     priceLabel: "$75",  price: 75 },
+  4: { id: 4, type: "workshop", title: "Sunday Walk",        venue: "Grand Army Plaza",     neighborhood: "Prospect Park", time: "Sunday · 10AM",    priceLabel: "Free", price: 0 },
+  5: { id: 5, type: "gallery",  title: "Women in Lens",      venue: "The Parlor Gallery",   neighborhood: "Bushwick",      time: "Tonight · 7PM",    priceLabel: "Free", price: 0 },
+  6: { id: 6, type: "workshop", title: "Wheel Throwing",     venue: "Brooklyn Clay",        neighborhood: "Williamsburg",  time: "Tonight · 6:30PM", priceLabel: "$45",  price: 45 },
+  7: { id: 7, type: "rooftop",  title: "Golden Hour",        venue: "Westlight Hotel",      neighborhood: "Williamsburg",  time: "Tonight · 8PM",    priceLabel: "$20",  price: 20 },
+  8: { id: 8, type: "popup",    title: "Designers Pop-Up",   venue: "The Canvas Space",     neighborhood: "SoHo",          time: "Saturday · 12PM",  priceLabel: "Free", price: 0 },
+};
+
+export function StandaloneEventDetail({ eventId }: { eventId: string }) {
+  const router = useRouter();
+  const id = parseInt(eventId, 10);
+  const event = DIRECT_EVENTS[id] ?? DIRECT_EVENTS[1];
+  return <EventDetail event={event} onBack={() => router.back()} />;
 }
