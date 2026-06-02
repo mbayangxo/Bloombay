@@ -9,7 +9,7 @@ export default function MemberPortalLayout({ children }: { children: React.React
       <SeasonalOverlay />
       <MemberSidebar />
       <div className="md:ml-60">
-        <div className="max-w-[430px] mx-auto md:max-w-none">
+        <div className="max-w-[430px] mx-auto md:max-w-[1180px] md:mx-0">
           {children}
         </div>
       </div>
