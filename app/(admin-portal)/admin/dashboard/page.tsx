@@ -293,15 +293,19 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub: st
   return (
     <div
       className="rounded-2xl px-5 py-5 flex flex-col gap-1"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+      }}
     >
-      <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>
+      <p className="text-[11px] font-bold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>
         {label}
       </p>
-      <p className="text-4xl font-bold leading-none" style={{ color: "#FF1F7D" }}>
+      <p className="text-4xl font-bold leading-none mt-1" style={{ color: "#FF1F7D" }}>
         {value}
       </p>
-      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
         {sub}
       </p>
     </div>
@@ -340,12 +344,20 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function SectionHeader({ title, sub }: { title: string; sub?: string }) {
+function SectionHeader({ title, sub, category }: { title: string; sub?: string; category?: string }) {
   return (
     <div className="mb-6">
-      <h2 className="text-2xl font-bold">{title}</h2>
+      {category && (
+        <span
+          className="inline-block text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-3"
+          style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.25)" }}
+        >
+          {category}
+        </span>
+      )}
+      <h2 className="text-2xl font-bold leading-tight">{title}</h2>
       {sub && (
-        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
           {sub}
         </p>
       )}
@@ -358,13 +370,20 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 function OverviewSection() {
   return (
     <div>
-      <SectionHeader title="Mission Control" sub="Live operations — BloomBay is growing." />
+      <SectionHeader
+        title="Mission Control"
+        sub="Live operations — BloomBay is growing."
+        category="Overview"
+      />
 
       {/* Live stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
-        {LIVE_STATS.map((s) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 px-0 md:px-0">
+        {LIVE_STATS.slice(0, 4).map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
         ))}
+      </div>
+      <div className="mb-8">
+        <StatCard label={LIVE_STATS[4].label} value={LIVE_STATS[4].value} sub={LIVE_STATS[4].sub} />
       </div>
 
       {/* Curator Leaderboard */}
@@ -459,7 +478,7 @@ function OverviewSection() {
 function CitiesSection() {
   return (
     <div>
-      <SectionHeader title="Cities" sub="Where BloomBay lives and where she's going next." />
+      <SectionHeader title="Cities" sub="Where BloomBay lives and where she's going next." category="Geography" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {CITIES.map((city) => (
           <div
@@ -539,6 +558,7 @@ function PendingSection() {
       <SectionHeader
         title="Member Queue"
         sub={`${pending.length} pending review · ${reviewed.filter((m) => m.status === "approved").length} approved today`}
+        category="Applications"
       />
 
       {/* Stats strip */}
@@ -576,7 +596,12 @@ function PendingSection() {
             <div
               key={m.id}
               className="rounded-2xl overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderLeft: "4px solid #FF1F7D",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.25)",
+              }}
             >
               {/* Summary row */}
               <button
@@ -775,9 +800,9 @@ function PendingSection() {
 function WomenSection() {
   return (
     <div>
-      <SectionHeader title="Women" sub="Verification queue, applications, and member growth." />
+      <SectionHeader title="Women" sub="Verification queue, applications, and member growth." category="Community" />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 px-0 md:px-0">
         {[
           { label: "Total Members", value: String(WOMEN_STATS.totalMembers), sub: "Active in BloomBay" },
           { label: "Verification Queue", value: String(WOMEN_STATS.verificationQueue), sub: "Awaiting review" },
@@ -858,7 +883,7 @@ function WomenSection() {
 function CuratorsSection() {
   return (
     <div>
-      <SectionHeader title="Curators" sub="The women creating culture in BloomBay." />
+      <SectionHeader title="Curators" sub="The women creating culture in BloomBay." category="Community" />
       <div className="grid grid-cols-1 gap-4">
         {CURATORS.map((c) => (
           <div
@@ -950,7 +975,7 @@ function HostsSection() {
 
   return (
     <div>
-      <SectionHeader title="Hosts" sub="Venues and event hosts. 3 warnings = soft archive." />
+      <SectionHeader title="Hosts" sub="Venues and event hosts. 3 warnings = soft archive." category="Community" />
 
       <div className="grid grid-cols-2 gap-4">
         {hosts.map((h) => {
@@ -1072,7 +1097,7 @@ function ClubsSection() {
 
   return (
     <div>
-      <SectionHeader title="Clubs" sub={`${CLUBS.length} clubs · ${hqCount} HQ · ${userCount} user-created`} />
+      <SectionHeader title="Clubs" sub={`${CLUBS.length} clubs · ${hqCount} HQ · ${userCount} user-created`} category="Community" />
 
       {/* Filter chips */}
       <div className="flex gap-2 mb-5">
@@ -1106,9 +1131,13 @@ function ClubsSection() {
         {shown.map((club, i) => (
           <div key={club.name}>
             <div
-              className="grid grid-cols-[28px_1fr_80px_140px_70px_70px] px-5 py-4 items-center cursor-pointer transition-all hover:bg-white/5"
+              className="grid grid-cols-[28px_1fr_80px_140px_70px_70px] px-5 py-4 items-center cursor-pointer transition-all"
               style={{
-                background: expanded === club.name ? "rgba(255,31,125,0.06)" : i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
+                background: expanded === club.name
+                  ? "rgba(255,31,125,0.08)"
+                  : i % 2 === 0
+                    ? "transparent"
+                    : "rgba(255,31,125,0.03)",
                 borderTop: "1px solid rgba(255,255,255,0.05)",
               }}
               onClick={() => setExpanded(expanded === club.name ? null : club.name)}
@@ -1202,7 +1231,7 @@ const EVENT_ANALYTICS = {
 function OpenSeatsSection() {
   return (
     <div>
-      <SectionHeader title="Events & Open Seats" sub="Live analytics — upcoming gatherings and availability." />
+      <SectionHeader title="Events & Open Seats" sub="Live analytics — upcoming gatherings and availability." category="Operations" />
 
       {/* Analytics summary row */}
       <div className="grid grid-cols-4 gap-3 mb-6">
@@ -1304,7 +1333,7 @@ function SafetySection() {
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
   return (
     <div>
-      <SectionHeader title="Safety Center" sub="Reports, flags, and issues that need attention." />
+      <SectionHeader title="Safety Center" sub="Reports, flags, and issues that need attention." category="Operations" />
       <div className="grid grid-cols-3 gap-4">
         {SAFETY.map((s) => (
           <div
@@ -1354,7 +1383,7 @@ function SafetySection() {
 function MailroomSection() {
   return (
     <div>
-      <SectionHeader title="Mailroom" sub="Applications, club requests, and partner inquiries." />
+      <SectionHeader title="Mailroom" sub="Applications, club requests, and partner inquiries." category="Operations" />
       <div className="grid grid-cols-3 gap-4">
         {MAILROOM.map((m) => (
           <div
@@ -1511,7 +1540,7 @@ function HappeningsSection() {
 
   return (
     <div>
-      <SectionHeader title="Happenings" sub="Content management — events, pop-ups, and Girl Picks." />
+      <SectionHeader title="Happenings" sub="Content management — events, pop-ups, and Girl Picks." category="Content" />
 
       {/* Sub-tabs */}
       <div className="flex gap-0 mb-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>

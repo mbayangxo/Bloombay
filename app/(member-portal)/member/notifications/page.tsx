@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 interface Notif {
@@ -11,7 +12,7 @@ interface Notif {
   unread: boolean;
 }
 
-const NOW: Notif[] = [
+const INITIAL_NOW: Notif[] = [
   {
     id: 1, type: "seat",
     title: "You grabbed a seat",
@@ -32,7 +33,7 @@ const NOW: Notif[] = [
   },
 ];
 
-const EARLIER: Notif[] = [
+const INITIAL_EARLIER: Notif[] = [
   {
     id: 4, type: "celebrate",
     title: "Show up for Aaliyah M.",
@@ -80,10 +81,12 @@ const EARLIER: Notif[] = [
 // ── Icon per type ─────────────────────────────────────────────────────────────
 
 function NotifIcon({ type }: { type: Notif["type"] }) {
+  const baseClass = "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0";
+
   if (type === "stamp") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#111111" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF1F7D">
+      <div className={baseClass} style={{ background: "#111111", boxShadow: "0 2px 10px rgba(0,0,0,0.15)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF1F7D">
           <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
         </svg>
       </div>
@@ -91,9 +94,10 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   }
   if (type === "seat") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF0F5" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-          <path d="M20 9V7a2 2 0 00-2-2H6a2 2 0 00-2 2v2"/><path d="M4 9h16v5a2 2 0 01-2 2H6a2 2 0 01-2-2V9z"/>
+      <div className={baseClass} style={{ background: "#FFF0F5", boxShadow: "0 2px 8px rgba(255,31,125,0.1)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+          <path d="M20 9V7a2 2 0 00-2-2H6a2 2 0 00-2 2v2"/>
+          <path d="M4 9h16v5a2 2 0 01-2 2H6a2 2 0 01-2-2V9z"/>
           <path d="M8 16v3"/><path d="M16 16v3"/>
         </svg>
       </div>
@@ -101,18 +105,20 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   }
   if (type === "event") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF5F8" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+      <div className={baseClass} style={{ background: "#FFF5F8", boxShadow: "0 2px 8px rgba(255,31,125,0.08)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
           <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
         </svg>
       </div>
     );
   }
   if (type === "celebrate") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF8E8" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2" strokeLinecap="round">
+      <div className={baseClass} style={{ background: "#FFF8F0", boxShadow: "0 2px 8px rgba(255,105,180,0.1)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2" strokeLinecap="round">
           <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
         </svg>
       </div>
@@ -120,19 +126,20 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   }
   if (type === "intro") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFE0EE" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+      <div className={baseClass} style={{ background: "var(--light-pink)", boxShadow: "0 2px 8px rgba(255,31,125,0.1)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+          <path d="M16 3.13a4 4 0 010 7.75"/>
         </svg>
       </div>
     );
   }
   if (type === "message") {
     return (
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF0F5" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+      <div className={baseClass} style={{ background: "#FFF0F5", boxShadow: "0 2px 8px rgba(255,31,125,0.08)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
       </div>
@@ -140,10 +147,12 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   }
   // club
   return (
-    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF0F5" }}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+    <div className={baseClass} style={{ background: "#FFF0F5", boxShadow: "0 2px 8px rgba(255,31,125,0.08)" }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+        <path d="M16 3.13a4 4 0 010 7.75"/>
       </svg>
     </div>
   );
@@ -152,8 +161,14 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
 function NotifRow({ n }: { n: Notif }) {
   return (
     <div
-      className="flex items-start gap-3 px-4 py-3.5 rounded-2xl"
-      style={{ background: n.unread ? "#FFF5F8" : "white" }}
+      className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden"
+      style={{
+        background: n.unread ? "white" : "white",
+        boxShadow: n.unread
+          ? "0 3px 16px rgba(255,31,125,0.1)"
+          : "0 1px 8px rgba(0,0,0,0.06)",
+        borderLeft: n.unread ? "3px solid var(--bb-pink)" : "3px solid transparent",
+      }}
     >
       <NotifIcon type={n.type} />
       <div className="flex-1 min-w-0">
@@ -164,55 +179,115 @@ function NotifRow({ n }: { n: Notif }) {
           {n.title}
         </p>
         <p
-          className="text-xs mt-0.5 leading-relaxed"
+          className="text-xs mt-1 leading-relaxed"
           style={{
-            color: n.type === "stamp" ? "#FF1F7D" : "#888",
+            color: n.type === "stamp" ? "var(--bb-pink)" : "#999",
             fontStyle: n.type === "stamp" ? "italic" : "normal",
           }}
         >
           {n.body}
         </p>
       </div>
-      <p className="text-[11px] text-gray-400 flex-shrink-0 mt-0.5">{n.time}</p>
+      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+        <p className="text-[11px]" style={{ color: "#ccc" }}>{n.time}</p>
+        {n.unread && (
+          <div
+            className="w-2 h-2 rounded-full"
+            style={{ background: "var(--bb-pink)" }}
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 export default function NotificationsPage() {
+  const [nowItems, setNowItems] = useState<Notif[]>(INITIAL_NOW);
+  const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
+
+  const unreadCount = [...nowItems, ...earlierItems].filter((n) => n.unread).length;
+
+  function markAllRead() {
+    setNowItems((prev) => prev.map((n) => ({ ...n, unread: false })));
+    setEarlierItems((prev) => prev.map((n) => ({ ...n, unread: false })));
+  }
+
   return (
     <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
-      <div className="px-5 pt-12 pb-5 flex items-center gap-3">
-        <Link
-          href="/member/home"
-          className="w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: "white" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </Link>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--bb-black)", fontFamily: "var(--font-playfair)" }}>
-          Notifications
-        </h1>
+      <div className="px-5 pt-12 pb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Link
+            href="/member/home"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </Link>
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <h1
+                className="text-3xl font-bold italic"
+                style={{
+                  color: "var(--bb-black)",
+                  fontFamily: "var(--font-playfair)",
+                  fontWeight: 700,
+                }}
+              >
+                Notifications
+              </h1>
+              {unreadCount > 0 && (
+                <span
+                  className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full text-sm font-bold text-white"
+                  style={{
+                    background: "var(--bb-pink)",
+                    boxShadow: "0 2px 8px rgba(255,31,125,0.4)",
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllRead}
+              className="text-xs font-semibold transition-colors"
+              style={{ color: "var(--bb-pink)" }}
+            >
+              Mark all read
+            </button>
+          )}
+        </div>
+        <div className="h-0.5 w-10 rounded-full" style={{ background: "var(--bb-pink)" }} />
       </div>
 
-      <div className="px-5 flex flex-col gap-6">
+      <div className="px-5 flex flex-col gap-7">
         {/* Right Now */}
         <div>
-          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
-            RIGHT NOW
-          </p>
-          <div className="flex flex-col gap-1.5">
-            {NOW.map((n) => <NotifRow key={n.id} n={n} />)}
+          <div className="flex items-center gap-3 mb-4">
+            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-black)" }}>
+              RIGHT NOW
+            </p>
+            <div className="flex-1 h-px" style={{ background: "var(--bb-pink)" }} />
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {nowItems.map((n) => <NotifRow key={n.id} n={n} />)}
           </div>
         </div>
 
         {/* Earlier */}
         <div>
-          <p className="text-xs font-bold tracking-widest uppercase mb-3 text-gray-400">EARLIER</p>
-          <div className="flex flex-col gap-1.5">
-            {EARLIER.map((n) => <NotifRow key={n.id} n={n} />)}
+          <div className="flex items-center gap-3 mb-4">
+            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
+              EARLIER TODAY
+            </p>
+            <div className="flex-1 h-px" style={{ background: "#E8E8E8" }} />
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {earlierItems.map((n) => <NotifRow key={n.id} n={n} />)}
           </div>
         </div>
       </div>
