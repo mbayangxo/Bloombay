@@ -145,7 +145,6 @@ export function BottomNav({ user }: { user: NavUser }) {
                 {[
                   { href: "/member/messages", label: "Messages" },
                   { href: "/member/notifications", label: "Notifications" },
-                  { href: "/member/explore", label: "Explore" },
                 ].map((item) => (
                   <Link
                     key={item.href}
