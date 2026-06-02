@@ -4,189 +4,134 @@ import { useState } from "react";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Privacy = "Public" | "Bloomies Only" | "Club Only" | "Invited Only";
-type PaymentType = "advance" | "pay_in_person";
-type TimeTag = "today" | "tonight" | "weekend";
-type HappeningType = "gallery" | "popup" | "rooftop" | "workshop" | "class" | "festival";
-type PlaceType = "place" | "eat" | "gem";
-type PlaceFilter = "All" | "Places" | "Eats" | "Gems";
+type CityTab = "eat" | "go" | "solo" | "trending" | "moments";
+type GoFilter = "All" | "Museums" | "Parks" | "Events" | "Experiences";
+type CelebType = "birthday" | "promotion" | "new_home" | "anniversary" | "graduation" | "new_job" | "breakup";
+type CelebFilter = "All" | "Birthdays" | "Wins" | "Milestones";
 
-interface Happening {
-  id: number;
-  type: HappeningType;
-  title: string;
-  venue: string;
-  neighborhood: string;
-  time: string;
-  timeTag: TimeTag;
-  price: number;
-  priceLabel: string;
-  womenLoved: boolean;
-  featured: boolean;
-  partner?: string;
-  gradient: string;
-  userSubmitted?: boolean;
-  submittedBy?: string;
+interface Restaurant {
+  id: number; name: string; neighborhood: string; blurb: string;
+  womenLoved: number; price: "$" | "$$" | "$$$" | "$$$$";
+  tags: string[]; soloFriendly: boolean;
+  notableDish?: string; notableDishNote?: string;
+  submittedBy: string; featured?: boolean; emoji: string; bgColor: string;
 }
+
+interface GoPlace {
+  id: number; filter: Exclude<GoFilter, "All">; name: string; neighborhood: string;
+  blurb: string; womenLoved: number; soloFriendly: boolean;
+  emoji: string; bgColor: string; tags: string[]; submittedBy: string;
+}
+
+interface SoloSpot {
+  id: number; name: string; neighborhood: string; type: string;
+  why: string; womenLoved: number; submittedBy: string; emoji: string;
+}
+
+interface TrendItem {
+  id: number; type: "place" | "dish" | "neighborhood" | "stat";
+  title: string; sub: string; count?: number; change?: string;
+  emoji: string; bgColor: string;
+}
+
+interface CityMoment {
+  id: number; initial: string; avatarColor: string; location: string;
+  neighborhood: string; caption: string; flowers: number;
+  timeAgo: string; bgColor: string; emoji: string;
+}
+
+interface Celebration {
+  id: number; celebType: CelebType; name: string; event: string;
+  venue: string; time: string; month: string; day: string;
+  seats: number; message: string; initial: string; avatarColor: string;
+}
+
+type PlaceType = "place" | "eat" | "gem";
 
 interface Place {
-  id: number;
-  type: PlaceType;
-  name: string;
-  neighborhood: string;
-  review: string;
-  submittedBy: string;
-  rating: number;
-  stamps: number;
-  category?: string;
+  id: number; type: PlaceType; name: string; neighborhood: string;
+  review: string; submittedBy: string; rating: number; stamps: number;
 }
 
-interface Seat {
-  id: number;
-  privacy: Privacy;
-  seats: number;
-  title: string;
-  time: string;
-  venue: string;
-  host: string;
-  paymentType: PaymentType;
-  cashAmount?: number;
-  price?: number;
-  deposit: number;
-  featured: boolean;
-}
+// ── Data ─────────────────────────────────────────────────────────────────────
 
-// ── Mock Data ────────────────────────────────────────────────────────────────
-
-const INITIAL_HAPPENINGS: Happening[] = [
-  {
-    id: 1, type: "gallery",
-    title: "Soft Opening: Women in Lens",
-    venue: "The Parlor Gallery", neighborhood: "Bushwick",
-    time: "Tonight · 7PM", timeTag: "tonight",
-    price: 0, priceLabel: "Free",
-    womenLoved: true, featured: true,
-    gradient: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
-  },
-  {
-    id: 2, type: "workshop",
-    title: "Wheel Throwing for Beginners",
-    venue: "Brooklyn Clay", neighborhood: "Williamsburg",
-    time: "Tonight · 6:30PM", timeTag: "tonight",
-    price: 45, priceLabel: "$45",
-    womenLoved: true, featured: false,
-    partner: "Brooklyn Clay",
-    gradient: "linear-gradient(160deg, #FF1F7D 0%, #FF69B4 100%)",
-  },
-  {
-    id: 3, type: "rooftop",
-    title: "Golden Hour at Westlight",
-    venue: "Westlight Hotel", neighborhood: "Williamsburg",
-    time: "Tonight · 8PM", timeTag: "tonight",
-    price: 20, priceLabel: "$20",
-    womenLoved: false, featured: false,
-    gradient: "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
-  },
-  {
-    id: 4, type: "popup",
-    title: "Local Designers Pop-Up Market",
-    venue: "The Canvas Space", neighborhood: "SoHo",
-    time: "This Weekend · Sat 12–6PM", timeTag: "weekend",
-    price: 0, priceLabel: "Free",
-    womenLoved: true, featured: false,
-    gradient: "linear-gradient(160deg, #FF69B4 0%, #111111 100%)",
-  },
-  {
-    id: 5, type: "class",
-    title: "Morning Pilates in the Park",
-    venue: "Sheep Meadow, Central Park", neighborhood: "Midtown",
-    time: "Today · 8AM", timeTag: "today",
-    price: 15, priceLabel: "$15",
-    womenLoved: true, featured: false,
-    partner: "Form Pilates",
-    gradient: "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
-  },
-  {
-    id: 6, type: "festival",
-    title: "Brooklyn Night Bazaar",
-    venue: "Industry City", neighborhood: "Sunset Park",
-    time: "This Weekend · Sat–Sun", timeTag: "weekend",
-    price: 0, priceLabel: "Free",
-    womenLoved: true, featured: false,
-    gradient: "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
-  },
-  {
-    id: 7, type: "class",
-    title: "Bookbinding Workshop",
-    venue: "McNally Jackson", neighborhood: "Nolita",
-    time: "Today · 3PM", timeTag: "today",
-    price: 30, priceLabel: "$30",
-    womenLoved: false, featured: false,
-    partner: "McNally Jackson",
-    gradient: "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
-  },
-  {
-    id: 8, type: "gallery",
-    title: "First Friday: New Figurative Works",
-    venue: "Tanya Bonakdar Gallery", neighborhood: "Chelsea",
-    time: "This Weekend · Fri 6PM", timeTag: "weekend",
-    price: 0, priceLabel: "Free",
-    womenLoved: false, featured: false,
-    gradient: "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
-  },
+const RESTAURANTS: Restaurant[] = [
+  { id: 1, name: "Sadelle's", neighborhood: "SoHo", blurb: "The smoked fish platter for brunch. Every single time.", womenLoved: 2847, price: "$$$", tags: ["Brunch", "Weekend"], soloFriendly: true, notableDish: "Smoked Salmon Platter", notableDishNote: "889 women saved this", submittedBy: "Aaliyah M.", featured: true, emoji: "🥯", bgColor: "#FFF0F5" },
+  { id: 2, name: "Bangkok Supper Club", neighborhood: "Lower East Side", blurb: "The tom yum is religious. Go late, go often.", womenLoved: 1432, price: "$$", tags: ["Late Night", "Thai"], soloFriendly: false, notableDish: "Tom Yum", notableDishNote: "Most reordered dish", submittedBy: "Jade O.", emoji: "🍜", bgColor: "#FFF5F8" },
+  { id: 3, name: "La Mercerie", neighborhood: "SoHo", blurb: "Quiet, elegant, the best croissant. Perfect solo lunch.", womenLoved: 1201, price: "$$$", tags: ["French", "Quiet"], soloFriendly: true, notableDish: "Butter Croissant", notableDishNote: "638 women saved", submittedBy: "Naomi B.", emoji: "🥐", bgColor: "#FDFAF5" },
+  { id: 4, name: "Loring Place", neighborhood: "West Village", blurb: "Small plates, big energy. The best girls dinner.", womenLoved: 987, price: "$$$", tags: ["Girls Night", "Small Plates"], soloFriendly: false, submittedBy: "Sofia K.", emoji: "🌿", bgColor: "#FFF0F5" },
+  { id: 5, name: "Russ & Daughters Café", neighborhood: "Lower East Side", blurb: "The OG. Bagels, lox, and history on every wall.", womenLoved: 3102, price: "$$", tags: ["NYC Classic", "Brunch"], soloFriendly: true, notableDish: "Bagel with Lox", notableDishNote: "NYC staple", submittedBy: "Deja W.", emoji: "🥯", bgColor: "#FFF5F8" },
 ];
 
-const SEATS: Seat[] = [
-  {
-    id: 1, privacy: "Public", seats: 2,
-    title: "Girls dinner · Carbone", time: "Tonight 7:30PM", venue: "Carbone, SoHo",
-    host: "Aaliyah M.", paymentType: "pay_in_person", cashAmount: 85,
-    deposit: 5, featured: true,
-  },
-  {
-    id: 2, privacy: "Bloomies Only", seats: 3,
-    title: "Pilates + matcha morning", time: "Sunday 9AM", venue: "Studio Bloom, Williamsburg",
-    host: "Sofia K.", paymentType: "advance", price: 20,
-    deposit: 1, featured: false,
-  },
-  {
-    id: 3, privacy: "Club Only", seats: 4,
-    title: "MoMA + froyo after", time: "Saturday 2PM", venue: "MoMA, Midtown",
-    host: "Priya R.", paymentType: "pay_in_person", cashAmount: 30,
-    deposit: 1, featured: false,
-  },
+const GO_PLACES: GoPlace[] = [
+  { id: 1, filter: "Parks", name: "Brooklyn Bridge Park", neighborhood: "DUMBO", blurb: "Golden hour from the pier. Bring a blanket.", womenLoved: 4821, soloFriendly: true, emoji: "🌉", bgColor: "#F0F8FF", tags: ["Golden Hour", "Views"], submittedBy: "Priya R." },
+  { id: 2, filter: "Museums", name: "The Met", neighborhood: "Upper East Side", blurb: "Pay-what-you-wish. No crowds before 10AM.", womenLoved: 6210, soloFriendly: true, emoji: "🏛", bgColor: "#FFF8F0", tags: ["Culture", "Solo Ritual"], submittedBy: "Sofia K." },
+  { id: 3, filter: "Experiences", name: "Archway Café", neighborhood: "DUMBO", blurb: "Under the Manhattan Bridge. Best kept secret in Brooklyn.", womenLoved: 893, soloFriendly: true, emoji: "☕", bgColor: "#F5F0FF", tags: ["Hidden Gem", "Coffee"], submittedBy: "Zara F." },
+  { id: 4, filter: "Parks", name: "The High Line", neighborhood: "Chelsea", blurb: "Best morning walk. Go early, beat the crowds.", womenLoved: 3987, soloFriendly: true, emoji: "🌿", bgColor: "#F0FFF4", tags: ["Morning Walk", "Art"], submittedBy: "Sofia K." },
+  { id: 5, filter: "Events", name: "Smorgasburg", neighborhood: "Williamsburg", blurb: "Saturdays at the waterfront. 100 food vendors, all summer.", womenLoved: 5102, soloFriendly: true, emoji: "🌮", bgColor: "#FFFAF0", tags: ["Food", "Outdoor"], submittedBy: "Aaliyah M." },
+  { id: 6, filter: "Museums", name: "MoMA", neighborhood: "Midtown", blurb: "Worth every visit. The Matisse floor never gets old.", womenLoved: 4201, soloFriendly: true, emoji: "🎨", bgColor: "#FFF5F8", tags: ["Art", "Culture"], submittedBy: "Jade O." },
+  { id: 7, filter: "Experiences", name: "McNally Jackson", neighborhood: "Nolita", blurb: "Good coffee, no rush, nobody bothers you for hours.", womenLoved: 1644, soloFriendly: true, emoji: "📚", bgColor: "#FFF0F5", tags: ["Books", "Solo"], submittedBy: "Rachel M." },
 ];
 
-const CELEBRATE = [
-  { id: 1, initial: "A", name: "Aaliyah M.", event: "Birthday picnic",   quote: "First birthday I'm actually celebrating.", location: "Prospect Park · Sat 2PM", seats: "4 seats · Free" },
-  { id: 2, initial: "S", name: "Sofia K.",   event: "Promotion dinner",  quote: "I got the job I was scared to apply for.",   location: "Carbone · Fri 7PM · $85", seats: "2 seats left" },
-  { id: 3, initial: "P", name: "Priya R.",   event: "New apartment",     quote: "Moved to NYC alone. Now I have a city.",     location: "Williamsburg · Sun 3PM · Free", seats: "6 seats" },
+const SOLO_SPOTS: SoloSpot[] = [
+  { id: 1, name: "La Mercerie", neighborhood: "SoHo", type: "Café · Restaurant", why: "Bar seating, natural light, staff never rushes you. Perfect for a solo lunch with a book.", womenLoved: 1201, submittedBy: "Naomi B.", emoji: "🥐" },
+  { id: 2, name: "McNally Jackson Café", neighborhood: "Nolita", type: "Bookshop Café", why: "Back of the bookstore. Loud enough to feel alive, quiet enough to think.", womenLoved: 891, submittedBy: "Rachel M.", emoji: "📚" },
+  { id: 3, name: "Archway Café", neighborhood: "DUMBO", type: "Hidden Café", why: "Under the Manhattan Bridge. Stunning views, no laptop crowd. You just sit with it.", womenLoved: 643, submittedBy: "Zara F.", emoji: "🌉" },
+  { id: 4, name: "Prospect Park — Breeze Hill", neighborhood: "Park Slope", type: "Park", why: "Less tourists, more locals with blankets and books. Completely safe, completely yours.", womenLoved: 2340, submittedBy: "Priya R.", emoji: "🌳" },
+  { id: 5, name: "The Met — Egyptian Wing", neighborhood: "Upper East Side", type: "Museum", why: "The Temple of Dendur room at 9:30AM is one of the most peaceful places in NYC.", womenLoved: 3102, submittedBy: "Sofia K.", emoji: "🏛" },
 ];
 
-const INITIAL_PLACES: Place[] = [
-  // Girl Places
-  { id: 1, type: "place", name: "The High Line", neighborhood: "Chelsea", review: "Best morning walk in the city, especially early before crowds.", submittedBy: "Sofia K.", rating: 4.8, stamps: 127 },
+const TRENDING: TrendItem[] = [
+  { id: 1, type: "stat", title: "Most Saved This Week", sub: "Bagels with Lox at Russ & Daughters", count: 889, emoji: "🥯", bgColor: "#FFF0F5" },
+  { id: 2, type: "neighborhood", title: "Neighborhood of the Moment", sub: "DUMBO — Golden hour and bridge views. Best on weekday evenings.", emoji: "🌉", bgColor: "#F0F8FF" },
+  { id: 3, type: "dish", title: "Most Loved Dish", sub: "Tom Yum at Bangkok Supper Club", count: 1432, change: "+23% this week", emoji: "🍜", bgColor: "#FFF5F8" },
+  { id: 4, type: "place", title: "New on Everyone's List", sub: "Archway Café, DUMBO — 643 women discovered this month.", count: 643, emoji: "☕", bgColor: "#F5F0FF" },
+  { id: 5, type: "stat", title: "Solo Trips This Week", sub: "1,247 women tagged themselves going solo.", count: 1247, emoji: "✦", bgColor: "#FDFAF5" },
+];
+
+const MOMENTS: CityMoment[] = [
+  { id: 1, initial: "A", avatarColor: "#FF1F7D", location: "Sadelle's", neighborhood: "SoHo", caption: "Sunday brunch season never ends.", flowers: 47, timeAgo: "2h", bgColor: "#FFE8F0", emoji: "🥯" },
+  { id: 2, initial: "S", avatarColor: "#FF69B4", location: "Brooklyn Bridge Park", neighborhood: "DUMBO", caption: "Golden hour ✦", flowers: 83, timeAgo: "4h", bgColor: "#E8F4FF", emoji: "🌉" },
+  { id: 3, initial: "P", avatarColor: "#FF1F7D", location: "The Met", neighborhood: "Upper East Side", caption: "Matisse forever.", flowers: 61, timeAgo: "6h", bgColor: "#FFF8E8", emoji: "🎨" },
+  { id: 4, initial: "Z", avatarColor: "#FF69B4", location: "High Line", neighborhood: "Chelsea", caption: "8AM and the city is still asleep.", flowers: 34, timeAgo: "8h", bgColor: "#E8FFE8", emoji: "🌿" },
+  { id: 5, initial: "N", avatarColor: "#FF1F7D", location: "La Mercerie", neighborhood: "SoHo", caption: "This croissant is my whole personality.", flowers: 112, timeAgo: "10h", bgColor: "#FFF0F5", emoji: "🥐" },
+  { id: 6, initial: "J", avatarColor: "#FF69B4", location: "Archway Café", neighborhood: "DUMBO", caption: "Found my new place.", flowers: 28, timeAgo: "12h", bgColor: "#F5E8FF", emoji: "🌉" },
+];
+
+const GIRL_PICKS: Place[] = [
+  { id: 1, type: "place", name: "The High Line", neighborhood: "Chelsea", review: "Best morning walk in the city. Go early before the crowds.", submittedBy: "Sofia K.", rating: 4.8, stamps: 127 },
   { id: 2, type: "place", name: "Brooklyn Bridge Park", neighborhood: "DUMBO", review: "Golden hour from the pier. Bring a blanket and stay for hours.", submittedBy: "Priya R.", rating: 4.9, stamps: 203 },
-  // Girl Eats
   { id: 3, type: "eat", name: "Sadelle's", neighborhood: "SoHo", review: "The smoked fish platter for brunch. Every time.", submittedBy: "Aaliyah M.", rating: 4.9, stamps: 89 },
   { id: 4, type: "eat", name: "Bangkok Supper Club", neighborhood: "Lower East Side", review: "The tom yum is religious. Go late, go often.", submittedBy: "Jade O.", rating: 4.8, stamps: 64 },
   { id: 5, type: "eat", name: "La Mercerie", neighborhood: "SoHo", review: "Quiet, elegant, the best croissant. Perfect solo lunch.", submittedBy: "Naomi B.", rating: 4.7, stamps: 44 },
-  // Girl Gems
   { id: 6, type: "gem", name: "McNally Jackson Café", neighborhood: "Nolita", review: "Tiny tables, good coffee, and nobody bothers you for hours.", submittedBy: "Rachel M.", rating: 4.8, stamps: 71 },
   { id: 7, type: "gem", name: "Russ & Daughters Café", neighborhood: "Lower East Side", review: "The OG. Bagels, lox, and history on every wall.", submittedBy: "Deja W.", rating: 4.7, stamps: 55 },
-  { id: 8, type: "gem", name: "Archway Café under the Manhattan Bridge", neighborhood: "DUMBO", review: "Nobody knows about this. Best kept secret in Brooklyn.", submittedBy: "Zara F.", rating: 5.0, stamps: 38 },
+  { id: 8, type: "gem", name: "Archway Café under Manhattan Bridge", neighborhood: "DUMBO", review: "Nobody knows about this. Best kept secret in Brooklyn.", submittedBy: "Zara F.", rating: 5.0, stamps: 38 },
+];
+
+const CONFETTI: Celebration[] = [
+  { id: 1, celebType: "birthday", name: "Aaliyah", event: "Birthday", venue: "Dinner at Carbone, SoHo", time: "Saturday · 8:00PM", month: "may", day: "26", seats: 12, initial: "A", avatarColor: "#FF1F7D", message: "One more trip around the sun and she's doing it right." },
+  { id: 2, celebType: "promotion", name: "Teni", event: "Promotion", venue: "Celebrating the new chapter", time: "Friday · 7:00PM", month: "may", day: "30", seats: 8, initial: "T", avatarColor: "#FF69B4", message: "She got the job she was scared to apply for." },
+  { id: 3, celebType: "new_home", name: "Maya", event: "New Apartment", venue: "Housewarming & girl time", time: "Sunday · 3:00PM", month: "jun", day: "02", seats: 6, initial: "M", avatarColor: "#FF1F7D", message: "Moved to NYC alone. Now she has a city." },
 ];
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
+const CELEB_FILTER_MAP: Record<CelebFilter, CelebType[]> = {
+  All:        ["birthday", "promotion", "new_home", "anniversary", "graduation", "new_job", "breakup"],
+  Birthdays:  ["birthday", "anniversary"],
+  Wins:       ["promotion", "new_job"],
+  Milestones: ["new_home", "graduation", "breakup"],
+};
 
-const TYPE_LABEL: Record<HappeningType, string> = {
-  gallery: "GALLERY",
-  popup: "POP-UP",
-  rooftop: "ROOFTOP NIGHT",
-  workshop: "WORKSHOP",
-  class: "CLASS",
-  festival: "FESTIVAL",
+const CELEB_WISH_DEFAULT: Record<CelebType, string> = {
+  birthday:    "Happy Birthday! So glad you're my girl 🎂",
+  promotion:   "Congratulations! So incredibly proud of you 🥂",
+  new_home:    "Welcome home! Can't wait to celebrate with you 🏠",
+  anniversary: "Happy Anniversary! Love to see it 🌸",
+  graduation:  "Congratulations, graduate! You earned every bit 🎓",
+  new_job:     "You got this! So excited to see what you do next 💪",
+  breakup:     "Freedom looks so good on you. Cheers 👑",
 };
 
 const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
@@ -195,600 +140,479 @@ const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
   gem: "GIRL GEM",
 };
 
-const PRIVACY_STYLE: Record<Privacy, { bg: string; color: string; symbol: string }> = {
-  "Public":        { bg: "#FFE0EE", color: "#FF1F7D", symbol: "○" },
-  "Bloomies Only": { bg: "#FFF0F5", color: "#FF1F7D", symbol: "⬡" },
-  "Club Only":     { bg: "#FFE0EE", color: "#FF1F7D", symbol: "◈" },
-  "Invited Only":  { bg: "#FFF0F5", color: "#FF69B4", symbol: "◆" },
+const PLACE_TYPE_COLOR: Record<PlaceType, { bg: string; color: string }> = {
+  place: { bg: "#FFF0F5", color: "#FF1F7D" },
+  eat:   { bg: "#FFE0EE", color: "#FF69B4" },
+  gem:   { bg: "#FFF0F5", color: "#FF1F7D" },
 };
 
-const HAPPENING_GRADIENTS: Record<HappeningType, string> = {
-  gallery:  "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
-  popup:    "linear-gradient(160deg, #FF69B4 0%, #111111 100%)",
-  rooftop:  "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
-  workshop: "linear-gradient(160deg, #FF1F7D 0%, #FF69B4 100%)",
-  class:    "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
-  festival: "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
-};
+const TAB_LABELS: { key: CityTab; label: string }[] = [
+  { key: "eat",      label: "Eat" },
+  { key: "go",       label: "Go" },
+  { key: "solo",     label: "Solo" },
+  { key: "trending", label: "Trending" },
+  { key: "moments",  label: "Moments" },
+];
 
-// ── Card themes ───────────────────────────────────────────────────────────────
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
-const CARD_THEME: Record<HappeningType, { bg: string; text: string; muted: string }> = {
-  gallery:  { bg: "#FF1F7D", text: "white",   muted: "rgba(255,255,255,0.52)" },
-  popup:    { bg: "#FDFAF5", text: "#111111", muted: "rgba(0,0,0,0.36)"       },
-  rooftop:  { bg: "#111111", text: "white",   muted: "rgba(255,255,255,0.45)" },
-  workshop: { bg: "#FF69B4", text: "white",   muted: "rgba(255,255,255,0.52)" },
-  class:    { bg: "#FFF5F8", text: "#111111", muted: "rgba(0,0,0,0.36)"       },
-  festival: { bg: "#FF1F7D", text: "white",   muted: "rgba(255,255,255,0.52)" },
-};
-
-// ── Happening Card — editorial poster ─────────────────────────────────────────
-
-function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
-  const [saved, setSaved] = useState(false);
-  const [going, setGoing] = useState(false);
-  const theme = CARD_THEME[h.type];
-
+function FlowerCount({ count, light = false }: { count: number; light?: boolean }) {
+  const display = count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(count);
   return (
-    <div
-      className="rounded-2xl overflow-hidden relative"
-      style={{
-        height: featured ? "256px" : "192px",
-        background: theme.bg,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
-      }}
-    >
-      {/* Save */}
-      <button
-        onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }}
-        className="absolute top-3.5 right-3.5 z-10 w-7 h-7 rounded-full flex items-center justify-center"
-        style={{ background: theme.text === "white" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)" }}
-      >
-        <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? theme.text : "none"} stroke={theme.text} strokeWidth="2.2">
-          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-        </svg>
-      </button>
+    <span className="flex items-center gap-0.5 text-[10px] font-bold" style={{ color: light ? "rgba(255,255,255,0.8)" : "#FF1F7D" }}>
+      ✿ {display}
+    </span>
+  );
+}
 
-      <div className="absolute inset-0 p-4 flex flex-col justify-between">
-        {/* Top — category */}
-        <div>
-          <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: theme.muted }}>
-            {TYPE_LABEL[h.type]}{h.partner ? ` × ${h.partner}` : ""}
-          </p>
-        </div>
+// ── EAT components ────────────────────────────────────────────────────────────
 
-        {/* Middle — BIG title */}
-        <h3
-          className="font-black uppercase"
-          style={{
-            fontFamily: "var(--font-playfair)",
-            fontSize: featured ? "clamp(24px,6vw,34px)" : "clamp(18px,4.5vw,26px)",
-            color: theme.text,
-            lineHeight: 0.9,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {h.title}
-        </h3>
-
-        {/* Bottom — date / venue / CTA */}
-        <div>
-          <p
-            className="text-[10px] font-bold uppercase tracking-wider mb-0.5"
-            style={{ color: theme.text === "white" ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.48)" }}
-          >
-            {h.time}
-          </p>
-          <div className="flex items-center justify-between">
-            <p className="text-[9px]" style={{ color: theme.muted }}>{h.neighborhood}</p>
-            <button
-              onClick={() => setGoing(g => !g)}
-              className="text-[10px] font-bold transition-all active:scale-95"
-              style={{ color: going ? theme.muted : theme.text }}
-            >
-              {going ? "Going ✓" : `${h.priceLabel} →`}
-            </button>
+function EatFeaturedCard({ r }: { r: Restaurant }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <div className="rounded-3xl overflow-hidden mb-5" style={{ background: r.bgColor, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+      <div className="relative flex items-center justify-center" style={{ height: "148px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
+        <span style={{ fontSize: "72px", opacity: 0.65 }}>{r.emoji}</span>
+        <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+          WOMEN&apos;S PICK
+        </span>
+        <button onClick={() => setSaved(s => !s)} className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.92)" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </button>
+      </div>
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-1">
+          <div>
+            <h3 className="font-black text-xl leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
+            <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
           </div>
+          <FlowerCount count={r.womenLoved} />
+        </div>
+        <p className="text-sm italic mt-2 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>&ldquo;{r.blurb}&rdquo;</p>
+        {r.notableDish && (
+          <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(255,31,125,0.06)" }}>
+            <span style={{ fontSize: "13px" }}>⭐</span>
+            <div>
+              <p className="text-xs font-bold" style={{ color: "#111" }}>{r.notableDish}</p>
+              <p className="text-[10px]" style={{ color: "#FF1F7D" }}>{r.notableDishNote}</p>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          {r.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+          {r.tags.slice(0, 2).map(t => (
+            <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "white", color: "#888", border: "1px solid #EEE" }}>{t}</span>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ── Add Popup Sheet ───────────────────────────────────────────────────────────
+function EatRowCard({ r }: { r: Restaurant }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 10px rgba(0,0,0,0.05)" }}>
+      <div className="flex items-stretch">
+        <div className="w-14 flex-shrink-0 flex items-center justify-center text-3xl" style={{ background: r.bgColor }}>{r.emoji}</div>
+        <div className="p-3 flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-black text-sm" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
+              <p className="text-[10px]" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <FlowerCount count={r.womenLoved} />
+              <button onClick={() => setSaved(s => !s)} className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p className="text-[11px] mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "#777" }}>&ldquo;{r.blurb}&rdquo;</p>
+          {r.soloFriendly && <span className="mt-1 inline-block text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Happening) => void }) {
-  const [name, setName]           = useState("");
-  const [type, setType]           = useState<HappeningType>("popup");
-  const [dateTime, setDateTime]   = useState("");
-  const [location, setLocation]   = useState("");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [price, setPrice]         = useState("0");
-  const [description, setDescription] = useState("");
+// ── GO components ─────────────────────────────────────────────────────────────
 
-  const eventTypes: { key: HappeningType; label: string }[] = [
-    { key: "gallery", label: "Gallery" },
-    { key: "popup", label: "Pop-up" },
-    { key: "workshop", label: "Workshop" },
-    { key: "rooftop", label: "Rooftop" },
-    { key: "class", label: "Class" },
-    { key: "festival", label: "Festival" },
-  ];
+function GoCard({ p }: { p: GoPlace }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: p.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+      <div className="flex items-center justify-center" style={{ height: "88px", background: `linear-gradient(135deg, ${p.bgColor} 0%, ${p.bgColor}99 100%)` }}>
+        <span style={{ fontSize: "44px", opacity: 0.75 }}>{p.emoji}</span>
+      </div>
+      <div className="p-3">
+        <div className="flex items-start justify-between mb-1">
+          <div>
+            <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h3>
+            <p className="text-[10px]" style={{ color: "#999" }}>{p.neighborhood}</p>
+          </div>
+          <button onClick={() => setSaved(s => !s)} className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "white" }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+        <p className="text-[11px] mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "#666" }}>&ldquo;{p.blurb}&rdquo;</p>
+        <div className="flex items-center justify-between mt-2">
+          <FlowerCount count={p.womenLoved} />
+          {p.soloFriendly && <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  function handlePost() {
-    if (!name.trim()) return;
-    const priceNum = parseFloat(price) || 0;
-    const newHappening: Happening = {
-      id: Date.now(),
-      type,
-      title: name.trim(),
-      venue: location.trim() || "TBD",
-      neighborhood: neighborhood.trim() || "NYC",
-      time: dateTime.trim() || "TBD",
-      timeTag: "tonight",
-      price: priceNum,
-      priceLabel: priceNum === 0 ? "Free" : `$${priceNum}`,
-      womenLoved: false,
-      featured: false,
-      gradient: HAPPENING_GRADIENTS[type],
-      userSubmitted: true,
-    };
-    onAdd(newHappening);
-    onClose();
+// ── SOLO components ───────────────────────────────────────────────────────────
+
+function SoloCard({ s }: { s: SoloSpot }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 10px rgba(0,0,0,0.05)" }}>
+      <div className="w-1.5 flex-shrink-0" style={{ background: "#111" }} />
+      <div className="p-4 flex-1">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">{s.emoji}</span>
+            <div>
+              <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{s.name}</h3>
+              <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{s.neighborhood} · {s.type}</p>
+            </div>
+          </div>
+          <button onClick={() => setSaved(sv => !sv)} className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF5F8" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color: "#555" }}>{s.why}</p>
+        <div className="flex items-center justify-between mt-3">
+          <FlowerCount count={s.womenLoved} />
+          <p className="text-[10px]" style={{ color: "#ccc" }}>— {s.submittedBy}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── TRENDING components ───────────────────────────────────────────────────────
+
+function TrendCard({ t }: { t: TrendItem }) {
+  return (
+    <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: t.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: "white" }}>{t.emoji}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>{t.title}</p>
+        <p className="text-sm font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.sub}</p>
+        {t.count && <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>✿ {t.count.toLocaleString()} women{t.change ? ` · ${t.change}` : ""}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ── MOMENTS components ────────────────────────────────────────────────────────
+
+function MomentCard({ m, onFlower }: { m: CityMoment & { flowered?: boolean }; onFlower: () => void }) {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}>
+      <div className="relative flex items-center justify-center" style={{ height: "120px", background: m.bgColor }}>
+        <span style={{ fontSize: "52px", opacity: 0.65 }}>{m.emoji}</span>
+        <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+          <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: m.avatarColor }}>{m.initial}</div>
+          <p className="text-[9px] font-semibold" style={{ color: "#555" }}>{m.neighborhood}</p>
+        </div>
+        <p className="absolute top-2 right-2 text-[9px]" style={{ color: "#aaa" }}>{m.timeAgo}</p>
+      </div>
+      <div className="bg-white px-3 py-2.5">
+        <p className="text-xs italic" style={{ fontFamily: "var(--font-playfair)", color: "#333" }}>{m.caption}</p>
+        <p className="text-[10px] mt-0.5" style={{ color: "#bbb" }}>{m.location}</p>
+        <button onClick={onFlower} className="flex items-center gap-1 mt-1.5 text-[10px] font-semibold" style={{ color: "#FF1F7D" }}>
+          ✿ {m.flowers}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── CONFETTI cards ────────────────────────────────────────────────────────────
+
+function ConfettiCard({ c, onOpen }: { c: Celebration; onOpen: () => void }) {
+
+  if (c.celebType === "birthday") {
+    return (
+      <div onClick={onOpen} className="relative flex-shrink-0 cursor-pointer transition-transform active:scale-[0.96]"
+        style={{ width: "164px", borderRadius: "20px", background: "#FF1F7D", padding: "12px 12px 14px", boxShadow: "0 10px 32px rgba(255,31,125,0.38)" }}>
+        <div className="absolute" style={{ top: "-5px", left: "8px" }}>
+          <svg width="38" height="24" viewBox="0 0 38 24">
+            <ellipse cx="9" cy="12" rx="8" ry="5.5" fill="#111" opacity="0.85" transform="rotate(-20 9 12)" />
+            <ellipse cx="29" cy="12" rx="8" ry="5.5" fill="#111" opacity="0.85" transform="rotate(20 29 12)" />
+            <circle cx="19" cy="12" r="4" fill="#111" />
+          </svg>
+        </div>
+        <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-base mx-auto mt-3 mb-2.5" style={{ background: "rgba(255,255,255,0.2)", border: "2.5px solid white", color: "white" }}>{c.initial}</div>
+        <div className="rounded-2xl p-3" style={{ background: "#FDFAF5" }}>
+          <div className="flex items-baseline gap-1 mb-1">
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#FF1F7D", fontStyle: "italic" }}>{c.month}</p>
+            <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", color: "#111" }}>{c.day}</p>
+          </div>
+          <p className="font-black leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "14px", color: "#111", lineHeight: 1.1 }}>{c.name}&apos;s<br />{c.event}</p>
+          <p className="mt-1.5 text-[10px]" style={{ color: "#999" }}>{c.venue.split(",")[0]}</p>
+        </div>
+        <div className="flex items-center justify-between mt-2 px-0.5">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>{c.seats}</div>
+          <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "16px" }}>♡</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (c.celebType === "promotion" || c.celebType === "new_job") {
+    return (
+      <div onClick={onOpen} className="relative flex-shrink-0 cursor-pointer overflow-hidden transition-transform active:scale-[0.96]"
+        style={{ width: "164px", borderRadius: "20px", background: "#FDFAF5", padding: "22px 12px 14px", boxShadow: "0 8px 28px rgba(0,0,0,0.10)" }}>
+        <div className="absolute top-0 left-1/2" style={{ transform: "translateX(-50%) translateY(-8px)" }}>
+          <div style={{ width: "20px", height: "20px", borderRadius: "50%", border: "3.5px solid #FF69B4", background: "white" }} />
+        </div>
+        <div className="absolute pointer-events-none" style={{ top: "26px", left: "-24px", right: "-24px", height: "48px", background: "rgba(255,105,180,0.13)", transform: "rotate(-5deg)", borderRadius: "8px" }} />
+        <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-base mx-auto mb-3" style={{ background: `linear-gradient(135deg, ${c.avatarColor} 0%, ${c.avatarColor}88 100%)`, border: "2.5px solid white", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.2)" }}>{c.initial}</div>
+        <div className="flex items-baseline gap-1 mb-1">
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#FF69B4", fontStyle: "italic" }}>{c.month}</p>
+          <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", color: "#111" }}>{c.day}</p>
+        </div>
+        <p className="font-black leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "14px", color: "#111", lineHeight: 1.1 }}>{c.name}&apos;s<br />{c.event}</p>
+        <p className="mt-1.5 text-[10px]" style={{ color: "#999" }}>{c.venue}</p>
+        <div className="flex items-center justify-between mt-3">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>{c.seats}</div>
+          <span style={{ color: "#FF69B4", fontSize: "16px" }}>♡</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (c.celebType === "new_home") {
+    return (
+      <div onClick={onOpen} className="relative flex-shrink-0 cursor-pointer overflow-hidden transition-transform active:scale-[0.96]"
+        style={{ width: "164px", borderRadius: "20px", boxShadow: "0 8px 28px rgba(0,0,0,0.13)" }}>
+        <div className="absolute inset-0" style={{ backgroundImage: "repeating-conic-gradient(#111 0% 25%, #F5F5F5 0% 50%)", backgroundSize: "18px 18px" }} />
+        <div className="absolute top-0 left-1/2 z-20" style={{ transform: "translateX(-50%) translateY(-8px)" }}>
+          <div style={{ width: "20px", height: "20px", borderRadius: "50%", border: "3.5px solid #FF1F7D", background: "white" }} />
+        </div>
+        <div className="relative z-10 p-3 pt-5">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-base mx-auto mb-3" style={{ background: `linear-gradient(135deg, ${c.avatarColor} 0%, ${c.avatarColor}88 100%)`, border: "3px solid white", color: "white", boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }}>{c.initial}</div>
+          <div className="rounded-2xl p-3" style={{ background: "rgba(253,250,245,0.97)" }}>
+            <div className="flex items-baseline gap-1 mb-1">
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#FF1F7D", fontStyle: "italic" }}>{c.month}</p>
+              <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", color: "#111" }}>{c.day}</p>
+            </div>
+            <p className="font-black leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "13px", color: "#111", lineHeight: 1.1 }}>{c.name}&apos;s<br />{c.event}</p>
+            <p className="mt-1 text-[10px]" style={{ color: "#777" }}>{c.venue.split("&")[0].trim()}</p>
+          </div>
+          <div className="flex items-center justify-between mt-2 px-0.5">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] text-white" style={{ background: "#FF1F7D" }}>{c.seats}</div>
+            <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px" }}>♡</span>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
-        style={{ background: "white", boxShadow: "0 -4px 40px rgba(0,0,0,0.15)", maxHeight: "88vh" }}
-      >
-        <div className="p-5 pb-10">
-          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
-              Add a pop-up
-            </h2>
-            <button onClick={onClose} className="text-gray-300 p-1">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Event name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Ceramics Pop-Up in the Village"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Type</label>
-              <div className="flex flex-wrap gap-2">
-                {eventTypes.map(({ key, label }) => (
-                  <button key={key} onClick={() => setType(key)}
-                    className="px-3 py-1.5 rounded-full text-sm font-semibold transition-all"
-                    style={type === key
-                      ? { background: "#FF1F7D", color: "white" }
-                      : { background: "#FFF5F8", color: "#555", border: "1.5px solid #FFE0EE" }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Date &amp; time</label>
-              <input type="text" value={dateTime} onChange={(e) => setDateTime(e.target.value)}
-                placeholder="e.g. Saturday · 2PM–6PM"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Location</label>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Venue name or address"
-                  className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Neighborhood</label>
-                <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}
-                  placeholder="e.g. SoHo"
-                  className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Price (0 = free)</label>
-              <div className="flex items-center border rounded-xl overflow-hidden" style={{ borderColor: "#FFE0EE" }}>
-                <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
-                <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                  min="0" placeholder="0"
-                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-                Description <span className="text-gray-300 normal-case font-normal">({description.length}/200)</span>
-              </label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value.slice(0, 200))}
-                placeholder="Tell us about this event..."
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <button onClick={handlePost}
-              className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
-              style={{ background: "#FF1F7D" }}>
-              Post it
-            </button>
-          </div>
-        </div>
+    <div onClick={onOpen} className="relative flex-shrink-0 cursor-pointer transition-transform active:scale-[0.96]"
+      style={{ width: "164px", borderRadius: "20px", background: "#FFF0F5", padding: "16px 12px 14px", boxShadow: "0 6px 24px rgba(255,31,125,0.12)" }}>
+      <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-base mx-auto mb-3" style={{ background: c.avatarColor, border: "2.5px solid white", color: "white" }}>{c.initial}</div>
+      <div className="flex items-baseline gap-1 mb-1">
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#FF1F7D", fontStyle: "italic" }}>{c.month}</p>
+        <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", color: "#111" }}>{c.day}</p>
       </div>
-    </>
-  );
-}
-
-// ── Seat Ticket ───────────────────────────────────────────────────────────────
-
-function SeatTicket({
-  seat, reserved, onReserve, onDrop,
-}: {
-  seat: Seat; reserved: boolean; onReserve: () => void; onDrop: () => void;
-}) {
-  const ps = PRIVACY_STYLE[seat.privacy];
-  const payLine =
-    seat.paymentType === "pay_in_person"
-      ? `Cash · $${seat.cashAmount}`
-      : seat.price === 0 ? "Free" : `$${seat.price} through app`;
-
-  const eventCode = `BB${String(seat.id).padStart(2,"0")}${seat.time.replace(/\s|:/g,"").slice(0,6).toUpperCase()}`;
-
-  return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: "#FDFAF5",
-        boxShadow: reserved
-          ? "0 8px 40px rgba(255,31,125,0.16), 0 2px 8px rgba(0,0,0,0.06)"
-          : "0 4px 20px rgba(0,0,0,0.07)",
-      }}
-    >
-      {/* Header strip */}
-      <div className="px-6 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-        <p className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-        <div className="flex items-center gap-3">
-          <span className="text-[9px] font-semibold tracking-[0.18em] uppercase" style={{ color: "#bbb" }}>{ps.symbol} {seat.privacy}</span>
-          {reserved && (
-            <span className="text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
-              ✓ RESERVED
-            </span>
-          )}
-        </div>
-        <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#bbb" }}>ADMIT ONE</p>
-      </div>
-
-      {/* Big title */}
-      <div className="px-6 pt-5 pb-4">
-        <h3
-          className="font-black uppercase leading-none"
-          style={{
-            fontFamily: "var(--font-playfair)",
-            fontSize: "clamp(28px, 7vw, 38px)",
-            color: "#111111",
-            lineHeight: 0.88,
-            letterSpacing: "-0.015em",
-          }}
-        >
-          {seat.title}
-        </h3>
-      </div>
-
-      {/* Perforation */}
-      <div style={{ borderTop: "1.5px dashed rgba(0,0,0,0.1)", margin: "0 24px 16px" }} />
-
-      {/* Details */}
-      <div className="px-6 pb-5 flex flex-col gap-1">
-        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#111111" }}>{seat.time}</p>
-        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#111111" }}>{seat.venue}</p>
-        <p className="text-[10px] mt-1" style={{ color: "#bbb" }}>
-          {seat.seats} {seat.seats === 1 ? "seat" : "seats"} · {payLine}
-          {seat.deposit > 0 ? ` · $${seat.deposit} deposit` : ""}
-        </p>
-      </div>
-
-      {/* CTA */}
-      <div className="px-6 pb-5">
-        {reserved ? (
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>You&apos;re going ✓</p>
-              {seat.deposit > 0 && (
-                <p className="text-[10px] mt-0.5" style={{ color: "#bbb" }}>${seat.deposit} returned as credit</p>
-              )}
-            </div>
-            <button onClick={onDrop} className="text-xs font-semibold" style={{ color: "#ccc" }}>Drop</button>
-          </div>
-        ) : (
-          <button
-            onClick={onReserve}
-            className="w-full py-3 rounded-full font-bold text-sm text-white transition-all active:scale-[0.98]"
-            style={{ background: "#111111" }}
-          >
-            Reserve my seat →
-          </button>
-        )}
-      </div>
-
-      {/* Barcode footer */}
-      <div className="px-6 pb-4 pt-1" style={{ borderTop: "1.5px dashed rgba(0,0,0,0.09)" }}>
-        <div className="flex items-end gap-px mb-1.5" style={{ height: "24px" }}>
-          {Array.from({ length: 44 }).map((_, i) => (
-            <div key={i} style={{
-              width: i % 7 === 0 ? "3px" : i % 3 === 0 ? "2px" : "1px",
-              height: `${48 + Math.sin(i * 1.9) * 28 + Math.cos(i * 0.9) * 18}%`,
-              background: "#111111",
-              opacity: 0.55 + (i % 5) * 0.08,
-              flexShrink: 0,
-            }} />
-          ))}
-        </div>
-        <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{eventCode}</p>
+      <p className="font-black leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "14px", color: "#111" }}>{c.name}&apos;s {c.event}</p>
+      <p className="mt-1.5 text-[10px]" style={{ color: "#999" }}>{c.venue}</p>
+      <div className="flex items-center justify-between mt-3">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>{c.seats}</div>
+        <span style={{ color: "#FF69B4", fontSize: "16px" }}>♡</span>
       </div>
     </div>
   );
 }
 
-// ── Create Seat Sheet ─────────────────────────────────────────────────────────
+function PlanSomethingCard() {
+  return (
+    <div className="flex-shrink-0 flex flex-col items-center justify-center gap-3 cursor-pointer transition-transform active:scale-[0.96]"
+      style={{ width: "164px", minHeight: "210px", borderRadius: "20px", border: "2px dashed #FF69B4", background: "rgba(255,105,180,0.04)" }}>
+      <span style={{ fontSize: "18px", color: "#FF69B4" }}>✿</span>
+      <p className="text-center font-black leading-tight px-4" style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "#111" }}>Plan<br />something<br />special</p>
+      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#FF1F7D", boxShadow: "0 4px 12px rgba(255,31,125,0.3)" }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </div>
+  );
+}
 
-function CreateSeatSheet({ onClose }: { onClose: () => void }) {
-  const [title, setTitle]           = useState("");
-  const [time, setTime]             = useState("");
-  const [venue, setVenue]           = useState("");
-  const [seats, setSeats]           = useState(2);
-  const [privacy, setPrivacy]       = useState<Privacy>("Public");
-  const [paymentType, setPaymentType] = useState<PaymentType>("advance");
-  const [cashAmount, setCashAmount] = useState("");
-  const [price, setPrice]           = useState("");
-  const [deposit, setDeposit]       = useState("1");
+// ── Confetti Sheet ────────────────────────────────────────────────────────────
 
-  const privacyOptions: { key: Privacy; desc: string }[] = [
-    { key: "Public",        desc: "Anyone on BloomBay" },
-    { key: "Bloomies Only", desc: "Your connections" },
-    { key: "Club Only",     desc: "Club members only" },
-    { key: "Invited Only",  desc: "Women you invite" },
-  ];
+function ConfettiSheet({ c, accepted, onAccept, onClose }: {
+  c: Celebration; accepted: boolean; onAccept: () => void; onClose: () => void;
+}) {
+  const [wishText, setWishText] = useState("");
+  const [wishSent, setWishSent] = useState(false);
+
+  const eventCode = `BB-${String(c.id).padStart(4, "0")}-CONF-${c.month.toUpperCase()}${c.day}`;
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
-        style={{ background: "white", boxShadow: "0 -4px 40px rgba(0,0,0,0.15)", maxHeight: "88vh" }}
-      >
-        <div className="p-5 pb-10">
+      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto" style={{ background: "white", boxShadow: "0 -4px 40px rgba(0,0,0,0.18)", maxHeight: "90vh" }}>
+        <div className="p-5 pb-12">
           <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
-              Post a Seat
-            </h2>
-            <button onClick={onClose} className="text-gray-300 p-1">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
 
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">What are you doing?</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Girls dinner · Carbone"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">When</label>
-                <input type="text" value={time} onChange={(e) => setTime(e.target.value)}
-                  placeholder="Friday 7:30PM"
-                  className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
+          {!accepted ? (
+            <>
+              <div className="text-center mb-6">
+                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center font-black text-white text-2xl mx-auto mb-3" style={{ background: `linear-gradient(135deg, ${c.avatarColor} 0%, ${c.avatarColor}99 100%)`, boxShadow: "0 6px 20px rgba(255,31,125,0.28)" }}>{c.initial}</div>
+                <h2 className="font-black leading-none mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "26px", color: "#111" }}>{c.name}&apos;s {c.event}</h2>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#888" }}>{c.message}</p>
               </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Where</label>
-                <input type="text" value={venue} onChange={(e) => setVenue(e.target.value)}
-                  placeholder="Carbone, SoHo"
-                  className="w-full px-3 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-              </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Seats available</label>
-              <div className="flex items-center gap-4">
-                <button onClick={() => setSeats((s) => Math.max(1, s - 1))}
-                  className="w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center"
-                  style={{ background: "#FFF0F5", color: "#FF1F7D" }}>−</button>
-                <p className="text-2xl font-bold w-8 text-center" style={{ color: "#111111" }}>{seats}</p>
-                <button onClick={() => setSeats((s) => Math.min(20, s + 1))}
-                  className="w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center"
-                  style={{ background: "#FFF0F5", color: "#FF1F7D" }}>+</button>
-                <p className="text-xs text-gray-400">Individual pay always.</p>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="rounded-xl p-3" style={{ background: "#FFF5F8" }}>
+                  <p className="text-[9px] font-bold tracking-wider uppercase mb-0.5" style={{ color: "#bbb" }}>WHEN</p>
+                  <p className="text-sm font-bold" style={{ color: "#111" }}>{c.time}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: "#FFF5F8" }}>
+                  <p className="text-[9px] font-bold tracking-wider uppercase mb-0.5" style={{ color: "#bbb" }}>WHERE</p>
+                  <p className="text-sm font-bold leading-tight" style={{ color: "#111" }}>{c.venue.split("&")[0].split(",")[0].trim()}</p>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Who can see this?</label>
-              <div className="grid grid-cols-2 gap-2">
-                {privacyOptions.map(({ key, desc }) => {
-                  const ps = PRIVACY_STYLE[key];
-                  return (
-                    <button key={key} onClick={() => setPrivacy(key)}
-                      className="flex items-start gap-2 px-3 py-2.5 rounded-xl border-2 text-left transition-all"
-                      style={privacy === key
-                        ? { borderColor: "#FF1F7D", background: "#FFF0F5" }
-                        : { borderColor: "#EEE", background: "white" }}>
-                      <span className="text-sm mt-0.5">{ps.symbol}</span>
-                      <div>
-                        <p className="text-xs font-bold" style={{ color: privacy === key ? "#FF1F7D" : "#111111" }}>{key}</p>
-                        <p className="text-[10px] text-gray-400">{desc}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="flex">
+                  {Array.from({ length: Math.min(4, c.seats) }).map((_, i) => (
+                    <div key={i} className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-bold text-white"
+                      style={{ background: i % 2 === 0 ? "#FF1F7D" : "#FF69B4", marginLeft: i > 0 ? "-4px" : "0" }}>✿</div>
+                  ))}
+                </div>
+                <p className="text-xs" style={{ color: "#bbb" }}>{c.seats} women celebrating with her</p>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">How do they pay?</label>
-              <div className="flex gap-2 mb-3">
-                {(["advance", "pay_in_person"] as PaymentType[]).map((pt) => (
-                  <button key={pt} onClick={() => setPaymentType(pt)}
-                    className="flex-1 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all"
-                    style={paymentType === pt
-                      ? { borderColor: "#FF1F7D", background: "#FFF0F5", color: "#FF1F7D" }
-                      : { borderColor: "#EEE", background: "white", color: "#555" }}>
-                    {pt === "advance" ? "Through app" : "Pay in person"}
+              <button onClick={onAccept} className="w-full py-4 rounded-2xl font-bold text-base text-white mb-3 transition-all active:scale-[0.97]" style={{ background: "#FF1F7D", boxShadow: "0 6px 20px rgba(255,31,125,0.35)" }}>
+                I&apos;ll be there ✿
+              </button>
+
+              {!wishSent ? (
+                <div>
+                  <p className="text-center text-xs mb-3" style={{ color: "#ccc" }}>— or send her a message without going —</p>
+                  <textarea value={wishText} onChange={(e) => setWishText(e.target.value)}
+                    placeholder={CELEB_WISH_DEFAULT[c.celebType]} rows={3}
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none mb-2"
+                    style={{ borderColor: "#FFE0EE", color: "#111" }} />
+                  <button onClick={() => { if (wishText.trim()) setWishSent(true); }}
+                    disabled={!wishText.trim()}
+                    className="w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
+                    style={wishText.trim() ? { background: "#FFF0F5", color: "#FF1F7D" } : { background: "#F5F5F5", color: "#ccc" }}>
+                    💌 Send wishes
                   </button>
-                ))}
-              </div>
-              {paymentType === "pay_in_person" && (
-                <div className="flex items-center border rounded-xl overflow-hidden" style={{ borderColor: "#FFE0EE" }}>
-                  <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
-                  <input type="number" value={cashAmount} onChange={(e) => setCashAmount(e.target.value)}
-                    placeholder="Exact cash amount"
-                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
+                </div>
+              ) : (
+                <div className="text-center py-2">
+                  <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Wishes sent! 💌</p>
+                  <p className="text-xs mt-0.5 italic" style={{ color: "#bbb" }}>She&apos;ll feel the love.</p>
                 </div>
               )}
-              {paymentType === "advance" && (
-                <div className="flex items-center border rounded-xl overflow-hidden" style={{ borderColor: "#FFE0EE" }}>
-                  <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
-                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                    placeholder="Price (0 = free)"
-                    className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
+            </>
+          ) : (
+            /* ── ACCEPTED: show ticket + Plan Room ── */
+            <>
+              <p className="text-[9px] font-bold tracking-[0.28em] uppercase text-center mb-4" style={{ color: "#FF1F7D" }}>YOU&apos;RE GOING ✿</p>
+
+              {/* Ticket stub */}
+              <div className="rounded-2xl overflow-hidden mb-5" style={{ background: "#FDFAF5", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
+                <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: "1.5px dashed rgba(0,0,0,0.08)" }}>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
+                  <p className="text-[9px] font-bold tracking-[0.18em] uppercase" style={{ color: "#bbb" }}>ADMIT ONE</p>
                 </div>
-              )}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Deposit ($0–$50)</label>
-              <div className="flex items-center border rounded-xl overflow-hidden" style={{ borderColor: "#FFE0EE" }}>
-                <span className="px-3 py-2.5 text-sm font-bold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
-                <input type="number" value={deposit}
-                  onChange={(e) => setDeposit(String(Math.min(50, Math.max(0, parseInt(e.target.value) || 0))))}
-                  min="0" max="50"
-                  className="flex-1 px-3 py-2.5 text-sm outline-none" style={{ color: "#111111" }} />
+                <div className="px-5 pt-4 pb-3">
+                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#bbb" }}>CONFETTI INVITATION</p>
+                  <h2 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: "#111", lineHeight: 0.9, letterSpacing: "-0.015em" }}>
+                    {c.name}&apos;s<br />{c.event}
+                  </h2>
+                  <p className="text-xs mt-2" style={{ color: "#777" }}>{c.time} · {c.venue.split(",")[0]}</p>
+                </div>
+                <div style={{ borderTop: "1.5px dashed rgba(0,0,0,0.08)", margin: "0 20px 12px" }} />
+                <div className="px-5 pb-4">
+                  {/* Mini barcode */}
+                  <div className="flex items-end gap-[1.5px] mb-1" style={{ height: "22px" }}>
+                    {Array.from({ length: 40 }).map((_, i) => (
+                      <div key={i} style={{ width: i % 5 === 0 ? "3px" : "1.5px", height: `${52 + Math.sin(i * 1.8) * 28}%`, background: "#111", opacity: 0.5 + (i % 4) * 0.1, flexShrink: 0 }} />
+                    ))}
+                  </div>
+                  <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{eventCode}</p>
+                </div>
               </div>
-              <p className="text-[11px] text-gray-400 mt-1">Returns as wallet credit when she shows up.</p>
-            </div>
 
-            <button
-                    onClick={() => { if (title.trim()) onClose(); }}
-                    className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
-                    style={{ background: title.trim() ? "#FF1F7D" : "#ccc", transition: "background 0.2s" }}>
-              Post Seat
-            </button>
-          </div>
+              <p className="text-xs text-center mb-4 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+                Your ticket is saved. Show the QR at the door.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button className="py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.97]" style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>
+                  💌 Invite a Bloomie
+                </button>
+                <button onClick={onClose} className="py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.97]" style={{ background: "#111", color: "white" }}>
+                  Enter Plan Room →
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>
   );
 }
 
-// ── Place Card ────────────────────────────────────────────────────────────────
+// ── Girl Picks card ───────────────────────────────────────────────────────────
 
 function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
-  const typeColors: Record<PlaceType, { bg: string; color: string }> = {
-    place: { bg: "#FFF0F5", color: "#FF1F7D" },
-    eat:   { bg: "#FFE0EE", color: "#FF69B4" },
-    gem:   { bg: "#FFF0F5", color: "#FF1F7D" },
-  };
-  const tc = typeColors[place.type];
-
+  const tc = PLACE_TYPE_COLOR[place.type];
   return (
     <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-      {/* Pink accent stripe */}
       <div className="w-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
       <div className="p-4 flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider"
-                style={{ background: tc.bg, color: tc.color }}
-              >
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
                 {PLACE_TYPE_LABEL[place.type]}
               </span>
-              <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                style={{ background: "#F5F5F5", color: "#888" }}
-              >
-                {place.neighborhood}
-              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#F5F5F5", color: "#888" }}>{place.neighborhood}</span>
             </div>
-            <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{place.name}</p>
+            <p className="font-bold text-sm" style={{ color: "#111" }}>{place.name}</p>
           </div>
-          {/* Star rating */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg key={star} width="10" height="10" viewBox="0 0 24 24"
-                fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"}
-                stroke="#FF1F7D" strokeWidth="2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {[1,2,3,4,5].map(star => (
+              <svg key={star} width="9" height="9" viewBox="0 0 24 24" fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}
-            <span className="text-xs font-bold ml-0.5" style={{ color: "#111111" }}>{place.rating.toFixed(1)}</span>
+            <span className="text-xs font-bold ml-0.5" style={{ color: "#111" }}>{place.rating.toFixed(1)}</span>
           </div>
         </div>
-
-        {/* Review quote */}
-        <p
-          className="text-xs italic text-gray-500 mb-2 leading-relaxed"
-          style={{ fontFamily: "var(--font-playfair)" }}
-        >
-          &ldquo;{place.review}&rdquo;
-        </p>
-
-        {/* Footer row */}
-        <div className="flex items-center justify-between gap-2">
+        <p className="text-xs italic leading-relaxed mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#666" }}>&ldquo;{place.review}&rdquo;</p>
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400">— {place.submittedBy}</span>
-            <div className="flex items-center gap-1">
-              {/* Flower/stamp icon */}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF1F7D" opacity="0.7">
-                <circle cx="12" cy="12" r="3" />
-                <ellipse cx="12" cy="5" rx="2" ry="3.5" />
-                <ellipse cx="12" cy="19" rx="2" ry="3.5" />
-                <ellipse cx="5" cy="12" rx="3.5" ry="2" />
-                <ellipse cx="19" cy="12" rx="3.5" ry="2" />
-                <ellipse cx="7.05" cy="7.05" rx="2" ry="3.5" transform="rotate(45 7.05 7.05)" />
-                <ellipse cx="16.95" cy="16.95" rx="2" ry="3.5" transform="rotate(45 16.95 16.95)" />
-                <ellipse cx="16.95" cy="7.05" rx="2" ry="3.5" transform="rotate(-45 16.95 7.05)" />
-                <ellipse cx="7.05" cy="16.95" rx="2" ry="3.5" transform="rotate(-45 7.05 16.95)" />
-              </svg>
-              <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>{place.stamps}</span>
-            </div>
+            <span className="text-xs" style={{ color: "#aaa" }}>— {place.submittedBy}</span>
+            <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
           </div>
-          <button
-            onClick={onStamp}
-            disabled={stamped}
+          <button onClick={onStamp} disabled={stamped}
             className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
-            style={stamped
-              ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" }
-              : { background: "#FF1F7D", color: "white" }}
-          >
+            style={stamped ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" } : { background: "#FF1F7D", color: "white" }}>
             {stamped ? "Stamped ✓" : "Stamp it"}
           </button>
         </div>
@@ -797,373 +621,227 @@ function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean
   );
 }
 
-// ── Add Place Sheet ───────────────────────────────────────────────────────────
-
-function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Place) => void }) {
-  const [name, setName]           = useState("");
-  const [type, setType]           = useState<PlaceType>("place");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [category, setCategory]   = useState("");
-  const [review, setReview]       = useState("");
-  const [rating, setRating]       = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-
-  const categories = ["Café", "Restaurant", "Bar", "Outdoors", "Culture", "Wellness", "Shop", "Other"];
-  const typeOptions: { key: PlaceType; label: string }[] = [
-    { key: "place", label: "Place" },
-    { key: "eat", label: "Eat" },
-    { key: "gem", label: "Gem" },
-  ];
-
-  function handleAdd() {
-    if (!name.trim()) return;
-    const newPlace: Place = {
-      id: Date.now(),
-      type,
-      name: name.trim(),
-      neighborhood: neighborhood.trim() || "NYC",
-      review: review.trim() || "A wonderful spot.",
-      submittedBy: "You",
-      rating: rating || 5,
-      stamps: 1,
-      category,
-    };
-    onAdd(newPlace);
-    onClose();
-  }
-
-  return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
-        style={{ background: "white", boxShadow: "0 -4px 40px rgba(0,0,0,0.15)", maxHeight: "88vh" }}
-      >
-        <div className="p-5 pb-10">
-          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
-              Add a place
-            </h2>
-            <button onClick={onClose} className="text-gray-300 p-1">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Place name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Sadelle's"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Type</label>
-              <div className="flex gap-2">
-                {typeOptions.map(({ key, label }) => (
-                  <button key={key} onClick={() => setType(key)}
-                    className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-all"
-                    style={type === key
-                      ? { background: "#FF1F7D", color: "white" }
-                      : { background: "#FFF5F8", color: "#555", border: "1.5px solid #FFE0EE" }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Neighborhood</label>
-              <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}
-                placeholder="e.g. SoHo"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Category</label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <button key={cat} onClick={() => setCategory(cat)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-                    style={category === cat
-                      ? { background: "#FF1F7D", color: "white" }
-                      : { background: "#FFF5F8", color: "#555", border: "1.5px solid #FFE0EE" }}>
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-                Why you love it <span className="text-gray-300 normal-case font-normal">({review.length}/160)</span>
-              </label>
-              <textarea value={review} onChange={(e) => setReview(e.target.value.slice(0, 160))}
-                placeholder="Your honest review..."
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
-                style={{ borderColor: "#FFE0EE", color: "#111111" }} />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Your rating</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => setRating(star)}
-                    onMouseEnter={() => setHoverRating(star)}
-                    onMouseLeave={() => setHoverRating(0)}
-                    className="transition-all active:scale-90"
-                  >
-                    <svg width="28" height="28" viewBox="0 0 24 24"
-                      fill={star <= (hoverRating || rating) ? "#FF1F7D" : "none"}
-                      stroke="#FF1F7D" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button onClick={handleAdd}
-              className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
-              style={{ background: "#FF1F7D" }}>
-              Add my pick
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ── Main Component ────────────────────────────────────────────────────────────
+// ── Main CityPage ─────────────────────────────────────────────────────────────
 
 export function CityPage() {
-  const [happenings, setHappenings]       = useState<Happening[]>(INITIAL_HAPPENINGS);
-  const [places, setPlaces]               = useState<Place[]>(INITIAL_PLACES);
-  const [reservedSeats, setReservedSeats] = useState<Set<number>>(new Set());
+  const [activeTab, setActiveTab]         = useState<CityTab>("eat");
+  const [goFilter, setGoFilter]           = useState<GoFilter>("All");
+  const [celebFilter, setCelebFilter]     = useState<CelebFilter>("All");
+  const [selectedCeleb, setSelectedCeleb] = useState<Celebration | null>(null);
+  const [acceptedCelebs, setAcceptedCelebs] = useState<Set<number>>(new Set());
+  const [floweredMoments, setFloweredMoments] = useState<Set<number>>(new Set());
+  const [girlPicks, setGirlPicks]         = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces] = useState<Set<number>>(new Set());
-  const [showingUp, setShowingUp]         = useState<Set<number>>(new Set());
-  const [showCreate, setShowCreate]       = useState(false);
-  const [showAddPopup, setShowAddPopup]   = useState(false);
-  const [showAddPlace, setShowAddPlace]   = useState(false);
-  const [showFilters, setShowFilters]     = useState(false);
-  const [activeFilter, setActiveFilter]   = useState<string | null>(null);
-
-  function reserveSeat(id: number) { setReservedSeats((p) => new Set([...p, id])); }
-  function dropSeat(id: number)    { setReservedSeats((p) => { const n = new Set(p); n.delete(id); return n; }); }
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
-    setStampedPlaces((p) => new Set([...p, id]));
-    setPlaces((p) => p.map((pl) => pl.id === id ? { ...pl, stamps: pl.stamps + 1 } : pl));
+    setStampedPlaces(p => new Set([...p, id]));
+    setGirlPicks(p => p.map(pl => pl.id === id ? { ...pl, stamps: pl.stamps + 1 } : pl));
   }
 
-  const tonight   = happenings.filter((h) => h.timeTag === "tonight");
-  const thisWeek  = happenings.filter((h) => h.timeTag === "today");
-  const comingUp  = happenings.filter((h) => h.timeTag === "weekend");
-  const featured  = tonight.find((h) => h.featured);
-  const restTonight = tonight.filter((h) => !h.featured);
+  const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
+  const filteredGo = goFilter === "All" ? GO_PLACES : GO_PLACES.filter(p => p.filter === goFilter);
 
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
-          ✦ NYC · WILLIAMSBURG
+      <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
+        <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+          The City.
+        </h1>
+        <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+          A city viewed through women.
         </p>
-        <div className="flex items-end justify-between">
-          <div>
-            <h1 className="text-4xl font-bold leading-none" style={{ color: "var(--bb-black)" }}>The City</h1>
-            <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
-              What&apos;s happening around you.
-            </p>
-          </div>
-          {/* Hidden filter toggle */}
-          <button
-            onClick={() => setShowFilters(f => !f)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-            style={{ background: showFilters ? "#111111" : "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
-            title="Filter"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showFilters ? "white" : "#888"} strokeWidth="2" strokeLinecap="round">
-              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
-            </svg>
-          </button>
-        </div>
 
-        {/* Collapsible filters */}
-        {showFilters && (
-          <div className="flex gap-2 flex-wrap mt-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-            {["Free", "Women-Loved", "Near Me", "This Weekend"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(a => a === f ? null : f)}
-                className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
-                style={activeFilter === f
-                  ? { background: "#111111", color: "white" }
-                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}
-              >
-                {f}
+        {/* ── Tab bar ── */}
+        <div className="flex gap-1 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
+          {TAB_LABELS.map(({ key, label }) => (
+            <button key={key} onClick={() => setActiveTab(key)}
+              className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all"
+              style={activeTab === key
+                ? { background: "#111", color: "white" }
+                : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Tab content ── */}
+      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
+
+        {/* ── EAT ── */}
+        {activeTab === "eat" && (
+          <div className="flex flex-col gap-6">
+            <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
+              <div>
+                {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
+                <div className="flex flex-col gap-3">
+                  {RESTAURANTS.filter(r => !r.featured).map(r => <EatRowCard key={r.id} r={r} />)}
+                </div>
+              </div>
+              <div className="hidden md:block">
+                <div className="rounded-2xl p-5 mb-4" style={{ background: "#111", boxShadow: "0 8px 28px rgba(0,0,0,0.18)" }}>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF69B4" }}>WOMEN ARE EATING</p>
+                  <div className="flex flex-col gap-3">
+                    {RESTAURANTS.filter(r => r.notableDish).map((r, i) => (
+                      <div key={r.id} className="flex items-center gap-3 py-2" style={{ borderBottom: i < RESTAURANTS.filter(x => x.notableDish).length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+                        <span className="text-xl">{r.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold truncate" style={{ color: "white" }}>{r.notableDish}</p>
+                          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{r.name} · {r.neighborhood}</p>
+                        </div>
+                        <p className="text-[10px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✿ {r.notableDishNote?.split(" ")[0]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <TrendCard t={TRENDING[0]} />
+              </div>
+            </div>
+
+            {/* Girl Picks */}
+            <div>
+              <div className="flex items-baseline justify-between mb-3">
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
+                  <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>Places the city loves</h3>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                {girlPicks.map(place => (
+                  <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── GO ── */}
+        {activeTab === "go" && (
+          <div className="flex flex-col gap-4">
+            {/* Sub-filter */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
+              {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
+                <button key={f} onClick={() => setGoFilter(f)}
+                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                  style={goFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                  {f}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {filteredGo.map(p => <GoCard key={p.id} p={p} />)}
+            </div>
+          </div>
+        )}
+
+        {/* ── SOLO ── */}
+        {activeTab === "solo" && (
+          <div className="flex flex-col gap-4">
+            <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
+              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                Places women<br />love going alone.
+              </h2>
+              <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
+                Safe. Beautiful. Yours.
+              </p>
+            </div>
+            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
+              {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
+            </div>
+          </div>
+        )}
+
+        {/* ── TRENDING ── */}
+        {activeTab === "trending" && (
+          <div className="flex flex-col gap-4">
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THIS WEEK IN NYC</p>
+              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,5vw,32px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                What women<br />are loving.
+              </h2>
+            </div>
+            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
+              {TRENDING.map(t => <TrendCard key={t.id} t={t} />)}
+            </div>
+          </div>
+        )}
+
+        {/* ── MOMENTS ── */}
+        {activeTab === "moments" && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>MOMENTS</p>
+                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  Not influencers.<br />Just women.
+                </h2>
+              </div>
+              <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
+                + Share
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {MOMENTS.map(m => (
+                <MomentCard key={m.id}
+                  m={{ ...m, flowered: floweredMoments.has(m.id) }}
+                  onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── CONFETTI strip (always visible below tabs) ── */}
+        <div className="pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-1" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+              <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", color: "#111" }}>We show up for our girls.</h3>
+            </div>
+            {/* Filter chips */}
+            <div className="hidden md:flex gap-1">
+              {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
+                <button key={f} onClick={() => setCelebFilter(f)}
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all"
+                  style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1px solid #E8E8E8" }}>
+                  {f === "All" ? "All" : f}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Mobile filter chips */}
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-1 md:hidden">
+            {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
+              <button key={f} onClick={() => setCelebFilter(f)}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                {f === "All" ? "All Celebrations" : f}
               </button>
             ))}
           </div>
-        )}
-      </div>
-
-      <div className="px-5 md:px-8 flex flex-col gap-12 pb-6">
-
-        {/* ── TONIGHT ── */}
-        <section>
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Tonight</h2>
-            <button onClick={() => setShowAddPopup(true)} className="text-xs" style={{ color: "rgba(0,0,0,0.28)" }}>
-              + pop-up
-            </button>
-          </div>
-          {tonight.length === 0 ? (
-            <div className="rounded-3xl p-10 text-center" style={{ background: "white" }}>
-              <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                The city is catching its breath. Try tomorrow.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {featured && <div className="col-span-2 md:col-span-1"><HappeningCard h={featured} featured /></div>}
-              {restTonight.map((h) => <HappeningCard key={h.id} h={h} />)}
-            </div>
-          )}
-        </section>
-
-        {/* ── OPEN SEATS ── */}
-        <section>
-          <div className="flex items-baseline justify-between mb-5">
-            <div>
-              <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Open Seats</h2>
-              <p className="text-sm font-bold mt-0.5" style={{ fontFamily: "var(--font-caveat)", color: "var(--bb-black)", fontSize: "15px" }}>
-                You&apos;ve been invited.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="text-xs"
-              style={{ color: "rgba(0,0,0,0.28)" }}
-            >
-              + seat
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {SEATS.map((seat) => (
-              <SeatTicket
-                key={seat.id}
-                seat={seat}
-                reserved={reservedSeats.has(seat.id)}
-                onReserve={() => reserveSeat(seat.id)}
-                onDrop={() => dropSeat(seat.id)}
-              />
+          <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 px-5 md:mx-0 md:px-0">
+            {filteredConfetti.map(c => (
+              <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />
             ))}
+            <PlanSomethingCard />
           </div>
-        </section>
-
-        {/* ── THIS WEEK ── */}
-        {thisWeek.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>This Week</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {thisWeek.map((h) => <HappeningCard key={h.id} h={h} />)}
-            </div>
-          </section>
-        )}
-
-        {/* ── COMING UP ── */}
-        {comingUp.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>Coming Up</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {comingUp.map((h) => <HappeningCard key={h.id} h={h} />)}
-            </div>
-          </section>
-        )}
-
-        {/* ── CELEBRATE ── */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Show Up · Be There</h2>
-            <p className="text-sm font-bold mt-0.5" style={{ color: "var(--bb-black)" }}>Celebrate with her</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {CELEBRATE.map((c) => {
-              const attending = showingUp.has(c.id);
-              return (
-                <div key={c.id} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                    style={{ background: "#FF1F7D" }}>
-                    {c.initial}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm" style={{ color: "#111111" }}>
-                      {c.name} · <span className="font-normal text-gray-500">{c.event}</span>
-                    </p>
-                    <p className="italic text-xs text-gray-500 mt-0.5 truncate" style={{ fontFamily: "var(--font-playfair)" }}>
-                      &ldquo;{c.quote}&rdquo;
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {c.location} · <span style={{ color: "#FF1F7D", fontWeight: 600 }}>{c.seats}</span>
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowingUp((p) => new Set([...p, c.id]))}
-                    className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
-                    style={attending ? { background: "#FFF0F5", color: "#FF1F7D" } : { background: "#FF1F7D", color: "white" }}
-                  >
-                    {attending ? "Going ✓" : "Show up"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── GIRL PICKS ── */}
-        <section>
-          <div className="flex items-baseline justify-between mb-4">
-            <div>
-              <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Girl Picks</h2>
-              <p className="text-sm font-bold mt-0.5" style={{ color: "var(--bb-black)" }}>Places the city loves</p>
-            </div>
-            <button
-              onClick={() => setShowAddPlace(true)}
-              className="text-xs"
-              style={{ color: "rgba(0,0,0,0.28)" }}
-            >
-              + place
-            </button>
-          </div>
-          <div className="flex flex-col gap-3">
-            {places.map((place) => (
-              <PlaceCard
-                key={place.id}
-                place={place}
-                stamped={stampedPlaces.has(place.id)}
-                onStamp={() => handleStamp(place.id)}
-              />
-            ))}
-          </div>
-        </section>
+        </div>
 
       </div>
 
-      {showCreate    && <CreateSeatSheet onClose={() => setShowCreate(false)} />}
-      {showAddPopup  && <AddPopupSheet   onClose={() => setShowAddPopup(false)} onAdd={(h) => setHappenings((p) => [...p, h])} />}
-      {showAddPlace  && <AddPlaceSheet   onClose={() => setShowAddPlace(false)} onAdd={(p) => setPlaces((prev) => [p, ...prev])} />}
+      {selectedCeleb && (
+        <ConfettiSheet
+          c={selectedCeleb}
+          accepted={acceptedCelebs.has(selectedCeleb.id)}
+          onAccept={() => setAcceptedCelebs(p => new Set([...p, selectedCeleb.id]))}
+          onClose={() => setSelectedCeleb(null)}
+        />
+      )}
     </div>
   );
 }
