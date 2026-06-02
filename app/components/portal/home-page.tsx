@@ -19,7 +19,7 @@ const HERO_BG: Record<TimeOfDay, string> = {
   morning:   "linear-gradient(150deg, #FF69B4 0%, #FF1F7D 45%, #C51B7A 100%)",
   afternoon: "linear-gradient(145deg, #FF1F7D 0%, #FF69B4 50%, #FF1F7D 100%)",
   evening:   "linear-gradient(150deg, #C51B7A 0%, #FF1F7D 55%, #FF69B4 100%)",
-  night:     "linear-gradient(150deg, #111111 0%, #1A0A0A 100%)",
+  night:     "linear-gradient(150deg, #7F0030 0%, #C51B7A 60%, #FF1F7D 100%)",
 };
 
 const HERO_GLOW: Record<TimeOfDay, string> = {
@@ -140,12 +140,12 @@ export function HomePage({ firstName, initial }: { firstName: string; initial: s
     setGreeting(getGreeting(t));
   }, []);
 
-  const isNight = tod === "night" || tod === "evening";
   const mood = CITY_MOOD[tod];
-  const textMuted    = isNight ? "rgba(255,235,220,0.5)" : "#888";
-  const headingColor = isNight ? "rgba(255,245,235,0.95)" : "#111111";
-  const cardBg       = isNight ? "#1E1510" : "white";
-  const surfaceBg    = isNight ? "#1A1008" : "#FFF5F8";
+  const isNight      = false;
+  const textMuted    = "#888";
+  const headingColor = "#111111";
+  const cardBg       = "white";
+  const surfaceBg    = "#FFF5F8";
   const heroBg       = HERO_BG[tod];
 
   return (
