@@ -2,103 +2,183 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { logout } from "@/lib/auth/actions";
 
-const tabs = [
-  {
-    href: "/member/home",
-    label: "Home",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/member/happenings",
-    label: "Happenings",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/member/explore",
-    label: "Explore",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7-3 3-7-7 3-3 7zm5.5-4c-.83 0-1.5-.67-1.5-1.5S11.17 10.5 12 10.5s1.5.67 1.5 1.5S12.83 13.5 12 13.5z"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/clubs",
-    label: "Clubs",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/member/room",
-    label: "Lobby",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/member/match",
-    label: "Connect",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/member/lounge",
-    label: "Lounge",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-      </svg>
-    ),
-  },
+const PLACES = [
+  { href: "/member/home",       label: "Tonight",    sub: "Your city, right now"     },
+  { href: "/member/clubs",      label: "Club House", sub: "Your clubs and circles"   },
+  { href: "/member/room",       label: "Lobby",      sub: "The social heart"         },
+  { href: "/member/lounge",     label: "Apartment",  sub: "Your private world"       },
+  { href: "/member/match",      label: "Concierge",  sub: "Yande connects you"       },
+  { href: "/member/happenings", label: "The City",   sub: "Events & happenings"      },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  const current = PLACES.find(p => pathname === p.href || pathname.startsWith(p.href + "/"));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
-      <div
-        className="pointer-events-auto mx-3 mb-4 flex items-center gap-0.5 px-2 py-2 rounded-full overflow-x-auto max-w-full"
-        style={{ background: "#111111", scrollbarWidth: "none" }}
-      >
-        {tabs.map((tab) => {
-          const active = pathname === tab.href || pathname.startsWith(tab.href + "/");
-          return (
-            <Link key={tab.href} href={tab.href} className="flex flex-col items-center">
-              <span
-                className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-full transition-all"
-                style={
-                  active
-                    ? { background: "var(--bb-pink)", color: "white" }
-                    : { color: "rgba(255,255,255,0.55)" }
-                }
-              >
-                {tab.icon}
-                <span className="text-[9px] font-medium tracking-wide leading-none">
-                  {tab.label}
-                </span>
-              </span>
-            </Link>
-          );
-        })}
+    <>
+      {/* Floating passport button */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2.5 px-5 py-3 rounded-full shadow-xl transition-all active:scale-95"
+          style={{ background: "#111111", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
+        >
+          {/* BB monogram */}
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FF1F7D" }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+            </svg>
+          </div>
+          <span className="text-white text-xs font-bold tracking-[0.15em] uppercase">
+            {current?.label ?? "Where to?"}
+          </span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </button>
       </div>
-    </nav>
+
+      {/* Passport drawer overlay */}
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-50 md:hidden"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+            onClick={() => setOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl overflow-hidden"
+            style={{ background: "#FDFAF7", maxHeight: "88vh" }}
+          >
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full" style={{ background: "#E8DDD8" }} />
+            </div>
+
+            <div className="px-6 pt-3 pb-10">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-caveat)",
+                      fontSize: "22px",
+                      color: "#111111",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Where to?
+                  </p>
+                  <p className="text-[10px] tracking-[0.2em] uppercase mt-0.5" style={{ color: "#bbb" }}>
+                    BloomBay · NYC
+                  </p>
+                </div>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: "#F0E8E4" }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Places */}
+              <div className="flex flex-col gap-0 mb-6">
+                {PLACES.map((place, i) => {
+                  const active = pathname === place.href || pathname.startsWith(place.href + "/");
+                  return (
+                    <Link
+                      key={place.href}
+                      href={place.href}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-4 py-3.5 transition-all"
+                      style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}
+                    >
+                      <span
+                        className="text-[9px] font-mono flex-shrink-0"
+                        style={{ color: active ? "#FF1F7D" : "#C8B8B0" }}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="flex-1">
+                        <p
+                          className="text-base font-bold tracking-tight leading-none"
+                          style={{ color: active ? "#FF1F7D" : "#111111" }}
+                        >
+                          {place.label}
+                        </p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "#aaa" }}>{place.sub}</p>
+                      </div>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={active ? "#FF1F7D" : "#ddd"} strokeWidth="2" strokeLinecap="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px" style={{ background: "#E8DDD8" }} />
+                <span className="text-[9px] tracking-widest uppercase" style={{ color: "#ccc" }}>also</span>
+                <div className="flex-1 h-px" style={{ background: "#E8DDD8" }} />
+              </div>
+
+              {/* Secondary links */}
+              <div className="flex gap-2 flex-wrap mb-6">
+                {[
+                  { href: "/member/messages", label: "Messages" },
+                  { href: "/member/notifications", label: "Notifications" },
+                  { href: "/member/explore", label: "Explore" },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-2 rounded-full text-xs font-semibold"
+                    style={{ background: "#F0E8E4", color: "#666" }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* User row */}
+              <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid #E8DDD8" }}>
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                  style={{ background: "#FF1F7D" }}
+                >
+                  M
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold" style={{ color: "#111111" }}>Maya L.</p>
+                  <p className="text-[10px] tracking-wider uppercase" style={{ color: "#bbb" }}>Founding Mother</p>
+                </div>
+                <form action={logout}>
+                  <button type="submit" className="text-xs" style={{ color: "#FF1F7D" }}>
+                    Sign out
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 }

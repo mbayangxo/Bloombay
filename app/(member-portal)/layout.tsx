@@ -8,8 +8,8 @@ export default function MemberPortalLayout({ children }: { children: React.React
     <TimeWrapper>
       <SeasonalOverlay />
       <MemberSidebar />
-      <div className="md:ml-60">
-        <div className="max-w-[430px] mx-auto md:max-w-[1180px] md:mx-0">
+      <div className="md:ml-[160px]">
+        <div className="max-w-[430px] mx-auto md:max-w-[1080px] md:mx-0">
           {children}
         </div>
       </div>

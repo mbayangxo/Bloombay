@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Caveat, Jost, Playfair_Display } from "next/font/google";
+import { Caveat, Instrument_Serif, Jost, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -21,6 +21,13 @@ const caveat = Caveat({
   weight: ["400", "500", "600"],
 });
 
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+});
+
 export const metadata: Metadata = {
   title: "BloomBay — Where you bloom.",
   description:
@@ -35,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${jost.variable} ${caveat.variable} h-full antialiased`}
+      className={`${playfair.variable} ${jost.variable} ${caveat.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-white text-bb-black">
         {children}
