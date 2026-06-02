@@ -29,7 +29,7 @@ export default async function MemberPortalLayout({ children }: { children: React
       <SeasonalOverlay />
       <MemberSidebar user={user} />
       <div className="md:ml-[160px]">
-        <div className="max-w-[430px] mx-auto md:max-w-[1080px] md:mx-0">
+        <div className="max-w-[430px] mx-auto md:max-w-none">
           {children}
         </div>
       </div>

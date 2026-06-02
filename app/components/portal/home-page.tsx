@@ -141,11 +141,12 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
   }, []);
 
   const mood = CITY_MOOD[tod];
-  const isNight      = false;
-  const textMuted    = "#888";
-  const headingColor = "#111111";
-  const cardBg       = "white";
-  const surfaceBg    = "#FFF5F8";
+  const isNight      = tod === "evening" || tod === "night";
+  const isCacao      = tod === "evening";
+  const textMuted    = isNight ? "rgba(220,180,150,0.6)" : "#888";
+  const headingColor = isNight ? "rgba(255,245,235,0.93)" : "#111111";
+  const cardBg       = isNight ? (isCacao ? "#3D2418" : "#32101E") : "white";
+  const surfaceBg    = isNight ? (isCacao ? "#342010" : "#280A18") : "#FFF5F8";
   const heroBg       = HERO_BG[tod];
 
   return (
