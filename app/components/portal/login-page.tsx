@@ -3,16 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BBLogo } from "./bb-logo";
-import { useState } from "react";
-import { signInWithGoogle } from "@/lib/auth/actions";
+import { useState, useActionState } from "react";
+import { login, signInWithGoogle, type LoginState } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/client";
 
 type SmsStep = "idle" | "sent" | "verifying";
 
 export function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginState, formAction, pending] = useActionState<LoginState, FormData>(login, null);
   const [showReset, setShowReset] = useState(false);
   const [showSms, setShowSms] = useState(false);
   const [phone, setPhone] = useState("");
@@ -47,11 +46,6 @@ export function LoginPage() {
     }
   }
 
-  function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    router.push("/member/home");
-  }
-
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6"
@@ -69,22 +63,26 @@ export function LoginPage() {
           <p className="text-gray-400 text-sm mt-1">Welcome back.</p>
         </div>
 
+        {/* Error */}
+        {loginState?.error && (
+          <div className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
+            {loginState.error}
+          </div>
+        )}
+
         {/* Form */}
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form action={formAction} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2">
               Email
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              required
               placeholder="your@email.com"
               className="w-full bg-white rounded-2xl px-4 py-3.5 text-sm outline-none border-2 border-transparent transition-colors"
-              style={{
-                color: "var(--bb-black)",
-                boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
-              }}
+              style={{ color: "var(--bb-black)", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}
               onFocus={(e) => (e.target.style.borderColor = "var(--bb-pink)")}
               onBlur={(e) => (e.target.style.borderColor = "transparent")}
             />
@@ -95,14 +93,11 @@ export function LoginPage() {
             </label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              required
               placeholder="••••••••"
               className="w-full bg-white rounded-2xl px-4 py-3.5 text-sm outline-none border-2 border-transparent transition-colors"
-              style={{
-                color: "var(--bb-black)",
-                boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
-              }}
+              style={{ color: "var(--bb-black)", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}
               onFocus={(e) => (e.target.style.borderColor = "var(--bb-pink)")}
               onBlur={(e) => (e.target.style.borderColor = "transparent")}
             />
@@ -110,10 +105,11 @@ export function LoginPage() {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-full text-white font-bold text-base mt-2 hover:brightness-110 active:scale-[0.98] transition-all"
+            disabled={pending}
+            className="w-full py-4 rounded-full text-white font-bold text-base mt-2 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-60"
             style={{ background: "var(--bb-pink)" }}
           >
-            Log in
+            {pending ? "Logging in…" : "Log in"}
           </button>
         </form>
 
