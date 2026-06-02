@@ -254,16 +254,16 @@ function ClubCrestSVG({ symbol, color, size = 80 }: { symbol: "bouquet" | "door"
 
 // ── Tab Bar ────────────────────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
-  { id: "women",        label: "Women",        icon: <IconUsers size={15} /> },
-  { id: "open-seats",   label: "Open Seats",   icon: <IconCalendar size={15} /> },
-  { id: "applications", label: "Applications", icon: <IconClipboard size={15} />, badge: 3 },
-  { id: "settings",     label: "Club Settings",icon: <IconEdit size={15} /> },
-  { id: "form-builder", label: "Apply Form",   icon: <IconClipboard size={15} /> },
-  { id: "mailbox",      label: "Mailbox",      icon: <IconInbox size={15} />, badge: 3 },
-  { id: "gatherings",   label: "Gatherings",   icon: <IconCalendar size={15} /> },
-  { id: "club-health",  label: "Club Health",  icon: <IconActivity size={15} /> },
-  { id: "crest",        label: "Crest",        icon: <IconHeart size={15} /> },
+const TABS: { id: Tab; label: string; badge?: number }[] = [
+  { id: "women",        label: "OUR WOMEN" },
+  { id: "open-seats",   label: "SEATS" },
+  { id: "applications", label: "LETTERS",  badge: 3 },
+  { id: "gatherings",   label: "GATHERINGS" },
+  { id: "mailbox",      label: "MESSAGES",  badge: 3 },
+  { id: "club-health",  label: "PULSE" },
+  { id: "crest",        label: "CREST" },
+  { id: "form-builder", label: "THE FORM" },
+  { id: "settings",     label: "SETTINGS" },
 ];
 
 // ── Section Components ─────────────────────────────────────────────────────
@@ -271,69 +271,52 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
 function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Members</h2>
-          <p className="text-sm text-gray-400 mt-0.5">312 women in the club</p>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>OUR WOMEN</p>
+          <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+            312 women strong
+          </h2>
         </div>
         <button
-          className="px-4 py-2 rounded-full text-sm font-semibold text-white"
+          className="px-4 py-2.5 rounded-full text-sm font-bold text-white"
           style={{ background: "#FF1F7D" }}
           onClick={() => {
             navigator.clipboard?.writeText("https://bloombay.app/waitlist").catch(() => {});
             showToast("Invite link copied!");
           }}
         >
-          + Invite a woman
+          + Invite her
         </button>
       </div>
 
-      {/* Column headers */}
-      <div className="grid text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 px-4"
-        style={{ gridTemplateColumns: "1fr 140px 120px 100px" }}>
-        <span>Name</span>
-        <span>Neighborhood</span>
-        <span>Joined</span>
-        <span>Attendance</span>
-      </div>
-
-      <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {MEMBERS.map((m, i) => (
           <div
             key={i}
-            className="grid items-center px-4 py-3 rounded-2xl bg-white"
-            style={{
-              gridTemplateColumns: "1fr 140px 120px 100px",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-            }}
+            className="rounded-2xl p-4 flex items-center gap-4 bg-white"
+            style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
           >
-            {/* Name + avatar */}
-            <div className="flex items-center gap-3">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                style={{ background: "#FF1F7D" }}
-              >
-                {m.name[0]}
-              </div>
-              <span className="font-semibold text-sm" style={{ color: "#111111" }}>{m.name}</span>
+            <div
+              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              style={{ background: `radial-gradient(circle at 35% 35%, #FF1F7D, #7F0028)`, boxShadow: "0 2px 8px rgba(255,31,125,0.3)" }}
+            >
+              {m.name[0]}
             </div>
-
-            <span className="text-sm text-gray-500">{m.neighborhood}</span>
-            <span className="text-sm text-gray-500">{m.joined}</span>
-
-            {/* Attendance + status */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold" style={{ color: "#111111" }}>{m.attendance}%</span>
-              <span
-                className="text-xs px-2 py-0.5 rounded-full font-medium"
-                style={
-                  m.status === "Active"
-                    ? { background: "#FFF0F5", color: "#FF1F7D" }
-                    : { background: "#F5F5F5", color: "#999" }
-                }
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm leading-none" style={{ color: "#111111" }}>{m.name}</p>
+              <p className="text-xs text-gray-400 mt-1">{m.neighborhood} · since {m.joined}</p>
+            </div>
+            <div className="flex-shrink-0 text-right">
+              <p className="text-base font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
+                {m.attendance}%
+              </p>
+              <p
+                className="text-[10px] font-semibold mt-0.5"
+                style={{ color: m.status === "Active" ? "#FF1F7D" : "#bbb" }}
               >
-                {m.status}
-              </span>
+                {m.status === "Active" ? "showing up" : "taking it slow"}
+              </p>
             </div>
           </div>
         ))}
@@ -345,13 +328,15 @@ function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
 function OpenSeatsSection() {
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Open Seats</h2>
-          <p className="text-sm text-gray-400 mt-0.5">8 upcoming gatherings</p>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>SEATS</p>
+          <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+            8 gatherings planned
+          </h2>
         </div>
         <button
-          className="px-4 py-2 rounded-full text-sm font-semibold text-white"
+          className="px-4 py-2.5 rounded-full text-sm font-bold text-white"
           style={{ background: "#FF1F7D" }}
         >
           + New gathering
@@ -363,15 +348,15 @@ function OpenSeatsSection() {
           <div
             key={i}
             className="bg-white rounded-2xl p-5 flex items-center justify-between"
-            style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+            style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
           >
             <div>
-              <p className="font-semibold text-base" style={{ color: "#111111" }}>{s.title}</p>
-              <p className="text-sm text-gray-400 mt-0.5">{s.day} · {s.time} · {s.venue}</p>
+              <p className="font-bold text-base" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{s.title}</p>
+              <p className="text-xs text-gray-400 mt-1">{s.day} · {s.time} · {s.venue}</p>
             </div>
             <div className="text-right flex-shrink-0 ml-6">
-              <p className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>{s.seats}</p>
-              <p className="text-xs text-gray-400 mt-0.5">seats open</p>
+              <p className="text-2xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>{s.seats}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider">seats open</p>
             </div>
           </div>
         ))}
@@ -385,9 +370,11 @@ function RequestsSection() {
 
   return (
     <div>
-      <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Join Requests</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{REQUESTS.length} pending approval</p>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>AT THE DOOR</p>
+        <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          {REQUESTS.length} women waiting
+        </h2>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -454,9 +441,11 @@ function MailboxSection() {
 
   return (
     <div>
-      <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Mailbox</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{unread} unread messages</p>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>MESSAGES</p>
+        <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          {unread} {unread === 1 ? "message" : "messages"} waiting
+        </h2>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -497,53 +486,71 @@ function MailboxSection() {
   );
 }
 
+const GATHERING_GRADIENTS = [
+  "linear-gradient(160deg, #FF1F7D 0%, #111111 100%)",
+  "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
+  "linear-gradient(160deg, #111111 0%, #FF1F7D 100%)",
+  "linear-gradient(160deg, #FF1F7D 0%, #FF69B4 100%)",
+  "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
+];
+
 function GatheringsSection() {
   return (
-    <div className="grid grid-cols-2 gap-6">
-      {/* Upcoming */}
+    <div className="flex flex-col gap-8">
+      {/* Upcoming — editorial poster cards */}
       <div>
-        <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Upcoming</h3>
-        <div className="flex flex-col gap-2">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>COMING UP</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {GATHERINGS_UPCOMING.map((g, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between"
-              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+              className="rounded-2xl overflow-hidden relative"
+              style={{
+                height: "140px",
+                background: GATHERING_GRADIENTS[i % GATHERING_GRADIENTS.length],
+                boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+              }}
             >
-              <div>
-                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.venue}</p>
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)" }} />
+              <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
+                <span
+                  className="text-[9px] font-bold px-2 py-0.5 rounded-full self-start"
+                  style={{ background: "rgba(255,255,255,0.15)", color: "white", backdropFilter: "blur(6px)" }}
+                >
+                  {g.seats} SEATS
+                </span>
+                <div>
+                  <p className="text-[10px] mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>{g.date}</p>
+                  <p className="font-bold text-white text-xs leading-snug" style={{ fontFamily: "var(--font-playfair)" }}>
+                    {g.title}
+                  </p>
+                  <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{g.venue}</p>
+                </div>
               </div>
-              <span
-                className="text-xs font-semibold px-2.5 py-1 rounded-full ml-3 flex-shrink-0"
-                style={{ background: "#FFF0F5", color: "#FF1F7D" }}
-              >
-                {g.seats} seats
-              </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Past */}
+      {/* Past — editorial list */}
       <div>
-        <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Past</h3>
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "rgba(0,0,0,0.3)" }}>MEMORIES</p>
         <div className="flex flex-col gap-2">
           {GATHERINGS_PAST.map((g, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between"
-              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+              className="bg-white rounded-2xl px-5 py-4 flex items-center justify-between"
+              style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}
             >
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.attendees} women</p>
+                <p className="font-bold text-sm" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{g.title}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.attendees} women attended</p>
               </div>
-              <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+              <div className="flex items-center gap-1.5 ml-4 flex-shrink-0">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF1F7D">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
-                <span className="text-xs font-semibold" style={{ color: "#111111" }}>{g.rating}</span>
+                <span className="text-sm font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{g.rating}</span>
               </div>
             </div>
           ))}
@@ -555,36 +562,52 @@ function GatheringsSection() {
 
 function ClubHealthSection() {
   const stats = [
-    { label: "Attendance Rate", value: "87%", sub: "last 30 days" },
-    { label: "Retention Rate", value: "94%", sub: "members who stay" },
-    { label: "Avg. Response Time", value: "2.4h", sub: "to join requests" },
-    { label: "Active Members", value: "268", sub: "of 312 total" },
-    { label: "Events This Month", value: "8", sub: "planned gatherings" },
-    { label: "Approval Rate", value: "61%", sub: "of join requests" },
+    { value: "87%", headline: "show up, every month", detail: "attendance rate · last 30 days" },
+    { value: "94%", headline: "keep coming back", detail: "retention rate" },
+    { value: "268", headline: "women truly active", detail: "of 312 in the club" },
+    { value: "8", headline: "gatherings this month", detail: "planned & confirmed" },
+    { value: "2.4h", headline: "to respond to letters", detail: "average review time" },
+    { value: "61%", headline: "accepted to the circle", detail: "application approval rate" },
   ];
 
   return (
     <div>
-      <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Health</h2>
-        <p className="text-sm text-gray-400 mt-0.5">How the Soft Life Club is doing</p>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>PULSE</p>
+        <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          The club is thriving
+        </h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {stats.map((s, i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl p-5"
-            style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+            className="rounded-2xl p-5"
+            style={{
+              background: i === 0 ? "#111111" : "white",
+              boxShadow: i === 0 ? "0 4px 20px rgba(0,0,0,0.15)" : "0 1px 8px rgba(0,0,0,0.05)",
+            }}
           >
             <p
-              className="text-3xl font-bold"
-              style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
+              className="font-bold leading-none"
+              style={{
+                color: i === 0 ? "#FF1F7D" : "#FF1F7D",
+                fontFamily: "var(--font-playfair)",
+                fontSize: "36px",
+              }}
             >
               {s.value}
             </p>
-            <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>{s.label}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
+            <p
+              className="font-bold text-sm mt-2 leading-snug"
+              style={{ color: i === 0 ? "white" : "#111111" }}
+            >
+              {s.headline}
+            </p>
+            <p className="text-[10px] mt-1 uppercase tracking-wider" style={{ color: i === 0 ? "rgba(255,255,255,0.35)" : "#bbb" }}>
+              {s.detail}
+            </p>
           </div>
         ))}
       </div>
@@ -613,9 +636,11 @@ function CrestSection() {
 
   return (
     <div className="max-w-xl">
-      <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Edit Crest</h2>
-        <p className="text-sm text-gray-400 mt-0.5">Your club's symbol, color, and motto</p>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>CREST</p>
+        <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          Your club&apos;s identity
+        </h2>
       </div>
 
       {/* Preview */}
@@ -727,27 +752,29 @@ function ApplicationsSection() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Applications</h2>
-          <p className="text-sm text-gray-400 mt-0.5">{pendingCount} pending review</p>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>LETTERS OF INTRODUCTION</p>
+          <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+            {pendingCount} women want in
+          </h2>
         </div>
       </div>
 
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 mb-6">
         {(["All", "Pending", "Accepted", "Denied"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
-            style={filter === f ? { background: "#FF1F7D", color: "white" } : { background: "#F5F0F3", color: "#888" }}
+            className="px-4 py-1.5 rounded-full text-xs font-bold transition-all tracking-wide"
+            style={filter === f ? { background: "#FF1F7D", color: "white" } : { background: "rgba(0,0,0,0.05)", color: "#888" }}
           >
-            {f}
+            {f.toUpperCase()}
           </button>
         ))}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         {filteredIndexes.map((realIdx) => {
           const app = APPLICATIONS[realIdx];
           const appStatus = statuses[realIdx];
@@ -756,103 +783,128 @@ function ApplicationsSection() {
           return (
             <div
               key={realIdx}
-              className="bg-white rounded-2xl p-5 transition-all"
-              style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)", opacity: appStatus !== "pending" ? 0.7 : 1 }}
+              className="rounded-3xl overflow-hidden transition-all"
+              style={{
+                background: "#FDFAF5",
+                border: "1px solid rgba(0,0,0,0.07)",
+                boxShadow: appStatus === "pending"
+                  ? "0 4px 24px rgba(255,31,125,0.08), 0 1px 6px rgba(0,0,0,0.05)"
+                  : "0 1px 6px rgba(0,0,0,0.04)",
+                opacity: appStatus !== "pending" ? 0.65 : 1,
+              }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
+              {/* Top strip — time/status */}
+              <div className="px-6 py-2.5 flex items-center justify-between" style={{ background: "#F5EDE5", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
+                  {app.neighborhood} · {app.age} · {app.occupation} · {app.appliedAt}
+                </span>
+                <div className="flex items-center gap-2">
+                  {app.verified && (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
+                      ✓ VERIFIED
+                    </span>
+                  )}
+                  {appStatus === "accepted" && (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+                      WELCOMED
+                    </span>
+                  )}
+                  {appStatus === "denied" && (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#F0F0F0", color: "#aaa" }}>
+                      NOT THIS TIME
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Letter body */}
+              <div className="px-6 pt-5 pb-5">
+                <div className="flex items-start gap-4 mb-4">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                    style={{ background: "#FF1F7D" }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white flex-shrink-0"
+                    style={{ background: `radial-gradient(circle at 35% 35%, #FF1F7D, #7F0028)`, boxShadow: "0 2px 10px rgba(255,31,125,0.3)" }}
                   >
                     {app.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-sm" style={{ color: "#111111" }}>{app.name}</p>
-                      {app.verified && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
-                          Verified
-                        </span>
-                      )}
-                      {appStatus === "accepted" && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
-                          Accepted
-                        </span>
-                      )}
-                      {appStatus === "denied" && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#F5F5F5", color: "#999" }}>
-                          Denied
-                        </span>
-                      )}
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="font-bold text-base" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{app.name}</p>
+                      <span className="text-xs" style={{ color: "#FF1F7D" }}>{app.instagram}</span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {app.neighborhood} · {app.age} · {app.occupation} · Applied {app.appliedAt}
-                    </p>
-                    <p className="text-xs mt-1" style={{ color: "#FF1F7D" }}>{app.instagram}</p>
+                    {/* First answer as the letter preview */}
+                    {app.answers[0] && (
+                      <p
+                        className="text-sm leading-relaxed mt-2 italic"
+                        style={{ color: "#555", fontFamily: "var(--font-playfair)" }}
+                      >
+                        &ldquo;{app.answers[0].a}&rdquo;
+                      </p>
+                    )}
                   </div>
+                  <button
+                    onClick={() => {
+                      const next = new Set(expanded);
+                      if (next.has(realIdx)) next.delete(realIdx); else next.add(realIdx);
+                      setExpanded(next);
+                    }}
+                    className="text-[11px] font-bold flex-shrink-0"
+                    style={{ color: "#FF1F7D" }}
+                  >
+                    {isExpanded ? "Less" : "Read all"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    const next = new Set(expanded);
-                    if (next.has(realIdx)) next.delete(realIdx); else next.add(realIdx);
-                    setExpanded(next);
-                  }}
-                  className="text-xs font-semibold flex-shrink-0 mt-1"
-                  style={{ color: "#FF1F7D" }}
-                >
-                  {isExpanded ? "Less" : "View answers"}
-                </button>
+
+                {isExpanded && (
+                  <div className="flex flex-col gap-4 mb-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                    {app.answers.slice(1).map((ans, ai) => (
+                      <div key={ai}>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">{ans.q}</p>
+                        <p
+                          className="text-sm leading-relaxed italic"
+                          style={{ color: "#555", fontFamily: "var(--font-playfair)" }}
+                        >
+                          &ldquo;{ans.a}&rdquo;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {appStatus === "pending" && (
+                  <div className="flex flex-wrap gap-2 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                    <button
+                      onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "accepted" }))}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white"
+                      style={{ background: "#FF1F7D" }}
+                    >
+                      <IconCheck size={12} /> Welcome her
+                    </button>
+                    <button
+                      onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "denied" }))}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold"
+                      style={{ background: "rgba(0,0,0,0.06)", color: "#888" }}
+                    >
+                      <IconX size={12} /> Not this time
+                    </button>
+                    <button
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold"
+                      style={{ background: "rgba(0,0,0,0.04)", color: "#888" }}
+                    >
+                      Ask a question
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {isExpanded && (
-                <div className="mt-4 pt-4 flex flex-col gap-3" style={{ borderTop: "1px solid #FFF0F5" }}>
-                  {app.answers.map((ans, ai) => (
-                    <div key={ai}>
-                      <p className="text-xs font-semibold text-gray-400 mb-1">{ans.q}</p>
-                      <p className="text-sm leading-relaxed italic" style={{ color: "#444" }}>&ldquo;{ans.a}&rdquo;</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {appStatus === "pending" && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-3" style={{ borderTop: "1px solid #FFF0F5" }}>
-                  <button
-                    onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "accepted" }))}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold text-white"
-                    style={{ background: "#FF1F7D" }}
-                  >
-                    <IconCheck size={12} /> Accept
-                  </button>
-                  <button
-                    onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "denied" }))}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
-                    style={{ background: "#F5F0F3", color: "#888" }}
-                  >
-                    <IconX size={12} /> Deny
-                  </button>
-                  <button
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
-                    style={{ background: "#F5F0F3", color: "#888" }}
-                  >
-                    Request more info
-                  </button>
-                  <button
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
-                    style={{ background: "#F5F0F3", color: "#888" }}
-                  >
-                    Message
-                  </button>
-                </div>
-              )}
             </div>
           );
         })}
 
         {filteredIndexes.length === 0 && (
-          <div className="rounded-2xl p-10 text-center" style={{ border: "2px dashed #FFE0EE" }}>
-            <p className="text-sm text-gray-400">No {filter.toLowerCase()} applications.</p>
+          <div className="rounded-3xl p-12 text-center" style={{ border: "2px dashed #FFE0EE" }}>
+            <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#ccc" }}>
+              The circle is quiet right now.
+            </p>
+            <p className="text-sm text-gray-400 mt-1">No {filter.toLowerCase()} letters.</p>
           </div>
         )}
       </div>
@@ -889,8 +941,11 @@ function ClubSettingsSection() {
   return (
     <div className="max-w-xl flex flex-col gap-5">
       <div>
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Settings</h2>
-        <p className="text-sm text-gray-400 mt-0.5">Configure how women join and pay for your club.</p>
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>SETTINGS</p>
+        <h2 className="text-2xl font-bold leading-none mb-1" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          How women join
+        </h2>
+        <p className="text-sm text-gray-400">Configure entry and access for your club.</p>
       </div>
 
       <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
@@ -1049,8 +1104,10 @@ function FormBuilderSection() {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Application Form</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{questions.length} questions · shown to applicants</p>
+            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THE FORM</p>
+            <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+              {questions.length} questions
+            </h2>
           </div>
           <button
             onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500); }}
@@ -1177,23 +1234,28 @@ export default function TheClubhouse() {
           </div>
 
           {/* Quick stats */}
-          <div className="flex gap-8 flex-shrink-0">
+          <div className="hidden md:flex gap-8 flex-shrink-0">
             {[
               { n: "312", l: "Women" },
               { n: "8", l: "Upcoming" },
-              { n: "14", l: "Requests" },
-              { n: "87%", l: "Attendance" },
+              { n: "3", l: "Letters" },
+              { n: "87%", l: "Show Up" },
             ].map((s) => (
               <div key={s.l} className="text-center">
-                <p className="text-2xl font-bold text-white">{s.n}</p>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{s.l}</p>
+                <p
+                  className="font-bold leading-none"
+                  style={{ color: "white", fontFamily: "var(--font-playfair)", fontSize: "28px" }}
+                >
+                  {s.n}
+                </p>
+                <p className="text-[10px] mt-1 uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.35)" }}>{s.l}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* ── Tab Bar ── */}
-        <div className="flex items-end px-6 gap-1 overflow-x-auto">
+        <div className="flex items-end px-6 gap-0 overflow-x-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             const badgeCount = tab.id === "mailbox" ? unreadMessages : tab.badge;
@@ -1201,22 +1263,24 @@ export default function TheClubhouse() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="relative flex items-center gap-2 px-4 py-3 text-sm font-semibold whitespace-nowrap rounded-t-xl transition-all"
-                style={
-                  isActive
-                    ? { background: "#FFF5F8", color: "#FF1F7D" }
-                    : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }
-                }
+                className="relative flex items-center gap-1.5 px-4 py-3.5 whitespace-nowrap transition-all"
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  borderBottom: isActive ? "2px solid #FF1F7D" : "2px solid transparent",
+                  color: isActive ? "#FF1F7D" : "rgba(255,255,255,0.4)",
+                  background: "transparent",
+                }}
               >
-                <span style={{ opacity: isActive ? 1 : 0.7 }}>{tab.icon}</span>
                 {tab.label}
                 {badgeCount && (
                   <span
-                    className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                    className="font-bold px-1.5 py-0.5 rounded-full leading-none"
                     style={{
-                      background: isActive ? "#FF1F7D" : "rgba(255,31,125,0.7)",
+                      background: isActive ? "#FF1F7D" : "rgba(255,31,125,0.5)",
                       color: "white",
-                      fontSize: "10px",
+                      fontSize: "9px",
                     }}
                   >
                     {badgeCount}
