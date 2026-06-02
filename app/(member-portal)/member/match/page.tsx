@@ -248,7 +248,7 @@ function ConnectTab() {
         <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
           HAPPENING IN YOUR CITY
         </p>
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {SHARED_MOMENTS.map((moment) => (
             <MomentCard
               key={moment.id}
@@ -278,7 +278,8 @@ function ConnectTab() {
           </p>
         </div>
       ) : (
-        queue.map((girl) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {queue.map((girl) => (
           <div key={girl.id} className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(255,31,125,0.12)" }}>
             <div className="h-28 relative" style={{ background: `linear-gradient(135deg, ${girl.color}EE 0%, ${girl.color}66 55%, #FFE0EE 100%)` }}>
               <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle, ${girl.color} 0%, transparent 70%)`, transform: "translate(30%, -30%)" }} />
