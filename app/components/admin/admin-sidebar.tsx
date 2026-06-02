@@ -154,23 +154,28 @@ export function AdminSidebar() {
     >
       {/* Logo area */}
       <div className="px-5 py-7 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-4">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "#FF1F7D" }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)" }}
           >
-            <BBLogo size={20} light />
+            <BBLogo size={22} light />
           </div>
-          <span className="text-white font-bold text-base tracking-widest uppercase">
-            BLOOM<span style={{ color: "#FF1F7D" }}>BAY</span>
-          </span>
+          <div>
+            <span className="text-white font-bold text-base tracking-widest uppercase block">
+              BLOOM<span style={{ color: "#FF1F7D" }}>BAY</span>
+            </span>
+            <span className="text-[9px] font-semibold tracking-wider" style={{ color: "rgba(255,255,255,0.35)" }}>
+              Community Platform
+            </span>
+          </div>
         </div>
         <div
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest"
           style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.25)" }}
         >
           <span
-            className="w-1.5 h-1.5 rounded-full"
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
             style={{ background: "#FF1F7D" }}
           />
           FOUNDER PORTAL
@@ -249,7 +254,7 @@ export function AdminSidebar() {
         <div className="flex items-center gap-3 mb-3">
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)" }}
+            style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 0 0 2px rgba(255,31,125,0.3)" }}
           >
             M
           </div>
@@ -257,6 +262,7 @@ export function AdminSidebar() {
             <p className="text-white text-sm font-semibold leading-none">Maya</p>
             <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.35)" }}>Founder · CEO</p>
           </div>
+          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
         </div>
         <form action={logout}>
           <button
