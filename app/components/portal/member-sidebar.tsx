@@ -7,10 +7,10 @@ import { logout } from "@/lib/auth/actions";
 
 const NAV = [
   { href: "/member/home",       label: "TONIGHT",    n: "01" },
-  { href: "/member/clubs",      label: "CLUB HOUSE", n: "02" },
+  { href: "/member/clubs",      label: "CLUBS",      n: "02" },
   { href: "/member/room",       label: "LOBBY",      n: "03" },
   { href: "/member/lounge",     label: "APARTMENT",  n: "04" },
-  { href: "/member/match",      label: "CONCIERGE",  n: "05" },
+  { href: "/member/match",      label: "CONNECT",    n: "05" },
   { href: "/member/happenings", label: "THE CITY",   n: "06" },
 ];
 

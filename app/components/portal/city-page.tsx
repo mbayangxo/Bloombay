@@ -211,7 +211,7 @@ const HAPPENING_GRADIENTS: Record<HappeningType, string> = {
   festival: "linear-gradient(160deg, #FF69B4 0%, #FF1F7D 100%)",
 };
 
-// ── Happening Card ────────────────────────────────────────────────────────────
+// ── Happening Card — full editorial poster ────────────────────────────────────
 
 function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
   const [saved, setSaved] = useState(false);
@@ -219,109 +219,67 @@ function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
 
   return (
     <div
-      className="rounded-3xl overflow-hidden bg-white"
-      style={{ boxShadow: "0 2px 14px rgba(0,0,0,0.07)" }}
+      className="rounded-2xl overflow-hidden relative"
+      style={{ height: featured ? "240px" : "168px", background: h.gradient, boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
     >
-      {/* Visual area */}
-      <div
-        className="relative"
-        style={{ height: featured ? "220px" : "150px", background: h.gradient }}
-      >
-        <div className="absolute inset-0 p-4 flex flex-col justify-between">
-          {/* Top row */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span
-                className="text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wider"
-                style={{ background: "rgba(255,255,255,0.18)", color: "white", backdropFilter: "blur(6px)" }}
-              >
-                {TYPE_LABEL[h.type]}
+      {/* Readability gradient */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />
+      {/* Subtle shine */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 80% 10%, rgba(255,255,255,0.1) 0%, transparent 55%)" }} />
+
+      <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
+        {/* Top row */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-wrap gap-1">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wider"
+              style={{ background: "rgba(0,0,0,0.3)", color: "white", backdropFilter: "blur(6px)" }}>
+              {TYPE_LABEL[h.type]}
+            </span>
+            {h.womenLoved && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: "#FF1F7D", color: "white" }}>♡</span>
+            )}
+            {h.partner && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.9)" }}>
+                BB × {h.partner}
               </span>
-              {h.womenLoved && (
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: "#FF1F7D", color: "white" }}
-                >
-                  ♡ Women-Loved
-                </span>
-              )}
-              {h.userSubmitted && (
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)" }}
-                >
-                  ✦ Community
-                </span>
-              )}
-              {h.partner && (
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)" }}
-                >
-                  BB × {h.partner}
-                </span>
-              )}
-            </div>
+            )}
+          </div>
+          <button onClick={() => setSaved(s => !s)}
+            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
+            style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(6px)" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill={saved ? "white" : "none"} stroke="white" strokeWidth="2" strokeLinecap="round">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Bottom content */}
+        <div>
+          <p className="text-[10px] mb-1" style={{ color: "rgba(255,255,255,0.5)" }}>{h.time} · {h.neighborhood}</p>
+          <h3 className="font-bold text-white leading-tight mb-2"
+            style={{ fontFamily: "var(--font-playfair)", fontSize: featured ? "18px" : "14px", lineHeight: 1.2 }}>
+            {h.title}
+          </h3>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ background: h.price === 0 ? "rgba(255,31,125,0.5)" : "rgba(255,255,255,0.18)", color: "white" }}>
+              {h.priceLabel}
+            </span>
             <button
-              onClick={() => setSaved((s) => !s)}
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
-              style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(6px)" }}
+              onClick={() => setGoing((g) => !g)}
+              className="px-3 py-1 rounded-full text-[10px] font-bold transition-all active:scale-95"
+              style={going
+                ? { background: "rgba(255,255,255,0.9)", color: "#FF1F7D" }
+                : { background: "rgba(255,255,255,0.2)", color: "white", backdropFilter: "blur(6px)" }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "white" : "none"} stroke="white" strokeWidth="2" strokeLinecap="round">
-                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-              </svg>
+              {going ? "Going ✓" : "I'm going"}
             </button>
           </div>
-
-          {/* Bottom row */}
-          <div>
-            {featured && (
-              <h3
-                className="font-bold text-white mb-1.5 leading-tight"
-                style={{ fontSize: "20px", fontFamily: "var(--font-playfair)", fontWeight: 500 }}
-              >
-                {h.title}
-              </h3>
-            )}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-white/75">{h.time}</span>
-              <span className="text-white/30 text-xs">·</span>
-              <span className="text-xs text-white/75">{h.neighborhood}</span>
-              <span
-                className="ml-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full"
-                style={{
-                  background: h.price === 0 ? "rgba(255,31,125,0.35)" : "rgba(255,255,255,0.18)",
-                  color: "white",
-                }}
-              >
-                {h.priceLabel}
-              </span>
-            </div>
-          </div>
         </div>
-      </div>
-
-      {/* Card footer */}
-      <div className="px-4 py-3.5 flex items-center gap-3">
-        <div className="flex-1 min-w-0">
-          {!featured && (
-            <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>
-              {h.title}
-            </p>
-          )}
-          <p className="text-xs text-gray-400 mt-0.5 truncate">{h.venue}</p>
-        </div>
-        <button
-          onClick={() => setGoing((g) => !g)}
-          className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
-          style={
-            going
-              ? { background: "#FFF0F5", color: "#FF1F7D" }
-              : { background: "#FF1F7D", color: "white" }
-          }
-        >
-          {going ? "Going ✓" : "I'm going"}
-        </button>
       </div>
     </div>
   );
@@ -1081,8 +1039,8 @@ export function CityPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {featured && <HappeningCard h={featured} featured />}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {featured && <div className="col-span-2 md:col-span-1"><HappeningCard h={featured} featured /></div>}
               {restTonight.map((h) => <HappeningCard key={h.id} h={h} />)}
             </div>
           )}
@@ -1122,7 +1080,7 @@ export function CityPage() {
         {thisWeek.length > 0 && (
           <section>
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>This Week</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {thisWeek.map((h) => <HappeningCard key={h.id} h={h} />)}
             </div>
           </section>
@@ -1132,7 +1090,7 @@ export function CityPage() {
         {comingUp.length > 0 && (
           <section>
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>Coming Up</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {comingUp.map((h) => <HappeningCard key={h.id} h={h} />)}
             </div>
           </section>
