@@ -308,19 +308,13 @@ export function ClubsPage() {
                           <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full font-medium" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>{tag}</span>
                         ))}
                       </div>
-                      {requested.has(FEATURED.id) ? (
-                        <span className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>
-                          Requested ·
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => joinClub(FEATURED.id, "hq")}
-                          className="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-90"
-                          style={{ background: "var(--bb-pink)", color: "white" }}
-                        >
-                          Request to Join
-                        </button>
-                      )}
+                      <Link
+                        href="/member/clubs/0"
+                        className="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-90"
+                        style={{ background: "var(--bb-pink)", color: "white", textDecoration: "none" }}
+                      >
+                        Discover →
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -344,16 +338,16 @@ export function ClubsPage() {
                   {filteredClubs.map((club) => {
                     const isJoinedCard = joined.has(club.id);
                     return (
-                      <div
+                      <Link
                         key={club.id}
-                        className="rounded-2xl overflow-hidden bg-white"
+                        href={`/member/clubs/${club.id}`}
+                        className="rounded-2xl overflow-hidden bg-white block"
                         style={{
-                          boxShadow: isJoinedCard
-                            ? "0 2px 12px rgba(255,31,125,0.12)"
-                            : "0 1px 8px rgba(0,0,0,0.05)",
+                          boxShadow: isJoinedCard ? "0 2px 12px rgba(255,31,125,0.12)" : "0 1px 8px rgba(0,0,0,0.05)",
                           transform: joiningId === club.id ? "scale(0.97)" : "scale(1)",
                           transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
                           border: isJoinedCard ? "1.5px solid var(--bb-pink)" : "1.5px solid transparent",
+                          textDecoration: "none",
                         }}
                       >
                         {/* Banner h-20 */}
@@ -378,24 +372,23 @@ export function ClubsPage() {
                               <HQBadge />
                             </div>
                           )}
-                          {/* Member count */}
                           <p className="text-xs font-semibold mb-1.5" style={{ color: "var(--bb-pink)" }}>
                             {womenCounts[club.id]} members
                           </p>
-                          {/* Tags */}
                           <div className="flex flex-wrap gap-1 mb-2">
                             {club.tags.map((tag) => (
-                              <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: "var(--pale-pink-bg)", color: "#888" }}>
+                              <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
                                 {tag}
                               </span>
                             ))}
                           </div>
-                          {/* Join button */}
                           <div className="flex justify-end">
-                            <ClubJoinButton club={club} />
+                            <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: isJoinedCard ? "var(--light-pink)" : "#111111", color: isJoinedCard ? "var(--bb-pink)" : "white" }}>
+                              {isJoinedCard ? "Joined ✓" : "Discover →"}
+                            </span>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>

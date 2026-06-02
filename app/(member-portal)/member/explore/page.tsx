@@ -10,10 +10,10 @@ const LIVE_ROOMS = [
 ];
 
 const TRENDING_POSTS = [
-  { id: 5, author: "Imani J.",  initial: "I", color: "#FF1F7D", text: "I just negotiated a $40K raise. The best thing I ever did was stop treating my salary as a fixed number.", likes: 87, category: "Career"    },
-  { id: 9, author: "Jade O.",   initial: "J", color: "#FF1F7D", text: "Anyone else building a capsule wardrobe? I've been wearing only 12 pieces for a month and I feel so free.", likes: 41, category: "Style"     },
-  { id: 3, author: "Priya R.",  initial: "P", color: "#FF69B4", text: "Just discovered the best matcha in Williamsburg — not telling you where until you come with me.",           likes: 23, category: "Style"     },
-  { id: 8, author: "Temi A.",   initial: "T", color: "#FF69B4", text: "Hot take: The best wellness ritual isn't a $200 facial. It's 8 hours of sleep and a slow morning.",          likes: 34, category: "Wellness"  },
+  { id: 1, author: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Anyone want to do matcha Thursday morning in Williamsburg? I know a spot that's not on TikTok yet. Small group, max 5.", likes: 14, category: "Gather"   },
+  { id: 5, author: "Imani J.",   initial: "I", color: "#FF1F7D", text: "Afrobeats Night at SOB's is this Saturday. I have 2 extra tickets — who wants them? Girls only.",              likes: 31, category: "Gather"   },
+  { id: 3, author: "Priya R.",   initial: "P", color: "#FF69B4", text: "Organizing a run in Prospect Park this Sunday 8AM. All paces welcome — we end at the café and get pastries.", likes: 23, category: "Plan"     },
+  { id: 6, author: "Naomi B.",   initial: "N", color: "#FF69B4", text: "Book club in the West Village starting next Thursday — first pick is 'Parable of the Sower'. 3 spots left.",    likes: 19, category: "Plan"     },
 ];
 
 const OPEN_SEATS = [
@@ -121,44 +121,6 @@ export default function ExplorePage() {
                 </div>
                 <span className="text-xs font-bold flex-shrink-0" style={{ color: "var(--bb-pink)" }}>♥ {post.likes}</span>
               </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Open Seats ── */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>OPEN SEATS NEAR YOU</p>
-            <Link href="/member/happenings" className="text-xs font-semibold" style={{ color: "var(--bb-pink)" }}>See all →</Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            {OPEN_SEATS.map((seat) => (
-              <div
-                key={seat.id}
-                className="bg-white rounded-2xl p-4 flex items-center gap-3"
-                style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
-              >
-                <div
-                  className="w-11 h-11 rounded-xl flex flex-col items-center justify-center flex-shrink-0"
-                  style={{ background: seat.color }}
-                >
-                  <p className="text-white text-lg font-bold leading-none">{seat.seats}</p>
-                  <p className="text-white/70 text-[9px]">seats</p>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{seat.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{seat.host} · {seat.time}</p>
-                </div>
-                <button
-                  onClick={() => setReserved((p) => new Set([...p, seat.id]))}
-                  className="flex-shrink-0 px-3 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
-                  style={reserved.has(seat.id)
-                    ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
-                    : { background: "var(--bb-pink)", color: "white" }}
-                >
-                  {reserved.has(seat.id) ? "Reserved ✓" : "Grab seat"}
-                </button>
-              </div>
             ))}
           </div>
         </section>

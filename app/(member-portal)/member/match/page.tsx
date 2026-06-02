@@ -134,11 +134,104 @@ function ProfileAvatar({ initial, color, size = 48 }: { initial: string; color: 
   );
 }
 
+// ── Shared Moments ───────────────────────────────────────────────────────────
+
+const SHARED_MOMENTS = [
+  {
+    id: 1,
+    emoji: "✈️",
+    title: "Morocco in October",
+    story: "7 women are planning a trip. Amina is building the itinerary. Sofia already booked her flights.",
+    action: "Join the conversation",
+    avatars: ["A", "S", "P", "K", "N", "Z", "J"],
+    gradient: "linear-gradient(135deg, #FF1F7D 0%, #111111 100%)",
+  },
+  {
+    id: 2,
+    emoji: "☕",
+    title: "Matcha Thursdays, Williamsburg",
+    story: "A standing ritual Aaliyah started 3 weeks ago. 4 women show up every week. One spot opened up.",
+    action: "Reserve a seat",
+    avatars: ["A", "J", "Z", "T"],
+    gradient: "linear-gradient(135deg, #111111 0%, #FF69B4 100%)",
+  },
+  {
+    id: 3,
+    emoji: "📚",
+    title: "Book Club · West Village",
+    story: "Naomi is organizing. First pick: Parable of the Sower. First meeting is next Thursday. 3 spots left.",
+    action: "Claim your spot",
+    avatars: ["N", "T", "P", "R"],
+    gradient: "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 100%)",
+  },
+  {
+    id: 4,
+    emoji: "🏃‍♀️",
+    title: "Sunday Run · Prospect Park",
+    story: "Priya started this 2 Sundays ago. 6 women came last week. They always get pastries after.",
+    action: "Run with them",
+    avatars: ["P", "K", "S", "A", "B"],
+    gradient: "linear-gradient(135deg, #FF1F7D 0%, #FF69B4 100%)",
+  },
+];
+
+function MomentCard({ moment, joined, onJoin }: {
+  moment: typeof SHARED_MOMENTS[0];
+  joined: boolean;
+  onJoin: () => void;
+}) {
+  return (
+    <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 4px 24px rgba(255,31,125,0.14)" }}>
+      <div className="relative p-5 pb-4" style={{ background: moment.gradient, minHeight: "130px" }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.12)" }} />
+        <div className="relative">
+          <p className="text-3xl mb-2">{moment.emoji}</p>
+          <p className="text-white font-bold text-lg italic leading-snug" style={{ fontFamily: "var(--font-playfair)" }}>
+            {moment.title}
+          </p>
+        </div>
+      </div>
+      <div className="bg-white p-4">
+        <p className="text-sm leading-relaxed mb-3" style={{ color: "#555" }}>{moment.story}</p>
+        <div className="flex items-center justify-between gap-3">
+          {/* Avatar stack */}
+          <div className="flex items-center">
+            {moment.avatars.slice(0, 5).map((a, i) => (
+              <div
+                key={i}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white"
+                style={{ background: i % 2 === 0 ? "#FF1F7D" : "#FF69B4", marginLeft: i > 0 ? "-8px" : "0", zIndex: 5 - i }}
+              >
+                {a}
+              </div>
+            ))}
+            {moment.avatars.length > 5 && (
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white" style={{ background: "#111", marginLeft: "-8px" }}>
+                +{moment.avatars.length - 5}
+              </div>
+            )}
+          </div>
+          <button
+            onClick={onJoin}
+            className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
+            style={joined
+              ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
+              : { background: "#111111", color: "white" }}
+          >
+            {joined ? "Joined ✓" : moment.action}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Connect Tab ─────────────────────────────────────────────────────────────
 
 function ConnectTab() {
   const [queue, setQueue] = useState(GIRL_MATE_QUEUE);
   const [connected, setConnected] = useState<Set<number>>(new Set());
+  const [joinedMoments, setJoinedMoments] = useState<Set<number>>(new Set());
 
   function connect(id: number) {
     setConnected((p) => new Set([...p, id]));
@@ -148,149 +241,99 @@ function ConnectTab() {
     setQueue((q) => q.filter((g) => g.id !== id));
   }
 
-  if (queue.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-        <div
-          className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-          style={{ background: "linear-gradient(135deg, #FFF0F5 0%, #FFE0EE 100%)" }}
-        >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-          </svg>
-        </div>
-        <p
-          className="text-2xl font-bold italic mb-2"
-          style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}
-        >
-          All caught up.
-        </p>
-        <p className="text-sm text-gray-400 leading-relaxed">More women are joining every day.<br />Check back soon.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="px-5 flex flex-col gap-6">
-      {/* Context hint */}
-      <div
-        className="rounded-2xl px-4 py-3.5"
-        style={{ background: "#FFF0F5", borderLeft: "3px solid #FF1F7D" }}
-      >
-        <p className="text-sm leading-relaxed" style={{ color: "#555" }}>
-          Women who share your rhythm and clubs. Connect when it feels right — no pressure.
+      {/* Shared Moments — lead with what's happening */}
+      <div>
+        <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
+          HAPPENING IN YOUR CITY
         </p>
+        <div className="flex flex-col gap-4">
+          {SHARED_MOMENTS.map((moment) => (
+            <MomentCard
+              key={moment.id}
+              moment={moment}
+              joined={joinedMoments.has(moment.id)}
+              onJoin={() => setJoinedMoments((p) => new Set([...p, moment.id]))}
+            />
+          ))}
+        </div>
       </div>
 
-      {queue.map((girl) => (
-        <div
-          key={girl.id}
-          className="bg-white rounded-3xl overflow-hidden"
-          style={{ boxShadow: "0 8px 32px rgba(255,31,125,0.12)" }}
-        >
-          {/* Gradient banner strip */}
-          <div
-            className="h-28 relative"
-            style={{
-              background: `linear-gradient(135deg, ${girl.color}EE 0%, ${girl.color}66 55%, #FFE0EE 100%)`,
-            }}
-          >
-            {/* Decorative bloom orb */}
-            <div
-              className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 pointer-events-none"
-              style={{
-                background: `radial-gradient(circle, ${girl.color} 0%, transparent 70%)`,
-                transform: "translate(30%, -30%)",
-              }}
-            />
-            {/* Avatar overlapping banner */}
-            <div
-              className="absolute bottom-0 left-5"
-              style={{ transform: "translateY(50%)", zIndex: 2 }}
-            >
-              <ProfileAvatar initial={girl.initial} color={girl.color} size={68} />
-              {girl.verified && (
-                <div
-                  className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center"
-                  style={{ background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }}
-                >
-                  <VerifiedBadge />
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Divider */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px" style={{ background: "#F0E0E8" }} />
+        <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#ddd" }}>YANDE PICKS FOR YOU</p>
+        <div className="flex-1 h-px" style={{ background: "#F0E0E8" }} />
+      </div>
 
-          <div className="px-5 pt-12 pb-6">
-            {/* Name row */}
-            <div className="mb-3">
-              <p
-                className="font-bold text-xl leading-tight"
-                style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
-              >
-                {girl.name}
-              </p>
-              <p className="text-sm mt-0.5" style={{ color: "#999" }}>{girl.neighborhood}</p>
-            </div>
-
-            {/* Club tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {girl.clubs.map((c) => (
-                <span
-                  key={c}
-                  className="text-[11px] font-semibold px-3 py-1.5 rounded-full"
-                  style={{ background: `${girl.color}15`, color: girl.color }}
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
-
-            {/* Vibe */}
-            <p
-              className="text-sm italic leading-relaxed mb-4"
-              style={{ color: "#666", fontFamily: "var(--font-playfair)" }}
-            >
-              &ldquo;{girl.vibe}&rdquo;
-            </p>
-
-            {/* Match note — pink left border accent */}
-            <div
-              className="rounded-xl px-4 py-3.5 mb-6"
-              style={{
-                background: "#FFF5F8",
-                borderLeft: "3px solid #FF1F7D",
-              }}
-            >
-              <p className="text-xs leading-relaxed font-semibold" style={{ color: "#FF1F7D" }}>
-                ✦ {girl.matchNote}
-              </p>
-            </div>
-
-            {/* Connect — large full-width */}
-            <button
-              onClick={() => connect(girl.id)}
-              className="w-full py-4 rounded-full text-base font-bold text-white mb-3 transition-all active:scale-[0.98]"
-              style={{
-                background: connected.has(girl.id)
-                  ? "#999"
-                  : `linear-gradient(135deg, ${girl.color} 0%, ${girl.color}CC 100%)`,
-                boxShadow: connected.has(girl.id) ? "none" : `0 6px 20px ${girl.color}44`,
-              }}
-            >
-              {connected.has(girl.id) ? "Request sent ✓" : `Connect with ${girl.name.split(" ")[0]}`}
-            </button>
-
-            {/* Not now — small and subtle */}
-            <button
-              onClick={() => pass(girl.id)}
-              className="w-full text-center text-xs py-1.5 transition-all"
-              style={{ color: "#C8C8C8" }}
-            >
-              Not now
-            </button>
-          </div>
+      {/* Individual recommendations */}
+      {queue.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <p className="text-2xl font-bold italic mb-2" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+            All caught up.
+          </p>
+          <p className="text-sm text-gray-400 leading-relaxed">More women are joining every day.<br />Check back soon.</p>
         </div>
-      ))}
+      ) : (
+        queue.map((girl) => (
+          <div key={girl.id} className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(255,31,125,0.12)" }}>
+            <div className="h-28 relative" style={{ background: `linear-gradient(135deg, ${girl.color}EE 0%, ${girl.color}66 55%, #FFE0EE 100%)` }}>
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle, ${girl.color} 0%, transparent 70%)`, transform: "translate(30%, -30%)" }} />
+              <div className="absolute bottom-0 left-5" style={{ transform: "translateY(50%)", zIndex: 2 }}>
+                <ProfileAvatar initial={girl.initial} color={girl.color} size={68} />
+                {girl.verified && (
+                  <div className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
+                    <VerifiedBadge />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="px-5 pt-12 pb-6">
+              <div className="mb-3">
+                <p className="font-bold text-xl leading-tight" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                  {girl.name}
+                </p>
+                <p className="text-sm mt-0.5" style={{ color: "#999" }}>{girl.neighborhood}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                {girl.clubs.map((c) => (
+                  <span key={c} className="text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: `${girl.color}15`, color: girl.color }}>
+                    {c}
+                  </span>
+                ))}
+              </div>
+
+              <p className="text-sm italic leading-relaxed mb-4" style={{ color: "#666", fontFamily: "var(--font-playfair)" }}>
+                &ldquo;{girl.vibe}&rdquo;
+              </p>
+
+              <div className="rounded-xl px-4 py-3.5 mb-6" style={{ background: "#FFF5F8", borderLeft: "3px solid #FF1F7D" }}>
+                <p className="text-xs leading-relaxed font-semibold" style={{ color: "#FF1F7D" }}>
+                  ✦ {girl.matchNote}
+                </p>
+              </div>
+
+              <button
+                onClick={() => connect(girl.id)}
+                className="w-full py-4 rounded-full text-base font-bold text-white mb-3 transition-all active:scale-[0.98]"
+                style={{
+                  background: connected.has(girl.id) ? "#999" : `linear-gradient(135deg, ${girl.color} 0%, ${girl.color}CC 100%)`,
+                  boxShadow: connected.has(girl.id) ? "none" : `0 6px 20px ${girl.color}44`,
+                }}
+              >
+                {connected.has(girl.id) ? "Request sent ✓" : `Connect with ${girl.name.split(" ")[0]}`}
+              </button>
+
+              <button onClick={() => pass(girl.id)} className="w-full text-center text-xs py-1.5 transition-all" style={{ color: "#C8C8C8" }}>
+                Not now
+              </button>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }
@@ -556,7 +599,7 @@ export default function MatchPage() {
           className="text-xs font-bold tracking-widest uppercase mb-3"
           style={{ color: "var(--bb-pink)" }}
         >
-          MATCH
+          CONNECT
         </p>
         <h1
           className="font-bold italic leading-none mb-3"
@@ -569,7 +612,7 @@ export default function MatchPage() {
           Find Her.
         </h1>
         <p className="text-sm font-semibold" style={{ color: "var(--bb-pink)" }}>
-          Connect with women who share your world.
+          Real plans. Real women. Your city.
         </p>
       </div>
 
