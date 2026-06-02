@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type Room = "lobby" | "wall" | "girlbar";
+type Room = "lobby" | "wall" | "girlbar" | "new-keys" | "vanity" | "closet";
 type WallCategory = "gather" | "discover" | "plan" | "now" | "ask";
 
 interface WallPost {
@@ -62,7 +62,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header with back */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
@@ -174,7 +174,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
   const [notified, setNotified] = useState<Set<number>>(new Set());
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "#0A0005" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#130E09" }}>
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -187,7 +187,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
 
       <div className="px-5 md:px-8 flex flex-col gap-4">
         {/* Hero */}
-        <div className="rounded-3xl relative overflow-hidden" style={{ background: "#111111", minHeight: "160px", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
+        <div className="rounded-3xl relative overflow-hidden" style={{ background: "#1A1008", minHeight: "160px", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,31,125,0.22) 0%, transparent 65%)" }}/>
           <div className="relative p-6">
             <div className="flex items-center gap-2.5 mb-3">
@@ -241,91 +241,239 @@ function GirlBar({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ── Coming Soon Room ─────────────────────────────────────────────────────────
+
+function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBack: () => void }) {
+  return (
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
+        <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div>
+          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>THE LOBBY</p>
+          <h1 className="text-3xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>{name}</h1>
+        </div>
+      </div>
+      <div className="px-5 md:px-8 flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
+          style={{ background: "#FFE0EC" }}>
+          <span className="text-2xl">✦</span>
+        </div>
+        <p className="text-base font-bold italic mb-2"
+          style={{ fontFamily: "var(--font-instrument)", color: "#111111" }}>
+          {name} is being prepared.
+        </p>
+        <p className="text-sm leading-relaxed mb-1" style={{ color: "#aaa" }}>{sub}</p>
+        <p className="text-xs italic mt-3" style={{ fontFamily: "var(--font-caveat)", color: "#FF1F7D", fontSize: "16px" }}>
+          Yande is getting this room ready for you.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── The Lobby ────────────────────────────────────────────────────────────────
+
+const LOBBY_DOORS = [
+  {
+    id: "wall" as Room,
+    n: "01",
+    name: "The Wall",
+    sub: "Community board",
+    hint: "42 posts today",
+    bg: "#FDFAF7",
+    dark: false,
+    accent: "#FF1F7D",
+    available: true,
+  },
+  {
+    id: "girlbar" as Room,
+    n: "02",
+    name: "Girl Bar",
+    sub: "Live audio rooms",
+    hint: "🔴 27 women listening",
+    bg: "#1A1008",
+    dark: true,
+    accent: "#FF69B4",
+    available: true,
+  },
+  {
+    id: "new-keys" as Room,
+    n: "03",
+    name: "New Keys",
+    sub: "Newcomers & arrivals",
+    hint: "",
+    bg: "#FFF0F7",
+    dark: false,
+    accent: "#FF1F7D",
+    available: false,
+  },
+  {
+    id: "vanity" as Room,
+    n: "04",
+    name: "The Vanity",
+    sub: "Beauty & style advice",
+    hint: "",
+    bg: "#FBF3F7",
+    dark: false,
+    accent: "#FF69B4",
+    available: false,
+  },
+  {
+    id: "closet" as Room,
+    n: "05",
+    name: "The Closet",
+    sub: "Outfits & what to wear",
+    hint: "",
+    bg: "#F9F5F0",
+    dark: false,
+    accent: "#FF1F7D",
+    available: false,
+  },
+];
 
 export default function TheLobbyPage() {
   const [room, setRoom] = useState<Room>("lobby");
 
-  if (room === "wall")    return <TheWall    onBack={() => setRoom("lobby")} />;
-  if (room === "girlbar") return <GirlBar    onBack={() => setRoom("lobby")} />;
+  if (room === "wall")      return <TheWall         onBack={() => setRoom("lobby")} />;
+  if (room === "girlbar")   return <GirlBar          onBack={() => setRoom("lobby")} />;
+  if (room === "new-keys")  return <ComingSoonRoom   name="New Keys"    sub="Where newcomers arrive and introduce themselves." onBack={() => setRoom("lobby")} />;
+  if (room === "vanity")    return <ComingSoonRoom   name="The Vanity"  sub="Beauty advice, recommendations, and routines from women who know."  onBack={() => setRoom("lobby")} />;
+  if (room === "closet")    return <ComingSoonRoom   name="The Closet"  sub="Outfit questions, style finds, and dressing for the city." onBack={() => setRoom("lobby")} />;
 
-  // Lobby — two doors
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
-        <p className="text-[10px] font-semibold tracking-widest uppercase mb-1" style={{ color: "var(--bb-pink)" }}>BLOOMBAY</p>
-        <h1 className="text-4xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>The Lobby</h1>
-        <p className="text-sm mt-1" style={{ color: "#aaa" }}>Step inside. Choose your room.</p>
-        <div className="mt-2 h-0.5 w-12 rounded-full" style={{ background: "var(--bb-pink)" }}/>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+
+      {/* Header */}
+      <div className="px-5 pt-12 pb-5 md:px-8 md:pt-8">
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
+          ✦ BLOOMBAY
+        </p>
+        <h1 className="text-4xl font-bold italic leading-none"
+          style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+          The Lobby
+        </h1>
+        <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>
+          Step inside. Choose your room.
+        </p>
       </div>
 
-      <div className="px-5 md:px-8 flex flex-col gap-4 md:grid md:grid-cols-2">
+      {/* Hallway — 5 architectural doors */}
+      <div className="px-5 md:px-8">
 
-        {/* Door 1: The Wall */}
-        <button
-          onClick={() => setRoom("wall")}
-          className="rounded-3xl overflow-hidden text-left transition-all active:scale-[0.98] hover:shadow-lg"
-          style={{ background: "white", boxShadow: "0 4px 24px rgba(255,31,125,0.10)", border: "1.5px solid #FFE0EE" }}
-        >
-          {/* Preview strip — pinned post */}
-          <div className="px-5 pt-5 pb-4" style={{ borderLeft: "5px solid var(--bb-pink)" }}>
-            <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: "var(--bb-pink)" }}>THE WALL</p>
-            <p className="font-bold text-xl italic leading-snug mb-2" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>
-              Where plans are made.
-            </p>
-            {/* Mini preview of top post */}
-            <div className="rounded-xl px-3 py-2.5 mb-4" style={{ background: "#FFF5F8" }}>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>A</div>
-                <p className="text-[10px] font-bold" style={{ color: "var(--bb-black)" }}>Aaliyah M.</p>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>Gather</span>
-              </div>
-              <p className="text-xs leading-snug" style={{ color: "#666" }}>"Anyone want to do matcha Thursday morning in Williamsburg? Max 5."</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs" style={{ color: "#aaa" }}>42 posts today · 8 replies in the last hour</p>
-              <span className="text-sm font-bold" style={{ color: "var(--bb-pink)" }}>Enter →</span>
-            </div>
-          </div>
-        </button>
-
-        {/* Door 2: Girl Bar */}
-        <button
-          onClick={() => setRoom("girlbar")}
-          className="rounded-3xl overflow-hidden text-left transition-all active:scale-[0.98] hover:shadow-lg"
-          style={{ background: "#111111", boxShadow: "0 4px 24px rgba(255,31,125,0.25)" }}
-        >
-          <div className="absolute-position relative overflow-hidden rounded-3xl">
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,31,125,0.2) 0%, transparent 60%)" }}/>
-          </div>
-          <div className="px-5 pt-5 pb-5 relative">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D", animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite" }}/>
-              <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF69B4" }}>GIRL BAR · LIVE NOW</p>
-            </div>
-            <p className="font-bold text-xl italic text-white leading-snug mb-2" style={{ fontFamily: "var(--font-playfair)" }}>
-              Girls Talk Late.
-            </p>
-            {/* Mini room list */}
-            <div className="flex flex-col gap-1.5 mb-4">
-              {GIRL_BAR_ROOMS.filter(r => r.live).map(r => (
-                <div key={r.id} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }}/>
-                  <span className="text-xs text-white/70">{r.name}</span>
-                  <span className="text-xs font-bold ml-auto" style={{ color: "#FF1F7D" }}>{r.women}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                {GIRL_BAR_ROOMS.filter(r => r.live).reduce((s, r) => s + r.women, 0)} women listening
+        {/* Main doors — Wall + Girl Bar */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {LOBBY_DOORS.slice(0, 2).map((door) => (
+            <button
+              key={door.id}
+              onClick={() => setRoom(door.id)}
+              className="relative rounded-2xl text-left transition-all active:scale-[0.96]"
+              style={{
+                background: door.bg,
+                minHeight: "230px",
+                boxShadow: door.dark
+                  ? "0 8px 28px rgba(255,31,125,0.22)"
+                  : "0 6px 24px rgba(255,31,125,0.10), 0 0 0 1.5px rgba(255,31,125,0.1)",
+              }}
+            >
+              {door.dark && (
+                <div className="absolute inset-0 rounded-2xl pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 20% 20%, rgba(255,31,125,0.22) 0%, transparent 60%)" }} />
+              )}
+              {/* Inset door frame */}
+              <div className="absolute inset-[7px] rounded-xl pointer-events-none"
+                style={{ border: `1px solid ${door.dark ? "rgba(255,255,255,0.07)" : "rgba(255,31,125,0.1)"}` }} />
+              {/* Door handle */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2"
+                style={{ width: "3px", height: "22px", borderRadius: "2px", background: door.dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" }} />
+              {/* Number */}
+              <p className="absolute top-4 left-4 text-[8px] font-mono font-bold tracking-[0.2em]"
+                style={{ color: door.accent }}>
+                {door.n}
               </p>
-              <span className="text-sm font-bold" style={{ color: "#FF69B4" }}>Tap in →</span>
-            </div>
-          </div>
-        </button>
+              {/* Content */}
+              <div className="absolute bottom-4 left-4 right-8">
+                <p className="text-lg font-bold italic leading-tight mb-0.5"
+                  style={{ fontFamily: "var(--font-playfair)", color: door.dark ? "rgba(255,255,255,0.92)" : "#111111" }}>
+                  {door.name}
+                </p>
+                <p className="text-[10px] mb-2.5"
+                  style={{ color: door.dark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.38)" }}>
+                  {door.sub}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse"
+                    style={{ background: door.accent }} />
+                  <span className="text-[9px] font-bold tracking-wider" style={{ color: door.accent }}>
+                    {door.hint}
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Secondary doors — New Keys, Vanity, Closet */}
+        <div className="grid grid-cols-3 gap-3 md:grid-cols-3">
+          {LOBBY_DOORS.slice(2).map((door) => (
+            <button
+              key={door.id}
+              onClick={() => setRoom(door.id)}
+              className="relative rounded-2xl text-left transition-all active:scale-[0.96]"
+              style={{
+                background: door.bg,
+                minHeight: "160px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04)",
+                opacity: 0.75,
+              }}
+            >
+              {/* Inset frame */}
+              <div className="absolute inset-[6px] rounded-xl pointer-events-none"
+                style={{ border: "1px solid rgba(0,0,0,0.06)" }} />
+              {/* Door handle */}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2"
+                style={{ width: "2.5px", height: "18px", borderRadius: "2px", background: "rgba(0,0,0,0.1)" }} />
+              {/* Number */}
+              <p className="absolute top-3.5 left-3.5 text-[7px] font-mono font-bold tracking-[0.2em]"
+                style={{ color: door.accent, opacity: 0.5 }}>
+                {door.n}
+              </p>
+              {/* Coming soon tag */}
+              <div className="absolute top-3 right-5">
+                <span className="text-[7px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                  style={{ background: "rgba(0,0,0,0.05)", color: "#bbb" }}>
+                  Soon
+                </span>
+              </div>
+              {/* Content */}
+              <div className="absolute bottom-3.5 left-3.5 right-6">
+                <p className="text-sm font-bold italic leading-tight mb-0.5"
+                  style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+                  {door.name}
+                </p>
+                <p className="text-[9px]" style={{ color: "rgba(0,0,0,0.32)" }}>{door.sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
 
       </div>
+
+      {/* Live pulse */}
+      <div className="px-5 md:px-8 mt-6">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+          style={{ background: "#111111" }}>
+          <span className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
+          <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>
+            35 women in The Lobby right now
+          </p>
+        </div>
+      </div>
+
     </div>
   );
 }

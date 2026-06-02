@@ -39,7 +39,7 @@ export function MemberSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col px-6 gap-0">
+      <nav className="flex-1 flex flex-col gap-0">
         {NAV.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
@@ -47,7 +47,12 @@ export function MemberSidebar() {
               key={item.href}
               href={item.href}
               className="flex items-baseline gap-2.5 py-3 transition-all group"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                borderLeft: active ? "2px solid #FF1F7D" : "2px solid transparent",
+                paddingLeft: "22px",
+                paddingRight: "24px",
+              }}
             >
               <span
                 className="text-[9px] font-mono tabular-nums flex-shrink-0"
@@ -61,12 +66,6 @@ export function MemberSidebar() {
               >
                 {item.label}
               </span>
-              {active && (
-                <div
-                  className="absolute left-0 w-[2px] h-5 rounded-r-full"
-                  style={{ background: "#FF1F7D" }}
-                />
-              )}
             </Link>
           );
         })}

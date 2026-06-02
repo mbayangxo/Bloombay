@@ -179,8 +179,6 @@ const INITIAL_PLACES: Place[] = [
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const FILTERS = ["Tonight", "Today", "This Weekend", "Free", "Near Me", "Women-Loved"] as const;
-type Filter = typeof FILTERS[number];
 
 const TYPE_LABEL: Record<HappeningType, string> = {
   gallery: "GALLERY",
@@ -221,7 +219,7 @@ function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
 
   return (
     <div
-      className={`rounded-3xl overflow-hidden bg-white${featured ? " md:col-span-2" : ""}`}
+      className="rounded-3xl overflow-hidden bg-white"
       style={{ boxShadow: "0 2px 14px rgba(0,0,0,0.07)" }}
     >
       {/* Visual area */}
@@ -473,7 +471,7 @@ function AddPopupSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (h: Hap
   );
 }
 
-// ── Seat Ticket ───────────────────────────────────────────────────────────────
+// ── Seat Ticket — invitation card ────────────────────────────────────────────
 
 function SeatTicket({
   seat, reserved, onReserve, onDrop,
@@ -483,67 +481,115 @@ function SeatTicket({
   const ps = PRIVACY_STYLE[seat.privacy];
   const payLine =
     seat.paymentType === "pay_in_person"
-      ? `Exact cash · $${seat.cashAmount}`
-      : seat.price === 0 ? "Free" : `$${seat.price} · through app`;
+      ? `Cash · $${seat.cashAmount}`
+      : seat.price === 0 ? "Free" : `$${seat.price} through app`;
 
   return (
     <div
-      className="bg-white rounded-2xl overflow-hidden flex-shrink-0"
+      className="rounded-2xl overflow-hidden relative"
       style={{
-        width: "280px",
-        boxShadow: reserved ? "0 2px 16px rgba(255,31,125,0.1)" : "0 2px 12px rgba(0,0,0,0.06)",
+        background: "#FDFAF5",
+        border: "1px solid rgba(0,0,0,0.07)",
+        boxShadow: reserved
+          ? "0 8px 32px rgba(255,31,125,0.14), 0 2px 8px rgba(0,0,0,0.06)"
+          : "0 4px 20px rgba(0,0,0,0.08)",
       }}
     >
-      <div className="flex">
-        <div className="flex-1 p-4 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
-                  style={{ background: ps.bg, color: ps.color }}>
-              {ps.symbol} {seat.privacy}
-            </span>
-            {reserved && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
-                ✓ Reserved
-              </span>
-            )}
-          </div>
-          <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{seat.title}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{seat.time}</p>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: "#FF1F7D" }}>{seat.host}</p>
-          <p className="text-[11px] text-gray-400 mt-2">{payLine}</p>
-        </div>
-        <div className="w-[76px] flex-shrink-0 flex flex-col items-center justify-center gap-0.5 py-4 px-2"
-             style={{ background: "#FFF5F8", borderLeft: "1.5px dashed #FECDD5" }}>
-          <p className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>{seat.seats}</p>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">seats</p>
-          {seat.deposit > 0 && (
-            <>
-              <div className="w-8 my-1" style={{ borderTop: "1px solid #FECDD5" }} />
-              <p className="text-sm font-bold" style={{ color: "#111111" }}>${seat.deposit}</p>
-              <p className="text-[10px] text-gray-400">deposit</p>
-            </>
-          )}
-        </div>
+      {/* Privacy banner */}
+      <div
+        className="px-5 py-2 flex items-center gap-2"
+        style={{ background: "#F5EDE5", borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+      >
+        <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#999" }}>
+          {ps.symbol} {seat.privacy}
+        </span>
+        {reserved && (
+          <span
+            className="ml-auto text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full"
+            style={{ background: "#FF1F7D", color: "white" }}
+          >
+            ✓ RESERVED
+          </span>
+        )}
       </div>
-      <div className="px-4 py-2.5 flex items-center justify-between gap-2" style={{ borderTop: "1px solid #FFF0F5" }}>
-        <p className="text-[11px] text-gray-400 flex-1 min-w-0 truncate">
-          {seat.deposit > 0 ? `$${seat.deposit} back as credit when you show up` : "No deposit"}
+
+      {/* Invitation body */}
+      <div className="px-6 py-6 flex flex-col items-center text-center">
+        {/* Host – Caveat handwriting */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "#999", marginBottom: "6px" }}>
+          {seat.host}
         </p>
+        <div style={{ width: "28px", height: "1px", background: "rgba(0,0,0,0.1)", marginBottom: "10px" }} />
+
+        {/* Title – large serif */}
+        <h3
+          style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: "18px",
+            fontWeight: 700,
+            color: "#111111",
+            lineHeight: 1.2,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            marginBottom: "10px",
+          }}
+        >
+          {seat.title}
+        </h3>
+
+        {/* Date – Caveat */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "16px", color: "#555", marginBottom: "3px" }}>
+          {seat.time}
+        </p>
+        <p style={{ fontSize: "11px", color: "#aaa", marginBottom: "10px" }}>{seat.venue}</p>
+
+        {/* Seats + pay */}
+        <div className="flex items-center gap-2 mb-6">
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "#FF1F7D" }}>
+            {seat.seats} {seat.seats === 1 ? "seat" : "seats"} left
+          </span>
+          <span style={{ fontSize: "10px", color: "#ddd" }}>·</span>
+          <span style={{ fontSize: "10px", color: "#bbb" }}>{payLine}</span>
+        </div>
+
+        {/* Wax-seal RSVP */}
         {reserved ? (
-          <button onClick={onDrop}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold"
-                  style={{ background: "#FFF0F5", color: "#FF1F7D", border: "1px solid #FECDD5" }}>
-            Drop spot
-          </button>
+          <div className="flex items-center gap-4">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{ background: "#FF1F7D", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}
+            >
+              <span style={{ color: "white", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em" }}>GOING</span>
+            </div>
+            <button onClick={onDrop} style={{ fontSize: "11px", color: "#bbb", fontWeight: 500 }}>
+              Drop
+            </button>
+          </div>
         ) : (
-          <button onClick={onReserve}
-                  className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-white"
-                  style={{ background: "#FF1F7D" }}>
-            Grab a seat
+          <button
+            onClick={onReserve}
+            className="w-16 h-16 rounded-full flex flex-col items-center justify-center transition-all active:scale-95"
+            style={{ background: "#111111", boxShadow: "0 6px 20px rgba(0,0,0,0.28)" }}
+          >
+            <span style={{ color: "rgba(255,105,180,0.8)", fontSize: "12px", lineHeight: 1 }}>✦</span>
+            <span style={{ color: "white", fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", marginTop: "3px" }}>
+              RSVP
+            </span>
           </button>
         )}
       </div>
+
+      {/* Deposit strip */}
+      {seat.deposit > 0 && (
+        <div
+          className="px-5 py-2.5 text-center"
+          style={{ borderTop: "1px dashed rgba(0,0,0,0.08)", background: "#FAF4EC" }}
+        >
+          <p style={{ fontSize: "10px", color: "#bbb" }}>
+            ${seat.deposit} deposit · returned as credit when you show up
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -693,8 +739,10 @@ function CreateSeatSheet({ onClose }: { onClose: () => void }) {
               <p className="text-[11px] text-gray-400 mt-1">Returns as wallet credit when she shows up.</p>
             </div>
 
-            <button className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
-                    style={{ background: "#FF1F7D" }}>
+            <button
+                    onClick={() => { if (title.trim()) onClose(); }}
+                    className="w-full py-4 rounded-full font-bold text-base text-white mt-1"
+                    style={{ background: title.trim() ? "#FF1F7D" : "#ccc", transition: "background 0.2s" }}>
               Post Seat
             </button>
           </div>
@@ -940,296 +988,227 @@ function AddPlaceSheet({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Pla
   );
 }
 
-// ── What's On Tab ─────────────────────────────────────────────────────────────
-
-function WhatsOnTab() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("Tonight");
-  const [happenings, setHappenings]     = useState<Happening[]>(INITIAL_HAPPENINGS);
-  const [reservedSeats, setReservedSeats] = useState<Set<number>>(new Set());
-  const [showCreate, setShowCreate]     = useState(false);
-  const [showAddPopup, setShowAddPopup] = useState(false);
-  const [showingUp, setShowingUp]       = useState<Set<number>>(new Set());
-
-  function reserveSeat(id: number) { setReservedSeats((p) => new Set([...p, id])); }
-  function dropSeat(id: number) { setReservedSeats((p) => { const n = new Set(p); n.delete(id); return n; }); }
-
-  const filtered = happenings.filter((h) => {
-    if (activeFilter === "Tonight")      return h.timeTag === "tonight";
-    if (activeFilter === "Today")        return h.timeTag === "today" || h.timeTag === "tonight";
-    if (activeFilter === "This Weekend") return h.timeTag === "weekend";
-    if (activeFilter === "Free")         return h.price === 0;
-    if (activeFilter === "Women-Loved")  return h.womenLoved;
-    return true;
-  });
-
-  const featured = filtered.find((h) => h.featured);
-  const rest     = filtered.filter((h) => !h.featured);
-
-  return (
-    <div className="flex flex-col gap-10">
-      {/* Filter chips */}
-      <div className="overflow-x-auto -mx-5 px-5 md:-mx-8 md:px-8">
-        <div className="flex gap-2 w-max pb-1">
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
-              style={activeFilter === f
-                ? { background: "#111111", color: "white" }
-                : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* City events */}
-      <div>
-        {filtered.length === 0 ? (
-          <div className="rounded-3xl p-10 text-center" style={{ background: "white" }}>
-            <p className="text-gray-400 text-sm">Nothing matching right now. Try a different filter.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {featured && <HappeningCard h={featured} featured />}
-            {rest.map((h) => <HappeningCard key={h.id} h={h} />)}
-          </div>
-        )}
-
-        {/* Add a pop-up card */}
-        <button
-          onClick={() => setShowAddPopup(true)}
-          className="w-full mt-4 rounded-3xl p-5 flex items-center gap-4 transition-all active:scale-[0.98]"
-          style={{ background: "#111111" }}
-        >
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(255,31,125,0.2)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 12 12" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-              <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
-            </svg>
-          </div>
-          <div className="text-left">
-            <p className="font-bold text-white text-sm">Add a pop-up</p>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>Know about something happening? Post it for the city.</p>
-          </div>
-        </button>
-      </div>
-
-      {/* BloomBay Seats */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>OPEN SEATS</p>
-            <p className="font-bold text-base mt-0.5" style={{ color: "var(--bb-black)" }}>Women making plans near you</p>
-          </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold text-white"
-            style={{ background: "#FF1F7D" }}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-              <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
-            </svg>
-            Post a seat
-          </button>
-        </div>
-
-        <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
-          {SEATS.map((seat) => (
-            <SeatTicket
-              key={seat.id}
-              seat={seat}
-              reserved={reservedSeats.has(seat.id)}
-              onReserve={() => reserveSeat(seat.id)}
-              onDrop={() => dropSeat(seat.id)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Celebrate */}
-      <div>
-        <div className="mb-3">
-          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>SHOW UP · BE THERE</p>
-          <p className="font-bold text-base mt-0.5" style={{ color: "var(--bb-black)" }}>Celebrate with her</p>
-        </div>
-        <div className="flex flex-col gap-3">
-          {CELEBRATE.map((c) => {
-            const attending = showingUp.has(c.id);
-            return (
-              <div key={c.id} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                     style={{ background: "#FF1F7D" }}>
-                  {c.initial}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{c.name} · <span className="font-normal text-gray-500">{c.event}</span></p>
-                  <p className="italic text-xs text-gray-500 mt-0.5 truncate" style={{ fontFamily: "var(--font-playfair)" }}>
-                    &ldquo;{c.quote}&rdquo;
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">{c.location} · <span style={{ color: "#FF1F7D", fontWeight: 600 }}>{c.seats}</span></p>
-                </div>
-                <button
-                  onClick={() => setShowingUp((p) => new Set([...p, c.id]))}
-                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
-                  style={attending
-                    ? { background: "#FFF0F5", color: "#FF1F7D" }
-                    : { background: "#FF1F7D", color: "white" }}
-                >
-                  {attending ? "Going ✓" : "Show up"}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {showCreate && <CreateSeatSheet onClose={() => setShowCreate(false)} />}
-      {showAddPopup && (
-        <AddPopupSheet
-          onClose={() => setShowAddPopup(false)}
-          onAdd={(h) => setHappenings((prev) => [...prev, h])}
-        />
-      )}
-    </div>
-  );
-}
-
-// ── Girl Picks Tab ────────────────────────────────────────────────────────────
-
-function GirlPicksTab() {
-  const [placeFilter, setPlaceFilter] = useState<PlaceFilter>("All");
-  const [places, setPlaces]           = useState<Place[]>(INITIAL_PLACES);
-  const [stampedPlaces, setStampedPlaces] = useState<Set<number>>(new Set());
-  const [showAddPlace, setShowAddPlace]   = useState(false);
-
-  const PLACE_FILTERS: PlaceFilter[] = ["All", "Places", "Eats", "Gems"];
-
-  const filterMap: Record<PlaceFilter, PlaceType | null> = {
-    All: null,
-    Places: "place",
-    Eats: "eat",
-    Gems: "gem",
-  };
-
-  const filtered = places.filter((p) => {
-    const ft = filterMap[placeFilter];
-    return ft === null || p.type === ft;
-  });
-
-  function handleStamp(id: number) {
-    if (stampedPlaces.has(id)) return;
-    setStampedPlaces((prev) => new Set([...prev, id]));
-    setPlaces((prev) => prev.map((p) => p.id === id ? { ...p, stamps: p.stamps + 1 } : p));
-  }
-
-  return (
-    <div className="flex flex-col gap-6">
-      {/* Header row */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {PLACE_FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setPlaceFilter(f)}
-              className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
-              style={placeFilter === f
-                ? { background: "#FF1F7D", color: "white" }
-                : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={() => setShowAddPlace(true)}
-          className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold text-white"
-          style={{ background: "#FF1F7D" }}
-        >
-          + Add a place
-        </button>
-      </div>
-
-      {/* Place cards */}
-      <div className="flex flex-col gap-3">
-        {filtered.map((place) => (
-          <PlaceCard
-            key={place.id}
-            place={place}
-            stamped={stampedPlaces.has(place.id)}
-            onStamp={() => handleStamp(place.id)}
-          />
-        ))}
-        {filtered.length === 0 && (
-          <div className="rounded-3xl p-10 text-center bg-white">
-            <p className="text-gray-400 text-sm">No picks here yet. Be the first!</p>
-          </div>
-        )}
-      </div>
-
-      {showAddPlace && (
-        <AddPlaceSheet
-          onClose={() => setShowAddPlace(false)}
-          onAdd={(p) => setPlaces((prev) => [p, ...prev])}
-        />
-      )}
-    </div>
-  );
-}
-
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function CityPage() {
-  const [activeTab, setActiveTab] = useState<"whats-on" | "girl-picks">("whats-on");
+  const [happenings, setHappenings]       = useState<Happening[]>(INITIAL_HAPPENINGS);
+  const [places, setPlaces]               = useState<Place[]>(INITIAL_PLACES);
+  const [reservedSeats, setReservedSeats] = useState<Set<number>>(new Set());
+  const [stampedPlaces, setStampedPlaces] = useState<Set<number>>(new Set());
+  const [showingUp, setShowingUp]         = useState<Set<number>>(new Set());
+  const [showCreate, setShowCreate]       = useState(false);
+  const [showAddPopup, setShowAddPopup]   = useState(false);
+  const [showAddPlace, setShowAddPlace]   = useState(false);
+  const [showFilters, setShowFilters]     = useState(false);
+  const [activeFilter, setActiveFilter]   = useState<string | null>(null);
+
+  function reserveSeat(id: number) { setReservedSeats((p) => new Set([...p, id])); }
+  function dropSeat(id: number)    { setReservedSeats((p) => { const n = new Set(p); n.delete(id); return n; }); }
+
+  function handleStamp(id: number) {
+    if (stampedPlaces.has(id)) return;
+    setStampedPlaces((p) => new Set([...p, id]));
+    setPlaces((p) => p.map((pl) => pl.id === id ? { ...pl, stamps: pl.stamps + 1 } : pl));
+  }
+
+  const tonight   = happenings.filter((h) => h.timeTag === "tonight");
+  const thisWeek  = happenings.filter((h) => h.timeTag === "today");
+  const comingUp  = happenings.filter((h) => h.timeTag === "weekend");
+  const featured  = tonight.find((h) => h.featured);
+  const restTonight = tonight.filter((h) => !h.featured);
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>NYC</p>
-          <span className="text-xs text-gray-300">·</span>
-          <p className="text-xs text-gray-400">Monday, June 1</p>
-        </div>
-        <h1 className="text-4xl font-bold" style={{ color: "var(--bb-black)" }}>Happenings</h1>
-        <p className="text-sm italic text-gray-400 mt-0.5" style={{ fontFamily: "var(--font-playfair)" }}>
-          What&apos;s happening in the city.
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
+          ✦ NYC · WILLIAMSBURG
         </p>
-      </div>
-
-      {/* ── Top-level tabs ── */}
-      <div className="px-5 md:px-8 mb-6">
-        <div className="flex gap-2">
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-4xl font-bold leading-none" style={{ color: "var(--bb-black)" }}>The City</h1>
+            <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+              What&apos;s happening around you.
+            </p>
+          </div>
+          {/* Hidden filter toggle */}
           <button
-            onClick={() => setActiveTab("whats-on")}
-            className="px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
-            style={activeTab === "whats-on"
-              ? { background: "#111111", color: "white" }
-              : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
+            onClick={() => setShowFilters(f => !f)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
+            style={{ background: showFilters ? "#111111" : "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+            title="Filter"
           >
-            What&apos;s On
-          </button>
-          <button
-            onClick={() => setActiveTab("girl-picks")}
-            className="px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
-            style={activeTab === "girl-picks"
-              ? { background: "#111111", color: "white" }
-              : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}
-          >
-            Girl Picks
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showFilters ? "white" : "#888"} strokeWidth="2" strokeLinecap="round">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
           </button>
         </div>
+
+        {/* Collapsible filters */}
+        {showFilters && (
+          <div className="flex gap-2 flex-wrap mt-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+            {["Free", "Women-Loved", "Near Me", "This Weekend"].map((f) => (
+              <button
+                key={f}
+                onClick={() => setActiveFilter(a => a === f ? null : f)}
+                className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
+                style={activeFilter === f
+                  ? { background: "#111111", color: "white" }
+                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ── Tab content ── */}
-      <div className="px-5 md:px-8">
-        {activeTab === "whats-on" ? <WhatsOnTab /> : <GirlPicksTab />}
+      <div className="px-5 md:px-8 flex flex-col gap-12 pb-6">
+
+        {/* ── TONIGHT ── */}
+        <section>
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Tonight</h2>
+            <button onClick={() => setShowAddPopup(true)} className="text-xs" style={{ color: "rgba(0,0,0,0.28)" }}>
+              + pop-up
+            </button>
+          </div>
+          {tonight.length === 0 ? (
+            <div className="rounded-3xl p-10 text-center" style={{ background: "white" }}>
+              <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                The city is catching its breath. Try tomorrow.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {featured && <HappeningCard h={featured} featured />}
+              {restTonight.map((h) => <HappeningCard key={h.id} h={h} />)}
+            </div>
+          )}
+        </section>
+
+        {/* ── OPEN SEATS ── */}
+        <section>
+          <div className="flex items-baseline justify-between mb-5">
+            <div>
+              <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Open Seats</h2>
+              <p className="text-sm font-bold mt-0.5" style={{ fontFamily: "var(--font-caveat)", color: "var(--bb-black)", fontSize: "15px" }}>
+                You&apos;ve been invited.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="text-xs"
+              style={{ color: "rgba(0,0,0,0.28)" }}
+            >
+              + seat
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {SEATS.map((seat) => (
+              <SeatTicket
+                key={seat.id}
+                seat={seat}
+                reserved={reservedSeats.has(seat.id)}
+                onReserve={() => reserveSeat(seat.id)}
+                onDrop={() => dropSeat(seat.id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ── THIS WEEK ── */}
+        {thisWeek.length > 0 && (
+          <section>
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>This Week</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {thisWeek.map((h) => <HappeningCard key={h.id} h={h} />)}
+            </div>
+          </section>
+        )}
+
+        {/* ── COMING UP ── */}
+        {comingUp.length > 0 && (
+          <section>
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>Coming Up</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {comingUp.map((h) => <HappeningCard key={h.id} h={h} />)}
+            </div>
+          </section>
+        )}
+
+        {/* ── CELEBRATE ── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Show Up · Be There</h2>
+            <p className="text-sm font-bold mt-0.5" style={{ color: "var(--bb-black)" }}>Celebrate with her</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {CELEBRATE.map((c) => {
+              const attending = showingUp.has(c.id);
+              return (
+                <div key={c.id} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                    style={{ background: "#FF1F7D" }}>
+                    {c.initial}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm" style={{ color: "#111111" }}>
+                      {c.name} · <span className="font-normal text-gray-500">{c.event}</span>
+                    </p>
+                    <p className="italic text-xs text-gray-500 mt-0.5 truncate" style={{ fontFamily: "var(--font-playfair)" }}>
+                      &ldquo;{c.quote}&rdquo;
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {c.location} · <span style={{ color: "#FF1F7D", fontWeight: 600 }}>{c.seats}</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowingUp((p) => new Set([...p, c.id]))}
+                    className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
+                    style={attending ? { background: "#FFF0F5", color: "#FF1F7D" } : { background: "#FF1F7D", color: "white" }}
+                  >
+                    {attending ? "Going ✓" : "Show up"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── GIRL PICKS ── */}
+        <section>
+          <div className="flex items-baseline justify-between mb-4">
+            <div>
+              <h2 className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>Girl Picks</h2>
+              <p className="text-sm font-bold mt-0.5" style={{ color: "var(--bb-black)" }}>Places the city loves</p>
+            </div>
+            <button
+              onClick={() => setShowAddPlace(true)}
+              className="text-xs"
+              style={{ color: "rgba(0,0,0,0.28)" }}
+            >
+              + place
+            </button>
+          </div>
+          <div className="flex flex-col gap-3">
+            {places.map((place) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                stamped={stampedPlaces.has(place.id)}
+                onStamp={() => handleStamp(place.id)}
+              />
+            ))}
+          </div>
+        </section>
+
       </div>
+
+      {showCreate    && <CreateSeatSheet onClose={() => setShowCreate(false)} />}
+      {showAddPopup  && <AddPopupSheet   onClose={() => setShowAddPopup(false)} onAdd={(h) => setHappenings((p) => [...p, h])} />}
+      {showAddPlace  && <AddPlaceSheet   onClose={() => setShowAddPlace(false)} onAdd={(p) => setPlaces((prev) => [p, ...prev])} />}
     </div>
   );
 }

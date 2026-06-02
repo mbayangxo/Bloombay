@@ -103,7 +103,7 @@ export function HomePage() {
   const surfaceBg   = isNight ? "#111111" : "#F5ECE8";
 
   return (
-    <div className="min-h-screen pb-36 md:pb-12">
+    <div className="min-h-screen pb-24 md:pb-12">
 
       {/* ── TOP BAR ── */}
       <header className="flex items-center justify-between px-5 pt-12 pb-4 md:px-8 md:pt-8">

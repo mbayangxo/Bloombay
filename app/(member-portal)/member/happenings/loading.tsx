@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen pb-36" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
       <div className="px-5 pt-12 pb-4 animate-pulse">
         <div className="h-8 w-40 rounded-2xl bg-pink-100 mb-2" />
       </div>
