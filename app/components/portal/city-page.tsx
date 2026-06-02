@@ -221,7 +221,7 @@ function HappeningCard({ h, featured }: { h: Happening; featured?: boolean }) {
 
   return (
     <div
-      className={`rounded-3xl overflow-hidden bg-white${featured ? " md:col-span-2" : ""}`}
+      className="rounded-3xl overflow-hidden bg-white"
       style={{ boxShadow: "0 2px 14px rgba(0,0,0,0.07)" }}
     >
       {/* Visual area */}
@@ -488,9 +488,8 @@ function SeatTicket({
 
   return (
     <div
-      className="bg-white rounded-2xl overflow-hidden flex-shrink-0"
+      className="bg-white rounded-2xl overflow-hidden"
       style={{
-        width: "280px",
         boxShadow: reserved ? "0 2px 16px rgba(255,31,125,0.1)" : "0 2px 12px rgba(0,0,0,0.06)",
       }}
     >
@@ -992,7 +991,7 @@ function WhatsOnTab() {
             <p className="text-gray-400 text-sm">Nothing matching right now. Try a different filter.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {featured && <HappeningCard h={featured} featured />}
             {rest.map((h) => <HappeningCard key={h.id} h={h} />)}
           </div>
@@ -1038,7 +1037,7 @@ function WhatsOnTab() {
           </button>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {SEATS.map((seat) => (
             <SeatTicket
               key={seat.id}
@@ -1057,7 +1056,7 @@ function WhatsOnTab() {
           <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>SHOW UP · BE THERE</p>
           <p className="font-bold text-base mt-0.5" style={{ color: "var(--bb-black)" }}>Celebrate with her</p>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {CELEBRATE.map((c) => {
             const attending = showingUp.has(c.id);
             return (
