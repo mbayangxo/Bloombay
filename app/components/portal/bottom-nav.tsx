@@ -14,7 +14,9 @@ const PLACES = [
   { href: "/member/happenings", label: "The City",   sub: "Events & happenings"      },
 ];
 
-export function BottomNav() {
+interface NavUser { name: string; initial: string; role: string; }
+
+export function BottomNav({ user }: { user: NavUser }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -163,11 +165,11 @@ export function BottomNav() {
                   className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                   style={{ background: "#FF1F7D" }}
                 >
-                  M
+                  {user.initial}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold" style={{ color: "#111111" }}>Maya L.</p>
-                  <p className="text-[10px] tracking-wider uppercase" style={{ color: "#bbb" }}>Founding Mother</p>
+                  <p className="text-sm font-bold" style={{ color: "#111111" }}>{user.name}</p>
+                  <p className="text-[10px] tracking-wider uppercase" style={{ color: "#bbb" }}>{user.role}</p>
                 </div>
                 <form action={logout}>
                   <button type="submit" className="text-xs" style={{ color: "#FF1F7D" }}>

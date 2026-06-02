@@ -174,7 +174,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
   const [notified, setNotified] = useState<Set<number>>(new Set());
 
   return (
-    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "#0A0005" }}>
+    <div className="min-h-screen pb-36 md:pb-10" style={{ background: "#130E09" }}>
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -187,7 +187,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
 
       <div className="px-5 md:px-8 flex flex-col gap-4">
         {/* Hero */}
-        <div className="rounded-3xl relative overflow-hidden" style={{ background: "#111111", minHeight: "160px", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
+        <div className="rounded-3xl relative overflow-hidden" style={{ background: "#1A1008", minHeight: "160px", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,31,125,0.22) 0%, transparent 65%)" }}/>
           <div className="relative p-6">
             <div className="flex items-center gap-2.5 mb-3">
@@ -293,7 +293,7 @@ export default function TheLobbyPage() {
         <button
           onClick={() => setRoom("girlbar")}
           className="rounded-3xl overflow-hidden text-left transition-all active:scale-[0.98] hover:shadow-lg"
-          style={{ background: "#111111", boxShadow: "0 4px 24px rgba(255,31,125,0.25)" }}
+          style={{ background: "#1A1008", boxShadow: "0 4px 24px rgba(255,31,125,0.25)" }}
         >
           <div className="absolute-position relative overflow-hidden rounded-3xl">
             <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,31,125,0.2) 0%, transparent 60%)" }}/>

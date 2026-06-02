@@ -14,7 +14,9 @@ const NAV = [
   { href: "/member/happenings", label: "THE CITY",   n: "06" },
 ];
 
-export function MemberSidebar() {
+interface SidebarUser { name: string; initial: string; role: string; }
+
+export function MemberSidebar({ user }: { user: SidebarUser }) {
   const pathname = usePathname();
 
   return (
@@ -94,15 +96,15 @@ export function MemberSidebar() {
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
             style={{ background: "#FF1F7D" }}
           >
-            M
+            {user.initial}
           </div>
         </Link>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-bold tracking-wider truncate" style={{ color: "rgba(255,255,255,0.8)" }}>
-            MAYA L.
+            {user.name.toUpperCase()}
           </p>
           <p className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-            FOUNDER
+            {user.role.toUpperCase()}
           </p>
         </div>
         <form action={logout}>

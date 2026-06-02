@@ -84,7 +84,7 @@ const CLUB_PULSE = [
   { name: "African Girls Club",    status: "🎉 Event coming Friday",              members: "204" },
 ];
 
-export function HomePage() {
+export function HomePage({ firstName, initial }: { firstName: string; initial: string }) {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const [greeting, setGreeting] = useState("Good morning");
   const [witnessShown, setWitnessShown] = useState(true);
@@ -97,10 +97,10 @@ export function HomePage() {
 
   const isNight = tod === "night" || tod === "evening";
   const mood = CITY_MOOD[tod];
-  const textMuted   = isNight ? "rgba(255,255,255,0.45)" : "#888";
-  const headingColor = isNight ? "white" : "#111111";
-  const cardBg      = isNight ? "#1A1A1A" : "white";
-  const surfaceBg   = isNight ? "#111111" : "#F5ECE8";
+  const textMuted   = isNight ? "rgba(255,235,220,0.5)" : "#888";
+  const headingColor = isNight ? "rgba(255,245,235,0.95)" : "#111111";
+  const cardBg      = isNight ? "#2A1E16" : "white";
+  const surfaceBg   = isNight ? "#1E1510" : "#F5ECE8";
 
   return (
     <div className="min-h-screen pb-36 md:pb-12">
@@ -114,14 +114,14 @@ export function HomePage() {
           <h1 className="text-4xl font-bold leading-tight mt-1 md:text-5xl" style={{ color: headingColor }}>
             {greeting},{" "}
             <span className="italic" style={{ fontFamily: "var(--font-instrument)", color: "#FF1F7D", fontWeight: 400 }}>
-              Maya.
+              {firstName}.
             </span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/member/messages"
             className="w-9 h-9 flex items-center justify-center rounded-full"
-            style={{ background: isNight ? "#1A1A1A" : "#FFE0EC" }}>
+            style={{ background: isNight ? "#2A1E16" : "#FFE0EC" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
@@ -129,7 +129,7 @@ export function HomePage() {
           </Link>
           <Link href="/member/notifications"
             className="w-9 h-9 flex items-center justify-center rounded-full relative"
-            style={{ background: isNight ? "#1A1A1A" : "#FFE0EC" }}>
+            style={{ background: isNight ? "#2A1E16" : "#FFE0EC" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
@@ -138,7 +138,7 @@ export function HomePage() {
           <Link href="/member/lounge">
             <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
               style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>
-              M
+              {initial}
             </div>
           </Link>
         </div>
@@ -149,7 +149,7 @@ export function HomePage() {
         <div
           className="rounded-3xl relative overflow-hidden"
           style={{
-            background: "#111111",
+            background: "#1A1008",
             minHeight: "260px",
             boxShadow: "0 16px 48px rgba(255,31,125,0.22), 0 4px 16px rgba(0,0,0,0.4)",
           }}
@@ -249,7 +249,7 @@ export function HomePage() {
                 <Link key={inv.id} href="/member/happenings"
                   className="rounded-2xl overflow-hidden flex items-stretch"
                   style={{
-                    background: inv.dark ? "#111111" : cardBg,
+                    background: inv.dark ? "#1A1008" : cardBg,
                     boxShadow: inv.dark
                       ? "0 4px 20px rgba(255,31,125,0.15)"
                       : "0 2px 12px rgba(0,0,0,0.07)",
@@ -305,7 +305,7 @@ export function HomePage() {
                 <Link key={ev.id} href="/member/happenings"
                   className="rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden"
                   style={{
-                    background: ev.dark ? "#111111" : cardBg,
+                    background: ev.dark ? "#1A1008" : cardBg,
                     minHeight: "160px",
                     boxShadow: ev.dark
                       ? "0 6px 24px rgba(255,31,125,0.15)"
@@ -381,7 +381,7 @@ export function HomePage() {
                       </span>
                     </div>
                     <p className="text-sm leading-relaxed" style={{ color: textMuted }}>
-                      &ldquo;Maya is the one who makes everyone feel welcome at every table. She showed up when we had 12 members. She&apos;s the real one.&rdquo;
+                      &ldquo;She makes every table feel full. She showed up for us when we were just 12 women. She&apos;s the real one.&rdquo;
                     </p>
                   </div>
                   <button onClick={() => setWitnessShown(false)}
@@ -399,7 +399,7 @@ export function HomePage() {
           {/* LOBBY TEASER — mobile only */}
           <div className="px-5 mb-6 md:hidden">
             <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: "#111111" }}>
+              style={{ background: "#1A1008" }}>
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.18) 0%, transparent 60%)" }} />
               <div className="relative">
@@ -472,7 +472,7 @@ export function HomePage() {
                     </span>
                   </div>
                   <p className="text-xs leading-relaxed" style={{ color: textMuted }}>
-                    &ldquo;Maya showed up when we had 12 members. She&apos;s the real one.&rdquo;
+                    &ldquo;She showed up when we had 12 members. She&apos;s the real one.&rdquo;
                   </p>
                 </div>
                 <button onClick={() => setWitnessShown(false)}
@@ -488,7 +488,7 @@ export function HomePage() {
 
           {/* Yande — desktop pick */}
           <div className="rounded-3xl overflow-hidden relative"
-            style={{ background: "#111111", boxShadow: "0 8px 28px rgba(0,0,0,0.25)" }}>
+            style={{ background: "#1A1008", boxShadow: "0 8px 28px rgba(0,0,0,0.25)" }}>
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse at 10% 85%, rgba(255,31,125,0.2) 0%, transparent 60%)" }} />
             <div className="relative p-5">
@@ -512,7 +512,7 @@ export function HomePage() {
 
           {/* Enter the Lobby */}
           <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-            style={{ background: "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+            style={{ background: "#1A1008", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.15) 0%, transparent 60%)" }} />
             <div className="relative">
