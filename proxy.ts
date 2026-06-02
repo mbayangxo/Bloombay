@@ -47,9 +47,18 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/club-owner") ||
     pathname.startsWith("/partner") ||
-    pathname.startsWith("/curator");
+    pathname.startsWith("/curator") ||
+    pathname.startsWith("/founder");
 
-  if (isProtected && !user) {
+  const isLoginPath =
+    pathname === "/member/login" ||
+    pathname === "/admin/login" ||
+    pathname === "/club-owner/login" ||
+    pathname === "/partner/login" ||
+    pathname === "/curator/login" ||
+    pathname === "/founder/login";
+
+  if (isProtected && !isLoginPath && !user) {
     // Redirect to appropriate login
     let loginPath = "/member/login";
     if (pathname.startsWith("/admin")) loginPath = "/admin/login";
@@ -59,14 +68,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(loginPath, request.url));
   }
 
-  if (
-    user &&
-    (pathname === "/member/login" ||
-      pathname === "/admin/login" ||
-      pathname === "/club-owner/login" ||
-      pathname === "/partner/login" ||
-      pathname === "/curator/login")
-  ) {
+  if (user && isLoginPath) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -74,7 +76,7 @@ export async function proxy(request: NextRequest) {
       .single();
     const role = profile?.role ?? "member";
     const homes: Record<string, string> = {
-      founder: "/admin/dashboard",
+      founder: "/founder/dashboard",
       admin: "/admin/dashboard",
       club_owner: "/club-owner/dashboard",
       partner: "/partner/dashboard",

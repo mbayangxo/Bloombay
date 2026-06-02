@@ -27,15 +27,15 @@ export default function AdminLoginPage() {
             className="text-xs font-semibold tracking-[0.2em] uppercase mb-3"
             style={{ color: "#FF1F7D" }}
           >
-            Founder Portal
+            Admin Portal
           </span>
           <h1
             className="text-2xl font-bold tracking-tight text-white text-center"
           >
-            Mission Control
+            Operations
           </h1>
           <p className="text-sm mt-1" style={{ color: "#9e7a8a" }}>
-            Build with purpose.
+            Keep BloomBay running.
           </p>
         </div>
 

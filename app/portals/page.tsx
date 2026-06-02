@@ -78,35 +78,6 @@ export default function PortalsPage() {
           Join BloomBay
         </Link>
       </p>
-
-      {/* Staff portals */}
-      <div className="mt-10 w-full max-w-sm">
-        <p className="text-center text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#3a1828" }}>
-          Staff &amp; Partners
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: "Admin / Founder",  href: "/admin/login"      },
-            { label: "Curator",          href: "/curator/login"    },
-            { label: "Club Owner",       href: "/club-owner/login" },
-            { label: "Partner",          href: "/partner/login"    },
-          ].map((p) => (
-            <Link
-              key={p.href}
-              href={p.href}
-              className="rounded-2xl px-4 py-3 text-center text-xs font-semibold transition-all hover:brightness-110"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#8a5068",
-                textDecoration: "none",
-              }}
-            >
-              {p.label}
-            </Link>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

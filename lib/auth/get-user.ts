@@ -69,6 +69,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 export function getPortalHomeForRole(role: UserRole): string {
   switch (role) {
     case "founder":
+      return "/founder/dashboard";
     case "admin":
       return "/admin/dashboard";
     case "club_owner":
