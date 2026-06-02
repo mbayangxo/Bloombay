@@ -38,6 +38,9 @@ const CLUBS: Club[] = [
   { id: 6, name: "Jazz & Wine Girls",        women: 61,  desc: "Jazz nights, wine bars, vinyl listening sessions.",                                             color: "#FF1F7D", curator: "Amanda R.", tags: ["Music", "Social"],          type: "user" },
 ];
 
+// Pre-seed ids 1 and 2 as joined to simulate "My Clubs"
+const INITIAL_JOINED = new Set<number>([1, 2]);
+
 function HQBadge() {
   return (
     <span
@@ -51,7 +54,7 @@ function HQBadge() {
 
 export function ClubsPage() {
   const [activeTab, setActiveTab]         = useState(0);
-  const [joined, setJoined]               = useState<Set<number>>(new Set());
+  const [joined, setJoined]               = useState<Set<number>>(INITIAL_JOINED);
   const [requested, setRequested]         = useState<Set<number>>(new Set());
   const [joiningId, setJoiningId]         = useState<number | null>(null);
   const [womenCounts, setWomenCounts]     = useState<Record<number, number>>(
@@ -84,7 +87,7 @@ export function ClubsPage() {
     setWomenCounts((prev) => ({ ...prev, [id]: prev[id] - 1 }));
   }
 
-  const myClubs = [FEATURED, ...CLUBS].filter((c) => joined.has(c.id));
+  const myClubs = [FEATURED, ...CLUBS].filter((c) => joined.has(c.id) || requested.has(c.id));
 
   function ClubJoinButton({ club }: { club: Club }) {
     const isJoined    = joined.has(club.id);
@@ -92,8 +95,16 @@ export function ClubsPage() {
     const isLoading   = joiningId === club.id;
 
     if (club.type === "hq") {
-      if (isJoined)    return <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "var(--light-pink)", color: "var(--bb-pink)", border: "1px solid var(--bb-pink)" }}>Member ✓</span>;
-      if (isRequested) return <span className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>Requested ·</span>;
+      if (isJoined)    return (
+        <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "var(--light-pink)", color: "var(--bb-pink)", border: "1px solid var(--bb-pink)" }}>
+          Joined ✓
+        </span>
+      );
+      if (isRequested) return (
+        <span className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>
+          Requested ·
+        </span>
+      );
       return (
         <button onClick={() => joinClub(club.id, "hq")} className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90" style={{ background: "#111111", color: "white" }}>
           Request
@@ -102,8 +113,12 @@ export function ClubsPage() {
     }
 
     if (isJoined) return (
-      <button onClick={() => leaveClub(club.id)} className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90" style={{ background: "var(--light-pink)", color: "var(--bb-pink)", border: "1px solid var(--bb-pink)" }}>
-        ✓ In
+      <button
+        onClick={() => leaveClub(club.id)}
+        className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90"
+        style={{ background: "var(--bb-pink)", color: "white" }}
+      >
+        Joined ✓
       </button>
     );
     return (
@@ -130,11 +145,31 @@ export function ClubsPage() {
 
       {/* Search */}
       <div className="px-5 mb-4 md:px-8">
-        <div className="bg-white rounded-2xl px-4 py-3 flex items-center gap-3" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="flex-shrink-0" style={{ color: "#aaa" }}>
+        <div
+          className="bg-white rounded-2xl px-4 py-3 flex items-center gap-3"
+          style={{
+            boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+            border: "1.5px solid #FFE0EE",
+          }}
+        >
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="flex-shrink-0" style={{ color: "var(--bb-pink)" }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search clubs…" className="flex-1 text-sm outline-none bg-transparent" style={{ color: "var(--bb-black)" }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search clubs…"
+            className="flex-1 text-sm outline-none bg-transparent"
+            style={{ color: "var(--bb-black)" }}
+          />
+          {query && (
+            <button onClick={() => setQuery("")} className="text-gray-300 hover:text-gray-400 transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -184,20 +219,31 @@ export function ClubsPage() {
             <div className="flex flex-col gap-4">
               {myClubs.map((club) => (
                 <div key={club.id} className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                  <div className="h-20 flex items-end p-3" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
+                  {/* Banner */}
+                  <div className="h-20 flex items-end p-3 relative" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 0%, transparent 60%)" }} />
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>MEMBER</span>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
+                        JOINED ✓
+                      </span>
                       {club.type === "hq" && <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.4)", color: "white" }}>✦ Official</span>}
                     </div>
                   </div>
                   <div className="p-4 flex items-center justify-between gap-3">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{club.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{womenCounts[club.id]} women · {club.curator}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{womenCounts[club.id]} members · {club.curator}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {club.tags.map((tag) => (
+                          <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>{tag}</span>
+                        ))}
+                      </div>
                     </div>
-                    <button onClick={() => leaveClub(club.id)} className="px-4 py-2 rounded-full text-xs font-bold border-2 transition-all active:scale-95" style={{ borderColor: "#E0E0E0", color: "#999" }}>
-                      Leave
-                    </button>
+                    {club.type !== "hq" && (
+                      <button onClick={() => leaveClub(club.id)} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold border-2 transition-all active:scale-95" style={{ borderColor: "#E0E0E0", color: "#999" }}>
+                        Leave
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -210,52 +256,75 @@ export function ClubsPage() {
           <div className="flex flex-col gap-5 md:grid md:grid-cols-[1fr_300px] md:items-start">
             <div className="flex flex-col gap-5">
 
-              {/* Featured club (always HQ) */}
-              {showFeatured && <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
-                <div className="h-32 flex items-end p-4 relative" style={{ background: `linear-gradient(135deg,${FEATURED.color},#FF1F7D,#111111)` }}>
-                  <div className="absolute top-3 right-3 flex gap-2">
-                    <span className="text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(0,0,0,0.6)", color: "white" }}>
-                      ✦ Official
-                    </span>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
-                      <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: "white" }} />
-                      FEATURED
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-white font-bold text-xl italic leading-snug" style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}>
-                      {FEATURED.name}
-                    </p>
-                    <p className="text-white/60 text-xs">BloomBay Official</p>
-                  </div>
-                </div>
-                <div className="p-4" style={{ background: "var(--bb-pink)" }}>
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <p className="text-white/80 text-sm leading-relaxed flex-1">{FEATURED.desc}</p>
-                    {requested.has(FEATURED.id) ? (
-                      <span className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
-                        Requested ·
+              {/* Featured club — immersive card */}
+              {showFeatured && (
+                <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 4px 24px rgba(255,31,125,0.18)" }}>
+                  {/* Large gradient banner */}
+                  <div
+                    className="relative flex flex-col justify-between p-5"
+                    style={{
+                      height: "200px",
+                      background: "linear-gradient(145deg, #FF1F7D 0%, #FF69B4 40%, #111111 100%)",
+                    }}
+                  >
+                    {/* Decorative glow */}
+                    <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-20" style={{ background: "white", transform: "translate(30%, -30%)" }} />
+                    <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-10" style={{ background: "#FF69B4", transform: "translate(-20%, 30%)" }} />
+
+                    {/* Top badges */}
+                    <div className="flex items-start justify-between gap-2 relative">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-bold px-3 py-1 rounded-full" style={{ background: "rgba(0,0,0,0.45)", color: "white" }}>
+                          ✦ Official
+                        </span>
+                        <span className="text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(255,255,255,0.18)", color: "white" }}>
+                          <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: "white" }} />
+                          FEATURED
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
+                        {womenCounts[FEATURED.id]} women
                       </span>
-                    ) : (
-                      <button
-                        onClick={() => joinClub(FEATURED.id, "hq")}
-                        className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-90"
-                        style={{ background: "white", color: "var(--bb-pink)" }}
-                      >
-                        Request to Join
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1.5">
-                      {FEATURED.tags.map((tag) => (
-                        <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full font-medium" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>{tag}</span>
-                      ))}
                     </div>
-                    <p className="text-white/70 text-xs font-semibold">{womenCounts[FEATURED.id]} women</p>
+
+                    {/* Club name */}
+                    <div className="relative">
+                      <p
+                        className="text-white text-2xl font-bold italic leading-snug mb-1"
+                        style={{ fontFamily: "var(--font-playfair)", fontWeight: 500 }}
+                      >
+                        {FEATURED.name}
+                      </p>
+                      <p className="text-white/60 text-xs">BloomBay Official</p>
+                    </div>
+                  </div>
+
+                  {/* Description + CTA */}
+                  <div className="p-5 bg-white">
+                    <p className="text-sm text-gray-500 leading-relaxed mb-4">{FEATURED.desc}</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {FEATURED.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full font-medium" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>{tag}</span>
+                        ))}
+                      </div>
+                      {requested.has(FEATURED.id) ? (
+                        <span className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>
+                          Requested ·
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => joinClub(FEATURED.id, "hq")}
+                          className="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-90"
+                          style={{ background: "var(--bb-pink)", color: "white" }}
+                        >
+                          Request to Join
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>}
+              )}
 
               {/* The Room teaser */}
               <Link href="/member/room" className="rounded-3xl p-4 flex items-center gap-4 block" style={{ background: "#111111", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
@@ -272,43 +341,63 @@ export function ClubsPage() {
               <div>
                 <p className="text-base font-bold italic mb-3" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>All Clubs</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {filteredClubs.map((club) => (
-                    <div
-                      key={club.id}
-                      className="rounded-2xl overflow-hidden bg-white"
-                      style={{
-                        boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
-                        transform: joiningId === club.id ? "scale(0.97)" : "scale(1)",
-                        transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
-                      }}
-                    >
-                      <div className="h-16 flex items-end p-2 relative" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
-                        {club.type === "hq" && (
-                          <span className="absolute top-1.5 right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.6)", color: "white" }}>
-                            ✦
-                          </span>
-                        )}
-                        {joined.has(club.id) && (
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>✓</span>
-                        )}
-                      </div>
-                      <div className="p-3">
-                        <div className="flex items-start gap-1 mb-1">
-                          <p className="font-bold text-sm leading-snug flex-1" style={{ color: "var(--bb-black)" }}>{club.name}</p>
+                  {filteredClubs.map((club) => {
+                    const isJoinedCard = joined.has(club.id);
+                    return (
+                      <div
+                        key={club.id}
+                        className="rounded-2xl overflow-hidden bg-white"
+                        style={{
+                          boxShadow: isJoinedCard
+                            ? "0 2px 12px rgba(255,31,125,0.12)"
+                            : "0 1px 8px rgba(0,0,0,0.05)",
+                          transform: joiningId === club.id ? "scale(0.97)" : "scale(1)",
+                          transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+                          border: isJoinedCard ? "1.5px solid var(--bb-pink)" : "1.5px solid transparent",
+                        }}
+                      >
+                        {/* Banner h-20 */}
+                        <div className="h-20 flex items-end p-2 relative overflow-hidden" style={{ background: `linear-gradient(135deg,${club.color},#111111)` }}>
+                          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(circle at 75% 25%, white 0%, transparent 55%)" }} />
+                          {club.type === "hq" && (
+                            <span className="absolute top-1.5 right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.55)", color: "white" }}>
+                              ✦
+                            </span>
+                          )}
+                          {isJoinedCard && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>
+                              Joined ✓
+                            </span>
+                          )}
                         </div>
-                        {club.type === "hq" && (
-                          <div className="mb-1">
-                            <HQBadge />
+
+                        <div className="p-3">
+                          <p className="font-bold text-sm leading-snug mb-1" style={{ color: "var(--bb-black)" }}>{club.name}</p>
+                          {club.type === "hq" && (
+                            <div className="mb-1.5">
+                              <HQBadge />
+                            </div>
+                          )}
+                          {/* Member count */}
+                          <p className="text-xs font-semibold mb-1.5" style={{ color: "var(--bb-pink)" }}>
+                            {womenCounts[club.id]} members
+                          </p>
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {club.tags.map((tag) => (
+                              <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: "var(--pale-pink-bg)", color: "#888" }}>
+                                {tag}
+                              </span>
+                            ))}
                           </div>
-                        )}
-                        <p className="text-xs text-gray-400 mb-2 leading-relaxed line-clamp-2">{club.desc}</p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold" style={{ color: "var(--bb-pink)" }}>{womenCounts[club.id]} women</p>
-                          <ClubJoinButton club={club} />
+                          {/* Join button */}
+                          <div className="flex justify-end">
+                            <ClubJoinButton club={club} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

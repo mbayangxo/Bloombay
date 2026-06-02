@@ -807,9 +807,9 @@ function WomenSection() {
         <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
           17 women are awaiting identity verification before they can access clubs and open seats.
         </p>
-        <a href="/admin/dashboard" className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+        <button onClick={() => {}} className="text-xs font-bold px-3 py-1.5 rounded-full mt-2 inline-block" style={{ background: "#FF1F7D", color: "white" }}>
           Review Queue →
-        </a>
+        </button>
       </div>
 
       {/* Applications */}
@@ -933,6 +933,8 @@ function CuratorsSection() {
 function HostsSection() {
   type HostRecord = typeof HOSTS[number] & { warnings: number; archived: boolean };
   const [hosts, setHosts] = useState<HostRecord[]>(HOSTS as HostRecord[]);
+  const [toast, setToast] = useState<string | null>(null);
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
   function warnHost(name: string) {
     setHosts((prev) => prev.map((h) => {
@@ -1035,6 +1037,7 @@ function HostsSection() {
                     {h.warnings >= 2 ? "Archive Host" : `Warn (${h.warnings + 1} of 3)`}
                   </button>
                   <button
+                    onClick={() => showToast("Messaging coming soon")}
                     className="px-4 py-2 rounded-full text-xs font-bold transition-all"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >
@@ -1046,6 +1049,11 @@ function HostsSection() {
           );
         })}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
@@ -1055,6 +1063,8 @@ function HostsSection() {
 function ClubsSection() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "hq" | "user">("all");
+  const [toast, setToast] = useState<string | null>(null);
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
   const shown = filter === "all" ? CLUBS : CLUBS.filter((c) => c.type === filter);
   const hqCount   = CLUBS.filter((c) => c.type === "hq").length;
@@ -1158,10 +1168,10 @@ function ClubsSection() {
                   <span className="text-xs px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
                     Curator: {club.curator}
                   </span>
-                  <button className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
+                  <button onClick={() => showToast("Club editor coming soon")} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
                     Edit Club
                   </button>
-                  <button className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <button onClick={() => showToast("Archive coming soon")} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
                     Archive
                   </button>
                 </div>
@@ -1170,6 +1180,11 @@ function ClubsSection() {
           </div>
         ))}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
@@ -1285,6 +1300,8 @@ function OpenSeatsSection() {
 // ─── Section: Safety Center ───────────────────────────────────────────────────
 
 function SafetySection() {
+  const [toast, setToast] = useState<string | null>(null);
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
   return (
     <div>
       <SectionHeader title="Safety Center" sub="Reports, flags, and issues that need attention." />
@@ -1319,6 +1336,7 @@ function SafetySection() {
               ))}
             </div>
             <button
+              onClick={() => showToast("Report coming soon")}
               className="mt-5 w-full py-2 rounded-full text-xs font-bold"
               style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}
             >
@@ -1451,6 +1469,8 @@ function HappeningsSection() {
   const [popups, setPopups]   = useState<AdminPopup[]>(ADMIN_POPUPS);
   const [places, setPlaces]   = useState<AdminPlace[]>(ADMIN_PLACES);
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
   // Add event form state
   const [newType, setNewType]           = useState<HappeningAdminType>("popup");
@@ -1617,6 +1637,7 @@ function HappeningsSection() {
                 <span className="text-sm font-bold flex-shrink-0" style={{ color: "rgba(255,255,255,0.6)" }}>{ev.price}</span>
                 <div className="flex gap-2 flex-shrink-0">
                   <button
+                    onClick={() => showToast("Editor coming soon")}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >
