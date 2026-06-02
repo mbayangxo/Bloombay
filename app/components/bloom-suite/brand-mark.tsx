@@ -1,5 +1,5 @@
 /** BB Petal Mark — approximated from brand guidelines
- *  Left B: dark (#1a0514), Right B: pink (#ff0055)
+ *  Left B: dark (#111111), Right B: pink (#ff0055)
  *  Each B: vertical spine + 3 petal-oval bumps with white negative space
  */
 export function BBPetalMark({
@@ -20,15 +20,15 @@ export function BBPetalMark({
       role="img"
     >
       {/* ── Left B (dark) ── */}
-      <rect x="2" y="3" width="6.5" height="44" rx="3" fill="#1a0514" />
+      <rect x="2" y="3" width="6.5" height="44" rx="3" fill="#111111" />
       {/* top petal */}
-      <ellipse cx="16" cy="11" rx="8" ry="8.5" fill="#1a0514" />
+      <ellipse cx="16" cy="11" rx="8" ry="8.5" fill="#111111" />
       <ellipse cx="16.5" cy="11" rx="4.5" ry="5" fill="white" />
       {/* mid petal */}
-      <ellipse cx="17" cy="25" rx="9" ry="9" fill="#1a0514" />
+      <ellipse cx="17" cy="25" rx="9" ry="9" fill="#111111" />
       <ellipse cx="17.5" cy="25" rx="5.5" ry="5.5" fill="white" />
       {/* bottom petal */}
-      <ellipse cx="16" cy="39" rx="8" ry="8.5" fill="#1a0514" />
+      <ellipse cx="16" cy="39" rx="8" ry="8.5" fill="#111111" />
       <ellipse cx="16.5" cy="39" rx="4.5" ry="5" fill="white" />
 
       {/* ── Right B (pink) ── */}

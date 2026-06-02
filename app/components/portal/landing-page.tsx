@@ -5,9 +5,9 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
 const TONIGHT = [
-  { id: 1, tag: "2 SEATS LEFT", title: "Coffee Walk", location: "Williamsburg", time: "10:00 AM", grad: "linear-gradient(160deg,#2d1a26 0%,#5a1a35 100%)" },
-  { id: 2, tag: "3 SPOTS LEFT", title: "Museum Girls", location: "The Met", time: "2:00 PM", grad: "linear-gradient(160deg,#1a1a2e 0%,#3d1a4a 100%)" },
-  { id: 3, tag: "1 SEAT LEFT", title: "Dinner Society", location: "West Village", time: "7:30 PM", grad: "linear-gradient(160deg,#2a0a1a 0%,#6b1a3a 100%)" },
+  { id: 1, tag: "2 SEATS LEFT", title: "Coffee Walk", location: "Williamsburg", time: "10:00 AM", grad: "linear-gradient(160deg,#FF1F7D 0%,#111111 100%)" },
+  { id: 2, tag: "3 SPOTS LEFT", title: "Museum Girls", location: "The Met", time: "2:00 PM", grad: "linear-gradient(160deg,#111111 0%,#FF1F7D 100%)" },
+  { id: 3, tag: "1 SEAT LEFT", title: "Dinner Society", location: "West Village", time: "7:30 PM", grad: "linear-gradient(160deg,#FF69B4 0%,#111111 100%)" },
 ];
 
 const OBJECTS = [
@@ -30,7 +30,7 @@ const CLUBS = [
 function ObjectCard({ k }: { k: string }) {
   const base = "rounded-2xl flex items-center justify-center";
   if (k === "seat") return (
-    <div className={`${base} w-full h-36`} style={{ background: "linear-gradient(135deg,#FF1F7D,#c40060)" }}>
+    <div className={`${base} w-full h-36`} style={{ background: "linear-gradient(135deg,#FF1F7D,#FF1F7D)" }}>
       <svg viewBox="0 0 48 48" width="60" height="60" fill="none">
         <rect x="10" y="8" width="28" height="18" rx="4" stroke="white" strokeWidth="1.8" />
         <rect x="8" y="24" width="32" height="6" rx="2" stroke="white" strokeWidth="1.8" />
@@ -79,7 +79,7 @@ function ObjectCard({ k }: { k: string }) {
       </div>
       <div className="ml-6 text-center px-2">
         <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-        <p className="font-bold text-sm" style={{ color: "#1A0514" }}>TICKET</p>
+        <p className="font-bold text-sm" style={{ color: "#111111" }}>TICKET</p>
         <div className="w-6 h-px mx-auto my-1" style={{ background: "#FF1F7D" }} />
         <p className="text-xs text-gray-500">ADMIT ONE</p>
         <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center mx-auto mt-1" style={{ borderColor: "#FF1F7D" }}>
@@ -118,9 +118,9 @@ function Sparkle({ color = "#FF1F7D", size = 14 }: { color?: string; size?: numb
 }
 
 function ClubCrest({ name, dark, icon, outline }: { name: string; dark: boolean; outline?: boolean; icon: string }) {
-  const bg = dark ? "#1A0514" : outline ? "white" : "#FF1F7D";
+  const bg = dark ? "#111111" : outline ? "white" : "#FF1F7D";
   const stroke = dark ? "#FF1F7D" : outline ? "#FF1F7D" : "white";
-  const textColor = dark || !outline ? "white" : "#1A0514";
+  const textColor = dark || !outline ? "white" : "#111111";
   const border = outline ? "2px solid #FF1F7D" : "none";
 
   const icons: Record<string, React.ReactNode> = {
@@ -170,41 +170,66 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
             <BBLogo size={32} />
-            <span className="font-bold text-base tracking-widest" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+            <span className="font-bold text-base tracking-widest" style={{ color: "#111111" }}>BLOOMBAY</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-7">
-            {["ABOUT", "CLUBS", "SAFETY", "CLUB OWNERS", "PARTNERS"].map((item) => (
-              <Link key={item} href="#" className="text-xs font-semibold tracking-widest transition-colors hover:text-pink-500" style={{ color: "#888" }}>
-                {item}
+            {[
+              { label: "ABOUT",       href: "/about" },
+              { label: "CLUBS",       href: "/member/clubs" },
+              { label: "SAFETY",      href: "/safety" },
+              { label: "CLUB OWNERS", href: "/start-a-club" },
+              { label: "PARTNERS",    href: "/partner" },
+            ].map((item) => (
+              <Link key={item.label} href={item.href} className="text-xs font-semibold tracking-widest transition-colors hover:text-pink-500" style={{ color: "#888" }}>
+                {item.label}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link href="/portals" className="hidden md:block text-xs font-semibold tracking-widest" style={{ color: "#888" }}>
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/portals"
+              className="px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-all hover:bg-gray-50"
+              style={{ color: "#888", border: "1.5px solid #eee" }}
+            >
               LOG IN
             </Link>
             <Link
-              href="/onboard"
+              href="/waitlist"
               className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest text-white transition-all hover:brightness-110 active:scale-95"
               style={{ background: "#FF1F7D" }}
             >
               JOIN NOW
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
             </Link>
-            <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+            {/* Bloom icon — mobile only */}
+            <button
+              className="md:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90"
+              style={{ background: menuOpen ? "#FF1F7D" : "#FFF0F5" }}
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Menu"
+            >
+              {menuOpen ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+                  <line x1="2" y1="2" x2="12" y2="12" /><line x1="12" y1="2" x2="2" y2="12" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 2v14M2 9h14M3.5 3.5l11 11M14.5 3.5l-11 11" stroke="#FF1F7D" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
 
         {menuOpen && (
-          <div className="md:hidden border-t px-6 py-4 flex flex-col gap-3" style={{ background: "white", borderColor: "#f0e8e0" }}>
-            {["ABOUT", "CLUBS", "SAFETY", "CLUB OWNERS", "PARTNERS"].map((item) => (
-              <Link key={item} href="#" className="text-sm font-semibold tracking-widest py-1" style={{ color: "#888" }}>{item}</Link>
-            ))}
-            <Link href="/portals" className="text-sm font-semibold tracking-widest py-1" style={{ color: "#888" }}>LOG IN</Link>
+          <div className="md:hidden border-t px-6 py-5 flex flex-col gap-4" style={{ background: "white", borderColor: "#f0e8e0" }}>
+            <Link href="/about" className="text-sm font-semibold py-0.5" style={{ color: "#555" }}>About Us</Link>
+            <div className="pt-3 border-t flex flex-col gap-3" style={{ borderColor: "#f0e8e0" }}>
+              <Link href="/portals" className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Log in</Link>
+              <Link href="/waitlist" className="text-sm font-bold" style={{ color: "#888" }}>Join BloomBay →</Link>
+            </div>
           </div>
         )}
       </nav>
@@ -254,11 +279,11 @@ export function LandingPage() {
 
             <div className="flex gap-3 mt-8">
               <Link
-                href="/onboard"
+                href="/waitlist"
                 className="px-7 py-3.5 rounded-full font-bold text-sm tracking-wide transition-all hover:bg-white/90 active:scale-95"
                 style={{ background: "white", color: "#FF1F7D" }}
               >
-                Join BloomBay
+                Join the Waitlist
               </Link>
               <Link
                 href="/portals"
@@ -313,7 +338,7 @@ export function LandingPage() {
               className="absolute rounded-2xl p-4 flex flex-col justify-center"
               style={{ width: "130px", height: "110px", background: "#FDF8F2", top: "260px", right: "170px", transform: "rotate(-6deg)", zIndex: 5, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
             >
-              <p className="italic font-medium" style={{ fontFamily: "var(--font-playfair)", color: "#1A0514", fontSize: "16px", lineHeight: 1.3 }}>See you Saturday!</p>
+              <p className="italic font-medium" style={{ fontFamily: "var(--font-playfair)", color: "#111111", fontSize: "16px", lineHeight: 1.3 }}>See you Saturday!</p>
               <p className="mt-2 text-lg" style={{ color: "#FF1F7D" }}>♡</p>
             </div>
 
@@ -328,7 +353,7 @@ export function LandingPage() {
                 ))}
               </div>
               <div className="ml-7 p-2.5">
-                <p className="font-bold" style={{ color: "#1A0514", fontSize: "11px" }}>MUSEUM GIRLS</p>
+                <p className="font-bold" style={{ color: "#111111", fontSize: "11px" }}>MUSEUM GIRLS</p>
                 <p className="text-xs text-gray-500">SAT, MAY 24 · 2:00 PM</p>
                 <div className="flex items-center gap-1 mt-1">
                   <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
@@ -348,7 +373,7 @@ export function LandingPage() {
             {/* City photo placeholder */}
             <div
               className="absolute rounded-2xl overflow-hidden"
-              style={{ width: "100px", height: "130px", top: "60px", right: "290px", transform: "rotate(5deg)", zIndex: 2, background: "linear-gradient(160deg,#2d1a26,#8b2252)", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+              style={{ width: "100px", height: "130px", top: "60px", right: "290px", transform: "rotate(5deg)", zIndex: 2, background: "linear-gradient(160deg,#111111,#FF1F7D)", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
             >
               <div className="w-full h-full flex flex-col justify-end p-2">
                 <div className="w-full h-2 rounded-sm opacity-30 mb-1" style={{ background: "white" }} />
@@ -366,7 +391,7 @@ export function LandingPage() {
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-start">
             {/* Left label */}
             <div className="pt-2">
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 Tonight on{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
                 {" "}<Sparkle />
@@ -388,7 +413,7 @@ export function LandingPage() {
                   </div>
                   <div className="pt-3 pb-2 flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-bold text-sm leading-snug" style={{ color: "#1A0514" }}>{ev.title}</p>
+                      <p className="font-bold text-sm leading-snug" style={{ color: "#111111" }}>{ev.title}</p>
                       <p className="text-xs mt-0.5" style={{ color: "#888" }}>{ev.location} · {ev.time}</p>
                     </div>
                     <Link
@@ -421,7 +446,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-start">
             <div className="pt-2">
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 The world of{" "}
                 <span style={{ color: "#FF1F7D" }}>BloomBay</span>
                 {" "}<Sparkle />
@@ -430,7 +455,7 @@ export function LandingPage() {
               <p className="text-sm leading-relaxed mb-5" style={{ color: "#888" }}>
                 Every detail.<br />Designed for<br />real life together.
               </p>
-              <Link href="#" className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: "#FF1F7D" }}>
+              <Link href="/about" className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: "#FF1F7D" }}>
                 LEARN MORE
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" /></svg>
               </Link>
@@ -441,7 +466,7 @@ export function LandingPage() {
                 <div key={obj.key} className="flex-shrink-0" style={{ width: "150px" }}>
                   <ObjectCard k={obj.key} />
                   <div className="mt-3">
-                    <p className="font-bold tracking-widest" style={{ fontSize: "10px", color: "#1A0514" }}>{obj.label}</p>
+                    <p className="font-bold tracking-widest" style={{ fontSize: "10px", color: "#111111" }}>{obj.label}</p>
                     <p className="text-xs mt-0.5" style={{ color: "#888" }}>{obj.sub}</p>
                   </div>
                 </div>
@@ -456,7 +481,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-[220px_1fr] gap-10 items-center">
             <div>
-              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#1A0514" }}>
+              <h2 className="font-bold leading-tight mb-2" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", color: "#111111" }}>
                 Clubs that feel like home.
                 {" "}<Sparkle />
               </h2>
@@ -491,11 +516,11 @@ export function LandingPage() {
             <span className="italic" style={{ fontFamily: "var(--font-playfair)", fontWeight: 400 }}>here.</span>
           </p>
           <Link
-            href="/onboard"
+            href="/waitlist"
             className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-bold text-sm tracking-widest transition-all hover:bg-white/90 active:scale-95"
             style={{ background: "white", color: "#FF1F7D" }}
           >
-            JOIN NOW
+            JOIN THE WAITLIST
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </Link>
         </div>
@@ -503,43 +528,89 @@ export function LandingPage() {
 
       {/* ─── FOOTER ─── */}
       <footer style={{ background: "#FDF8F2", borderTop: "1px solid #ecddd4" }}>
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-10">
-            {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-2">
-                <BBLogo size={28} />
-                <span className="font-bold text-sm tracking-widest" style={{ color: "#1A0514" }}>BLOOMBAY</span>
+        <div className="max-w-7xl mx-auto px-6 pt-20 pb-10">
+
+          {/* Brand + social */}
+          <div
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 mb-16 pb-14"
+            style={{ borderBottom: "1px solid #ecddd4" }}
+          >
+            <div className="max-w-xs">
+              <div className="flex items-center gap-3 mb-4">
+                <BBLogo size={40} />
+                <span className="font-bold text-2xl tracking-[0.18em]" style={{ color: "#111111" }}>BLOOMBAY</span>
               </div>
-              <p className="text-xs text-gray-500 mb-4">A world built for women.</p>
-              <div className="flex gap-3">
-                {["IG", "TK", "PT"].map((s) => (
-                  <div key={s} className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>{s}</div>
-                ))}
-              </div>
+              <p className="text-base leading-relaxed mb-2" style={{ color: "#888", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                A world built for women.
+              </p>
+              <p className="text-sm" style={{ color: "#bbb" }}>New York City · Est. 2025</p>
             </div>
 
+            <div className="flex items-center gap-6">
+              {/* Instagram */}
+              <a href="https://instagram.com/bloombaynyc" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center transition-all group-hover:scale-105" style={{ background: "#FFE0EE" }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.8" strokeLinecap="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="4.5" />
+                    <circle cx="17.5" cy="6.5" r="1.2" fill="#FF1F7D" stroke="none" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium" style={{ color: "#999" }}>Instagram</span>
+              </a>
+
+              {/* TikTok */}
+              <a href="https://tiktok.com/@bloombay" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center transition-all group-hover:scale-105" style={{ background: "#FFE0EE" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#FF1F7D">
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.73a8.18 8.18 0 004.78 1.52V6.81a4.85 4.85 0 01-1.01-.12z" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium" style={{ color: "#999" }}>TikTok</span>
+              </a>
+
+              {/* Pinterest */}
+              <a href="https://pinterest.com/bloombay" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center transition-all group-hover:scale-105" style={{ background: "#FFE0EE" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#FF1F7D">
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium" style={{ color: "#999" }}>Pinterest</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Nav columns */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-6 gap-y-10 mb-16">
             {[
-              { title: "ABOUT", links: ["Our Story", "Safety", "Careers", "Press"] },
-              { title: "COMMUNITY", links: ["Blog", "Events", "BloomBay IRL"] },
-              { title: "CLUB OWNERS", links: ["Start a Club", "Host Resources"] },
-              { title: "PARTNERS", links: ["Partner With Us", "Venue Directory"] },
-              { title: "SUPPORT", links: ["Help Center", "Contact Us", "FAQ"] },
+              { title: "ABOUT",       links: [{ l: "Our Story", h: "/about" }, { l: "Safety", h: "/safety" }, { l: "Careers", h: "/careers" }, { l: "Press", h: "/press" }] },
+              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "BloomBay IRL", h: "/irl" }] },
+              { title: "CLUB OWNERS", links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }] },
+              { title: "PARTNERS",    links: [{ l: "Partner With Us", h: "/partner" }, { l: "Venue Directory", h: "/venues" }] },
+              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "FAQ", h: "/faq" }] },
             ].map((col) => (
               <div key={col.title}>
-                <p className="text-xs font-bold tracking-widest mb-3" style={{ color: "#1A0514" }}>{col.title}</p>
-                {col.links.map((link) => (
-                  <Link key={link} href="#" className="block text-xs mb-2 transition-colors hover:text-pink-500" style={{ color: "#999" }}>{link}</Link>
-                ))}
+                <p className="text-xs font-bold tracking-[0.18em] mb-5" style={{ color: "#111111" }}>{col.title}</p>
+                <div className="flex flex-col gap-3.5">
+                  {col.links.map((link) => (
+                    <Link key={link.l} href={link.h} className="text-sm transition-colors hover:text-pink-500" style={{ color: "#888" }}>
+                      {link.l}
+                    </Link>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-3" style={{ borderColor: "#ecddd4" }}>
-            <p className="text-xs" style={{ color: "#bbb" }}>© 2025 BloomBay, Inc. All rights reserved.</p>
-            <div className="flex gap-5">
-              <Link href="#" className="text-xs" style={{ color: "#bbb" }}>Privacy Policy</Link>
-              <Link href="#" className="text-xs" style={{ color: "#bbb" }}>Terms of Service</Link>
+          {/* Legal */}
+          <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid #ecddd4" }}>
+            <p className="text-xs" style={{ color: "#bbb" }}>© 2026 BloomBay, Inc. All rights reserved.</p>
+            <div className="flex flex-wrap gap-5 justify-center">
+              <Link href="/privacy"     className="text-xs transition-colors hover:text-pink-500" style={{ color: "#bbb" }}>Privacy Policy</Link>
+              <Link href="/terms"       className="text-xs transition-colors hover:text-pink-500" style={{ color: "#bbb" }}>Terms of Service</Link>
+              <Link href="/safety"      className="text-xs transition-colors hover:text-pink-500" style={{ color: "#bbb" }}>Safety</Link>
+              <Link href="/girl-rights" className="text-xs transition-colors hover:text-pink-500" style={{ color: "#bbb" }}>Girl Rights</Link>
             </div>
           </div>
         </div>

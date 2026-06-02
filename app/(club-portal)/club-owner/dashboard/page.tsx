@@ -7,11 +7,16 @@ import { useState } from "react";
 type Tab =
   | "women"
   | "open-seats"
-  | "requests"
+  | "applications"
+  | "settings"
+  | "form-builder"
   | "mailbox"
   | "gatherings"
   | "club-health"
   | "crest";
+
+type AccessType = "free" | "one_time" | "subscription";
+type EntryStyle = "open" | "application" | "approval_paywall";
 
 // ── Mock data ──────────────────────────────────────────────────────────────
 
@@ -49,6 +54,48 @@ const REQUESTS = [
     neighborhood: "Bushwick",
     requestedAt: "1d ago",
     why: "My therapist told me to find my people. I think this might be them.",
+  },
+];
+
+const APPLICATIONS = [
+  {
+    name: "Imani J.",
+    neighborhood: "Fort Greene",
+    age: "28",
+    occupation: "Creative Director",
+    verified: true,
+    appliedAt: "2h ago",
+    instagram: "@imanij.nyc",
+    answers: [
+      { q: "Why do you want to join?", a: "I've been looking for a community that feels intentional. Soft life isn't just a vibe for me, it's a whole practice." },
+      { q: "What do you bring to the table?", a: "I bring warmth, honesty, and really good restaurant recommendations." },
+    ],
+  },
+  {
+    name: "Lena O.",
+    neighborhood: "Park Slope",
+    age: "31",
+    occupation: "UX Researcher",
+    verified: true,
+    appliedAt: "8h ago",
+    instagram: "@lena.o",
+    answers: [
+      { q: "Why do you want to join?", a: "I relocated from London and want to build genuine friendships in NYC. This club feels like home." },
+      { q: "What do you bring to the table?", a: "I love hosting, I'm a great listener, and I know all the best hidden spots in the city." },
+    ],
+  },
+  {
+    name: "Tia R.",
+    neighborhood: "Bushwick",
+    age: "26",
+    occupation: "Yoga Instructor",
+    verified: false,
+    appliedAt: "1d ago",
+    instagram: "@tia.r",
+    answers: [
+      { q: "Why do you want to join?", a: "My therapist told me to find my people. I think this might be them." },
+      { q: "What do you bring to the table?", a: "Good energy, herbal tea knowledge, and the ability to make anyone laugh." },
+    ],
   },
 ];
 
@@ -208,28 +255,34 @@ function ClubCrestSVG({ symbol, color, size = 80 }: { symbol: "bouquet" | "door"
 // ── Tab Bar ────────────────────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
-  { id: "women", label: "Women", icon: <IconUsers size={15} /> },
-  { id: "open-seats", label: "Open Seats", icon: <IconCalendar size={15} /> },
-  { id: "requests", label: "Requests", icon: <IconClipboard size={15} />, badge: 14 },
-  { id: "mailbox", label: "Mailbox", icon: <IconInbox size={15} />, badge: 3 },
-  { id: "gatherings", label: "Gatherings", icon: <IconCalendar size={15} /> },
-  { id: "club-health", label: "Club Health", icon: <IconActivity size={15} /> },
-  { id: "crest", label: "Crest", icon: <IconHeart size={15} /> },
+  { id: "women",        label: "Women",        icon: <IconUsers size={15} /> },
+  { id: "open-seats",   label: "Open Seats",   icon: <IconCalendar size={15} /> },
+  { id: "applications", label: "Applications", icon: <IconClipboard size={15} />, badge: 3 },
+  { id: "settings",     label: "Club Settings",icon: <IconEdit size={15} /> },
+  { id: "form-builder", label: "Apply Form",   icon: <IconClipboard size={15} /> },
+  { id: "mailbox",      label: "Mailbox",      icon: <IconInbox size={15} />, badge: 3 },
+  { id: "gatherings",   label: "Gatherings",   icon: <IconCalendar size={15} /> },
+  { id: "club-health",  label: "Club Health",  icon: <IconActivity size={15} /> },
+  { id: "crest",        label: "Crest",        icon: <IconHeart size={15} /> },
 ];
 
 // ── Section Components ─────────────────────────────────────────────────────
 
-function WomenSection() {
+function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Members</h2>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Members</h2>
           <p className="text-sm text-gray-400 mt-0.5">312 women in the club</p>
         </div>
         <button
           className="px-4 py-2 rounded-full text-sm font-semibold text-white"
           style={{ background: "#FF1F7D" }}
+          onClick={() => {
+            navigator.clipboard?.writeText("https://bloombay.app/waitlist").catch(() => {});
+            showToast("Invite link copied!");
+          }}
         >
           + Invite a woman
         </button>
@@ -262,7 +315,7 @@ function WomenSection() {
               >
                 {m.name[0]}
               </div>
-              <span className="font-semibold text-sm" style={{ color: "#1A0514" }}>{m.name}</span>
+              <span className="font-semibold text-sm" style={{ color: "#111111" }}>{m.name}</span>
             </div>
 
             <span className="text-sm text-gray-500">{m.neighborhood}</span>
@@ -270,7 +323,7 @@ function WomenSection() {
 
             {/* Attendance + status */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold" style={{ color: "#1A0514" }}>{m.attendance}%</span>
+              <span className="text-sm font-semibold" style={{ color: "#111111" }}>{m.attendance}%</span>
               <span
                 className="text-xs px-2 py-0.5 rounded-full font-medium"
                 style={
@@ -294,7 +347,7 @@ function OpenSeatsSection() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Open Seats</h2>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Open Seats</h2>
           <p className="text-sm text-gray-400 mt-0.5">8 upcoming gatherings</p>
         </div>
         <button
@@ -313,7 +366,7 @@ function OpenSeatsSection() {
             style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
           >
             <div>
-              <p className="font-semibold text-base" style={{ color: "#1A0514" }}>{s.title}</p>
+              <p className="font-semibold text-base" style={{ color: "#111111" }}>{s.title}</p>
               <p className="text-sm text-gray-400 mt-0.5">{s.day} · {s.time} · {s.venue}</p>
             </div>
             <div className="text-right flex-shrink-0 ml-6">
@@ -333,7 +386,7 @@ function RequestsSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Join Requests</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Join Requests</h2>
         <p className="text-sm text-gray-400 mt-0.5">{REQUESTS.length} pending approval</p>
       </div>
 
@@ -357,7 +410,7 @@ function RequestsSection() {
                   {r.name[0]}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{r.name}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{r.name}</p>
                   <p className="text-xs text-gray-400">{r.neighborhood} · {r.requestedAt}</p>
                   <p
                     className="text-sm mt-2 leading-relaxed"
@@ -402,7 +455,7 @@ function MailboxSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Mailbox</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Mailbox</h2>
         <p className="text-sm text-gray-400 mt-0.5">{unread} unread messages</p>
       </div>
 
@@ -425,7 +478,7 @@ function MailboxSection() {
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm truncate"
-                style={{ color: "#1A0514", fontWeight: m.unread ? 700 : 500 }}
+                style={{ color: "#111111", fontWeight: m.unread ? 700 : 500 }}
               >
                 {m.from}
               </p>
@@ -458,7 +511,7 @@ function GatheringsSection() {
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
             >
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.venue}</p>
               </div>
               <span
@@ -483,14 +536,14 @@ function GatheringsSection() {
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
             >
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.attendees} women</p>
               </div>
               <div className="flex items-center gap-1 ml-3 flex-shrink-0">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF1F7D">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
-                <span className="text-xs font-semibold" style={{ color: "#1A0514" }}>{g.rating}</span>
+                <span className="text-xs font-semibold" style={{ color: "#111111" }}>{g.rating}</span>
               </div>
             </div>
           ))}
@@ -513,7 +566,7 @@ function ClubHealthSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Club Health</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Health</h2>
         <p className="text-sm text-gray-400 mt-0.5">How the Soft Life Club is doing</p>
       </div>
 
@@ -530,7 +583,7 @@ function ClubHealthSection() {
             >
               {s.value}
             </p>
-            <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>{s.label}</p>
+            <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>{s.label}</p>
             <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
           </div>
         ))}
@@ -561,7 +614,7 @@ function CrestSection() {
   return (
     <div className="max-w-xl">
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Edit Crest</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Edit Crest</h2>
         <p className="text-sm text-gray-400 mt-0.5">Your club's symbol, color, and motto</p>
       </div>
 
@@ -571,7 +624,7 @@ function CrestSection() {
         style={{ background: "#FFF0F5" }}
       >
         <ClubCrestSVG symbol={symbol} color={color} size={100} />
-        <p className="font-bold text-base text-center" style={{ color: "#1A0514" }}>Soft Life Club NYC</p>
+        <p className="font-bold text-base text-center" style={{ color: "#111111" }}>Soft Life Club NYC</p>
         <p className="text-xs text-center text-gray-500 italic max-w-xs">{motto || "Your motto here..."}</p>
       </div>
 
@@ -613,8 +666,8 @@ function CrestSection() {
                 className="w-9 h-9 rounded-full border-2 transition-all"
                 style={{
                   background: c.hex,
-                  borderColor: color === c.hex ? "#1A0514" : "transparent",
-                  boxShadow: color === c.hex ? "0 0 0 2px white, 0 0 0 4px #1A0514" : "none",
+                  borderColor: color === c.hex ? "#111111" : "transparent",
+                  boxShadow: color === c.hex ? "0 0 0 2px white, 0 0 0 4px #111111" : "none",
                 }}
               />
               <span className="text-xs text-gray-400">{c.label}</span>
@@ -634,7 +687,7 @@ function CrestSection() {
           className="w-full text-sm px-4 py-3 rounded-xl border outline-none"
           style={{
             borderColor: "#FFE0EE",
-            color: "#1A0514",
+            color: "#111111",
             background: "#FFFAFA",
           }}
           placeholder="Your motto here..."
@@ -652,19 +705,453 @@ function CrestSection() {
   );
 }
 
+// ── Applications Section ───────────────────────────────────────────────────
+
+function ApplicationsSection() {
+  const [filter, setFilter] = useState<"All" | "Pending" | "Accepted" | "Denied">("Pending");
+  const [statuses, setStatuses] = useState<Record<number, "pending" | "accepted" | "denied">>(
+    Object.fromEntries(APPLICATIONS.map((_, i) => [i, "pending"]))
+  );
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  const filteredIndexes = APPLICATIONS.map((_, i) => i).filter((i) => {
+    const s = statuses[i];
+    if (filter === "All") return true;
+    if (filter === "Pending") return s === "pending";
+    if (filter === "Accepted") return s === "accepted";
+    if (filter === "Denied") return s === "denied";
+    return true;
+  });
+
+  const pendingCount = Object.values(statuses).filter((s) => s === "pending").length;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Applications</h2>
+          <p className="text-sm text-gray-400 mt-0.5">{pendingCount} pending review</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-5">
+        {(["All", "Pending", "Accepted", "Denied"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+            style={filter === f ? { background: "#FF1F7D", color: "white" } : { background: "#F5F0F3", color: "#888" }}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {filteredIndexes.map((realIdx) => {
+          const app = APPLICATIONS[realIdx];
+          const appStatus = statuses[realIdx];
+          const isExpanded = expanded.has(realIdx);
+
+          return (
+            <div
+              key={realIdx}
+              className="bg-white rounded-2xl p-5 transition-all"
+              style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)", opacity: appStatus !== "pending" ? 0.7 : 1 }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                    style={{ background: "#FF1F7D" }}
+                  >
+                    {app.name[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm" style={{ color: "#111111" }}>{app.name}</p>
+                      {app.verified && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
+                          Verified
+                        </span>
+                      )}
+                      {appStatus === "accepted" && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+                          Accepted
+                        </span>
+                      )}
+                      {appStatus === "denied" && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#F5F5F5", color: "#999" }}>
+                          Denied
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {app.neighborhood} · {app.age} · {app.occupation} · Applied {app.appliedAt}
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: "#FF1F7D" }}>{app.instagram}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const next = new Set(expanded);
+                    if (next.has(realIdx)) next.delete(realIdx); else next.add(realIdx);
+                    setExpanded(next);
+                  }}
+                  className="text-xs font-semibold flex-shrink-0 mt-1"
+                  style={{ color: "#FF1F7D" }}
+                >
+                  {isExpanded ? "Less" : "View answers"}
+                </button>
+              </div>
+
+              {isExpanded && (
+                <div className="mt-4 pt-4 flex flex-col gap-3" style={{ borderTop: "1px solid #FFF0F5" }}>
+                  {app.answers.map((ans, ai) => (
+                    <div key={ai}>
+                      <p className="text-xs font-semibold text-gray-400 mb-1">{ans.q}</p>
+                      <p className="text-sm leading-relaxed italic" style={{ color: "#444" }}>&ldquo;{ans.a}&rdquo;</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {appStatus === "pending" && (
+                <div className="flex flex-wrap gap-2 mt-4 pt-3" style={{ borderTop: "1px solid #FFF0F5" }}>
+                  <button
+                    onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "accepted" }))}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold text-white"
+                    style={{ background: "#FF1F7D" }}
+                  >
+                    <IconCheck size={12} /> Accept
+                  </button>
+                  <button
+                    onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "denied" }))}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
+                    style={{ background: "#F5F0F3", color: "#888" }}
+                  >
+                    <IconX size={12} /> Deny
+                  </button>
+                  <button
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
+                    style={{ background: "#F5F0F3", color: "#888" }}
+                  >
+                    Request more info
+                  </button>
+                  <button
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold"
+                    style={{ background: "#F5F0F3", color: "#888" }}
+                  >
+                    Message
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {filteredIndexes.length === 0 && (
+          <div className="rounded-2xl p-10 text-center" style={{ border: "2px dashed #FFE0EE" }}>
+            <p className="text-sm text-gray-400">No {filter.toLowerCase()} applications.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Club Settings Section ──────────────────────────────────────────────────
+
+function ClubSettingsSection() {
+  const [accessType, setAccessType] = useState<AccessType>("one_time");
+  const [entryStyle, setEntryStyle] = useState<EntryStyle>("application");
+  const [price, setPrice] = useState("25");
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annually">("monthly");
+  const [saved, setSaved] = useState(false);
+
+  function handleSave() {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+
+  const ACCESS_OPTIONS: { id: AccessType; label: string; desc: string }[] = [
+    { id: "free", label: "Free", desc: "Members join and attend at no cost." },
+    { id: "one_time", label: "Pay per gathering", desc: "Members pay a fee for each seat they reserve." },
+    { id: "subscription", label: "Membership subscription", desc: "Members pay a recurring fee (monthly or annually)." },
+  ];
+
+  const ENTRY_OPTIONS: { id: EntryStyle; label: string; desc: string }[] = [
+    { id: "open", label: "Open", desc: "Anyone can join instantly with no approval needed." },
+    { id: "application", label: "Application", desc: "Members submit an application. You review and approve." },
+    { id: "approval_paywall", label: "Application + Payment", desc: "Members apply, you approve, then they're prompted to pay." },
+  ];
+
+  return (
+    <div className="max-w-xl flex flex-col gap-5">
+      <div>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Club Settings</h2>
+        <p className="text-sm text-gray-400 mt-0.5">Configure how women join and pay for your club.</p>
+      </div>
+
+      <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Access Type</p>
+        <div className="flex flex-col gap-3">
+          {ACCESS_OPTIONS.map((opt) => (
+            <label key={opt.id} className="flex items-start gap-3 cursor-pointer" onClick={() => setAccessType(opt.id)}>
+              <div
+                className="w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all"
+                style={{ borderColor: accessType === opt.id ? "#FF1F7D" : "#E0E0E0", background: accessType === opt.id ? "#FF1F7D" : "white" }}
+              >
+                {accessType === opt.id && <div className="w-2 h-2 rounded-full bg-white" />}
+              </div>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#111111" }}>{opt.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        {accessType !== "free" && (
+          <div className="mt-4 pt-4 flex gap-3 items-end" style={{ borderTop: "1px solid #FFF0F5" }}>
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-400 mb-1.5">Price (USD)</p>
+              <div className="flex items-center border rounded-xl overflow-hidden" style={{ borderColor: "#FFE0EE" }}>
+                <span className="px-3 py-2.5 text-sm font-semibold" style={{ background: "#FFF5F8", color: "#FF1F7D" }}>$</span>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="flex-1 px-3 py-2.5 text-sm outline-none"
+                  style={{ color: "#111111" }}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+            </div>
+            {accessType === "subscription" && (
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-gray-400 mb-1.5">Billing</p>
+                <select
+                  value={billingInterval}
+                  onChange={(e) => setBillingInterval(e.target.value as "monthly" | "annually")}
+                  className="w-full px-3 py-2.5 text-sm rounded-xl border outline-none"
+                  style={{ borderColor: "#FFE0EE", color: "#111111", background: "white" }}
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="annually">Annually</option>
+                </select>
+              </div>
+            )}
+            {accessType === "one_time" && (
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-gray-400 mb-1.5">Charged</p>
+                <div className="w-full px-3 py-2.5 text-sm rounded-xl border" style={{ borderColor: "#FFE0EE", color: "#888", background: "#FAFAFA" }}>
+                  Per gathering
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Entry Style</p>
+        <div className="flex flex-col gap-3">
+          {ENTRY_OPTIONS.map((opt) => (
+            <label key={opt.id} className="flex items-start gap-3 cursor-pointer" onClick={() => setEntryStyle(opt.id)}>
+              <div
+                className="w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all"
+                style={{ borderColor: entryStyle === opt.id ? "#FF1F7D" : "#E0E0E0", background: entryStyle === opt.id ? "#FF1F7D" : "white" }}
+              >
+                {entryStyle === opt.id && <div className="w-2 h-2 rounded-full bg-white" />}
+              </div>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#111111" }}>{opt.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+        {entryStyle === "approval_paywall" && (
+          <div className="mt-4 pt-4 rounded-xl p-3 text-xs" style={{ borderTop: "1px solid #FFF0F5", background: "#FFF5F8", color: "#888" }}>
+            Members complete your application form. After you approve them, BloomBay prompts them to pay before they access the Clubhouse.
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={handleSave}
+        className="px-8 py-3.5 rounded-full font-bold text-sm text-white transition-all self-start"
+        style={{ background: saved ? "#FF1F7D" : "#FF1F7D" }}
+      >
+        {saved ? "Settings saved" : "Save Settings"}
+      </button>
+    </div>
+  );
+}
+
+// ── Form Builder Section ───────────────────────────────────────────────────
+
+type QuestionType = "short_answer" | "long_answer" | "multiple_choice" | "photo" | "social_link" | "rules_checkbox";
+
+interface FormQuestion {
+  id: string;
+  type: QuestionType;
+  label: string;
+  required: boolean;
+}
+
+const QUESTION_PALETTE: { type: QuestionType; label: string; abbr: string; defaultLabel: string }[] = [
+  { type: "short_answer",    label: "Short Answer",    abbr: "T",  defaultLabel: "Your question here" },
+  { type: "long_answer",     label: "Long Answer",     abbr: "¶",  defaultLabel: "Tell us about yourself" },
+  { type: "multiple_choice", label: "Multiple Choice", abbr: "◉",  defaultLabel: "Choose one" },
+  { type: "photo",           label: "Photo Upload",    abbr: "⬛", defaultLabel: "Upload a photo" },
+  { type: "social_link",     label: "Social Link",     abbr: "@",  defaultLabel: "Share your Instagram or LinkedIn" },
+  { type: "rules_checkbox",  label: "Rules Checkbox",  abbr: "✓",  defaultLabel: "I agree to the club rules." },
+];
+
+const TYPE_LABEL: Record<QuestionType, string> = {
+  short_answer: "Short answer",
+  long_answer: "Long answer",
+  multiple_choice: "Multiple choice",
+  photo: "Photo upload",
+  social_link: "Social link",
+  rules_checkbox: "Checkbox",
+};
+
+function FormBuilderSection() {
+  const [questions, setQuestions] = useState<FormQuestion[]>([
+    { id: "default-1", type: "long_answer", label: "Why do you want to join this club?", required: true },
+    { id: "default-2", type: "short_answer", label: "Where are you based in NYC?", required: true },
+    { id: "default-3", type: "rules_checkbox", label: "I agree to respect all club rules and members.", required: true },
+  ]);
+  const [saved, setSaved] = useState(false);
+
+  function addQuestion(type: QuestionType, defaultLabel: string) {
+    setQuestions((prev) => [...prev, { id: `q-${Date.now()}`, type, label: defaultLabel, required: false }]);
+  }
+
+  function removeQuestion(id: string) {
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+  }
+
+  function updateLabel(id: string, label: string) {
+    setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, label } : q)));
+  }
+
+  function toggleRequired(id: string) {
+    setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, required: !q.required } : q)));
+  }
+
+  return (
+    <div className="flex gap-6">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Application Form</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{questions.length} questions · shown to applicants</p>
+          </div>
+          <button
+            onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500); }}
+            className="px-5 py-2 rounded-full text-sm font-bold text-white transition-all"
+            style={{ background: saved ? "#FF1F7D" : "#FF1F7D" }}
+          >
+            {saved ? "Saved" : "Save Form"}
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {questions.map((q, i) => (
+            <div key={q.id} className="bg-white rounded-2xl p-4" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+              <div className="flex items-start gap-3">
+                <span className="text-xs font-bold flex-shrink-0 mt-2" style={{ color: "#FF1F7D" }}>
+                  0{i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    value={q.label}
+                    onChange={(e) => updateLabel(q.id, e.target.value)}
+                    className="w-full text-sm font-semibold outline-none bg-transparent"
+                    style={{ color: "#111111" }}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">{TYPE_LABEL[q.type]}</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0 mt-1">
+                  <label className="flex items-center gap-1.5 cursor-pointer" onClick={() => toggleRequired(q.id)}>
+                    <div
+                      className="w-4 h-4 rounded flex items-center justify-center"
+                      style={{ background: q.required ? "#FF1F7D" : "white", border: `1.5px solid ${q.required ? "#FF1F7D" : "#E0E0E0"}` }}
+                    >
+                      {q.required && (
+                        <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                          <path d="M1 5l2.5 2.5L9 1.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-400">Required</span>
+                  </label>
+                  <button onClick={() => removeQuestion(q.id)} className="text-gray-300 transition-colors hover:text-red-400">
+                    <IconX size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {questions.length === 0 && (
+            <div className="rounded-2xl p-10 text-center" style={{ border: "2px dashed #FFE0EE" }}>
+              <p className="text-sm text-gray-400">No questions yet. Add from the palette.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="w-56 flex-shrink-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Add Question</p>
+        <div className="flex flex-col gap-2">
+          {QUESTION_PALETTE.map((p) => (
+            <button
+              key={p.type}
+              onClick={() => addQuestion(p.type, p.defaultLabel)}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-left bg-white transition-all"
+              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+            >
+              <span
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
+                style={{ background: "#FFF0F5", color: "#FF1F7D" }}
+              >
+                {p.abbr}
+              </span>
+              <span className="text-xs font-semibold" style={{ color: "#111111" }}>{p.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page Component ─────────────────────────────────────────────────────────
 
 export default function TheClubhouse() {
   const [activeTab, setActiveTab] = useState<Tab>("women");
+  const [toast, setToast] = useState<string | null>(null);
 
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
       {/* ── Header ── */}
-      <div style={{ background: "#1A0514" }}>
+      <div style={{ background: "#111111" }}>
         {/* Top crest area */}
-        <div className="px-8 pt-8 pb-6 flex items-center gap-6">
+        <div className="px-4 md:px-8 pt-8 pb-6 flex items-center gap-6">
           {/* Crest */}
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0"
@@ -742,15 +1229,22 @@ export default function TheClubhouse() {
       </div>
 
       {/* ── Content ── */}
-      <div className="px-8 py-6">
-        {activeTab === "women" && <WomenSection />}
+      <div className="px-4 md:px-8 py-6">
+        {activeTab === "women" && <WomenSection showToast={showToast} />}
         {activeTab === "open-seats" && <OpenSeatsSection />}
-        {activeTab === "requests" && <RequestsSection />}
+        {activeTab === "applications" && <ApplicationsSection />}
+        {activeTab === "settings" && <ClubSettingsSection />}
+        {activeTab === "form-builder" && <FormBuilderSection />}
         {activeTab === "mailbox" && <MailboxSection />}
         {activeTab === "gatherings" && <GatheringsSection />}
         {activeTab === "club-health" && <ClubHealthSection />}
         {activeTab === "crest" && <CrestSection />}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "../portal/bb-logo";
+import { logout } from "@/lib/auth/actions";
 
 const NAV = [
   {
@@ -74,7 +75,7 @@ export function CuratorSidebar() {
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col z-40 overflow-y-auto"
-      style={{ background: "#1A0514" }}
+      style={{ background: "#111111" }}
     >
       {/* Logo */}
       <div className="px-6 py-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
@@ -145,21 +146,28 @@ export function CuratorSidebar() {
 
       {/* User */}
       <div
-        className="px-5 py-4 border-t flex items-center gap-3"
+        className="px-5 py-4 border-t"
         style={{ borderColor: "rgba(255,255,255,0.08)" }}
       >
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-          style={{ background: "#FF1F7D", color: "white" }}
-        >
-          A
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+            style={{ background: "#FF1F7D", color: "white" }}
+          >
+            A
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-semibold text-sm leading-none">Amanda R.</p>
+            <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Williamsburg · NYC
+            </p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold text-sm leading-none">Amanda R.</p>
-          <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Williamsburg · NYC
-          </p>
-        </div>
+        <form action={logout} className="mt-2">
+          <button type="submit" className="w-full py-2 rounded-xl text-xs font-bold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)" }}>
+            Log out
+          </button>
+        </form>
       </div>
     </aside>
   );

@@ -208,11 +208,11 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
 
 // ── Section Components ─────────────────────────────────────────────────────
 
-function ProfileSection() {
+function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
   return (
     <div className="max-w-2xl">
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Venue Profile</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Venue Profile</h2>
         <p className="text-sm text-gray-400 mt-0.5">How BloomBay women see your venue</p>
       </div>
 
@@ -220,7 +220,7 @@ function ProfileSection() {
         {/* Venue name */}
         <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Venue Name</p>
-          <p className="font-bold text-xl" style={{ color: "#1A0514" }}>Ladurée SoHo</p>
+          <p className="font-bold text-xl" style={{ color: "#111111" }}>Ladurée SoHo</p>
         </div>
 
         {/* Description */}
@@ -229,13 +229,13 @@ function ProfileSection() {
           <p className="text-sm leading-relaxed" style={{ color: "#444" }}>
             Parisian patisserie meets NYC girl culture. The perfect brunch spot.
           </p>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Edit description</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Description editor coming soon")}>Edit description</button>
         </div>
 
         {/* Neighborhood */}
         <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Neighborhood</p>
-          <p className="text-sm font-semibold" style={{ color: "#1A0514" }}>SoHo, Manhattan</p>
+          <p className="text-sm font-semibold" style={{ color: "#111111" }}>SoHo, Manhattan</p>
         </div>
 
         {/* Photos placeholder */}
@@ -252,7 +252,7 @@ function ProfileSection() {
               </div>
             ))}
           </div>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }}>Upload photos</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Photo upload coming soon")}>Upload photos</button>
         </div>
       </div>
     </div>
@@ -263,7 +263,7 @@ function GatheringsSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Upcoming Gatherings</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Upcoming Gatherings</h2>
         <p className="text-sm text-gray-400 mt-0.5">3 BloomBay events booked at your venue</p>
       </div>
 
@@ -282,18 +282,18 @@ function GatheringsSection() {
               <p className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>
                 {g.date.split(",")[0].split(" ")[0]}
               </p>
-              <p className="text-xl font-bold" style={{ color: "#1A0514" }}>
+              <p className="text-xl font-bold" style={{ color: "#111111" }}>
                 {g.date.split(" ")[1].replace(",", "")}
               </p>
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{g.title}</p>
+              <p className="font-bold text-sm" style={{ color: "#111111" }}>{g.title}</p>
               <p className="text-xs text-gray-400 mt-0.5">{g.club} · {g.time}</p>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{g.guests} guests</p>
+              <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.guests} guests</p>
               <span
                 className="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block"
                 style={
@@ -327,7 +327,7 @@ function WomenHostedSection() {
           >
             156
           </p>
-          <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>Total Women Hosted</p>
+          <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>Total Women Hosted</p>
           <p className="text-xs text-gray-400 mt-0.5">via BloomBay</p>
         </div>
         <div
@@ -340,7 +340,7 @@ function WomenHostedSection() {
           >
             12
           </p>
-          <p className="font-semibold text-sm mt-1.5" style={{ color: "#1A0514" }}>This Week</p>
+          <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>This Week</p>
           <p className="text-xs text-gray-400 mt-0.5">Jun 1 – Jun 7, 2025</p>
         </div>
       </div>
@@ -362,11 +362,11 @@ function WomenHostedSection() {
                 {v.name[0]}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{v.name}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{v.name}</p>
                 <p className="text-xs text-gray-400 truncate">{v.club}</p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-xs font-semibold" style={{ color: "#1A0514" }}>{v.guests} {v.guests === 1 ? "guest" : "guests"}</p>
+                <p className="text-xs font-semibold" style={{ color: "#111111" }}>{v.guests} {v.guests === 1 ? "guest" : "guests"}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{v.date}</p>
               </div>
             </div>
@@ -400,7 +400,7 @@ function RatingSection() {
         <div>
           <StarRating rating={overallRating} size={22} />
           <p className="text-sm text-gray-500 mt-2">
-            From <span className="font-semibold" style={{ color: "#1A0514" }}>{totalReviews}</span> BloomBay women
+            From <span className="font-semibold" style={{ color: "#111111" }}>{totalReviews}</span> BloomBay women
           </p>
           <p className="text-xs text-gray-400 mt-0.5">BloomBay Rating — verified visits only</p>
         </div>
@@ -424,7 +424,7 @@ function RatingSection() {
                   {r.author[0]}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>{r.author}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{r.author}</p>
                   <p className="text-xs text-gray-400">{r.club} · {r.date}</p>
                 </div>
               </div>
@@ -446,7 +446,7 @@ function RequestsSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Booking Requests</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Booking Requests</h2>
         <p className="text-sm text-gray-400 mt-0.5">{BOOKING_REQUESTS.length} pending requests</p>
       </div>
 
@@ -463,7 +463,7 @@ function RequestsSection() {
           >
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
-                <p className="font-bold text-sm" style={{ color: "#1A0514" }}>{r.event}</p>
+                <p className="font-bold text-sm" style={{ color: "#111111" }}>{r.event}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {r.club} · via {r.contact} · {r.requestedDate} · {r.guests} guests
                 </p>
@@ -473,7 +473,7 @@ function RequestsSection() {
                   <button
                     onClick={() => setHandled(prev => new Set([...prev, i]))}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
-                    style={{ background: "#1A0514" }}
+                    style={{ background: "#111111" }}
                   >
                     <IconCheck size={12} />
                     Confirm
@@ -507,7 +507,7 @@ function MailboxSection() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Mailbox</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Mailbox</h2>
         <p className="text-sm text-gray-400 mt-0.5">{unread} unread messages</p>
       </div>
 
@@ -518,19 +518,19 @@ function MailboxSection() {
             className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 cursor-pointer"
             style={{
               boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-              borderLeft: m.unread ? "3px solid #1A0514" : "3px solid transparent",
+              borderLeft: m.unread ? "3px solid #111111" : "3px solid transparent",
             }}
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-              style={{ background: m.unread ? "#1A0514" : "#C8B0C0" }}
+              style={{ background: m.unread ? "#111111" : "#FFE0EE" }}
             >
               {m.from[0]}
             </div>
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm truncate"
-                style={{ color: "#1A0514", fontWeight: m.unread ? 700 : 500 }}
+                style={{ color: "#111111", fontWeight: m.unread ? 700 : 500 }}
               >
                 {m.from}
               </p>
@@ -553,14 +553,14 @@ function PerksSection() {
   return (
     <div className="max-w-xl">
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#1A0514" }}>Partner Perks</h2>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Partner Perks</h2>
         <p className="text-sm text-gray-400 mt-0.5">Your active benefits as a Bloom Partner</p>
       </div>
 
       {/* Bloom Partner Badge */}
       <div
         className="rounded-2xl p-6 mb-4 flex items-center gap-5"
-        style={{ background: "#1A0514" }}
+        style={{ background: "#111111" }}
       >
         {/* Badge graphic */}
         <div className="flex-shrink-0">
@@ -619,7 +619,7 @@ function PerksSection() {
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Priority Placement</p>
+            <p className="font-semibold text-sm" style={{ color: "#111111" }}>Priority Placement</p>
             <p className="text-xs text-gray-400 mt-0.5">Your venue appears first in search results for BloomBay women in SoHo</p>
           </div>
           <span
@@ -642,7 +642,7 @@ function PerksSection() {
             <IconAward size={20} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Bloom Partner Badge</p>
+            <p className="font-semibold text-sm" style={{ color: "#111111" }}>Bloom Partner Badge</p>
             <p className="text-xs text-gray-400 mt-0.5">Displayed on your venue profile, visible to all BloomBay members</p>
           </div>
           <span
@@ -673,7 +673,7 @@ function PerksSection() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <p className="font-semibold text-sm" style={{ color: "#1A0514" }}>Current Promotion</p>
+              <p className="font-semibold text-sm" style={{ color: "#111111" }}>Current Promotion</p>
               <span
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{ background: "#FF1F7D", color: "white" }}
@@ -698,13 +698,19 @@ function PerksSection() {
 
 export default function YourVenue() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [toast, setToast] = useState<string | null>(null);
 
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
       {/* ── Header ── */}
-      <div style={{ background: "#1A0514" }}>
+      <div style={{ background: "#111111" }}>
         {/* Top venue info area */}
         <div className="px-8 pt-8 pb-6 flex items-center gap-6">
           {/* Venue initial / logo block */}
@@ -772,7 +778,7 @@ export default function YourVenue() {
                 className="relative flex items-center gap-2 px-4 py-3 text-sm font-semibold whitespace-nowrap rounded-t-xl transition-all"
                 style={
                   isActive
-                    ? { background: "#FFF5F8", color: "#1A0514" }
+                    ? { background: "#FFF5F8", color: "#111111" }
                     : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }
                 }
               >
@@ -798,7 +804,7 @@ export default function YourVenue() {
 
       {/* ── Content ── */}
       <div className="px-8 py-6">
-        {activeTab === "profile" && <ProfileSection />}
+        {activeTab === "profile" && <ProfileSection showToast={showToast} />}
         {activeTab === "gatherings" && <GatheringsSection />}
         {activeTab === "women-hosted" && <WomenHostedSection />}
         {activeTab === "rating" && <RatingSection />}
@@ -806,6 +812,11 @@ export default function YourVenue() {
         {activeTab === "mailbox" && <MailboxSection />}
         {activeTab === "perks" && <PerksSection />}
       </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#111111" }}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

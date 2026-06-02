@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: "#1A0514" }}
+      style={{ background: "#111111" }}
     >
       <div className="w-full max-w-sm">
         {/* Logo + label */}

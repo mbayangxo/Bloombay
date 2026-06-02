@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BBLogo } from "../portal/bb-logo";
+import { logout } from "@/lib/auth/actions";
 
 const NAV = [
   { href: "/partner/dashboard", label: "Dashboard", icon: "⬡" },
@@ -22,7 +23,7 @@ export function PartnerSidebar() {
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col z-40"
-      style={{ background: "#1A0514" }}
+      style={{ background: "#111111" }}
     >
       {/* Logo */}
       <div className="px-5 py-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
@@ -81,6 +82,11 @@ export function PartnerSidebar() {
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Verified Partner</p>
           </div>
         </div>
+        <form action={logout} className="mt-2">
+          <button type="submit" className="w-full py-2 rounded-xl text-xs font-bold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)" }}>
+            Log out
+          </button>
+        </form>
       </div>
     </aside>
   );

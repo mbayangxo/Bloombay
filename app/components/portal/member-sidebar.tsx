@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BBLogo } from "./bb-logo";
+import { logout } from "@/lib/auth/actions";
 
 const NAV = [
   {
@@ -20,6 +21,15 @@ const NAV = [
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/member/explore",
+    label: "Explore",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7-3 3-7-7 3-3 7zm5.5-4c-.83 0-1.5-.67-1.5-1.5S11.17 10.5 12 10.5s1.5.67 1.5 1.5S12.83 13.5 12 13.5z"/>
       </svg>
     ),
   },
@@ -42,6 +52,15 @@ const NAV = [
     ),
   },
   {
+    href: "/member/match",
+    label: "Match",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
+      </svg>
+    ),
+  },
+  {
     href: "/member/lounge",
     label: "Lounge",
     icon: (
@@ -58,7 +77,7 @@ export function MemberSidebar() {
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-60 flex-col z-40"
-      style={{ background: "#1A0514" }}
+      style={{ background: "#111111" }}
     >
       {/* Logo */}
       <div className="px-6 py-7 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
@@ -118,6 +137,13 @@ export function MemberSidebar() {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
           </svg>
         </Link>
+        <form action={logout}>
+          <button type="submit" title="Sign out" style={{ color: "rgba(255,255,255,0.3)" }} className="hover:text-white/60 transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+          </button>
+        </form>
       </div>
     </aside>
   );

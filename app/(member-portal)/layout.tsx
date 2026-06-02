@@ -1,9 +1,12 @@
 import { BottomNav } from "../components/portal/bottom-nav";
 import { MemberSidebar } from "../components/portal/member-sidebar";
+import { TimeWrapper } from "../components/portal/time-wrapper";
+import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
 
 export default function MemberPortalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
+    <TimeWrapper>
+      <SeasonalOverlay />
       <MemberSidebar />
       <div className="md:ml-60">
         <div className="max-w-[430px] mx-auto md:max-w-none">
@@ -11,6 +14,6 @@ export default function MemberPortalLayout({ children }: { children: React.React
         </div>
       </div>
       <BottomNav />
-    </div>
+    </TimeWrapper>
   );
 }

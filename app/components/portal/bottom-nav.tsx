@@ -23,6 +23,15 @@ const tabs = [
     ),
   },
   {
+    href: "/member/explore",
+    label: "Explore",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7-3 3-7-7 3-3 7zm5.5-4c-.83 0-1.5-.67-1.5-1.5S11.17 10.5 12 10.5s1.5.67 1.5 1.5S12.83 13.5 12 13.5z"/>
+      </svg>
+    ),
+  },
+  {
     href: "/member/clubs",
     label: "Clubs",
     icon: (
@@ -37,6 +46,15 @@ const tabs = [
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/member/match",
+    label: "Match",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
       </svg>
     ),
   },
@@ -57,8 +75,8 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none md:hidden">
       <div
-        className="pointer-events-auto mx-4 mb-4 flex items-center gap-1 px-2 py-2 rounded-full"
-        style={{ background: "#1A0514" }}
+        className="pointer-events-auto mx-3 mb-4 flex items-center gap-0.5 px-2 py-2 rounded-full overflow-x-auto max-w-full"
+        style={{ background: "#111111", scrollbarWidth: "none" }}
       >
         {tabs.map((tab) => {
           const active = pathname === tab.href || pathname.startsWith(tab.href + "/");

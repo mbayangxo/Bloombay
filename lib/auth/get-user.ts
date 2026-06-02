@@ -43,7 +43,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     .single();
 
   const firstName = p?.first_name ?? "";
-  const fullName = firstName || user.email?.split("@")[0] ?? "there";
+  const fullName = firstName || (user.email?.split("@")[0] ?? "there");
 
   return {
     id: user.id,

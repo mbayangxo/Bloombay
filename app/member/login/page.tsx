@@ -44,7 +44,7 @@ export default function MemberLoginPage() {
         {state?.error && (
           <div
             className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium"
-            style={{ background: "#FFE0EE", color: "#c40060" }}
+            style={{ background: "#FFE0EE", color: "#FF1F7D" }}
           >
             {state.error}
           </div>
@@ -125,9 +125,9 @@ export default function MemberLoginPage() {
             {[
               { i: "A", c: "#FF1F7D" },
               { i: "S", c: "#FF69B4" },
-              { i: "P", c: "#c40060" },
+              { i: "P", c: "#FF1F7D" },
               { i: "K", c: "#FF69B4" },
-              { i: "C", c: "#1A0514" },
+              { i: "C", c: "#111111" },
             ].map((a) => (
               <div
                 key={a.i}
