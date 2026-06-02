@@ -83,7 +83,7 @@ const POSTER_THEMES = [
 function EventPoster({ ev, idx }: { ev: typeof CITY_EVENTS[0]; idx: number }) {
   const theme = POSTER_THEMES[idx % POSTER_THEMES.length];
   return (
-    <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+    <Link href={`/member/happenings/${ev.id}`} style={{ textDecoration: "none" }}>
       <div
         className="rounded-2xl overflow-hidden relative"
         style={{ height: "188px", background: theme.bg, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
@@ -143,50 +143,26 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
   const mood = CITY_MOOD[tod];
   const isNight      = tod === "evening" || tod === "night";
   const isEvening    = tod === "evening";
-  const textMuted    = isNight ? "rgba(200,165,210,0.58)" : "#888";
-  const headingColor = isNight ? "rgba(255,228,245,0.92)" : "#111111";
-  const cardBg       = isNight ? (isEvening ? "#1E0E38" : "#130A24") : "white";
-  const surfaceBg    = isNight ? (isEvening ? "#1A0C30" : "#100820") : "#FFF5F8";
+  const textMuted    = isNight ? "rgba(215,175,155,0.58)" : "#888";
+  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#111111";
+  const cardBg       = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
+  const surfaceBg    = isNight ? (isEvening ? "#1A1410" : "#120E0A") : "#FFF5F8";
   const heroBg       = HERO_BG[tod];
 
   return (
     <div className="min-h-screen pb-24 md:pb-12">
 
-      {/* ── TOP BAR ── */}
-      <header className="flex items-center justify-between px-5 pt-12 pb-4 md:px-8 md:pt-8">
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
-            {mood.weather} · {mood.temp}
-          </p>
-          <h1 className="text-4xl font-bold leading-tight mt-1 md:text-5xl" style={{ color: headingColor }}>
-            {greeting},{" "}
-            <span className="italic" style={{ fontFamily: "var(--font-instrument)", color: "#FF1F7D", fontWeight: 400 }}>
-              {firstName}.
-            </span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/member/messages" className="w-9 h-9 flex items-center justify-center rounded-full"
-            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#FFE0EC" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </Link>
-          <Link href="/member/notifications" className="w-9 h-9 flex items-center justify-center rounded-full relative"
-            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#FFE0EC" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
-          </Link>
-          <Link href="/member/lounge">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>
-              {initial}
-            </div>
-          </Link>
-        </div>
+      {/* ── TOP BAR — icons handled by layout PortalIcons ── */}
+      <header className="px-5 pt-14 pb-4 md:px-8 md:pt-10">
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
+          {mood.weather} · {mood.temp}
+        </p>
+        <h1 className="text-4xl font-bold leading-tight mt-1 md:text-5xl" style={{ color: headingColor }}>
+          {greeting},{" "}
+          <span className="italic" style={{ fontFamily: "var(--font-instrument)", color: "#FF1F7D", fontWeight: 400 }}>
+            {firstName}.
+          </span>
+        </h1>
       </header>
 
       {/* ── CITY HERO CARD — time-aware ── */}
@@ -370,7 +346,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* LOBBY TEASER — mobile only */}
           <div className="px-5 mb-6 md:hidden">
             <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#111111" }}>
+              style={{ background: isNight ? (isEvening ? "#1C1410" : "#141010") : "#111111" }}>
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.18) 0%, transparent 60%)" }} />
               <div className="relative">
@@ -451,7 +427,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* Yande pick */}
           <div className="rounded-3xl overflow-hidden relative"
             style={{
-              background: isNight ? (isEvening ? "#1E0E38" : "#130A24") : "#FFF0F5",
+              background: isNight ? (isEvening ? "#1E1612" : "#15100C") : "#FFF0F5",
               boxShadow: isNight ? "0 8px 28px rgba(0,0,0,0.25)" : "0 4px 20px rgba(255,31,125,0.12)",
               border: isNight ? "none" : "1px solid rgba(255,31,125,0.12)",
             }}>
@@ -479,7 +455,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
           {/* Enter the Lobby */}
           <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-            style={{ background: isNight ? (isEvening ? "#200E40" : "#130828") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+            style={{ background: isNight ? (isEvening ? "#1C1410" : "#141010") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.15) 0%, transparent 60%)" }} />
             <div className="relative">

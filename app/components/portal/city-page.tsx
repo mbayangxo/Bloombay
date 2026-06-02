@@ -139,8 +139,8 @@ function EatFeaturedCard({ r }: { r: Restaurant }) {
   const [saved, setSaved] = useState(false);
   return (
     <div className="rounded-3xl overflow-hidden mb-5" style={{ background: r.bgColor, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-      <div className="relative flex items-center justify-center" style={{ height: "148px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
-        <span style={{ fontSize: "72px", opacity: 0.65 }}>{r.emoji}</span>
+      <div className="relative flex items-center justify-center" style={{ height: "96px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
+        <span style={{ fontSize: "52px", opacity: 0.55 }}>{r.emoji}</span>
         <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
           WOMEN&apos;S PICK
         </span>

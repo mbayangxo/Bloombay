@@ -13,7 +13,7 @@ const NAV = [
   { href: "/member/room",          label: "LOBBY",      n: "03" },
   { href: "/member/lounge",        label: "APARTMENT",  n: "04" },
   { href: "/member/match",         label: "CONNECT",    n: "05" },
-  { href: "/member/city",          label: "CITY",       n: "06" },
+  { href: "/member/city",          label: "THE CITY",   n: "06" },
   { href: "/member/happenings",    label: "HAPPENINGS", n: "07" },
 ];
 
@@ -30,17 +30,17 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
   const isNight   = tod === "evening" || tod === "night";
   const isEvening = tod === "evening";
 
-  const sidebarBg    = isNight ? (isEvening ? "#16092A" : "#0A0617") : "#FDFAF5";
-  const borderColor  = isNight ? "rgba(255,200,235,0.08)" : "rgba(0,0,0,0.07)";
-  const divider      = isNight ? "rgba(255,200,235,0.05)" : "rgba(0,0,0,0.05)";
-  const brandText    = isNight ? "rgba(255,228,245,0.92)" : "#111111";
-  const mutedText    = isNight ? "rgba(200,165,210,0.38)" : "rgba(0,0,0,0.3)";
-  const navInactive  = isNight ? "rgba(215,175,210,0.55)" : "rgba(0,0,0,0.45)";
-  const navNum       = isNight ? "rgba(195,155,205,0.28)" : "rgba(0,0,0,0.2)";
-  const tagline      = isNight ? "rgba(195,155,205,0.35)" : "rgba(0,0,0,0.22)";
-  const userText     = isNight ? "rgba(255,228,245,0.88)" : "#111111";
-  const userRole     = isNight ? "rgba(200,165,210,0.45)" : "#888";
-  const logoutStroke = isNight ? "rgba(200,165,210,0.35)" : "rgba(0,0,0,0.28)";
+  const sidebarBg    = isNight ? (isEvening ? "#120D0A" : "#0A0806") : "#FDFAF5";
+  const borderColor  = isNight ? "rgba(255,200,175,0.08)" : "rgba(0,0,0,0.07)";
+  const divider      = isNight ? "rgba(255,200,175,0.05)" : "rgba(0,0,0,0.05)";
+  const brandText    = isNight ? "rgba(255,238,220,0.92)" : "#111111";
+  const mutedText    = isNight ? "rgba(215,175,155,0.38)" : "rgba(0,0,0,0.3)";
+  const navInactive  = isNight ? "rgba(225,190,170,0.58)" : "rgba(0,0,0,0.45)";
+  const navNum       = isNight ? "rgba(205,168,148,0.3)" : "rgba(0,0,0,0.2)";
+  const tagline      = isNight ? "rgba(205,168,148,0.38)" : "rgba(0,0,0,0.22)";
+  const userText     = isNight ? "rgba(255,238,220,0.88)" : "#111111";
+  const userRole     = isNight ? "rgba(215,175,155,0.45)" : "#888";
+  const logoutStroke = isNight ? "rgba(215,175,155,0.35)" : "rgba(0,0,0,0.28)";
 
   return (
     <aside
@@ -71,7 +71,7 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-2.5 py-2.5 transition-all group relative"
+              className="flex items-center gap-2.5 py-3.5 transition-all group relative"
               style={{
                 borderBottom: `1px solid ${divider}`,
                 borderLeft: active ? "2px solid #FF1F7D" : "2px solid transparent",

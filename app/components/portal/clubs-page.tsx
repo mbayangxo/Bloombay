@@ -439,7 +439,7 @@ export function ClubsPage() {
         </div>
       </div>
 
-      <div className="px-5 pb-8 md:px-8">
+      <div className="px-5 pb-8 md:px-8 md:max-w-[820px] md:mx-auto">
 
         {/* ── DISCOVER ── */}
         {activeTab === 0 && (
@@ -482,7 +482,7 @@ export function ClubsPage() {
                   <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
                   <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#bbb" }}>ranked by the city</p>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {ranked.map((club, i) => <BoardRow key={club.id} club={club} rank={i + 1} />)}
                 </div>
               </div>

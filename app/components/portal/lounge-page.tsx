@@ -195,10 +195,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   const isNight      = tod === "evening" || tod === "night";
   const isEvening    = tod === "evening";
-  const headingColor = isNight ? "rgba(255,228,245,0.92)" : "#0A0A0A";
-  const mutedColor   = isNight ? "rgba(200,165,210,0.58)"  : "#aaa";
-  const cardBg       = isNight ? (isEvening ? "#1E0E38" : "#130A24") : "white";
-  const darkCard     = isNight ? (isEvening ? "#1A0A30" : "#100820") : "#111111";
+  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#0A0A0A";
+  const mutedColor   = isNight ? "rgba(215,175,155,0.58)"  : "#aaa";
+  const cardBg       = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
+  const darkCard     = isNight ? (isEvening ? "#1A1410" : "#120E0A") : "#111111";
   const tabActiveBg  = "#FF1F7D";
   const tabInactive  = isNight
     ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }
@@ -224,9 +224,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="md:max-w-[760px] md:mx-auto">
+      <div className="md:max-w-[1000px] md:mx-auto">
       {/* Header */}
-      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-8">
+      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
         <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#FF1F7D" }}>
           YOUR SPACE
         </p>
@@ -316,11 +316,11 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               >
                 Your Circle
               </p>
-              <div className="grid grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-6 gap-2 mb-4">
                 {BOUQUET_MEMBERS.map((m) => (
-                  <div key={m.name} className="flex flex-col items-center gap-2">
+                  <div key={m.name} className="flex flex-col items-center gap-1.5">
                     <div
-                      className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white"
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
                       style={{
                         background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}BB 100%)`,
                         boxShadow: `0 4px 12px ${m.color}44`,
@@ -334,12 +334,12 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   </div>
                 ))}
                 {Array.from({ length: emptySlots }).map((_, i) => (
-                  <div key={`empty-${i}`} className="flex flex-col items-center gap-2">
+                  <div key={`empty-${i}`} className="flex flex-col items-center gap-1.5">
                     <div
-                      className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-dashed"
+                      className="w-8 h-8 rounded-full flex items-center justify-center border border-dashed"
                       style={{ borderColor: "#E0D0D8" }}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8B0BC" strokeWidth="1.5">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C8B0BC" strokeWidth="1.5">
                         <path d="M12 2l1.7 5.3H19l-4.4 3.2 1.7 5.3L12 13l-4.3 2.8 1.7-5.3L5 7.3h5.3z" />
                       </svg>
                     </div>
