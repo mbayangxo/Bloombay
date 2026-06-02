@@ -255,7 +255,7 @@ export function HomePage({ firstName, initial }: { firstName: string; initial: s
       </div>
 
       {/* ── 2-col on desktop ── */}
-      <div className="md:grid md:grid-cols-[1fr_280px] md:gap-6 md:px-8 md:items-start">
+      <div className="md:grid md:grid-cols-[1fr_320px] md:gap-8 md:px-10 md:items-start">
 
         {/* ── LEFT COLUMN ── */}
         <div>
@@ -272,7 +272,7 @@ export function HomePage({ firstName, initial }: { firstName: string; initial: s
               </Link>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {INVITATIONS.map((inv) => (
                 <Link key={inv.id} href="/member/happenings" style={{ textDecoration: "none" }}>
                   <div
@@ -329,7 +329,7 @@ export function HomePage({ firstName, initial }: { firstName: string; initial: s
                 The City →
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {CITY_EVENTS.map((ev, idx) => <EventPoster key={ev.id} ev={ev} idx={idx} />)}
             </div>
           </div>

@@ -278,59 +278,57 @@ function ConnectTab() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {queue.map((girl) => (
-          <div key={girl.id} className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(255,31,125,0.12)" }}>
-            <div className="h-28 relative" style={{ background: `linear-gradient(135deg, ${girl.color}EE 0%, ${girl.color}66 55%, #FFE0EE 100%)` }}>
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle, ${girl.color} 0%, transparent 70%)`, transform: "translate(30%, -30%)" }} />
-              <div className="absolute bottom-0 left-5" style={{ transform: "translateY(50%)", zIndex: 2 }}>
-                <ProfileAvatar initial={girl.initial} color={girl.color} size={68} />
-                {girl.verified && (
-                  <div className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
-                    <VerifiedBadge />
-                  </div>
-                )}
+          <div key={girl.id} className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.10)" }}>
+            {/* Compact gradient banner */}
+            <div className="h-20 relative" style={{ background: `linear-gradient(135deg, ${girl.color} 0%, ${girl.color}88 100%)` }}>
+              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 60%)" }} />
+              {/* Category label top-right */}
+              <p className="absolute top-2.5 right-3 text-[8px] font-bold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.7)" }}>
+                YANDE PICK
+              </p>
+              {/* Avatar anchored bottom-left */}
+              <div className="absolute bottom-0 left-3" style={{ transform: "translateY(50%)" }}>
+                <div className="relative">
+                  <ProfileAvatar initial={girl.initial} color={girl.color} size={44} />
+                  {girl.verified && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "white" }}>
+                      <VerifiedBadge />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="px-5 pt-12 pb-6">
-              <div className="mb-3">
-                <p className="font-bold text-xl leading-tight" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
-                  {girl.name}
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: "#999" }}>{girl.neighborhood}</p>
-              </div>
+            <div className="px-3.5 pt-7 pb-4">
+              <p className="font-bold text-sm italic leading-tight" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+                {girl.name}
+              </p>
+              <p className="text-[11px] mt-0.5 mb-2" style={{ color: "#aaa" }}>{girl.neighborhood}</p>
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                {girl.clubs.map((c) => (
-                  <span key={c} className="text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: `${girl.color}15`, color: girl.color }}>
+              <div className="flex flex-wrap gap-1 mb-2.5">
+                {girl.clubs.slice(0, 2).map((c) => (
+                  <span key={c} className="text-[9px] font-semibold px-2 py-1 rounded-full" style={{ background: `${girl.color}15`, color: girl.color }}>
                     {c}
                   </span>
                 ))}
               </div>
 
-              <p className="text-sm italic leading-relaxed mb-4" style={{ color: "#666", fontFamily: "var(--font-playfair)" }}>
-                &ldquo;{girl.vibe}&rdquo;
+              <p className="text-[10px] mb-3 leading-snug" style={{ color: "#888", borderLeft: `2px solid ${girl.color}44`, paddingLeft: "8px" }}>
+                ✦ {girl.matchNote.slice(0, 60)}{girl.matchNote.length > 60 ? "…" : ""}
               </p>
-
-              <div className="rounded-xl px-4 py-3.5 mb-6" style={{ background: "#FFF5F8", borderLeft: "3px solid #FF1F7D" }}>
-                <p className="text-xs leading-relaxed font-semibold" style={{ color: "#FF1F7D" }}>
-                  ✦ {girl.matchNote}
-                </p>
-              </div>
 
               <button
                 onClick={() => connect(girl.id)}
-                className="w-full py-4 rounded-full text-base font-bold text-white mb-3 transition-all active:scale-[0.98]"
-                style={{
-                  background: connected.has(girl.id) ? "#999" : `linear-gradient(135deg, ${girl.color} 0%, ${girl.color}CC 100%)`,
-                  boxShadow: connected.has(girl.id) ? "none" : `0 6px 20px ${girl.color}44`,
-                }}
+                className="w-full py-2.5 rounded-full text-[11px] font-bold text-white transition-all active:scale-[0.97]"
+                style={connected.has(girl.id)
+                  ? { background: "#eee", color: "#aaa" }
+                  : { background: girl.color, boxShadow: `0 4px 12px ${girl.color}44` }}
               >
-                {connected.has(girl.id) ? "Request sent ✓" : `Connect with ${girl.name.split(" ")[0]}`}
+                {connected.has(girl.id) ? "Sent ✓" : `Connect`}
               </button>
-
-              <button onClick={() => pass(girl.id)} className="w-full text-center text-xs py-1.5 transition-all" style={{ color: "#C8C8C8" }}>
+              <button onClick={() => pass(girl.id)} className="w-full text-center text-[10px] py-1.5 mt-1" style={{ color: "#ccc" }}>
                 Not now
               </button>
             </div>

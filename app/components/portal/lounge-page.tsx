@@ -37,7 +37,143 @@ const BORDER_COLORS = ["#FF1F7D", "#FF69B4", "#FFB6D0"];
 
 const BOUQUET_MAX = 12;
 
+const BLOOMIE_UPDATES: Record<string, { emoji: string; text: string; time: string }[]> = {
+  "Aaliyah M.": [
+    { emoji: "🌅", text: "Just got back from that Williamsburg matcha spot. It's everything.", time: "2h ago" },
+    { emoji: "🎨", text: "Paint & sip night was so good. Already planning the next one.", time: "Yesterday" },
+  ],
+  "Sofia K.": [
+    { emoji: "🏃‍♀️", text: "Sunday run done. Pastries were mandatory.", time: "3h ago" },
+    { emoji: "✈️", text: "Thinking Morocco in October. Who's in?", time: "2 days ago" },
+  ],
+  "Kelechi O.": [
+    { emoji: "📚", text: "Book club pick just dropped. Cannot wait.", time: "5h ago" },
+    { emoji: "🍷", text: "That rooftop spot in Flatbush is unreal. Telling everyone.", time: "3 days ago" },
+  ],
+};
+
 interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
+
+interface BloomieProfile {
+  name: string; neighborhood: string; color: string; initial: string; since: string;
+}
+
+function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: () => void }) {
+  const [message, setMessage] = useState("");
+  const [sent, setSent] = useState(false);
+  const updates = BLOOMIE_UPDATES[bloomie.name] ?? [];
+
+  function sendMessage() {
+    if (!message.trim()) return;
+    setSent(true);
+    setMessage("");
+    setTimeout(() => setSent(false), 2500);
+  }
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-40"
+        style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
+        onClick={onClose}
+      />
+      {/* Sheet */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
+        style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "85vh", overflowY: "auto" }}
+      >
+        {/* Handle bar */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+
+        {/* Profile hero */}
+        <div className="px-6 pb-5 flex items-start gap-4 relative">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
+            style={{ background: `linear-gradient(135deg, ${bloomie.color} 0%, ${bloomie.color}BB 100%)`, boxShadow: `0 4px 16px ${bloomie.color}44` }}
+          >
+            {bloomie.initial}
+          </div>
+          <div className="flex-1 pt-1">
+            <h3 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+              {bloomie.name}
+            </h3>
+            <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{bloomie.neighborhood} · since {bloomie.since}</p>
+            <span
+              className="inline-block mt-2 text-[9px] font-bold px-2.5 py-1 rounded-full tracking-wider"
+              style={{ background: "#111111", color: "#FF69B4" }}
+            >
+              ✦ YOUR BLOOMIE
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+            style={{ background: "rgba(0,0,0,0.07)" }}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M1 1l8 8M9 1l-8 8"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Message */}
+        <div className="px-6 pb-5">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF1F7D" }}>SEND A MESSAGE</p>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1.5px solid #F0E0E8" }}
+          >
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={`Write to ${bloomie.name.split(" ")[0]}…`}
+              rows={3}
+              className="w-full resize-none text-sm outline-none px-4 py-3"
+              style={{ background: "transparent", color: "#111", lineHeight: 1.6 }}
+            />
+            <div className="px-4 pb-3 flex justify-end">
+              <button
+                onClick={sendMessage}
+                disabled={!message.trim()}
+                className="px-5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+                style={sent
+                  ? { background: "#111111", color: "#FF69B4" }
+                  : message.trim()
+                    ? { background: "#FF1F7D", color: "white", boxShadow: "0 3px 10px rgba(255,31,125,0.3)" }
+                    : { background: "#F0E0E8", color: "#C8A0B0" }}
+              >
+                {sent ? "Sent ✓" : "Send →"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Her updates */}
+        {updates.length > 0 && (
+          <div className="px-6 pb-8">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>HER UPDATES</p>
+            <div className="flex flex-col gap-2.5">
+              {updates.map((u, i) => (
+                <div key={i} className="rounded-2xl px-4 py-3.5" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">{u.emoji}</span>
+                    <div className="flex-1">
+                      <p className="text-sm leading-relaxed" style={{ color: "#444" }}>{u.text}</p>
+                      <p className="text-xs mt-1" style={{ color: "#bbb" }}>{u.time}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
 
 export function LoungePage({ user }: { user?: LoungeUser }) {
   const displayName = user?.name ?? "May";
@@ -46,7 +182,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const displayBio = user?.bio ?? "Part of the world made for women.";
   const displayHandle = (user?.name?.split(" ")[0] ?? "member").toLowerCase();
   const [activeTab, setActiveTab] = useState(0);
-  const [waved, setWaved] = useState<Set<string>>(new Set());
+  const [flowered, setFlowered] = useState<Set<string>>(new Set());
+  const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -55,8 +192,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     setTimeout(() => setToast(null), 2400);
   }
 
-  function wave(name: string) {
-    setWaved((prev) => new Set([...prev, name]));
+  function sendFlowers(name: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setFlowered((prev) => new Set([...prev, name]));
+    showToast("Flowers sent 🌸");
   }
 
   function copyLink() {
@@ -206,7 +345,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               </div>
             </div>
 
-            {/* Bloomies list — colored left border accents */}
+            {/* Bloomies list — colored left border accents, tappable */}
             <div>
               <p
                 className="text-sm font-bold italic mb-3"
@@ -218,7 +357,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 {BOUQUET_MEMBERS.map((m, idx) => (
                   <div
                     key={m.name}
-                    className="bg-white rounded-2xl p-4 flex items-center gap-3"
+                    onClick={() => setSelectedBloomie(m)}
+                    className="bg-white rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
                     style={{
                       boxShadow: "0 2px 12px rgba(255,31,125,0.07)",
                       borderLeft: `3px solid ${BORDER_COLORS[idx % BORDER_COLORS.length]}`,
@@ -238,15 +378,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                       <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood} · since {m.since}</p>
                     </div>
                     <button
-                      onClick={() => wave(m.name)}
-                      className="px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-90"
+                      onClick={(e) => sendFlowers(m.name, e)}
+                      className="px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-90 flex-shrink-0"
                       style={
-                        waved.has(m.name)
+                        flowered.has(m.name)
                           ? { background: m.color, color: "white", boxShadow: `0 2px 8px ${m.color}44` }
                           : { background: "var(--light-pink)", color: "var(--bb-pink)" }
                       }
                     >
-                      {waved.has(m.name) ? "Waved ✓" : "Wave"}
+                      {flowered.has(m.name) ? "Sent 🌸" : "Send Flowers"}
                     </button>
                   </div>
                 ))}
@@ -550,6 +690,11 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           </div>
         )}
       </div>
+
+      {/* Bloomie profile sheet */}
+      {selectedBloomie && (
+        <BloomieSheet bloomie={selectedBloomie} onClose={() => setSelectedBloomie(null)} />
+      )}
 
       {/* Toast — bottom-center, smooth slide-up animation */}
       {toast && (
