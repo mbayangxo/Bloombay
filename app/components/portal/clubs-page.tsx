@@ -439,54 +439,62 @@ export function ClubsPage() {
         </div>
       </div>
 
-      <div className="px-5 pb-8 md:px-8 md:max-w-[820px] md:mx-auto">
+      <div className="px-5 pb-8 md:px-10">
 
         {/* ── DISCOVER ── */}
         {activeTab === 0 && (
-          <div className="flex flex-col gap-5">
-            <YandeRec />
+          <div className="md:grid md:grid-cols-[1fr_340px] md:gap-8">
 
-            {/* Featured door */}
-            {(!q || featured.name.toLowerCase().includes(q)) && <FeaturedDoor club={featured} />}
+            {/* Left: Featured + Club list */}
+            <div className="flex flex-col gap-5">
+              {/* Featured door */}
+              {(!q || featured.name.toLowerCase().includes(q)) && <FeaturedDoor club={featured} />}
 
-            {/* Club list */}
-            <div>
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>
-                {q ? `${filtered.length} clubs` : "ALL CLUBS"}
-              </p>
-              <div className="rounded-3xl overflow-hidden"
-                style={{ background: "white", boxShadow: "0 1px 16px rgba(0,0,0,0.06)" }}>
-                {rest.map(club => (
-                  <DiscoverCard
-                    key={club.id}
-                    club={club}
-                    isJoined={joined.has(club.id)}
-                    isRequested={requested.has(club.id)}
-                  />
-                ))}
-                {rest.length === 0 && (
-                  <div className="py-12 text-center">
-                    <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                      No clubs match that search.
-                    </p>
-                  </div>
-                )}
+              {/* Club list — 2-col grid of cards on desktop */}
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>
+                  {q ? `${filtered.length} clubs` : "ALL CLUBS"}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {rest.map(club => (
+                    <div key={club.id} className="rounded-2xl overflow-hidden"
+                      style={{ background: "white", boxShadow: "0 1px 10px rgba(0,0,0,0.06)" }}>
+                      <DiscoverCard
+                        club={club}
+                        isJoined={joined.has(club.id)}
+                        isRequested={requested.has(club.id)}
+                      />
+                    </div>
+                  ))}
+                  {rest.length === 0 && (
+                    <div className="col-span-2 py-12 text-center rounded-2xl bg-white">
+                      <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                        No clubs match that search.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Club Board */}
-            {!q && (
-              <div>
-                <div className="flex items-center gap-3 mb-3">
-                  <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>CLUB BOARD</p>
-                  <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#bbb" }}>ranked by the city</p>
+            {/* Right: Yande + Board */}
+            <div className="flex flex-col gap-5">
+              <YandeRec />
+
+              {/* Club Board */}
+              {!q && (
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>CLUB BOARD</p>
+                    <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {ranked.map((club, i) => <BoardRow key={club.id} club={club} rank={i + 1} />)}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {ranked.map((club, i) => <BoardRow key={club.id} club={club} rank={i + 1} />)}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
+
           </div>
         )}
 

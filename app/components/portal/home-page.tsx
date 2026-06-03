@@ -18,8 +18,9 @@ const CITY_MOOD: Record<TimeOfDay, { weather: string; temp: string; vibe: string
 const HERO_BG: Record<TimeOfDay, string> = {
   morning:   "linear-gradient(150deg, #FF69B4 0%, #FF1F7D 45%, #C51B7A 100%)",
   afternoon: "linear-gradient(145deg, #FF1F7D 0%, #FF69B4 50%, #FF1F7D 100%)",
-  evening:   "linear-gradient(150deg, #C51B7A 0%, #FF1F7D 55%, #FF69B4 100%)",
-  night:     "linear-gradient(150deg, #7F0030 0%, #C51B7A 60%, #FF1F7D 100%)",
+  // Deep midnight rose — not neon, atmospheric and beautiful
+  evening:   "linear-gradient(150deg, #1E0A30 0%, #44103C 50%, #7A1858 100%)",
+  night:     "linear-gradient(150deg, #130620 0%, #260830 55%, #460A42 100%)",
 };
 
 const HERO_GLOW: Record<TimeOfDay, string> = {
@@ -143,10 +144,10 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
   const mood = CITY_MOOD[tod];
   const isNight      = tod === "evening" || tod === "night";
   const isEvening    = tod === "evening";
-  const textMuted    = isNight ? "rgba(215,175,155,0.58)" : "#888";
-  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#111111";
-  const cardBg       = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
-  const surfaceBg    = isNight ? (isEvening ? "#1A1410" : "#120E0A") : "#FFF5F8";
+  const textMuted    = isNight ? "rgba(200,190,225,0.52)" : "#888";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
+  const cardBg       = isNight ? (isEvening ? "#1C1828" : "#16121E") : "white";
+  const surfaceBg    = isNight ? (isEvening ? "#18142A" : "#131020") : "#FFF5F8";
   const heroBg       = HERO_BG[tod];
 
   return (
@@ -255,15 +256,17 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                   <div
                     className="rounded-2xl overflow-hidden"
                     style={{
-                      background: "#FDFAF5",
-                      boxShadow: "0 3px 16px rgba(0,0,0,0.07)",
+                      background: cardBg,
+                      boxShadow: isNight ? "0 3px 16px rgba(0,0,0,0.3)" : "0 3px 16px rgba(0,0,0,0.07)",
+                      border: isNight ? "1px solid rgba(220,210,240,0.06)" : "none",
                     }}
                   >
                     {/* Ticket header */}
-                    <div className="px-5 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                    <div className="px-5 py-2 flex items-center justify-between"
+                      style={{ borderBottom: isNight ? "1px solid rgba(220,210,240,0.06)" : "1px solid rgba(0,0,0,0.06)" }}>
                       <p className="text-[9px] font-bold tracking-[0.28em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-                      <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#bbb" }}>INVITATION</p>
-                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: "#bbb" }}>{inv.tag}</p>
+                      <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: isNight ? "rgba(200,190,225,0.4)" : "#bbb" }}>INVITATION</p>
+                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: isNight ? "rgba(200,190,225,0.4)" : "#bbb" }}>{inv.tag}</p>
                     </div>
                     {/* Ticket body */}
                     <div className="px-5 pt-3 pb-2">
@@ -275,7 +278,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                         style={{
                           fontFamily: "var(--font-playfair)",
                           fontSize: "18px",
-                          color: "#111111",
+                          color: headingColor,
                           lineHeight: 0.92,
                           letterSpacing: "-0.01em",
                         }}
@@ -284,10 +287,10 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                       </h3>
                     </div>
                     {/* Perforation + footer */}
-                    <div style={{ borderTop: "1.5px dashed rgba(0,0,0,0.08)", margin: "8px 20px" }} />
+                    <div style={{ borderTop: isNight ? "1.5px dashed rgba(220,210,240,0.1)" : "1.5px dashed rgba(0,0,0,0.08)", margin: "8px 20px" }} />
                     <div className="px-5 pb-3 flex items-center justify-between">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "#bbb" }}>{inv.detail}</p>
-                      <span className="text-[10px] font-bold" style={{ color: "#111111" }}>I&apos;m in →</span>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: isNight ? "rgba(200,190,225,0.4)" : "#bbb" }}>{inv.detail}</p>
+                      <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>I&apos;m in →</span>
                     </div>
                   </div>
                 </Link>

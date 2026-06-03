@@ -375,7 +375,7 @@ export function CityPage() {
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
+      <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
         <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
           Girl Picks.
@@ -399,7 +399,7 @@ export function CityPage() {
       </div>
 
       {/* ── Tab content ── */}
-      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
+      <div className="px-5 md:px-10 pt-6 flex flex-col gap-6">
 
         {/* ── EAT ── */}
         {activeTab === "eat" && (

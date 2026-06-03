@@ -601,7 +601,7 @@ export default function MatchPage() {
   return (
     <div className="min-h-screen pb-24 md:pb-12" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header — large Playfair italic headline */}
-      <div className="px-5 pt-14 pb-6 md:px-8 md:pt-10">
+      <div className="px-5 pt-14 pb-6 md:px-10 md:pt-10">
         <p
           className="text-xs font-bold tracking-widest uppercase mb-3"
           style={{ color: "var(--bb-pink)" }}
@@ -624,7 +624,7 @@ export default function MatchPage() {
       </div>
 
       {/* Tabs — pill buttons: active = solid black + white, inactive = white + border */}
-      <div className="px-5 mb-7 md:px-8">
+      <div className="px-5 mb-7 md:px-10">
         <div className="flex gap-2">
           {TABS.map((tab) => (
             <button

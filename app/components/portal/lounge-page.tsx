@@ -195,10 +195,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   const isNight      = tod === "evening" || tod === "night";
   const isEvening    = tod === "evening";
-  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#0A0A0A";
-  const mutedColor   = isNight ? "rgba(215,175,155,0.58)"  : "#aaa";
-  const cardBg       = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
-  const darkCard     = isNight ? (isEvening ? "#1A1410" : "#120E0A") : "#111111";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#0A0A0A";
+  const mutedColor   = isNight ? "rgba(200,190,225,0.52)"  : "#aaa";
+  const cardBg       = isNight ? (isEvening ? "#1C1828" : "#16121E") : "white";
+  const darkCard     = isNight ? (isEvening ? "#18142A" : "#131020") : "#111111";
   const tabActiveBg  = "#FF1F7D";
   const tabInactive  = isNight
     ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }
@@ -224,15 +224,20 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="md:max-w-[1000px] md:mx-auto">
+
+      {/* ── DESKTOP: 2-column layout ── */}
+      <div className="md:grid md:grid-cols-[1fr_300px] md:gap-8 md:items-start md:px-10 md:pt-10">
+
+      {/* Left column: header + tabs + content */}
+      <div>
       {/* Header */}
-      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
+      <div className="px-5 pt-14 pb-5 md:px-0 md:pt-0">
         <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#FF1F7D" }}>
           YOUR SPACE
         </p>
         <h1
           className="font-bold italic leading-none mb-2"
-          style={{ color: headingColor, fontFamily: "var(--font-playfair)", fontSize: "clamp(52px, 12vw, 72px)" }}
+          style={{ color: headingColor, fontFamily: "var(--font-playfair)", fontSize: "clamp(48px, 8vw, 64px)" }}
         >
           Apt
         </h1>
@@ -242,7 +247,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
       </div>
 
       {/* Tabs */}
-      <div className="px-5 mb-6 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
+      <div className="px-5 mb-6 overflow-x-auto md:px-0" style={{ scrollbarWidth: "none" }}>
         <div className="flex gap-2 w-max pb-1">
           {TABS.map((tab, i) => (
             <button
@@ -257,7 +262,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      <div className="px-5 md:px-8">
+      <div className="px-5 md:px-0">
 
         {/* ── Bouquet Tab ── */}
         {activeTab === 0 && (
@@ -695,7 +700,70 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           </div>
         )}
       </div>
-      </div>{/* md:max-w wrapper */}
+      </div>{/* left column */}
+
+      {/* ── Right sidebar — desktop only ── */}
+      <div className="hidden md:flex flex-col gap-4 pt-0 sticky top-8">
+        {/* Profile card */}
+        <div className="rounded-3xl p-6 flex flex-col items-center text-center"
+          style={{ background: cardBg, boxShadow: "0 2px 16px rgba(255,31,125,0.08)" }}>
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white mb-4"
+            style={{
+              background: "linear-gradient(135deg, #FF1F7D 0%, #FF69B4 100%)",
+              boxShadow: "0 8px 24px rgba(255,31,125,0.35)",
+              fontFamily: "var(--font-playfair)", fontStyle: "italic",
+            }}
+          >
+            {displayInitial}
+          </div>
+          <h2 className="text-xl font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+            {displayName}
+          </h2>
+          <p className="text-xs mb-2" style={{ color: mutedColor }}>{displayNeighborhood} · NYC</p>
+          <span className="text-xs font-bold px-3.5 py-1.5 rounded-full mb-4"
+            style={{ background: "#111111", color: "#FF69B4" }}>
+            ✦ Founding Mother
+          </span>
+          <div className="flex gap-5 w-full justify-center">
+            {[{n: "12", label: "Events"}, {n: "3", label: "Clubs"}, {n: "3", label: "Bloomies"}].map((s, i) => (
+              <div key={i} className="text-center">
+                <p className="font-bold text-xl" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{s.n}</p>
+                <p className="text-[10px]" style={{ color: mutedColor }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bio */}
+        <div className="rounded-3xl p-4" style={{ background: cardBg, boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+          <p className="font-bold text-sm mb-2" style={{ color: headingColor }}>About {displayName.split(" ")[0]}</p>
+          <p className="italic text-sm leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: mutedColor }}>
+            &quot;{displayBio}&quot;
+          </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {["Soft Life", "Art", "Wellness", "Food"].map(tag => (
+              <span key={tag} className="text-xs px-3 py-1 rounded-full font-medium"
+                style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>{tag}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Yande memory */}
+        {YANDE_MEMORIES.slice(0, 1).map((m, i) => (
+          <div key={i} className="rounded-2xl p-5 relative overflow-hidden" style={{ background: darkCard }}>
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)", opacity: 0.12, transform: "translate(30%, -30%)" }} />
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-2 relative" style={{ color: "#FF69B4" }}>YANDE REMEMBERS</p>
+            <p className="text-sm italic leading-relaxed relative"
+              style={{ fontFamily: "var(--font-playfair)", color: "#FF69B4", textShadow: "0 0 20px rgba(255,105,180,0.5)" }}>
+              {m.quote}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      </div>{/* grid wrapper */}
 
       {/* Bloomie profile sheet */}
       {selectedBloomie && (

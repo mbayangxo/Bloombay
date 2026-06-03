@@ -29,15 +29,16 @@ const TIME_STYLES: Record<TimeOfDay, React.CSSProperties> = {
     "--light-pink": "#FFD6E8",
     background: "#FFF0F5",
   } as React.CSSProperties,
+  // Deep midnight — no brown, no cocoa — pure dark velvet
   evening: {
-    "--pale-pink-bg": "#120D0A",
-    "--light-pink": "#1E1612",
-    background: "#120D0A",
+    "--pale-pink-bg": "#0D0B14",
+    "--light-pink": "#1C1628",
+    background: "#0D0B14",
   } as React.CSSProperties,
   night: {
-    "--pale-pink-bg": "#0A0806",
-    "--light-pink": "#15100C",
-    background: "#0A0806",
+    "--pale-pink-bg": "#08060F",
+    "--light-pink": "#14101E",
+    background: "#08060F",
   } as React.CSSProperties,
 };
 

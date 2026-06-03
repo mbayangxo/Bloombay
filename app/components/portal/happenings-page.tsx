@@ -437,10 +437,10 @@ export function HappeningsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FDFAF5" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
 
       {/* Header */}
-      <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
+      <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · HAPPENINGS</p>
         <div className="flex items-end justify-between mb-5">
           <div>
@@ -464,18 +464,45 @@ export function HappeningsPage() {
         </div>
       </div>
 
-      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto flex flex-col gap-10">
+      <div className="px-5 md:px-10 flex flex-col gap-10">
 
-        {/* Event posters grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {filteredHap.map(h => (
-            <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
-          ))}
-          {filteredHap.length === 0 && (
-            <div className="col-span-2 md:col-span-3 rounded-3xl p-12 text-center bg-white">
-              <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+        {/* Desktop: 2-col layout — posters left, confetti/sidebar right */}
+        <div className="md:grid md:grid-cols-[1fr_320px] md:gap-8">
+
+          {/* Event posters grid */}
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+            {filteredHap.map(h => (
+              <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
+            ))}
+            {filteredHap.length === 0 && (
+              <div className="col-span-2 rounded-3xl p-12 text-center" style={{ background: "var(--pale-pink-bg)", border: "1px solid rgba(255,31,125,0.1)" }}>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop sidebar: Confetti + stats */}
+          <div className="hidden md:flex flex-col gap-4 pt-0 sticky top-8">
+            <div style={{ borderRadius: "16px", overflow: "hidden", background: "#111" }}>
+              <div className="p-4">
+                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+                <p className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "white" }}>
+                  We show up<br />for our girls.
+                </p>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-3 px-4" style={{ scrollbarWidth: "none" }}>
+                {CONFETTI.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
+              </div>
             </div>
-          )}
+            <div className="rounded-2xl p-4" style={{ background: "#FFF0F5" }}>
+              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>TONIGHT IN NYC</p>
+              <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+                {filteredHap.filter(h => h.timeTag === "tonight").length}
+              </p>
+              <p className="text-xs" style={{ color: "#aaa" }}>happenings tonight</p>
+            </div>
+          </div>
+
         </div>
 
         {/* ── CONFETTI ── */}
