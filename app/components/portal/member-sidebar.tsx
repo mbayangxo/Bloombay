@@ -29,7 +29,10 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
   const isNight   = tod === "evening" || tod === "night";
   const isEvening = tod === "evening";
 
-  const homeLabel = (tod === "evening" || tod === "night") ? "TONIGHT" : "THE DAILY";
+  const homeLabel =
+    tod === "morning"   ? "THE DAILY" :
+    tod === "afternoon" ? "THIS AFTERNOON" :
+    "TONIGHT";
   const NAV = [
     { href: "/member/home", label: homeLabel },
     ...BASE_NAV,
