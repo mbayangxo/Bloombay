@@ -190,19 +190,76 @@ function ratingFromWomenLoved(womenLoved: number): number {
   return +(4.2 + ((clamped - min) / (max - min)) * 0.8).toFixed(1);
 }
 
-function EatFeaturedCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
+// Polaroid cluster emojis for bloom notes preview
+const POLAROID_EMOJIS = ["🌸", "✨", "💕", "🌺", "🫶", "🌷"];
+
+function PolaroidCluster({ restaurantId, noteCount }: { restaurantId: number; noteCount: number }) {
+  const notes = BLOOM_NOTES[restaurantId] ?? [];
+  const count = notes.length || noteCount;
+  const emojis = POLAROID_EMOJIS.slice(0, 3);
+  const rotations = [-8, 2, -3];
+  const offsets = [{ x: -8, y: 2 }, { x: 0, y: -4 }, { x: 8, y: 0 }];
+
+  return (
+    <div className="flex items-center gap-2 mt-2">
+      <div className="relative" style={{ width: "68px", height: "44px" }}>
+        {emojis.map((emoji, i) => (
+          <div
+            key={i}
+            className="absolute flex items-center justify-center rounded-sm"
+            style={{
+              width: "32px",
+              height: "36px",
+              background: "white",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+              transform: `rotate(${rotations[i]}deg)`,
+              left: `${offsets[i].x + 10}px`,
+              top: `${offsets[i].y + 2}px`,
+              border: "1.5px solid rgba(0,0,0,0.04)",
+              zIndex: i + 1,
+            }}
+          >
+            <span style={{ fontSize: "14px" }}>{emoji}</span>
+          </div>
+        ))}
+      </div>
+      <span className="text-[9px] font-semibold" style={{ color: "#FF1F7D" }}>+{count} notes</span>
+    </div>
+  );
+}
+
+function EatCarouselCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
+  const rating = ratingFromWomenLoved(r.womenLoved);
+  const noteCount = (BLOOM_NOTES[r.id] ?? []).length;
+
   return (
     <div
-      className="rounded-3xl overflow-hidden mb-4 cursor-pointer"
-      style={{ background: r.bgColor, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
+      className="rounded-3xl overflow-hidden cursor-pointer flex-shrink-0 flex flex-col"
+      style={{
+        width: "220px",
+        height: "300px",
+        background: "white",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+      }}
       onClick={onClick}
     >
-      <div className="relative flex items-center justify-center" style={{ height: "52px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
-        <span style={{ fontSize: "28px", opacity: 0.55 }}>{r.emoji}</span>
-        <span className="absolute top-2 left-3 text-[9px] font-bold tracking-[0.22em] uppercase px-2.5 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+      {/* Top gradient area */}
+      <div
+        className="relative flex flex-col items-center justify-center flex-shrink-0"
+        style={{
+          height: "150px",
+          background: `linear-gradient(145deg, ${r.bgColor} 0%, #FFE0EE 100%)`,
+        }}
+      >
+        {/* WOMEN'S PICK badge */}
+        <span
+          className="absolute top-2.5 left-3 text-[8px] font-bold tracking-[0.2em] uppercase px-2 py-0.5 rounded-full"
+          style={{ background: "#FF1F7D", color: "white" }}
+        >
           WOMEN&apos;S PICK
         </span>
+        {/* Save button */}
         <button
           onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
           className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
@@ -212,31 +269,26 @@ function EatFeaturedCard({ r, onClick }: { r: Restaurant; onClick: () => void })
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
         </button>
+        {/* Main emoji */}
+        <span style={{ fontSize: "52px", opacity: 0.65 }}>{r.emoji}</span>
+        {/* Polaroid cluster */}
+        <div className="absolute bottom-2 left-3">
+          <PolaroidCluster restaurantId={r.id} noteCount={noteCount} />
+        </div>
       </div>
-      <div className="px-4 pt-3 pb-3">
-        <div className="flex items-start justify-between mb-1">
-          <div>
-            <h3 className="font-black text-base leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
-            <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
-          </div>
-          <StarRating value={ratingFromWomenLoved(r.womenLoved)} />
-        </div>
-        <p className="text-xs italic mt-1 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>&ldquo;{r.blurb}&rdquo;</p>
-        {r.notableDish && (
-          <div className="mt-2 flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: "rgba(255,31,125,0.06)" }}>
-            <span style={{ fontSize: "11px" }}>⭐</span>
-            <div>
-              <p className="text-xs font-bold" style={{ color: "#111" }}>{r.notableDish}</p>
-              <p className="text-[10px]" style={{ color: "#FF1F7D" }}>{r.notableDishNote}</p>
-            </div>
-          </div>
-        )}
-        <div className="flex items-center gap-2 mt-2 flex-wrap">
-          {r.soloFriendly && <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
-          {r.tags.slice(0, 2).map(t => (
-            <span key={t} className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "white", color: "#888", border: "1px solid #EEE" }}>{t}</span>
-          ))}
-        </div>
+
+      {/* Bottom info section */}
+      <div className="px-3.5 pt-3 pb-3 flex flex-col gap-1 flex-1">
+        <h3
+          className="font-black text-sm leading-snug"
+          style={{ fontFamily: "var(--font-playfair)", color: "#111" }}
+        >
+          {r.name}
+        </h3>
+        <p className="text-[10px]" style={{ color: "#999" }}>
+          {r.neighborhood} · {r.price}
+        </p>
+        <StarRating value={rating} />
       </div>
     </div>
   );
@@ -286,12 +338,24 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
     "\"Worth every visit. Highly recommend.\"",
   ];
 
-  const photoTiles = [
-    { emoji: r.emoji, bg: r.bgColor },
-    { emoji: "✨", bg: "#FFF5F8" },
-    { emoji: r.emoji, bg: "#FFE0EE" },
-    { emoji: "🌸", bg: "#FFF0F5" },
+  // Build photo gallery cards from bloom notes + what women say
+  const galleryEmojis = [r.emoji, "✨", r.emoji, "🌸", "💕", "🌺"];
+  const galleryBgs = [r.bgColor, "#FFF5F8", "#FFE0EE", "#FFF0F5", "#FFF8F8", "#FDFAF5"];
+  const allNotes: { quote: string; author: string; avatarColor: string }[] = [
+    ...notes.map(n => ({ quote: `"${n.note}"`, author: n.author, avatarColor: n.avatarColor })),
+    ...reviews.map((rev, i) => ({
+      quote: rev,
+      author: notes[i]?.author ?? (i === 0 ? "Priya R." : "Sofia K."),
+      avatarColor: notes[i]?.avatarColor ?? (i === 0 ? "#FF1F7D" : "#FF69B4"),
+    })),
   ];
+  const photoGalleryCards = allNotes.map((item, i) => ({
+    emoji: galleryEmojis[i % galleryEmojis.length],
+    bg: galleryBgs[i % galleryBgs.length],
+    quote: item.quote,
+    author: item.author,
+    avatarColor: item.avatarColor,
+  }));
 
   return (
     <div className="flex flex-col gap-0" style={{ background: "var(--pale-pink-bg)", minHeight: "100vh" }}>
@@ -359,13 +423,49 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
           </div>
         </div>
 
-        {/* Photos */}
+        {/* Photos — scrollable gallery with review quotes */}
         <div>
           <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>PHOTOS</p>
-          <div className="grid grid-cols-2 gap-2">
-            {photoTiles.map((tile, i) => (
-              <div key={i} className="rounded-2xl flex items-center justify-center" style={{ height: "90px", background: tile.bg }}>
-                <span style={{ fontSize: "36px", opacity: 0.6 }}>{tile.emoji}</span>
+          <div
+            className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {photoGalleryCards.map((card, i) => (
+              <div
+                key={i}
+                className="rounded-2xl flex-shrink-0 flex flex-col overflow-hidden"
+                style={{
+                  width: "120px",
+                  height: "150px",
+                  background: "white",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                }}
+              >
+                {/* Photo area */}
+                <div
+                  className="flex items-center justify-center flex-shrink-0"
+                  style={{ height: "64px", background: card.bg }}
+                >
+                  <span style={{ fontSize: "28px", opacity: 0.7 }}>{card.emoji}</span>
+                </div>
+                {/* Quote + author */}
+                <div className="px-2 pt-2 pb-2 flex flex-col gap-1 flex-1 overflow-hidden">
+                  <p
+                    className="text-[9px] italic leading-tight line-clamp-3"
+                    style={{ fontFamily: "var(--font-playfair)", color: "#555" }}
+                  >
+                    {card.quote}
+                  </p>
+                  <div className="flex items-center gap-1 mt-auto">
+                    <div
+                      className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold text-white flex-shrink-0"
+                      style={{ background: card.avatarColor }}
+                    >
+                      {card.author[0]}
+                    </div>
+                    <p className="text-[8px] font-semibold truncate" style={{ color: "#bbb" }}>{card.author}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -602,13 +702,23 @@ export function CityPage() {
 
         {activeTab === "eat" && !selectedRestaurant && (
           <div className="flex flex-col gap-6">
+            {/* Women's Picks carousel */}
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
+              <div
+                className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0"
+                style={{ scrollbarWidth: "none" }}
+              >
+                {RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000).map(r => (
+                  <EatCarouselCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+                ))}
+              </div>
+            </div>
+
             <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
               <div>
-                {RESTAURANTS.filter(r => r.featured).map(r => (
-                  <EatFeaturedCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
-                ))}
                 <div className="grid grid-cols-2 gap-3">
-                  {RESTAURANTS.filter(r => !r.featured).map(r => (
+                  {RESTAURANTS.map(r => (
                     <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
                   ))}
                 </div>

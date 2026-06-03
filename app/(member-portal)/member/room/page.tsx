@@ -33,6 +33,46 @@ const GIRL_BAR_ROOMS = [
   { id: 4, name: "Sunday Soft",   desc: "Decompressing before the week starts",   women: 3,  live: false },
 ];
 
+// ── Category card styles ──────────────────────────────────────────────────────
+
+function getCategoryStyle(category: WallCategory): React.CSSProperties {
+  switch (category) {
+    case "gather":
+      return {
+        background: "#FEFAF3",
+        borderLeft: "3px solid #FF69B4",
+      };
+    case "now":
+      return {
+        background: "#111111",
+        borderLeft: "3px solid #FF1F7D",
+      };
+    case "plan":
+      return {
+        background: "#FFF0F7",
+        borderLeft: "3px solid #FFB6D0",
+      };
+    case "discover":
+      return {
+        background: "#FFFFFF",
+        borderLeft: "3px solid #FFE0EE",
+      };
+    case "ask":
+      return {
+        background: "#F7F0FF",
+        borderLeft: "3px solid #D0AAFF",
+      };
+  }
+}
+
+function getCategoryTextColor(category: WallCategory): string {
+  return category === "now" ? "rgba(255,255,255,0.9)" : "#2A2020";
+}
+
+function getCategorySubColor(category: WallCategory): string {
+  return category === "now" ? "rgba(255,255,255,0.5)" : "#888";
+}
+
 // ── The Wall ─────────────────────────────────────────────────────────────────
 
 function TheWall({ onBack }: { onBack: () => void }) {
@@ -51,124 +91,310 @@ function TheWall({ onBack }: { onBack: () => void }) {
     setText("");
   }
 
+  // Split shown posts into two columns for masonry layout
+  const col1: WallPost[] = [];
+  const col2: WallPost[] = [];
+  shown.filter(p => !p.pinned).forEach((p, i) => {
+    if (i % 2 === 0) col1.push(p);
+    else col2.push(p);
+  });
+  const pinned = shown.filter(p => p.pinned);
+
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header with back */}
+    <div
+      className="min-h-screen pb-24 md:pb-10"
+      style={{ background: "#FDFAF6" }}
+    >
+      {/* ── keyframes injected inline ── */}
+      <style>{`
+        @keyframes wall-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .wall-post { animation: wall-fade-in 0.35s ease both; }
+      `}</style>
+
+      {/* Header */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
-        <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button
+          onClick={onBack}
+          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: "rgba(255,31,125,0.08)" }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
         </button>
         <div>
           <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>THE LOBBY</p>
-          <h1 className="text-3xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-black)" }}>The Wall</h1>
+          <h1
+            className="text-3xl italic leading-tight"
+            style={{ fontFamily: "var(--font-playfair)", color: "#1A1010", fontWeight: 700 }}
+          >
+            The Wall
+            <span style={{ color: "var(--bb-pink)", marginLeft: "0.35em", fontSize: "0.6em", verticalAlign: "middle" }}>✦</span>
+          </h1>
         </div>
       </div>
 
-      <div className="px-5 md:px-8 flex flex-col gap-4">
-        {/* Filter chips */}
-        <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+      <div className="px-5 md:px-8 flex flex-col gap-5">
+
+        {/* ── Filter chips — editorial stamp style ── */}
+        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           {WALL_FILTERS.map(f => (
-            <button key={f.value} onClick={() => setFilter(f.value)}
-              className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95"
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className="px-4 py-1.5 rounded-full text-[11px] whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95"
               style={filter === f.value
-                ? { background: "#111111", color: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }
-                : { background: "white", color: "#666", border: "1.5px solid #EAEAEA" }}>
+                ? {
+                    background: "var(--bb-pink)",
+                    color: "white",
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    boxShadow: "0 2px 10px rgba(255,31,125,0.35)",
+                  }
+                : {
+                    background: "transparent",
+                    color: "#888",
+                    border: "1.5px solid #E8DDD8",
+                    fontFamily: "var(--font-caveat)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                  }}
+            >
               {f.label}
             </button>
           ))}
         </div>
 
-        {/* Compose */}
-        <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 4px 20px rgba(255,31,125,0.08)", borderLeft: "4px solid var(--bb-pink)" }}>
+        {/* ── Compose — letter feel ── */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: "#FEF8EE",
+            boxShadow: "0 2px 16px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,180,120,0.18)",
+          }}
+        >
+          {/* Torn-paper top line */}
+          <div style={{ height: "3px", background: "repeating-linear-gradient(90deg, #FFB6D0 0px, #FFB6D0 6px, transparent 6px, transparent 12px)" }}/>
           <div className="p-4">
+            <p
+              className="text-[10px] font-bold tracking-widest uppercase mb-3"
+              style={{ color: "#C090A0" }}
+            >
+              Write something ✦
+            </p>
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ background: "var(--bb-pink)" }}>Y</div>
-              <textarea value={text} onChange={e => setText(e.target.value)}
-                placeholder="What are you planning, gathering, or looking for?…" rows={3}
-                className="flex-1 resize-none text-sm outline-none px-3.5 py-2.5 rounded-xl"
-                style={{ background: "white", color: "#111111", border: "1.5px solid #F0E0E8", lineHeight: "1.6" }}/>
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{ background: "var(--bb-pink)" }}
+              >
+                Y
+              </div>
+              <textarea
+                value={text}
+                onChange={e => setText(e.target.value)}
+                placeholder="What are you gathering, planning, or wondering about…"
+                rows={3}
+                className="flex-1 resize-none text-sm outline-none"
+                style={{
+                  background: "transparent",
+                  color: "#2A1820",
+                  border: "none",
+                  borderBottom: "1px dashed #E8D0D8",
+                  lineHeight: "1.75",
+                  fontFamily: "var(--font-instrument)",
+                  fontSize: "14px",
+                  paddingBottom: "6px",
+                }}
+              />
             </div>
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: "none" }}>
                 {(["gather","discover","plan","now","ask"] as WallCategory[]).map(cat => (
-                  <button key={cat} onClick={() => setNewCategory(cat)}
-                    className="px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap capitalize flex-shrink-0 transition-all"
+                  <button
+                    key={cat}
+                    onClick={() => setNewCategory(cat)}
+                    className="px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap capitalize flex-shrink-0 transition-all"
                     style={newCategory === cat
-                      ? { background: "var(--bb-pink)", color: "white" }
-                      : { background: "var(--light-pink)", color: "var(--bb-pink)" }}>
+                      ? { background: "var(--bb-pink)", color: "white", textTransform: "uppercase", letterSpacing: "0.06em" }
+                      : { background: "rgba(255,31,125,0.08)", color: "var(--bb-pink)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+                  >
                     {CATEGORY_LABELS[cat]}
                   </button>
                 ))}
               </div>
-              <button onClick={handlePost} disabled={!text.trim()}
-                className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold text-white transition-all active:scale-95"
-                style={{ background: text.trim() ? "var(--bb-pink)" : "#E0C0CC" }}>
+              <button
+                onClick={handlePost}
+                disabled={!text.trim()}
+                className="flex-shrink-0 px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95"
+                style={{
+                  background: text.trim() ? "var(--bb-pink)" : "#E0C8D0",
+                  letterSpacing: "0.1em",
+                }}
+              >
                 Post
               </button>
             </div>
           </div>
         </div>
 
-        {/* Posts — empty state */}
+        {/* ── Empty state ── */}
         {shown.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
-              style={{ background: "var(--light-pink)" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
+          <div className="flex flex-col items-center justify-center py-14 text-center">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              style={{ background: "#FFF0F5", boxShadow: "0 0 0 6px rgba(255,31,125,0.06)" }}
+            >
+              <span style={{ fontSize: "22px" }}>✦</span>
             </div>
-            <p className="font-bold italic text-base mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+            <p
+              className="text-lg italic mb-1"
+              style={{ fontFamily: "var(--font-playfair)", color: "#2A1820", fontWeight: 700 }}
+            >
               The Wall is quiet.
             </p>
-            <p className="text-sm" style={{ color: "#bbb" }}>
-              Be the first to post something.
+            <p className="text-sm" style={{ color: "#C0A8B0", fontFamily: "var(--font-instrument)" }}>
+              Be the first to leave something here.
             </p>
           </div>
         )}
 
-        {shown.map(post => (
-          <div key={post.id} className="bg-white rounded-2xl overflow-hidden"
-            style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: post.pinned ? "3px solid var(--bb-pink)" : "3px solid transparent" }}>
-            <div className="p-4">
-              {post.pinned && (
-                <div className="flex items-center gap-1.5 mb-3">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--bb-pink)"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
-                  <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>PINNED</span>
-                </div>
-              )}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ background: post.color }}>
-                  {post.initial}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                    <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{post.author}</p>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide" style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}>
-                      {CATEGORY_LABELS[post.category]}
-                    </span>
-                    <p className="text-xs" style={{ color: "#bbb" }}>{post.time}</p>
-                  </div>
-                  <p className="text-sm leading-relaxed" style={{ color: "#444", lineHeight: "1.65" }}>{post.text}</p>
-                  <div className="flex items-center gap-5 mt-3">
-                    <button onClick={() => { const n = new Set(liked); if (n.has(post.id)) n.delete(post.id); else n.add(post.id); setLiked(n); }}
-                      className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
-                      style={{ color: liked.has(post.id) ? "var(--bb-pink)" : "rgba(0,0,0,0.28)" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill={liked.has(post.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                      </svg>
-                      {post.likes + (liked.has(post.id) ? 1 : 0)}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "rgba(0,0,0,0.28)" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                      {post.replies}
-                    </button>
-                  </div>
-                </div>
-              </div>
+        {/* ── Pinned posts — full width ── */}
+        {pinned.map(post => (
+          <WallPostCard key={post.id} post={post} liked={liked} setLiked={setLiked} fullWidth />
+        ))}
+
+        {/* ── 2-column masonry grid ── */}
+        {shown.length > 0 && (col1.length > 0 || col2.length > 0) && (
+          <div className="grid grid-cols-2 gap-3 items-start">
+            <div className="flex flex-col gap-3">
+              {col1.map(post => (
+                <WallPostCard key={post.id} post={post} liked={liked} setLiked={setLiked} />
+              ))}
+            </div>
+            <div className="flex flex-col gap-3">
+              {col2.map(post => (
+                <WallPostCard key={post.id} post={post} liked={liked} setLiked={setLiked} />
+              ))}
             </div>
           </div>
-        ))}
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+function WallPostCard({
+  post, liked, setLiked, fullWidth,
+}: {
+  post: WallPost;
+  liked: Set<number>;
+  setLiked: React.Dispatch<React.SetStateAction<Set<number>>>;
+  fullWidth?: boolean;
+}) {
+  const cardStyle = getCategoryStyle(post.category);
+  const textColor = getCategoryTextColor(post.category);
+  const subColor = getCategorySubColor(post.category);
+  const isDark = post.category === "now";
+
+  return (
+    <div
+      className="wall-post rounded-2xl overflow-hidden"
+      style={{
+        ...cardStyle,
+        boxShadow: isDark
+          ? "0 4px 20px rgba(255,31,125,0.18)"
+          : "0 2px 12px rgba(0,0,0,0.05)",
+      }}
+    >
+      <div className="p-3.5">
+        {/* Now label */}
+        {post.category === "now" && (
+          <p
+            className="text-[8px] font-black tracking-[0.18em] mb-2"
+            style={{ color: "#FF1F7D", textTransform: "uppercase" }}
+          >
+            HAPPENING NOW
+          </p>
+        )}
+
+        {/* Pinned indicator */}
+        {post.pinned && (
+          <div className="flex items-center gap-1 mb-2">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--bb-pink)">
+              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+            </svg>
+            <span className="text-[8px] font-black tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>PINNED</span>
+          </div>
+        )}
+
+        {/* Author row */}
+        <div className="flex items-center gap-2 mb-2">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+            style={{ background: post.color }}
+          >
+            {post.initial}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p
+              className="text-[13px] italic font-bold leading-tight truncate"
+              style={{ fontFamily: "var(--font-playfair)", color: textColor }}
+            >
+              {post.author}
+            </p>
+            <p className="text-[9px]" style={{ color: subColor }}>{post.time}</p>
+          </div>
+          {/* Category stamp */}
+          <span
+            className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0"
+            style={isDark
+              ? { background: "rgba(255,31,125,0.25)", color: "#FF69B4" }
+              : { background: "rgba(255,31,125,0.08)", color: "var(--bb-pink)" }}
+          >
+            {CATEGORY_LABELS[post.category]}
+          </span>
+        </div>
+
+        {/* Post text */}
+        <p
+          className="text-[13px] leading-relaxed mb-3"
+          style={{
+            color: isDark ? "rgba(255,255,255,0.82)" : "#3A2830",
+            fontFamily: "var(--font-instrument)",
+            lineHeight: "1.65",
+          }}
+        >
+          {post.text}
+        </p>
+
+        {/* Actions — minimal icon + count */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              const n = new Set(liked);
+              if (n.has(post.id)) n.delete(post.id); else n.add(post.id);
+              setLiked(n);
+            }}
+            className="flex items-center gap-1 transition-colors"
+            style={{ color: liked.has(post.id) ? "#FF1F7D" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.22)") }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={liked.has(post.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+            <span className="text-[11px] font-bold">{post.likes + (liked.has(post.id) ? 1 : 0)}</span>
+          </button>
+          <button
+            className="flex items-center gap-1"
+            style={{ color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.22)" }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+            <span className="text-[11px] font-bold">{post.replies}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -180,11 +406,50 @@ function GirlBar({ onBack }: { onBack: () => void }) {
   const [joined, setJoined] = useState<Set<number>>(new Set());
   const [notified, setNotified] = useState<Set<number>>(new Set());
 
+  const liveCount = GIRL_BAR_ROOMS.filter(r => r.live).reduce((acc, r) => acc + r.women, 0);
+
+  // Deterministic avatar colors per room slot
+  const avatarColors = ["#FF1F7D","#FF69B4","#C084FC","#FB923C","#34D399","#60A5FA","#F472B6","#A78BFA"];
+
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#130E09" }}>
+    <div
+      className="min-h-screen pb-24 md:pb-10"
+      style={{ background: "#0D0810" }}
+    >
+      {/* ── keyframes ── */}
+      <style>{`
+        @keyframes gb-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.55; transform: scale(0.88); }
+        }
+        @keyframes gb-bar1 { 0%,100% { height: 8px; }  50% { height: 18px; } }
+        @keyframes gb-bar2 { 0%,100% { height: 14px; } 50% { height: 6px;  } }
+        @keyframes gb-bar3 { 0%,100% { height: 10px; } 50% { height: 22px; } }
+        @keyframes gb-bar4 { 0%,100% { height: 18px; } 50% { height: 10px; } }
+        @keyframes gb-bar5 { 0%,100% { height: 6px;  } 50% { height: 16px; } }
+        @keyframes gb-glow-breathe {
+          0%,100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+        .gb-pulse-dot { animation: gb-pulse 1.6s ease-in-out infinite; }
+        .gb-bar1 { animation: gb-bar1 0.9s ease-in-out infinite; }
+        .gb-bar2 { animation: gb-bar2 1.1s ease-in-out infinite; }
+        .gb-bar3 { animation: gb-bar3 0.8s ease-in-out infinite; }
+        .gb-bar4 { animation: gb-bar4 1.3s ease-in-out infinite; }
+        .gb-bar5 { animation: gb-bar5 1.0s ease-in-out infinite; }
+        .gb-glow { animation: gb-glow-breathe 3s ease-in-out infinite; }
+      `}</style>
+
+      {/* Back + title */}
       <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
-        <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button
+          onClick={onBack}
+          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
         </button>
         <div>
           <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF69B4" }}>THE LOBBY</p>
@@ -193,56 +458,246 @@ function GirlBar({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="px-5 md:px-8 flex flex-col gap-4">
-        {/* Hero */}
-        <div className="rounded-3xl relative overflow-hidden" style={{ background: "#1A1008", minHeight: "160px", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,31,125,0.22) 0%, transparent 65%)" }}/>
-          <div className="relative p-6">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--bb-pink)", animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite" }}/>
-              <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF69B4" }}>LIVE NOW</p>
+
+        {/* ── Atmospheric hero ── */}
+        <div
+          className="relative rounded-3xl overflow-hidden"
+          style={{ minHeight: "200px" }}
+        >
+          {/* Multi-layer radial glow background */}
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: "#120A14",
+            }}
+          />
+          <div
+            className="gb-glow"
+            style={{
+              position: "absolute", inset: 0,
+              background: "radial-gradient(ellipse at 25% 60%, rgba(255,31,125,0.28) 0%, transparent 55%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: "radial-gradient(ellipse at 75% 30%, rgba(180,60,255,0.14) 0%, transparent 50%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: "radial-gradient(ellipse at 50% 100%, rgba(255,105,180,0.12) 0%, transparent 45%)",
+            }}
+          />
+
+          {/* Floor haze */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: "60px",
+            background: "linear-gradient(to top, rgba(255,31,125,0.07), transparent)",
+          }}/>
+
+          {/* Content */}
+          <div className="relative p-7">
+            {/* Live badge */}
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className="gb-pulse-dot w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ background: "#FF1F7D", boxShadow: "0 0 8px #FF1F7D" }}
+              />
+              <p className="text-[10px] font-black tracking-[0.2em] uppercase" style={{ color: "#FF69B4" }}>
+                LIVE · {liveCount} WOMEN IN
+              </p>
             </div>
-            <p className="text-white text-2xl font-bold italic mb-2" style={{ fontFamily: "var(--font-playfair)" }}>Girls Talk Late.</p>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Live audio rooms. No recordings. Drop in, drop out.</p>
+
+            {/* Headline */}
+            <p
+              className="text-white text-3xl font-bold italic leading-tight mb-2"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              You're in the bar.
+            </p>
+
+            {/* Atmospheric subtitle */}
+            <p
+              className="text-sm italic"
+              style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-caveat)", fontSize: "16px" }}
+            >
+              Slip in, slip out. No recordings.
+            </p>
+
+            {/* Sound wave decoration */}
+            <div className="flex items-end gap-1 mt-5" style={{ height: "28px" }}>
+              {["gb-bar1","gb-bar2","gb-bar3","gb-bar4","gb-bar5","gb-bar3","gb-bar2"].map((cls, i) => (
+                <div
+                  key={i}
+                  className={cls}
+                  style={{
+                    width: "3px",
+                    borderRadius: "2px",
+                    background: i % 2 === 0
+                      ? "rgba(255,31,125,0.7)"
+                      : "rgba(255,105,180,0.5)",
+                    alignSelf: "flex-end",
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Rooms */}
+        {/* ── Room panels ── */}
         {GIRL_BAR_ROOMS.map(r => (
-          <div key={r.id} className="bg-white rounded-2xl overflow-hidden flex items-stretch" style={{ boxShadow: "0 2px 14px rgba(0,0,0,0.07)" }}>
-            <div className="w-1.5 flex-shrink-0" style={{ background: r.live ? "linear-gradient(180deg,#FF1F7D,#FF69B4)" : "#f0e8f0" }}/>
-            <div className="flex-1 p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: r.live ? "var(--bb-pink)" : "var(--light-pink)" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={r.live ? "white" : "var(--bb-pink)"}>
-                  <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{r.name}</p>
-                  {r.live && <div className="w-2 h-2 rounded-full" style={{ background: "var(--bb-pink)", animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite" }}/>}
+          <div
+            key={r.id}
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              ...(r.live ? {
+                borderLeft: "2px solid #FF1F7D",
+                boxShadow: "0 0 18px rgba(255,31,125,0.14), inset 0 0 0 1px rgba(255,31,125,0.1)",
+              } : {
+                borderLeft: "2px solid rgba(255,255,255,0.08)",
+              }),
+            }}
+          >
+            {/* Subtle ambient glow for live rooms */}
+            {r.live && (
+              <div
+                style={{
+                  position: "absolute", inset: 0, pointerEvents: "none",
+                  background: "radial-gradient(ellipse at 0% 50%, rgba(255,31,125,0.08) 0%, transparent 60%)",
+                }}
+              />
+            )}
+
+            <div className="relative p-5">
+              {/* Top row: name + live indicator */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  {/* Live micro-label */}
+                  {r.live && (
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div
+                        className="gb-pulse-dot w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background: "#FF1F7D", boxShadow: "0 0 6px #FF1F7D" }}
+                      />
+                      {/* Animated wave bars */}
+                      <div className="flex items-end gap-0.5" style={{ height: "14px" }}>
+                        {["gb-bar2","gb-bar3","gb-bar1","gb-bar4","gb-bar2"].map((cls, i) => (
+                          <div
+                            key={i}
+                            className={cls}
+                            style={{
+                              width: "2px",
+                              borderRadius: "1px",
+                              background: "#FF1F7D",
+                              alignSelf: "flex-end",
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: "#FF1F7D" }}>LIVE</span>
+                    </div>
+                  )}
+                  <p
+                    className="font-bold italic"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      fontSize: "20px",
+                      color: "white",
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    {r.name}
+                  </p>
                 </div>
-                <p className="text-xs mb-1.5" style={{ color: "#aaa" }}>{r.desc}</p>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: r.live ? "var(--light-pink)" : "#F5F5F5", color: r.live ? "var(--bb-pink)" : "#999" }}>
+
+                {/* Join / Notify button */}
+                <button
+                  onClick={() => r.live
+                    ? setJoined(p => { const n = new Set(p); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })
+                    : setNotified(p => new Set([...p, r.id]))}
+                  className="flex-shrink-0 ml-4 px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all active:scale-95"
+                  style={r.live
+                    ? joined.has(r.id)
+                      ? {
+                          background: "rgba(255,31,125,0.18)",
+                          color: "#FF69B4",
+                          border: "1px solid rgba(255,31,125,0.4)",
+                        }
+                      : {
+                          background: "#FF1F7D",
+                          color: "white",
+                          boxShadow: "0 4px 14px rgba(255,31,125,0.45)",
+                        }
+                    : notified.has(r.id)
+                      ? {
+                          background: "rgba(255,255,255,0.06)",
+                          color: "rgba(255,255,255,0.4)",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                        }
+                      : {
+                          background: "transparent",
+                          color: "rgba(255,255,255,0.5)",
+                          border: "1px solid rgba(255,255,255,0.18)",
+                        }}
+                >
+                  {r.live
+                    ? (joined.has(r.id) ? "In room ✓" : "Join")
+                    : (notified.has(r.id) ? "Notified ✓" : "Notify me")}
+                </button>
+              </div>
+
+              {/* Desc */}
+              <p
+                className="text-sm mb-4"
+                style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", lineHeight: "1.55" }}
+              >
+                {r.desc}
+              </p>
+
+              {/* Listener avatars */}
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-1.5">
+                  {Array.from({ length: Math.min(r.women, 6) }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-6 h-6 rounded-full flex-shrink-0"
+                      style={{
+                        background: avatarColors[i % avatarColors.length],
+                        border: "1.5px solid #0D0810",
+                        opacity: 0.85 - i * 0.05,
+                      }}
+                    />
+                  ))}
+                  {r.women > 6 && (
+                    <div
+                      className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center"
+                      style={{
+                        background: "rgba(255,255,255,0.08)",
+                        border: "1.5px solid #0D0810",
+                        color: "rgba(255,255,255,0.5)",
+                        fontSize: "8px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      +{r.women - 6}
+                    </div>
+                  )}
+                </div>
+                <span
+                  className="text-[11px] font-semibold"
+                  style={{ color: r.live ? "rgba(255,105,180,0.7)" : "rgba(255,255,255,0.25)" }}
+                >
                   {r.women} {r.live ? "listening" : "waiting"}
                 </span>
               </div>
-              <button
-                onClick={() => r.live
-                  ? setJoined(p => { const n = new Set(p); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })
-                  : setNotified(p => new Set([...p, r.id]))}
-                className="flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                style={r.live
-                  ? joined.has(r.id)
-                    ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
-                    : { background: "var(--bb-pink)", color: "white" }
-                  : notified.has(r.id)
-                    ? { background: "var(--light-pink)", color: "var(--bb-pink)" }
-                    : { background: "#F5F5F5", color: "#888" }}>
-                {r.live ? (joined.has(r.id) ? "In room ✓" : "Join") : (notified.has(r.id) ? "Notified ✓" : "Notify me")}
-              </button>
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );

@@ -407,11 +407,196 @@ function ConfettiSheet({ c, accepted, onAccept, onClose }: { c: Celebration; acc
   );
 }
 
+// ── Add Event Sheet ───────────────────────────────────────────────────────────
+
+const EVENT_TYPE_OPTIONS = [
+  { value: "dinner",    label: "Dinner / Brunch",     emoji: "🍽" },
+  { value: "gallery",   label: "Gallery / Art",        emoji: "🎨" },
+  { value: "workshop",  label: "Workshop / Class",     emoji: "✂️" },
+  { value: "fitness",   label: "Fitness / Wellness",   emoji: "🧘" },
+  { value: "social",    label: "Social / Mixer",       emoji: "✨" },
+  { value: "outdoor",   label: "Outdoor / Walk",       emoji: "🌿" },
+  { value: "party",     label: "Party / Celebration",  emoji: "🎉" },
+  { value: "culture",   label: "Culture / Music",      emoji: "🎵" },
+];
+
+const STOCK_COVERS = [
+  { id: 1, emoji: "🌸", bg: "linear-gradient(135deg,#FFE0EE,#FFF0F5)" },
+  { id: 2, emoji: "🕯", bg: "linear-gradient(135deg,#1A1008,#2D1A0A)" },
+  { id: 3, emoji: "🌿", bg: "linear-gradient(135deg,#E8F5E9,#F0FFF0)" },
+  { id: 4, emoji: "✨", bg: "linear-gradient(135deg,#F0E6FF,#FAF0FF)" },
+  { id: 5, emoji: "🍷", bg: "linear-gradient(135deg,#2D1020,#4A1A30)" },
+  { id: 6, emoji: "🎨", bg: "linear-gradient(135deg,#FFF5F8,#FFE8F0)" },
+];
+
+function AddEventSheet({ onClose }: { onClose: () => void }) {
+  const [eventType, setEventType] = useState("");
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [dateTime, setDateTime] = useState("");
+  const [paid, setPaid] = useState<"free" | "paid">("free");
+  const [price, setPrice] = useState("");
+  const [deposit, setDeposit] = useState(false);
+  const [cover, setCover] = useState(1);
+  const [step, setStep] = useState<"type" | "details">("type");
+  const [submitted, setSubmitted] = useState(false);
+
+  function handleSubmit() {
+    if (!title.trim()) return;
+    setSubmitted(true);
+    setTimeout(() => { setSubmitted(false); onClose(); }, 2200);
+  }
+
+  const selectedType = EVENT_TYPE_OPTIONS.find(t => t.value === eventType);
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
+        style={{ background: "#FDFAF5", maxHeight: "88vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+
+        {submitted ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "#FF1F7D" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h3 className="font-black text-2xl italic mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Event submitted!</h3>
+            <p className="text-sm" style={{ color: "#aaa" }}>We'll review and post it shortly.</p>
+          </div>
+        ) : step === "type" ? (
+          <div className="px-6 pb-8">
+            <div className="mb-5">
+              <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NEW EVENT</p>
+              <h2 className="font-black text-2xl italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>What kind of event?</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5 mb-6">
+              {EVENT_TYPE_OPTIONS.map(t => (
+                <button key={t.value} onClick={() => setEventType(t.value)}
+                  className="rounded-2xl p-4 flex items-center gap-3 text-left transition-all active:scale-[0.97]"
+                  style={eventType === t.value
+                    ? { background: "#111111", boxShadow: "0 4px 14px rgba(0,0,0,0.2)" }
+                    : { background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                  <span style={{ fontSize: "20px" }}>{t.emoji}</span>
+                  <span className="text-xs font-bold leading-tight"
+                    style={{ color: eventType === t.value ? "white" : "#111" }}>{t.label}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => eventType && setStep("details")}
+              className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+              style={eventType ? { background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" } : { background: "#F0E8EC", color: "#C8A0B0" }}>
+              Continue →
+            </button>
+          </div>
+        ) : (
+          <div className="px-6 pb-8">
+            <div className="flex items-center gap-3 mb-5">
+              <button onClick={() => setStep("type")}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(0,0,0,0.06)" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
+                  {selectedType?.emoji} {selectedType?.label}
+                </p>
+                <h2 className="font-black text-xl italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Details</h2>
+              </div>
+            </div>
+
+            {/* Cover photo */}
+            <div className="mb-4">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.4)" }}>COVER</p>
+              <div className="flex gap-2">
+                {STOCK_COVERS.map(c => (
+                  <button key={c.id} onClick={() => setCover(c.id)}
+                    className="w-14 h-14 rounded-xl flex items-center justify-center transition-all"
+                    style={{ background: c.bg, border: cover === c.id ? "2px solid #FF1F7D" : "2px solid transparent", fontSize: "22px" }}>
+                    {c.emoji}
+                  </button>
+                ))}
+                <button className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "#F5F5F5", border: "1.5px dashed #ddd" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="mb-3">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-1.5" style={{ color: "rgba(0,0,0,0.4)" }}>EVENT NAME</p>
+              <input value={title} onChange={e => setTitle(e.target.value)}
+                placeholder={`e.g. "${selectedType?.label} in Brooklyn"`}
+                className="w-full rounded-2xl px-4 py-3 text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E8EC", color: "#111" }} />
+            </div>
+
+            {/* Location */}
+            <div className="mb-3">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-1.5" style={{ color: "rgba(0,0,0,0.4)" }}>VENUE / LOCATION</p>
+              <input value={location} onChange={e => setLocation(e.target.value)}
+                placeholder="e.g. Carbone, SoHo"
+                className="w-full rounded-2xl px-4 py-3 text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E8EC", color: "#111" }} />
+            </div>
+
+            {/* Date + Time */}
+            <div className="mb-4">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-1.5" style={{ color: "rgba(0,0,0,0.4)" }}>DATE & TIME</p>
+              <input value={dateTime} onChange={e => setDateTime(e.target.value)}
+                placeholder="e.g. Saturday · 7PM"
+                className="w-full rounded-2xl px-4 py-3 text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E8EC", color: "#111" }} />
+            </div>
+
+            {/* Paid / Free */}
+            <div className="mb-3">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.4)" }}>PRICE</p>
+              <div className="flex gap-2 mb-2">
+                {(["free", "paid"] as const).map(opt => (
+                  <button key={opt} onClick={() => setPaid(opt)}
+                    className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+                    style={paid === opt ? { background: "#111111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                    {opt === "free" ? "Free" : "Paid"}
+                  </button>
+                ))}
+              </div>
+              {paid === "paid" && (
+                <div className="flex gap-2 items-center">
+                  <input value={price} onChange={e => setPrice(e.target.value)}
+                    placeholder="e.g. $25"
+                    className="flex-1 rounded-2xl px-4 py-2.5 text-sm outline-none"
+                    style={{ background: "white", border: "1.5px solid #F0E8EC", color: "#111" }} />
+                  <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer" style={{ color: "#666" }}>
+                    <input type="checkbox" checked={deposit} onChange={e => setDeposit(e.target.checked)} className="w-4 h-4 accent-pink-500" />
+                    Deposit hold
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleSubmit} disabled={!title.trim()}
+              className="w-full py-4 rounded-2xl font-bold text-sm mt-2 transition-all active:scale-[0.98]"
+              style={title.trim() ? { background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" } : { background: "#F0E8EC", color: "#C8A0B0" }}>
+              Submit Event →
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 // ── Main HappeningsPage ───────────────────────────────────────────────────────
 
 export function HappeningsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Happening | null>(null);
   const [selectedCeleb, setSelectedCeleb] = useState<Celebration | null>(null);
+  const [showAddSheet, setShowAddSheet] = useState(false);
   const [acceptedCelebs, setAcceptedCelebs] = useState<Set<number>>(new Set());
   const [celebFilter, setCelebFilter] = useState<CelebFilter>("All");
   const [hapFilter, setHapFilter] = useState<HapFilter>("All");
@@ -449,7 +634,7 @@ export function HappeningsPage() {
             </h1>
             <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Tonight and beyond.</p>
           </div>
-          <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#111" }}>+ Add</button>
+          <button onClick={() => setShowAddSheet(true)} className="px-4 py-2 rounded-full text-xs font-bold text-white transition-all active:scale-95" style={{ background: "#111" }}>+ Add</button>
         </div>
 
         {/* Filters */}
@@ -521,6 +706,8 @@ export function HappeningsPage() {
           onClose={() => setSelectedCeleb(null)}
         />
       )}
+
+      {showAddSheet && <AddEventSheet onClose={() => setShowAddSheet(false)} />}
     </div>
   );
 }
