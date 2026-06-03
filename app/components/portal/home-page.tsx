@@ -18,15 +18,15 @@ const CITY_MOOD: Record<TimeOfDay, { weather: string; temp: string; vibe: string
 const HERO_BG: Record<TimeOfDay, string> = {
   morning:   "linear-gradient(135deg, #E8558A 0%, #C91A6B 60%, #9E1248 100%)",
   afternoon: "linear-gradient(135deg, #D4155C 0%, #E05C9A 50%, #C91A6B 100%)",
-  evening:   "linear-gradient(135deg, #2A1040 0%, #4A1A5C 50%, #6B1E50 100%)",
-  night:     "linear-gradient(135deg, #1E0C30 0%, #321444 55%, #4A0E3A 100%)",
+  evening:   "linear-gradient(135deg, #3D0A1E 0%, #5C1535 50%, #4A1228 100%)",
+  night:     "linear-gradient(135deg, #1A0510 0%, #280B18 55%, #1E0814 100%)",
 };
 
 const HERO_GLOW: Record<TimeOfDay, string> = {
   morning:   "radial-gradient(ellipse at 15% 20%, rgba(255,255,255,0.20) 0%, transparent 55%)",
   afternoon: "radial-gradient(ellipse at 80% 15%, rgba(255,255,255,0.16) 0%, transparent 50%)",
-  evening:   "radial-gradient(ellipse at 15% 20%, rgba(180,80,160,0.28) 0%, transparent 55%)",
-  night:     "radial-gradient(ellipse at 10% 20%, rgba(160,40,120,0.20) 0%, transparent 55%)",
+  evening:   "radial-gradient(ellipse at 15% 20%, rgba(255,80,140,0.22) 0%, transparent 55%)",
+  night:     "radial-gradient(ellipse at 10% 20%, rgba(212,21,92,0.18) 0%, transparent 55%)",
 };
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -81,8 +81,8 @@ function EnvelopeCard({
   headingColor: string;
   textMuted: string;
 }) {
-  const paperBg  = isNight ? "#211A30" : "#FFFBF6";
-  const flapBg   = isNight ? "#2D2440" : "#F5EEE0";
+  const paperBg  = isNight ? "#1C1014" : "#FFFBF6";
+  const flapBg   = isNight ? "#251518" : "#F5EEE0";
   const lineBg   = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
 
   return (
@@ -152,12 +152,12 @@ function EnvelopeCard({
           <h3
             style={{
               fontFamily: "var(--font-playfair)",
-              fontSize: "15px",
+              fontSize: "12px",
               fontWeight: 900,
               color: headingColor,
-              lineHeight: 1.05,
+              lineHeight: 1.1,
               letterSpacing: "-0.01em",
-              marginBottom: "10px",
+              marginBottom: "8px",
             }}
           >
             {inv.title}
@@ -221,10 +221,10 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
   const mood       = CITY_MOOD[tod];
   const isNight    = tod === "evening" || tod === "night";
   const isEvening  = tod === "evening";
-  const textMuted  = isNight ? "rgba(200,190,225,0.52)" : "#888";
-  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
-  const cardBg     = isNight ? (isEvening ? "#1E1830" : "#191428") : "white";
-  const surfaceBg  = isNight ? (isEvening ? "#1A1428" : "#151020") : "#FFF5F8";
+  const textMuted  = isNight ? "rgba(255,190,210,0.45)" : "#888";
+  const headingColor = isNight ? "rgba(255,245,248,0.92)" : "#111111";
+  const cardBg     = isNight ? (isEvening ? "#1A0D10" : "#150A0C") : "white";
+  const surfaceBg  = isNight ? (isEvening ? "#160C0E" : "#11080A") : "#FFF5F8";
   const heroBg     = HERO_BG[tod];
   const borderCol  = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
 
@@ -250,28 +250,28 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         {/* Hero card — mobile keeps the bigger size */}
         <div className="px-5 mb-6">
           <div className="rounded-3xl relative overflow-hidden"
-            style={{ background: heroBg, minHeight: "220px", boxShadow: isNight ? "0 12px 40px rgba(0,0,0,0.4)" : "0 12px 40px rgba(212,21,92,0.3)" }}>
+            style={{ background: heroBg, minHeight: "160px", boxShadow: isNight ? "0 12px 40px rgba(0,0,0,0.4)" : "0 12px 40px rgba(212,21,92,0.3)" }}>
             <div className="absolute inset-0 pointer-events-none" style={{ background: HERO_GLOW[tod] }} />
             <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
               style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.22))" }} />
             <div className="absolute top-5 right-5 text-right">
-              <div className="text-5xl font-bold leading-none text-white"
+              <div className="text-3xl font-bold leading-none text-white"
                 style={{ fontFamily: "var(--font-instrument)", textShadow: "0 4px 20px rgba(0,0,0,0.25)" }}>
                 {mood.women}
               </div>
-              <div className="text-[9px] font-bold tracking-[0.2em] uppercase mt-0.5"
+              <div className="text-[8px] font-bold tracking-[0.2em] uppercase mt-0.5"
                 style={{ color: "rgba(255,255,255,0.6)" }}>
                 WOMEN TONIGHT
               </div>
             </div>
-            <div className="relative p-6 pr-20 flex flex-col justify-between" style={{ minHeight: "220px" }}>
+            <div className="relative p-4 pr-16 flex flex-col justify-between" style={{ minHeight: "160px" }}>
               <div>
                 <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3"
                   style={{ color: "rgba(255,255,255,0.7)" }}>
                   ✦ {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "THIS AFTERNOON" : tod === "evening" ? "THIS EVENING" : "TONIGHT"} IN WILLIAMSBURG
                 </p>
                 <p className="text-white leading-snug mb-2"
-                  style={{ fontFamily: "var(--font-instrument)", fontSize: "1.4rem", fontStyle: "italic" }}>
+                  style={{ fontFamily: "var(--font-instrument)", fontSize: "1.1rem", fontStyle: "italic" }}>
                   {mood.vibe}
                 </p>
                 <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -316,7 +316,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
               All →
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {INVITATIONS.map((inv) => (
               <EnvelopeCard key={inv.id} inv={inv} isNight={isNight} headingColor={headingColor} textMuted={textMuted} />
             ))}
@@ -639,7 +639,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             {/* Yande pick */}
             <div className="rounded-2xl overflow-hidden mb-4 relative"
               style={{
-                background: isNight ? (isEvening ? "#1E1632" : "#18122A") : "#FFF0F5",
+                background: isNight ? (isEvening ? "#1E0E12" : "#18090C") : "#FFF0F5",
                 border: isNight ? "none" : "1px solid rgba(212,21,92,0.10)",
                 boxShadow: isNight ? "0 6px 22px rgba(0,0,0,0.25)" : "0 4px 18px rgba(212,21,92,0.10)",
               }}>

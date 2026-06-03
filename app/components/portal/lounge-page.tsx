@@ -195,10 +195,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
   const isNight      = tod === "evening" || tod === "night";
   const isEvening    = tod === "evening";
-  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#0A0A0A";
-  const mutedColor   = isNight ? "rgba(200,190,225,0.52)"  : "#aaa";
-  const cardBg       = isNight ? (isEvening ? "#1C1828" : "#16121E") : "white";
-  const darkCard     = isNight ? (isEvening ? "#18142A" : "#131020") : "#111111";
+  const headingColor = isNight ? "rgba(255,245,248,0.92)" : "#0A0A0A";
+  const mutedColor   = isNight ? "rgba(255,190,210,0.45)"  : "#aaa";
+  const cardBg       = isNight ? (isEvening ? "#1A0D10" : "#150A0C") : "white";
+  const darkCard     = isNight ? (isEvening ? "#1A0D10" : "#150A0C") : "#111111";
   const tabActiveBg  = "#FF1F7D";
   const tabInactive  = isNight
     ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }

@@ -350,7 +350,7 @@ function PassportStamp({ club, events, since, isPending, isNight = false, headin
 }) {
   const level = getLevel(events);
   const levelIdx = getLevelIdx(level);
-  const stampBg = isNight ? "#1C1828" : "#FDFAF5";
+  const stampBg = isNight ? "#180C0E" : "#FDFAF5";
   const stampBorder = isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
 
   return (
@@ -420,9 +420,9 @@ export function ClubsPage() {
   }, []);
 
   const isNight     = tod === "evening" || tod === "night";
-  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
-  const textMuted    = isNight ? "rgba(200,190,225,0.55)"  : "#999";
-  const cardBg       = isNight ? (tod === "evening" ? "#1C1828" : "#16121E") : "white";
+  const headingColor = isNight ? "rgba(255,245,248,0.92)" : "#111111";
+  const textMuted    = isNight ? "rgba(255,190,210,0.45)"  : "#999";
+  const cardBg       = isNight ? (tod === "evening" ? "#1A0D10" : "#150A0C") : "white";
   const borderCol    = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
 
   const q = query.toLowerCase();
