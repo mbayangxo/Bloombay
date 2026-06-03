@@ -202,7 +202,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
             </div>
 
             {/* Nav links */}
-            <div className="pb-2">
+            <div>
               {places.map((place, i) => {
                 const active = pathname === place.href || pathname.startsWith(place.href + "/");
                 return (
@@ -230,6 +230,48 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 );
               })}
             </div>
+
+            {/* ── Secondary utility links ── */}
+            <div className="mx-5 mt-4 mb-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="flex items-center gap-0 pt-3 pb-1">
+                {[
+                  { href: "/member/messages",      label: "Messages" },
+                  { href: "/member/notifications",  label: "Pings"    },
+                  { href: "/member/messages",       label: "Mailbox"  },
+                  { href: "/member/calendar",       label: "Calendar" },
+                ].map((item, i, arr) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="flex-1 text-center py-2 transition-all active:scale-95"
+                    style={{ borderRight: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}
+                  >
+                    <span
+                      className="text-[10px] font-semibold tracking-[0.08em]"
+                      style={{
+                        color: pathname.startsWith(item.href) && item.label !== "Mailbox"
+                          ? "#FF1F7D"
+                          : "rgba(255,255,255,0.3)",
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Sign out ── */}
+            <form action={logout} className="mx-5 mb-1">
+              <button
+                type="submit"
+                className="w-full py-3 text-center text-[10px] font-semibold tracking-[0.1em] uppercase transition-all active:scale-95"
+                style={{ color: "rgba(255,31,125,0.45)" }}
+              >
+                Sign out
+              </button>
+            </form>
           </div>
         </>
       )}
