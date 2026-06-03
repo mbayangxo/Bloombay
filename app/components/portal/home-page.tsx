@@ -153,7 +153,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
     <div className="min-h-screen pb-24 md:pb-12">
 
       <header className="px-5 pt-20 pb-4 md:px-8 md:pt-10">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
+        <p className="text-sm font-semibold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
           {mood.weather} · {mood.temp}
         </p>
         <h1 className="text-4xl font-bold leading-tight mt-1 md:text-5xl" style={{ color: headingColor }}>

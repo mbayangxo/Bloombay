@@ -66,7 +66,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
       </Link>
 
       {/* Calendar */}
-      <Link href="/member/happenings" aria-label="Calendar"
+      <Link href="/member/calendar" aria-label="Calendar"
         className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
         style={{ background: iconBg }}>
         <svg width={sz+2} height={sz+2} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">

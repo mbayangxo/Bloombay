@@ -13,6 +13,20 @@ const PLACES = [
   { href: "/member/match",  baseLabel: "CONNECT", n: "05" },
 ];
 
+const PAGE_LABELS: Record<string, string> = {
+  "/member/home":          "HOME",
+  "/member/city":          "PICKS",
+  "/member/clubs":         "CLUBS",
+  "/member/lounge":        "LOUNGE",
+  "/member/match":         "CONNECT",
+  "/member/calendar":      "CALENDAR",
+  "/member/happenings":    "HAPPENINGS",
+  "/member/messages":      "MESSAGES",
+  "/member/notifications": "NOTIFS",
+  "/member/plans":         "PLANS",
+  "/member/room":          "THE WALL",
+};
+
 function getHomeLabel(): string {
   const h = new Date().getHours();
   if (h >= 5  && h < 12) return "MORNING";
@@ -37,6 +51,19 @@ export function BottomNav({ user }: { user?: NavUser }) {
     label: i === 0 ? homeLabel : p.baseLabel,
   }));
 
+  // Derive current page label for the pill
+  function getCurrentLabel(): string {
+    for (const [prefix, label] of Object.entries(PAGE_LABELS)) {
+      if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+        if (prefix === "/member/home") return homeLabel;
+        return label;
+      }
+    }
+    return "NAVIGATE";
+  }
+
+  const currentLabel = getCurrentLabel();
+
   return (
     <>
       {/* ── Fixed mobile top bar ── */}
@@ -52,31 +79,19 @@ export function BottomNav({ user }: { user?: NavUser }) {
       >
         <div className="flex items-center justify-between px-4 h-12">
 
-          {/* Left — collapsible menu toggle */}
-          <button
-            onClick={() => setOpen(o => !o)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full transition-all active:scale-95"
-            style={{ background: open ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.08)" }}
-            aria-label="Navigation menu"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-              stroke={open ? "#FF1F7D" : "rgba(255,255,255,0.7)"}
-              strokeWidth="2.5" strokeLinecap="round">
-              {open ? (
-                <><path d="M18 6L6 18"/><path d="M6 6l12 12"/></>
-              ) : (
-                <><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></>
-              )}
-            </svg>
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none"
-              stroke={open ? "#FF1F7D" : "rgba(255,255,255,0.32)"}
-              strokeWidth="3" strokeLinecap="round">
-              <polyline points={open ? "18 15 12 9 6 15" : "6 9 12 15 18 9"}/>
-            </svg>
-          </button>
+          {/* Left — BB wordmark */}
+          <Link href="/member/home"
+            className="flex items-center gap-1"
+            aria-label="BloomBay Home">
+            <span className="text-sm font-black tracking-[0.06em]"
+              style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+              BB
+            </span>
+            <span className="w-1 h-1 rounded-full" style={{ background: "#FF1F7D", opacity: 0.6 }} />
+          </Link>
 
           {/* Right — utility icons + avatar */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-3">
             <Link href="/member/messages" aria-label="Mailbox"
               className="w-9 h-9 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
@@ -98,7 +113,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
             </Link>
-            <Link href="/member/happenings" aria-label="Calendar"
+            <Link href="/member/calendar" aria-label="Calendar"
               className="w-9 h-9 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/happenings") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -125,59 +140,103 @@ export function BottomNav({ user }: { user?: NavUser }) {
         </div>
       </div>
 
-      {/* ── Collapsible nav panel ── */}
+      {/* ── Floating bottom pill ── */}
+      <div
+        className="fixed z-50 md:hidden"
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="flex items-center gap-2.5 px-5 py-3 rounded-full transition-all active:scale-95"
+          style={{
+            background: open ? "rgba(255,31,125,0.95)" : "rgba(12,10,10,0.92)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            boxShadow: open
+              ? "0 8px 32px rgba(255,31,125,0.45)"
+              : "0 8px 32px rgba(0,0,0,0.5)",
+            border: open ? "1px solid rgba(255,31,125,0.3)" : "1px solid rgba(255,255,255,0.1)",
+            minWidth: "120px",
+          }}
+        >
+          <span className="text-[11px] font-bold tracking-[0.16em]"
+            style={{ color: open ? "white" : "rgba(255,255,255,0.8)" }}>
+            {currentLabel}
+          </span>
+          <svg
+            width="10" height="10" viewBox="0 0 24 24" fill="none"
+            stroke={open ? "white" : "rgba(255,255,255,0.5)"}
+            strokeWidth="3" strokeLinecap="round"
+            style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+          >
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* ── Nav sheet ── */}
       {open && (
         <>
           <div
             className="fixed inset-0 z-40 md:hidden"
-            style={{ background: "rgba(0,0,0,0.52)" }}
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
             onClick={() => setOpen(false)}
           />
           <div
-            className="fixed left-0 z-50 md:hidden overflow-hidden"
+            className="fixed left-0 right-0 z-50 md:hidden rounded-t-3xl overflow-hidden"
             style={{
-              top: "calc(env(safe-area-inset-top, 0px) + 48px)",
+              bottom: 0,
               background: "#111111",
-              width: "216px",
-              borderBottomRightRadius: "20px",
-              boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
-              animation: "navSlideDown 0.16s ease-out",
+              boxShadow: "0 -16px 48px rgba(0,0,0,0.6)",
+              paddingBottom: "env(safe-area-inset-bottom, 20px)",
+              animation: "navSlideUp 0.18s ease-out",
             }}
           >
-            {places.map((place, i) => {
-              const active = pathname === place.href || pathname.startsWith(place.href + "/");
-              return (
-                <Link
-                  key={place.href}
-                  href={place.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-5 py-4 transition-all active:scale-[0.98]"
-                  style={{
-                    borderBottom: i < places.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                    borderLeft: active ? "2px solid #FF1F7D" : "2px solid transparent",
-                  }}
-                >
-                  <span className="text-[9px] font-mono tabular-nums w-5 flex-shrink-0"
-                    style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>
-                    {place.n}
-                  </span>
-                  <span className="text-[13px] font-bold tracking-[0.14em] uppercase"
-                    style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.58)" }}>
-                    {place.label}
-                  </span>
-                  {active && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
-                  )}
-                </Link>
-              );
-            })}
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} />
+            </div>
+
+            {/* Nav links */}
+            <div className="pb-2">
+              {places.map((place, i) => {
+                const active = pathname === place.href || pathname.startsWith(place.href + "/");
+                return (
+                  <Link
+                    key={place.href}
+                    href={place.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-4 px-6 py-4 transition-all active:scale-[0.98]"
+                    style={{
+                      borderBottom: i < places.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                    }}
+                  >
+                    <span className="text-[9px] font-mono tabular-nums w-5 flex-shrink-0"
+                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>
+                      {place.n}
+                    </span>
+                    <span className="flex-1 text-[15px] font-bold tracking-[0.12em] uppercase"
+                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.65)" }}>
+                      {place.label}
+                    </span>
+                    {active && (
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </>
       )}
 
       <style>{`
-        @keyframes navSlideDown {
-          from { opacity: 0; transform: translateY(-10px); }
+        @keyframes navSlideUp {
+          from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
