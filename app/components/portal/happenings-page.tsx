@@ -436,107 +436,200 @@ export function HappeningsPage() {
     return <EventDetail event={eventData} onBack={() => setSelectedEvent(null)} />;
   }
 
+  const tonightCount = HAPPENINGS.filter(h => h.timeTag === "tonight").length;
+
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
 
-      {/* Header */}
-      <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · HAPPENINGS</p>
-        <div className="flex items-end justify-between mb-5">
-          <div>
-            <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-              What&apos;s<br />happening.
-            </h1>
-            <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Tonight and beyond.</p>
+      {/* ══════════════════════════════════════════════════════════════
+          MOBILE LAYOUT
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="md:hidden pb-24">
+        <div className="px-5 pt-12 pb-4">
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · HAPPENINGS</p>
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+                What&apos;s<br />happening.
+              </h1>
+              <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Tonight and beyond.</p>
+            </div>
+            <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#111" }}>+ Add</button>
           </div>
-          <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#111" }}>+ Add</button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
-          {(["All", "Tonight", "This Week", "Coming Up", "Free"] as HapFilter[]).map(f => (
-            <button key={f} onClick={() => setHapFilter(f)}
-              className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-              style={hapFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-5 md:px-10 flex flex-col gap-10">
-
-        {/* Desktop: 2-col layout — posters left, confetti/sidebar right */}
-        <div className="md:grid md:grid-cols-[1fr_320px] md:gap-8">
-
-          {/* Event posters grid */}
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
-            {filteredHap.map(h => (
-              <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5">
+            {(["All", "Tonight", "This Week", "Coming Up", "Free"] as HapFilter[]).map(f => (
+              <button key={f} onClick={() => setHapFilter(f)}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={hapFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                {f}
+              </button>
             ))}
+          </div>
+        </div>
+        <div className="px-5 flex flex-col gap-10">
+          <div className="grid grid-cols-2 gap-3">
+            {filteredHap.map(h => <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />)}
             {filteredHap.length === 0 && (
-              <div className="col-span-2 rounded-3xl p-12 text-center" style={{ background: "var(--pale-pink-bg)", border: "1px solid rgba(255,31,125,0.1)" }}>
-                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+              <div className="col-span-2 rounded-3xl p-12 text-center" style={{ border: "1px solid rgba(255,31,125,0.1)" }}>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now.</p>
               </div>
             )}
           </div>
-
-          {/* Desktop sidebar: Confetti + stats */}
-          <div className="hidden md:flex flex-col gap-4 pt-0 sticky top-8">
-            <div style={{ borderRadius: "16px", overflow: "hidden", background: "#111" }}>
-              <div className="p-4">
-                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
-                <p className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "white" }}>
-                  We show up<br />for our girls.
-                </p>
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-3 px-4" style={{ scrollbarWidth: "none" }}>
-                {CONFETTI.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
-              </div>
+          <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6 pb-6">
+            <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-1" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+            <h2 className="font-black leading-none mb-4" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,4vw,26px)", color: "#111", lineHeight: 0.95 }}>
+              We show up<br />for our girls.
+            </h2>
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+              {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
+                <button key={f} onClick={() => setCelebFilter(f)}
+                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                  style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                  {f === "All" ? "All Celebrations" : f}
+                </button>
+              ))}
             </div>
-            <div className="rounded-2xl p-4" style={{ background: "#FFF0F5" }}>
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>TONIGHT IN NYC</p>
-              <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
-                {filteredHap.filter(h => h.timeTag === "tonight").length}
-              </p>
-              <p className="text-xs" style={{ color: "#aaa" }}>happenings tonight</p>
+            <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 px-5">
+              {filteredConfetti.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
+              <PlanSomethingCard />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          DESKTOP LAYOUT — true 3-panel app
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="hidden md:flex md:flex-col" style={{ height: "100vh" }}>
+
+        {/* Top bar */}
+        <div className="flex items-center gap-6 px-8 flex-shrink-0"
+          style={{ height: "64px", background: "var(--pale-pink-bg)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+          <div className="flex-shrink-0">
+            <p className="text-[9px] font-bold tracking-widest uppercase leading-none mb-0.5" style={{ color: "#FF1F7D" }}>✦ NYC</p>
+            <h1 className="text-lg font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Happenings</h1>
+          </div>
+          <div className="w-px h-6 flex-shrink-0" style={{ background: "rgba(0,0,0,0.08)" }} />
+          {/* Filter pills */}
+          <div className="flex gap-1.5 flex-1">
+            {(["All", "Tonight", "This Week", "Coming Up", "Free"] as HapFilter[]).map(f => (
+              <button key={f} onClick={() => setHapFilter(f)}
+                className="px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all"
+                style={hapFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1px solid #E8E8E8" }}>
+                {f}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-4 mr-64 flex-shrink-0">
+            <div>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{tonightCount}</p>
+              <p className="text-[10px]" style={{ color: "#ccc" }}>tonight</p>
+            </div>
+            <div>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{HAPPENINGS.length}</p>
+              <p className="text-[10px]" style={{ color: "#ccc" }}>this week</p>
+            </div>
+            <button className="px-4 py-1.5 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: "#111" }}>+ Add</button>
+          </div>
+        </div>
+
+        {/* 3-col body */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* LEFT: Neighborhood / type filters */}
+          <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
+            style={{ width: "200px", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>TONIGHT</p>
+            {HAPPENINGS.filter(h => h.timeTag === "tonight").map(h => (
+              <button key={h.id} onClick={() => setSelectedEvent(h)}
+                className="w-full text-left px-2 py-2 rounded-xl mb-0.5 transition-colors hover:bg-pink-50">
+                <p className="text-xs font-bold truncate leading-snug" style={{ color: "#111" }}>{h.title}</p>
+                <p className="text-[10px]" style={{ color: "#FF1F7D" }}>{h.priceLabel}</p>
+              </button>
+            ))}
+
+            <div className="my-4 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>NEIGHBORHOOD</p>
+            {Array.from(new Set(HAPPENINGS.map(h => h.neighborhood))).map(n => (
+              <div key={n} className="flex items-center gap-2 px-2 py-1.5 rounded-xl mb-0.5">
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FFE0EE" }} />
+                <p className="text-xs truncate" style={{ color: "#888" }}>{n}</p>
+              </div>
+            ))}
+
+            <div className="my-4 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>TYPE</p>
+            {Array.from(new Set(HAPPENINGS.map(h => h.type))).map(t => (
+              <div key={t} className="flex items-center gap-2 px-2 py-1.5 mb-0.5">
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#ddd" }} />
+                <p className="text-xs capitalize" style={{ color: "#888" }}>{t}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CENTER: 3-col event poster grid */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="grid grid-cols-3 gap-4">
+              {filteredHap.map(h => (
+                <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
+              ))}
+              {filteredHap.length === 0 && (
+                <div className="col-span-3 rounded-3xl p-16 text-center" style={{ border: "1px solid rgba(255,31,125,0.1)" }}>
+                  <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+                </div>
+              )}
             </div>
           </div>
 
-        </div>
-
-        {/* ── CONFETTI ── */}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6 pb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-1" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,4vw,26px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                We show up<br />for our girls.
-              </h2>
+          {/* RIGHT: Confetti section */}
+          <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
+            style={{ width: "280px", borderLeft: "1px solid rgba(0,0,0,0.05)" }}>
+            <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "#111" }}>
+              <div className="p-4">
+                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+                <p className="font-black leading-tight mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "white" }}>
+                  We show up for our girls.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 px-4 pb-4">
+                {CONFETTI.map(c => (
+                  <button key={c.id} onClick={() => setSelectedCeleb(c)}
+                    className="flex items-center gap-3 text-left rounded-xl p-3 transition-colors"
+                    style={{ background: "rgba(255,255,255,0.06)" }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 text-white"
+                      style={{ background: c.avatarColor }}>{c.initial}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold leading-snug" style={{ color: "white" }}>{c.name} · {c.event}</p>
+                      <p className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{c.venue}</p>
+                    </div>
+                  </button>
+                ))}
+                <PlanSomethingCard />
+              </div>
             </div>
-            <div className="hidden md:flex gap-1">
+
+            {/* Tonight count */}
+            <div className="rounded-2xl p-4 mb-4" style={{ background: "#FFF0F5" }}>
+              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>TONIGHT IN NYC</p>
+              <p className="text-3xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{tonightCount}</p>
+              <p className="text-xs" style={{ color: "#aaa" }}>happenings tonight</p>
+            </div>
+
+            {/* Celeb filter */}
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: "#bbb" }}>FILTER CELEBRATIONS</p>
+            <div className="flex flex-col gap-1">
               {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
                 <button key={f} onClick={() => setCelebFilter(f)}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all"
-                  style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1px solid #E8E8E8" }}>
-                  {f === "All" ? "All" : f}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                  style={celebFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "transparent", color: "#888" }}>
+                  {f}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-1 md:hidden">
-            {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
-              <button key={f} onClick={() => setCelebFilter(f)}
-                className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-                {f === "All" ? "All Celebrations" : f}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 px-5 md:mx-0 md:px-0">
-            {filteredConfetti.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
-            <PlanSomethingCard />
-          </div>
+
         </div>
       </div>
 

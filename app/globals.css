@@ -13,8 +13,9 @@
   --background: var(--ivory);
   --foreground: var(--ink);
   /* Portal brand tokens */
-  --bb-pink: #FF1F7D;
-  --barbie-pink: #FF69B4;
+  --bb-pink: #D4155C;
+  --bb-pink-night: #9E1A46;
+  --barbie-pink: #E05C9A;
   --bb-black: #0A0A0A;
   --dark-plum: #111111;
   --pale-pink-bg: #FFF5F8;

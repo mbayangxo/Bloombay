@@ -599,116 +599,372 @@ export default function MatchPage() {
   const incomingCount = REQUESTS.filter((r) => r.direction === "incoming").length;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-12" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header — large Playfair italic headline */}
-      <div className="px-5 pt-14 pb-6 md:px-10 md:pt-10">
-        <p
-          className="text-xs font-bold tracking-widest uppercase mb-3"
-          style={{ color: "var(--bb-pink)" }}
-        >
-          CONNECT
-        </p>
-        <h1
-          className="font-bold italic leading-none mb-3"
-          style={{
-            color: "var(--bb-black)",
-            fontFamily: "var(--font-playfair)",
-            fontSize: "clamp(52px, 14vw, 72px)",
-          }}
-        >
-          Find Her.
-        </h1>
-        <p className="text-sm font-semibold" style={{ color: "var(--bb-pink)" }}>
-          Real plans. Real women. Your city.
-        </p>
-      </div>
-
-      {/* Tabs — pill buttons: active = solid black + white, inactive = white + border */}
-      <div className="px-5 mb-7 md:px-10">
-        <div className="flex gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-[0.96] relative"
-              style={
-                activeTab === tab
-                  ? { background: "#111111", color: "white", boxShadow: "0 3px 10px rgba(0,0,0,0.20)" }
-                  : { background: "white", color: "#555555", border: "1.5px solid #E0E0E0" }
-              }
-            >
-              {tab}
-              {tab === "Requests" && incomingCount > 0 && (
-                <span
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
-                  style={{ background: "#FF1F7D" }}
-                >
-                  {incomingCount}
-                </span>
-              )}
-            </button>
-          ))}
+    <div style={{ background: "var(--pale-pink-bg)" }}>
+      {/* ── MOBILE ─────────────────────────────────────────────────────────── */}
+      <div className="md:hidden min-h-screen pb-24">
+        {/* Header — large Playfair italic headline */}
+        <div className="px-5 pt-14 pb-6">
+          <p
+            className="text-xs font-bold tracking-widest uppercase mb-3"
+            style={{ color: "var(--bb-pink)" }}
+          >
+            CONNECT
+          </p>
+          <h1
+            className="font-bold italic leading-none mb-3"
+            style={{
+              color: "var(--bb-black)",
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(52px, 14vw, 72px)",
+            }}
+          >
+            Find Her.
+          </h1>
+          <p className="text-sm font-semibold" style={{ color: "var(--bb-pink)" }}>
+            Real plans. Real women. Your city.
+          </p>
         </div>
-      </div>
 
-      {activeTab === "Connect"  && <ConnectTab />}
-      {activeTab === "Requests" && <RequestsTab />}
-      {activeTab === "Find"     && <FindTab />}
-
-      {/* Bouquet banner — elegant dark layout */}
-      {activeTab === "Connect" && (
-        <div
-          className="mx-5 mt-10 rounded-3xl p-7 relative overflow-hidden"
-          style={{ background: "#111111" }}
-        >
-          {/* Decorative orbs */}
-          <div
-            className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
-            style={{
-              background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-              opacity: 0.18,
-              transform: "translate(30%, -30%)",
-            }}
-          />
-          <div
-            className="absolute bottom-0 left-0 w-32 h-32 rounded-full pointer-events-none"
-            style={{
-              background: "radial-gradient(circle, #FF69B4 0%, transparent 70%)",
-              opacity: 0.12,
-              transform: "translate(-30%, 30%)",
-            }}
-          />
-
-          <div className="relative">
-            <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "#FF69B4" }}>
-              YOUR BOUQUET
-            </p>
-            <div className="flex items-start gap-4">
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(255,31,125,0.18)" }}
+        {/* Tabs — pill buttons: active = solid black + white, inactive = white + border */}
+        <div className="px-5 mb-7">
+          <div className="flex gap-2">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-[0.96] relative"
+                style={
+                  activeTab === tab
+                    ? { background: "#111111", color: "white", boxShadow: "0 3px 10px rgba(0,0,0,0.20)" }
+                    : { background: "white", color: "#555555", border: "1.5px solid #E0E0E0" }
+                }
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                </svg>
-              </div>
-              <div>
-                <p
-                  className="text-white font-bold italic mb-2"
-                  style={{ fontFamily: "var(--font-playfair)", fontSize: "22px" }}
+                {tab}
+                {tab === "Requests" && incomingCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                    style={{ background: "#FF1F7D" }}
+                  >
+                    {incomingCount}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {activeTab === "Connect"  && <ConnectTab />}
+        {activeTab === "Requests" && <RequestsTab />}
+        {activeTab === "Find"     && <FindTab />}
+
+        {/* Bouquet banner — elegant dark layout */}
+        {activeTab === "Connect" && (
+          <div
+            className="mx-5 mt-10 rounded-3xl p-7 relative overflow-hidden"
+            style={{ background: "#111111" }}
+          >
+            {/* Decorative orbs */}
+            <div
+              className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
+                opacity: 0.18,
+                transform: "translate(30%, -30%)",
+              }}
+            />
+            <div
+              className="absolute bottom-0 left-0 w-32 h-32 rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, #FF69B4 0%, transparent 70%)",
+                opacity: 0.12,
+                transform: "translate(-30%, 30%)",
+              }}
+            />
+
+            <div className="relative">
+              <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "#FF69B4" }}>
+                YOUR BOUQUET
+              </p>
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgba(255,31,125,0.18)" }}
                 >
-                  Ready for a Bouquet?
-                </p>
-                <p className="leading-relaxed text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  Invite up to 12 Bloomies into your inner circle.
-                  <br />
-                  Your private world, your rules.
-                </p>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                  </svg>
+                </div>
+                <div>
+                  <p
+                    className="text-white font-bold italic mb-2"
+                    style={{ fontFamily: "var(--font-playfair)", fontSize: "22px" }}
+                  >
+                    Ready for a Bouquet?
+                  </p>
+                  <p className="leading-relaxed text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    Invite up to 12 Bloomies into your inner circle.
+                    <br />
+                    Your private world, your rules.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+        )}
+      </div>{/* end mobile */}
+
+      {/* ── DESKTOP ────────────────────────────────────────────────────────── */}
+      <div className="hidden md:flex md:flex-col" style={{ height: "100vh" }}>
+
+        {/* ── Top bar ─────────────────────────────────────────────────────── */}
+        <div
+          className="flex items-center gap-6 px-8 flex-shrink-0 border-b"
+          style={{ height: "64px", borderColor: "#F0E0E8", background: "var(--pale-pink-bg)" }}
+        >
+          {/* Left: label + heading */}
+          <div className="flex items-baseline gap-2.5">
+            <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "var(--bb-pink)" }}>
+              CONNECT
+            </p>
+            <h1
+              className="font-bold italic text-xl leading-none"
+              style={{ color: "var(--bb-black)", fontFamily: "var(--font-playfair)" }}
+            >
+              Find Her.
+            </h1>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px self-stretch my-3" style={{ background: "#F0E0E8" }} />
+
+          {/* Inline tabs */}
+          <div className="flex gap-1.5">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all relative"
+                style={
+                  activeTab === tab
+                    ? { background: "#111111", color: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
+                    : { background: "white", color: "#555555", border: "1.5px solid #E0E0E0" }
+                }
+              >
+                {tab}
+                {tab === "Requests" && incomingCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-[9px] font-bold flex items-center justify-center text-white"
+                    style={{ background: "#FF1F7D" }}
+                  >
+                    {incomingCount}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: tagline */}
+          <div className="flex-1 flex justify-end" style={{ marginRight: "64px" }}>
+            <p className="text-xs font-semibold" style={{ color: "var(--bb-pink)" }}>
+              Real plans. Real women.
+            </p>
+          </div>
         </div>
-      )}
+
+        {/* ── 3-col body ──────────────────────────────────────────────────── */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* LEFT panel — Yande Picks mini-cards */}
+          <div
+            className="overflow-y-auto py-5 px-4 flex-shrink-0"
+            style={{ width: "260px", borderRight: "1px solid #F0E0E8" }}
+          >
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
+              YANDE PICKS
+            </p>
+            {GIRL_MATE_QUEUE.map((girl) => (
+              <div
+                key={girl.id}
+                className="flex items-center gap-2.5 px-2 py-2.5 rounded-xl mb-1 hover:bg-pink-50 transition-colors"
+              >
+                <ProfileAvatar initial={girl.initial} color={girl.color} size={32} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold truncate" style={{ color: "#111" }}>{girl.name}</p>
+                  <p className="text-[10px] truncate" style={{ color: "#aaa" }}>{girl.neighborhood}</p>
+                </div>
+                <span
+                  className="text-[9px] font-bold px-2 py-1 rounded-full text-white flex-shrink-0"
+                  style={{ background: girl.color }}
+                >
+                  →
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* CENTER panel */}
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === "Connect" && (
+              <div className="py-6 px-6 flex flex-col gap-6">
+                {/* Shared Moments — 2-col grid */}
+                <div>
+                  <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
+                    HAPPENING IN YOUR CITY
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {SHARED_MOMENTS.map((moment) => (
+                      <MomentCard
+                        key={moment.id}
+                        moment={moment}
+                        joined={false}
+                        onJoin={() => {}}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px" style={{ background: "#F0E0E8" }} />
+                  <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#ddd" }}>
+                    YANDE PICKS FOR YOU
+                  </p>
+                  <div className="flex-1 h-px" style={{ background: "#F0E0E8" }} />
+                </div>
+
+                {/* Individual queue — 3-col grid */}
+                <div className="grid grid-cols-3 gap-3">
+                  {GIRL_MATE_QUEUE.map((girl) => (
+                    <div key={girl.id} className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.10)" }}>
+                      <div className="h-20 relative" style={{ background: `linear-gradient(135deg, ${girl.color} 0%, ${girl.color}88 100%)` }}>
+                        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 60%)" }} />
+                        <p className="absolute top-2.5 right-3 text-[8px] font-bold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.7)" }}>
+                          YANDE PICK
+                        </p>
+                        <div className="absolute bottom-0 left-3" style={{ transform: "translateY(50%)" }}>
+                          <div className="relative">
+                            <ProfileAvatar initial={girl.initial} color={girl.color} size={44} />
+                            {girl.verified && (
+                              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "white" }}>
+                                <VerifiedBadge />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="px-3.5 pt-7 pb-4">
+                        <p className="font-bold text-sm italic leading-tight" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+                          {girl.name}
+                        </p>
+                        <p className="text-[11px] mt-0.5 mb-2" style={{ color: "#aaa" }}>{girl.neighborhood}</p>
+                        <div className="flex flex-wrap gap-1 mb-2.5">
+                          {girl.clubs.slice(0, 2).map((c) => (
+                            <span key={c} className="text-[9px] font-semibold px-2 py-1 rounded-full" style={{ background: `${girl.color}15`, color: girl.color }}>
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-[10px] mb-3 leading-snug" style={{ color: "#888", borderLeft: `2px solid ${girl.color}44`, paddingLeft: "8px" }}>
+                          ✦ {girl.matchNote.slice(0, 60)}{girl.matchNote.length > 60 ? "…" : ""}
+                        </p>
+                        <button
+                          className="w-full py-2.5 rounded-full text-[11px] font-bold text-white transition-all active:scale-[0.97]"
+                          style={{ background: girl.color, boxShadow: `0 4px 12px ${girl.color}44` }}
+                        >
+                          Connect
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "Requests" && (
+              <div className="py-6">
+                <div style={{ paddingLeft: "24px", paddingRight: "24px" }}>
+                  <RequestsTab />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "Find" && (
+              <div className="py-6">
+                <div style={{ paddingLeft: "24px", paddingRight: "24px" }}>
+                  <FindTab />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT panel — Shared Moments mini-list + Bouquet banner */}
+          <div
+            className="overflow-y-auto py-5 px-4 flex-shrink-0 flex flex-col gap-4"
+            style={{ width: "280px", borderLeft: "1px solid #F0E0E8" }}
+          >
+            {/* Shared Moments compact list */}
+            <div>
+              <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
+                SHARED MOMENTS
+              </p>
+              <div className="flex flex-col gap-2">
+                {SHARED_MOMENTS.map((moment) => (
+                  <div
+                    key={moment.id}
+                    className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl hover:bg-pink-50 transition-colors cursor-pointer"
+                    style={{ background: "white", boxShadow: "0 1px 6px rgba(255,31,125,0.07)" }}
+                  >
+                    <span className="text-base flex-shrink-0">{moment.emoji}</span>
+                    <p className="text-xs font-semibold flex-1 min-w-0 truncate" style={{ color: "#111" }}>
+                      {moment.title}
+                    </p>
+                    {/* Avatar stack */}
+                    <div className="flex items-center flex-shrink-0">
+                      {moment.avatars.slice(0, 3).map((a, i) => (
+                        <div
+                          key={i}
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white border border-white"
+                          style={{ background: i % 2 === 0 ? "#FF1F7D" : "#FF69B4", marginLeft: i > 0 ? "-5px" : "0", zIndex: 3 - i }}
+                        >
+                          {a}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px" style={{ background: "#F0E0E8" }} />
+
+            {/* Bouquet banner */}
+            <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: "#111111" }}>
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
+                style={{
+                  background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
+                  opacity: 0.18,
+                  transform: "translate(30%, -30%)",
+                }}
+              />
+              <p className="text-[9px] font-bold tracking-widest uppercase mb-2 relative" style={{ color: "#FF69B4" }}>
+                YOUR BOUQUET
+              </p>
+              <p
+                className="text-white font-bold italic mb-2 relative"
+                style={{ fontFamily: "var(--font-playfair)", fontSize: "16px" }}
+              >
+                Ready for a Bouquet?
+              </p>
+              <p className="text-xs leading-relaxed relative" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Invite up to 12 Bloomies. Private circle.
+              </p>
+            </div>
+          </div>
+
+        </div>{/* end 3-col body */}
+      </div>{/* end desktop */}
     </div>
   );
 }

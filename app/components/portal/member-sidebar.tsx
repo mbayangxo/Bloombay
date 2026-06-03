@@ -7,8 +7,7 @@ import { BBLogo } from "./bb-logo";
 import { logout } from "@/lib/auth/actions";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
-const NAV = [
-  { href: "/member/home",          label: "THE DAILY"   },
+const BASE_NAV = [
   { href: "/member/clubs",         label: "CLUBS"       },
   { href: "/member/room",          label: "LOBBY"       },
   { href: "/member/lounge",        label: "APARTMENT"   },
@@ -30,8 +29,13 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
   const isNight   = tod === "evening" || tod === "night";
   const isEvening = tod === "evening";
 
-  // Midnight velvet palette — no cocoa, no brown
-  const sidebarBg    = isNight ? (isEvening ? "#110E1A" : "#0D0B15") : "#FDFAF5";
+  const homeLabel = (tod === "evening" || tod === "night") ? "TONIGHT" : "THE DAILY";
+  const NAV = [
+    { href: "/member/home", label: homeLabel },
+    ...BASE_NAV,
+  ];
+
+  const sidebarBg    = isNight ? (isEvening ? "#171220" : "#13101C") : "#FDFAF5";
   const borderColor  = isNight ? "rgba(220,210,240,0.07)" : "rgba(0,0,0,0.07)";
   const divider      = isNight ? "rgba(220,210,240,0.04)" : "rgba(0,0,0,0.05)";
   const brandText    = isNight ? "rgba(240,232,255,0.92)" : "#111111";
