@@ -622,22 +622,46 @@ export function CityPage() {
             {/* ── EAT ── */}
             {activeTab === "eat" && (
               <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Left col: featured + row cards */}
-                  <div>
-                    {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
-                    <div className="flex flex-col gap-3">
-                      {RESTAURANTS.filter(r => !r.featured).map(r => <EatRowCard key={r.id} r={r} />)}
-                    </div>
+                {/* Women's pick — featured card, full row */}
+                {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
+
+                {/* All restaurants — portrait cards in grid */}
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4" style={{ color: textMuted }}>ALL RESTAURANTS</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    {RESTAURANTS.filter(r => !r.featured).map(r => (
+                      <div key={r.id} className="rounded-2xl overflow-hidden" style={{ background: isNight ? cardBg : "white", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", border: `1px solid ${borderCol}` }}>
+                        <div className="flex items-center justify-center" style={{ height: "100px", background: `linear-gradient(135deg, ${r.bgColor} 0%, ${r.bgColor}99 100%)` }}>
+                          <span style={{ fontSize: "48px" }}>{r.emoji}</span>
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-1">
+                            <div>
+                              <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{r.name}</h3>
+                              <p className="text-[10px] mt-0.5" style={{ color: textMuted }}>{r.neighborhood} · {r.price}</p>
+                            </div>
+                            <FlowerCount count={r.womenLoved} />
+                          </div>
+                          <p className="text-xs mt-2 italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: textMuted }}>&ldquo;{r.blurb}&rdquo;</p>
+                          <div className="flex items-center gap-2 mt-3 flex-wrap">
+                            {r.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: isNight ? "rgba(255,255,255,0.1)" : "#111", color: "white" }}>SOLO FRIENDLY</span>}
+                            {r.tags.slice(0, 1).map(t => (
+                              <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1px solid ${borderCol}` }}>{t}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  {/* Right col: PlaceCards grid */}
-                  <div>
-                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {girlPicks.map(place => (
-                        <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
-                      ))}
-                    </div>
+                </div>
+
+                {/* Girl picks */}
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {girlPicks.map(place => (
+                      <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -664,16 +688,16 @@ export function CityPage() {
             {/* ── SOLO ── */}
             {activeTab === "solo" && (
               <div className="flex flex-col gap-4">
-                <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
-                  <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                    Places women<br />love going alone.
-                  </h2>
-                  <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
-                    Safe. Beautiful. Yours.
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
+                    <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: headingColor, letterSpacing: "-0.015em" }}>
+                      Places women love going alone.
+                    </h2>
+                  </div>
+                  <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>Safe. Beautiful. Yours.</p>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                   {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
                 </div>
               </div>

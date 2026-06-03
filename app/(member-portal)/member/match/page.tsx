@@ -633,7 +633,7 @@ export default function ConnectPage() {
                 {/* Yande Intros full view */}
                 <div>
                   <SectionLabel>YANDE INTRODUCTIONS</SectionLabel>
-                  <div className="flex flex-col gap-3 max-w-xl">
+                  <div className="grid grid-cols-2 gap-4">
                     {YANDE_INTROS.map((intro) => (
                       <YandeIntroCard key={intro.id} intro={intro} {...sharedCardProps} />
                     ))}
@@ -698,7 +698,7 @@ export default function ConnectPage() {
             {activeTab === "GirlMates" && (
               <div>
                 <SectionLabel>GIRLMATES</SectionLabel>
-                <div className="flex flex-col gap-3 max-w-xl">
+                <div className="grid grid-cols-2 gap-4">
                   {GIRL_MATES.map((gm) => (
                     <GirlMateCard key={gm.id} gm={gm} {...sharedCardProps} />
                   ))}
@@ -709,7 +709,7 @@ export default function ConnectPage() {
             {activeTab === "Founders" && (
               <div>
                 <SectionLabel>FOUNDER CIRCLE</SectionLabel>
-                <div className="flex flex-col gap-3 max-w-xl">
+                <div className="grid grid-cols-2 gap-4">
                   {FOUNDERS.map((founder) => (
                     <FounderCard key={founder.id} founder={founder} {...sharedCardProps} />
                   ))}

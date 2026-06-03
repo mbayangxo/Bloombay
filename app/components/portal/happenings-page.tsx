@@ -62,14 +62,15 @@ const CELEB_WISH_DEFAULT: Record<CelebType, string> = {
 
 // ── Unique poster designs per event type ──────────────────────────────────────
 
-function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
+function HappeningPoster({ h, onOpen, tall = false }: { h: Happening; onOpen: () => void; tall?: boolean }) {
   const [saved, setSaved] = useState(false);
+  const cardH = tall ? "300px" : "210px";
 
   // ── GALLERY: art-deco editorial ──────────────────────────────────────────
   if (h.type === "gallery") {
     return (
       <div onClick={onOpen} className="relative rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98]"
-        style={{ height: "210px", background: "#111111", boxShadow: "0 6px 28px rgba(0,0,0,0.22)" }}>
+        style={{ height: cardH, background: "#111111", boxShadow: "0 6px 28px rgba(0,0,0,0.22)" }}>
         {/* Art deco corner frames */}
         <div className="absolute top-2.5 left-2.5 w-6 h-6 pointer-events-none" style={{ borderTop: "2px solid rgba(255,215,150,0.6)", borderLeft: "2px solid rgba(255,215,150,0.6)" }} />
         <div className="absolute top-2.5 right-2.5 w-6 h-6 pointer-events-none" style={{ borderTop: "2px solid rgba(255,215,150,0.6)", borderRight: "2px solid rgba(255,215,150,0.6)" }} />
@@ -98,7 +99,7 @@ function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
   if (h.type === "workshop" || h.type === "class") {
     return (
       <div onClick={onOpen} className="relative rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98]"
-        style={{ height: "210px", background: "#FDFAF5", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+        style={{ height: cardH, background: "#FDFAF5", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
         {/* Diagonal craft stripe */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div style={{ position: "absolute", top: "-20px", right: "-30px", width: "120px", height: "200px", background: "rgba(255,105,180,0.08)", transform: "rotate(15deg)", borderRadius: "8px" }} />
@@ -126,7 +127,7 @@ function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
   if (h.type === "rooftop") {
     return (
       <div onClick={onOpen} className="relative rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98]"
-        style={{ height: "210px", background: "linear-gradient(175deg, #0a0014 0%, #1a0025 60%, #2d0040 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.35)" }}>
+        style={{ height: cardH, background: "linear-gradient(175deg, #0a0014 0%, #1a0025 60%, #2d0040 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.35)" }}>
         {/* Stars */}
         {[{ x: "15%", y: "18%" }, { x: "72%", y: "12%" }, { x: "88%", y: "35%" }, { x: "42%", y: "8%" }, { x: "60%", y: "22%" }, { x: "28%", y: "30%" }].map((s, i) => (
           <div key={i} className="absolute rounded-full pointer-events-none" style={{ left: s.x, top: s.y, width: i % 2 === 0 ? "2px" : "3px", height: i % 2 === 0 ? "2px" : "3px", background: "rgba(255,255,255,0.8)", boxShadow: "0 0 3px rgba(255,255,255,0.5)" }} />
@@ -155,7 +156,7 @@ function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
   if (h.type === "popup") {
     return (
       <div onClick={onOpen} className="relative rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98]"
-        style={{ height: "210px", background: "#FF1F7D", boxShadow: "0 6px 28px rgba(255,31,125,0.35)" }}>
+        style={{ height: cardH, background: "#FF1F7D", boxShadow: "0 6px 28px rgba(255,31,125,0.35)" }}>
         {/* Bold color block element */}
         <div className="absolute bottom-0 right-0 pointer-events-none" style={{ width: "50%", height: "55%", background: "rgba(255,255,255,0.1)", borderTopLeftRadius: "100%" }} />
         <button onClick={e => { e.stopPropagation(); setSaved(s => !s); }} className="absolute top-3.5 right-3.5 z-10 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)" }}>
@@ -179,7 +180,7 @@ function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
   // ── FESTIVAL: energy & movement ──────────────────────────────────────────
   return (
     <div onClick={onOpen} className="relative rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.98]"
-      style={{ height: "210px", background: "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 60%, #C4006A 100%)", boxShadow: "0 8px 28px rgba(255,31,125,0.4)" }}>
+      style={{ height: cardH, background: "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 60%, #C4006A 100%)", boxShadow: "0 8px 28px rgba(255,31,125,0.4)" }}>
       {/* Confetti dots */}
       {[{ x: "10%", y: "15%", s: 8, op: 0.3 }, { x: "80%", y: "20%", s: 6, op: 0.25 }, { x: "60%", y: "10%", s: 10, op: 0.2 }, { x: "25%", y: "25%", s: 7, op: 0.3 }, { x: "90%", y: "55%", s: 5, op: 0.2 }].map((d, i) => (
         <div key={i} className="absolute rounded-full pointer-events-none" style={{ left: d.x, top: d.y, width: d.s, height: d.s, background: "white", opacity: d.op }} />
@@ -584,11 +585,42 @@ export function HappeningsPage() {
             ))}
           </div>
 
-          {/* CENTER: 3-col event poster grid */}
+          {/* CENTER: event poster grid */}
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="grid grid-cols-3 gap-4">
+            {/* Featured first event — wide banner */}
+            {filteredHap.length > 0 && (
+              <div className="mb-5">
+                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: textMuted }}>FEATURED TONIGHT</p>
+                <div className="rounded-2xl overflow-hidden cursor-pointer transition-transform active:scale-[0.99]"
+                  style={{ height: "160px", background: "linear-gradient(120deg, #FF1F7D 0%, #C4006A 100%)", boxShadow: "0 8px 32px rgba(255,31,125,0.28)", position: "relative" }}
+                  onClick={() => setSelectedEvent(filteredHap[0])}>
+                  <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 60%)" }} />
+                  <div className="absolute inset-0 p-6 flex items-center justify-between">
+                    <div>
+                      <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                        {filteredHap[0].type.toUpperCase()} · {filteredHap[0].neighborhood}
+                      </p>
+                      <h2 className="font-black uppercase leading-none text-white" style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", letterSpacing: "-0.01em" }}>
+                        {filteredHap[0].title}
+                      </h2>
+                      <p className="text-[11px] mt-2 font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.55)" }}>{filteredHap[0].time}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-3xl font-black text-white" style={{ fontFamily: "var(--font-playfair)" }}>{filteredHap[0].priceLabel}</p>
+                      <span className="inline-block mt-2 px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}>
+                        See details →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Poster grid — taller cards */}
+            <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-4" style={{ color: textMuted }}>ALL HAPPENINGS</p>
+            <div className="grid grid-cols-3 gap-5">
               {filteredHap.map(h => (
-                <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
+                <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} tall />
               ))}
               {filteredHap.length === 0 && (
                 <div className="col-span-3 rounded-3xl p-16 text-center" style={{ border: "1px solid rgba(255,31,125,0.1)" }}>

@@ -878,7 +878,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
             {/* ── Bouquet Tab ── */}
             {activeTab === 0 && (
-              <div className="flex flex-col gap-6 max-w-2xl">
+              <div className="flex flex-col gap-6">
                 {/* Banner */}
                 <div
                   className="rounded-3xl p-6 relative overflow-hidden"
@@ -903,36 +903,39 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   </div>
                 </div>
 
-                {/* Bloomies list */}
+                {/* Bloomies grid */}
                 <div>
-                  <p className="text-sm font-bold italic mb-3" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+                  <p className="text-sm font-bold italic mb-4" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
                     Your Bloomies
                   </p>
-                  <div className="flex flex-col gap-2.5">
+                  <div className="grid grid-cols-2 gap-4">
                     {BOUQUET_MEMBERS.map((m, idx) => (
                       <div
                         key={m.name}
                         onClick={() => setSelectedBloomie(m)}
-                        className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                        className="rounded-2xl p-4 flex flex-col gap-3 cursor-pointer active:scale-[0.98] transition-transform"
                         style={{
                           background: cardBg,
                           boxShadow: "0 2px 12px rgba(255,31,125,0.07)",
-                          borderLeft: `3px solid ${BORDER_COLORS[idx % BORDER_COLORS.length]}`,
+                          borderTop: `3px solid ${BORDER_COLORS[idx % BORDER_COLORS.length]}`,
                         }}
                       >
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
-                          style={{ background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}AA 100%)`, boxShadow: `0 2px 8px ${m.color}44` }}
-                        >
-                          {m.initial}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm" style={{ color: headingColor }}>{m.name}</p>
-                          <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood} · since {m.since}</p>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
+                            style={{ background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}AA 100%)`, boxShadow: `0 2px 8px ${m.color}44` }}
+                          >
+                            {m.initial}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm" style={{ color: headingColor }}>{m.name}</p>
+                            <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood}</p>
+                            <p className="text-[10px] mt-0.5 text-gray-400">since {m.since}</p>
+                          </div>
                         </div>
                         <button
                           onClick={(e) => sendFlowers(m.name, e)}
-                          className="px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-90 flex-shrink-0"
+                          className="w-full py-2 rounded-full text-xs font-bold transition-all active:scale-90"
                           style={
                             flowered.has(m.name)
                               ? { background: m.color, color: "white", boxShadow: `0 2px 8px ${m.color}44` }
@@ -966,7 +969,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
             {/* ── Memories Tab ── */}
             {activeTab === 1 && (
-              <div className="flex flex-col gap-6 max-w-2xl">
+              <div className="flex flex-col gap-6">
                 <div>
                   <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "var(--bb-pink)" }}>YANDE REMEMBERS</p>
                   <div className="flex flex-col gap-3">
