@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { getTimeOfDay, type TimeOfDay } from "@/app/components/portal/time-wrapper";
 
 const MY_PLANS = [
-  { id: 1, title: "Girls Dinner · Carbone", date: "Tonight 7PM", who: "Aminah + 2 others", tag: "TONIGHT", status: "confirmed", type: "event" },
-  { id: 2, title: "Pilates + Matcha Morning", date: "Sunday 9AM", who: "Sofia and you", tag: "SUNDAY", status: "confirmed", type: "event" },
-  { id: 3, title: "MoMA + Froyo After", date: "Saturday 2PM", who: "Girl Creatives · 6 women", tag: "SATURDAY", status: "pending", type: "event" },
+  { id: 1, title: "Girls Dinner · Carbone",   date: "Tonight 7PM",  who: "Aminah + 2",    tag: "TONIGHT",  status: "confirmed", color: "#D4155C", colorEnd: "#9E1A46" },
+  { id: 2, title: "Pilates + Matcha Morning", date: "Sunday 9AM",   who: "Sofia + you",   tag: "SUNDAY",   status: "confirmed", color: "#E05C9A", colorEnd: "#B03070" },
+  { id: 3, title: "MoMA + Froyo After",       date: "Saturday 2PM", who: "Girl Creatives", tag: "SATURDAY", status: "pending",   color: "#555555", colorEnd: "#333333" },
 ];
 
 const PLAN_ROOMS = [
@@ -17,74 +17,73 @@ const PLAN_ROOMS = [
 
 type Plan = typeof MY_PLANS[0];
 
+function MiniPoster({ plan }: { plan: Plan }) {
+  const isPending = plan.status === "pending";
+  return (
+    <button
+      className="flex-shrink-0 rounded-2xl overflow-hidden relative active:scale-[0.97] transition-all text-left"
+      style={{
+        width: "120px", height: "155px",
+        background: `linear-gradient(160deg, ${plan.color}, ${plan.colorEnd})`,
+        boxShadow: `0 6px 20px ${plan.color}44`,
+        opacity: isPending ? 0.75 : 1,
+      }}
+    >
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 70% 15%, rgba(255,255,255,0.18) 0%, transparent 60%)" }} />
+      <div className="relative p-3 h-full flex flex-col justify-between">
+        <div>
+          <span className="text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+            style={{ background: "rgba(255,255,255,0.22)", color: "white" }}>
+            {plan.tag}
+          </span>
+        </div>
+        <div>
+          <p className="font-bold italic text-white leading-snug mb-1"
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "13px" }}>
+            {plan.title}
+          </p>
+          <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.75)" }}>{plan.date}</p>
+          <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{plan.who}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function TagBadge({ tag, status }: { tag: string; status: string }) {
   const isTonight = tag === "TONIGHT";
   const isPending = status === "pending";
   return (
-    <span
-      className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded"
+    <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded"
       style={{
-        background: isTonight
-          ? "var(--bb-pink)"
-          : isPending
-          ? "rgba(0,0,0,0.07)"
-          : "rgba(255,31,125,0.1)",
+        background: isTonight ? "var(--bb-pink)" : isPending ? "rgba(0,0,0,0.07)" : "rgba(255,31,125,0.1)",
         color: isTonight ? "white" : isPending ? "#999" : "var(--bb-pink)",
-      }}
-    >
+      }}>
       {tag}
     </span>
   );
 }
 
-function TicketCard({
-  plan,
-  selected,
-  onClick,
-  cardBg,
-  headingColor,
-  textMuted,
-  borderCol,
-}: {
-  plan: Plan;
-  selected: boolean;
-  onClick: () => void;
-  cardBg: string;
-  headingColor: string;
-  textMuted: string;
-  borderCol: string;
+function TicketCard({ plan, selected, onClick, cardBg, headingColor, textMuted, borderCol }: {
+  plan: Plan; selected: boolean; onClick: () => void;
+  cardBg: string; headingColor: string; textMuted: string; borderCol: string;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-2xl overflow-hidden transition-all active:scale-[0.99]"
+    <button onClick={onClick} className="w-full text-left rounded-xl overflow-hidden transition-all active:scale-[0.99]"
       style={{
         background: cardBg,
-        boxShadow: selected
-          ? "0 4px 20px rgba(255,31,125,0.15)"
-          : "0 2px 10px rgba(0,0,0,0.06)",
+        boxShadow: selected ? "0 4px 20px rgba(255,31,125,0.15)" : "0 2px 10px rgba(0,0,0,0.06)",
         border: selected ? "1.5px solid var(--bb-pink)" : `1.5px solid ${borderCol}`,
-      }}
-    >
-      {/* Ticket top strip */}
-      <div
-        className="h-1.5 w-full"
-        style={{
-          background:
-            plan.status === "confirmed"
-              ? "linear-gradient(90deg, var(--bb-pink), #FF69B4)"
-              : "linear-gradient(90deg, #ccc, #ddd)",
-        }}
-      />
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <p className="font-bold text-sm leading-snug" style={{ color: headingColor, fontFamily: "var(--font-playfair)" }}>
-            {plan.title}
-          </p>
+      }}>
+      <div className="h-1 w-full" style={{ background: plan.status === "confirmed" ? `linear-gradient(90deg, ${plan.color}, ${plan.colorEnd})` : "linear-gradient(90deg, #ccc, #ddd)" }} />
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <p className="font-bold text-xs leading-snug" style={{ color: headingColor, fontFamily: "var(--font-playfair)" }}>{plan.title}</p>
           <TagBadge tag={plan.tag} status={plan.status} />
         </div>
-        <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--bb-pink)" }}>{plan.date}</p>
-        <p className="text-xs" style={{ color: textMuted }}>{plan.who}</p>
+        <p className="text-[10px] font-semibold" style={{ color: "var(--bb-pink)" }}>{plan.date}</p>
+        <p className="text-[10px]" style={{ color: textMuted }}>{plan.who}</p>
       </div>
     </button>
   );
@@ -167,32 +166,32 @@ export default function PlansPage() {
           </button>
         </div>
 
-        {MY_PLANS.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
-            <p style={{ fontSize: "40px" }}>🎫</p>
-            <p className="font-black mt-3" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: headingColor }}>
-              No upcoming plans yet.
-            </p>
-            <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
-              RSVP to an event or accept an invitation<br />and your ticket will appear here.
-            </p>
+        {/* Mini poster row */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between px-5 mb-3">
+            <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: textMuted }}>YOUR PLANS</p>
+            <button className="flex items-center gap-1 text-xs font-bold" style={{ color: "var(--bb-pink)" }}>
+              View all
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
           </div>
-        ) : (
-          <div className="px-5 flex flex-col gap-3">
-            {MY_PLANS.map((plan) => (
-              <TicketCard
-                key={plan.id}
-                plan={plan}
-                selected={selectedPlanId === plan.id}
-                onClick={() => setSelectedPlanId(plan.id)}
-                cardBg={cardBg}
-                headingColor={headingColor}
-                textMuted={textMuted}
-                borderCol={borderCol}
-              />
-            ))}
-          </div>
-        )}
+          {MY_PLANS.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
+              <p className="font-bold italic text-lg mb-1" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>No upcoming plans yet.</p>
+              <p className="text-sm" style={{ color: textMuted }}>RSVP to an event and it will appear here.</p>
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-1" style={{ scrollbarWidth: "none" }}>
+              {MY_PLANS.map(plan => <MiniPoster key={plan.id} plan={plan} />)}
+              {/* View all card */}
+              <button className="flex-shrink-0 rounded-2xl flex flex-col items-center justify-center gap-1.5 border-dashed"
+                style={{ width: "80px", height: "155px", borderWidth: "1.5px", borderColor: "rgba(212,21,92,0.2)", background: "transparent" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <p className="text-[9px] font-bold" style={{ color: "var(--bb-pink)" }}>All</p>
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Plan Rooms */}
         <div className="px-5 mt-8">
