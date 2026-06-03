@@ -582,9 +582,9 @@ export function CityPage() {
 
           {/* LEFT PANEL: Neighborhoods + Vibe filters */}
           <div className="flex-shrink-0 overflow-y-auto py-5 px-4"
-            style={{ width: "200px", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
+            style={{ width: "200px", borderRight: `1px solid ${borderCol}` }}>
 
-            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: "#bbb" }}>NEIGHBORHOODS</p>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: textMuted }}>NEIGHBORHOODS</p>
             {[
               { name: "SoHo", color: "#FF1F7D" },
               { name: "Williamsburg", color: "#FF69B4" },
@@ -594,18 +594,24 @@ export function CityPage() {
               { name: "Chelsea", color: "#10B981" },
               { name: "Park Slope", color: "#EC4899" },
             ].map(({ name, color }) => (
-              <div key={name} className="flex items-center gap-2 px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer hover:bg-black/5 transition-colors">
+              <div key={name} className="flex items-center gap-2 px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer transition-colors"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                <p className="text-xs font-semibold truncate" style={{ color: "#555" }}>{name}</p>
+                <p className="text-xs font-semibold truncate" style={{ color: textMuted }}>{name}</p>
               </div>
             ))}
 
-            <div className="my-4 mx-1 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-4 mx-1 h-px" style={{ background: borderCol }} />
 
-            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: "#bbb" }}>VIBE</p>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: textMuted }}>VIBE</p>
             {["Solo Friendly", "Girls Night", "Outdoor", "Brunch", "Late Night", "Culture"].map(vibe => (
-              <div key={vibe} className="px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer hover:bg-black/5 transition-colors">
-                <p className="text-xs font-semibold" style={{ color: "#555" }}>{vibe}</p>
+              <div key={vibe} className="px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer transition-colors"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                <p className="text-xs font-semibold" style={{ color: textMuted }}>{vibe}</p>
               </div>
             ))}
           </div>
