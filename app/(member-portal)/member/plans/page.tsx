@@ -136,9 +136,9 @@ export default function PlansPage() {
 
   const isNight = tod === "evening" || tod === "night";
   const isEvening = tod === "evening";
-  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
-  const textMuted = isNight ? "rgba(200,190,225,0.52)" : "#888";
-  const cardBg = isNight ? (isEvening ? "#1E1830" : "#191428") : "white";
+  const headingColor = isNight ? "rgba(255,245,248,0.92)" : "#111111";
+  const textMuted = isNight ? "rgba(255,190,210,0.45)" : "#888";
+  const cardBg = isNight ? (isEvening ? "#1A0D10" : "#150A0C") : "white";
   const borderCol = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
   const bgColor = isNight ? "var(--pale-pink-bg)" : "#F9F4F7";
 

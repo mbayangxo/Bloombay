@@ -11,8 +11,7 @@ const NAV_ITEMS = [
   { href: "/member/lounge",     label: "Apartment"  },
   { href: "/member/match",      label: "Connect"    },
   { href: "/member/happenings", label: "Happenings" },
-  { href: "/member/room",       label: "Lobby"      },
-  { href: "/member/messages",   label: "Messages"   },
+  { href: "/member/room",       label: "The Lobby"  },
   { href: "/member/plans",      label: "Plans"      },
 ];
 
@@ -49,27 +48,30 @@ export function BottomNav({ user }: { user?: NavUser }) {
               <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.18)" }} />
             </div>
 
-            {/* Nav grid — 3 columns */}
-            <div className="px-5 pb-3 grid grid-cols-3 gap-2.5">
-              {NAV_ITEMS.map(item => {
+            {/* Nav list — vertical */}
+            <div className="pb-2">
+              {NAV_ITEMS.map((item, i) => {
                 const active = pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="flex flex-col items-center justify-center gap-1 py-4 rounded-2xl text-center transition-all active:scale-95"
+                    className="flex items-center justify-between px-6 py-4 transition-all active:opacity-70"
                     style={{
-                      background: active ? "rgba(255,31,125,0.15)" : "rgba(255,255,255,0.05)",
-                      border: `1px solid ${active ? "rgba(255,31,125,0.3)" : "transparent"}`,
+                      borderBottom: i < NAV_ITEMS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                      background: active ? "rgba(255,31,125,0.08)" : "transparent",
                     }}
                   >
                     <span
-                      className="text-[10px] font-bold tracking-wider"
-                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.62)" }}
+                      className="text-sm font-bold tracking-wide"
+                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.75)" }}
                     >
-                      {item.label.toUpperCase()}
+                      {item.label}
                     </span>
+                    {active && (
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
+                    )}
                   </Link>
                 );
               })}

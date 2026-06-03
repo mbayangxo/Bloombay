@@ -1259,33 +1259,6 @@ export default function MessagesPage() {
           </div>
         </div>
 
-        {/* Plan Room Door */}
-        <div className="px-5 mb-5 md:px-8">
-          <button
-            onClick={openPlan}
-            className="w-full relative overflow-hidden transition-all active:scale-[0.98]"
-            style={{ borderRadius: "20px" }}
-          >
-            <div className="relative flex items-center gap-4 px-5 py-4" style={{ background: "#111111", minHeight: "88px" }}>
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.22) 0%, transparent 55%)" }} />
-              <div className="relative flex-shrink-0 w-12 h-16 rounded-t-full border-2 flex items-center justify-center" style={{ borderColor: "rgba(255,31,125,0.5)", background: "rgba(255,31,125,0.1)" }}>
-                <div className="absolute right-1.5 top-1/2 w-1.5 h-4 rounded-full" style={{ background: "rgba(255,31,125,0.4)" }} />
-                <span className="text-lg">✿</span>
-              </div>
-              <div className="flex-1 relative text-left">
-                <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>PLAN ROOM</p>
-                <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "white", fontSize: "16px" }}>
-                  Saturday in Soho
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>02 days · 7 confirmed</p>
-              </div>
-              <div className="flex-shrink-0 relative">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-          </button>
-        </div>
-
         {/* Filter chips */}
         <div className="px-5 mb-4 flex gap-2 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
           {FILTERS.map((f) => (
@@ -1451,23 +1424,6 @@ export default function MessagesPage() {
 
           {/* LEFT PANEL — chat list (300px) */}
           <div className="flex-shrink-0 overflow-y-auto flex flex-col" style={{ width: "300px", borderRight: `1px solid ${borderCol}`, background: sidebarBg }}>
-            {/* Plan Room Door — compact version */}
-            <button
-              onClick={openPlan}
-              className="mx-3 mt-3 mb-2 relative overflow-hidden rounded-2xl transition-all"
-              style={{ background: "#111111", flexShrink: 0 }}
-            >
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.22) 0%, transparent 55%)" }} />
-              <div className="relative flex items-center gap-3 px-4 py-3">
-                <span className="text-base">✿</span>
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: "var(--bb-pink)" }}>PLAN ROOM</p>
-                  <p className="text-sm font-bold italic truncate" style={{ fontFamily: "var(--font-playfair)", color: "white" }}>Saturday in Soho</p>
-                </div>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </button>
-
             {/* Chat rows */}
             <div className="flex flex-col gap-0.5 px-2 pb-4">
               {desktopShown.map((chat) => {
