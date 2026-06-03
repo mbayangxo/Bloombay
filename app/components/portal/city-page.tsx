@@ -316,38 +316,35 @@ function MomentCard({ m, onFlower }: { m: CityMoment & { flowered?: boolean }; o
 function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
   const tc = PLACE_TYPE_COLOR[place.type];
   return (
-    <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-      <div className="w-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
-      <div className="p-4 flex-1">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
-                {PLACE_TYPE_LABEL[place.type]}
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#F5F5F5", color: "#888" }}>{place.neighborhood}</span>
-            </div>
-            <p className="font-bold text-sm" style={{ color: "#111" }}>{place.name}</p>
-          </div>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+    <div className="bg-white rounded-2xl overflow-hidden flex flex-col" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+      {/* Top accent bar */}
+      <div className="h-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
+      <div className="p-3 flex flex-col flex-1">
+        {/* Type + rating row */}
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
+            {PLACE_TYPE_LABEL[place.type]}
+          </span>
+          <div className="flex items-center gap-0.5">
             {[1,2,3,4,5].map(star => (
-              <svg key={star} width="9" height="9" viewBox="0 0 24 24" fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2">
+              <svg key={star} width="7" height="7" viewBox="0 0 24 24" fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}
-            <span className="text-xs font-bold ml-0.5" style={{ color: "#111" }}>{place.rating.toFixed(1)}</span>
           </div>
         </div>
-        <p className="text-xs italic leading-relaxed mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#666" }}>&ldquo;{place.review}&rdquo;</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-xs" style={{ color: "#aaa" }}>— {place.submittedBy}</span>
-            <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
-          </div>
+        {/* Name */}
+        <p className="font-bold text-xs leading-tight mb-1" style={{ color: "#111" }}>{place.name}</p>
+        <p className="text-[9px] mb-1.5" style={{ color: "#aaa" }}>{place.neighborhood}</p>
+        {/* Review */}
+        <p className="text-[10px] italic leading-snug flex-1 mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#777" }}>&ldquo;{place.review.slice(0, 60)}&hellip;&rdquo;</p>
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-auto">
+          <span className="text-[9px] font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
           <button onClick={onStamp} disabled={stamped}
-            className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
+            className="px-2.5 py-1 rounded-full text-[9px] font-bold transition-all active:scale-95"
             style={stamped ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" } : { background: "#FF1F7D", color: "white" }}>
-            {stamped ? "Stamped ✓" : "Stamp it"}
+            {stamped ? "✓" : "Stamp"}
           </button>
         </div>
       </div>
@@ -436,7 +433,7 @@ export function CityPage() {
                     <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>Places the city loves</h3>
                   </div>
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {girlPicks.map(place => (
                     <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
                   ))}

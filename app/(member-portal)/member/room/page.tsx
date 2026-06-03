@@ -39,12 +39,55 @@ const GIRL_BAR_ROOMS = [
 // ── Door data ─────────────────────────────────────────────────────────────────
 
 const LOBBY_DOORS = [
-  { id: "wall" as Room,     name: "The Wall",    sub: "Community board",       hint: "42 posts today",        bg: "#F8F5F0", darkBg: "#1A1830", dark: false, accent: "#FF1F7D", available: true  },
-  { id: "girlbar" as Room,  name: "Girl Bar",    sub: "Live audio rooms",      hint: "27 women listening",    bg: "#111118", darkBg: "#111118", dark: true,  accent: "#FF69B4", available: true  },
-  { id: "new-keys" as Room, name: "New Keys",    sub: "Newcomers & arrivals",  hint: "",                      bg: "#FFF0F5", darkBg: "#1C1428", dark: false, accent: "#FF1F7D", available: false },
-  { id: "vanity" as Room,   name: "The Vanity",  sub: "Beauty & style",        hint: "",                      bg: "#FBF3F7", darkBg: "#1A1428", dark: false, accent: "#FF69B4", available: false },
-  { id: "closet" as Room,   name: "The Closet",  sub: "Outfits & what to wear",hint: "",                      bg: "#F5F0EC", darkBg: "#181428", dark: false, accent: "#FF1F7D", available: false },
+  { id: "wall" as Room,     name: "The Wall",    sub: "Community board",       hint: "42 posts today",        bg: "#F8F5F0", darkBg: "#1A1830", dark: false, accent: "#FF1F7D", available: true,  newCount: 5 },
+  { id: "girlbar" as Room,  name: "Girl Bar",    sub: "Live audio rooms",      hint: "27 women listening",    bg: "#111118", darkBg: "#111118", dark: true,  accent: "#FF69B4", available: true,  newCount: 3 },
+  { id: "new-keys" as Room, name: "New Keys",    sub: "Newcomers & arrivals",  hint: "",                      bg: "#FFF0F5", darkBg: "#1C1428", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
+  { id: "vanity" as Room,   name: "The Vanity",  sub: "Beauty & style",        hint: "",                      bg: "#FBF3F7", darkBg: "#1A1428", dark: false, accent: "#FF69B4", available: false, newCount: 0 },
+  { id: "closet" as Room,   name: "The Closet",  sub: "Outfits & what to wear",hint: "",                      bg: "#F5F0EC", darkBg: "#181428", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
 ];
+
+// ── SVG symbols per room ──────────────────────────────────────────────────────
+
+function DoorSymbol({ id, accent }: { id: string; accent: string }) {
+  if (id === "wall") return (
+    <>
+      <line x1="20" y1="40" x2="36" y2="40" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="20" y1="46" x2="36" y2="46" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="20" y1="52" x2="30" y2="52" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    </>
+  );
+  if (id === "girlbar") return (
+    <>
+      <rect x="23" y="33" width="10" height="15" rx="5" fill="none" stroke={accent} strokeWidth="1.8" opacity="0.7"/>
+      <path d="M 20 50 Q 20 58 28 58 Q 36 58 36 50" fill="none" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="28" y1="58" x2="28" y2="63" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    </>
+  );
+  if (id === "new-keys") return (
+    <>
+      <circle cx="22" cy="40" r="7" fill="none" stroke={accent} strokeWidth="1.8" opacity="0.7"/>
+      <line x1="27.5" y1="45.5" x2="42" y2="60" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="38" y1="56" x2="38" y2="61" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="34" y1="60" x2="34" y2="65" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    </>
+  );
+  if (id === "vanity") return (
+    <>
+      <ellipse cx="28" cy="40" rx="9" ry="10" fill="none" stroke={accent} strokeWidth="1.8" opacity="0.7"/>
+      <line x1="28" y1="50" x2="28" y2="56" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <line x1="21" y1="56" x2="35" y2="56" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    </>
+  );
+  if (id === "closet") return (
+    <>
+      <line x1="28" y1="32" x2="28" y2="36" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+      <circle cx="28" cy="31" r="2.5" fill="none" stroke={accent} strokeWidth="1.8" opacity="0.7"/>
+      <path d="M 28 36 C 22 36 16 40 16 47 L 16 50 L 40 50 L 40 47 C 40 40 34 36 28 36" fill="none" stroke={accent} strokeWidth="1.8" strokeLinejoin="round" opacity="0.7"/>
+      <line x1="16" y1="50" x2="40" y2="50" stroke={accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    </>
+  );
+  return null;
+}
 
 // ── Door component ─────────────────────────────────────────────────────────────
 
@@ -60,47 +103,30 @@ function LobbyDoor({
   const isDark = door.dark || isNight;
   const textColor = isDark ? "rgba(255,255,255,0.88)" : "#111111";
   const subColor  = isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.35)";
-  const frameColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
-  const knobColor  = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.18)";
+  const hasNew = (door.newCount ?? 0) > 0 && door.available;
 
   return (
     <button
       onClick={onClick}
-      className={`relative w-full text-left cursor-pointer transition-all duration-300 group hover:brightness-[1.04] active:scale-[0.98] ${className}`}
+      className={`relative w-full flex flex-col items-center justify-end pb-4 cursor-pointer transition-all duration-200 hover:brightness-[1.06] active:scale-[0.97] ${hasNew ? "bb-notify-glow" : ""} ${className}`}
       style={{
         background: bg,
         boxShadow: isDark
-          ? "inset 0 0 0 10px rgba(255,255,255,0.04), 4px 0 24px rgba(0,0,0,0.4)"
-          : "inset 0 0 0 10px rgba(0,0,0,0.025), 0 8px 32px rgba(0,0,0,0.10)",
-        borderRadius: "3px 3px 0 0",
+          ? "0 4px 24px rgba(0,0,0,0.4)"
+          : "0 4px 20px rgba(0,0,0,0.08)",
+        borderRadius: "16px",
+        overflow: "hidden",
       }}
     >
-      {/* Night glow for dark doors */}
+      {/* Night glow */}
       {isDark && (
-        <div className="absolute inset-0 rounded-sm pointer-events-none"
-          style={{ background: `radial-gradient(ellipse at 30% 30%, ${door.accent}22 0%, transparent 65%)` }} />
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(ellipse at 30% 25%, ${door.accent}22 0%, transparent 65%)` }} />
       )}
 
-      {/* Outer door frame */}
-      <div className="absolute inset-[8px] rounded-[2px] pointer-events-none"
-        style={{ border: `1px solid ${frameColor}` }} />
-
-      {/* Upper panel */}
-      <div className="absolute pointer-events-none"
-        style={{ top: "18px", left: "18px", right: "18px", height: "38%", border: `1px solid ${frameColor}`, borderRadius: "1px" }} />
-
-      {/* Lower panel */}
-      <div className="absolute pointer-events-none"
-        style={{ top: "calc(18px + 38% + 12px)", left: "18px", right: "18px", bottom: "52px", border: `1px solid ${frameColor}`, borderRadius: "1px" }} />
-
-      {/* Door knob */}
-      <div className="absolute" style={{ right: "18px", top: "50%", transform: "translateY(-50%)" }}>
-        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: knobColor, boxShadow: `0 0 0 3px ${frameColor}` }} />
-      </div>
-
-      {/* Coming soon badge */}
+      {/* Coming soon */}
       {!door.available && (
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-3 left-3 z-10">
           <span className="text-[7px] font-bold tracking-widest uppercase px-2 py-0.5 rounded"
             style={{ background: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)", color: isDark ? "rgba(255,255,255,0.3)" : "#bbb" }}>
             Soon
@@ -108,22 +134,55 @@ function LobbyDoor({
         </div>
       )}
 
-      {/* Room info — bottom */}
-      <div className="absolute bottom-4 left-4 right-10">
+      {/* New-content badge */}
+      {hasNew && (
+        <div className="absolute top-3 right-3 z-20">
+          <span className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-black text-white px-1"
+            style={{ background: "#FF1F7D", boxShadow: `0 0 0 2px ${bg}` }}>
+            {door.newCount}
+          </span>
+        </div>
+      )}
+
+      {/* SVG arch door */}
+      <div className="flex-1 flex items-center justify-center pt-3 relative z-10">
+        <svg viewBox="0 0 56 76" width="52" height="70">
+          {/* Arch door outline */}
+          <path
+            d="M 6 72 L 6 28 A 22 22 0 0 1 50 28 L 50 72 Z"
+            fill={`${door.accent}14`}
+            stroke={door.accent}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Inner panel line */}
+          <path
+            d="M 12 66 L 12 32 A 16 16 0 0 1 44 32 L 44 66"
+            fill="none"
+            stroke={door.accent}
+            strokeWidth="0.8"
+            strokeLinecap="round"
+            opacity="0.3"
+          />
+          {/* Door knob */}
+          <circle cx="40" cy="50" r="2.5" fill={door.accent} opacity="0.65"/>
+          {/* Room symbol */}
+          <DoorSymbol id={door.id} accent={door.accent} />
+        </svg>
+      </div>
+
+      {/* Room info */}
+      <div className="relative z-10 text-center px-2 pb-0">
         <p className="font-bold italic leading-tight"
-          style={{
-            fontFamily: "var(--font-playfair)",
-            color: textColor,
-            fontSize: "clamp(13px, 1.4vw, 18px)",
-          }}>
+          style={{ fontFamily: "var(--font-playfair)", color: textColor, fontSize: "clamp(11px, 1.3vw, 14px)" }}>
           {door.name}
         </p>
-        <p className="text-[10px] mt-0.5" style={{ color: subColor }}>{door.sub}</p>
+        <p className="text-[8px] mt-0.5" style={{ color: subColor }}>{door.sub}</p>
         {door.hint && door.available && (
-          <div className="flex items-center gap-1.5 mt-2">
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
-              style={{ background: door.accent }} />
-            <span className="text-[9px] font-bold" style={{ color: door.accent }}>{door.hint}</span>
+          <div className="flex items-center justify-center gap-1 mt-1">
+            <span className="w-1 h-1 rounded-full animate-pulse flex-shrink-0" style={{ background: door.accent }} />
+            <span className="text-[8px] font-bold" style={{ color: door.accent }}>{door.hint}</span>
           </div>
         )}
       </div>

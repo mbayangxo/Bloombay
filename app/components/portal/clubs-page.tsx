@@ -524,26 +524,88 @@ export function ClubsPage() {
 
         <div className="px-5 pb-8">
           {activeTab === 0 && (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-6">
+              {/* My Clubs — horizontal scroll */}
+              {myClubs.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>MY CLUBS</p>
+                  <div className="flex gap-3 overflow-x-auto pb-1 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+                    {myClubs.map(club => (
+                      <Link key={club.id} href={`/member/clubs/${club.id}`}
+                        className="flex-shrink-0 rounded-2xl overflow-hidden relative"
+                        style={{ width: "140px", height: "170px", background: `linear-gradient(150deg, ${club.color}, ${club.crestBg})`, textDecoration: "none" }}>
+                        <div className="absolute inset-0 pointer-events-none"
+                          style={{ background: "radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.18) 0%, transparent 60%)" }} />
+                        <div className="relative p-4 h-full flex flex-col justify-between">
+                          <div className="flex items-start justify-between">
+                            {club.type === "hq" && (
+                              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.3)", color: "white" }}>✦</span>
+                            )}
+                            {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse ml-auto" style={{ background: "white" }} />}
+                          </div>
+                          <div className="flex justify-center">
+                            <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={44} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-white leading-snug" style={{ fontSize: "12px", fontFamily: "var(--font-playfair)" }}>{club.name}</p>
+                            <span className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.18)", color: "white" }}>In ✓</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                    <button onClick={() => {}}
+                      className="flex-shrink-0 rounded-2xl flex flex-col items-center justify-center gap-1 border-dashed"
+                      style={{ width: "100px", height: "170px", borderWidth: "1.5px", borderColor: "#E0D0D8", background: "transparent" }}>
+                      <span style={{ color: "#D0B8C0", fontSize: "24px", lineHeight: 1 }}>+</span>
+                      <p className="text-[9px] font-bold" style={{ color: "#C8B0BC" }}>Find more</p>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Featured */}
               {(!q || featured.name.toLowerCase().includes(q)) && <FeaturedDoor club={featured} />}
+
+              {/* All Clubs — horizontal scroll */}
               <div>
                 <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>
                   {q ? `${filtered.length} clubs` : "ALL CLUBS"}
                 </p>
-                <div className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 1px 10px rgba(0,0,0,0.06)" }}>
-                  {rest.map(club => (
-                    <DiscoverCard key={club.id} club={club}
-                      isJoined={joined.has(club.id)} isRequested={requested.has(club.id)} />
-                  ))}
-                  {rest.length === 0 && (
-                    <div className="py-12 text-center">
-                      <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                        No clubs match that search.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {rest.length > 0 ? (
+                  <div className="flex gap-3 overflow-x-auto pb-1 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+                    {rest.map(club => (
+                      <Link key={club.id} href={`/member/clubs/${club.id}`}
+                        className="flex-shrink-0 rounded-2xl overflow-hidden relative"
+                        style={{ width: "140px", height: "170px", background: `linear-gradient(150deg, ${club.color}, ${club.crestBg})`, textDecoration: "none" }}>
+                        <div className="absolute inset-0 pointer-events-none"
+                          style={{ background: "radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.12) 0%, transparent 60%)" }} />
+                        <div className="relative p-4 h-full flex flex-col justify-between">
+                          <div className="flex items-start justify-between">
+                            {club.type === "hq" && (
+                              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.3)", color: "white" }}>✦</span>
+                            )}
+                            {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse ml-auto" style={{ background: "white" }} />}
+                          </div>
+                          <div className="flex justify-center">
+                            <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={44} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-white leading-snug" style={{ fontSize: "12px", fontFamily: "var(--font-playfair)" }}>{club.name}</p>
+                            <span className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
+                              {joined.has(club.id) ? "In ✓" : club.type === "hq" ? "Apply →" : "Join →"}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm italic py-6 text-center" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                    No clubs match that search.
+                  </p>
+                )}
               </div>
+
               <YandeRec />
             </div>
           )}

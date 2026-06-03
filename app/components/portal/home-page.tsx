@@ -342,30 +342,32 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         {/* Witness */}
         {witnessShown && (
           <div className="px-5 mb-6">
-            <div className="rounded-2xl p-5 relative"
-              style={{ background: cardBg, border: "1px solid rgba(212,21,92,0.1)", boxShadow: "0 4px 20px rgba(212,21,92,0.07)" }}>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg,#D4155C,#9E1A46)" }}>K</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
-                    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded"
-                      style={{ background: "var(--bb-pink)", color: "white" }}>witnessed you</span>
+            <Link href="/member/match" style={{ textDecoration: "none" }}>
+              <div className="rounded-2xl p-5 relative"
+                style={{ background: cardBg, border: "1px solid rgba(212,21,92,0.1)", boxShadow: "0 4px 20px rgba(212,21,92,0.07)" }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg,#D4155C,#9E1A46)" }}>K</div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
+                      <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded"
+                        style={{ background: "var(--bb-pink)", color: "white" }}>witnessed you</span>
+                    </div>
+                    <p className="text-sm leading-relaxed" style={{ color: textMuted }}>
+                      &ldquo;She makes every table feel full. She showed up for us when we were just 12 women.&rdquo;
+                    </p>
                   </div>
-                  <p className="text-sm leading-relaxed" style={{ color: textMuted }}>
-                    &ldquo;She makes every table feel full. She showed up for us when we were just 12 women.&rdquo;
-                  </p>
+                  <button onClick={(e) => { e.preventDefault(); setWitnessShown(false); }}
+                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
+                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
+                      <path d="M1 1l8 8M9 1l-8 8"/>
+                    </svg>
+                  </button>
                 </div>
-                <button onClick={() => setWitnessShown(false)}
-                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
-                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
-                    <path d="M1 1l8 8M9 1l-8 8"/>
-                  </svg>
-                </button>
               </div>
-            </div>
+            </Link>
           </div>
         )}
 
@@ -606,30 +608,32 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           >
             {/* Witness */}
             {witnessShown && (
-              <div className="rounded-2xl p-4 mb-4 relative"
-                style={{ background: cardBg, border: "1px solid rgba(212,21,92,0.1)", boxShadow: "0 4px 16px rgba(212,21,92,0.07)" }}>
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg,#D4155C,#9E1A46)" }}>K</div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
-                      <span className="text-[8px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded"
-                        style={{ background: "var(--bb-pink)", color: "white" }}>witnessed</span>
+              <Link href="/member/match" style={{ textDecoration: "none" }}>
+                <div className="rounded-2xl p-4 mb-4 relative"
+                  style={{ background: cardBg, border: "1px solid rgba(212,21,92,0.1)", boxShadow: "0 4px 16px rgba(212,21,92,0.07)" }}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg,#D4155C,#9E1A46)" }}>K</div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
+                        <span className="text-[8px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded"
+                          style={{ background: "var(--bb-pink)", color: "white" }}>witnessed</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: textMuted }}>
+                        &ldquo;She showed up when we had 12 members. She&apos;s the real one.&rdquo;
+                      </p>
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: textMuted }}>
-                      &ldquo;She showed up when we had 12 members. She&apos;s the real one.&rdquo;
-                    </p>
+                    <button onClick={(e) => { e.preventDefault(); setWitnessShown(false); }}
+                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
+                      <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
+                        <path d="M1 1l8 8M9 1l-8 8"/>
+                      </svg>
+                    </button>
                   </div>
-                  <button onClick={() => setWitnessShown(false)}
-                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
-                    <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
-                      <path d="M1 1l8 8M9 1l-8 8"/>
-                    </svg>
-                  </button>
                 </div>
-              </div>
+              </Link>
             )}
 
             {/* Yande pick */}

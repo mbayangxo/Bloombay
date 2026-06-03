@@ -14,9 +14,9 @@ const BLOOM_REQUESTS = [
 ];
 
 const YANDE_INTROS = [
-  { id: 1, initial: "S", name: "Sofia K.", neighborhood: "Greenpoint", color: "#E05C9A", note: "You and Sofia both attend African Girls Club and have been to the same 3 events.", vibe: "Wellness · Art · Long walks" },
-  { id: 2, initial: "K", name: "Kezia N.", neighborhood: "Chelsea", color: "#D4155C", note: "Kezia is new in town — she moved from Lagos 3 weeks ago. You both love Bed-Stuy.", vibe: "Culture · Food · Nightlife" },
-  { id: 3, initial: "J", name: "Jade O.", neighborhood: "Crown Heights", color: "#9E1A46", note: "You and Jade have both attended Dinner Society. She's hosted two dinners.", vibe: "Restaurants · Great tables · Art" },
+  { id: 1, initial: "S", name: "Sofia K.", neighborhood: "Greenpoint", color: "#E05C9A", note: "You and Sofia both attend African Girls Club and have been to the same 3 events. Same energy, same taste.", vibe: "Wellness · Art · Long walks", score: 94 },
+  { id: 2, initial: "K", name: "Kezia N.", neighborhood: "Chelsea", color: "#D4155C", note: "Kezia moved from Lagos 3 weeks ago. You both love the same corners of Bed-Stuy and share a similar vibe.", vibe: "Culture · Food · Nightlife", score: 88 },
+  { id: 3, initial: "J", name: "Jade O.", neighborhood: "Crown Heights", color: "#9E1A46", note: "You've both attended Dinner Society three times. Jade hosted two of them. She'd love a regular table partner.", vibe: "Restaurants · Great tables · Art", score: 91 },
 ];
 
 const CIRCLES = [
@@ -134,42 +134,64 @@ function YandeIntroCard({
   headingColor: string;
   textMuted: string;
 }) {
-  const [said, setSaid] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [bloomed, setBloomed] = useState(false);
+
+  function handleBloom() {
+    setSent(true);
+    setTimeout(() => setBloomed(true), 600);
+  }
+
   return (
     <div
       className="rounded-2xl p-4 flex flex-col gap-3"
       style={{ background: cardBg, border: `1px solid ${borderCol}`, boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}
     >
-      {/* Yande note */}
-      <div
-        className="rounded-xl px-3 py-2.5"
-        style={{ background: "rgba(var(--bb-pink-rgb,212,21,92),0.08)", borderLeft: "3px solid var(--bb-pink)" }}
-      >
-        <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--bb-pink)" }}>
-          YANDE SAYS
-        </p>
-        <p className="text-xs leading-relaxed italic" style={{ color: textMuted }}>{intro.note}</p>
-      </div>
-      {/* Person info */}
+      {/* Top row: avatar + name + compatibility score */}
       <div className="flex items-center gap-3">
         <Avatar initial={intro.initial} color={intro.color} size={44} />
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm" style={{ color: headingColor }}>{intro.name}</p>
-          <p className="text-[11px]" style={{ color: textMuted }}>{intro.neighborhood}</p>
-          <p className="text-[10px] mt-1" style={{ color: textMuted }}>{intro.vibe}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: textMuted }}>{intro.neighborhood} · {intro.vibe}</p>
         </div>
-        <button
-          onClick={() => setSaid(true)}
-          className="px-3.5 py-2 rounded-full text-xs font-bold flex-shrink-0 transition-all active:scale-95"
-          style={
-            said
-              ? { background: `${intro.color}18`, color: intro.color }
-              : { background: intro.color, color: "white" }
-          }
-        >
-          {said ? "Sent ✓" : "Say hello →"}
-        </button>
+        {/* Compatibility score ring */}
+        <div className="flex-shrink-0 flex flex-col items-center">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: `conic-gradient(${intro.color} 0% ${intro.score}%, rgba(0,0,0,0.07) ${intro.score}% 100%)`, padding: "3px" }}>
+            <div className="w-full h-full rounded-full flex items-center justify-center"
+              style={{ background: cardBg }}>
+              <span className="text-[11px] font-black" style={{ color: intro.color }}>{intro.score}%</span>
+            </div>
+          </div>
+          <p className="text-[8px] font-bold tracking-widest mt-0.5" style={{ color: textMuted }}>MATCH</p>
+        </div>
       </div>
+      {/* Yande note */}
+      <div className="rounded-xl px-3 py-2.5" style={{ background: "rgba(212,21,92,0.07)", borderLeft: "3px solid var(--bb-pink)" }}>
+        <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--bb-pink)" }}>YANDE SAYS</p>
+        <p className="text-xs leading-relaxed italic" style={{ color: textMuted }}>{intro.note}</p>
+      </div>
+      {/* Bloom button */}
+      <button
+        onClick={handleBloom}
+        disabled={sent}
+        className="px-4 py-2.5 rounded-full text-xs font-bold self-start transition-all active:scale-95 flex items-center gap-1.5"
+        style={
+          bloomed
+            ? { background: `${intro.color}18`, color: intro.color }
+            : sent
+            ? { background: "rgba(0,0,0,0.05)", color: textMuted }
+            : { background: "var(--bb-pink)", color: "white", boxShadow: "0 3px 12px rgba(212,21,92,0.3)" }
+        }
+      >
+        {bloomed ? (
+          <><span>🌸</span> Bloom request sent</>
+        ) : sent ? (
+          "Sending…"
+        ) : (
+          <>Send Bloom Request →</>
+        )}
+      </button>
     </div>
   );
 }
@@ -471,9 +493,9 @@ export default function ConnectPage() {
           </div>
         </div>
 
-        {/* 2. YANDE INTRODUCTIONS — vertical stack */}
+        {/* 2. YANDE CONNECTS YOU */}
         <div className="px-5 mb-8">
-          <SectionLabel>YANDE INTRODUCTIONS</SectionLabel>
+          <SectionLabel>YANDE CONNECTS YOU</SectionLabel>
           <div className="flex flex-col gap-3">
             {YANDE_INTROS.map((intro) => (
               <YandeIntroCard key={intro.id} intro={intro} {...sharedCardProps} />
@@ -515,20 +537,20 @@ export default function ConnectPage() {
           </div>
         </div>
 
-        {/* 6. GIRLMATES — vertical list */}
+        {/* 6. GIRLMATES — 2-col grid */}
         <div className="px-5 mb-8">
           <SectionLabel>GIRLMATES</SectionLabel>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {GIRL_MATES.map((gm) => (
               <GirlMateCard key={gm.id} gm={gm} {...sharedCardProps} />
             ))}
           </div>
         </div>
 
-        {/* 7. FOUNDER CIRCLE — vertical list */}
+        {/* 7. FOUNDER CIRCLE — 2-col grid */}
         <div className="px-5 mb-8">
           <SectionLabel>FOUNDER CIRCLE</SectionLabel>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {FOUNDERS.map((founder) => (
               <FounderCard key={founder.id} founder={founder} {...sharedCardProps} />
             ))}

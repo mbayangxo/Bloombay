@@ -1,100 +1,129 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { logout } from "@/lib/auth/actions";
 
-const PLACES = [
-  { href: "/member/home",          short: "TONIGHT"  },
-  { href: "/member/city",          short: "PICKS"    },
-  { href: "/member/clubs",         short: "CLUBS"    },
-  { href: "/member/lounge",        short: "LOUNGE"   },
-  { href: "/member/match",         short: "CONNECT"  },
-];
-
-const UTILITY = [
-  { href: "/member/messages",      label: "Messages",  badge: false },
-  { href: "/member/notifications", label: "Ping",      badge: true  },
-  { href: "/member/plans",         label: "Plans",     badge: false },
+const NAV_ITEMS = [
+  { href: "/member/home",       label: "Tonight"    },
+  { href: "/member/city",       label: "The City"   },
+  { href: "/member/clubs",      label: "Clubs"      },
+  { href: "/member/lounge",     label: "Apartment"  },
+  { href: "/member/match",      label: "Connect"    },
+  { href: "/member/happenings", label: "Happenings" },
+  { href: "/member/room",       label: "Lobby"      },
+  { href: "/member/messages",   label: "Messages"   },
+  { href: "/member/plans",      label: "Plans"      },
 ];
 
 interface NavUser { name: string; initial: string; role: string; }
 
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  const current = NAV_ITEMS.find(
+    n => pathname === n.href || pathname.startsWith(n.href + "/")
+  );
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-      style={{
-        background: "#111111",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
-      {/* Utility icon row: Messages · Ping · Plans */}
-      <div className="flex items-center justify-end gap-3 px-5 pt-2 pb-0.5">
-        {UTILITY.map(u => {
-          const active = pathname.startsWith(u.href);
-          return (
-            <Link key={u.href} href={u.href} aria-label={u.label}
-              className="relative flex flex-col items-center gap-0.5">
-              {u.label === "Messages" && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.35)"} strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                </svg>
-              )}
-              {u.label === "Ping" && (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.35)"} strokeWidth="2" strokeLinecap="round">
-                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-                  </svg>
-                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
-                </>
-              )}
-              {u.label === "Plans" && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.35)"} strokeWidth="2" strokeLinecap="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2"/>
-                  <line x1="1" y1="10" x2="23" y2="10"/>
-                  <line x1="8" y1="4" x2="8" y2="2"/>
-                  <line x1="16" y1="4" x2="16" y2="2"/>
-                </svg>
-              )}
-              <span className="text-[7px] font-bold tracking-wider uppercase"
-                style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.25)" }}>{u.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+    <>
+      {/* ── Popup overlay ──────────────────────────────────────────── */}
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-40 md:hidden"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+            onClick={() => setOpen(false)}
+          />
+          <div
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl"
+            style={{
+              background: "#111111",
+              paddingBottom: "max(env(safe-area-inset-bottom, 0px), 16px)",
+              boxShadow: "0 -8px 40px rgba(0,0,0,0.5)",
+            }}
+          >
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-5 cursor-pointer" onClick={() => setOpen(false)}>
+              <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.18)" }} />
+            </div>
 
-      {/* Main page tabs */}
-      <div className="flex items-stretch h-12">
-        {PLACES.map((place, i) => {
-          const active = pathname === place.href || pathname.startsWith(place.href + "/");
-          return (
-            <Link key={place.href} href={place.href}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-all"
-              style={{ borderTop: active ? "2px solid #FF1F7D" : "2px solid transparent", minWidth: 0 }}>
-              <span className="font-mono leading-none"
-                style={{ fontSize: "7px", color: active ? "rgba(255,31,125,0.6)" : "rgba(255,255,255,0.14)" }}>
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="font-bold leading-none uppercase"
-                style={{ fontSize: "8px", letterSpacing: "0.08em", color: active ? "#FF1F7D" : "rgba(255,255,255,0.32)" }}>
-                {place.short}
-              </span>
-            </Link>
-          );
-        })}
+            {/* Nav grid — 3 columns */}
+            <div className="px-5 pb-3 grid grid-cols-3 gap-2.5">
+              {NAV_ITEMS.map(item => {
+                const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="flex flex-col items-center justify-center gap-1 py-4 rounded-2xl text-center transition-all active:scale-95"
+                    style={{
+                      background: active ? "rgba(255,31,125,0.15)" : "rgba(255,255,255,0.05)",
+                      border: `1px solid ${active ? "rgba(255,31,125,0.3)" : "transparent"}`,
+                    }}
+                  >
+                    <span
+                      className="text-[10px] font-bold tracking-wider"
+                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.62)" }}
+                    >
+                      {item.label.toUpperCase()}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Floating pill ──────────────────────────────────────────── */}
+      <div
+        className="fixed z-30 md:hidden"
+        style={{
+          bottom: "max(env(safe-area-inset-bottom, 0px) + 16px, 20px)",
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          pointerEvents: "none",
+        }}
+      >
+        <button
+          onClick={() => setOpen(p => !p)}
+          className="flex items-center gap-2.5 transition-all active:scale-95"
+          style={{
+            pointerEvents: "auto",
+            background: "#111111",
+            borderRadius: "100px",
+            padding: "12px 22px",
+            boxShadow: "0 4px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07)",
+          }}
+        >
+          <span
+            className="text-[11px] font-bold tracking-wider"
+            style={{ color: current ? "#FF1F7D" : "rgba(255,255,255,0.55)" }}
+          >
+            {(current?.label ?? "Navigate").toUpperCase()}
+          </span>
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={open ? "#FF1F7D" : "rgba(255,255,255,0.35)"}
+            strokeWidth="2.8"
+            strokeLinecap="round"
+          >
+            <polyline points={open ? "18 15 12 9 6 15" : "6 15 12 9 18 15"} />
+          </svg>
+        </button>
       </div>
-    </nav>
+    </>
   );
 }
 
 export function BottomNavSignout({ user }: { user: NavUser }) {
-  return (
-    <form action={logout} className="hidden">
-      <button type="submit">{user.name}</button>
-    </form>
-  );
+  return null;
 }
