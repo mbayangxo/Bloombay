@@ -708,7 +708,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         {/* Top bar */}
         <div
           className="flex items-center gap-4 flex-shrink-0 px-8"
-          style={{ height: "64px", borderBottom: "1px solid rgba(0,0,0,0.07)", background: "var(--pale-pink-bg)" }}
+          style={{ height: "64px", borderBottom: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.07)", background: "var(--pale-pink-bg)" }}
         >
           {/* Left: label + heading */}
           <div className="flex items-baseline gap-2.5">
@@ -734,7 +734,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 style={
                   activeTab === i
                     ? { background: tabActiveBg, color: "white", boxShadow: "0 2px 8px rgba(255,31,125,0.3)" }
-                    : { background: "white", color: "#0A0A0A", border: "1.5px solid #E0E0E0" }
+                    : tabInactive
                 }
               >
                 {tab}
@@ -770,7 +770,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           {/* LEFT panel */}
           <div
             className="flex-shrink-0 overflow-y-auto py-5 px-4"
-            style={{ width: "240px", borderRight: "1px solid rgba(0,0,0,0.07)" }}
+            style={{ width: "240px", borderRight: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.07)" }}
           >
             {/* Avatar */}
             <div className="flex flex-col items-center text-center mb-4">
@@ -816,7 +816,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
 
             {/* Divider */}
-            <div className="mb-4" style={{ height: "1px", background: "rgba(0,0,0,0.07)" }} />
+            <div className="mb-4" style={{ height: "1px", background: isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)" }} />
 
             {/* Bio quote */}
             <p
@@ -840,7 +840,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
 
             {/* Divider */}
-            <div className="mb-3" style={{ height: "1px", background: "rgba(0,0,0,0.07)" }} />
+            <div className="mb-3" style={{ height: "1px", background: isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)" }} />
 
             {/* Quick actions */}
             <div className="flex flex-col gap-0.5">
@@ -1009,7 +1009,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             {/* ── My Link Tab ── */}
             {activeTab === 2 && (
               <div className="flex flex-col gap-4 max-w-lg">
-                <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+                <div className="rounded-3xl p-5" style={{ background: cardBg, boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
                   <p className="text-base font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
                     My BloomBay Link
                   </p>
@@ -1072,12 +1072,12 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             {/* ── Profile Tab — account settings on desktop ── */}
             {activeTab === 3 && (
               <div className="flex flex-col gap-4 max-w-lg">
-                <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "#FF1F7D" }}>ACCOUNT SETTINGS</p>
-                <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+                <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "var(--bb-pink)" }}>ACCOUNT SETTINGS</p>
+                <div className="rounded-3xl overflow-hidden" style={{ background: cardBg, boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
                   <Link
                     href="/member/notifications"
-                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block hover:bg-gray-50"
-                    style={{ borderBottom: "1px solid #F5F5F5" }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block"
+                    style={{ borderBottom: `1px solid ${isNight ? "rgba(255,255,255,0.06)" : "#F5F5F5"}` }}
                   >
                     <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>Notifications</p>
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
@@ -1088,8 +1088,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     <button
                       key={label}
                       onClick={() => showToast("Coming soon")}
-                      className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-gray-50"
-                      style={{ borderBottom: "1px solid #F5F5F5" }}
+                      className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
+                      style={{ borderBottom: `1px solid ${isNight ? "rgba(255,255,255,0.06)" : "#F5F5F5"}` }}
                     >
                       <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>{label}</p>
                       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
@@ -1117,10 +1117,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           {/* RIGHT panel */}
           <div
             className="flex-shrink-0 overflow-y-auto py-5 px-4"
-            style={{ width: "260px", borderLeft: "1px solid rgba(0,0,0,0.07)" }}
+            style={{ width: "260px", borderLeft: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.07)" }}
           >
             {/* Yande Remembers */}
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
               YANDE REMEMBERS
             </p>
             {YANDE_MEMORIES.map((m, i) => (
@@ -1140,10 +1140,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             ))}
 
             {/* Divider */}
-            <div className="my-4" style={{ height: "1px", background: "rgba(0,0,0,0.07)" }} />
+            <div className="my-4" style={{ height: "1px", background: isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)" }} />
 
             {/* Bouquet */}
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
               BOUQUET
             </p>
             <div className="grid grid-cols-4 gap-2">

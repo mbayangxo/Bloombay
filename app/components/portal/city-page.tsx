@@ -723,15 +723,15 @@ export function CityPage() {
             {/* TRENDING tab: top 3 TrendCards */}
             {activeTab === "trending" && (
               <div className="flex flex-col gap-3 mb-4">
-                <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#bbb" }}>TOP TRENDING</p>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: textMuted }}>TOP TRENDING</p>
                 {TRENDING.slice(0, 3).map(t => <TrendCard key={t.id} t={t} />)}
               </div>
             )}
 
             {/* Always: divider + Moments */}
-            <div className="h-px my-4" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="h-px my-4" style={{ background: borderCol }} />
 
-            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#bbb" }}>MOMENTS</p>
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: textMuted }}>MOMENTS</p>
             <div className="flex flex-col gap-3">
               {MOMENTS.slice(0, 4).map(m => (
                 <MomentCard key={m.id}
@@ -740,7 +740,7 @@ export function CityPage() {
                 />
               ))}
             </div>
-            <button className="w-full mt-3 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
+            <button className="w-full mt-3 py-2 rounded-full text-xs font-bold text-white" style={{ background: "var(--bb-pink)" }}>
               + Share a moment
             </button>
 
