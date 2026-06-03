@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { href: "/member/match",      label: "Connect"    },
   { href: "/member/happenings", label: "Happenings" },
   { href: "/member/room",       label: "The Lobby"  },
-  { href: "/member/plans",      label: "Plans"      },
 ];
 
 interface NavUser { name: string; initial: string; role: string; }

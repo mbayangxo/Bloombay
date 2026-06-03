@@ -8,6 +8,7 @@ const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV
 
 // Mock unread counts — replace with real data when API is ready
 const UNREAD_MESSAGES = 3;
+const UNREAD_MAILBOX  = 2;
 const UNREAD_PINGS    = 7;
 
 export function PortalIcons({ initial = "M" }: { initial?: string }) {
@@ -22,13 +23,15 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
     setDay(now.getDate());
     setMonth(MONTHS[now.getMonth()]);
 
-    // Trigger shake animation on mount if there are notifications
-    if (UNREAD_MESSAGES > 0 || UNREAD_PINGS > 0) {
+    if (UNREAD_MESSAGES > 0 || UNREAD_MAILBOX > 0 || UNREAD_PINGS > 0) {
       const t = setTimeout(() => {
-        setShaking(UNREAD_MESSAGES > 0 ? "messages" : "ping");
+        setShaking(UNREAD_MESSAGES > 0 ? "messages" : "mailbox");
         setTimeout(() => {
-          setShaking(UNREAD_PINGS > 0 ? "ping" : null);
-          setTimeout(() => setShaking(null), 700);
+          setShaking(UNREAD_MAILBOX > 0 ? "mailbox" : UNREAD_PINGS > 0 ? "ping" : null);
+          setTimeout(() => {
+            setShaking(UNREAD_PINGS > 0 ? "ping" : null);
+            setTimeout(() => setShaking(null), 700);
+          }, 800);
         }, 800);
       }, 600);
       return () => clearTimeout(t);
@@ -42,10 +45,10 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
   const stroke = "#FF1F7D";
 
   return (
-    <div className="flex items-center gap-2.5 md:gap-3">
+    <div className="flex items-center gap-2 md:gap-2.5">
 
-      {/* Chat */}
-      <Link href="/member/messages" aria-label="Chat"
+      {/* Chat — direct messages */}
+      <Link href="/member/messages" aria-label="Messages"
         className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all active:scale-95 relative ${shaking === "messages" ? "bb-notify-shake" : ""} ${UNREAD_MESSAGES > 0 ? "bb-notify-glow" : ""}`}
         style={{ background: iconBg }}>
         <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -55,6 +58,22 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-black text-white px-1"
             style={{ background: "#FF1F7D", boxShadow: "0 0 0 2px white" }}>
             {UNREAD_MESSAGES}
+          </span>
+        )}
+      </Link>
+
+      {/* Mailbox — group chats & announcements */}
+      <Link href="/member/mailbox" aria-label="Mailbox"
+        className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all active:scale-95 relative ${shaking === "mailbox" ? "bb-notify-shake" : ""} ${UNREAD_MAILBOX > 0 ? "bb-notify-glow" : ""}`}
+        style={{ background: iconBg }}>
+        <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        {UNREAD_MAILBOX > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-black text-white px-1"
+            style={{ background: "#FF1F7D", boxShadow: "0 0 0 2px white" }}>
+            {UNREAD_MAILBOX}
           </span>
         )}
       </Link>
@@ -75,20 +94,8 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
         )}
       </Link>
 
-      {/* Planner */}
-      <Link href="/member/plans" aria-label="Planner"
-        className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all active:scale-95"
-        style={{ background: iconBg }}>
-        <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-        </svg>
-      </Link>
-
-      {/* Calendar — live date */}
-      <Link href="/member/plans" aria-label="Calendar"
+      {/* Calendar — live date, links to plans */}
+      <Link href="/member/plans" aria-label="Plans"
         className="w-10 h-10 md:w-11 md:h-11 rounded-full flex flex-col items-center justify-center transition-all active:scale-95 gap-0"
         style={{ background: iconBg }}>
         <span className="text-[8px] md:text-[9px] font-bold tracking-widest leading-none" style={{ color: stroke }}>
@@ -101,7 +108,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
 
       {/* Avatar */}
       <Link href="/member/lounge" aria-label="Apartment">
-        <div className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-base md:text-lg font-bold text-white"
+        <div className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-base font-bold text-white"
           style={{ background: "#FF1F7D", boxShadow: "0 2px 10px rgba(255,31,125,0.38)" }}>
           {initial}
         </div>
