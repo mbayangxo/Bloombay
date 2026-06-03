@@ -20,6 +20,31 @@ interface Happening {
   featured: boolean; partner?: string; gradient: string;
 }
 
+interface MembersOnlyClub {
+  id: number;
+  name: string;
+  crest: string;
+  tagline: string;
+  description: string;
+  memberCount: number;
+  joinType: "apply" | "free";
+  tags: string[];
+  coverEmojis: string[];
+  accentColor: string;
+}
+
+interface ClubEvent {
+  id: number;
+  title: string;
+  time: string;
+  city: string;
+  priceLabel: string;
+  price: number;
+  type: string;
+  clubId: number;
+  bg: string;
+}
+
 interface Celebration {
   id: number; celebType: CelebType; name: string; event: string;
   venue: string; time: string; month: string; day: string;
@@ -37,6 +62,42 @@ const HAPPENINGS: Happening[] = [
   { id: 6, type: "festival", title: "Brooklyn Night Bazaar", venue: "Industry City", neighborhood: "Sunset Park", time: "Sat–Sun", timeTag: "weekend", price: 0, priceLabel: "Free", womenLoved: true, featured: false, gradient: "" },
   { id: 7, type: "class", title: "Bookbinding Workshop", venue: "McNally Jackson", neighborhood: "Nolita", time: "Today · 3PM", timeTag: "today", price: 30, priceLabel: "$30", womenLoved: false, featured: false, partner: "McNally Jackson", gradient: "" },
   { id: 8, type: "gallery", title: "First Friday: New Figurative Works", venue: "Tanya Bonakdar Gallery", neighborhood: "Chelsea", time: "Friday · 6PM", timeTag: "weekend", price: 0, priceLabel: "Free", womenLoved: false, featured: false, gradient: "" },
+];
+
+const CLUBS: MembersOnlyClub[] = [
+  {
+    id: 1, name: "Lens & Light", crest: "📸",
+    tagline: "For women who see the world differently.",
+    description: "A private club for women in photography, film, and visual art. Monthly darkroom nights, gallery walks, and field trips with curated intimacy — never more than 40 members.",
+    memberCount: 34, joinType: "apply",
+    tags: ["Photography", "Art", "Film", "Visual"],
+    coverEmojis: ["🖼", "📷", "🌅", "🎞"],
+    accentColor: "#D4A853",
+  },
+  {
+    id: 2, name: "Sofra Circle", crest: "🫖",
+    tagline: "West African women in finance & tech.",
+    description: "A curated dinner circle for West African women building wealth. Monthly dinners, candid conversations about money, careers, and community — no corporate speak allowed.",
+    memberCount: 28, joinType: "apply",
+    tags: ["Finance", "Tech", "Culture", "Diaspora"],
+    coverEmojis: ["🍽", "💼", "✨", "🌍"],
+    accentColor: "#C4A265",
+  },
+  {
+    id: 3, name: "The Garden Set", crest: "🌿",
+    tagline: "Weekly walks. Real air. Real talk.",
+    description: "We walk. We talk. No agenda, no pressure. Prospect Park every Sunday morning and occasional hikes outside the city. Free to join, just show up.",
+    memberCount: 52, joinType: "free",
+    tags: ["Outdoors", "Wellness", "Walking"],
+    coverEmojis: ["🌸", "🌿", "☀️", "🍃"],
+    accentColor: "#83C5A0",
+  },
+];
+
+const CLUB_EVENTS: ClubEvent[] = [
+  { id: 101, title: "Darkroom Night", time: "Fri Jun 13 · 8PM", city: "Bushwick, Brooklyn", priceLabel: "Members", price: 0, type: "gallery", clubId: 1, bg: "#0D0A08" },
+  { id: 102, title: "Quarterly Dinner", time: "Sat Jun 21 · 7PM", city: "West Village, Manhattan", priceLabel: "$45 · Members", price: 45, type: "dinner", clubId: 2, bg: "#0A0808" },
+  { id: 103, title: "Prospect Park Walk", time: "Sun Jun 8 · 9AM", city: "Prospect Park, Brooklyn", priceLabel: "Free", price: 0, type: "outdoor", clubId: 3, bg: "#070F08" },
 ];
 
 const CONFETTI: Celebration[] = [
@@ -591,15 +652,280 @@ function AddEventSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── Members Only card (horizontal scroll) ────────────────────────────────────
+
+function MembersOnlyCard({ ev, onPress }: { ev: ClubEvent; onPress: () => void }) {
+  const club = CLUBS.find(c => c.id === ev.clubId)!;
+  return (
+    <button onClick={onPress}
+      className="flex-shrink-0 rounded-2xl overflow-hidden relative active:scale-[0.96] transition-transform text-left"
+      style={{ width: "152px", background: ev.bg, boxShadow: "0 4px 20px rgba(0,0,0,0.45)" }}>
+      {/* Club crest */}
+      <div className="flex items-center justify-center relative" style={{ height: "92px" }}>
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(circle at 50% 50%, ${club.accentColor}18 0%, transparent 65%)` }} />
+        <span style={{ fontSize: "36px" }}>{club.crest}</span>
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+          style={{ background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <span className="text-[7px] font-bold tracking-[0.1em]" style={{ color: "rgba(255,255,255,0.55)" }}>MEMBERS</span>
+        </div>
+      </div>
+      <div className="px-3 pb-3.5 pt-1.5">
+        <p className="text-[8px] font-bold tracking-[0.14em] uppercase mb-0.5 truncate"
+          style={{ color: club.accentColor }}>{club.name}</p>
+        <p className="text-[11px] font-bold leading-tight text-white truncate">{ev.title}</p>
+        <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+          {ev.city.split(",")[0]}
+        </p>
+        <p className="text-[9px] mt-1 font-semibold" style={{ color: "rgba(255,255,255,0.25)" }}>{ev.time}</p>
+      </div>
+    </button>
+  );
+}
+
+// ── Club Landing Sheet ────────────────────────────────────────────────────────
+
+function ClubLandingSheet({ club, applied, onApply, onClose }: {
+  club: MembersOnlyClub; applied: boolean; onApply: () => void; onClose: () => void;
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
+        style={{ background: "#FDFAF5", maxHeight: "90vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.3)" }}>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+
+        {/* Cover */}
+        <div className="relative mx-5 mb-4 rounded-3xl overflow-hidden flex items-center justify-center"
+          style={{ height: "180px", background: "#111111" }}>
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: `radial-gradient(circle at 60% 40%, ${club.accentColor}28 0%, transparent 65%)` }} />
+          <span style={{ fontSize: "68px" }}>{club.crest}</span>
+          <div className="absolute bottom-0 left-0 right-0 px-5 pb-4"
+            style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.65))" }}>
+            <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: club.accentColor }}>PRIVATE CLUB</p>
+          </div>
+        </div>
+
+        <div className="px-5 pb-10">
+          <h2 className="font-black text-2xl leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+            {club.name}
+          </h2>
+          <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "#888" }}>{club.tagline}</p>
+
+          {/* Stats */}
+          <div className="flex gap-6 mb-5">
+            <div>
+              <p className="text-2xl font-black" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{club.memberCount}</p>
+              <p className="text-[10px]" style={{ color: "#bbb" }}>Members</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                {club.joinType === "apply" ? "App." : "Open"}
+              </p>
+              <p className="text-[10px]" style={{ color: "#bbb" }}>Entry</p>
+            </div>
+          </div>
+
+          <p className="text-sm leading-relaxed mb-5" style={{ color: "#555" }}>{club.description}</p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-5">
+            {club.tags.map(tag => (
+              <span key={tag} className="px-3 py-1 rounded-full text-xs font-medium"
+                style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{tag}</span>
+            ))}
+          </div>
+
+          {/* Photo grid */}
+          <div className="grid grid-cols-4 gap-2 mb-6">
+            {club.coverEmojis.map((emoji, i) => (
+              <div key={i} className="rounded-xl flex items-center justify-center aspect-square"
+                style={{ background: "#F5F0F2", fontSize: "26px" }}>{emoji}</div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          {applied ? (
+            <div className="w-full py-4 rounded-2xl text-center font-bold text-sm"
+              style={{ background: "#F5F5F5", color: "#999" }}>
+              ⏳ Application Pending
+            </div>
+          ) : club.joinType === "apply" ? (
+            <button onClick={onApply}
+              className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all active:scale-[0.98]"
+              style={{ background: "#FF1F7D", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }}>
+              Apply to Join →
+            </button>
+          ) : (
+            <button onClick={onApply}
+              className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all active:scale-[0.98]"
+              style={{ background: "#111111" }}>
+              Join {club.name} →
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Members Only Event Page ───────────────────────────────────────────────────
+
+function MembersOnlyEventPage({ ev, appliedClubs, onApplyClub, onBack }: {
+  ev: ClubEvent; appliedClubs: Set<number>; onApplyClub: (clubId: number) => void; onBack: () => void;
+}) {
+  const [showClubSheet, setShowClubSheet] = useState(false);
+  const club = CLUBS.find(c => c.id === ev.clubId)!;
+  const isApplied = appliedClubs.has(club.id);
+
+  return (
+    <div className="min-h-screen pb-28" style={{ background: "#0D0810" }}>
+
+      {/* Club banner — tappable */}
+      <div className="relative w-full flex items-center justify-center"
+        style={{ height: "260px", background: ev.bg, cursor: "pointer" }}
+        onClick={() => setShowClubSheet(true)}>
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(circle at 50% 50%, ${club.accentColor}20 0%, transparent 65%)` }} />
+        <span style={{ fontSize: "80px" }}>{club.crest}</span>
+
+        {/* Back */}
+        <button onClick={e => { e.stopPropagation(); onBack(); }}
+          className="absolute flex items-center justify-center rounded-full"
+          style={{ top: "calc(env(safe-area-inset-top, 0px) + 60px)", left: "20px", width: "36px", height: "36px", background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+
+        {/* Tap hint */}
+        <div className="absolute top-4 right-4">
+          <div className="px-2.5 py-1 rounded-full text-[8px] font-bold tracking-[0.1em]"
+            style={{ background: `${club.accentColor}20`, color: club.accentColor, border: `1px solid ${club.accentColor}40` }}>
+            TAP TO EXPLORE CLUB
+          </div>
+        </div>
+
+        {/* Lock pill bottom */}
+        <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full"
+            style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <span className="text-[10px] font-bold tracking-[0.14em]" style={{ color: "rgba(255,255,255,0.65)" }}>MEMBERS ONLY</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="px-5 pt-6">
+        <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: club.accentColor }}>
+          {club.name} · PRIVATE EVENT
+        </p>
+        <h1 className="font-black leading-none mb-5"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,7vw,40px)", color: "rgba(255,238,220,0.92)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+          {ev.title}
+        </h1>
+
+        <div className="flex flex-col gap-3 mb-5">
+          {/* When */}
+          <div className="rounded-2xl p-4" style={{ background: "#1A1218" }}>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.28)" }}>WHEN</p>
+            <p className="text-base font-bold" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.time}</p>
+          </div>
+
+          {/* Where — restricted */}
+          <div className="rounded-2xl p-4" style={{ background: "#1A1218" }}>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.28)" }}>WHERE</p>
+            <p className="text-base font-bold mb-2" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.city}</p>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.22)" }}>Full address visible to club members only</p>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="rounded-2xl p-4" style={{ background: "#1A1218" }}>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.28)" }}>PRICE</p>
+            <p className="text-base font-bold" style={{ color: ev.price === 0 ? "#83C5A0" : "#FF69B4" }}>{ev.priceLabel}</p>
+          </div>
+        </div>
+
+        {/* Club card */}
+        <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.22)" }}>HOSTED BY</p>
+        <button onClick={() => setShowClubSheet(true)}
+          className="w-full rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:scale-[0.98] mb-5"
+          style={{ background: "#1A1218", border: `1px solid ${club.accentColor}25` }}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: `${club.accentColor}14`, border: `1.5px solid ${club.accentColor}30`, fontSize: "26px" }}>
+            {club.crest}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm" style={{ color: "rgba(255,238,220,0.9)" }}>{club.name}</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {club.memberCount} members · {club.joinType === "apply" ? "Application required" : "Open to join"}
+            </p>
+            <p className="text-[10px] mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: club.accentColor }}>{club.tagline}</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={club.accentColor} strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        {/* CTA */}
+        {isApplied ? (
+          <div className="w-full py-4 rounded-2xl text-center font-bold text-sm"
+            style={{ background: "#1A1218", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            ⏳ Application Pending
+          </div>
+        ) : club.joinType === "apply" ? (
+          <button onClick={() => setShowClubSheet(true)}
+            className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all active:scale-[0.98]"
+            style={{ background: "#FF1F7D", boxShadow: "0 4px 16px rgba(255,31,125,0.35)" }}>
+            Apply to Join {club.name} →
+          </button>
+        ) : (
+          <button onClick={() => setShowClubSheet(true)}
+            className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all active:scale-[0.98]"
+            style={{ background: "#111111" }}>
+            Join {club.name} →
+          </button>
+        )}
+      </div>
+
+      {showClubSheet && (
+        <ClubLandingSheet
+          club={club}
+          applied={isApplied}
+          onApply={() => { onApplyClub(club.id); }}
+          onClose={() => setShowClubSheet(false)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ── Main HappeningsPage ───────────────────────────────────────────────────────
 
 export function HappeningsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Happening | null>(null);
+  const [selectedClubEvent, setSelectedClubEvent] = useState<ClubEvent | null>(null);
   const [selectedCeleb, setSelectedCeleb] = useState<Celebration | null>(null);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [acceptedCelebs, setAcceptedCelebs] = useState<Set<number>>(new Set());
   const [celebFilter, setCelebFilter] = useState<CelebFilter>("All");
   const [hapFilter, setHapFilter] = useState<HapFilter>("All");
+  const [appliedClubs, setAppliedClubs] = useState<Set<number>>(new Set());
 
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
@@ -619,6 +945,17 @@ export function HappeningsPage() {
       womenLoved: selectedEvent.womenLoved,
     };
     return <EventDetail event={eventData} onBack={() => setSelectedEvent(null)} />;
+  }
+
+  if (selectedClubEvent) {
+    return (
+      <MembersOnlyEventPage
+        ev={selectedClubEvent}
+        appliedClubs={appliedClubs}
+        onApplyClub={id => setAppliedClubs(p => new Set([...p, id]))}
+        onBack={() => setSelectedClubEvent(null)}
+      />
+    );
   }
 
   return (
@@ -651,16 +988,43 @@ export function HappeningsPage() {
 
       <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto flex flex-col gap-10">
 
-        {/* Event posters grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {filteredHap.map(h => (
-            <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
-          ))}
-          {filteredHap.length === 0 && (
-            <div className="col-span-2 md:col-span-3 rounded-3xl p-12 text-center bg-white">
-              <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+        {/* ── BLOOM EVENTS ── */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <p className="text-[9px] font-bold tracking-[0.26em] uppercase" style={{ color: "#FF1F7D" }}>✦ BLOOM EVENTS</p>
+            <p className="text-[9px]" style={{ color: "#ccc" }}>— open to all members</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {filteredHap.map(h => (
+              <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
+            ))}
+            {filteredHap.length === 0 && (
+              <div className="col-span-2 md:col-span-3 rounded-3xl p-12 text-center bg-white">
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── MEMBERS ONLY ── */}
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <p className="text-[9px] font-bold tracking-[0.26em] uppercase" style={{ color: "rgba(0,0,0,0.4)" }}>MEMBERS ONLY</p>
             </div>
-          )}
+            <p className="text-[9px] font-medium" style={{ color: "#bbb" }}>Club events · Join to attend</p>
+          </div>
+          <p className="text-xs italic mb-4" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+            These are private events hosted by clubs. Join a club to unlock the full details.
+          </p>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0" style={{ scrollbarWidth: "none" }}>
+            {CLUB_EVENTS.map(ev => (
+              <MembersOnlyCard key={ev.id} ev={ev} onPress={() => setSelectedClubEvent(ev)} />
+            ))}
+          </div>
         </div>
 
         {/* ── CONFETTI ── */}
