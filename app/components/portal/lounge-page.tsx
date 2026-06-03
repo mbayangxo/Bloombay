@@ -793,12 +793,17 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 </h2>
                 <p className="text-sm text-gray-400 mb-2">{displayNeighborhood} · NYC</p>
                 {/* Founding Mother badge */}
-                <span
-                  className="text-xs font-bold px-3.5 py-1.5 rounded-full mb-4"
-                  style={{ background: "#111111", color: "#FF69B4", letterSpacing: "0.04em" }}
-                >
-                  ✦ Founding Mother
-                </span>
+                <div className="flex flex-col items-center gap-1.5 mb-4">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full"
+                    style={{ background: "linear-gradient(135deg, #1A1208 0%, #2D1E08 100%)", border: "1px solid rgba(212,168,83,0.45)" }}>
+                    <span style={{ color: "#D4A853", fontSize: "9px" }}>✦</span>
+                    <span className="text-[10px] font-bold tracking-[0.14em] uppercase" style={{ color: "#D4A853" }}>Founding Mother</span>
+                    <span className="text-[10px] font-bold" style={{ color: "rgba(212,168,83,0.55)" }}>#47</span>
+                  </div>
+                  <p className="text-[9px] italic" style={{ color: "#ccc", fontFamily: "var(--font-instrument)" }}>
+                    One of the original 100
+                  </p>
+                </div>
                 {/* Stats row — pink numbers */}
                 <div className="flex gap-6 w-full justify-center">
                   <div className="text-center">
@@ -852,6 +857,64 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              {/* ── YOUR PORTALS ── */}
+              <div className="rounded-3xl overflow-hidden" style={{ background: "#111111", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
+                <div className="px-4 pt-4 pb-2 relative overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(212,168,83,0.12) 0%, transparent 55%)" }} />
+                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase relative" style={{ color: "rgba(212,168,83,0.6)" }}>
+                    ✦ YOUR PORTALS
+                  </p>
+                </div>
+
+                {/* Club Mama Portal */}
+                <button onClick={() => showToast("Club Mama Portal — coming soon")}
+                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5"
+                  style={{ borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                    style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.2)" }}>
+                    🏠
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold" style={{ color: "rgba(255,238,220,0.9)" }}>Club Mama Portal</p>
+                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>Create & manage your club</p>
+                  </div>
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>Activate</span>
+                </button>
+
+                {/* Bloom Curator Portal */}
+                <button onClick={() => showToast("Curator applications open soon")}
+                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5"
+                  style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    🔒
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.4)" }}>Curator Portal</p>
+                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>Bloom Curators only · Apply</p>
+                  </div>
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.3)" }}>Apply</span>
+                </button>
+
+                {/* Founding Mother Portal - active since FM */}
+                <button onClick={() => showToast("Founding Mother access — always on")}
+                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                    style={{ background: "rgba(212,168,83,0.12)", border: "1px solid rgba(212,168,83,0.3)" }}>
+                    ✦
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold" style={{ color: "rgba(212,168,83,0.9)" }}>Founding Mother Access</p>
+                    <p className="text-[10px]" style={{ color: "rgba(212,168,83,0.4)" }}>Secret events · FM messages · #47</p>
+                  </div>
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "rgba(212,168,83,0.15)", color: "#D4A853" }}>Active</span>
+                </button>
               </div>
 
               <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>

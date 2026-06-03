@@ -652,6 +652,181 @@ function AddEventSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── Founding Mothers Only data ───────────────────────────────────────────────
+
+interface FMEvent {
+  id: number;
+  title: string;
+  subtitle: string;
+  date: string;
+  venue: string;
+  capacity: number;
+  confirmed: number;
+  type: "dinner" | "gathering" | "trip";
+}
+
+const FM_EVENTS: FMEvent[] = [
+  {
+    id: 901, title: "Founders' Table",
+    subtitle: "Private dinner with the BloomBay founders. No agenda. Real talk.",
+    date: "Sat Jun 28 · 7PM", venue: "Private Residence, Brooklyn Heights",
+    capacity: 20, confirmed: 14, type: "dinner",
+  },
+  {
+    id: 902, title: "FM Anniversary Evening",
+    subtitle: "One year of building something real. For the original 100 only.",
+    date: "Thu Jul 3 · 6PM", venue: "Rooftop · Location sent via Ping",
+    capacity: 100, confirmed: 63, type: "gathering",
+  },
+];
+
+function FoundingMothersSection({ onOpenEvent }: { onOpenEvent: (ev: FMEvent) => void }) {
+  return (
+    <div className="-mx-5 px-5 py-8 relative overflow-hidden" style={{ background: "#0A0804" }}>
+      {/* Gold shimmer */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(212,168,83,0.14) 0%, transparent 60%)" }} />
+
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-2 relative">
+        <div className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, rgba(212,168,83,0.45))" }} />
+        <p className="text-[8px] font-bold tracking-[0.32em] uppercase whitespace-nowrap" style={{ color: "rgba(212,168,83,0.75)" }}>
+          ✦ FOUNDING MOTHERS ONLY ✦
+        </p>
+        <div className="h-px flex-1" style={{ background: "linear-gradient(to left, transparent, rgba(212,168,83,0.45))" }} />
+      </div>
+      <p className="text-[10px] text-center italic mb-6 relative" style={{ fontFamily: "var(--font-instrument)", color: "rgba(212,168,83,0.38)" }}>
+        These invitations are for the original 100. They cannot be forwarded.
+      </p>
+
+      {/* FM event cards */}
+      <div className="flex flex-col gap-3 relative">
+        {FM_EVENTS.map(ev => (
+          <button key={ev.id} onClick={() => onOpenEvent(ev)}
+            className="w-full text-left rounded-2xl overflow-hidden transition-all active:scale-[0.98]"
+            style={{ background: "#161008", border: "1px solid rgba(212,168,83,0.18)", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+            <div className="relative px-4 pt-4 pb-3">
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(212,168,83,0.1) 0%, transparent 55%)" }} />
+              <div className="flex items-start justify-between gap-3 relative">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-0.5" style={{ color: "rgba(212,168,83,0.55)" }}>
+                    {ev.type === "dinner" ? "PRIVATE DINNER" : ev.type === "trip" ? "TRIP" : "GATHERING"}
+                  </p>
+                  <h3 className="font-black text-base leading-tight mb-1"
+                    style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.92)" }}>
+                    {ev.title}
+                  </h3>
+                  <p className="text-[10px] leading-relaxed mb-2" style={{ color: "rgba(255,255,255,0.38)" }}>{ev.subtitle}</p>
+                  <p className="text-[10px] font-semibold" style={{ color: "rgba(212,168,83,0.6)" }}>{ev.date}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>{ev.venue}</p>
+                </div>
+                <div className="flex-shrink-0 text-center">
+                  <p className="text-xl font-black leading-none" style={{ color: "rgba(212,168,83,0.8)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                    {ev.confirmed}
+                  </p>
+                  <p className="text-[8px]" style={{ color: "rgba(255,255,255,0.22)" }}>of {ev.capacity}<br />confirmed</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-4 py-2.5 flex items-center justify-between"
+              style={{ borderTop: "1px solid rgba(212,168,83,0.1)", background: "rgba(0,0,0,0.2)" }}>
+              <p className="text-[9px] font-bold tracking-[0.12em]" style={{ color: "rgba(212,168,83,0.5)" }}>
+                ✦ FOUNDING MOTHER INVITATION
+              </p>
+              <p className="text-[9px] font-bold" style={{ color: "rgba(212,168,83,0.7)" }}>Accept →</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Bottom seal */}
+      <div className="flex items-center gap-3 mt-6 relative">
+        <div className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, rgba(212,168,83,0.25))" }} />
+        <p className="text-[7px] font-bold tracking-[0.3em] uppercase" style={{ color: "rgba(212,168,83,0.28)" }}>END OF FM BOARD</p>
+        <div className="h-px flex-1" style={{ background: "linear-gradient(to left, transparent, rgba(212,168,83,0.25))" }} />
+      </div>
+    </div>
+  );
+}
+
+// ── FM Event Accept Sheet ─────────────────────────────────────────────────────
+
+function FMEventSheet({ ev, onClose }: { ev: FMEvent; onClose: () => void }) {
+  const [accepted, setAccepted] = useState(false);
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
+        style={{ background: "#0F0C06", maxHeight: "88vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)", border: "1px solid rgba(212,168,83,0.15)" }}>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(212,168,83,0.2)" }} />
+        </div>
+        <div className="px-5 pb-10 pt-3">
+          <p className="text-[9px] font-bold tracking-[0.28em] uppercase text-center mb-4" style={{ color: "rgba(212,168,83,0.6)" }}>
+            ✦ FOUNDING MOTHER INVITATION ✦
+          </p>
+
+          {!accepted ? (
+            <>
+              <h2 className="font-black text-2xl leading-tight mb-1 text-center"
+                style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.92)" }}>
+                {ev.title}
+              </h2>
+              <p className="text-sm italic text-center mb-6" style={{ fontFamily: "var(--font-instrument)", color: "rgba(212,168,83,0.55)" }}>
+                {ev.subtitle}
+              </p>
+
+              <div className="flex flex-col gap-2.5 mb-6">
+                {[
+                  { label: "WHEN", value: ev.date },
+                  { label: "WHERE", value: ev.venue },
+                  { label: "ATTENDING", value: `${ev.confirmed} of ${ev.capacity} Founding Mothers confirmed` },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(212,168,83,0.12)" }}>
+                    <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "rgba(212,168,83,0.4)" }}>{label}</p>
+                    <p className="text-sm font-semibold" style={{ color: "rgba(255,238,220,0.8)" }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={() => setAccepted(true)}
+                className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] mb-3"
+                style={{ background: "linear-gradient(135deg, #D4A853 0%, #B8862A 100%)", color: "#0A0804", boxShadow: "0 4px 20px rgba(212,168,83,0.3)" }}>
+                ✦ Accept this invitation
+              </button>
+              <button onClick={onClose}
+                className="w-full py-3 rounded-2xl font-semibold text-sm"
+                style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}>
+                Maybe later
+              </button>
+            </>
+          ) : (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ background: "rgba(212,168,83,0.15)", border: "2px solid rgba(212,168,83,0.4)" }}>
+                <span style={{ fontSize: "28px", color: "#D4A853" }}>✦</span>
+              </div>
+              <h3 className="font-black text-xl italic mb-2"
+                style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.9)" }}>
+                You&apos;re confirmed.
+              </h3>
+              <p className="text-sm italic mb-6" style={{ fontFamily: "var(--font-instrument)", color: "rgba(212,168,83,0.55)" }}>
+                Details will be sent to your mailbox closer to the date.
+              </p>
+              <button onClick={onClose}
+                className="w-full py-3.5 rounded-2xl font-bold text-sm"
+                style={{ background: "linear-gradient(135deg, #D4A853 0%, #B8862A 100%)", color: "#0A0804" }}>
+                Done
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Members Only card (horizontal scroll) ────────────────────────────────────
 
 function MembersOnlyCard({ ev, onPress }: { ev: ClubEvent; onPress: () => void }) {
@@ -926,6 +1101,7 @@ export function HappeningsPage() {
   const [celebFilter, setCelebFilter] = useState<CelebFilter>("All");
   const [hapFilter, setHapFilter] = useState<HapFilter>("All");
   const [appliedClubs, setAppliedClubs] = useState<Set<number>>(new Set());
+  const [selectedFMEvent, setSelectedFMEvent] = useState<FMEvent | null>(null);
 
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
@@ -1061,6 +1237,11 @@ export function HappeningsPage() {
           </div>
         </div>
       </div>
+
+      {/* ── FOUNDING MOTHERS ONLY ── */}
+      <FoundingMothersSection onOpenEvent={ev => setSelectedFMEvent(ev)} />
+
+      {selectedFMEvent && <FMEventSheet ev={selectedFMEvent} onClose={() => setSelectedFMEvent(null)} />}
 
       {selectedCeleb && (
         <ConfettiSheet

@@ -93,6 +93,12 @@ function PlanTicketSheet({ room, onClose }: { room: PlanRoom; onClose: () => voi
             <div className="px-6 pb-6 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{ticketCode}</p>
+                {/* Founding Mother indicator on ticket */}
+                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit"
+                  style={{ background: "linear-gradient(135deg, #1A1208 0%, #2D1E08 100%)", border: "1px solid rgba(212,168,83,0.35)" }}>
+                  <span style={{ fontSize: "7px", color: "#D4A853" }}>✦</span>
+                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#D4A853" }}>Founding Mother #47</span>
+                </div>
                 <p className="text-[9px] font-semibold" style={{ color: "#999" }}>{room.members} women · Tap to scan at door</p>
                 <p className="text-[9px] italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#ccc" }}>Show this at check-in</p>
               </div>
