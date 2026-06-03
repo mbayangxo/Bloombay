@@ -22,16 +22,16 @@ const PAGE_LABELS: Record<string, string> = {
   "/member/calendar":      "CALENDAR",
   "/member/happenings":    "HAPPENINGS",
   "/member/messages":      "MESSAGES",
-  "/member/notifications": "NOTIFS",
+  "/member/notifications": "PINGS",
   "/member/plans":         "PLANS",
   "/member/room":          "THE WALL",
 };
 
 function getHomeLabel(): string {
   const h = new Date().getHours();
-  if (h >= 5  && h < 12) return "MORNING";
-  if (h >= 12 && h < 17) return "AFTERNOON";
-  if (h >= 17 && h < 21) return "EVENING";
+  if (h >= 5  && h < 12) return "THIS MORNING";
+  if (h >= 12 && h < 17) return "TODAY";
+  if (h >= 17 && h < 21) return "THIS EVENING";
   return "TONIGHT";
 }
 

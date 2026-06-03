@@ -860,7 +860,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block"
                   style={{ borderBottom: "1px solid #F5F5F5" }}
                 >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Notifications</p>
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Pings</p>
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>

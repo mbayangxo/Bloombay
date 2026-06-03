@@ -5,14 +5,23 @@ import Link from "next/link";
 
 interface Notif {
   id: number;
-  type: "seat" | "stamp" | "event" | "celebrate" | "intro" | "message" | "club";
+  type: "seat" | "stamp" | "event" | "celebrate" | "intro" | "message" | "club" | "club_accepted";
   title: string;
   body: string;
   time: string;
   unread: boolean;
+  clubName?: string;
+  clubCrest?: string;
 }
 
 const INITIAL_NOW: Notif[] = [
+  {
+    id: 0, type: "club_accepted",
+    title: "You're in. Welcome to Lens & Light.",
+    body: "Your application was accepted. Check your mailbox for a welcome note from the club.",
+    time: "just now", unread: true,
+    clubName: "Lens & Light", clubCrest: "📸",
+  },
   {
     id: 1, type: "seat",
     title: "You grabbed a seat",
@@ -145,6 +154,15 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
       </div>
     );
   }
+  if (type === "club_accepted") {
+    return (
+      <div className={baseClass} style={{ background: "#111111", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      </div>
+    );
+  }
   // club
   return (
     <div className={baseClass} style={{ background: "#FFF0F5", boxShadow: "0 2px 8px rgba(255,31,125,0.08)" }}>
@@ -158,12 +176,55 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   );
 }
 
+function ClubAcceptedPing({ n }: { n: Notif }) {
+  return (
+    <div className="rounded-2xl overflow-hidden"
+      style={{ background: "#111111", boxShadow: "0 6px 28px rgba(255,31,125,0.22)" }}>
+      {/* Glow header */}
+      <div className="relative px-5 pt-5 pb-4 flex items-center gap-3"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 90% 20%, rgba(255,31,125,0.18) 0%, transparent 60%)" }} />
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 relative z-10"
+          style={{ background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.3)", fontSize: "22px" }}>
+          {n.clubCrest}
+        </div>
+        <div className="flex-1 min-w-0 relative z-10">
+          <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>
+            ✓ ACCEPTED
+          </p>
+          <p className="text-sm font-bold leading-snug" style={{ color: "rgba(255,238,220,0.92)" }}>{n.title}</p>
+        </div>
+        <p className="text-[10px] flex-shrink-0 relative z-10" style={{ color: "rgba(255,255,255,0.25)" }}>{n.time}</p>
+      </div>
+      {/* Body */}
+      <div className="px-5 py-3">
+        <p className="text-xs leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>{n.body}</p>
+        <div className="flex gap-2">
+          <Link href="/member/messages"
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-center transition-all active:scale-95"
+            style={{ background: "#FF1F7D", color: "white" }}>
+            Open Mailbox →
+          </Link>
+          <Link href="/member/clubs"
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-center transition-all active:scale-95"
+            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)" }}>
+            View Club
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function NotifRow({ n }: { n: Notif }) {
+  if (n.type === "club_accepted") return <ClubAcceptedPing n={n} />;
+
   return (
     <div
       className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden"
       style={{
-        background: n.unread ? "white" : "white",
+        background: "white",
         boxShadow: n.unread
           ? "0 3px 16px rgba(255,31,125,0.1)"
           : "0 1px 8px rgba(0,0,0,0.06)",
@@ -236,7 +297,7 @@ export default function NotificationsPage() {
                   fontWeight: 700,
                 }}
               >
-                Notifications
+                Pings
               </h1>
               {unreadCount > 0 && (
                 <span
