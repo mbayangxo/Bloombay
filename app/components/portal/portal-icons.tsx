@@ -20,7 +20,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
   const sz = 11; // icon stroke size
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="hidden md:flex items-center gap-2">
 
       {/* Mail — inbox / messages */}
       <Link href="/member/messages" aria-label="Messages"

@@ -152,8 +152,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
   return (
     <div className="min-h-screen pb-24 md:pb-12">
 
-      {/* ── TOP BAR — icons handled by layout PortalIcons ── */}
-      <header className="px-5 pt-14 pb-4 md:px-8 md:pt-10">
+      <header className="px-5 pt-20 pb-4 md:px-8 md:pt-10">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
           {mood.weather} · {mood.temp}
         </p>
@@ -183,7 +182,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
             <div className="text-[9px] font-bold tracking-[0.2em] uppercase mt-0.5"
               style={{ color: "rgba(255,255,255,0.6)" }}>
-              WOMEN TONIGHT
+              {tod === "morning" ? "WOMEN THIS MORNING" : tod === "afternoon" ? "WOMEN OUT TODAY" : "WOMEN TONIGHT"}
             </div>
           </div>
 
@@ -215,20 +214,26 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         </div>
       </div>
 
-      {/* ── YANDE SAYS ── */}
+      {/* ── YANDE SAYS — compact pill, tap to edit ── */}
       <div className="px-5 mb-5 md:px-8">
-        <div className="rounded-2xl px-5 py-4 flex items-start gap-3" style={{ background: surfaceBg }}>
-          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-            style={{ background: "#FF1F7D" }}>
-            <span style={{ color: "white", fontSize: "11px" }}>✦</span>
+        <Link href="/member/clubs">
+          <div className="inline-flex items-center gap-2.5 rounded-2xl px-4 py-2.5"
+            style={{ background: surfaceBg, maxWidth: "100%" }}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "#FF1F7D" }}>
+              <span style={{ color: "white", fontSize: "10px" }}>✦</span>
+            </div>
+            <div className="min-w-0">
+              <span className="text-[9px] font-bold tracking-[0.18em] uppercase mr-1.5" style={{ color: "#FF1F7D" }}>Yande</span>
+              <span className="text-xs" style={{ color: headingColor }}>
+                You haven&apos;t chosen a club yet — I saved 3 that match you.
+              </span>
+            </div>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
           </div>
-          <div>
-            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>Yande says</p>
-            <p className="text-sm leading-relaxed" style={{ color: headingColor }}>
-              You haven&apos;t chosen a club yet. I saved three that match your energy — Soft Life, African Girls Club, and Girl Creatives.
-            </p>
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* ── 2-col on desktop ── */}
@@ -249,9 +254,12 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Mobile: horizontal scroll; Desktop: 2-col grid */}
+            <div className="flex gap-3 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
+              style={{ scrollbarWidth: "none" }}>
               {INVITATIONS.map((inv) => (
-                <Link key={inv.id} href="/member/happenings" style={{ textDecoration: "none" }}>
+                <Link key={inv.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, width: "clamp(260px, 72vw, 300px)" }}
+                  className="md:w-auto md:flex-shrink-[unset]">
                   <div
                     className="rounded-2xl overflow-hidden"
                     style={{
@@ -311,17 +319,19 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
           </div>
 
-          {/* WITNESS — mobile only */}
+          {/* WITNESS — mobile only — tap to go to exact message */}
           {witnessShown && (
             <div className="px-5 mb-6 md:hidden">
               <div className="rounded-2xl p-5 relative"
                 style={{ background: cardBg, border: "1px solid rgba(255,31,125,0.12)", boxShadow: "0 4px 20px rgba(255,31,125,0.07)" }}>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>
-                    K
-                  </div>
-                  <div className="flex-1">
+                  <Link href="/member/messages?witness=kezia" className="flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                      style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>
+                      K
+                    </div>
+                  </Link>
+                  <Link href="/member/messages?witness=kezia" className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
                       <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded"
@@ -330,7 +340,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                     <p className="text-sm leading-relaxed" style={{ color: textMuted }}>
                       &ldquo;She makes every table feel full. She showed up for us when we were just 12 women.&rdquo;
                     </p>
-                  </div>
+                  </Link>
                   <button onClick={() => setWitnessShown(false)}
                     className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
@@ -401,9 +411,11 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             <div className="rounded-2xl p-4 relative"
               style={{ background: cardBg, border: "1px solid rgba(255,31,125,0.12)", boxShadow: "0 4px 16px rgba(255,31,125,0.07)" }}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>K</div>
-                <div className="flex-1">
+                <Link href="/member/messages?witness=kezia" className="flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                    style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>K</div>
+                </Link>
+                <Link href="/member/messages?witness=kezia" className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
                     <span className="text-[8px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded"
@@ -412,7 +424,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                   <p className="text-xs leading-relaxed" style={{ color: textMuted }}>
                     &ldquo;She showed up when we had 12 members. She&apos;s the real one.&rdquo;
                   </p>
-                </div>
+                </Link>
                 <button onClick={() => setWitnessShown(false)}
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>

@@ -432,16 +432,38 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 border: `1.5px solid rgba(255,31,125,0.12)`,
               }}
             >
-              {/* Rose icon */}
+              {/* Bouquet of roses icon */}
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 relative"
                 style={{
-                  background: "linear-gradient(135deg, #FF1F7D 0%, #FF69B4 100%)",
-                  boxShadow: "0 6px 20px rgba(255,31,125,0.4)",
+                  background: "linear-gradient(160deg, #2D1520 0%, #1A0A12 100%)",
+                  boxShadow: "0 6px 20px rgba(255,31,125,0.45)",
                 }}
               >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none">
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                <svg width="38" height="40" viewBox="0 0 38 40" fill="none">
+                  {/* Left rose */}
+                  <circle cx="10" cy="11" r="5.5" fill="#FF69B4"/>
+                  <circle cx="10" cy="8.2" r="2.8" fill="white" fillOpacity="0.28"/>
+                  <ellipse cx="7.5" cy="12.5" rx="2.2" ry="2.8" fill="#FF1F7D" opacity="0.8"/>
+                  {/* Center rose — larger, in front */}
+                  <circle cx="19" cy="9" r="7" fill="#FF1F7D"/>
+                  <circle cx="19" cy="6" r="3.5" fill="white" fillOpacity="0.26"/>
+                  <ellipse cx="15.5" cy="10.5" rx="2.8" ry="3.5" fill="#FF69B4" opacity="0.75"/>
+                  <ellipse cx="22.5" cy="10.5" rx="2.8" ry="3.5" fill="#FFB6D0" opacity="0.7"/>
+                  {/* Right rose */}
+                  <circle cx="28" cy="11" r="5.5" fill="#FF69B4"/>
+                  <circle cx="28" cy="8.2" r="2.8" fill="white" fillOpacity="0.28"/>
+                  <ellipse cx="30.5" cy="12.5" rx="2.2" ry="2.8" fill="#FF1F7D" opacity="0.8"/>
+                  {/* Stems */}
+                  <path d="M10 16 Q13 22 15 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
+                  <path d="M19 16 L19 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
+                  <path d="M28 16 Q25 22 23 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
+                  {/* Leaves */}
+                  <path d="M12 22 Q9 19 10 16" stroke="#5D8A5E" strokeWidth="1.5" fill="#5D8A5E" fillOpacity="0.45" strokeLinecap="round"/>
+                  <path d="M26 22 Q29 19 28 16" stroke="#5D8A5E" strokeWidth="1.5" fill="#5D8A5E" fillOpacity="0.45" strokeLinecap="round"/>
+                  {/* Ribbon wrap */}
+                  <path d="M13.5 28 L24.5 28 L22.5 37 L15.5 37 Z" fill="white" fillOpacity="0.18" stroke="white" strokeWidth="0.8" strokeOpacity="0.4"/>
+                  <line x1="19" y1="28" x2="19" y2="37" stroke="white" strokeWidth="0.8" strokeOpacity="0.3"/>
                 </svg>
                 {/* Count badge */}
                 <div

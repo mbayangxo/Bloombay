@@ -11,16 +11,6 @@ interface WallPost {
   pinned: boolean; category: WallCategory;
 }
 
-const SEED_POSTS: WallPost[] = [
-  { id: 1, author: "Aaliyah M.", initial: "A", color: "#FF1F7D",  time: "8m ago",    text: "Anyone want to do matcha Thursday morning in Williamsburg? I know a spot that's not on TikTok yet. Small group, max 5.",                likes: 14, replies: 6,  pinned: true,  category: "gather"   },
-  { id: 2, author: "Sofia K.",   initial: "S", color: "#FF69B4",  time: "22m ago",   text: "At Café Medina right now — table for 2 just opened up. If you're in Crown Heights come through 🌸",                                       likes: 7,  replies: 3,  pinned: false, category: "now"      },
-  { id: 3, author: "Priya R.",   initial: "P", color: "#FF69B4",  time: "1h ago",    text: "Organizing a run in Prospect Park this Sunday 8AM. All paces welcome — we end at the café and get pastries. DM me to join.",               likes: 23, replies: 9,  pinned: false, category: "plan"     },
-  { id: 4, author: "Kezia N.",   initial: "K", color: "#FF1F7D",  time: "2h ago",    text: "Best Nigerian restaurant in BK? Taking 4 girls tonight — need a rec by 5PM.",                                                              likes: 11, replies: 17, pinned: false, category: "discover" },
-  { id: 5, author: "Imani J.",   initial: "I", color: "#FF1F7D",  time: "3h ago",    text: "Afrobeats Night at SOB's is this Saturday. I have 2 extra tickets — who wants them? Girls only.",                                          likes: 31, replies: 14, pinned: false, category: "gather"   },
-  { id: 6, author: "Naomi B.",   initial: "N", color: "#FF69B4",  time: "5h ago",    text: "Book club in the West Village starting next Thursday — first pick is 'Parable of the Sower'. 8 spots, 3 left.",                            likes: 19, replies: 8,  pinned: false, category: "plan"     },
-  { id: 7, author: "Zara M.",    initial: "Z", color: "#FF1F7D",  time: "Yesterday", text: "Looking for a gym buddy in Greenpoint — early mornings, any gym. I just need someone to hold me accountable.",                             likes: 8,  replies: 11, pinned: false, category: "gather"   },
-  { id: 8, author: "Temi A.",    initial: "T", color: "#FF69B4",  time: "Yesterday", text: "Anyone been to the new Eritrean spot on Fulton? Thinking about it for my birthday dinner. Honest reviews only.",                            likes: 22, replies: 7,  pinned: false, category: "discover" },
-];
 
 const CATEGORY_LABELS: Record<WallCategory, string> = {
   gather: "Gather", discover: "Discover", plan: "Plan", now: "Now", ask: "Ask",
@@ -50,7 +40,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
   const [text, setText] = useState("");
   const [filter, setFilter] = useState<"all" | "trending" | WallCategory>("all");
   const [newCategory, setNewCategory] = useState<WallCategory>("gather");
-  const [posts, setPosts] = useState<WallPost[]>(SEED_POSTS);
+  const [posts, setPosts] = useState<WallPost[]>([]);
 
   const trending = [...posts].sort((a, b) => (b.likes + b.replies * 2) - (a.likes + a.replies * 2)).slice(0, 4);
   const shown = filter === "all" ? posts : filter === "trending" ? trending : posts.filter(p => p.category === filter);
@@ -119,7 +109,24 @@ function TheWall({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Posts */}
+        {/* Posts — empty state */}
+        {shown.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+              style={{ background: "var(--light-pink)" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </div>
+            <p className="font-bold italic text-base mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+              The Wall is quiet.
+            </p>
+            <p className="text-sm" style={{ color: "#bbb" }}>
+              Be the first to post something.
+            </p>
+          </div>
+        )}
+
         {shown.map(post => (
           <div key={post.id} className="bg-white rounded-2xl overflow-hidden"
             style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: post.pinned ? "3px solid var(--bb-pink)" : "3px solid transparent" }}>

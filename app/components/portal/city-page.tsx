@@ -133,45 +133,108 @@ function FlowerCount({ count, light = false }: { count: number; light?: boolean 
   );
 }
 
+// ── Bloom Notes data ──────────────────────────────────────────────────────────
+
+const BLOOM_NOTES: Record<number, { note: string; author: string; avatarColor: string }[]> = {
+  1: [
+    { note: "The smoked fish platter is worth every penny", author: "Aaliyah M.", avatarColor: "#FF1F7D" },
+    { note: "Perfect Sunday ritual. Been coming here for 2 years", author: "Naomi B.", avatarColor: "#FF69B4" },
+  ],
+  2: [
+    { note: "Go late, the vibe hits different after 10PM", author: "Jade O.", avatarColor: "#FF1F7D" },
+    { note: "Tom Yum is a must-order", author: "Sofia K.", avatarColor: "#FF69B4" },
+  ],
+  3: [
+    { note: "Best solo lunch spot. Staff never rushes you", author: "Naomi B.", avatarColor: "#FF69B4" },
+    { note: "The croissant is everything. Get there before noon", author: "Priya R.", avatarColor: "#FF1F7D" },
+  ],
+  4: [
+    { note: "Small plates made for sharing — order everything", author: "Sofia K.", avatarColor: "#FF69B4" },
+    { note: "Perfect girls dinner energy. Every dish lands", author: "Zara F.", avatarColor: "#FF1F7D" },
+  ],
+  5: [
+    { note: "NYC history in every bite. Come early on weekends", author: "Deja W.", avatarColor: "#FF1F7D" },
+    { note: "The OG bagel experience. Nothing compares", author: "Rachel M.", avatarColor: "#FF69B4" },
+  ],
+};
+
+const WHAT_WOMEN_SAY: Record<number, string[]> = {
+  1: ["\"Honestly the best brunch in SoHo. Worth the wait.\"", "\"I bring every out-of-town friend here. Never disappoints.\""],
+  2: ["\"Late night Thai that actually slaps. Order the tom yum.\"", "\"Love the vibe — dark, loud, delicious.\""],
+  3: ["\"The most peaceful lunch I've had in this city.\"", "\"Croissant + coffee + a book. That's the move.\""],
+  4: ["\"Best girls dinner spot. The small plates are unreal.\"", "\"Every dish is better than the last.\""],
+  5: ["\"NYC on a plate. Don't skip the bagels with lox.\"", "\"Line moves fast. The food is worth every minute.\""],
+};
+
 // ── EAT components ────────────────────────────────────────────────────────────
 
-function EatFeaturedCard({ r }: { r: Restaurant }) {
+function StarRating({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map(star => (
+        <svg key={star} width="9" height="9" viewBox="0 0 24 24"
+          fill={star <= Math.round(value) ? "#FF1F7D" : "none"}
+          stroke="#FF1F7D" strokeWidth="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      ))}
+      <span className="text-[10px] font-bold ml-0.5" style={{ color: "#111" }}>{value.toFixed(1)}</span>
+    </div>
+  );
+}
+
+function ratingFromWomenLoved(womenLoved: number): number {
+  // Map womenLoved count to a 4.2–5.0 range
+  const min = 900; const max = 3200;
+  const clamped = Math.min(Math.max(womenLoved, min), max);
+  return +(4.2 + ((clamped - min) / (max - min)) * 0.8).toFixed(1);
+}
+
+function EatFeaturedCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
   return (
-    <div className="rounded-3xl overflow-hidden mb-5" style={{ background: r.bgColor, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-      <div className="relative flex items-center justify-center" style={{ height: "96px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
-        <span style={{ fontSize: "52px", opacity: 0.55 }}>{r.emoji}</span>
-        <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+    <div
+      className="rounded-3xl overflow-hidden mb-4 cursor-pointer"
+      style={{ background: r.bgColor, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
+      onClick={onClick}
+    >
+      <div className="relative flex items-center justify-center" style={{ height: "52px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
+        <span style={{ fontSize: "28px", opacity: 0.55 }}>{r.emoji}</span>
+        <span className="absolute top-2 left-3 text-[9px] font-bold tracking-[0.22em] uppercase px-2.5 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
           WOMEN&apos;S PICK
         </span>
-        <button onClick={() => setSaved(s => !s)} className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.92)" }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+        <button
+          onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
+          className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(255,255,255,0.92)" }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
         </button>
       </div>
-      <div className="p-4">
+      <div className="px-4 pt-3 pb-3">
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="font-black text-xl leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
+            <h3 className="font-black text-base leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
             <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
           </div>
-          <FlowerCount count={r.womenLoved} />
+          <StarRating value={ratingFromWomenLoved(r.womenLoved)} />
         </div>
-        <p className="text-sm italic mt-2 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>&ldquo;{r.blurb}&rdquo;</p>
+        <p className="text-xs italic mt-1 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>&ldquo;{r.blurb}&rdquo;</p>
         {r.notableDish && (
-          <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(255,31,125,0.06)" }}>
-            <span style={{ fontSize: "13px" }}>⭐</span>
+          <div className="mt-2 flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: "rgba(255,31,125,0.06)" }}>
+            <span style={{ fontSize: "11px" }}>⭐</span>
             <div>
               <p className="text-xs font-bold" style={{ color: "#111" }}>{r.notableDish}</p>
               <p className="text-[10px]" style={{ color: "#FF1F7D" }}>{r.notableDishNote}</p>
             </div>
           </div>
         )}
-        <div className="flex items-center gap-2 mt-3 flex-wrap">
-          {r.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          {r.soloFriendly && <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
           {r.tags.slice(0, 2).map(t => (
-            <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "white", color: "#888", border: "1px solid #EEE" }}>{t}</span>
+            <span key={t} className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "white", color: "#888", border: "1px solid #EEE" }}>{t}</span>
           ))}
         </div>
       </div>
@@ -179,29 +242,159 @@ function EatFeaturedCard({ r }: { r: Restaurant }) {
   );
 }
 
-function EatRowCard({ r }: { r: Restaurant }) {
+function EatGridCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
+  const rating = ratingFromWomenLoved(r.womenLoved);
   return (
-    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 10px rgba(0,0,0,0.05)" }}>
-      <div className="flex items-stretch">
-        <div className="w-14 flex-shrink-0 flex items-center justify-center text-3xl" style={{ background: r.bgColor }}>{r.emoji}</div>
-        <div className="p-3 flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h3 className="font-black text-sm" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
-              <p className="text-[10px]" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
-            </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <FlowerCount count={r.womenLoved} />
-              <button onClick={() => setSaved(s => !s)} className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                </svg>
-              </button>
+    <div
+      className="rounded-2xl overflow-hidden cursor-pointer"
+      style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}
+      onClick={onClick}
+    >
+      <div className="relative flex items-center justify-center" style={{ height: "80px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
+        <span style={{ fontSize: "34px", opacity: 0.65 }}>{r.emoji}</span>
+        <button
+          onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(255,255,255,0.92)" }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </button>
+      </div>
+      <div className="p-3">
+        <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
+        <p className="text-[10px] mt-0.5 mb-1.5" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
+        <StarRating value={rating} />
+      </div>
+    </div>
+  );
+}
+
+// ── Restaurant Detail view ────────────────────────────────────────────────────
+
+function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) {
+  const [saved, setSaved] = useState(false);
+  const rating = ratingFromWomenLoved(r.womenLoved);
+  const notes = BLOOM_NOTES[r.id] ?? [
+    { note: "A hidden gem — always leaves me happy", author: "Priya R.", avatarColor: "#FF1F7D" },
+    { note: "One of my go-to spots in the city", author: "Sofia K.", avatarColor: "#FF69B4" },
+  ];
+  const reviews = WHAT_WOMEN_SAY[r.id] ?? [
+    "\"A true gem. Never lets me down.\"",
+    "\"Worth every visit. Highly recommend.\"",
+  ];
+
+  const photoTiles = [
+    { emoji: r.emoji, bg: r.bgColor },
+    { emoji: "✨", bg: "#FFF5F8" },
+    { emoji: r.emoji, bg: "#FFE0EE" },
+    { emoji: "🌸", bg: "#FFF0F5" },
+  ];
+
+  return (
+    <div className="flex flex-col gap-0" style={{ background: "var(--pale-pink-bg)", minHeight: "100vh" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-10 px-5 pt-4 pb-3" style={{ background: "var(--pale-pink-bg)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+        <div className="flex items-center justify-between">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "#FF1F7D" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back
+          </button>
+          <button onClick={() => setSaved(s => !s)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "white", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="relative flex items-center justify-center" style={{ height: "140px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
+        <span style={{ fontSize: "64px", opacity: 0.55 }}>{r.emoji}</span>
+        <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
+          WOMEN&apos;S PICK
+        </span>
+      </div>
+
+      {/* Core info */}
+      <div className="px-5 pt-4 pb-3" style={{ background: "white" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="font-black text-2xl leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h2>
+            <p className="text-xs mt-1" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
+          </div>
+          <FlowerCount count={r.womenLoved} />
+        </div>
+        <div className="mt-2">
+          <StarRating value={rating} />
+        </div>
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          {r.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+          {r.tags.map(t => (
+            <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "#FFF5F8", color: "#888", border: "1px solid #EEE" }}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-5 px-5 pt-5 pb-8">
+        {/* Bloom Notes */}
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>BLOOM NOTES</p>
+          <div className="flex flex-col gap-2.5">
+            {notes.map((n, i) => (
+              <div key={i} className="rounded-2xl p-3.5 flex items-start gap-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" style={{ background: n.avatarColor }}>
+                  {n.author[0]}
+                </div>
+                <div>
+                  <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>&ldquo;{n.note}&rdquo;</p>
+                  <p className="text-[10px] mt-1 font-semibold" style={{ color: "#bbb" }}>— {n.author}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Photos */}
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>PHOTOS</p>
+          <div className="grid grid-cols-2 gap-2">
+            {photoTiles.map((tile, i) => (
+              <div key={i} className="rounded-2xl flex items-center justify-center" style={{ height: "90px", background: tile.bg }}>
+                <span style={{ fontSize: "36px", opacity: 0.6 }}>{tile.emoji}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Favorite Dish */}
+        {r.notableDish && (
+          <div>
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>FAVORITE DISH</p>
+            <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: r.bgColor }}>{r.emoji}</div>
+              <div>
+                <p className="font-black text-base" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.notableDish}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: "#FF1F7D" }}>{r.notableDishNote}</p>
+              </div>
             </div>
           </div>
-          <p className="text-[11px] mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "#777" }}>&ldquo;{r.blurb}&rdquo;</p>
-          {r.soloFriendly && <span className="mt-1 inline-block text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+        )}
+
+        {/* What Women Say */}
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WHAT WOMEN SAY</p>
+          <div className="flex flex-col gap-2.5">
+            {reviews.map((review, i) => (
+              <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>{review}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -362,6 +555,7 @@ export function CityPage() {
   const [floweredMoments, setFloweredMoments] = useState<Set<number>>(new Set());
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
@@ -402,13 +596,21 @@ export function CityPage() {
       <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
 
         {/* ── EAT ── */}
-        {activeTab === "eat" && (
+        {activeTab === "eat" && selectedRestaurant && (
+          <RestaurantDetail r={selectedRestaurant} onBack={() => setSelectedRestaurant(null)} />
+        )}
+
+        {activeTab === "eat" && !selectedRestaurant && (
           <div className="flex flex-col gap-6">
             <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
               <div>
-                {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
-                <div className="flex flex-col gap-3">
-                  {RESTAURANTS.filter(r => !r.featured).map(r => <EatRowCard key={r.id} r={r} />)}
+                {RESTAURANTS.filter(r => r.featured).map(r => (
+                  <EatFeaturedCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+                ))}
+                <div className="grid grid-cols-2 gap-3">
+                  {RESTAURANTS.filter(r => !r.featured).map(r => (
+                    <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+                  ))}
                 </div>
               </div>
               <div className="hidden md:block">
