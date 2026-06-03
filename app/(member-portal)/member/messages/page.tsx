@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { getTimeOfDay, type TimeOfDay } from "@/app/components/portal/time-wrapper";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ const THREADS: Record<number, ThreadMsg[]> = {
 
 // ── Input bar with photo / voice / GIF ────────────────────────────────────────
 
-function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (text: string) => void; placeholder?: string }) {
+function MessageInput({ onSend, placeholder = "Say something…", isNight = false, cardBg = "white", borderCol = "rgba(0,0,0,0.07)" }: { onSend?: (text: string) => void; placeholder?: string; isNight?: boolean; cardBg?: string; borderCol?: string }) {
   const [text, setText] = useState("");
   const [recording, setRecording] = useState(false);
   const [recordSecs, setRecordSecs] = useState(0);
@@ -105,19 +106,23 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
     setText("");
   }
 
+  const inputBg = isNight ? "rgba(255,255,255,0.07)" : "#FFF5F8";
+  const inputColor = isNight ? "rgba(255,255,255,0.85)" : "#111111";
+  const inputBorder = isNight ? "1.5px solid rgba(255,31,125,0.25)" : "1.5px solid #FFE0EE";
+
   if (recording) {
     return (
-      <div className="px-4 py-3 flex items-center gap-3" style={{ background: "white", borderTop: "1px solid #F5F5F5" }}>
-        <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-full" style={{ background: "#FFF5F8", border: "1.5px solid #FF1F7D" }}>
-          <div className="w-2.5 h-2.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
+      <div className="px-4 py-3 flex items-center gap-3 flex-shrink-0" style={{ background: cardBg, borderTop: `1px solid ${borderCol}` }}>
+        <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-full" style={{ background: inputBg, border: "1.5px solid var(--bb-pink)" }}>
+          <div className="w-2.5 h-2.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "var(--bb-pink)" }} />
           <div className="flex-1 flex gap-0.5 items-center h-5">
             {Array.from({ length: 28 }).map((_, i) => (
-              <div key={i} className="rounded-full flex-shrink-0" style={{ width: "2px", background: "#FF1F7D", height: `${8 + Math.sin(i * 0.7 + Date.now() / 200) * 6}px`, opacity: 0.6 + (i % 3) * 0.15 }} />
+              <div key={i} className="rounded-full flex-shrink-0" style={{ width: "2px", background: "var(--bb-pink)", height: `${8 + Math.sin(i * 0.7 + Date.now() / 200) * 6}px`, opacity: 0.6 + (i % 3) * 0.15 }} />
             ))}
           </div>
-          <span className="text-xs font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>0:{String(recordSecs).padStart(2, "0")}</span>
+          <span className="text-xs font-bold flex-shrink-0" style={{ color: "var(--bb-pink)" }}>0:{String(recordSecs).padStart(2, "0")}</span>
         </div>
-        <button onClick={stopRecord} className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
+        <button onClick={stopRecord} className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
           <div className="w-3.5 h-3.5 rounded-sm" style={{ background: "white" }} />
         </button>
       </div>
@@ -125,14 +130,14 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
   }
 
   return (
-    <div className="px-4 py-3 flex items-center gap-2" style={{ background: "white", borderTop: "1px solid #F5F5F5" }}>
+    <div className="px-4 py-3 flex items-center gap-2 flex-shrink-0" style={{ background: cardBg, borderTop: `1px solid ${borderCol}` }}>
       {/* Photo */}
       <button
         onClick={() => alert("Photo upload coming soon")}
         className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ background: "#FFF0F5" }}
+        style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#FFF0F5" }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round">
           <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
         </svg>
       </button>
@@ -140,7 +145,7 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
       <button
         onClick={() => alert("GIF picker coming soon")}
         className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black"
-        style={{ background: "#FFF0F5", color: "#FF1F7D" }}
+        style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#FFF0F5", color: "var(--bb-pink)" }}
       >
         GIF
       </button>
@@ -152,11 +157,11 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
         onKeyDown={(e) => e.key === "Enter" && handleSend()}
         placeholder={placeholder}
         className="flex-1 px-4 py-2.5 rounded-full text-sm outline-none"
-        style={{ background: "#FFF5F8", color: "#111111", border: "1.5px solid #FFE0EE" }}
+        style={{ background: inputBg, color: inputColor, border: inputBorder }}
       />
       {/* Voice / Send */}
       {text.trim() ? (
-        <button onClick={handleSend} className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
+        <button onClick={handleSend} className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
         </button>
       ) : (
@@ -166,9 +171,9 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
           onTouchStart={startRecord}
           onTouchEnd={stopRecord}
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: "#FFF0F5" }}
+          style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#FFF0F5" }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
           </svg>
@@ -206,7 +211,7 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
         </div>
         {/* Heart indicator */}
         <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFE0EE" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="#FF1F7D" stroke="none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--bb-pink)" stroke="none">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
         </div>
@@ -227,18 +232,18 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
                 <div className="rounded-xl overflow-hidden" style={{ background: "#F0E0E8", width: "160px", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div className="text-center">
                     <p className="text-2xl mb-1">📸</p>
-                    <p className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>{msg.mediaLabel}</p>
+                    <p className="text-[10px] font-bold" style={{ color: "var(--bb-pink)" }}>{msg.mediaLabel}</p>
                   </div>
                 </div>
               )}
               {msg.mediaType === "voice" && (
-                <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: msg.mine ? "#FF1F7D" : "white", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", minWidth: "160px" }}>
+                <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: msg.mine ? "var(--bb-pink)" : "white", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", minWidth: "160px" }}>
                   <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: msg.mine ? "rgba(255,255,255,0.2)" : "#FFE0EE" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill={msg.mine ? "white" : "#FF1F7D"}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill={msg.mine ? "white" : "var(--bb-pink)"}><polygon points="5 3 19 12 5 21 5 3"/></svg>
                   </div>
                   <div className="flex gap-0.5 items-center flex-1 h-4">
                     {Array.from({ length: 20 }).map((_, i) => (
-                      <div key={i} className="rounded-full flex-shrink-0" style={{ width: "2px", height: `${4 + Math.abs(Math.sin(i * 1.2)) * 10}px`, background: msg.mine ? "rgba(255,255,255,0.7)" : "#FF1F7D", opacity: 0.6 }} />
+                      <div key={i} className="rounded-full flex-shrink-0" style={{ width: "2px", height: `${4 + Math.abs(Math.sin(i * 1.2)) * 10}px`, background: msg.mine ? "rgba(255,255,255,0.7)" : "var(--bb-pink)", opacity: 0.6 }} />
                     ))}
                   </div>
                   <span className="text-[10px] font-bold flex-shrink-0" style={{ color: msg.mine ? "rgba(255,255,255,0.7)" : "#aaa" }}>{msg.mediaLabel}</span>
@@ -253,7 +258,7 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
                 <div
                   className="px-4 py-2.5 rounded-2xl"
                   style={{
-                    background: msg.mine ? "#FF1F7D" : "white",
+                    background: msg.mine ? "var(--bb-pink)" : "white",
                     boxShadow: msg.mine ? "0 3px 12px rgba(255,31,125,0.25)" : "0 2px 8px rgba(0,0,0,0.06)",
                     borderBottomRightRadius: msg.mine ? "6px" : "16px",
                     borderBottomLeftRadius: msg.mine ? "16px" : "6px",
@@ -305,8 +310,8 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
             <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.members} members · Club Room</p>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
-            <p className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "#FF1F7D" }}>LIVE</p>
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
+            <p className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "var(--bb-pink)" }}>LIVE</p>
           </div>
         </div>
         {/* Member avatars — who's in the room */}
@@ -338,7 +343,7 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
               <div
                 className="rounded-2xl px-4 py-3"
                 style={{
-                  background: msg.mine ? "#FF1F7D" : "white",
+                  background: msg.mine ? "var(--bb-pink)" : "white",
                   boxShadow: msg.mine ? "0 3px 12px rgba(255,31,125,0.2)" : "0 2px 10px rgba(0,0,0,0.06)",
                   borderTopLeftRadius: !msg.mine ? "6px" : "16px",
                   borderTopRightRadius: msg.mine ? "6px" : "16px",
@@ -356,10 +361,10 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
                     <button
                       onClick={() => setLoved((p) => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })}
                       className="flex items-center gap-1 px-2 py-1 rounded-full transition-all active:scale-90"
-                      style={{ background: loved.has(msg.id) ? "#FF1F7D" : "#FFF0F5" }}
+                      style={{ background: loved.has(msg.id) ? "var(--bb-pink)" : "#FFF0F5" }}
                     >
                       <span style={{ fontSize: "10px" }}>🌸</span>
-                      <span className="text-[9px] font-bold" style={{ color: loved.has(msg.id) ? "white" : "#FF1F7D" }}>
+                      <span className="text-[9px] font-bold" style={{ color: loved.has(msg.id) ? "white" : "var(--bb-pink)" }}>
                         {(msg.reactions ?? 0) + (loved.has(msg.id) ? 1 : 0)}
                       </span>
                     </button>
@@ -388,7 +393,7 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
           <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
-          <div className="w-11 h-11 rounded-full flex items-center justify-center text-base flex-shrink-0" style={{ background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.4)" }}>
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-base flex-shrink-0" style={{ background: "var(--bb-pink)", boxShadow: "0 4px 14px rgba(255,31,125,0.4)" }}>
             ✦
           </div>
           <div>
@@ -406,7 +411,7 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
               <div className="rounded-2xl overflow-hidden" style={{ background: "#1C1610", border: "1px solid rgba(255,31,125,0.18)", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
                 {/* Stamp header */}
                 <div className="px-5 py-2.5 flex items-center gap-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <span className="text-sm" style={{ color: "#FF1F7D" }}>✦</span>
+                  <span className="text-sm" style={{ color: "var(--bb-pink)" }}>✦</span>
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>BLOOMBAY HQ</p>
                   <div className="flex-1" />
                   <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>{msg.time}</p>
@@ -421,7 +426,7 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
                 </div>
               </div>
             ) : (
-              <div className="max-w-[72%] px-4 py-3 rounded-2xl" style={{ background: "#FF1F7D", boxShadow: "0 3px 12px rgba(255,31,125,0.3)" }}>
+              <div className="max-w-[72%] px-4 py-3 rounded-2xl" style={{ background: "var(--bb-pink)", boxShadow: "0 3px 12px rgba(255,31,125,0.3)" }}>
                 <p className="text-sm leading-relaxed text-white">{msg.text}</p>
                 <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{msg.time}</p>
               </div>
@@ -438,7 +443,7 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
           className="flex-1 px-4 py-2.5 rounded-full text-sm outline-none"
           style={{ background: "rgba(255,255,255,0.08)", color: "white", border: "1px solid rgba(255,31,125,0.25)" }}
         />
-        <button className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
+        <button className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
         </button>
       </div>
@@ -482,7 +487,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <div className="flex-1">
-            <p className="text-[10px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>PLAN ROOM ✿</p>
+            <p className="text-[10px] font-bold tracking-[0.25em] uppercase" style={{ color: "var(--bb-pink)" }}>PLAN ROOM ✿</p>
           </div>
           <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
@@ -494,7 +499,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
           <div className="flex-1">
             <h1 className="text-white leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,8vw,36px)", fontWeight: 900 }}>
               Let&apos;s make it{" "}
-              <span style={{ fontFamily: "var(--font-caveat)", color: "#FF1F7D", fontWeight: 400, fontSize: "1.2em", fontStyle: "italic" }}>
+              <span style={{ fontFamily: "var(--font-caveat)", color: "var(--bb-pink)", fontWeight: 400, fontSize: "1.2em", fontStyle: "italic" }}>
                 iconic
               </span>
             </h1>
@@ -520,7 +525,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
             <button key={tab} onClick={() => setActiveTab(tab)}
               className="flex-1 py-3 text-xs font-bold tracking-wider transition-all"
               style={activeTab === tab
-                ? { color: "#FF1F7D", borderBottom: "2px solid #FF1F7D" }
+                ? { color: "var(--bb-pink)", borderBottom: "2px solid var(--bb-pink)" }
                 : { color: "rgba(255,255,255,0.35)", borderBottom: "2px solid transparent" }}
             >
               {tab}
@@ -536,7 +541,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
           <div className="p-5 flex flex-col gap-4">
             {/* The Plan card */}
             <div className="rounded-2xl overflow-hidden" style={{ background: "white" }}>
-              <div className="px-4 py-2 flex items-center" style={{ background: "#FF1F7D" }}>
+              <div className="px-4 py-2 flex items-center" style={{ background: "var(--bb-pink)" }}>
                 <p className="text-xs font-black tracking-wider uppercase text-white">THE PLAN</p>
               </div>
               <div className="px-5 py-4">
@@ -546,27 +551,27 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
               </div>
               {/* Voice note */}
               <div className="mx-4 mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: "#FFF0F5" }}>
-                <button className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
+                <button className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </button>
                 <div className="flex gap-0.5 items-center flex-1 h-5">
                   {Array.from({ length: 32 }).map((_, i) => (
-                    <div key={i} style={{ width: "2px", height: `${4 + Math.abs(Math.sin(i * 0.9)) * 12}px`, background: "#FF1F7D", opacity: 0.5, borderRadius: "2px", flexShrink: 0 }} />
+                    <div key={i} style={{ width: "2px", height: `${4 + Math.abs(Math.sin(i * 0.9)) * 12}px`, background: "var(--bb-pink)", opacity: 0.5, borderRadius: "2px", flexShrink: 0 }} />
                   ))}
                 </div>
-                <span className="text-xs font-bold" style={{ color: "#FF1F7D" }}>0:28</span>
+                <span className="text-xs font-bold" style={{ color: "var(--bb-pink)" }}>0:28</span>
               </div>
               <div className="px-4 pb-4">
                 <p className="text-xs" style={{ color: "#aaa" }}>Voice Note from Maya</p>
               </div>
               {/* Outfit check card */}
               <div className="mx-4 mb-4 rounded-xl px-4 py-3.5" style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.12)" }}>
-                <p className="text-[10px] font-black tracking-wider uppercase mb-1.5" style={{ color: "#FF1F7D" }}>OUTFIT CHECK</p>
+                <p className="text-[10px] font-black tracking-wider uppercase mb-1.5" style={{ color: "var(--bb-pink)" }}>OUTFIT CHECK</p>
                 <p className="text-sm italic leading-snug mb-2.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Help each other decide what to wear</p>
                 <div className="flex items-center gap-1">
                   {["A","T","Z","M"].map((a, i) => (
                     <div key={i} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
-                      style={{ background: i % 2 === 0 ? "#FF1F7D" : "#FF69B4", marginLeft: i > 0 ? "-8px" : "0", zIndex: 4 - i }}>
+                      style={{ background: i % 2 === 0 ? "var(--bb-pink)" : "#FF69B4", marginLeft: i > 0 ? "-8px" : "0", zIndex: 4 - i }}>
                       {a}
                     </div>
                   ))}
@@ -579,7 +584,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
             {/* Countdown + Advance Order */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl p-4" style={{ background: "#1C1610" }}>
-                <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>COUNTDOWN</p>
+                <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>COUNTDOWN</p>
                 <p className="font-black leading-none mb-0.5" style={{ color: "white", fontFamily: "var(--font-playfair)", fontSize: "42px" }}>02</p>
                 <p className="text-xs font-bold tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>DAYS</p>
                 <div className="flex gap-3">
@@ -595,14 +600,14 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
                 <p className="text-[10px] mt-2" style={{ color: "rgba(255,255,255,0.35)" }}>until our night</p>
               </div>
               <div className="rounded-2xl p-4" style={{ background: "#FFF0F5" }}>
-                <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1.5" style={{ color: "#FF1F7D" }}>ADVANCE ORDER</p>
+                <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1.5" style={{ color: "var(--bb-pink)" }}>ADVANCE ORDER</p>
                 <p className="text-xs leading-snug mb-3" style={{ color: "#555" }}>Skip the line. Pre-order your favorites.</p>
                 <div className="flex items-center gap-1.5 mb-2">
                   {["🍝","🥗","🍹"].map((e, i) => (
                     <div key={i} className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: "rgba(255,31,125,0.1)" }}>{e}</div>
                   ))}
                 </div>
-                <button className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FF1F7D" }}>
+                <button className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--bb-pink)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
               </div>
@@ -612,7 +617,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
 
         {activeTab === "PEOPLE" && (
           <div className="p-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>WHO&apos;S COMING</p>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "var(--bb-pink)" }}>WHO&apos;S COMING</p>
             <div className="grid grid-cols-3 gap-3">
               {ATTENDEES.map((a, i) => (
                 <div key={i} className="flex flex-col items-center gap-2">
@@ -622,7 +627,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
                       {a.initial}
                     </div>
                     <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white"
-                      style={{ background: a.role === "Host" ? "#FF1F7D" : a.confirmed ? "#4CAF50" : a.role === "Pending" ? "#FFC107" : "#bbb" }} />
+                      style={{ background: a.role === "Host" ? "var(--bb-pink)" : a.confirmed ? "#4CAF50" : a.role === "Pending" ? "#FFC107" : "#bbb" }} />
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>{a.name}</p>
@@ -648,7 +653,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
               <div key={i} className="flex items-start gap-3 rounded-2xl px-4 py-3.5" style={{ background: "#1C1610" }}>
                 <span className="text-xl flex-shrink-0 mt-0.5">{d.icon}</span>
                 <div>
-                  <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>{d.label}</p>
+                  <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>{d.label}</p>
                   <p className="text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>{d.val}</p>
                 </div>
               </div>
@@ -658,14 +663,14 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
 
         {activeTab === "ORDERS" && (
           <div className="p-5 flex flex-col gap-3">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF1F7D" }}>PRE-ORDERS</p>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--bb-pink)" }}>PRE-ORDERS</p>
             {[
               { name: "Maya", item: "Truffle pasta + rosé", status: "Confirmed" },
               { name: "Teni", item: "Burrata + cocktail", status: "Confirmed" },
               { name: "You", item: "Not yet ordered", status: "Pending" },
             ].map((o, i) => (
               <div key={i} className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: "#1C1610" }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
                   {o.name[0]}
                 </div>
                 <div className="flex-1">
@@ -684,7 +689,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
         {/* Plan Chat — always at bottom of PLAN tab */}
         {activeTab === "PLAN" && (
           <div className="px-5 pb-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>PLAN CHAT</p>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>PLAN CHAT</p>
             <div className="flex flex-col gap-3 mb-4">
               {chatMsgs.map((msg, i) => (
                 <div key={i} className={`flex gap-2.5 ${msg.mine ? "flex-row-reverse" : ""}`}>
@@ -696,7 +701,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
                   )}
                   <div className={`max-w-[70%]`}>
                     {!msg.mine && <p className="text-[10px] font-bold mb-1" style={{ color: "#FF69B4" }}>{msg.from}</p>}
-                    <div className="px-4 py-2.5 rounded-2xl" style={{ background: msg.mine ? "#FF1F7D" : "#1C1610" }}>
+                    <div className="px-4 py-2.5 rounded-2xl" style={{ background: msg.mine ? "var(--bb-pink)" : "#1C1610" }}>
                       <p className="text-sm" style={{ color: "white" }}>{msg.text}</p>
                       <div className="flex items-center justify-between mt-1">
                         <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{msg.time}</p>
@@ -713,7 +718,7 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
 
             {/* Chat input */}
             <div className="flex items-center gap-2" style={{ background: "#1C1610", borderRadius: "100px", padding: "6px 6px 6px 16px", border: "1px solid rgba(255,31,125,0.2)" }}>
-              <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
+              <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><line x1="12" y1="5" x2="12" y2="19" strokeWidth="2"/><line x1="5" y1="12" x2="19" y2="12" strokeWidth="2"/></svg>
               </button>
               <input
@@ -783,7 +788,7 @@ function GroupThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[
               )}
               {msg.text && (
                 <div className="px-4 py-2.5 rounded-2xl"
-                  style={{ background: msg.mine ? "#FF1F7D" : "white", boxShadow: msg.mine ? "0 3px 12px rgba(255,31,125,0.2)" : "0 2px 8px rgba(0,0,0,0.06)", borderBottomRightRadius: msg.mine ? "6px" : "16px", borderBottomLeftRadius: msg.mine ? "16px" : "6px" }}>
+                  style={{ background: msg.mine ? "var(--bb-pink)" : "white", boxShadow: msg.mine ? "0 3px 12px rgba(255,31,125,0.2)" : "0 2px 8px rgba(0,0,0,0.06)", borderBottomRightRadius: msg.mine ? "6px" : "16px", borderBottomLeftRadius: msg.mine ? "16px" : "6px" }}>
                   <p className="text-sm" style={{ color: msg.mine ? "white" : "#111" }}>{msg.text}</p>
                 </div>
               )}
@@ -821,7 +826,7 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
           <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
         </div>
         <div className="px-6 pb-2">
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>CREATE GROUP CHAT</p>
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>CREATE GROUP CHAT</p>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -841,7 +846,7 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
                 </div>
                 <p className="flex-1 text-sm font-semibold text-left" style={{ color: "#111" }}>{s.name}</p>
                 <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                  style={{ borderColor: selected.has(s.name) ? "#FF1F7D" : "#ddd", background: selected.has(s.name) ? "#FF1F7D" : "transparent" }}>
+                  style={{ borderColor: selected.has(s.name) ? "var(--bb-pink)" : "#ddd", background: selected.has(s.name) ? "var(--bb-pink)" : "transparent" }}>
                   {selected.has(s.name) && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2 6 5 9 10 3"/></svg>}
                 </div>
               </button>
@@ -853,13 +858,303 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             disabled={selected.size < 2 || !name.trim()}
             className="w-full py-4 rounded-full text-sm font-bold transition-all"
-            style={selected.size >= 2 && name.trim() ? { background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" } : { background: "#F0E0E8", color: "#C8A0B0" }}
+            style={selected.size >= 2 && name.trim() ? { background: "var(--bb-pink)", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" } : { background: "#F0E0E8", color: "#C8A0B0" }}
           >
             {selected.size >= 2 ? `Create Group · ${selected.size} women` : "Select at least 2 women"}
           </button>
         </div>
       </div>
     </>
+  );
+}
+
+// ── Desktop: inline thread renderer (no full-screen takeover) ─────────────────
+
+function DesktopThread({
+  chat,
+  isNight,
+  cardBg,
+  borderCol,
+  headingColor,
+  textMuted,
+  surfaceBg,
+}: {
+  chat: ChatEntry;
+  isNight: boolean;
+  cardBg: string;
+  borderCol: string;
+  headingColor: string;
+  textMuted: string;
+  surfaceBg: string;
+}) {
+  const msgs = THREADS[chat.id] ?? [];
+  const [messages, setMessages] = useState(msgs);
+  const [loved, setLoved] = useState<Set<number>>(new Set());
+
+  function addMsg(text: string) {
+    setMessages((p) => [...p, { id: Date.now(), from: "You", initial: "Y", color: "#FF1F7D", text, mine: true, time: "just now" }]);
+  }
+
+  const isDark = chat.type === "bloombay";
+  const threadBg = isDark ? "#111111" : (isNight ? surfaceBg : "#FDFAF5");
+  const msgCardBg = isDark ? "#1C1610" : cardBg;
+
+  return (
+    <div className="flex flex-col h-full" style={{ background: threadBg }}>
+      {/* Thread header */}
+      <div className="px-5 py-4 flex items-center gap-3 flex-shrink-0" style={{ background: isDark ? "#111111" : cardBg, borderBottom: `1px solid ${borderCol}` }}>
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm"
+          style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)` }}
+        >
+          {chat.initial}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-sm" style={{ color: isDark ? "white" : headingColor }}>{chat.name}</p>
+          <p className="text-[10px]" style={{ color: isDark ? "rgba(255,255,255,0.35)" : textMuted }}>
+            {chat.type === "club" ? `${chat.members} members · Club Room` :
+             chat.type === "group" ? `Group · ${chat.members} women` :
+             chat.type === "bloombay" ? "Official Dispatch" : "Bloomie · Private"}
+          </p>
+        </div>
+        {chat.type === "club" && (
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
+            <p className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "var(--bb-pink)" }}>LIVE</p>
+          </div>
+        )}
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 px-5 py-4 flex flex-col gap-3 overflow-y-auto">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex gap-2.5 ${msg.mine ? "flex-row-reverse" : ""}`}>
+            {!msg.mine && (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 self-end"
+                style={{ background: `linear-gradient(135deg, ${msg.color} 0%, ${msg.color}BB 100%)` }}>
+                {msg.initial}
+              </div>
+            )}
+            <div className="max-w-[70%] flex flex-col gap-0.5" style={{ alignItems: msg.mine ? "flex-end" : "flex-start" }}>
+              {!msg.mine && chat.type !== "bloomie" && (
+                <p className="text-[10px] font-bold px-1" style={{ color: msg.color }}>{msg.from}</p>
+              )}
+              {msg.mediaType === "photo" && (
+                <div className="rounded-xl overflow-hidden mb-1" style={{ background: "#F0E0E8", width: "150px", height: "100px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div className="text-center">
+                    <p className="text-2xl mb-1">📸</p>
+                    <p className="text-[10px] font-bold" style={{ color: "var(--bb-pink)" }}>{msg.mediaLabel}</p>
+                  </div>
+                </div>
+              )}
+              {msg.mediaType === "voice" && (
+                <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: msg.mine ? "var(--bb-pink)" : msgCardBg, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", minWidth: "150px" }}>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: msg.mine ? "rgba(255,255,255,0.2)" : "#FFE0EE" }}>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill={msg.mine ? "white" : "var(--bb-pink)"}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </div>
+                  <div className="flex gap-0.5 items-center flex-1 h-4">
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <div key={i} className="rounded-full flex-shrink-0" style={{ width: "2px", height: `${4 + Math.abs(Math.sin(i * 1.2)) * 8}px`, background: msg.mine ? "rgba(255,255,255,0.7)" : "var(--bb-pink)", opacity: 0.6 }} />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold" style={{ color: msg.mine ? "rgba(255,255,255,0.7)" : "#aaa" }}>{msg.mediaLabel}</span>
+                </div>
+              )}
+              {msg.mediaType === "gif" && (
+                <div className="rounded-xl overflow-hidden" style={{ background: "#111", width: "150px", height: "90px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <p className="text-sm font-bold" style={{ color: "#FF69B4" }}>{msg.mediaLabel}</p>
+                </div>
+              )}
+              {msg.text && (
+                <div className="px-4 py-2.5 rounded-2xl"
+                  style={{
+                    background: msg.mine ? "var(--bb-pink)" : (isDark ? "#1C1610" : msgCardBg),
+                    boxShadow: msg.mine ? "0 3px 12px rgba(255,31,125,0.25)" : "0 2px 8px rgba(0,0,0,0.06)",
+                    borderBottomRightRadius: msg.mine ? "6px" : "16px",
+                    borderBottomLeftRadius: msg.mine ? "16px" : "6px",
+                    border: isDark && !msg.mine ? "1px solid rgba(255,31,125,0.12)" : undefined,
+                  }}
+                >
+                  <p className="text-sm leading-relaxed" style={{ color: msg.mine ? "white" : (isDark ? "rgba(255,255,255,0.85)" : headingColor) }}>{msg.text}</p>
+                  {!msg.mine && chat.type === "club" && (
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-[10px]" style={{ color: isDark ? "rgba(255,255,255,0.3)" : textMuted }}>{msg.time}</p>
+                      <button
+                        onClick={() => setLoved((p) => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })}
+                        className="flex items-center gap-1 px-2 py-1 rounded-full"
+                        style={{ background: loved.has(msg.id) ? "var(--bb-pink)" : "#FFF0F5" }}
+                      >
+                        <span style={{ fontSize: "10px" }}>🌸</span>
+                        <span className="text-[9px] font-bold" style={{ color: loved.has(msg.id) ? "white" : "var(--bb-pink)" }}>
+                          {(msg.reactions ?? 0) + (loved.has(msg.id) ? 1 : 0)}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              <p className="text-[10px] px-1" style={{ color: isDark ? "rgba(255,255,255,0.25)" : textMuted }}>{msg.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Input */}
+      {isDark ? (
+        <div className="px-4 py-3 flex items-center gap-2 flex-shrink-0" style={{ background: "#1C1610", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <input
+            type="text"
+            placeholder="Reply to HQ…"
+            className="flex-1 px-4 py-2.5 rounded-full text-sm outline-none"
+            style={{ background: "rgba(255,255,255,0.08)", color: "white", border: "1px solid rgba(255,31,125,0.25)" }}
+          />
+          <button className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+          </button>
+        </div>
+      ) : (
+        <MessageInput
+          onSend={addMsg}
+          placeholder={
+            chat.type === "club" ? "Post to the club…" :
+            chat.type === "group" ? "Message the group…" :
+            `Message ${chat.name.split(" ")[0]}…`
+          }
+          isNight={isNight}
+          cardBg={cardBg}
+          borderCol={borderCol}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Desktop: right panel contact info ─────────────────────────────────────────
+
+function DesktopRightPanel({
+  chat,
+  isNight,
+  cardBg,
+  borderCol,
+  headingColor,
+  textMuted,
+  surfaceBg,
+  sidebarBg,
+}: {
+  chat: ChatEntry;
+  isNight: boolean;
+  cardBg: string;
+  borderCol: string;
+  headingColor: string;
+  textMuted: string;
+  surfaceBg: string;
+  sidebarBg: string;
+}) {
+  const SHARED_CLUBS = ["African Girls Club", "Soft Life Club"];
+
+  return (
+    <div className="h-full overflow-y-auto flex flex-col" style={{ background: sidebarBg }}>
+      {/* Avatar + name */}
+      <div className="px-5 py-6 flex flex-col items-center gap-3 text-center" style={{ borderBottom: `1px solid ${borderCol}` }}>
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-white text-lg"
+          style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)`, boxShadow: `0 4px 16px ${chat.color}44` }}
+        >
+          {chat.initial}
+        </div>
+        <div>
+          <p className="font-bold text-sm" style={{ color: headingColor }}>{chat.name}</p>
+          {/* Type badge */}
+          <span
+            className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+            style={{
+              background: chat.type === "bloombay" ? "#111" : chat.type === "club" ? `${chat.color}18` : isNight ? "rgba(255,31,125,0.15)" : "#FFE0EE",
+              color: chat.type === "bloombay" ? "var(--bb-pink)" : "var(--bb-pink)",
+            }}
+          >
+            {chat.type === "bloombay" ? "Official" : chat.type === "club" ? "Club" : chat.type === "group" ? "Group" : "Bloomie"}
+          </span>
+        </div>
+      </div>
+
+      {/* Club-specific info */}
+      {(chat.type === "club" || chat.type === "group") && (
+        <div className="px-5 py-4" style={{ borderBottom: `1px solid ${borderCol}` }}>
+          <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
+            {chat.type === "club" ? "CLUB INFO" : "GROUP INFO"}
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <p className="text-xs" style={{ color: textMuted }}>Members</p>
+              <p className="text-xs font-bold" style={{ color: headingColor }}>{chat.members}</p>
+            </div>
+            {chat.type === "club" && (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs" style={{ color: textMuted }}>Status</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#4CAF50" }} />
+                    <p className="text-xs font-bold" style={{ color: "#4CAF50" }}>Active</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs" style={{ color: textMuted }}>Next event</p>
+                  <p className="text-xs font-bold" style={{ color: headingColor }}>Sat 10PM</p>
+                </div>
+              </>
+            )}
+          </div>
+          {/* Mini member avatars */}
+          <div className="flex items-center gap-1 mt-3">
+            {["A","N","T","K"].map((a, i) => (
+              <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white border-2"
+                style={{ background: i % 2 === 0 ? "var(--bb-pink)" : "#FF69B4", borderColor: sidebarBg, marginLeft: i > 0 ? "-6px" : "0" }}>
+                {a}
+              </div>
+            ))}
+            <p className="text-[10px] ml-2" style={{ color: textMuted }}>+{(chat.members ?? 4) - 4} more</p>
+          </div>
+        </div>
+      )}
+
+      {/* Bloomie shared clubs */}
+      {chat.type === "bloomie" && (
+        <div className="px-5 py-4" style={{ borderBottom: `1px solid ${borderCol}` }}>
+          <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>SHARED CLUBS</p>
+          <div className="flex flex-col gap-2">
+            {SHARED_CLUBS.map((club, i) => (
+              <div key={i} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl" style={{ background: isNight ? "rgba(255,255,255,0.05)" : cardBg, border: `1px solid ${borderCol}` }}>
+                <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0"
+                  style={{ background: "var(--bb-pink)" }}>
+                  {club.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                </div>
+                <p className="text-xs font-medium" style={{ color: headingColor }}>{club}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick actions */}
+      <div className="px-5 py-4">
+        <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--bb-pink)" }}>QUICK ACTIONS</p>
+        <div className="flex flex-col gap-2">
+          {[
+            { icon: "🔔", label: "Mute notifications" },
+            { icon: "📌", label: "Pin conversation" },
+            { icon: chat.type === "bloomie" ? "💌" : "📋", label: chat.type === "bloomie" ? "Send a note" : "View details" },
+          ].map((action, i) => (
+            <button key={i}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all"
+              style={{ background: isNight ? "rgba(255,255,255,0.04)" : cardBg, border: `1px solid ${borderCol}` }}
+            >
+              <span className="text-sm">{action.icon}</span>
+              <p className="text-xs font-medium" style={{ color: headingColor }}>{action.label}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -874,6 +1169,23 @@ export default function MessagesPage() {
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [read, setRead] = useState<Set<number>>(new Set());
 
+  // ── Time-of-day awareness ──
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+  useEffect(() => { setTod(getTimeOfDay(new Date().getHours())); }, []);
+
+  const isNight = tod === "evening" || tod === "night";
+  const isEvening = tod === "evening";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
+  const textMuted = isNight ? "rgba(200,190,225,0.52)" : "#888";
+  const cardBg = isNight ? (isEvening ? "#1E1830" : "#191428") : "white";
+  const surfaceBg = isNight ? (isEvening ? "#1A1428" : "#151020") : "#FFF5F8";
+  const borderCol = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
+  const sidebarBg = isNight ? (isEvening ? "#171220" : "#13101C") : "#FDFAF5";
+
+  // Desktop: selected chat (independent from mobile view)
+  const [desktopChat, setDesktopChat] = useState<ChatEntry | null>(null);
+  const [desktopFilter, setDesktopFilter] = useState<ChatType | "all">("all");
+
   function openChat(chat: ChatEntry) {
     setRead((p) => new Set([...p, chat.id]));
     setActiveChat(chat);
@@ -882,14 +1194,27 @@ export default function MessagesPage() {
   function openPlan() { setView("plan"); }
   function back() { setView("hub"); setActiveChat(null); }
 
-  // ── Thread views ──
-  if (view === "plan") return <PlanRoom onBack={back} />;
+  function desktopOpenChat(chat: ChatEntry) {
+    setRead((p) => new Set([...p, chat.id]));
+    setDesktopChat(chat);
+  }
+
+  // ── Thread views (mobile) ──
+  if (view === "plan") return (
+    <>
+      <div className="md:hidden"><PlanRoom onBack={back} /></div>
+      <div className="hidden md:block">{/* desktop plan room via inline navigation */}<PlanRoom onBack={back} /></div>
+    </>
+  );
   if (view === "thread" && activeChat) {
     const msgs = THREADS[activeChat.id] ?? [];
-    if (activeChat.type === "bloombay") return <BloomBayThread msgs={msgs} onBack={back} />;
-    if (activeChat.type === "club")     return <ClubThread chat={activeChat} msgs={msgs} onBack={back} />;
-    if (activeChat.type === "group")    return <GroupThread chat={activeChat} msgs={msgs} onBack={back} />;
-    return <BloomieThread chat={activeChat} msgs={msgs} onBack={back} />;
+    const threadEl = (() => {
+      if (activeChat.type === "bloombay") return <BloomBayThread msgs={msgs} onBack={back} />;
+      if (activeChat.type === "club")     return <ClubThread chat={activeChat} msgs={msgs} onBack={back} />;
+      if (activeChat.type === "group")    return <GroupThread chat={activeChat} msgs={msgs} onBack={back} />;
+      return <BloomieThread chat={activeChat} msgs={msgs} onBack={back} />;
+    })();
+    return <div className="md:hidden">{threadEl}</div>;
   }
 
   const FILTERS: { label: string; value: ChatType | "all" }[] = [
@@ -900,180 +1225,307 @@ export default function MessagesPage() {
     { label: "BB HQ", value: "bloombay" },
   ];
   const shown = CHATS.filter((c) => filter === "all" || c.type === filter);
+  const desktopShown = CHATS.filter((c) => desktopFilter === "all" || c.type === desktopFilter);
   const totalUnread = CHATS.reduce((s, c) => s + (read.has(c.id) ? 0 : c.unread), 0);
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header */}
-      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>✦ INBOX</p>
-            <div className="flex items-end gap-3">
-              <h1 className="font-bold italic leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontSize: "clamp(42px,11vw,58px)" }}>
-                Messages
-              </h1>
-              {totalUnread > 0 && (
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white mb-2" style={{ background: "#FF1F7D" }}>
-                  {totalUnread}
-                </span>
-              )}
+    <>
+      {/* ── MOBILE layout ───────────────────────────────────────────────────── */}
+      <div className="md:hidden min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
+        {/* Header */}
+        <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "var(--bb-pink)" }}>✦ INBOX</p>
+              <div className="flex items-end gap-3">
+                <h1 className="font-bold italic leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontSize: "clamp(42px,11vw,58px)" }}>
+                  Messages
+                </h1>
+                {totalUnread > 0 && (
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white mb-2" style={{ background: "var(--bb-pink)" }}>
+                    {totalUnread}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowNewGroup(true)}
+              className="mt-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+              style={{ background: "#111111", color: "white" }}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Group
+            </button>
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <div className="px-5 mb-4 flex gap-2 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
+          {FILTERS.map((f) => (
+            <button key={f.value} onClick={() => setFilter(f.value)}
+              className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all active:scale-95"
+              style={filter === f.value
+                ? { background: "#111111", color: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
+                : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Chat list */}
+        <div className="px-5 flex flex-col gap-2 md:px-8">
+          {shown.map((chat) => {
+            const isUnread = chat.unread > 0 && !read.has(chat.id);
+
+            if (chat.type === "bloombay") return (
+              <button key={chat.id} onClick={() => openChat(chat)}
+                className="w-full rounded-2xl overflow-hidden text-left transition-all active:scale-[0.99]"
+                style={{ background: "#111111", boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}>
+                <div className="relative px-4 py-4 flex items-start gap-3.5">
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 90% 50%, rgba(255,31,125,0.18) 0%, transparent 55%)" }} />
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-base flex-shrink-0 relative" style={{ background: "var(--bb-pink)" }}>✦</div>
+                  <div className="flex-1 min-w-0 relative">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <p className="text-xs font-bold tracking-wider uppercase" style={{ color: "#FF69B4" }}>BLOOMBAY HQ</p>
+                      <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>{chat.time}</p>
+                    </div>
+                    <p className="text-sm leading-relaxed" style={{ color: isUnread ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)", fontWeight: isUnread ? 500 : 400 }}>
+                      {chat.preview}
+                    </p>
+                  </div>
+                  {isUnread && <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: "var(--bb-pink)" }} />}
+                </div>
+              </button>
+            );
+
+            if (chat.type === "club") return (
+              <button key={chat.id} onClick={() => openChat(chat)}
+                className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
+                style={{ background: isUnread ? "#FFF0F5" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderTop: `3px solid ${chat.color}` }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}CC 100%)` }}>
+                  {chat.initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded tracking-wider" style={{ background: `${chat.color}15`, color: chat.color }}>
+                      {chat.members} MEMBERS
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
+                  {isUnread && <div className="w-2 h-2 rounded-full" style={{ background: "var(--bb-pink)" }} />}
+                </div>
+              </button>
+            );
+
+            if (chat.type === "group") return (
+              <button key={chat.id} onClick={() => openChat(chat)}
+                className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
+                style={{ background: isUnread ? "#FFF5F8" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF69B4" }}>
+                <div className="flex items-center flex-shrink-0" style={{ width: "44px", position: "relative", height: "44px" }}>
+                  {["Z","S","A"].map((a, i) => (
+                    <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white absolute border-2 border-white"
+                      style={{ background: i === 0 ? "var(--bb-pink)" : "#FF69B4", left: `${i * 10}px`, zIndex: 3 - i, top: "9px" }}>
+                      {a}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#FFE0EE", color: "var(--bb-pink)" }}>GROUP</span>
+                  </div>
+                  <p className="text-xs line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
+                  {isUnread && <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "var(--bb-pink)" }}>{chat.unread}</div>}
+                </div>
+              </button>
+            );
+
+            // Bloomie
+            return (
+              <button key={chat.id} onClick={() => openChat(chat)}
+                className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
+                style={{ background: isUnread ? "#FFF8FC" : "white", boxShadow: isUnread ? "0 4px 16px rgba(255,31,125,0.09)" : "0 2px 10px rgba(0,0,0,0.05)" }}>
+                <div className="relative flex-shrink-0">
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)`, boxShadow: isUnread ? `0 3px 10px ${chat.color}44` : "none" }}>
+                    {chat.initial}
+                  </div>
+                  {isUnread && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white" style={{ background: "var(--bb-pink)" }} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#111", fontWeight: isUnread ? 700 : 500, fontStyle: "italic" }}>{chat.name}</p>
+                    <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
+                  </div>
+                  <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#444" : "#aaa" }}>{chat.preview}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {showNewGroup && <NewGroupSheet onClose={() => setShowNewGroup(false)} />}
+      </div>
+
+      {/* ── DESKTOP 3-panel layout ───────────────────────────────────────────── */}
+      <div className="hidden md:flex md:flex-col" style={{ height: "100vh", background: surfaceBg }}>
+
+        {/* Top bar */}
+        <div className="flex-shrink-0 flex items-center gap-0 px-0" style={{ height: "64px", background: sidebarBg, borderBottom: `1px solid ${borderCol}` }}>
+          {/* Left section — INBOX label */}
+          <div className="flex items-center gap-3 px-5" style={{ width: "300px", flexShrink: 0 }}>
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "var(--bb-pink)" }}>✦ INBOX</p>
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold text-lg leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor, fontStyle: "italic" }}>Messages</h2>
+                {totalUnread > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "var(--bb-pink)" }}>{totalUnread}</span>
+                )}
+              </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowNewGroup(true)}
-            className="mt-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-            style={{ background: "#111111", color: "white" }}
-          >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Group
-          </button>
+
+          {/* Center section — filter tabs */}
+          <div className="flex-1 flex items-center gap-1 px-4">
+            {FILTERS.map((f) => (
+              <button key={f.value} onClick={() => setDesktopFilter(f.value)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
+                style={desktopFilter === f.value
+                  ? { background: isNight ? "rgba(255,31,125,0.2)" : "#111111", color: isNight ? "var(--bb-pink)" : "white" }
+                  : { background: "transparent", color: textMuted }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right spacer — avoids portal icon overlap */}
+          <div style={{ marginRight: "256px", display: "flex", alignItems: "center", paddingRight: "16px" }}>
+            <button
+              onClick={() => setShowNewGroup(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#111111", color: "white" }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Group
+            </button>
+          </div>
+        </div>
+
+        {/* Body — 3 panels */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* LEFT PANEL — chat list (300px) */}
+          <div className="flex-shrink-0 overflow-y-auto flex flex-col" style={{ width: "300px", borderRight: `1px solid ${borderCol}`, background: sidebarBg }}>
+            {/* Chat rows */}
+            <div className="flex flex-col gap-0.5 px-2 pb-4">
+              {desktopShown.map((chat) => {
+                const isUnread = chat.unread > 0 && !read.has(chat.id);
+                const isSelected = desktopChat?.id === chat.id;
+
+                return (
+                  <button key={chat.id} onClick={() => desktopOpenChat(chat)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all"
+                    style={{
+                      background: isSelected
+                        ? (isNight ? "rgba(255,31,125,0.12)" : "#FFE8F3")
+                        : "transparent",
+                      borderLeft: isSelected ? "2px solid var(--bb-pink)" : "2px solid transparent",
+                    }}>
+                    {/* Avatar */}
+                    {chat.type === "group" ? (
+                      <div className="relative flex-shrink-0" style={{ width: "40px", height: "40px" }}>
+                        {["Z","S","A"].map((a, i) => (
+                          <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold text-white absolute border-2"
+                            style={{ background: i === 0 ? "var(--bb-pink)" : "#FF69B4", borderColor: isSelected ? (isNight ? "#1a1030" : "#FFE8F3") : sidebarBg, left: `${i * 8}px`, top: `${i === 1 ? 8 : 4}px`, zIndex: 3 - i }}>
+                            {a}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+                        style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)` }}>
+                        {chat.initial}
+                      </div>
+                    )}
+
+                    {/* Name + preview */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className="text-sm font-semibold truncate" style={{ color: isUnread ? headingColor : textMuted, fontWeight: isUnread ? 700 : 500 }}>{chat.name}</p>
+                        <p className="text-[10px] flex-shrink-0 ml-1" style={{ color: textMuted }}>{chat.time}</p>
+                      </div>
+                      <p className="text-xs truncate" style={{ color: textMuted }}>{chat.preview}</p>
+                    </div>
+
+                    {/* Unread badge */}
+                    {isUnread && (
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0" style={{ background: "var(--bb-pink)" }}>
+                        {chat.unread}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CENTER PANEL — thread (flex-1) */}
+          <div className="flex-1 overflow-hidden flex flex-col" style={{ background: isNight ? surfaceBg : "#FDFAF5" }}>
+            {desktopChat ? (
+              <DesktopThread
+                key={desktopChat.id}
+                chat={desktopChat}
+                isNight={isNight}
+                cardBg={cardBg}
+                borderCol={borderCol}
+                headingColor={headingColor}
+                textMuted={textMuted}
+                surfaceBg={surfaceBg}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ background: isNight ? "rgba(255,31,125,0.1)" : "#FFE8F3" }}>
+                  💌
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-base" style={{ fontFamily: "var(--font-playfair)", color: headingColor, fontStyle: "italic" }}>Select a conversation</p>
+                  <p className="text-sm mt-1" style={{ color: textMuted }}>Choose from your inbox to start chatting</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT PANEL — contact info (240px) */}
+          <div className="flex-shrink-0 overflow-hidden" style={{ width: "240px", borderLeft: `1px solid ${borderCol}` }}>
+            {desktopChat ? (
+              <DesktopRightPanel
+                chat={desktopChat}
+                isNight={isNight}
+                cardBg={cardBg}
+                borderCol={borderCol}
+                headingColor={headingColor}
+                textMuted={textMuted}
+                surfaceBg={surfaceBg}
+                sidebarBg={sidebarBg}
+              />
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center gap-2 px-4" style={{ background: sidebarBg }}>
+                <p className="text-xs text-center" style={{ color: textMuted }}>Select a chat to see contact info</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Plan Room Door — entry to the plan room */}
-      <div className="px-5 mb-5 md:px-8">
-        <button
-          onClick={openPlan}
-          className="w-full relative overflow-hidden transition-all active:scale-[0.98]"
-          style={{ borderRadius: "20px" }}
-        >
-          <div className="relative flex items-center gap-4 px-5 py-4" style={{ background: "#111111", minHeight: "88px" }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.22) 0%, transparent 55%)" }} />
-            {/* Door shape */}
-            <div className="relative flex-shrink-0 w-12 h-16 rounded-t-full border-2 flex items-center justify-center" style={{ borderColor: "rgba(255,31,125,0.5)", background: "rgba(255,31,125,0.1)" }}>
-              <div className="absolute right-1.5 top-1/2 w-1.5 h-4 rounded-full" style={{ background: "rgba(255,31,125,0.4)" }} />
-              <span className="text-lg">✿</span>
-            </div>
-            <div className="flex-1 relative text-left">
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>PLAN ROOM</p>
-              <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "white", fontSize: "16px" }}>
-                Saturday in Soho
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>02 days · 7 confirmed</p>
-            </div>
-            <div className="flex-shrink-0 relative">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      {/* Filter chips */}
-      <div className="px-5 mb-4 flex gap-2 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
-        {FILTERS.map((f) => (
-          <button key={f.value} onClick={() => setFilter(f.value)}
-            className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all active:scale-95"
-            style={filter === f.value
-              ? { background: "#111111", color: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
-              : { background: "white", color: "#555", border: "1.5px solid #E8E8E8" }}>
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Chat list — visually distinct objects per type */}
-      <div className="px-5 flex flex-col gap-2 md:px-8">
-        {shown.map((chat) => {
-          const isUnread = chat.unread > 0 && !read.has(chat.id);
-
-          if (chat.type === "bloombay") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl overflow-hidden text-left transition-all active:scale-[0.99]"
-              style={{ background: "#111111", boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}>
-              <div className="relative px-4 py-4 flex items-start gap-3.5">
-                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 90% 50%, rgba(255,31,125,0.18) 0%, transparent 55%)" }} />
-                <div className="w-11 h-11 rounded-full flex items-center justify-center text-base flex-shrink-0 relative" style={{ background: "#FF1F7D" }}>✦</div>
-                <div className="flex-1 min-w-0 relative">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: "#FF69B4" }}>BLOOMBAY HQ</p>
-                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>{chat.time}</p>
-                  </div>
-                  <p className="text-sm leading-relaxed" style={{ color: isUnread ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)", fontWeight: isUnread ? 500 : 400 }}>
-                    {chat.preview}
-                  </p>
-                </div>
-                {isUnread && <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: "#FF1F7D" }} />}
-              </div>
-            </button>
-          );
-
-          if (chat.type === "club") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF0F5" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderTop: `3px solid ${chat.color}` }}>
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
-                style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}CC 100%)` }}>
-                {chat.initial}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded tracking-wider" style={{ background: `${chat.color}15`, color: chat.color }}>
-                    {chat.members} MEMBERS
-                  </span>
-                </div>
-                <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
-              </div>
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                {isUnread && <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />}
-              </div>
-            </button>
-          );
-
-          if (chat.type === "group") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF5F8" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF69B4" }}>
-              {/* Stacked mini avatars */}
-              <div className="flex items-center flex-shrink-0" style={{ width: "44px", position: "relative", height: "44px" }}>
-                {["Z","S","A"].map((a, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white absolute border-2 border-white"
-                    style={{ background: i === 0 ? "#FF1F7D" : "#FF69B4", left: `${i * 10}px`, zIndex: 3 - i, top: "9px" }}>
-                    {a}
-                  </div>
-                ))}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>GROUP</span>
-                </div>
-                <p className="text-xs line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
-              </div>
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                {isUnread && <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "#FF1F7D" }}>{chat.unread}</div>}
-              </div>
-            </button>
-          );
-
-          // Bloomie — most intimate treatment
-          return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF8FC" : "white", boxShadow: isUnread ? "0 4px 16px rgba(255,31,125,0.09)" : "0 2px 10px rgba(0,0,0,0.05)" }}>
-              <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)`, boxShadow: isUnread ? `0 3px 10px ${chat.color}44` : "none" }}>
-                  {chat.initial}
-                </div>
-                {isUnread && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white" style={{ background: "#FF1F7D" }} />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#111", fontWeight: isUnread ? 700 : 500, fontStyle: "italic" }}>{chat.name}</p>
-                  <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                </div>
-                <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#444" : "#aaa" }}>{chat.preview}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
       {showNewGroup && <NewGroupSheet onClose={() => setShowNewGroup(false)} />}
-    </div>
+    </>
   );
 }

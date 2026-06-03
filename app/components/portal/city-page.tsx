@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -315,38 +316,35 @@ function MomentCard({ m, onFlower }: { m: CityMoment & { flowered?: boolean }; o
 function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
   const tc = PLACE_TYPE_COLOR[place.type];
   return (
-    <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
-      <div className="w-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
-      <div className="p-4 flex-1">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
-                {PLACE_TYPE_LABEL[place.type]}
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#F5F5F5", color: "#888" }}>{place.neighborhood}</span>
-            </div>
-            <p className="font-bold text-sm" style={{ color: "#111" }}>{place.name}</p>
-          </div>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+    <div className="bg-white rounded-2xl overflow-hidden flex flex-col" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+      {/* Top accent bar */}
+      <div className="h-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
+      <div className="p-3 flex flex-col flex-1">
+        {/* Type + rating row */}
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
+            {PLACE_TYPE_LABEL[place.type]}
+          </span>
+          <div className="flex items-center gap-0.5">
             {[1,2,3,4,5].map(star => (
-              <svg key={star} width="9" height="9" viewBox="0 0 24 24" fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2">
+              <svg key={star} width="7" height="7" viewBox="0 0 24 24" fill={star <= Math.round(place.rating) ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}
-            <span className="text-xs font-bold ml-0.5" style={{ color: "#111" }}>{place.rating.toFixed(1)}</span>
           </div>
         </div>
-        <p className="text-xs italic leading-relaxed mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#666" }}>&ldquo;{place.review}&rdquo;</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-xs" style={{ color: "#aaa" }}>— {place.submittedBy}</span>
-            <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
-          </div>
+        {/* Name */}
+        <p className="font-bold text-xs leading-tight mb-1" style={{ color: "#111" }}>{place.name}</p>
+        <p className="text-[9px] mb-1.5" style={{ color: "#aaa" }}>{place.neighborhood}</p>
+        {/* Review */}
+        <p className="text-[10px] italic leading-snug flex-1 mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#777" }}>&ldquo;{place.review.slice(0, 60)}&hellip;&rdquo;</p>
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-auto">
+          <span className="text-[9px] font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
           <button onClick={onStamp} disabled={stamped}
-            className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
+            className="px-2.5 py-1 rounded-full text-[9px] font-bold transition-all active:scale-95"
             style={stamped ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" } : { background: "#FF1F7D", color: "white" }}>
-            {stamped ? "Stamped ✓" : "Stamp it"}
+            {stamped ? "✓" : "Stamp"}
           </button>
         </div>
       </div>
@@ -362,6 +360,17 @@ export function CityPage() {
   const [floweredMoments, setFloweredMoments] = useState<Set<number>>(new Set());
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight      = tod === "evening" || tod === "night";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111";
+  const textMuted    = isNight ? "rgba(200,190,225,0.55)"  : "#999";
+  const cardBg       = isNight ? (tod === "evening" ? "#1C1828" : "#16121E") : "white";
+  const borderCol    = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
@@ -372,160 +381,395 @@ export function CityPage() {
   const filteredGo = goFilter === "All" ? GO_PLACES : GO_PLACES.filter(p => p.filter === goFilter);
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div style={{ background: "var(--pale-pink-bg)" }}>
 
-      {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
-        <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-          Girl Picks.
-        </h1>
-        <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
-          The city, through women.
-        </p>
+      {/* ══════════════════════════════════════════════════════════════
+          MOBILE LAYOUT (hidden on md+)
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="md:hidden min-h-screen pb-24">
 
-        {/* ── Tab bar ── */}
-        <div className="flex gap-1 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
-          {TAB_LABELS.map(({ key, label }) => (
-            <button key={key} onClick={() => setActiveTab(key)}
-              className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all"
-              style={activeTab === key
-                ? { background: "#111", color: "white" }
-                : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-              {label}
-            </button>
-          ))}
+        {/* ── Header ── */}
+        <div className="px-5 pt-12 pb-0">
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
+          <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+            Girl Picks.
+          </h1>
+          <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+            The city, through women.
+          </p>
+
+          {/* ── Tab bar ── */}
+          <div className="flex gap-1 overflow-x-auto pb-1 -mx-5 px-5">
+            {TAB_LABELS.map(({ key, label }) => (
+              <button key={key} onClick={() => setActiveTab(key)}
+                className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all"
+                style={activeTab === key
+                  ? { background: "#111", color: "white" }
+                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* ── Tab content ── */}
-      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
+        {/* ── Tab content ── */}
+        <div className="px-5 pt-6 flex flex-col gap-6">
 
-        {/* ── EAT ── */}
-        {activeTab === "eat" && (
-          <div className="flex flex-col gap-6">
-            <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
+          {/* ── EAT ── */}
+          {activeTab === "eat" && (
+            <div className="flex flex-col gap-6">
               <div>
                 {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
                 <div className="flex flex-col gap-3">
                   {RESTAURANTS.filter(r => !r.featured).map(r => <EatRowCard key={r.id} r={r} />)}
                 </div>
               </div>
-              <div className="hidden md:block">
-                <div className="rounded-2xl p-5 mb-4" style={{ background: "#111", boxShadow: "0 8px 28px rgba(0,0,0,0.18)" }}>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF69B4" }}>WOMEN ARE EATING</p>
-                  <div className="flex flex-col gap-3">
-                    {RESTAURANTS.filter(r => r.notableDish).map((r, i) => (
-                      <div key={r.id} className="flex items-center gap-3 py-2" style={{ borderBottom: i < RESTAURANTS.filter(x => x.notableDish).length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
-                        <span className="text-xl">{r.emoji}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold truncate" style={{ color: "white" }}>{r.notableDish}</p>
-                          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{r.name} · {r.neighborhood}</p>
+
+              {/* Girl Picks */}
+              <div>
+                <div className="flex items-baseline justify-between mb-3">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
+                    <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>Places the city loves</h3>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {girlPicks.map(place => (
+                    <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── GO ── */}
+          {activeTab === "go" && (
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5">
+                {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
+                  <button key={f} onClick={() => setGoFilter(f)}
+                    className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                    style={goFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {filteredGo.map(p => <GoCard key={p.id} p={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ── SOLO ── */}
+          {activeTab === "solo" && (
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
+                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  Places women<br />love going alone.
+                </h2>
+                <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
+                  Safe. Beautiful. Yours.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ── TRENDING ── */}
+          {activeTab === "trending" && (
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THIS WEEK IN NYC</p>
+                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,5vw,32px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  What women<br />are loving.
+                </h2>
+              </div>
+              <div className="flex flex-col gap-3">
+                {TRENDING.map(t => <TrendCard key={t.id} t={t} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ── MOMENTS — always visible ── */}
+          <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>MOMENTS</p>
+                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  Not influencers.<br />Just women.
+                </h2>
+                <p className="text-xs italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                  Women sharing things they love in the city.
+                </p>
+              </div>
+              <button className="px-4 py-2 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
+                + Share
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {MOMENTS.map(m => (
+                <MomentCard key={m.id}
+                  m={{ ...m, flowered: floweredMoments.has(m.id) }}
+                  onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
+                />
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>{/* end mobile */}
+
+      {/* ══════════════════════════════════════════════════════════════
+          DESKTOP 3-PANEL LAYOUT (hidden on mobile, shown on md+)
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="hidden md:flex md:flex-col" style={{ height: "100vh" }}>
+
+        {/* ── Top Bar ── */}
+        <div className="flex items-center gap-6 px-8 flex-shrink-0"
+          style={{
+            height: "64px",
+            background: "var(--pale-pink-bg)",
+            borderBottom: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.05)",
+          }}>
+          {/* Brand */}
+          <div className="flex-shrink-0">
+            <p className="text-[9px] font-bold tracking-[0.22em] uppercase leading-none mb-0.5" style={{ color: "var(--bb-pink)" }}>✦ NYC · WILLIAMSBURG</p>
+            <h1 className="text-lg font-black italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+              Girl Picks.
+            </h1>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }} />
+
+          {/* Tab pills */}
+          <div className="flex gap-1.5">
+            {TAB_LABELS.map(({ key, label }) => (
+              <button key={key} onClick={() => setActiveTab(key)}
+                className="px-4 py-1.5 rounded-full text-xs font-bold transition-all"
+                style={activeTab === key
+                  ? { background: "var(--bb-pink)", color: "white" }
+                  : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1.5px solid ${borderCol}` }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Stats + Add button */}
+          <div className="flex items-center gap-6 ml-auto flex-shrink-0 mr-64">
+            <div>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{RESTAURANTS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>places</p>
+            </div>
+            <div>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{MOMENTS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>moments</p>
+            </div>
+            <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "var(--bb-pink)" }}>
+              + Add
+            </button>
+          </div>
+        </div>
+
+        {/* ── 3-Column Body ── */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* LEFT PANEL: Neighborhoods + Vibe filters */}
+          <div className="flex-shrink-0 overflow-y-auto py-5 px-4"
+            style={{ width: "200px", borderRight: `1px solid ${borderCol}` }}>
+
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: textMuted }}>NEIGHBORHOODS</p>
+            {[
+              { name: "SoHo", color: "#FF1F7D" },
+              { name: "Williamsburg", color: "#FF69B4" },
+              { name: "DUMBO", color: "#A855F7" },
+              { name: "Lower East Side", color: "#F59E0B" },
+              { name: "West Village", color: "#0EA5E9" },
+              { name: "Chelsea", color: "#10B981" },
+              { name: "Park Slope", color: "#EC4899" },
+            ].map(({ name, color }) => (
+              <div key={name} className="flex items-center gap-2 px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer transition-colors"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                <p className="text-xs font-semibold truncate" style={{ color: textMuted }}>{name}</p>
+              </div>
+            ))}
+
+            <div className="my-4 mx-1 h-px" style={{ background: borderCol }} />
+
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3 px-1" style={{ color: textMuted }}>VIBE</p>
+            {["Solo Friendly", "Girls Night", "Outdoor", "Brunch", "Late Night", "Culture"].map(vibe => (
+              <div key={vibe} className="px-1 py-1.5 rounded-xl mb-0.5 cursor-pointer transition-colors"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                <p className="text-xs font-semibold" style={{ color: textMuted }}>{vibe}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CENTER PANEL: Tab content */}
+          <div className="flex-1 overflow-y-auto p-6">
+
+            {/* ── EAT ── */}
+            {activeTab === "eat" && (
+              <div className="flex flex-col gap-6">
+                {/* Women's pick — featured card, full row */}
+                {RESTAURANTS.filter(r => r.featured).map(r => <EatFeaturedCard key={r.id} r={r} />)}
+
+                {/* All restaurants — portrait cards in grid */}
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4" style={{ color: textMuted }}>ALL RESTAURANTS</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    {RESTAURANTS.filter(r => !r.featured).map(r => (
+                      <div key={r.id} className="rounded-2xl overflow-hidden" style={{ background: isNight ? cardBg : "white", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", border: `1px solid ${borderCol}` }}>
+                        <div className="flex items-center justify-center" style={{ height: "100px", background: `linear-gradient(135deg, ${r.bgColor} 0%, ${r.bgColor}99 100%)` }}>
+                          <span style={{ fontSize: "48px" }}>{r.emoji}</span>
                         </div>
-                        <p className="text-[10px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✿ {r.notableDishNote?.split(" ")[0]}</p>
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-1">
+                            <div>
+                              <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{r.name}</h3>
+                              <p className="text-[10px] mt-0.5" style={{ color: textMuted }}>{r.neighborhood} · {r.price}</p>
+                            </div>
+                            <FlowerCount count={r.womenLoved} />
+                          </div>
+                          <p className="text-xs mt-2 italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: textMuted }}>&ldquo;{r.blurb}&rdquo;</p>
+                          <div className="flex items-center gap-2 mt-3 flex-wrap">
+                            {r.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: isNight ? "rgba(255,255,255,0.1)" : "#111", color: "white" }}>SOLO FRIENDLY</span>}
+                            {r.tags.slice(0, 1).map(t => (
+                              <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1px solid ${borderCol}` }}>{t}</span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <TrendCard t={TRENDING[0]} />
-              </div>
-            </div>
 
-            {/* Girl Picks */}
-            <div>
-              <div className="flex items-baseline justify-between mb-3">
+                {/* Girl picks */}
                 <div>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
-                  <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>Places the city loves</h3>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {girlPicks.map(place => (
+                      <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-3">
-                {girlPicks.map(place => (
-                  <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* ── GO ── */}
-        {activeTab === "go" && (
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
-              {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
-                <button key={f} onClick={() => setGoFilter(f)}
-                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                  style={goFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-                  {f}
-                </button>
+            {/* ── GO ── */}
+            {activeTab === "go" && (
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-2">
+                  {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
+                    <button key={f} onClick={() => setGoFilter(f)}
+                      className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                      style={goFilter === f ? { background: "var(--bb-pink)", color: "white" } : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1.5px solid ${borderCol}` }}>
+                      {f}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {filteredGo.map(p => <GoCard key={p.id} p={p} />)}
+                </div>
+              </div>
+            )}
+
+            {/* ── SOLO ── */}
+            {activeTab === "solo" && (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
+                    <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: headingColor, letterSpacing: "-0.015em" }}>
+                      Places women love going alone.
+                    </h2>
+                  </div>
+                  <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>Safe. Beautiful. Yours.</p>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
+                </div>
+              </div>
+            )}
+
+            {/* ── TRENDING ── */}
+            {activeTab === "trending" && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>THIS WEEK IN NYC</p>
+                  <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", color: headingColor, lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                    What women<br />are loving.
+                  </h2>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {TRENDING.map(t => <TrendCard key={t.id} t={t} />)}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* RIGHT PANEL: contextual + moments */}
+          <div className="flex-shrink-0 overflow-y-auto py-5 px-4"
+            style={{ width: "260px", borderLeft: `1px solid ${borderCol}` }}>
+
+            {/* EAT tab: Women Are Eating */}
+            {activeTab === "eat" && (
+              <div className="rounded-2xl p-4 mb-4" style={{ background: "#111", boxShadow: "0 8px 28px rgba(0,0,0,0.18)" }}>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF69B4" }}>WOMEN ARE EATING</p>
+                <div className="flex flex-col gap-3">
+                  {RESTAURANTS.filter(r => r.notableDish).map((r, i) => (
+                    <div key={r.id} className="flex items-center gap-3 py-2"
+                      style={{ borderBottom: i < RESTAURANTS.filter(x => x.notableDish).length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+                      <span className="text-xl">{r.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold truncate" style={{ color: "white" }}>{r.notableDish}</p>
+                        <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{r.name} · {r.neighborhood}</p>
+                      </div>
+                      <p className="text-[10px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✿ {r.notableDishNote?.split(" ")[0]}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TRENDING tab: top 3 TrendCards */}
+            {activeTab === "trending" && (
+              <div className="flex flex-col gap-3 mb-4">
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: textMuted }}>TOP TRENDING</p>
+                {TRENDING.slice(0, 3).map(t => <TrendCard key={t.id} t={t} />)}
+              </div>
+            )}
+
+            {/* Always: divider + Moments */}
+            <div className="h-px my-4" style={{ background: borderCol }} />
+
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: textMuted }}>MOMENTS</p>
+            <div className="flex flex-col gap-3">
+              {MOMENTS.slice(0, 4).map(m => (
+                <MomentCard key={m.id}
+                  m={{ ...m, flowered: floweredMoments.has(m.id) }}
+                  onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
+                />
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredGo.map(p => <GoCard key={p.id} p={p} />)}
-            </div>
-          </div>
-        )}
-
-        {/* ── SOLO ── */}
-        {activeTab === "solo" && (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                Places women<br />love going alone.
-              </h2>
-              <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
-                Safe. Beautiful. Yours.
-              </p>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
-              {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
-            </div>
-          </div>
-        )}
-
-        {/* ── TRENDING ── */}
-        {activeTab === "trending" && (
-          <div className="flex flex-col gap-4">
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THIS WEEK IN NYC</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,5vw,32px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                What women<br />are loving.
-              </h2>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
-              {TRENDING.map(t => <TrendCard key={t.id} t={t} />)}
-            </div>
-          </div>
-        )}
-
-        {/* ── MOMENTS — always visible, its own world ── */}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6">
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>MOMENTS</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                Not influencers.<br />Just women.
-              </h2>
-              <p className="text-xs italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                Women sharing things they love in the city.
-              </p>
-            </div>
-            <button className="px-4 py-2 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
-              + Share
+            <button className="w-full mt-3 py-2 rounded-full text-xs font-bold text-white" style={{ background: "var(--bb-pink)" }}>
+              + Share a moment
             </button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {MOMENTS.map(m => (
-              <MomentCard key={m.id}
-                m={{ ...m, flowered: floweredMoments.has(m.id) }}
-                onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
-              />
-            ))}
-          </div>
-        </div>
 
+          </div>
+
+        </div>
       </div>
+
     </div>
   );
 }
