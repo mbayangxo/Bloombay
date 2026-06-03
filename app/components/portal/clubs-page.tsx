@@ -350,75 +350,50 @@ function PassportStamp({ club, events, since, isPending, isNight = false, headin
 }) {
   const level = getLevel(events);
   const levelIdx = getLevelIdx(level);
-  const stampBg  = isNight ? (headingColor === "rgba(240,232,255,0.92)" ? "#1C1828" : "#16121E") : "#FDFAF5";
+  const stampBg = isNight ? "#1C1828" : "#FDFAF5";
   const stampBorder = isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
 
   return (
-    <div className="rounded-3xl overflow-hidden"
-      style={{ background: stampBg, border: `1.5px solid ${stampBorder}`, boxShadow: "0 2px 16px rgba(0,0,0,0.04)" }}>
-      <div style={{ height: "4px", background: `linear-gradient(90deg, ${club.color}, ${club.crestBg})` }} />
-      <div className="p-5">
-        <div className="flex items-start gap-4 mb-5">
-          <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={60} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                {club.type === "hq" && (
-                  <p className="text-[9px] font-bold tracking-widest uppercase mb-0.5" style={{ color: club.color }}>✦ BLOOMBAY OFFICIAL</p>
-                )}
-                <p className="font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", fontSize: "17px", color: headingColor }}>
-                  {club.name}
-                </p>
-              </div>
-              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                style={isPending ? { background: "#FFF9E6", color: "#B45309" } : { background: "#FFF0F5", color: "var(--bb-pink)" }}>
-                {isPending ? "Pending" : "Joined ✓"}
-              </span>
-            </div>
-            <p className="text-[11px] mt-1" style={{ color: textMuted }}>Member since {since}</p>
+    <div className="rounded-2xl overflow-hidden flex flex-col"
+      style={{ background: stampBg, border: `1.5px solid ${stampBorder}`, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      {/* Club-branded top stripe — customized by club owner's colors */}
+      <div style={{ height: "5px", background: `linear-gradient(90deg, ${club.color}, ${club.crestBg})` }} />
+      <div className="p-3 flex flex-col flex-1">
+        {/* Crest + name */}
+        <div className="flex items-start gap-2 mb-2">
+          <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={36} />
+          <div className="flex-1 min-w-0 pt-0.5">
+            {club.type === "hq" && (
+              <p className="text-[8px] font-bold tracking-widest leading-none mb-0.5" style={{ color: club.color }}>✦ OFFICIAL</p>
+            )}
+            <p className="font-bold text-[11px] leading-snug" style={{ color: headingColor, fontFamily: "var(--font-playfair)" }}>
+              {club.name}
+            </p>
+            <p className="text-[9px] mt-0.5" style={{ color: textMuted }}>since {since}</p>
           </div>
         </div>
 
+        {/* Status badge */}
+        <span className="self-start text-[9px] font-bold px-2 py-0.5 rounded-full mb-2"
+          style={isPending ? { background: "#FFF9E6", color: "#B45309" } : { background: "#FFF0F5", color: "var(--bb-pink)" }}>
+          {isPending ? "Pending" : "Joined ✓"}
+        </span>
+
         {isPending ? (
-          <div className="flex items-start gap-3 rounded-2xl px-4 py-3" style={{ background: "#FFF9E6" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" className="flex-shrink-0 mt-0.5">
-              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><circle cx="12" cy="16.5" r="0.5" fill="#B45309" />
-            </svg>
-            <p className="text-xs leading-relaxed" style={{ color: "#92400E" }}>
-              Your application is with the host. You&apos;ll hear back within 48 hours.
-            </p>
-          </div>
+          <p className="text-[9px] leading-relaxed mt-auto" style={{ color: textMuted }}>
+            Application under review — 48 hrs.
+          </p>
         ) : (
           <>
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2.5">
-                <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: textMuted }}>YOUR JOURNEY</p>
-                <JourneyRow level={level} color={club.color} />
-              </div>
-              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)" }}>
-                <div className="absolute inset-y-0 left-0 rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${club.color}, ${club.crestBg})`, width: getFill(level) }} />
-              </div>
-              <div className="flex justify-between mt-1.5 px-0.5">
-                {["Member", "Regular", "Insider"].map((l, i) => (
-                  <span key={l} className="text-[9px] font-bold"
-                    style={{ color: i <= levelIdx ? club.color : (isNight ? "rgba(255,255,255,0.2)" : "#ddd") }}>{l}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-5 pt-3" style={{ borderTop: `1px solid ${isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
+            <JourneyRow level={level} color={club.color} />
+            <div className="flex items-center gap-2 mt-2 pt-2" style={{ borderTop: `1px solid ${isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
               <div>
-                <p className="font-bold text-xl" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{events}</p>
-                <p className="text-[10px]" style={{ color: textMuted }}>events</p>
-              </div>
-              <div>
-                <p className="font-bold text-xl" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{club.women}</p>
-                <p className="text-[10px]" style={{ color: textMuted }}>women</p>
+                <p className="font-bold text-sm leading-none" style={{ color: headingColor }}>{events}</p>
+                <p className="text-[9px]" style={{ color: textMuted }}>events</p>
               </div>
               <div className="flex-1" />
               <Link href={`/member/clubs/${club.id}`}
-                className="font-bold text-xs px-4 py-2.5 rounded-full"
+                className="text-[10px] font-bold px-3 py-1.5 rounded-full"
                 style={{ background: club.color, color: "white", textDecoration: "none" }}>
                 Enter →
               </Link>
@@ -626,7 +601,7 @@ export function ClubsPage() {
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   {myClubs.map(club => {
                     const isPending = requested.has(club.id) && !joined.has(club.id);
                     const m = MEMBERSHIP[club.id];
