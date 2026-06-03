@@ -289,6 +289,22 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           </div>
         </div>
 
+        {/* City events — right under hero */}
+        <div className="px-5 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold italic"
+              style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
+              Your city, your week
+            </h2>
+            <Link href="/member/happenings" className="text-xs font-bold tracking-wider" style={{ color: "var(--bb-pink)" }}>
+              The City →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {CITY_EVENTS.map((ev) => <EventPoster key={ev.id} ev={ev} />)}
+          </div>
+        </div>
+
         {/* Yande says */}
         <div className="px-5 mb-5">
           <div className="rounded-2xl px-5 py-4 flex items-start gap-3" style={{ background: surfaceBg }}>
@@ -320,22 +336,6 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             {INVITATIONS.map((inv) => (
               <EnvelopeCard key={inv.id} inv={inv} isNight={isNight} headingColor={headingColor} textMuted={textMuted} />
             ))}
-          </div>
-        </div>
-
-        {/* City events */}
-        <div className="px-5 mb-7">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold italic"
-              style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
-              Your city, your week
-            </h2>
-            <Link href="/member/happenings" className="text-xs font-bold tracking-wider" style={{ color: "var(--bb-pink)" }}>
-              The City →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {CITY_EVENTS.map((ev) => <EventPoster key={ev.id} ev={ev} />)}
           </div>
         </div>
 
