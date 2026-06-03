@@ -30,7 +30,7 @@ export default async function MemberPortalLayout({ children }: { children: React
       <SeasonalOverlay />
       <MemberSidebar user={user} />
       {/* Global top-right icons — visible on all pages */}
-      <div className="fixed z-50 flex items-center" style={{ top: "12px", right: "20px" }}>
+      <div className="fixed z-50 flex items-center" style={{ top: "8px", right: "20px" }}>
         <PortalIcons initial={user.initial} />
       </div>
       <div className="md:ml-[180px]">

@@ -429,24 +429,20 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         <div
           className="flex items-center gap-5 px-8 flex-shrink-0"
           style={{
-            height: "64px",
+            height: "72px",
             borderBottom: `1px solid ${borderCol}`,
           }}
         >
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.26em] uppercase" style={{ color: "var(--bb-pink)" }}>
-              {mood.weather} · {mood.temp}
-            </p>
-            <h1 style={{ fontFamily: "var(--font-instrument)", fontSize: "22px", color: headingColor, lineHeight: 1, fontWeight: 500 }}>
-              {greeting},{" "}
-              <em style={{ color: "var(--bb-pink)", fontWeight: 400 }}>{firstName}.</em>
-            </h1>
-          </div>
+          {/* Greeting */}
+          <h1 style={{ fontFamily: "var(--font-instrument)", fontSize: "22px", color: headingColor, lineHeight: 1, fontWeight: 500, flexShrink: 0 }}>
+            {greeting},{" "}
+            <em style={{ color: "var(--bb-pink)", fontWeight: 400 }}>{firstName}.</em>
+          </h1>
 
-          <div style={{ width: "1px", height: "28px", background: borderCol, marginLeft: "8px" }} />
+          <div style={{ width: "1px", height: "28px", background: borderCol, flexShrink: 0 }} />
 
           {/* Quick filters */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {["Tonight", "This week", "Clubs", "Friends"].map((f) => (
               <span key={f}
                 className="text-[11px] font-semibold px-3 py-1 rounded-full cursor-pointer"
@@ -456,12 +452,15 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             ))}
           </div>
 
-          {/* Women count badge — right side, leave space for portal icons */}
-          <div className="flex-1 flex justify-end" style={{ marginRight: "260px" }}>
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
-              style={{ background: surfaceBg }}>
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
-              <span className="text-xs font-bold" style={{ color: headingColor }}>{mood.women} women active</span>
+          {/* Mood statement — right side, same row as portal icons */}
+          <div className="flex-1 flex justify-end items-center" style={{ marginRight: "360px" }}>
+            <div className="text-right">
+              <p style={{ fontFamily: "var(--font-instrument)", fontSize: "19px", fontStyle: "italic", color: headingColor, lineHeight: 1.1, fontWeight: 500 }}>
+                {mood.weather}
+              </p>
+              <p className="font-bold tracking-widest mt-0.5" style={{ fontSize: "13px", color: "var(--bb-pink)", letterSpacing: "0.1em" }}>
+                {mood.temp} · {mood.women} women active
+              </p>
             </div>
           </div>
         </div>
