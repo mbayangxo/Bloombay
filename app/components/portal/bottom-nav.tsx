@@ -6,16 +6,17 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 
 const PLACES = [
-  { href: "/member/home",   baseLabel: "HOME",    n: "01" },
-  { href: "/member/city",   baseLabel: "PICKS",   n: "02" },
-  { href: "/member/clubs",  baseLabel: "CLUBS",   n: "03" },
-  { href: "/member/lounge", baseLabel: "LOUNGE",  n: "04" },
-  { href: "/member/match",  baseLabel: "CONNECT", n: "05" },
+  { href: "/member/home",       baseLabel: "HOME",       n: "01" },
+  { href: "/member/happenings", baseLabel: "HAPPENINGS", n: "02" },
+  { href: "/member/city",       baseLabel: "THE CITY",   n: "03" },
+  { href: "/member/clubs",      baseLabel: "CLUBS",      n: "04" },
+  { href: "/member/lounge",     baseLabel: "LOUNGE",     n: "05" },
+  { href: "/member/match",      baseLabel: "CONNECT",    n: "06" },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
   "/member/home":          "HOME",
-  "/member/city":          "PICKS",
+  "/member/city":          "THE CITY",
   "/member/clubs":         "CLUBS",
   "/member/lounge":        "LOUNGE",
   "/member/match":         "CONNECT",
