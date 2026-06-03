@@ -126,7 +126,6 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
 
   return (
     <div className="px-4 py-3 flex items-center gap-2" style={{ background: "white", borderTop: "1px solid #F5F5F5" }}>
-      {/* Photo */}
       <button
         onClick={() => alert("Photo upload coming soon")}
         className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
@@ -136,7 +135,6 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
           <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
         </svg>
       </button>
-      {/* GIF */}
       <button
         onClick={() => alert("GIF picker coming soon")}
         className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black"
@@ -144,7 +142,6 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
       >
         GIF
       </button>
-      {/* Text input */}
       <input
         type="text"
         value={text}
@@ -154,7 +151,6 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
         className="flex-1 px-4 py-2.5 rounded-full text-sm outline-none"
         style={{ background: "#FFF5F8", color: "#111111", border: "1.5px solid #FFE0EE" }}
       />
-      {/* Voice / Send */}
       {text.trim() ? (
         <button onClick={handleSend} className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
@@ -178,7 +174,7 @@ function MessageInput({ onSend, placeholder = "Say something…" }: { onSend?: (
   );
 }
 
-// ── Bloomie Thread — intimate note-passing ────────────────────────────────────
+// ── Bloomie Thread ────────────────────────────────────────────────────────────
 
 function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]; onBack: () => void }) {
   const [messages, setMessages] = useState(msgs);
@@ -189,7 +185,6 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#FDFAF5" }}>
-      {/* Header — intimate, polaroid style */}
       <div className="px-5 pt-14 pb-4 md:pt-8 flex items-center gap-3" style={{ background: "#FDFAF5", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.06)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -204,7 +199,6 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
           <p className="font-bold text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{chat.name}</p>
           <p className="text-[10px]" style={{ color: "#bbb" }}>Bloomie · Private</p>
         </div>
-        {/* Heart indicator */}
         <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFE0EE" }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="#FF1F7D" stroke="none">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -212,7 +206,6 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
         </div>
       </div>
 
-      {/* Messages — note-card aesthetic, not standard bubbles */}
       <div className="flex-1 px-5 py-5 flex flex-col gap-3 overflow-y-auto pb-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-2.5 ${msg.mine ? "flex-row-reverse" : ""}`}>
@@ -273,7 +266,7 @@ function BloomieThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMs
   );
 }
 
-// ── Club Thread — living board, not bubble chat ───────────────────────────────
+// ── Club Thread ───────────────────────────────────────────────────────────────
 
 function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]; onBack: () => void }) {
   const [messages, setMessages] = useState(msgs);
@@ -288,7 +281,6 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#F9F5F8" }}>
-      {/* Club header — room/hall feel */}
       <div className="pt-14 pb-0 md:pt-8" style={{ background: "white", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div className="px-5 flex items-center gap-3 mb-3">
           <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(0,0,0,0.06)" }}>
@@ -309,7 +301,6 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
             <p className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "#FF1F7D" }}>LIVE</p>
           </div>
         </div>
-        {/* Member avatars — who's in the room */}
         <div className="px-5 pb-3 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {MEMBER_AVATARS.map((a, i) => (
             <div key={i}
@@ -321,7 +312,6 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
         </div>
       </div>
 
-      {/* Messages — notice board cards, not bubbles */}
       <div className="flex-1 px-4 py-4 flex flex-col gap-3 overflow-y-auto">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-2.5 ${msg.mine ? "justify-end" : ""}`}>
@@ -376,12 +366,11 @@ function ClubThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[]
   );
 }
 
-// ── BloomBay HQ Thread — official dispatch ────────────────────────────────────
+// ── BloomBay HQ Thread ────────────────────────────────────────────────────────
 
 function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => void }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#111111" }}>
-      {/* HQ Header */}
       <div className="px-5 pt-14 pb-5 md:pt-8 relative overflow-hidden" style={{ background: "#111111", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.14) 0%, transparent 60%)" }} />
         <div className="relative flex items-center gap-3">
@@ -398,13 +387,11 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
         </div>
       </div>
 
-      {/* Dispatch messages — sealed letter aesthetic */}
       <div className="flex-1 px-5 py-5 flex flex-col gap-4 overflow-y-auto">
         {msgs.map((msg) => (
           <div key={msg.id} className={`${msg.mine ? "flex justify-end" : ""}`}>
             {!msg.mine ? (
               <div className="rounded-2xl overflow-hidden" style={{ background: "#1C1610", border: "1px solid rgba(255,31,125,0.18)", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-                {/* Stamp header */}
                 <div className="px-5 py-2.5 flex items-center gap-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                   <span className="text-sm" style={{ color: "#FF1F7D" }}>✦</span>
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>BLOOMBAY HQ</p>
@@ -430,7 +417,6 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
         ))}
       </div>
 
-      {/* Reply bar — dark style */}
       <div className="px-4 py-3 flex items-center gap-2" style={{ background: "#1C1610", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <input
           type="text"
@@ -446,7 +432,7 @@ function BloomBayThread({ msgs, onBack }: { msgs: ThreadMsg[]; onBack: () => voi
   );
 }
 
-// ── Plan Room — event planning space ─────────────────────────────────────────
+// ── Plan Room ─────────────────────────────────────────────────────────────────
 
 function PlanRoom({ onBack }: { onBack: () => void }) {
   const [activeTab, setActiveTab] = useState<"PLAN" | "PEOPLE" | "DETAILS" | "ORDERS">("PLAN");
@@ -474,7 +460,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#111111" }}>
-      {/* Header */}
       <div className="px-5 pt-14 pb-0 md:pt-8 relative" style={{ background: "#111111" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 70% 50%, rgba(255,31,125,0.15) 0%, transparent 55%)" }} />
         <div className="relative flex items-center gap-3 mb-4">
@@ -489,7 +474,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Hero */}
         <div className="relative mb-4 flex items-start gap-4">
           <div className="flex-1">
             <h1 className="text-white leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,8vw,36px)", fontWeight: 900 }}>
@@ -503,7 +487,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
             </div>
             <p className="text-lg font-bold" style={{ color: "white" }}>Saturday in Soho ✿</p>
           </div>
-          {/* Polaroid photo */}
           <div className="flex-shrink-0 relative" style={{ transform: "rotate(3deg)" }}>
             <div className="bg-white p-2 pb-6 shadow-xl rounded-sm" style={{ width: "88px", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
               <div className="w-full h-16 rounded-sm flex items-center justify-center" style={{ background: "linear-gradient(135deg, #330011, #FF1F7D44)" }}>
@@ -514,7 +497,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
           {(["PLAN", "PEOPLE", "DETAILS", "ORDERS"] as const).map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -529,12 +511,9 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
-
         {activeTab === "PLAN" && (
           <div className="p-5 flex flex-col gap-4">
-            {/* The Plan card */}
             <div className="rounded-2xl overflow-hidden" style={{ background: "white" }}>
               <div className="px-4 py-2 flex items-center" style={{ background: "#FF1F7D" }}>
                 <p className="text-xs font-black tracking-wider uppercase text-white">THE PLAN</p>
@@ -544,7 +523,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
                 <p className="text-base font-semibold mb-1.5" style={{ color: "#111" }}>Drinks after at Dante</p>
                 <p className="text-base font-semibold flex items-center gap-2" style={{ color: "#111" }}>Late night girls&apos; walk <span>♡</span></p>
               </div>
-              {/* Voice note */}
               <div className="mx-4 mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: "#FFF0F5" }}>
                 <button className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -559,24 +537,8 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
               <div className="px-4 pb-4">
                 <p className="text-xs" style={{ color: "#aaa" }}>Voice Note from Maya</p>
               </div>
-              {/* Outfit check card */}
-              <div className="mx-4 mb-4 rounded-xl px-4 py-3.5" style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.12)" }}>
-                <p className="text-[10px] font-black tracking-wider uppercase mb-1.5" style={{ color: "#FF1F7D" }}>OUTFIT CHECK</p>
-                <p className="text-sm italic leading-snug mb-2.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Help each other decide what to wear</p>
-                <div className="flex items-center gap-1">
-                  {["A","T","Z","M"].map((a, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
-                      style={{ background: i % 2 === 0 ? "#FF1F7D" : "#FF69B4", marginLeft: i > 0 ? "-8px" : "0", zIndex: 4 - i }}>
-                      {a}
-                    </div>
-                  ))}
-                  <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold"
-                    style={{ background: "#111", color: "#FF69B4", marginLeft: "-8px" }}>+4</div>
-                </div>
-              </div>
             </div>
 
-            {/* Countdown + Advance Order */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl p-4" style={{ background: "#1C1610" }}>
                 <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>COUNTDOWN</p>
@@ -681,7 +643,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
-        {/* Plan Chat — always at bottom of PLAN tab */}
         {activeTab === "PLAN" && (
           <div className="px-5 pb-5">
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#FF1F7D" }}>PLAN CHAT</p>
@@ -711,7 +672,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
               ))}
             </div>
 
-            {/* Chat input */}
             <div className="flex items-center gap-2" style={{ background: "#1C1610", borderRadius: "100px", padding: "6px 6px 6px 16px", border: "1px solid rgba(255,31,125,0.2)" }}>
               <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><line x1="12" y1="5" x2="12" y2="19" strokeWidth="2"/><line x1="5" y1="12" x2="19" y2="12" strokeWidth="2"/></svg>
@@ -725,7 +685,6 @@ function PlanRoom({ onBack }: { onBack: () => void }) {
                 className="flex-1 text-sm outline-none bg-transparent"
                 style={{ color: "rgba(255,255,255,0.8)" }}
               />
-              {/* BB flower icon */}
               <button onClick={sendChat} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
                 <span style={{ fontSize: "18px" }}>✿</span>
               </button>
@@ -751,7 +710,6 @@ function GroupThread({ chat, msgs, onBack }: { chat: ChatEntry; msgs: ThreadMsg[
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.06)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        {/* Stacked avatars for group */}
         <div className="flex items-center flex-shrink-0" style={{ width: "44px" }}>
           {["Z","S","A"].map((a, i) => (
             <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white"
@@ -833,8 +791,7 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col gap-2.5 overflow-y-auto pb-4" style={{ maxHeight: "240px" }}>
             {SUGGESTIONS.map((s) => (
               <button key={s.name} onClick={() => toggle(s.name)}
-                className="flex items-center gap-3 transition-all"
-                style={{ opacity: 1 }}>
+                className="flex items-center gap-3 transition-all">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
                   style={{ background: `linear-gradient(135deg, ${s.color} 0%, ${s.color}BB 100%)` }}>
                   {s.initial}
@@ -863,7 +820,120 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Main Messages Page ────────────────────────────────────────────────────────
+// ── Mailbox item — grid card ───────────────────────────────────────────────────
+
+function MailboxCard({ chat, isUnread, onClick }: { chat: ChatEntry; isUnread: boolean; onClick: () => void }) {
+  const typeLabel =
+    chat.type === "bloombay" ? "HQ" :
+    chat.type === "club"     ? `${chat.members} members` :
+    chat.type === "group"    ? `${chat.members} women` :
+    "Bloomie";
+
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-2xl overflow-hidden text-left transition-all active:scale-[0.97] flex flex-col"
+      style={{
+        background: chat.type === "bloombay" ? "#111111" : "white",
+        boxShadow: isUnread
+          ? `0 4px 20px ${chat.color}22`
+          : "0 2px 12px rgba(0,0,0,0.07)",
+      }}
+    >
+      {/* Mailbox top — colored area */}
+      <div
+        className="relative flex flex-col items-start justify-between p-3.5"
+        style={{
+          background: chat.type === "bloombay"
+            ? `radial-gradient(ellipse at 85% 50%, rgba(255,31,125,0.3) 0%, transparent 60%)`
+            : `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}88 100%)`,
+          minHeight: "80px",
+          backgroundColor: chat.type === "bloombay" ? "transparent" : undefined,
+        }}
+      >
+        {/* Avatar */}
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+          style={{
+            background: chat.type === "bloombay"
+              ? "#FF1F7D"
+              : "rgba(0,0,0,0.18)",
+            boxShadow: chat.type === "bloombay" ? "0 2px 10px rgba(255,31,125,0.5)" : "none",
+            fontSize: chat.initial.length > 1 ? "10px" : "14px",
+          }}
+        >
+          {chat.initial}
+        </div>
+
+        {/* Unread badge */}
+        {isUnread && (
+          <div
+            className="absolute top-2.5 right-2.5 min-w-[22px] h-[22px] rounded-full flex items-center justify-center px-1.5"
+            style={{
+              background: chat.type === "bloombay" ? "#FF1F7D" : "white",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+            }}
+          >
+            <span
+              className="text-[10px] font-black leading-none"
+              style={{ color: chat.type === "bloombay" ? "white" : chat.color }}
+            >
+              {chat.unread}
+            </span>
+          </div>
+        )}
+
+        {/* Type tag */}
+        <span
+          className="text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide"
+          style={{
+            background: chat.type === "bloombay" ? "rgba(255,31,125,0.25)" : "rgba(255,255,255,0.25)",
+            color: chat.type === "bloombay" ? "#FF69B4" : "rgba(255,255,255,0.9)",
+          }}
+        >
+          {typeLabel}
+        </span>
+      </div>
+
+      {/* Mailbox body */}
+      <div className="p-3 flex-1">
+        <p
+          className="font-bold text-sm leading-tight mb-1 truncate"
+          style={{
+            color: chat.type === "bloombay" ? "white" : "#111",
+            fontWeight: isUnread ? 700 : 500,
+            fontFamily: chat.type === "bloomie" ? "var(--font-playfair)" : undefined,
+            fontStyle: chat.type === "bloomie" ? "italic" : undefined,
+          }}
+        >
+          {chat.name}
+        </p>
+        <p
+          className="text-xs leading-snug"
+          style={{
+            color: chat.type === "bloombay"
+              ? isUnread ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.4)"
+              : isUnread ? "#555" : "#bbb",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {chat.preview}
+        </p>
+        <p
+          className="text-[10px] mt-1.5"
+          style={{ color: chat.type === "bloombay" ? "rgba(255,255,255,0.25)" : "#ddd" }}
+        >
+          {chat.time}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+// ── Main Mailbox Page ─────────────────────────────────────────────────────────
 
 type View = "hub" | "thread" | "plan";
 
@@ -882,7 +952,6 @@ export default function MessagesPage() {
   function openPlan() { setView("plan"); }
   function back() { setView("hub"); setActiveChat(null); }
 
-  // ── Thread views ──
   if (view === "plan") return <PlanRoom onBack={back} />;
   if (view === "thread" && activeChat) {
     const msgs = THREADS[activeChat.id] ?? [];
@@ -908,10 +977,10 @@ export default function MessagesPage() {
       <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>✦ INBOX</p>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>✦ MAILBOX</p>
             <div className="flex items-end gap-3">
               <h1 className="font-bold italic leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontSize: "clamp(42px,11vw,58px)" }}>
-                Messages
+                Mailbox
               </h1>
               {totalUnread > 0 && (
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white mb-2" style={{ background: "#FF1F7D" }}>
@@ -931,29 +1000,74 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* Plan Room Door — entry to the plan room */}
+      {/* Plan Room Door — big, bold, no borders, shakes when unread */}
       <div className="px-5 mb-5 md:px-8">
         <button
           onClick={openPlan}
           className="w-full relative overflow-hidden transition-all active:scale-[0.98]"
-          style={{ borderRadius: "20px" }}
+          style={{ borderRadius: "24px" }}
         >
-          <div className="relative flex items-center gap-4 px-5 py-4" style={{ background: "#111111", minHeight: "88px" }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.22) 0%, transparent 55%)" }} />
-            {/* Door shape */}
-            <div className="relative flex-shrink-0 w-12 h-16 rounded-t-full border-2 flex items-center justify-center" style={{ borderColor: "rgba(255,31,125,0.5)", background: "rgba(255,31,125,0.1)" }}>
-              <div className="absolute right-1.5 top-1/2 w-1.5 h-4 rounded-full" style={{ background: "rgba(255,31,125,0.4)" }} />
-              <span className="text-lg">✿</span>
+          <div
+            className="relative flex items-center gap-5 px-6 py-7"
+            style={{ background: "#111111", minHeight: "148px" }}
+          >
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.28) 0%, transparent 55%)" }} />
+
+            {/* Large door — no border, fills vertically */}
+            <div
+              className="relative flex-shrink-0 flex flex-col items-center justify-center"
+              style={{
+                width: "72px",
+                height: "112px",
+                borderRadius: "36px 36px 4px 4px",
+                background: "rgba(255,31,125,0.18)",
+                animation: totalUnread > 0 ? "doorShake 0.7s ease-in-out 0.5s 3" : "none",
+              }}
+            >
+              {/* Door handle */}
+              <div
+                className="absolute right-2.5"
+                style={{ top: "50%", width: "8px", height: "24px", borderRadius: "4px", background: "rgba(255,31,125,0.55)", transform: "translateY(-50%)" }}
+              />
+              <span style={{ fontSize: "26px" }}>✿</span>
+              {/* Unread badge on door */}
+              {totalUnread > 0 && (
+                <div
+                  className="absolute -top-2 -right-2 min-w-[24px] h-6 rounded-full flex items-center justify-center px-1.5"
+                  style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.55)" }}
+                >
+                  <span className="text-[11px] font-black text-white leading-none">{totalUnread}</span>
+                </div>
+              )}
             </div>
+
             <div className="flex-1 relative text-left">
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>PLAN ROOM</p>
-              <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "white", fontSize: "16px" }}>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF1F7D" }}>PLAN ROOM</p>
+              <p
+                className="font-bold italic mb-1.5"
+                style={{ fontFamily: "var(--font-playfair)", color: "white", fontSize: "22px", lineHeight: 1.2 }}
+              >
                 Saturday in Soho
               </p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>02 days · 7 confirmed</p>
+              <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>02 days · 7 confirmed</p>
+
+              {totalUnread > 0 && (
+                <div
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+                  style={{ background: "rgba(255,31,125,0.2)" }}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
+                  <span className="text-[10px] font-bold" style={{ color: "#FF69B4" }}>
+                    {totalUnread} new {totalUnread === 1 ? "message" : "messages"}
+                  </span>
+                </div>
+              )}
             </div>
+
             <div className="flex-shrink-0 relative">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
             </div>
           </div>
         </button>
@@ -972,108 +1086,31 @@ export default function MessagesPage() {
         ))}
       </div>
 
-      {/* Chat list — visually distinct objects per type */}
-      <div className="px-5 flex flex-col gap-2 md:px-8">
-        {shown.map((chat) => {
-          const isUnread = chat.unread > 0 && !read.has(chat.id);
-
-          if (chat.type === "bloombay") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl overflow-hidden text-left transition-all active:scale-[0.99]"
-              style={{ background: "#111111", boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}>
-              <div className="relative px-4 py-4 flex items-start gap-3.5">
-                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 90% 50%, rgba(255,31,125,0.18) 0%, transparent 55%)" }} />
-                <div className="w-11 h-11 rounded-full flex items-center justify-center text-base flex-shrink-0 relative" style={{ background: "#FF1F7D" }}>✦</div>
-                <div className="flex-1 min-w-0 relative">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: "#FF69B4" }}>BLOOMBAY HQ</p>
-                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>{chat.time}</p>
-                  </div>
-                  <p className="text-sm leading-relaxed" style={{ color: isUnread ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)", fontWeight: isUnread ? 500 : 400 }}>
-                    {chat.preview}
-                  </p>
-                </div>
-                {isUnread && <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: "#FF1F7D" }} />}
-              </div>
-            </button>
-          );
-
-          if (chat.type === "club") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF0F5" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderTop: `3px solid ${chat.color}` }}>
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
-                style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}CC 100%)` }}>
-                {chat.initial}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded tracking-wider" style={{ background: `${chat.color}15`, color: chat.color }}>
-                    {chat.members} MEMBERS
-                  </span>
-                </div>
-                <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
-              </div>
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                {isUnread && <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />}
-              </div>
-            </button>
-          );
-
-          if (chat.type === "group") return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF5F8" : "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF69B4" }}>
-              {/* Stacked mini avatars */}
-              <div className="flex items-center flex-shrink-0" style={{ width: "44px", position: "relative", height: "44px" }}>
-                {["Z","S","A"].map((a, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white absolute border-2 border-white"
-                    style={{ background: i === 0 ? "#FF1F7D" : "#FF69B4", left: `${i * 10}px`, zIndex: 3 - i, top: "9px" }}>
-                    {a}
-                  </div>
-                ))}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <p className="text-sm font-bold" style={{ color: "#111", fontWeight: isUnread ? 700 : 600 }}>{chat.name}</p>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>GROUP</span>
-                </div>
-                <p className="text-xs line-clamp-1" style={{ color: isUnread ? "#555" : "#aaa" }}>{chat.preview}</p>
-              </div>
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                {isUnread && <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "#FF1F7D" }}>{chat.unread}</div>}
-              </div>
-            </button>
-          );
-
-          // Bloomie — most intimate treatment
-          return (
-            <button key={chat.id} onClick={() => openChat(chat)}
-              className="w-full rounded-2xl p-4 flex items-start gap-3.5 text-left transition-all active:scale-[0.99]"
-              style={{ background: isUnread ? "#FFF8FC" : "white", boxShadow: isUnread ? "0 4px 16px rgba(255,31,125,0.09)" : "0 2px 10px rgba(0,0,0,0.05)" }}>
-              <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}BB 100%)`, boxShadow: isUnread ? `0 3px 10px ${chat.color}44` : "none" }}>
-                  {chat.initial}
-                </div>
-                {isUnread && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white" style={{ background: "#FF1F7D" }} />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#111", fontWeight: isUnread ? 700 : 500, fontStyle: "italic" }}>{chat.name}</p>
-                  <p className="text-[10px]" style={{ color: "#bbb" }}>{chat.time}</p>
-                </div>
-                <p className="text-xs leading-relaxed line-clamp-1" style={{ color: isUnread ? "#444" : "#aaa" }}>{chat.preview}</p>
-              </div>
-            </button>
-          );
-        })}
+      {/* Mailbox grid — 2 per row */}
+      <div className="px-5 grid grid-cols-2 gap-3 md:px-8 md:grid-cols-3">
+        {shown.map((chat) => (
+          <MailboxCard
+            key={chat.id}
+            chat={chat}
+            isUnread={chat.unread > 0 && !read.has(chat.id)}
+            onClick={() => openChat(chat)}
+          />
+        ))}
       </div>
 
       {showNewGroup && <NewGroupSheet onClose={() => setShowNewGroup(false)} />}
+
+      <style>{`
+        @keyframes doorShake {
+          0%, 100% { transform: translateX(0) rotate(0deg); }
+          15%       { transform: translateX(-4px) rotate(-3deg); }
+          30%       { transform: translateX(4px) rotate(3deg); }
+          45%       { transform: translateX(-3px) rotate(-1.5deg); }
+          60%       { transform: translateX(3px) rotate(1.5deg); }
+          75%       { transform: translateX(-1.5px) rotate(-0.5deg); }
+          90%       { transform: translateX(1.5px) rotate(0.5deg); }
+        }
+      `}</style>
     </div>
   );
 }

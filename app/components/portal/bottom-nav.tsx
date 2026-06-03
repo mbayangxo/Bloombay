@@ -13,7 +13,7 @@ const PLACES = [
 ];
 
 const UTILITY = [
-  { href: "/member/messages",      label: "Messages",  badge: false },
+  { href: "/member/messages",      label: "Mailbox",   badge: false },
   { href: "/member/notifications", label: "Ping",      badge: true  },
   { href: "/member/plans",         label: "Plans",     badge: false },
 ];
@@ -39,9 +39,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
           return (
             <Link key={u.href} href={u.href} aria-label={u.label}
               className="relative flex flex-col items-center gap-0.5">
-              {u.label === "Messages" && (
+              {u.label === "Mailbox" && (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.35)"} strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
                 </svg>
               )}
               {u.label === "Ping" && (

@@ -599,7 +599,7 @@ export default function MatchPage() {
   const incomingCount = REQUESTS.filter((r) => r.direction === "incoming").length;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-12" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-12 overflow-x-hidden" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header — large Playfair italic headline */}
       <div className="px-5 pt-14 pb-6 md:px-8 md:pt-10">
         <p
