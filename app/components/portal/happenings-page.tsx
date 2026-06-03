@@ -592,7 +592,7 @@ export function HappeningsPage() {
               ))}
               {filteredHap.length === 0 && (
                 <div className="col-span-3 rounded-3xl p-16 text-center" style={{ border: "1px solid rgba(255,31,125,0.1)" }}>
-                  <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
+                  <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>Nothing here right now. Try a different filter.</p>
                 </div>
               )}
             </div>
