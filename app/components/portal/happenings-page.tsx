@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { EventDetail } from "@/app/components/portal/event-detail";
 import type { EventData } from "@/app/components/portal/event-detail";
+import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -415,6 +416,17 @@ export function HappeningsPage() {
   const [acceptedCelebs, setAcceptedCelebs] = useState<Set<number>>(new Set());
   const [celebFilter, setCelebFilter] = useState<CelebFilter>("All");
   const [hapFilter, setHapFilter] = useState<HapFilter>("All");
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight      = tod === "evening" || tod === "night";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111";
+  const textMuted    = isNight ? "rgba(200,190,225,0.55)"  : "#999";
+  const cardBg       = isNight ? (tod === "evening" ? "#1C1828" : "#16121E") : "white";
+  const borderCol    = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
 
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
@@ -504,32 +516,32 @@ export function HappeningsPage() {
 
         {/* Top bar */}
         <div className="flex items-center gap-6 px-8 flex-shrink-0"
-          style={{ height: "64px", background: "var(--pale-pink-bg)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+          style={{ height: "64px", background: "var(--pale-pink-bg)", borderBottom: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.05)" }}>
           <div className="flex-shrink-0">
-            <p className="text-[9px] font-bold tracking-widest uppercase leading-none mb-0.5" style={{ color: "#FF1F7D" }}>✦ NYC</p>
-            <h1 className="text-lg font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Happenings</h1>
+            <p className="text-[9px] font-bold tracking-widest uppercase leading-none mb-0.5" style={{ color: "var(--bb-pink)" }}>✦ NYC</p>
+            <h1 className="text-lg font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>Happenings</h1>
           </div>
-          <div className="w-px h-6 flex-shrink-0" style={{ background: "rgba(0,0,0,0.08)" }} />
+          <div className="w-px h-6 flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }} />
           {/* Filter pills */}
           <div className="flex gap-1.5 flex-1">
             {(["All", "Tonight", "This Week", "Coming Up", "Free"] as HapFilter[]).map(f => (
               <button key={f} onClick={() => setHapFilter(f)}
                 className="px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all"
-                style={hapFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1px solid #E8E8E8" }}>
+                style={hapFilter === f ? { background: "var(--bb-pink)", color: "white" } : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1px solid ${borderCol}` }}>
                 {f}
               </button>
             ))}
           </div>
           <div className="flex items-center gap-4 mr-64 flex-shrink-0">
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{tonightCount}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>tonight</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{tonightCount}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>tonight</p>
             </div>
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{HAPPENINGS.length}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>this week</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{HAPPENINGS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>this week</p>
             </div>
-            <button className="px-4 py-1.5 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: "#111" }}>+ Add</button>
+            <button className="px-4 py-1.5 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.12)" : "#111" }}>+ Add</button>
           </div>
         </div>
 

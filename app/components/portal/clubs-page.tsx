@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -184,13 +185,14 @@ function DiscoverCard({ club, isJoined, isRequested }: {
 
 // ─── Desktop: Club Poster Card ─────────────────────────────────────────────────
 
-function DesktopClubPoster({ club, isJoined, isRequested }: {
+function DesktopClubPoster({ club, isJoined, isRequested, isNight, headingColor, textMuted, cardBg, borderCol }: {
   club: Club; isJoined: boolean; isRequested: boolean;
+  isNight: boolean; headingColor: string; textMuted: string; cardBg: string; borderCol: string;
 }) {
   return (
     <Link href={`/member/clubs/${club.id}`} style={{ textDecoration: "none" }}>
       <div className="rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
-        style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.04)" }}>
+        style={{ background: cardBg, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: `1px solid ${borderCol}` }}>
         {/* Gradient header */}
         <div className="relative flex items-center justify-center flex-shrink-0"
           style={{ height: "90px", background: `linear-gradient(135deg, ${club.color}22 0%, ${club.crestBg}38 100%)` }}>
@@ -204,18 +206,18 @@ function DesktopClubPoster({ club, isJoined, isRequested }: {
           )}
           {club.type === "hq" && (
             <div className="absolute top-2.5 left-2.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: "#111111", color: "white" }}>✦</div>
+              style={{ background: isNight ? "rgba(255,255,255,0.15)" : "#111111", color: "white" }}>✦</div>
           )}
           <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={50} />
         </div>
         {/* Content */}
         <div className="p-4 flex flex-col flex-1">
-          <p className="font-bold text-sm leading-snug mb-1" style={{ color: "#111111" }}>{club.name}</p>
-          <p className="text-[11px] mb-3 flex-1 leading-relaxed" style={{ color: "#aaa" }}>{club.vibe}</p>
+          <p className="font-bold text-sm leading-snug mb-1" style={{ color: headingColor }}>{club.name}</p>
+          <p className="text-[11px] mb-3 flex-1 leading-relaxed" style={{ color: textMuted }}>{club.vibe}</p>
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-[10px]" style={{ color: "#ccc" }}>{club.women.toLocaleString()} women</span>
+            <span className="text-[10px]" style={{ color: textMuted }}>{club.women.toLocaleString()} women</span>
             {isJoined ? (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>In ✓</span>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#FFF0F5", color: "var(--bb-pink)" }}>In ✓</span>
             ) : isRequested ? (
               <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "#FFF9E6", color: "#B45309" }}>Pending</span>
             ) : (
@@ -232,18 +234,21 @@ function DesktopClubPoster({ club, isJoined, isRequested }: {
 
 // ─── Desktop: Compact Club Row (sidebar) ──────────────────────────────────────
 
-function CompactClubRow({ club }: { club: Club }) {
+function CompactClubRow({ club, headingColor, isNight }: { club: Club; headingColor: string; isNight: boolean }) {
   const m = MEMBERSHIP[club.id];
   const level = m ? getLevel(m.events) : "member";
   return (
     <Link href={`/member/clubs/${club.id}`} style={{ textDecoration: "none" }}>
-      <div className="flex items-center gap-2.5 px-2 py-2.5 rounded-xl transition-colors hover:bg-pink-50">
+      <div className="flex items-center gap-2.5 px-2 py-2.5 rounded-xl transition-colors"
+        style={{ background: "transparent" }}
+        onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "#FFF0F5")}
+        onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
         <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={34} />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold truncate leading-snug mb-0.5" style={{ color: "#111111" }}>{club.name}</p>
+          <p className="text-xs font-bold truncate leading-snug mb-0.5" style={{ color: headingColor }}>{club.name}</p>
           <JourneyRow level={level} color={club.color} />
         </div>
-        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="2.5" strokeLinecap="round">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={isNight ? "rgba(255,255,255,0.2)" : "#ddd"} strokeWidth="2.5" strokeLinecap="round">
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </div>
@@ -277,26 +282,27 @@ function YandeRec() {
 
 // ─── Club Board Row ───────────────────────────────────────────────────────────
 
-function BoardRow({ club, rank }: { club: Club; rank: number }) {
-  const isTop = rank <= 3;
+function BoardRow({ club, rank, headingColor, textMuted, isNight }: { club: Club; rank: number; headingColor: string; textMuted: string; isNight: boolean }) {
   return (
     <Link href={`/member/clubs/${club.id}`}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:bg-pink-50"
-      style={{ textDecoration: "none" }}>
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+      style={{ textDecoration: "none" }}
+      onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = isNight ? "rgba(255,255,255,0.06)" : "#FFF0F5")}
+      onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = "transparent")}>
       <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
         style={rank === 1
-          ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" }
-          : rank === 2 ? { background: "#111111", color: "white" }
-          : rank === 3 ? { background: "#F5ECE8", color: "#FF1F7D" }
-          : { background: "#F5F5F5", color: "#bbb" }}>
+          ? { background: "linear-gradient(135deg,var(--bb-pink),#FF69B4)", color: "white" }
+          : rank === 2 ? { background: isNight ? "rgba(255,255,255,0.15)" : "#111111", color: "white" }
+          : rank === 3 ? { background: "#F5ECE8", color: "var(--bb-pink)" }
+          : { background: isNight ? "rgba(255,255,255,0.08)" : "#F5F5F5", color: textMuted }}>
         {rank === 1 ? "✦" : rank}
       </div>
       <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={30} />
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-xs truncate" style={{ color: "#111111" }}>{club.name}</p>
-        <p className="text-[10px]" style={{ color: "#ccc" }}>{club.women} women</p>
+        <p className="font-bold text-xs truncate" style={{ color: headingColor }}>{club.name}</p>
+        <p className="text-[10px]" style={{ color: textMuted }}>{club.women} women</p>
       </div>
-      {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />}
+      {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "var(--bb-pink)" }} />}
     </Link>
   );
 }
@@ -429,6 +435,17 @@ export function ClubsPage() {
   const [requested] = useState<Set<number>>(new Set());
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight     = tod === "evening" || tod === "night";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
+  const textMuted    = isNight ? "rgba(200,190,225,0.55)"  : "#999";
+  const cardBg       = isNight ? (tod === "evening" ? "#1C1828" : "#16121E") : "white";
+  const borderCol    = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
 
   const q = query.toLowerCase();
   const filtered = CLUBS.filter(c => {
@@ -568,31 +585,31 @@ export function ClubsPage() {
           style={{
             height: "64px",
             background: "var(--pale-pink-bg)",
-            borderBottom: "1px solid rgba(0,0,0,0.05)",
+            borderBottom: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.05)",
           }}>
           {/* Brand */}
           <div className="flex-shrink-0">
-            <p className="text-[9px] font-bold tracking-widest uppercase leading-none mb-0.5" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-            <h1 className="text-lg font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+            <p className="text-[9px] font-bold tracking-widest uppercase leading-none mb-0.5" style={{ color: "var(--bb-pink)" }}>BLOOMBAY</p>
+            <h1 className="text-lg font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
               Club House
             </h1>
           </div>
 
           {/* Divider */}
-          <div className="w-px h-6 flex-shrink-0" style={{ background: "rgba(0,0,0,0.08)" }} />
+          <div className="w-px h-6 flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }} />
 
           {/* Search */}
           <div className="flex-1 max-w-lg">
             <div className="rounded-xl px-4 py-2 flex items-center gap-2.5"
-              style={{ background: "white", border: "1.5px solid #FFE0EE", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
-              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#FF1F7D" strokeWidth={2.5}>
+              style={{ background: isNight ? "rgba(255,255,255,0.06)" : "white", border: "1.5px solid #FFE0EE", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--bb-pink)" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input type="text" value={query} onChange={e => setQuery(e.target.value)}
                 placeholder="Search clubs by name, vibe, or interest…"
-                className="flex-1 text-sm outline-none bg-transparent" style={{ color: "#111111" }} />
+                className="flex-1 text-sm outline-none bg-transparent" style={{ color: headingColor }} />
               {query && (
-                <button onClick={() => setQuery("")} style={{ color: "#ccc" }}>
+                <button onClick={() => setQuery("")} style={{ color: textMuted }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -604,20 +621,20 @@ export function ClubsPage() {
           {/* Stats */}
           <div className="flex items-center gap-6 ml-auto flex-shrink-0">
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>{CLUBS.length}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>circles</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{CLUBS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>circles</p>
             </div>
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>{totalWomen.toLocaleString()}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>women</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{totalWomen.toLocaleString()}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>women</p>
             </div>
             <div className="flex gap-1.5">
               {[0, 1].map(i => (
                 <button key={i} onClick={() => setActiveTab(i)}
                   className="px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all"
                   style={activeTab === i
-                    ? { background: "#111111", color: "white" }
-                    : { background: "white", color: "#888", border: "1px solid #E8E8E8" }}>
+                    ? { background: "var(--bb-pink)", color: "white" }
+                    : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1px solid ${borderCol}` }}>
                   {i === 0 ? "DISCOVER" : `PASSPORT${myClubs.length > 0 ? ` · ${myClubs.length}` : ""}`}
                 </button>
               ))}
@@ -630,40 +647,40 @@ export function ClubsPage() {
 
           {/* LEFT PANEL: My Clubs + Category Filter */}
           <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
-            style={{ width: "220px", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
+            style={{ width: "220px", borderRight: `1px solid ${borderCol}` }}>
 
             {/* My Clubs */}
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>MY CLUBS</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>MY CLUBS</p>
             {myClubs.length > 0 ? (
-              myClubs.map(club => <CompactClubRow key={club.id} club={club} />)
+              myClubs.map(club => <CompactClubRow key={club.id} club={club} headingColor={headingColor} isNight={isNight} />)
             ) : (
-              <p className="text-xs px-2 pb-4 leading-relaxed" style={{ color: "#ddd", fontStyle: "italic" }}>
+              <p className="text-xs px-2 pb-4 leading-relaxed" style={{ color: textMuted, fontStyle: "italic" }}>
                 No clubs yet — discover your first circle below.
               </p>
             )}
 
-            <div className="my-5 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-5 mx-2 h-px" style={{ background: borderCol }} />
 
             {/* Category Filter */}
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>FILTER BY</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>FILTER BY</p>
             {CATEGORY_FILTERS.map(cat => (
               <button key={cat} onClick={() => setCategoryFilter(cat)}
                 className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold mb-0.5 transition-all"
                 style={categoryFilter === cat
-                  ? { background: "#FF1F7D", color: "white" }
-                  : { background: "transparent", color: "#888" }}>
+                  ? { background: "var(--bb-pink)", color: "white" }
+                  : { background: "transparent", color: textMuted }}>
                 {cat}
               </button>
             ))}
 
-            <div className="my-5 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-5 mx-2 h-px" style={{ background: borderCol }} />
 
             {/* Live now indicator */}
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>LIVE NOW</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>LIVE NOW</p>
             {CLUBS.filter(c => c.live).map(club => (
               <div key={club.id} className="flex items-center gap-2 px-2 py-1.5 mb-1">
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
-                <p className="text-xs truncate" style={{ color: "#111111" }}>{club.name}</p>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "var(--bb-pink)" }} />
+                <p className="text-xs truncate" style={{ color: headingColor }}>{club.name}</p>
               </div>
             ))}
           </div>
@@ -678,11 +695,11 @@ export function ClubsPage() {
                 {/* All clubs grid */}
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
+                    <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: textMuted }}>
                       {q || categoryFilter !== "All" ? `${filtered.length} CLUBS` : "ALL CLUBS"}
                     </p>
                     {filtered.length > 0 && (
-                      <p className="text-[10px]" style={{ color: "#ddd" }}>
+                      <p className="text-[10px]" style={{ color: textMuted }}>
                         {filtered.reduce((a, c) => a + c.women, 0).toLocaleString()} women
                       </p>
                     )}
@@ -691,11 +708,12 @@ export function ClubsPage() {
                   <div className="grid grid-cols-3 gap-4">
                     {rest.map(club => (
                       <DesktopClubPoster key={club.id} club={club}
-                        isJoined={joined.has(club.id)} isRequested={requested.has(club.id)} />
+                        isJoined={joined.has(club.id)} isRequested={requested.has(club.id)}
+                        isNight={isNight} headingColor={headingColor} textMuted={textMuted} cardBg={cardBg} borderCol={borderCol} />
                     ))}
                     {rest.length === 0 && (
-                      <div className="col-span-3 py-16 text-center rounded-2xl" style={{ background: "white" }}>
-                        <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                      <div className="col-span-3 py-16 text-center rounded-2xl" style={{ background: cardBg }}>
+                        <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
                           No clubs match that search or filter.
                         </p>
                       </div>
@@ -710,15 +728,15 @@ export function ClubsPage() {
                   <PassportCover count={myClubs.length} />
                   {myClubs.length === 0 ? (
                     <div className="flex flex-col items-center text-center py-16">
-                      <p className="text-xl font-bold italic mb-3" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+                      <p className="text-xl font-bold italic mb-3" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
                         Your passport is empty.
                       </p>
-                      <p className="mb-6" style={{ fontFamily: "var(--font-caveat)", fontSize: "18px", color: "#FF1F7D" }}>
+                      <p className="mb-6" style={{ fontFamily: "var(--font-caveat)", fontSize: "18px", color: "var(--bb-pink)" }}>
                         Yande is ready to help you find your people.
                       </p>
                       <button onClick={() => setActiveTab(0)}
                         className="px-8 py-3 rounded-full font-bold text-sm text-white"
-                        style={{ background: "#FF1F7D" }}>
+                        style={{ background: "var(--bb-pink)" }}>
                         Discover Clubs →
                       </button>
                     </div>
@@ -738,37 +756,37 @@ export function ClubsPage() {
 
           {/* RIGHT PANEL: Yande + Club Board */}
           <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
-            style={{ width: "260px", borderLeft: "1px solid rgba(0,0,0,0.05)" }}>
+            style={{ width: "260px", borderLeft: `1px solid ${borderCol}` }}>
             <YandeRec />
 
-            <div className="my-5 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-5 h-px" style={{ background: borderCol }} />
 
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>CLUB BOARD</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: textMuted }}>CLUB BOARD</p>
             <div className="flex flex-col gap-1">
-              {ranked.map((club, i) => <BoardRow key={club.id} club={club} rank={i + 1} />)}
+              {ranked.map((club, i) => <BoardRow key={club.id} club={club} rank={i + 1} headingColor={headingColor} textMuted={textMuted} isNight={isNight} />)}
             </div>
 
-            <div className="my-5 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-5 h-px" style={{ background: borderCol }} />
 
             {/* Quick stats */}
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>THIS WEEK</p>
-            <div className="rounded-2xl p-4" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: textMuted }}>THIS WEEK</p>
+            <div className="rounded-2xl p-4" style={{ background: cardBg, boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>14</p>
-                  <p className="text-[10px]" style={{ color: "#ccc" }}>events planned</p>
+                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>14</p>
+                  <p className="text-[10px]" style={{ color: textMuted }}>events planned</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#FF1F7D" }}>3</p>
-                  <p className="text-[10px]" style={{ color: "#ccc" }}>clubs live</p>
+                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)" }}>3</p>
+                  <p className="text-[10px]" style={{ color: textMuted }}>clubs live</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>28</p>
-                  <p className="text-[10px]" style={{ color: "#ccc" }}>new members</p>
+                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>28</p>
+                  <p className="text-[10px]" style={{ color: textMuted }}>new members</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>6</p>
-                  <p className="text-[10px]" style={{ color: "#ccc" }}>new clubs</p>
+                  <p className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>6</p>
+                  <p className="text-[10px]" style={{ color: textMuted }}>new clubs</p>
                 </div>
               </div>
             </div>

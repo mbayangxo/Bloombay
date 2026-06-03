@@ -359,86 +359,251 @@ function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBa
 export default function TheLobbyPage() {
   const [room, setRoom] = useState<Room>("lobby");
   const [tod, setTod] = useState<TimeOfDay>("morning");
+  const [activeTab, setActiveTab] = useState<"lobby" | "wall" | "girlbar">("lobby");
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
   }, []);
 
   const isNight = tod === "evening" || tod === "night";
-  const bgColor = isNight ? "var(--pale-pink-bg)" : "#F5F0EC";
+  const isEvening = tod === "evening";
   const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
-  const mutedColor = isNight ? "rgba(190,180,215,0.45)" : "rgba(0,0,0,0.38)";
+  const textMuted = isNight ? "rgba(200,190,225,0.52)" : "#888";
+  const cardBg = isNight ? (isEvening ? "#1E1830" : "#191428") : "white";
+  const borderCol = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
+  const bgColor = isNight ? "var(--pale-pink-bg)" : "#F5F0EC";
 
+  // ── Mobile: sub-page routing still works ──────────────────────────────────────
   if (room === "wall")      return <TheWall onBack={() => setRoom("lobby")} />;
   if (room === "girlbar")   return <GirlBar onBack={() => setRoom("lobby")} />;
   if (room === "new-keys")  return <ComingSoonRoom name="New Keys"   sub="Where newcomers arrive and introduce themselves." onBack={() => setRoom("lobby")} />;
   if (room === "vanity")    return <ComingSoonRoom name="The Vanity" sub="Beauty advice, recommendations, and routines." onBack={() => setRoom("lobby")} />;
   if (room === "closet")    return <ComingSoonRoom name="The Closet" sub="Outfit questions, style finds, and dressing for the city." onBack={() => setRoom("lobby")} />;
 
+  const totalWomen = GIRL_BAR_ROOMS.reduce((s, r) => s + r.women, 0);
+  const trendingPosts = [...SEED_POSTS].sort((a, b) => (b.likes + b.replies * 2) - (a.likes + a.replies * 2)).slice(0, 3);
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: bgColor }}>
+    <>
+      {/* ── MOBILE ─────────────────────────────────────────────────────────── */}
+      <div className="md:hidden min-h-screen pb-24" style={{ background: bgColor }}>
 
-      {/* Header */}
-      <div className="px-6 pt-12 pb-6 md:px-10 md:pt-8 flex-shrink-0">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ BLOOMBAY</p>
-        <h1 className="text-4xl font-bold italic leading-none mb-1"
-          style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
-          The Lobby
-        </h1>
-        <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: mutedColor }}>
-          Step inside. Choose your room.
-        </p>
-      </div>
+        {/* Header */}
+        <div className="px-6 pt-12 pb-6 flex-shrink-0">
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>✦ BLOOMBAY</p>
+          <h1 className="text-4xl font-bold italic leading-none mb-1"
+            style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+            The Lobby
+          </h1>
+          <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
+            Step inside. Choose your room.
+          </p>
+        </div>
 
-      {/* ── DESKTOP: 5 doors side by side filling full height ── */}
-      <div className="hidden md:grid px-6 pb-6 gap-2" style={{ minHeight: "68vh", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr" }}>
-        {LOBBY_DOORS.map(door => (
-          <LobbyDoor
-            key={door.id}
-            door={door}
-            onClick={() => setRoom(door.id)}
-            isNight={isNight}
-            className="h-full"
-          />
-        ))}
-      </div>
-
-      {/* ── MOBILE: 2 big doors + 3 small doors ── */}
-      <div className="md:hidden px-5 pb-20 flex flex-col gap-2">
         {/* 2 main doors — tall */}
-        <div className="grid grid-cols-2 gap-2" style={{ height: "300px" }}>
-          {LOBBY_DOORS.slice(0, 2).map(door => (
-            <LobbyDoor
-              key={door.id}
-              door={door}
-              onClick={() => setRoom(door.id)}
-              isNight={isNight}
-              className="h-full"
-            />
-          ))}
+        <div className="px-5 pb-2 flex flex-col gap-2">
+          <div className="grid grid-cols-2 gap-2" style={{ height: "300px" }}>
+            {LOBBY_DOORS.slice(0, 2).map(door => (
+              <LobbyDoor
+                key={door.id}
+                door={door}
+                onClick={() => setRoom(door.id)}
+                isNight={isNight}
+                className="h-full"
+              />
+            ))}
+          </div>
+          {/* 3 side rooms — shorter */}
+          <div className="grid grid-cols-3 gap-2" style={{ height: "180px" }}>
+            {LOBBY_DOORS.slice(2).map(door => (
+              <LobbyDoor
+                key={door.id}
+                door={door}
+                onClick={() => setRoom(door.id)}
+                isNight={isNight}
+                className="h-full"
+              />
+            ))}
+          </div>
         </div>
-        {/* 3 side rooms — shorter */}
-        <div className="grid grid-cols-3 gap-2" style={{ height: "180px" }}>
-          {LOBBY_DOORS.slice(2).map(door => (
-            <LobbyDoor
-              key={door.id}
-              door={door}
-              onClick={() => setRoom(door.id)}
-              isNight={isNight}
-              className="h-full"
-            />
-          ))}
+
+        {/* Live indicator */}
+        <div className="px-5 pb-6 pt-4">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-full"
+            style={{ background: "#111" }}>
+            <span className="w-2 h-2 rounded-full animate-pulse flex-shrink-0" style={{ background: "var(--bb-pink)" }} />
+            <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>35 women in The Lobby right now</p>
+          </div>
         </div>
       </div>
 
-      {/* Live indicator */}
-      <div className="md:hidden px-5 pb-6">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-full"
-          style={{ background: "#111" }}>
-          <span className="w-2 h-2 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
-          <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>35 women in The Lobby right now</p>
+      {/* ── DESKTOP 3-PANEL ────────────────────────────────────────────────── */}
+      <div className="hidden md:flex md:flex-col" style={{ height: "100vh", background: bgColor }}>
+
+        {/* Top bar */}
+        <div className="flex-shrink-0 flex items-center gap-0 px-6 border-b"
+          style={{ height: "64px", borderColor: borderCol, background: cardBg }}>
+          {/* Brand */}
+          <p className="font-bold italic text-lg tracking-tight mr-8"
+            style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+            THE LOBBY
+          </p>
+          {/* Tab buttons */}
+          <div className="flex items-center gap-1 flex-1">
+            {(["lobby", "wall", "girlbar"] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={activeTab === tab
+                  ? { background: "var(--bb-pink)", color: "white" }
+                  : { background: "transparent", color: textMuted }}
+              >
+                {tab === "lobby" ? "Lobby" : tab === "wall" ? "The Wall" : "Girl Bar"}
+              </button>
+            ))}
+          </div>
+          {/* Women count badge */}
+          <div className="flex items-center gap-2 flex-shrink-0" style={{ marginRight: "256px" }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--bb-pink)" }} />
+            <span className="text-xs font-bold" style={{ color: textMuted }}>35 women here</span>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* Left panel — room doors list */}
+          <div className="flex-shrink-0 flex flex-col gap-2 p-3 overflow-y-auto border-r"
+            style={{ width: "220px", borderColor: borderCol, background: cardBg }}>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase px-2 pt-1 pb-0.5" style={{ color: textMuted }}>ROOMS</p>
+            {LOBBY_DOORS.map(door => {
+              const isActive = activeTab === door.id || (activeTab === "lobby" && false);
+              const isDark = door.dark || isNight;
+              return (
+                <button
+                  key={door.id}
+                  onClick={() => {
+                    if (door.id === "wall") setActiveTab("wall");
+                    else if (door.id === "girlbar") setActiveTab("girlbar");
+                    else setRoom(door.id);
+                  }}
+                  className="w-full text-left px-3 py-3 rounded-xl transition-all"
+                  style={{
+                    background: isActive
+                      ? "rgba(255,31,125,0.1)"
+                      : isNight ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    border: `1px solid ${isActive ? "rgba(255,31,125,0.2)" : borderCol}`,
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {door.available && door.hint && (
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
+                        style={{ background: door.accent }} />
+                    )}
+                    <p className="font-bold text-xs" style={{ color: headingColor, fontFamily: "var(--font-playfair)" }}>
+                      {door.name}
+                    </p>
+                    {!door.available && (
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded ml-auto"
+                        style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)", color: textMuted }}>
+                        Soon
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px]" style={{ color: textMuted }}>{door.sub}</p>
+                  {door.hint && door.available && (
+                    <p className="text-[9px] font-bold mt-1" style={{ color: door.accent }}>{door.hint}</p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Center panel */}
+          <div className="flex-1 overflow-y-auto" style={{ background: bgColor }}>
+            {activeTab === "lobby" && (
+              <div className="p-6 h-full flex flex-col">
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>✦ BLOOMBAY</p>
+                  <h2 className="text-3xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+                    The Lobby
+                  </h2>
+                  <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
+                    Step inside. Choose your room.
+                  </p>
+                </div>
+                {/* 2×2 door grid */}
+                <div className="grid grid-cols-2 gap-3 flex-1" style={{ maxHeight: "520px" }}>
+                  {LOBBY_DOORS.slice(0, 4).map(door => (
+                    <LobbyDoor
+                      key={door.id}
+                      door={door}
+                      onClick={() => {
+                        if (door.id === "wall") setActiveTab("wall");
+                        else if (door.id === "girlbar") setActiveTab("girlbar");
+                        else setRoom(door.id);
+                      }}
+                      isNight={isNight}
+                      className="h-full min-h-[160px]"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === "wall" && (
+              <TheWall onBack={() => setActiveTab("lobby")} />
+            )}
+            {activeTab === "girlbar" && (
+              <GirlBar onBack={() => setActiveTab("lobby")} />
+            )}
+          </div>
+
+          {/* Right panel */}
+          <div className="flex-shrink-0 flex flex-col gap-4 p-4 overflow-y-auto border-l"
+            style={{ width: "240px", borderColor: borderCol, background: cardBg }}>
+
+            {/* Live women count */}
+            <div className="rounded-xl p-4" style={{ background: isNight ? "rgba(255,31,125,0.1)" : "#FFF0F5" }}>
+              <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>LIVE NOW</p>
+              <p className="text-3xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
+                {totalWomen}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: textMuted }}>women in the lobby</p>
+            </div>
+
+            {/* Trending posts */}
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: textMuted }}>TRENDING ON THE WALL</p>
+              <div className="flex flex-col gap-2">
+                {trendingPosts.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setActiveTab("wall")}
+                    className="w-full text-left p-2.5 rounded-xl transition-all hover:opacity-80"
+                    style={{ background: isNight ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${borderCol}` }}
+                  >
+                    <p className="text-[11px] font-semibold leading-snug line-clamp-2" style={{ color: headingColor }}>
+                      {p.text.slice(0, 55)}…
+                    </p>
+                    <p className="text-[9px] mt-1" style={{ color: textMuted }}>✿ {p.likes} · {p.author}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Girl Bar live indicator */}
+            <div className="rounded-xl p-3 flex items-center gap-2.5"
+              style={{ background: "#111", border: "1px solid rgba(255,105,180,0.15)" }}>
+              <span className="w-2 h-2 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF69B4" }} />
+              <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.7)" }}>
+                Girl Bar · 27 women
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+    </>
   );
 }
