@@ -550,33 +550,36 @@ export function HappeningsPage() {
 
           {/* LEFT: Neighborhood / type filters */}
           <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
-            style={{ width: "200px", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>TONIGHT</p>
+            style={{ width: "200px", borderRight: `1px solid ${borderCol}` }}>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>TONIGHT</p>
             {HAPPENINGS.filter(h => h.timeTag === "tonight").map(h => (
               <button key={h.id} onClick={() => setSelectedEvent(h)}
-                className="w-full text-left px-2 py-2 rounded-xl mb-0.5 transition-colors hover:bg-pink-50">
-                <p className="text-xs font-bold truncate leading-snug" style={{ color: "#111" }}>{h.title}</p>
-                <p className="text-[10px]" style={{ color: "#FF1F7D" }}>{h.priceLabel}</p>
+                className="w-full text-left px-2 py-2 rounded-xl mb-0.5 transition-colors"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = isNight ? "rgba(255,255,255,0.06)" : "#FFF0F5")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                <p className="text-xs font-bold truncate leading-snug" style={{ color: headingColor }}>{h.title}</p>
+                <p className="text-[10px]" style={{ color: "var(--bb-pink)" }}>{h.priceLabel}</p>
               </button>
             ))}
 
-            <div className="my-4 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-4 mx-2 h-px" style={{ background: borderCol }} />
 
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>NEIGHBORHOOD</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>NEIGHBORHOOD</p>
             {Array.from(new Set(HAPPENINGS.map(h => h.neighborhood))).map(n => (
               <div key={n} className="flex items-center gap-2 px-2 py-1.5 rounded-xl mb-0.5">
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#FFE0EE" }} />
-                <p className="text-xs truncate" style={{ color: "#888" }}>{n}</p>
+                <p className="text-xs truncate" style={{ color: textMuted }}>{n}</p>
               </div>
             ))}
 
-            <div className="my-4 mx-2 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
+            <div className="my-4 mx-2 h-px" style={{ background: borderCol }} />
 
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: "#bbb" }}>TYPE</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-3 px-2" style={{ color: textMuted }}>TYPE</p>
             {Array.from(new Set(HAPPENINGS.map(h => h.type))).map(t => (
               <div key={t} className="flex items-center gap-2 px-2 py-1.5 mb-0.5">
-                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#ddd" }} />
-                <p className="text-xs capitalize" style={{ color: "#888" }}>{t}</p>
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.15)" : "#ddd" }} />
+                <p className="text-xs capitalize" style={{ color: textMuted }}>{t}</p>
               </div>
             ))}
           </div>
@@ -597,10 +600,10 @@ export function HappeningsPage() {
 
           {/* RIGHT: Confetti section */}
           <div className="flex-shrink-0 overflow-y-auto py-6 px-4"
-            style={{ width: "280px", borderLeft: "1px solid rgba(0,0,0,0.05)" }}>
+            style={{ width: "280px", borderLeft: `1px solid ${borderCol}` }}>
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "#111" }}>
               <div className="p-4">
-                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
+                <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-2" style={{ color: "var(--bb-pink)" }}>CONFETTI ✿</p>
                 <p className="font-black leading-tight mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "white" }}>
                   We show up for our girls.
                 </p>
@@ -623,19 +626,19 @@ export function HappeningsPage() {
             </div>
 
             {/* Tonight count */}
-            <div className="rounded-2xl p-4 mb-4" style={{ background: "#FFF0F5" }}>
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>TONIGHT IN NYC</p>
-              <p className="text-3xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{tonightCount}</p>
-              <p className="text-xs" style={{ color: "#aaa" }}>happenings tonight</p>
+            <div className="rounded-2xl p-4 mb-4" style={{ background: isNight ? "rgba(255,31,125,0.12)" : "#FFF0F5" }}>
+              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "var(--bb-pink)" }}>TONIGHT IN NYC</p>
+              <p className="text-3xl font-bold" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{tonightCount}</p>
+              <p className="text-xs" style={{ color: textMuted }}>happenings tonight</p>
             </div>
 
             {/* Celeb filter */}
-            <p className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: "#bbb" }}>FILTER CELEBRATIONS</p>
+            <p className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: textMuted }}>FILTER CELEBRATIONS</p>
             <div className="flex flex-col gap-1">
               {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
                 <button key={f} onClick={() => setCelebFilter(f)}
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                  style={celebFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "transparent", color: "#888" }}>
+                  style={celebFilter === f ? { background: "var(--bb-pink)", color: "white" } : { background: "transparent", color: textMuted }}>
                   {f}
                 </button>
               ))}

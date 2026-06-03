@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -362,6 +363,17 @@ export function CityPage() {
   const [floweredMoments, setFloweredMoments] = useState<Set<number>>(new Set());
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
+  const [tod, setTod] = useState<TimeOfDay>("morning");
+
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight      = tod === "evening" || tod === "night";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111";
+  const textMuted    = isNight ? "rgba(200,190,225,0.55)"  : "#999";
+  const cardBg       = isNight ? (tod === "evening" ? "#1C1828" : "#16121E") : "white";
+  const borderCol    = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
@@ -523,18 +535,18 @@ export function CityPage() {
           style={{
             height: "64px",
             background: "var(--pale-pink-bg)",
-            borderBottom: "1px solid rgba(0,0,0,0.05)",
+            borderBottom: isNight ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.05)",
           }}>
           {/* Brand */}
           <div className="flex-shrink-0">
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase leading-none mb-0.5" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
-            <h1 className="text-lg font-black italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+            <p className="text-[9px] font-bold tracking-[0.22em] uppercase leading-none mb-0.5" style={{ color: "var(--bb-pink)" }}>✦ NYC · WILLIAMSBURG</p>
+            <h1 className="text-lg font-black italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>
               Girl Picks.
             </h1>
           </div>
 
           {/* Divider */}
-          <div className="w-px h-6 flex-shrink-0" style={{ background: "rgba(0,0,0,0.08)" }} />
+          <div className="w-px h-6 flex-shrink-0" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }} />
 
           {/* Tab pills */}
           <div className="flex gap-1.5">
@@ -542,8 +554,8 @@ export function CityPage() {
               <button key={key} onClick={() => setActiveTab(key)}
                 className="px-4 py-1.5 rounded-full text-xs font-bold transition-all"
                 style={activeTab === key
-                  ? { background: "#111", color: "white" }
-                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                  ? { background: "var(--bb-pink)", color: "white" }
+                  : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1.5px solid ${borderCol}` }}>
                 {label}
               </button>
             ))}
@@ -552,14 +564,14 @@ export function CityPage() {
           {/* Stats + Add button */}
           <div className="flex items-center gap-6 ml-auto flex-shrink-0 mr-64">
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{RESTAURANTS.length}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>places</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{RESTAURANTS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>places</p>
             </div>
             <div>
-              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{MOMENTS.length}</p>
-              <p className="text-[10px]" style={{ color: "#ccc" }}>moments</p>
+              <p className="text-sm font-bold leading-none" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>{MOMENTS.length}</p>
+              <p className="text-[10px]" style={{ color: textMuted }}>moments</p>
             </div>
-            <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
+            <button className="px-4 py-2 rounded-full text-xs font-bold text-white" style={{ background: "var(--bb-pink)" }}>
               + Add
             </button>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getTimeOfDay, type TimeOfDay } from "@/app/components/portal/time-wrapper";
 
 interface Notif {
   id: number;
@@ -158,16 +159,19 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
   );
 }
 
-function NotifRow({ n }: { n: Notif }) {
+function NotifRow({ n, selected, onClick }: { n: Notif; selected?: boolean; onClick?: () => void }) {
   return (
     <div
-      className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden"
+      onClick={onClick}
+      className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden transition-all"
       style={{
-        background: n.unread ? "white" : "white",
+        background: selected ? "rgba(255,31,125,0.06)" : "white",
         boxShadow: n.unread
           ? "0 3px 16px rgba(255,31,125,0.1)"
           : "0 1px 8px rgba(0,0,0,0.06)",
         borderLeft: n.unread ? "3px solid var(--bb-pink)" : "3px solid transparent",
+        cursor: onClick ? "pointer" : "default",
+        outline: selected ? "1.5px solid var(--bb-pink)" : "none",
       }}
     >
       <NotifIcon type={n.type} />
@@ -201,11 +205,35 @@ function NotifRow({ n }: { n: Notif }) {
   );
 }
 
+function actionLabelForType(type: Notif["type"]): string {
+  if (type === "seat" || type === "event" || type === "celebrate") return "View Event →";
+  if (type === "intro") return "See Introduction →";
+  if (type === "message") return "Reply →";
+  if (type === "stamp") return "View Stamp →";
+  return "View →";
+}
+
 export default function NotificationsPage() {
   const [nowItems, setNowItems] = useState<Notif[]>(INITIAL_NOW);
   const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
+  const [selectedNotifId, setSelectedNotifId] = useState<number | null>(null);
+  const [tod, setTod] = useState<TimeOfDay>("morning");
 
-  const unreadCount = [...nowItems, ...earlierItems].filter((n) => n.unread).length;
+  useEffect(() => {
+    setTod(getTimeOfDay(new Date().getHours()));
+  }, []);
+
+  const isNight = tod === "evening" || tod === "night";
+  const isEvening = tod === "evening";
+  const headingColor = isNight ? "rgba(240,232,255,0.92)" : "#111111";
+  const textMuted = isNight ? "rgba(200,190,225,0.52)" : "#888";
+  const cardBg = isNight ? (isEvening ? "#1E1830" : "#191428") : "white";
+  const borderCol = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
+
+  const allItems = [...nowItems, ...earlierItems];
+  const unreadCount = allItems.filter((n) => n.unread).length;
+  const selectedNotif = allItems.find((n) => n.id === selectedNotifId) ?? null;
+  const topUnread = allItems.filter((n) => n.unread).slice(0, 3);
 
   function markAllRead() {
     setNowItems((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -213,84 +241,276 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      {/* Header */}
-      <div className="px-5 pt-12 pb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Link
-            href="/member/home"
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </Link>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1
-                className="text-3xl font-bold italic"
-                style={{
-                  color: "var(--bb-black)",
-                  fontFamily: "var(--font-playfair)",
-                  fontWeight: 700,
-                }}
-              >
-                Notifications
-              </h1>
-              {unreadCount > 0 && (
-                <span
-                  className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full text-sm font-bold text-white"
+    <>
+      {/* ── MOBILE ─────────────────────────────────────────────────────────── */}
+      <div className="md:hidden min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
+        {/* Header */}
+        <div className="px-5 pt-12 pb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Link
+              href="/member/home"
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </Link>
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <h1
+                  className="text-3xl font-bold italic"
                   style={{
-                    background: "var(--bb-pink)",
-                    boxShadow: "0 2px 8px rgba(255,31,125,0.4)",
+                    color: "var(--bb-black)",
+                    fontFamily: "var(--font-playfair)",
+                    fontWeight: 700,
                   }}
                 >
-                  {unreadCount}
-                </span>
-              )}
+                  Notifications
+                </h1>
+                {unreadCount > 0 && (
+                  <span
+                    className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full text-sm font-bold text-white"
+                    style={{
+                      background: "var(--bb-pink)",
+                      boxShadow: "0 2px 8px rgba(255,31,125,0.4)",
+                    }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                className="text-xs font-semibold transition-colors"
+                style={{ color: "var(--bb-pink)" }}
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
+          <div className="h-0.5 w-10 rounded-full" style={{ background: "var(--bb-pink)" }} />
+        </div>
+
+        <div className="px-5 flex flex-col gap-7">
+          {/* Right Now */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-black)" }}>
+                RIGHT NOW
+              </p>
+              <div className="flex-1 h-px" style={{ background: "var(--bb-pink)" }} />
+            </div>
+            <div className="flex flex-col gap-2.5">
+              {nowItems.map((n) => <NotifRow key={n.id} n={n} />)}
             </div>
           </div>
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllRead}
-              className="text-xs font-semibold transition-colors"
-              style={{ color: "var(--bb-pink)" }}
+
+          {/* Earlier */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
+                EARLIER TODAY
+              </p>
+              <div className="flex-1 h-px" style={{ background: "#E8E8E8" }} />
+            </div>
+            <div className="flex flex-col gap-2.5">
+              {earlierItems.map((n) => <NotifRow key={n.id} n={n} />)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DESKTOP 3-PANEL ────────────────────────────────────────────────── */}
+      <div
+        className="hidden md:flex md:flex-col"
+        style={{ height: "100vh", background: "var(--pale-pink-bg)" }}
+      >
+        {/* Top bar */}
+        <div
+          className="flex-shrink-0 flex items-center justify-between px-6 border-b"
+          style={{ height: "64px", borderColor: borderCol, background: cardBg }}
+        >
+          <div className="flex items-center gap-3">
+            <p
+              className="font-bold italic text-lg tracking-tight"
+              style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
             >
-              Mark all read
-            </button>
-          )}
-        </div>
-        <div className="h-0.5 w-10 rounded-full" style={{ background: "var(--bb-pink)" }} />
-      </div>
-
-      <div className="px-5 flex flex-col gap-7">
-        {/* Right Now */}
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--bb-black)" }}>
-              RIGHT NOW
+              NOTIFICATIONS
             </p>
-            <div className="flex-1 h-px" style={{ background: "var(--bb-pink)" }} />
+            {unreadCount > 0 && (
+              <span
+                className="inline-flex items-center justify-center min-w-[26px] h-6 px-2 rounded-full text-xs font-bold text-white"
+                style={{ background: "var(--bb-pink)" }}
+              >
+                {unreadCount}
+              </span>
+            )}
           </div>
-          <div className="flex flex-col gap-2.5">
-            {nowItems.map((n) => <NotifRow key={n.id} n={n} />)}
+          <div style={{ marginRight: "256px" }}>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                className="text-xs font-semibold px-4 py-2 rounded-full transition-all"
+                style={{ color: "var(--bb-pink)", border: "1.5px solid rgba(255,31,125,0.3)" }}
+              >
+                Mark all read
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Earlier */}
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
-              EARLIER TODAY
+        {/* Body */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* Left panel — full notification list */}
+          <div
+            className="flex-shrink-0 overflow-y-auto border-r"
+            style={{ width: "300px", borderColor: borderCol, background: cardBg }}
+          >
+            {/* Right now section */}
+            <div className="px-4 pt-4 pb-2">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: headingColor }}>RIGHT NOW</p>
+                <div className="flex-1 h-px" style={{ background: "var(--bb-pink)" }} />
+              </div>
+              <div className="flex flex-col gap-2">
+                {nowItems.map((n) => (
+                  <NotifRow
+                    key={n.id}
+                    n={n}
+                    selected={selectedNotifId === n.id}
+                    onClick={() => setSelectedNotifId(n.id === selectedNotifId ? null : n.id)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Earlier section */}
+            <div className="px-4 pt-2 pb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: textMuted }}>EARLIER TODAY</p>
+                <div className="flex-1 h-px" style={{ background: borderCol }} />
+              </div>
+              <div className="flex flex-col gap-2">
+                {earlierItems.map((n) => (
+                  <NotifRow
+                    key={n.id}
+                    n={n}
+                    selected={selectedNotifId === n.id}
+                    onClick={() => setSelectedNotifId(n.id === selectedNotifId ? null : n.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Center panel — expanded notification view */}
+          <div
+            className="flex-1 overflow-y-auto flex items-center justify-center p-8"
+            style={{ background: "var(--pale-pink-bg)" }}
+          >
+            {selectedNotif ? (
+              <div className="w-full max-w-md">
+                <div
+                  className="rounded-3xl overflow-hidden p-8"
+                  style={{
+                    background: cardBg,
+                    boxShadow: "0 8px 40px rgba(255,31,125,0.10)",
+                    border: `1.5px solid ${borderCol}`,
+                  }}
+                >
+                  <div className="flex items-start gap-4 mb-6">
+                    <NotifIcon type={selectedNotif.type} />
+                    <div className="flex-1">
+                      <p
+                        className="font-bold text-lg leading-snug mb-1"
+                        style={{ color: headingColor, fontFamily: "var(--font-playfair)" }}
+                      >
+                        {selectedNotif.title}
+                      </p>
+                      <p
+                        className="text-sm leading-relaxed"
+                        style={{
+                          color: selectedNotif.type === "stamp" ? "var(--bb-pink)" : textMuted,
+                          fontStyle: selectedNotif.type === "stamp" ? "italic" : "normal",
+                        }}
+                      >
+                        {selectedNotif.body}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs mb-6" style={{ color: textMuted }}>{selectedNotif.time}</p>
+                  <button
+                    className="w-full py-3.5 rounded-2xl text-sm font-bold text-white transition-all active:scale-[0.98]"
+                    style={{ background: "var(--bb-pink)" }}
+                  >
+                    {actionLabelForType(selectedNotif.type)}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center px-8">
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                  style={{ background: "rgba(255,31,125,0.08)" }}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                  </svg>
+                </div>
+                <p
+                  className="font-bold text-xl mb-2"
+                  style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
+                >
+                  Your activity, all in one place
+                </p>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
+                  Select a notification to see the full details here.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Right panel — What's Next */}
+          <div
+            className="flex-shrink-0 flex flex-col gap-3 p-4 overflow-y-auto border-l"
+            style={{ width: "240px", borderColor: borderCol, background: cardBg }}
+          >
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase pt-1" style={{ color: textMuted }}>
+              WHAT&apos;S NEXT
             </p>
-            <div className="flex-1 h-px" style={{ background: "#E8E8E8" }} />
+            {topUnread.length === 0 ? (
+              <p className="text-xs italic" style={{ color: textMuted }}>All caught up!</p>
+            ) : (
+              topUnread.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => setSelectedNotifId(n.id)}
+                  className="w-full text-left p-3 rounded-xl transition-all hover:opacity-80"
+                  style={{
+                    background: isNight ? "rgba(255,31,125,0.08)" : "rgba(255,31,125,0.05)",
+                    border: "1px solid rgba(255,31,125,0.15)",
+                  }}
+                >
+                  <p className="text-xs font-bold leading-snug mb-1" style={{ color: headingColor }}>{n.title}</p>
+                  <p className="text-[10px] mb-2 truncate" style={{ color: textMuted }}>{n.body}</p>
+                  <span
+                    className="text-[9px] font-bold"
+                    style={{ color: "var(--bb-pink)" }}
+                  >
+                    {actionLabelForType(n.type)}
+                  </span>
+                </button>
+              ))
+            )}
           </div>
-          <div className="flex flex-col gap-2.5">
-            {earlierItems.map((n) => <NotifRow key={n.id} n={n} />)}
-          </div>
+
         </div>
       </div>
-    </div>
+    </>
   );
 }
