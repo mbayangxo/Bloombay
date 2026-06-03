@@ -98,16 +98,21 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
             </Link>
-            <Link href="/member/plans" aria-label="Plans"
+            <Link href="/member/happenings" aria-label="Calendar"
               className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: pathname.startsWith("/member/plans") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
+              style={{ background: pathname.startsWith("/member/happenings") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/plans") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                stroke={pathname.startsWith("/member/happenings") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
                 strokeWidth="2" strokeLinecap="round">
                 <rect x="1" y="4" width="22" height="16" rx="2"/>
                 <line x1="1" y1="10" x2="23" y2="10"/>
                 <line x1="8" y1="4" x2="8" y2="2"/>
                 <line x1="16" y1="4" x2="16" y2="2"/>
+                <text x="12" y="20" textAnchor="middle" fontSize="7" fontWeight="bold"
+                  fill={pathname.startsWith("/member/happenings") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                  stroke="none" strokeWidth="0">
+                  {new Date().getDate()}
+                </text>
               </svg>
             </Link>
             <Link href="/member/lounge" aria-label="Your apartment">
