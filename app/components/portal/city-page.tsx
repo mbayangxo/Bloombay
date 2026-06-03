@@ -650,7 +650,7 @@ export function CityPage() {
                   {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
                     <button key={f} onClick={() => setGoFilter(f)}
                       className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                      style={goFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                      style={goFilter === f ? { background: "var(--bb-pink)", color: "white" } : { background: isNight ? "rgba(255,255,255,0.06)" : "white", color: textMuted, border: `1.5px solid ${borderCol}` }}>
                       {f}
                     </button>
                   ))}
@@ -683,8 +683,8 @@ export function CityPage() {
             {activeTab === "trending" && (
               <div className="flex flex-col gap-4">
                 <div>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THIS WEEK IN NYC</p>
-                  <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "var(--bb-pink)" }}>THIS WEEK IN NYC</p>
+                  <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", color: headingColor, lineHeight: 0.95, letterSpacing: "-0.015em" }}>
                     What women<br />are loving.
                   </h2>
                 </div>
@@ -698,7 +698,7 @@ export function CityPage() {
 
           {/* RIGHT PANEL: contextual + moments */}
           <div className="flex-shrink-0 overflow-y-auto py-5 px-4"
-            style={{ width: "260px", borderLeft: "1px solid rgba(0,0,0,0.05)" }}>
+            style={{ width: "260px", borderLeft: `1px solid ${borderCol}` }}>
 
             {/* EAT tab: Women Are Eating */}
             {activeTab === "eat" && (
