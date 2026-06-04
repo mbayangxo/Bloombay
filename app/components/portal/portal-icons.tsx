@@ -98,6 +98,17 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           </svg>
         </Link>
 
+        {/* Plans */}
+        <Link href="/member/plans" aria-label="Plans"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
+          style={iconStyle("/member/plans")}>
+          <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={strokeColor("/member/plans")} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+        </Link>
+
         {/* Avatar */}
         <Link href="/member/lounge" aria-label="Apartment">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white transition-all active:scale-95"

@@ -84,11 +84,10 @@ const THREAD_MESSAGES: Record<number, Message[]> = {
 type Filter = "all" | ConvoType;
 
 const FILTERS: { label: string; value: Filter }[] = [
-  { label: "All",        value: "all"    },
-  { label: "Plan Rooms", value: "plan"   },
-  { label: "Clubs",      value: "club"   },
-  { label: "Direct",     value: "direct" },
-  { label: "Groups",     value: "group"  },
+  { label: "All",    value: "all"    },
+  { label: "Clubs",  value: "club"   },
+  { label: "Direct", value: "direct" },
+  { label: "Groups", value: "group"  },
 ];
 
 function typeLabel(type: ConvoType): string {
@@ -506,8 +505,8 @@ export default function ChatPage() {
     );
   }
 
-  const shown = CONVOS.filter(c => filter === "all" || c.type === filter);
-  const totalUnread = CONVOS.reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
+  const shown = CONVOS.filter(c => c.type !== "plan" && (filter === "all" || c.type === filter));
+  const totalUnread = CONVOS.filter(c => c.type !== "plan").reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
