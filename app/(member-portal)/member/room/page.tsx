@@ -74,10 +74,10 @@ const WALL_ZONES: WallZone[] = [
 ];
 
 const GIRL_BAR_ROOMS = [
-  { id: 1, name: "Morning Room",  desc: "Coffee talk, slow start, soft energy",  women: 8,  live: true  },
-  { id: 2, name: "Night Owl",     desc: "Late-night conversations, no filter",    women: 14, live: true  },
-  { id: 3, name: "Study With Me", desc: "Silent co-working, you're not alone",    women: 5,  live: true  },
-  { id: 4, name: "Sunday Soft",   desc: "Decompressing before the week starts",   women: 3,  live: false },
+  { id: 1, name: "Late Night Lounge", sub: "Open now",                    desc: "No filter, no judgment. Slip in and stay a while.",      women: 127, live: true,  color: "#FF1F7D", emoji: "🌙" },
+  { id: 2, name: "Voice Rooms",       sub: "Join a conversation",          desc: "Live audio spaces — listen in or take the mic.",         women: 84,  live: true,  color: "#C084FC", emoji: "🎙" },
+  { id: 3, name: "Confessions",       sub: "Share anonymously",            desc: "Say what you've been holding. No names here.",           women: 52,  live: true,  color: "#FB7185", emoji: "💌" },
+  { id: 4, name: "Hot Topics",        sub: "What's on everyone's mind",    desc: "The conversations happening right now.",                 women: 84,  live: true,  color: "#F59E0B", emoji: "🔥" },
 ];
 
 // ── Wall Note Card ────────────────────────────────────────────────────────────
@@ -843,148 +843,179 @@ function GirlBarRoomEntry({ room, onLeave }: { room: GBRoom; onLeave: () => void
 // ─────────────────────────────────────────────────────────────────────────────
 
 function GirlBar({ onBack }: { onBack: () => void }) {
-  const [joined, setJoined] = useState<Set<number>>(new Set());
-  const [notified, setNotified] = useState<Set<number>>(new Set());
   const [activeRoom, setActiveRoom] = useState<GBRoom | null>(null);
-
-  const liveCount = GIRL_BAR_ROOMS.filter(r => r.live).reduce((acc, r) => acc + r.women, 0);
-  const avatarColors = ["#FF1F7D","#FF69B4","#C084FC","#FB923C","#34D399","#60A5FA","#F472B6","#A78BFA"];
+  const totalWomen = GIRL_BAR_ROOMS.filter(r => r.live).reduce((sum, r) => sum + r.women, 0);
 
   if (activeRoom) {
     return <GirlBarRoomEntry room={activeRoom} onLeave={() => setActiveRoom(null)} />;
   }
 
+  const WAVE = ["gb-w1","gb-w3","gb-w2","gb-w4","gb-w5","gb-w3","gb-w1","gb-w2","gb-w4","gb-w3","gb-w5","gb-w1","gb-w2","gb-w3","gb-w4","gb-w5","gb-w2","gb-w1","gb-w3","gb-w4","gb-w5","gb-w2","gb-w3","gb-w4","gb-w1","gb-w5","gb-w3","gb-w2"];
+
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0D0810" }}>
+    <div className="min-h-screen overflow-hidden" style={{ background: "#080308", position: "relative" }}>
       <style>{`
-        @keyframes gb-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.88); } }
-        @keyframes gb-bar1 { 0%,100% { height: 8px; }  50% { height: 18px; } }
-        @keyframes gb-bar2 { 0%,100% { height: 14px; } 50% { height: 6px;  } }
-        @keyframes gb-bar3 { 0%,100% { height: 10px; } 50% { height: 22px; } }
-        @keyframes gb-bar4 { 0%,100% { height: 18px; } 50% { height: 10px; } }
-        @keyframes gb-bar5 { 0%,100% { height: 6px;  } 50% { height: 16px; } }
-        @keyframes gb-glow-breathe { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-        .gb-pulse-dot { animation: gb-pulse 1.6s ease-in-out infinite; }
-        .gb-bar1 { animation: gb-bar1 0.9s ease-in-out infinite; }
-        .gb-bar2 { animation: gb-bar2 1.1s ease-in-out infinite; }
-        .gb-bar3 { animation: gb-bar3 0.8s ease-in-out infinite; }
-        .gb-bar4 { animation: gb-bar4 1.3s ease-in-out infinite; }
-        .gb-bar5 { animation: gb-bar5 1.0s ease-in-out infinite; }
-        .gb-glow { animation: gb-glow-breathe 3s ease-in-out infinite; }
+        @keyframes gbw1 { 0%,100% { height:3px; } 50% { height:18px; } }
+        @keyframes gbw2 { 0%,100% { height:12px; } 50% { height:3px; } }
+        @keyframes gbw3 { 0%,100% { height:5px; } 50% { height:22px; } }
+        @keyframes gbw4 { 0%,100% { height:20px; } 50% { height:7px; } }
+        @keyframes gbw5 { 0%,100% { height:8px; } 50% { height:14px; } }
+        @keyframes gb-breathe { 0%,100% { opacity:0.55; } 50% { opacity:1; } }
+        @keyframes gb-neon { 0%,94%,100% { opacity:0.9; text-shadow:0 0 8px rgba(255,31,125,0.9),0 0 22px rgba(255,31,125,0.7),0 0 44px rgba(255,31,125,0.35); } 95% { opacity:0.35; text-shadow:none; } 97% { opacity:0.8; } }
+        .gb-w1 { animation: gbw1 0.7s ease-in-out infinite; }
+        .gb-w2 { animation: gbw2 0.9s ease-in-out infinite; }
+        .gb-w3 { animation: gbw3 0.6s ease-in-out infinite; }
+        .gb-w4 { animation: gbw4 0.8s ease-in-out infinite; }
+        .gb-w5 { animation: gbw5 1.05s ease-in-out infinite; }
+        .gb-ambient { animation: gb-breathe 3.5s ease-in-out infinite; }
+        .gb-neon-txt { animation: gb-neon 7s ease-in-out infinite; }
       `}</style>
 
-      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
+      {/* Ambient background glows */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="gb-ambient absolute rounded-full" style={{
+          width: "420px", height: "420px", top: "-130px", left: "50%", transform: "translateX(-50%)",
+          background: "radial-gradient(circle, rgba(160,18,65,0.38) 0%, transparent 65%)",
+        }} />
+        <div className="absolute rounded-full" style={{
+          width: "280px", height: "280px", bottom: "40px", right: "-70px",
+          background: "radial-gradient(circle, rgba(255,31,125,0.16) 0%, transparent 65%)",
+          animation: "gb-breathe 4.5s ease-in-out infinite 2s",
+        }} />
+        {/* Bokeh dots */}
+        {[
+          { top: "22%", left: "12%", size: 3, opacity: 0.3 },
+          { top: "38%", left: "88%", size: 2, opacity: 0.22 },
+          { top: "55%", left: "7%",  size: 2, opacity: 0.2  },
+          { top: "70%", left: "78%", size: 3, opacity: 0.25 },
+          { top: "15%", left: "60%", size: 2, opacity: 0.18 },
+        ].map((b, i) => (
+          <div key={i} className="absolute rounded-full" style={{
+            top: b.top, left: b.left, width: b.size * 4, height: b.size * 4,
+            background: "#FF1F7D", opacity: b.opacity, filter: "blur(3px)",
+            animation: `gb-breathe ${2.5 + i * 0.4}s ease-in-out infinite ${i * 0.6}s`,
+          }} />
+        ))}
+      </div>
+
+      {/* Back button */}
+      <div className="relative flex items-center px-5 pt-12 pb-0">
         <button onClick={onBack}
-          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2.5" strokeLinecap="round">
+          className="w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
-        <div>
-          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF69B4" }}>THE LOBBY</p>
-          <h1 className="text-3xl font-bold italic text-white" style={{ fontFamily: "var(--font-playfair)" }}>Girl Bar</h1>
-        </div>
       </div>
 
-      <div className="px-5 md:px-8 flex flex-col gap-4">
-        {/* Hero */}
-        <div className="relative rounded-3xl overflow-hidden" style={{ minHeight: "200px" }}>
-          <div style={{ position: "absolute", inset: 0, background: "#120A14" }} />
-          <div className="gb-glow" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 25% 60%, rgba(255,31,125,0.28) 0%, transparent 55%)" }} />
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 75% 30%, rgba(180,60,255,0.14) 0%, transparent 50%)" }} />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60px", background: "linear-gradient(to top, rgba(255,31,125,0.07), transparent)" }} />
-          <div className="relative p-7">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="gb-pulse-dot w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: "#FF1F7D", boxShadow: "0 0 8px #FF1F7D" }} />
-              <p className="text-[10px] font-black tracking-[0.2em] uppercase" style={{ color: "#FF69B4" }}>
-                LIVE · {liveCount} WOMEN IN
-              </p>
-            </div>
-            <p className="text-white text-3xl font-bold italic leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)" }}>
-              You&apos;re in the bar.
-            </p>
-            <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-caveat)", fontSize: "16px" }}>
-              Slip in, slip out. No recordings.
-            </p>
-            <div className="flex items-end gap-1 mt-5" style={{ height: "28px" }}>
-              {["gb-bar1","gb-bar2","gb-bar3","gb-bar4","gb-bar5","gb-bar3","gb-bar2"].map((cls, i) => (
-                <div key={i} className={cls} style={{ width: "3px", borderRadius: "2px", background: i % 2 === 0 ? "rgba(255,31,125,0.7)" : "rgba(255,105,180,0.5)", alignSelf: "flex-end" }} />
-              ))}
-            </div>
+      {/* ── HERO ── */}
+      <div className="relative px-6 pt-5 pb-5">
+        <div className="flex items-start justify-between">
+          <h1 style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: "clamp(30px,8.5vw,44px)",
+            color: "rgba(255,248,240,0.96)",
+            fontWeight: 700,
+            fontStyle: "italic",
+            lineHeight: 1.22,
+            letterSpacing: "-0.01em",
+          }}>
+            The night<br />belongs to<br />girls.
+          </h1>
+          {/* BloomBay flower */}
+          <div className="mt-1 flex-shrink-0">
+            <svg width="30" height="30" viewBox="0 0 30 30">
+              {[0,60,120,180,240,300].map((deg, i) => {
+                const r = (deg * Math.PI) / 180;
+                const cx = 15 + 6.5 * Math.cos(r);
+                const cy = 15 + 6.5 * Math.sin(r);
+                return <ellipse key={i} cx={cx} cy={cy} rx="4.2" ry="3" fill="rgba(255,31,125,0.78)" transform={`rotate(${deg} ${cx} ${cy})`} />;
+              })}
+              <circle cx="15" cy="15" r="4.5" fill="#FF1F7D" />
+            </svg>
           </div>
         </div>
 
-        {/* Room panels */}
-        {GIRL_BAR_ROOMS.map(r => (
-          <div
-            key={r.id}
-            className="relative rounded-2xl overflow-hidden cursor-pointer transition-all active:scale-[0.98]"
-            onClick={() => setActiveRoom(r)}
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              ...(r.live ? { borderLeft: "2px solid #FF1F7D", boxShadow: "0 0 18px rgba(255,31,125,0.14), inset 0 0 0 1px rgba(255,31,125,0.1)" } : { borderLeft: "2px solid rgba(255,255,255,0.08)" }),
-            }}
-          >
-            {r.live && (
-              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 0% 50%, rgba(255,31,125,0.08) 0%, transparent 60%)" }} />
-            )}
-            <div className="relative p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  {r.live && (
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="gb-pulse-dot w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#FF1F7D", boxShadow: "0 0 6px #FF1F7D" }} />
-                      <div className="flex items-end gap-0.5" style={{ height: "14px" }}>
-                        {["gb-bar2","gb-bar3","gb-bar1","gb-bar4","gb-bar2"].map((cls, i) => (
-                          <div key={i} className={cls} style={{ width: "2px", borderRadius: "1px", background: "#FF1F7D", alignSelf: "flex-end" }} />
-                        ))}
-                      </div>
-                      <span className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: "#FF1F7D" }}>LIVE</span>
-                    </div>
-                  )}
-                  <p className="font-bold italic" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "white", lineHeight: "1.2" }}>
-                    {r.name}
-                  </p>
-                </div>
-                <button
-                  onClick={e => { e.stopPropagation(); r.live
-                    ? setJoined(p => { const n = new Set(p); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })
-                    : setNotified(p => new Set([...p, r.id])); }}
-                  className="flex-shrink-0 ml-4 px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all active:scale-95"
-                  style={r.live
-                    ? joined.has(r.id)
-                      ? { background: "rgba(255,31,125,0.18)", color: "#FF69B4", border: "1px solid rgba(255,31,125,0.4)" }
-                      : { background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.45)" }
-                    : notified.has(r.id)
-                      ? { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.12)" }
-                      : { background: "transparent", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.18)" }}
-                >
-                  {r.live ? (joined.has(r.id) ? "In room ✓" : "Join") : (notified.has(r.id) ? "Notified ✓" : "Notify me")}
-                </button>
-              </div>
-              <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", lineHeight: "1.55" }}>{r.desc}</p>
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-1.5">
-                  {Array.from({ length: Math.min(r.women, 6) }).map((_, i) => (
-                    <div key={i} className="w-6 h-6 rounded-full flex-shrink-0"
-                      style={{ background: avatarColors[i % avatarColors.length], border: "1.5px solid #0D0810", opacity: 0.85 - i * 0.05 }} />
-                  ))}
-                  {r.women > 6 && (
-                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "1.5px solid #0D0810", color: "rgba(255,255,255,0.5)", fontSize: "8px", fontWeight: 700 }}>
-                      +{r.women - 6}
-                    </div>
-                  )}
-                </div>
-                <span className="text-[11px] font-semibold" style={{ color: r.live ? "rgba(255,105,180,0.7)" : "rgba(255,255,255,0.25)" }}>
-                  {r.women} {r.live ? "listening" : "waiting"}
-                </span>
-              </div>
-            </div>
+        {/* Live now + waveform + avatars */}
+        <div className="flex items-center gap-2 mt-5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 6px #FF1F7D" }} />
+            <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.04em" }}>Live now</span>
           </div>
-        ))}
+          {/* Waveform */}
+          <div className="flex items-end flex-1 gap-[1.5px] overflow-hidden" style={{ height: "24px" }}>
+            {WAVE.map((cls, i) => (
+              <div key={i} className={cls} style={{
+                width: "2px", borderRadius: "1px", alignSelf: "flex-end", minHeight: "3px", flexShrink: 0,
+                background: i % 3 === 0 ? "#FF1F7D" : i % 3 === 1 ? "rgba(255,105,180,0.65)" : "rgba(255,105,180,0.32)",
+              }} />
+            ))}
+          </div>
+          {/* Avatars */}
+          <div className="flex flex-shrink-0">
+            {["#FF1F7D","#C084FC"].map((bg, i) => (
+              <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white"
+                style={{ background: `linear-gradient(135deg, ${bg}, ${bg}88)`, border: "2px solid #080308", marginLeft: i > 0 ? "-8px" : "0" }}>
+                {["A","J"][i]}
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="mt-1.5 text-sm" style={{ color: "rgba(255,255,255,0.26)" }}>
+          {totalWomen} girls in the room
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", marginLeft: "24px", marginRight: "24px" }} />
+
+      {/* ── ROOM LIST + NEON SIGN ── */}
+      <div className="relative pt-3 pb-28">
+        {/* Room rows */}
+        <div className="px-5" style={{ paddingRight: "108px" }}>
+          {GIRL_BAR_ROOMS.map((r, idx) => (
+            <button
+              key={r.id}
+              onClick={() => setActiveRoom(r)}
+              className="w-full flex items-center gap-4 py-3.5 text-left transition-all active:scale-[0.98]"
+              style={{ borderBottom: idx < GIRL_BAR_ROOMS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}
+            >
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: `${r.color}1A`, border: `1px solid ${r.color}44` }}>
+                <span style={{ fontSize: "22px" }}>{r.emoji}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm leading-tight" style={{ color: "rgba(255,255,255,0.88)" }}>
+                  {r.name}
+                </p>
+                <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {r.sub}
+                </p>
+              </div>
+              <svg className="flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          ))}
+        </div>
+
+        {/* Neon sign — right side */}
+        <div className="absolute top-0 right-0 bottom-0 flex items-center justify-center pointer-events-none"
+          style={{ width: "100px" }}>
+          <p className="gb-neon-txt text-center font-black"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "20px",
+              fontStyle: "italic",
+              color: "#FF1F7D",
+              lineHeight: 1.18,
+              letterSpacing: "0.03em",
+              textShadow: "0 0 8px rgba(255,31,125,0.9), 0 0 22px rgba(255,31,125,0.7), 0 0 44px rgba(255,31,125,0.35)",
+            }}>
+            GIRLS<br />TALK<br />LATE.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -1074,32 +1105,86 @@ function TheLobbyInner() {
               style={{
                 background: door.bg, minHeight: "230px",
                 boxShadow: door.dark
-                  ? "0 8px 28px rgba(255,31,125,0.22)"
+                  ? "0 8px 28px rgba(255,31,125,0.28), 0 0 0 1px rgba(255,31,125,0.12)"
                   : "0 6px 24px rgba(255,31,125,0.10), 0 0 0 1.5px rgba(255,31,125,0.1)",
               }}
             >
-              {door.dark && (
-                <div className="absolute inset-0 rounded-2xl pointer-events-none"
-                  style={{ background: "radial-gradient(ellipse at 20% 20%, rgba(255,31,125,0.22) 0%, transparent 60%)" }} />
+              {door.id === "girlbar" ? (
+                /* ── Arched door illustration for Girl Bar ── */
+                <>
+                  {/* Ambient glow */}
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none"
+                    style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(255,31,125,0.2) 0%, transparent 65%)" }} />
+                  {/* Arch door SVG */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ paddingBottom: "36px" }}>
+                    <svg width="100" height="148" viewBox="0 0 100 148" fill="none">
+                      {/* Arch outline */}
+                      <path
+                        d="M 14 148 L 14 52 Q 14 8 50 8 Q 86 8 86 52 L 86 148"
+                        stroke="#FF1F7D" strokeWidth="2" fill="rgba(255,31,125,0.06)"
+                        style={{ filter: "drop-shadow(0 0 6px rgba(255,31,125,0.6))" }}
+                      />
+                      {/* Inner arch line */}
+                      <path
+                        d="M 22 148 L 22 55 Q 22 18 50 18 Q 78 18 78 55 L 78 148"
+                        stroke="rgba(255,31,125,0.28)" strokeWidth="1" fill="none"
+                      />
+                      {/* BloomBay flower at top */}
+                      <g transform="translate(50, 42)">
+                        {[0,60,120,180,240,300].map((deg, i) => {
+                          const r2 = (deg * Math.PI) / 180;
+                          const cx = 7 * Math.cos(r2);
+                          const cy = 7 * Math.sin(r2);
+                          return <ellipse key={i} cx={cx} cy={cy} rx="4.5" ry="3.2" fill="rgba(255,31,125,0.72)" transform={`rotate(${deg} ${cx} ${cy})`} />;
+                        })}
+                        <circle cx="0" cy="0" r="5" fill="#FF1F7D" style={{ filter: "drop-shadow(0 0 4px rgba(255,31,125,0.9))" }} />
+                      </g>
+                      {/* Door handle */}
+                      <rect x="72" y="82" width="5" height="14" rx="2.5"
+                        fill="rgba(255,31,125,0.5)"
+                        style={{ filter: "drop-shadow(0 0 3px rgba(255,31,125,0.4))" }} />
+                    </svg>
+                  </div>
+                  {/* Live dot */}
+                  <div className="absolute top-3.5 right-3.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D", boxShadow: "0 0 5px #FF1F7D" }} />
+                  </div>
+                  {/* Number */}
+                  <p className="absolute top-4 left-4 text-[8px] font-mono font-bold tracking-[0.2em]" style={{ color: "rgba(255,31,125,0.55)" }}>{door.n}</p>
+                  {/* Label */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-lg font-bold italic leading-tight mb-0.5"
+                      style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.92)" }}>
+                      {door.name}
+                    </p>
+                    <p className="text-[10px] mb-2" style={{ color: "rgba(255,255,255,0.32)" }}>{door.sub}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: door.accent }} />
+                      <span className="text-[9px] font-bold tracking-wider" style={{ color: door.accent }}>{door.hint}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* ── Default door card (The Wall) ── */
+                <>
+                  <div className="absolute inset-[7px] rounded-xl pointer-events-none"
+                    style={{ border: "1px solid rgba(255,31,125,0.1)" }} />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2"
+                    style={{ width: "3px", height: "22px", borderRadius: "2px", background: "rgba(0,0,0,0.12)" }} />
+                  <p className="absolute top-4 left-4 text-[8px] font-mono font-bold tracking-[0.2em]" style={{ color: door.accent }}>{door.n}</p>
+                  <div className="absolute bottom-4 left-4 right-8">
+                    <p className="text-lg font-bold italic leading-tight mb-0.5"
+                      style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
+                      {door.name}
+                    </p>
+                    <p className="text-[10px] mb-2.5" style={{ color: "rgba(0,0,0,0.38)" }}>{door.sub}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: door.accent }} />
+                      <span className="text-[9px] font-bold tracking-wider" style={{ color: door.accent }}>{door.hint}</span>
+                    </div>
+                  </div>
+                </>
               )}
-              <div className="absolute inset-[7px] rounded-xl pointer-events-none"
-                style={{ border: `1px solid ${door.dark ? "rgba(255,255,255,0.07)" : "rgba(255,31,125,0.1)"}` }} />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2"
-                style={{ width: "3px", height: "22px", borderRadius: "2px", background: door.dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" }} />
-              <p className="absolute top-4 left-4 text-[8px] font-mono font-bold tracking-[0.2em]" style={{ color: door.accent }}>{door.n}</p>
-              <div className="absolute bottom-4 left-4 right-8">
-                <p className="text-lg font-bold italic leading-tight mb-0.5"
-                  style={{ fontFamily: "var(--font-playfair)", color: door.dark ? "rgba(255,255,255,0.92)" : "#111111" }}>
-                  {door.name}
-                </p>
-                <p className="text-[10px] mb-2.5" style={{ color: door.dark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.38)" }}>
-                  {door.sub}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: door.accent }} />
-                  <span className="text-[9px] font-bold tracking-wider" style={{ color: door.accent }}>{door.hint}</span>
-                </div>
-              </div>
             </button>
           ))}
         </div>
