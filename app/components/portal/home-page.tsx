@@ -127,6 +127,84 @@ function EventPoster({ ev, idx }: { ev: typeof CITY_EVENTS[0]; idx: number }) {
   );
 }
 
+// ─── Girl Bar Door ────────────────────────────────────────────────────────────
+
+function GirlBarDoor({ tod }: { tod: TimeOfDay }) {
+  const deep = tod === "night";
+  return (
+    <div style={{
+      flex: 1,
+      minHeight: "168px",
+      borderRadius: "5px 5px 3px 3px",
+      background: deep ? "rgba(7,2,12,0.9)" : "rgba(14,5,22,0.84)",
+      backdropFilter: "blur(22px)",
+      WebkitBackdropFilter: "blur(22px)",
+      border: "1px solid rgba(255,105,180,0.22)",
+      boxShadow: deep
+        ? "inset 0 0 28px rgba(255,31,125,0.14), 0 0 32px rgba(255,31,125,0.22), 4px 8px 28px rgba(0,0,0,0.65)"
+        : "inset 0 0 22px rgba(255,80,140,0.1), 0 0 24px rgba(255,31,125,0.18), 4px 8px 24px rgba(0,0,0,0.55)",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Live pulse dot */}
+      <div style={{ position: "absolute", top: "10px", right: "10px", zIndex: 2 }}>
+        <span className="block w-1.5 h-1.5 rounded-full animate-pulse"
+          style={{ background: "#FF1F7D", boxShadow: "0 0 6px #FF1F7D" }} />
+      </div>
+
+      {/* Top frosted-glass panel — warm pink inner glow */}
+      <div style={{
+        position: "absolute", top: "14px", left: "9px", right: "9px", height: "50px",
+        borderRadius: "4px 4px 2px 2px",
+        background: "radial-gradient(ellipse at 50% 40%, rgba(255,31,125,0.18) 0%, rgba(255,20,80,0.05) 70%)",
+        border: "1px solid rgba(255,105,180,0.3)",
+        boxShadow: "inset 0 0 16px rgba(255,31,125,0.22)",
+      }} />
+
+      {/* Lower door panel */}
+      <div style={{
+        position: "absolute", top: "72px", left: "9px", right: "9px", height: "52px",
+        borderRadius: "2px",
+        background: "rgba(255,255,255,0.022)",
+        border: "1px solid rgba(255,105,180,0.16)",
+      }} />
+
+      {/* Brass nameplate */}
+      <div style={{
+        position: "absolute", bottom: "26px", left: "50%", transform: "translateX(-50%)",
+        background: "linear-gradient(135deg, #D4A853 0%, #B07018 50%, #D4A853 100%)",
+        borderRadius: "2px", padding: "2.5px 5px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.45), 0 0 8px rgba(212,168,83,0.3)",
+        whiteSpace: "nowrap",
+      }}>
+        <p style={{ fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.2em", color: "#1A0800", lineHeight: 1 }}>
+          GIRL BAR
+        </p>
+      </div>
+
+      {/* Doorknob */}
+      <div style={{
+        position: "absolute", width: "8px", height: "8px", borderRadius: "50%",
+        background: "radial-gradient(circle at 35% 30%, #F0C868, #9A6C10)",
+        boxShadow: "0 0 8px rgba(212,168,83,0.7), 0 1px 3px rgba(0,0,0,0.6)",
+        right: "11px", top: "46%",
+      }} />
+
+      {/* Warm floor glow — light escaping under the door */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, height: "14px",
+        background: deep ? "rgba(255,31,125,0.65)" : "rgba(255,80,130,0.55)",
+        filter: "blur(5px)",
+      }} />
+
+      {/* ENTER label */}
+      <div style={{ position: "absolute", bottom: "4px", left: 0, right: 0, textAlign: "center" }}>
+        <p style={{ fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,105,180,0.55)" }}>ENTER</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
 export function HomePage({ firstName = "there", initial = "M" }: { firstName?: string; initial?: string }) {
@@ -164,9 +242,12 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         </h1>
       </header>
 
-      {/* ── CITY HERO CARD — time-aware, compact ── */}
+      {/* ── CITY HERO CARD + GIRL BAR DOOR (evening/night only) ── */}
       <div className="px-5 mb-3 md:px-8">
-        <div className="rounded-3xl relative overflow-hidden"
+        <div style={{ display: "flex", gap: "10px", alignItems: "stretch" }}>
+
+        {/* Hero card */}
+        <div className={`${isNight ? "flex-1 min-w-0" : "w-full"} rounded-3xl relative overflow-hidden`}
           style={{ background: heroBg, minHeight: "168px", boxShadow: isNight ? "0 10px 32px rgba(0,0,0,0.4)" : "0 10px 32px rgba(255,31,125,0.32)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: HERO_GLOW[tod] }} />
           <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
@@ -210,6 +291,16 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
           </div>
         </div>
+
+        {/* Girl Bar Door — only evening & night, mobile only */}
+        {isNight && (
+          <Link href="/member/room" className="md:hidden flex-shrink-0"
+            style={{ textDecoration: "none", width: "88px", display: "flex" }}>
+            <GirlBarDoor tod={tod} />
+          </Link>
+        )}
+
+        </div>{/* end flex row */}
       </div>
 
 
@@ -364,53 +455,6 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
           </div>
 
-          {/* GIRL BAR DOOR — mobile only */}
-          <div className="px-5 mb-6 md:hidden">
-            <Link href="/member/room" style={{ textDecoration: "none" }}>
-              <div className="relative rounded-3xl overflow-hidden"
-                style={{
-                  background: "linear-gradient(170deg, #1A0D1A 0%, #0D0512 100%)",
-                  boxShadow: "0 8px 36px rgba(255,31,125,0.2), inset 0 0 0 1px rgba(255,105,180,0.1)",
-                  minHeight: "110px",
-                }}>
-                <div className="absolute inset-0 pointer-events-none"
-                  style={{ background: "radial-gradient(ellipse at 50% 120%, rgba(255,31,125,0.4) 0%, transparent 55%)" }} />
-                <div className="relative flex items-center gap-5 px-5 py-5">
-                  {/* Door object */}
-                  <div className="relative flex-shrink-0"
-                    style={{
-                      width: 58, height: 82,
-                      borderRadius: "6px 6px 2px 2px",
-                      background: "linear-gradient(180deg, #2D1020 0%, #180910 100%)",
-                      border: "1px solid rgba(255,105,180,0.28)",
-                      boxShadow: "inset 0 0 16px rgba(255,31,125,0.12), 3px 6px 20px rgba(0,0,0,0.6)",
-                    }}>
-                    <div className="absolute" style={{ top: 8, left: 6, right: 6, height: 22, borderRadius: 3, border: "1px solid rgba(255,105,180,0.22)" }} />
-                    <div className="absolute" style={{ top: 36, left: 6, right: 6, height: 34, borderRadius: 3, border: "1px solid rgba(255,105,180,0.22)" }} />
-                    <div className="absolute" style={{ width: 7, height: 7, borderRadius: "50%", background: "#D4A853", boxShadow: "0 0 8px rgba(212,168,83,0.9)", top: "60%", right: "14%" }} />
-                    <div className="absolute bottom-0 left-1 right-1 h-3 rounded-b"
-                      style={{ background: "rgba(255,31,125,0.6)", filter: "blur(5px)" }} />
-                  </div>
-                  {/* Info */}
-                  <div>
-                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1.5" style={{ color: "#FF69B4" }}>✦ THE GIRL BAR</p>
-                    <p className="font-bold italic leading-tight mb-1.5"
-                      style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", color: "rgba(255,238,220,0.92)" }}>
-                      Live now.
-                    </p>
-                    <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
-                      8 women inside · 3 new posts
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
-                      <span className="text-[11px] font-bold" style={{ color: "#FF1F7D" }}>Enter the Bar →</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-
           {/* YOUR CLUBS — mobile only, horizontal crest row with activity badges */}
           <div className="px-5 mb-6 md:hidden">
             <div className="flex items-center justify-between mb-4">
@@ -492,21 +536,47 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
           </div>
 
-          {/* Enter the Lobby */}
-          <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-            style={{ background: isNight ? (isEvening ? "#1C1410" : "#141010") : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.15) 0%, transparent 60%)" }} />
-            <div className="relative">
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF69B4" }}>THE LOBBY</p>
-              <p className="text-white font-bold text-sm mb-1">Girl Bar is live · 8 women</p>
-              <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
-                The Wall has 3 new posts. Someone is asking about Morocco.
-              </p>
-              <span className="inline-block px-4 py-2 rounded-full text-xs font-bold"
-                style={{ background: "#FF1F7D", color: "white" }}>Enter →</span>
-            </div>
-          </Link>
+          {/* Girl Bar door — desktop sidebar, night only */}
+          {isNight ? (
+            <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
+              style={{
+                background: "rgba(8,3,14,0.88)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                border: "1px solid rgba(255,105,180,0.22)",
+                boxShadow: "inset 0 0 28px rgba(255,31,125,0.12), 0 0 28px rgba(255,31,125,0.18), 0 6px 24px rgba(0,0,0,0.4)",
+              }}>
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at 50% 110%, rgba(255,31,125,0.4) 0%, transparent 55%)" }} />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
+                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF69B4" }}>LIVE TONIGHT</p>
+                </div>
+                <p className="text-white font-bold text-sm mb-0.5" style={{ fontFamily: "var(--font-playfair)" }}>The Girl Bar</p>
+                <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                  8 women inside · 3 new posts. The Wall is talking.
+                </p>
+                <span className="inline-block px-4 py-2 rounded-full text-xs font-bold"
+                  style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.4)" }}>Enter →</span>
+              </div>
+            </Link>
+          ) : (
+            <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
+              style={{ background: isEvening ? "#1C1410" : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.1) 0%, transparent 60%)" }} />
+              <div className="relative">
+                <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF69B4" }}>THE LOBBY</p>
+                <p className="text-white font-bold text-sm mb-1">Come inside</p>
+                <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+                  The Wall is live. Girl Bar opens tonight.
+                </p>
+                <span className="inline-block px-4 py-2 rounded-full text-xs font-bold"
+                  style={{ background: "#FF1F7D", color: "white" }}>Enter Lobby →</span>
+              </div>
+            </Link>
+          )}
 
           {/* Your clubs with crest seals */}
           <div>
