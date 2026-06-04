@@ -463,245 +463,59 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           style={{ background: TAB_BACKGROUNDS[activeTab], transition: "background 0.3s ease" }}
         >
 
-          {/* ── Living Room Tab (was Bouquet) ── */}
+          {/* ── Living Room Tab ── */}
           {activeTab === 0 && (
             <div className="flex flex-col gap-6">
-              {/* Banner with bloom pattern overlay */}
-              <div
-                className="rounded-3xl p-6 relative overflow-hidden"
-                style={{ background: darkCard, minHeight: "120px" }}
-              >
-                {/* Large bloom orbs for visual drama */}
-                <div
-                  className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-                  style={{
-                    background: "radial-gradient(circle, #FF1F7D 0%, transparent 65%)",
-                    opacity: 0.18,
-                    transform: "translate(35%, -35%)",
-                  }}
-                />
-                <div
-                  className="absolute bottom-0 left-0 w-40 h-40 rounded-full pointer-events-none"
-                  style={{
-                    background: "radial-gradient(circle, #FF69B4 0%, transparent 70%)",
-                    opacity: 0.14,
-                    transform: "translate(-30%, 30%)",
-                  }}
-                />
-                <div
-                  className="absolute top-1/2 left-1/2 w-28 h-28 rounded-full pointer-events-none"
-                  style={{
-                    background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-                    opacity: 0.07,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
-                <div className="relative">
-                  <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "var(--mid-pink)" }}>
-                    YOUR BOUQUET
-                  </p>
-                  <p
-                    className="text-white font-bold italic mb-2"
-                    style={{ fontFamily: "var(--font-playfair)", fontSize: "28px" }}
-                  >
-                    {BOUQUET_MEMBERS.length} of {BOUQUET_MAX} Best Friends
-                  </p>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    Your inner circle. Max 12. Invite-only.
-                  </p>
-                </div>
-              </div>
 
-              {/* Flower grid — 12 slots */}
-              <div>
-                <p
-                  className="text-sm font-bold italic mb-3"
-                  style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}
-                >
-                  Your Circle
-                </p>
-                <div className="grid grid-cols-6 gap-2 mb-4">
-                  {BOUQUET_MEMBERS.map((m) => (
-                    <div key={m.name} className="flex flex-col items-center gap-1.5">
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                        style={{
-                          background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}BB 100%)`,
-                          boxShadow: `0 4px 12px ${m.color}44`,
-                        }}
-                      >
-                        {m.initial}
-                      </div>
-                      <p className="text-[10px] text-center text-gray-500 leading-tight w-16 truncate">
-                        {m.name.split(" ")[0]}
-                      </p>
-                    </div>
-                  ))}
-                  {Array.from({ length: emptySlots }).map((_, i) => (
-                    <div key={`empty-${i}`} className="flex flex-col items-center gap-1.5">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center border border-dashed"
-                        style={{ borderColor: "#E0C8C0" }}
-                      >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C8A0A8" strokeWidth="1.5">
-                          <path d="M12 2l1.7 5.3H19l-4.4 3.2 1.7 5.3L12 13l-4.3 2.8 1.7-5.3L5 7.3h5.3z" />
-                        </svg>
-                      </div>
-                      <p className="text-[10px] text-center leading-tight" style={{ color: "#C8A090" }}>open</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Bloomies — icon entry (tap the rose to see all friends) */}
-              <button
-                onClick={() => setShowBloomiesList(true)}
-                className="w-full rounded-3xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform"
-                style={{
-                  background: "white",
-                  boxShadow: "0 4px 20px rgba(255,31,125,0.10)",
-                  border: "1.5px solid rgba(255,31,125,0.12)",
-                }}
-              >
-                {/* Bouquet of roses icon */}
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 relative"
-                  style={{
-                    background: "linear-gradient(160deg, #2D1520 0%, #1A0A12 100%)",
-                    boxShadow: "0 6px 20px rgba(255,31,125,0.45)",
-                  }}
-                >
-                  <svg width="38" height="40" viewBox="0 0 38 40" fill="none">
-                    {/* Left rose */}
-                    <circle cx="10" cy="11" r="5.5" fill="#FF69B4"/>
-                    <circle cx="10" cy="8.2" r="2.8" fill="white" fillOpacity="0.28"/>
-                    <ellipse cx="7.5" cy="12.5" rx="2.2" ry="2.8" fill="#FF1F7D" opacity="0.8"/>
-                    {/* Center rose — larger, in front */}
-                    <circle cx="19" cy="9" r="7" fill="#FF1F7D"/>
-                    <circle cx="19" cy="6" r="3.5" fill="white" fillOpacity="0.26"/>
-                    <ellipse cx="15.5" cy="10.5" rx="2.8" ry="3.5" fill="#FF69B4" opacity="0.75"/>
-                    <ellipse cx="22.5" cy="10.5" rx="2.8" ry="3.5" fill="#FFB6D0" opacity="0.7"/>
-                    {/* Right rose */}
-                    <circle cx="28" cy="11" r="5.5" fill="#FF69B4"/>
-                    <circle cx="28" cy="8.2" r="2.8" fill="white" fillOpacity="0.28"/>
-                    <ellipse cx="30.5" cy="12.5" rx="2.2" ry="2.8" fill="#FF1F7D" opacity="0.8"/>
-                    {/* Stems */}
-                    <path d="M10 16 Q13 22 15 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
-                    <path d="M19 16 L19 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
-                    <path d="M28 16 Q25 22 23 28" stroke="#5D8A5E" strokeWidth="1.8" strokeLinecap="round"/>
-                    {/* Leaves */}
-                    <path d="M12 22 Q9 19 10 16" stroke="#5D8A5E" strokeWidth="1.5" fill="#5D8A5E" fillOpacity="0.45" strokeLinecap="round"/>
-                    <path d="M26 22 Q29 19 28 16" stroke="#5D8A5E" strokeWidth="1.5" fill="#5D8A5E" fillOpacity="0.45" strokeLinecap="round"/>
-                    {/* Ribbon wrap */}
-                    <path d="M13.5 28 L24.5 28 L22.5 37 L15.5 37 Z" fill="white" fillOpacity="0.18" stroke="white" strokeWidth="0.8" strokeOpacity="0.4"/>
-                    <line x1="19" y1="28" x2="19" y2="37" stroke="white" strokeWidth="0.8" strokeOpacity="0.3"/>
-                  </svg>
-                  {/* Count badge */}
-                  <div
-                    className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2"
-                    style={{ background: "#111111", borderColor: "#FAF3EB" }}
-                  >
-                    <span className="text-[10px] font-black" style={{ color: "#FF69B4" }}>{ALL_BLOOMIES.length}</span>
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="font-bold italic text-xl mb-0.5"
-                    style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}
-                  >
-                    Your Bloomies
-                  </p>
-                  <p className="text-sm" style={{ color: "#aaa" }}>
-                    {ALL_BLOOMIES.length} friends · Rose to see all
-                  </p>
-                </div>
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(255,31,125,0.1)" }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </div>
-              </button>
-
-              {/* How Bouquet works */}
-              <div
-                className="rounded-3xl p-5"
-                style={{ background: "var(--light-pink)" }}
-              >
-                <p
-                  className="text-xs font-bold tracking-widest uppercase mb-2"
-                  style={{ color: "var(--bb-pink)" }}
-                >
-                  HOW IT WORKS
-                </p>
-                <p className="text-sm leading-relaxed" style={{ color: "#0A0A0A" }}>
-                  <span className="font-bold">Bloomies</span> are your friends — no limit.{" "}
-                  <span className="font-bold">Your Bouquet</span> is your inner circle, the 12 women closest to you.
-                  Connect through Match first, then invite to your Bouquet.
-                </p>
-                <Link
-                  href="/member/match"
-                  className="mt-4 block w-full py-3.5 rounded-full text-sm font-bold text-center transition-all active:scale-[0.98]"
-                  style={{
-                    background: "var(--bb-pink)",
-                    color: "white",
-                    boxShadow: "0 4px 14px rgba(255,31,125,0.30)",
-                  }}
-                >
-                  Invite to Bouquet →
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* ── Living Room: Pinned Objects ── */}
-          {activeTab === 0 && (
-            <div className="flex flex-col gap-5 mt-2">
-              {/* Pinned Objects */}
+              {/* ── ON YOUR SHELF — first thing you see when you walk in ── */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ PINNED OBJECTS</p>
-                    <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Your apartment, your things.</p>
+                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ ON YOUR SHELF</p>
+                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Your apartment, your things.</p>
                   </div>
                   <button onClick={() => setShowObjectPicker(true)}
                     className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
                     Edit
                   </button>
                 </div>
-                <div className="flex gap-4">
-                  {PINNABLE_OBJECTS.filter(o => pinnedObjects.has(o.id)).slice(0, 5).map(obj => (
-                    <div key={obj.id} className="flex flex-col items-center gap-1.5">
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-                        style={{ background: "#F5EEE8", boxShadow: "0 2px 10px rgba(255,105,180,0.1)" }}>
-                        {obj.emoji}
+                {/* Objects sitting on a shelf */}
+                <div className="relative">
+                  <div className="flex gap-3 pb-3">
+                    {PINNABLE_OBJECTS.filter(o => pinnedObjects.has(o.id)).slice(0, 5).map(obj => (
+                      <div key={obj.id} className="flex flex-col items-center gap-1.5">
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl"
+                          style={{ background: "#F5EEE8", boxShadow: "0 4px 14px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset" }}>
+                          {obj.emoji}
+                        </div>
+                        <p className="text-[9px] font-medium" style={{ color: "#bbb" }}>{obj.label}</p>
                       </div>
-                      <p className="text-[9px] font-medium" style={{ color: "#aaa" }}>{obj.label}</p>
-                    </div>
-                  ))}
-                  {pinnedObjects.size < 5 && (
-                    <button onClick={() => setShowObjectPicker(true)}
-                      className="flex flex-col items-center gap-1.5">
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                        style={{ background: "#F5F5F5", border: "1.5px dashed #E0D0C8" }}>
-                        <span style={{ color: "#ccc", fontSize: "20px" }}>+</span>
-                      </div>
-                      <p className="text-[9px] font-medium" style={{ color: "#ddd" }}>Add</p>
-                    </button>
-                  )}
+                    ))}
+                    {pinnedObjects.size < 5 && (
+                      <button onClick={() => setShowObjectPicker(true)} className="flex flex-col items-center gap-1.5">
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                          style={{ background: "rgba(0,0,0,0.03)", border: "1.5px dashed #E0D0C8" }}>
+                          <span style={{ color: "#ccc", fontSize: "22px" }}>+</span>
+                        </div>
+                        <p className="text-[9px] font-medium" style={{ color: "#ddd" }}>Add</p>
+                      </button>
+                    )}
+                  </div>
+                  {/* Shelf line */}
+                  <div className="h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, rgba(180,140,100,0.18) 0%, rgba(180,140,100,0.45) 50%, rgba(180,140,100,0.18) 100%)" }} />
+                  <div className="h-2" style={{ background: "linear-gradient(180deg, rgba(150,110,80,0.06) 0%, transparent 100%)" }} />
                 </div>
               </div>
 
-              {/* World Theme chip */}
+              {/* ── World Theme compact chip ── */}
               <div className="flex items-center justify-between rounded-2xl px-4 py-3.5"
-                style={{ background: "#F5EEE8", border: "1.5px solid #F0E0D0" }}>
+                style={{ background: "#F5EEE8", border: "1.5px solid rgba(180,140,100,0.18)" }}>
                 <div>
-                  <p className="text-[9px] font-bold tracking-[0.18em] uppercase" style={{ color: "#aaa" }}>YOUR WORLD</p>
+                  <p className="text-[9px] font-bold tracking-[0.18em] uppercase" style={{ color: "#bbb" }}>YOUR WORLD</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span style={{ fontSize: "16px" }}>{WORLD_THEMES.find(w => w.id === worldTheme)?.emoji}</span>
                     <p className="font-bold text-sm" style={{ color: "#111" }}>{WORLD_THEMES.find(w => w.id === worldTheme)?.label}</p>
+                    <span className="text-[10px]" style={{ color: "#ccc" }}>· {WORLD_THEMES.find(w => w.id === worldTheme)?.desc}</span>
                   </div>
                 </div>
                 <button onClick={() => setShowWorldPicker(true)}
@@ -710,6 +524,57 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   Change
                 </button>
               </div>
+
+              {/* ── Your People — compact horizontal strip ── */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#bbb" }}>YOUR PEOPLE</p>
+                  <button onClick={() => setShowBloomiesList(true)}
+                    className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "#FF1F7D" }}>
+                    See all {ALL_BLOOMIES.length} →
+                  </button>
+                </div>
+                <div className="flex gap-3 items-end">
+                  {BOUQUET_MEMBERS.map(m => (
+                    <button key={m.name} onClick={() => setSelectedBloomie(m)}
+                      className="flex flex-col items-center gap-1.5 transition-transform active:scale-95">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                        style={{ background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}BB 100%)`, boxShadow: `0 4px 12px ${m.color}33` }}>
+                        {m.initial}
+                      </div>
+                      <p className="text-[10px] text-center leading-tight" style={{ color: "#aaa" }}>{m.name.split(" ")[0]}</p>
+                    </button>
+                  ))}
+                  <Link href="/member/match"
+                    className="flex flex-col items-center gap-1.5 transition-transform active:scale-95">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed"
+                      style={{ borderColor: "rgba(255,31,125,0.3)", background: "rgba(255,31,125,0.04)" }}>
+                      <span style={{ color: "#FF1F7D", fontSize: "20px", lineHeight: 1 }}>+</span>
+                    </div>
+                    <p className="text-[10px] text-center leading-tight" style={{ color: "#ccc" }}>Invite</p>
+                  </Link>
+                </div>
+              </div>
+
+              {/* ── Bouquet — demoted to a small quiet strip ── */}
+              <Link href="/member/match"
+                className="flex items-center justify-between rounded-2xl px-4 py-3 transition-all active:scale-[0.98]"
+                style={{ background: "#111", border: "1px solid rgba(255,31,125,0.18)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: "rgba(255,31,125,0.15)" }}>
+                    <span style={{ fontSize: "14px" }}>🌸</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold" style={{ color: "#FF69B4" }}>Your Bouquet · {BOUQUET_MEMBERS.length} of 12</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Inner circle. Invite-only. Max 12.</p>
+                  </div>
+                </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,105,180,0.6)" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </Link>
+
             </div>
           )}
 
