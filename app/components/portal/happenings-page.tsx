@@ -1151,9 +1151,9 @@ function SectionRow({ label, sub, accent = "#FF1F7D", dark = false, children }: 
 
 // ── Pink Day Card ─────────────────────────────────────────────────────────────
 
-function PinkDayCard({ item }: { item: typeof PINK_DAYS[0] }) {
+function PinkDayCard({ item, onPress }: { item: typeof PINK_DAYS[0]; onPress: () => void }) {
   return (
-    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+    <div onClick={onPress} className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97] cursor-pointer"
       style={{ width: "148px", background: `${item.accent}10`, border: `1.5px solid ${item.accent}28`, padding: "14px 12px" }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: `${item.accent}18` }}>
         <span style={{ fontSize: "22px" }}>{item.emoji}</span>
@@ -1170,9 +1170,9 @@ function PinkDayCard({ item }: { item: typeof PINK_DAYS[0] }) {
 
 // ── Gathering Card ────────────────────────────────────────────────────────────
 
-function GatheringCard({ g }: { g: GatheringItem }) {
+function GatheringCard({ g, onPress }: { g: GatheringItem; onPress: () => void }) {
   return (
-    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+    <div onClick={onPress} className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97] cursor-pointer"
       style={{ width: "152px", background: "white", boxShadow: "0 3px 14px rgba(0,0,0,0.07)", padding: "14px" }}>
       <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black text-white mb-3"
         style={{ background: g.color }}>{g.host[0]}</div>
@@ -1194,10 +1194,10 @@ function GatheringCard({ g }: { g: GatheringItem }) {
 
 // ── Table Card ────────────────────────────────────────────────────────────────
 
-function TableCard({ t }: { t: TableItem }) {
+function TableCard({ t, onPress }: { t: TableItem; onPress: () => void }) {
   const filled = t.total - t.seats;
   return (
-    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+    <div onClick={onPress} className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97] cursor-pointer"
       style={{ width: "152px", background: "#FDFAF5", boxShadow: "0 3px 14px rgba(0,0,0,0.08)", padding: "14px" }}>
       <div className="flex items-center justify-between mb-3">
         <span style={{ fontSize: "22px" }}>🍽</span>
@@ -1216,9 +1216,9 @@ function TableCard({ t }: { t: TableItem }) {
 
 // ── Open Seat Card ────────────────────────────────────────────────────────────
 
-function OpenSeatCard({ item }: { item: OpenSeatItem }) {
+function OpenSeatCard({ item, onPress }: { item: OpenSeatItem; onPress: () => void }) {
   return (
-    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+    <div onClick={onPress} className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97] cursor-pointer"
       style={{ width: "152px", background: "white", boxShadow: "0 3px 14px rgba(0,0,0,0.07)", padding: "14px" }}>
       <div className="mb-3">
         <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{item.type}</span>
@@ -1245,6 +1245,7 @@ function OpenSeatCard({ item }: { item: OpenSeatItem }) {
 export function HappeningsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Happening | null>(null);
   const [selectedClubEvent, setSelectedClubEvent] = useState<ClubEvent | null>(null);
+  const [selectedGenericEvent, setSelectedGenericEvent] = useState<EventData | null>(null);
   const [selectedCeleb, setSelectedCeleb] = useState<Celebration | null>(null);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [acceptedCelebs, setAcceptedCelebs] = useState<Set<number>>(new Set());
@@ -1283,6 +1284,10 @@ export function HappeningsPage() {
         onBack={() => setSelectedClubEvent(null)}
       />
     );
+  }
+
+  if (selectedGenericEvent) {
+    return <EventDetail event={selectedGenericEvent} onBack={() => setSelectedGenericEvent(null)} />;
   }
 
   return (
@@ -1356,12 +1361,24 @@ export function HappeningsPage() {
 
       {/* ── PINK DAYS — free days for all members ── */}
       <SectionRow label="PINK DAYS 🌸" sub="Free days · All members" accent="#FF69B4">
-        {PINK_DAYS.map(item => <PinkDayCard key={item.id} item={item} />)}
+        {PINK_DAYS.map(item => (
+          <PinkDayCard key={item.id} item={item} onPress={() => setSelectedGenericEvent({
+            id: item.id + 100, type: "gallery", title: item.title,
+            venue: item.sub.split(" · ")[0] ?? item.sub, neighborhood: "NYC",
+            time: item.date, priceLabel: "Free", price: 0,
+          })} />
+        ))}
       </SectionRow>
 
       {/* ── GATHERINGS ── */}
       <SectionRow label="GATHERINGS" sub="Women making plans">
-        {GATHERINGS_DATA.map(g => <GatheringCard key={g.id} g={g} />)}
+        {GATHERINGS_DATA.map(g => (
+          <GatheringCard key={g.id} g={g} onPress={() => setSelectedGenericEvent({
+            id: g.id + 200, type: "class", title: g.title,
+            venue: g.venue, neighborhood: g.venue.split(",")[1]?.trim() ?? "NYC",
+            time: g.time, priceLabel: "Free", price: 0,
+          })} />
+        ))}
       </SectionRow>
 
       {/* ── CONFETTI — celebrations ── */}
@@ -1372,12 +1389,26 @@ export function HappeningsPage() {
 
       {/* ── TABLES — open seats at dinner tables ── */}
       <SectionRow label="TABLES" sub="Open seats at dinner tables" accent="#D4A853">
-        {TABLES_DATA.map(t => <TableCard key={t.id} t={t} />)}
+        {TABLES_DATA.map(t => (
+          <TableCard key={t.id} t={t} onPress={() => setSelectedGenericEvent({
+            id: t.id + 300, type: "rooftop", title: t.title,
+            venue: t.venue, neighborhood: t.venue.split(",")[1]?.trim() ?? "NYC",
+            time: t.time, priceLabel: t.price,
+            price: parseInt(t.price.replace("$", ""), 10) || 0,
+          })} />
+        ))}
       </SectionRow>
 
       {/* ── OPEN SEATS ── */}
       <SectionRow label="OPEN SEATS" sub="Join something happening now">
-        {OPEN_SEATS_DATA.map(item => <OpenSeatCard key={item.id} item={item} />)}
+        {OPEN_SEATS_DATA.map(item => (
+          <OpenSeatCard key={item.id} item={item} onPress={() => setSelectedGenericEvent({
+            id: item.id + 400, type: "popup", title: item.title,
+            venue: item.venue, neighborhood: "NYC",
+            time: item.time, priceLabel: item.price,
+            price: (item.price === "Free" || item.price === "Members") ? 0 : parseInt(item.price.replace("$", ""), 10) || 0,
+          })} />
+        ))}
       </SectionRow>
 
       {/* ── FOUNDING MOTHERS ONLY ── */}

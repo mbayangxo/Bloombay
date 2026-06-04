@@ -316,6 +316,132 @@ function AddToCalendarBanner({ event }: { event: EventData }) {
   );
 }
 
+// ── Invite Sheet ─────────────────────────────────────────────────────────────
+
+function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void }) {
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [sent, setSent] = useState(false);
+  const friends = [
+    { id: 1, name: "Amara",  tag: "Your Bloomie · She&apos;ll love this",  initial: "A", color: "#FF1F7D" },
+    { id: 2, name: "Sofía",  tag: "Connected · Art lover",                 initial: "S", color: "#FF69B4" },
+    { id: 3, name: "Nia",    tag: "Your match · Same energy",               initial: "N", color: "#C0185F" },
+    { id: 4, name: "Kezia",  tag: "Close girl · Night out energy",          initial: "K", color: "#FF1F7D" },
+  ];
+  return (
+    <>
+      <div className="fixed inset-0 z-50" onClick={onClose}
+        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
+        style={{ background: "#FDFAF5", maxHeight: "85vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+        <div className="px-5 pb-10 pt-2">
+          {!sent ? (
+            <>
+              <p className="text-[9px] font-bold tracking-[0.28em] uppercase text-center mb-5" style={{ color: "#FF1F7D" }}>
+                💌 SEND AN INVITATION
+              </p>
+              {/* Invitation card preview */}
+              <div className="rounded-3xl p-5 mb-6 relative overflow-hidden"
+                style={{ background: "#111", boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 20% 20%, rgba(255,31,125,0.18) 0%, transparent 60%)" }} />
+                <div className="relative">
+                  <p className="text-[8px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "rgba(255,31,125,0.7)" }}>
+                    BLOOMBAY ✿ · PERSONAL INVITATION
+                  </p>
+                  <p className="text-[10px] italic mb-1" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.4)" }}>
+                    You are cordially invited to join
+                  </p>
+                  <p className="font-black leading-none mb-3"
+                    style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(18px,5vw,22px)", color: "white" }}>
+                    {event.title}
+                  </p>
+                  <div className="flex gap-5">
+                    <div>
+                      <p className="text-[8px] font-bold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.25)" }}>WHEN</p>
+                      <p className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.65)" }}>{event.time}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-bold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.25)" }}>WHERE</p>
+                      <p className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.65)" }}>{event.venue}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <p className="text-[10px] italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,31,125,0.55)" }}>
+                      Sent from a Bloomie. Will you join her? ♡
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {/* Friends list */}
+              <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#bbb" }}>
+                CHOOSE A BLOOMIE TO INVITE
+              </p>
+              <div className="flex flex-col gap-2.5 mb-5">
+                {friends.map(f => {
+                  const isSel = selected.has(f.id);
+                  return (
+                    <button key={f.id}
+                      onClick={() => setSelected(s => { const n = new Set(s); isSel ? n.delete(f.id) : n.add(f.id); return n; })}
+                      className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-all active:scale-[0.98] text-left w-full"
+                      style={isSel
+                        ? { background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }
+                        : { background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white flex-shrink-0"
+                        style={{ background: isSel ? "rgba(255,255,255,0.28)" : f.color }}>
+                        {f.initial}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold" style={{ color: isSel ? "white" : "#111" }}>{f.name}</p>
+                        <p className="text-[10px]" style={{ color: isSel ? "rgba(255,255,255,0.65)" : "#bbb" }}>{f.tag}</p>
+                      </div>
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ background: isSel ? "rgba(255,255,255,0.2)" : "#FFF0F5" }}>
+                        {isSel
+                          ? <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2 6 5 9 10 3"/></svg>
+                          : <span style={{ color: "#FF1F7D", fontSize: "14px", lineHeight: "1", display: "block" }}>+</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => selected.size > 0 && setSent(true)}
+                className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.97]"
+                style={selected.size > 0
+                  ? { background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }
+                  : { background: "#F0E8EC", color: "#ccc" }}>
+                Send Invitation{selected.size > 1 ? ` (${selected.size})` : ""} 💌
+              </button>
+            </>
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ background: "#FFF0F5", border: "2px solid #FFB6D0" }}>
+                <span style={{ fontSize: "28px" }}>💌</span>
+              </div>
+              <h3 className="font-black text-xl italic mb-2"
+                style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+                Invitation sent.
+              </h3>
+              <p className="text-sm italic mb-6" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+                She&apos;ll receive a beautiful card in her mailbox.<br />It&apos;s her call now. ♡
+              </p>
+              <button onClick={onClose}
+                className="px-8 py-3.5 rounded-2xl font-bold text-sm"
+                style={{ background: "#111", color: "white" }}>
+                Done
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── EventDetail ───────────────────────────────────────────────────────────────
 
 export function EventDetail({ event, onBack }: { event: EventData; onBack: () => void }) {
@@ -323,6 +449,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
   const isFree = event.price === 0;
   const [rsvpState, setRsvpState] = useState<"idle" | "paying" | "confirmed">("idle");
   const [saved, setSaved] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
 
   const total = ext.ticketFee + ext.bbFee + ext.venueService;
   const eventCode = `BB-${String(event.id).padStart(4, "0")}-${event.neighborhood.toUpperCase().replace(/ /g, "").slice(0, 4)}-${ext.tableNum}`;
@@ -527,6 +654,32 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
           </div>
         </div>
 
+        {/* EVENT CHAT */}
+        <div className="px-5 md:px-8 mb-5">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.35)" }}>EVENT CHAT</p>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 16px rgba(0,0,0,0.07)", border: "1.5px solid #F0E8EC" }}>
+            <div className="px-5 py-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#FFF0F5" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 4px rgba(255,31,125,0.7)" }} />
+                  <p className="text-xs font-bold" style={{ color: "#111" }}>Event Group Chat</p>
+                </div>
+                <p className="text-[10px]" style={{ color: "#bbb" }}>{ext.attendees.length} women · Active now</p>
+              </div>
+              <Link href="/member/chat"
+                className="px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-[0.97] flex-shrink-0"
+                style={{ background: "#111", color: "white" }}>
+                Open →
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* PRE-ORDER placeholder */}
         <div className="px-5 md:px-8 mb-5">
           <div className="rounded-2xl p-4 flex items-center gap-4"
@@ -547,9 +700,30 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
         {/* Add to Calendar prompt */}
         <AddToCalendarBanner event={event} />
 
+        {/* Ticket wallet */}
+        <div className="px-5 md:px-8 mb-4">
+          <div className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+            style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1.5px solid #F0E8EC" }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#FFF0F5" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/>
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold" style={{ color: "#111" }}>Ticket saved to your wallet</p>
+              <p className="text-[10px]" style={{ color: "#bbb" }}>All your events live in My Tickets</p>
+            </div>
+            <Link href="/member/tickets"
+              className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex-shrink-0"
+              style={{ background: "#FF1F7D", color: "white" }}>
+              View →
+            </Link>
+          </div>
+        </div>
+
         {/* Action buttons */}
         <div className="px-5 md:px-8 flex gap-3 mb-4">
-          <button className="flex-1 py-3.5 rounded-2xl font-bold text-sm"
+          <button onClick={() => setShowInvite(true)} className="flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.97]"
             style={{ background: "#111111", color: "white" }}>
             💌 Invite a Bloomie
           </button>
@@ -563,6 +737,8 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
         <div className="px-5 md:px-8 pb-2">
           <p className="text-[10px] text-center" style={{ color: "#ccc" }}>✿ All women are verified. All vibes are real.</p>
         </div>
+
+        {showInvite && <InviteSheet event={event} onClose={() => setShowInvite(false)} />}
       </div>
     );
   }
