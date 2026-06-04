@@ -865,12 +865,12 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 </div>
               </div>
 
-              {/* ── Her Story — Scrapbook Section ── */}
+              {/* ── My Shelf — Pinboard Section ── */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "rgba(255,165,50,0.6)" }}>✦ HER STORY</p>
-                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>Your scrapbook.</p>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "rgba(255,165,50,0.6)" }}>✦ MY SHELF</p>
+                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>What you&apos;ve pinned.</p>
                   </div>
                   <button className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                     style={{ background: "rgba(255,31,125,0.15)", color: "#FF69B4", border: "1px solid rgba(255,31,125,0.2)" }}>
