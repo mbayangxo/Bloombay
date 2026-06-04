@@ -1139,20 +1139,11 @@ export function ClubsPage() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2">
-          {["DISCOVER"].map((label, i) => (
-            <button key={i} onClick={() => setActiveTab(i)}
-              className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap transition-all"
-              style={activeTab === i
-                ? { background: "#111111", color: "white" }
-                : { background: "white", color: "#888", border: "1.5px solid #E8E8E8" }}>
-              {label}
-            </button>
-          ))}
-          <Link href="/member/lounge"
-            className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap transition-all"
-            style={{ background: "white", color: "#888", border: "1.5px solid #E8E8E8" }}>
-            MY PASSPORT →
-          </Link>
+          <button
+            className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap"
+            style={{ background: "#111111", color: "white" }}>
+            DISCOVER
+          </button>
         </div>
       </div>
 

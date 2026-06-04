@@ -164,55 +164,102 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         </h1>
       </header>
 
-      {/* ── CITY HERO CARD — time-aware ── */}
-      <div className="px-5 mb-6 md:px-8">
+      {/* ── CITY HERO CARD — time-aware, compact ── */}
+      <div className="px-5 mb-3 md:px-8">
         <div className="rounded-3xl relative overflow-hidden"
-          style={{ background: heroBg, minHeight: "240px", boxShadow: isNight ? "0 12px 40px rgba(0,0,0,0.4)" : "0 12px 40px rgba(255,31,125,0.35)" }}>
+          style={{ background: heroBg, minHeight: "168px", boxShadow: isNight ? "0 10px 32px rgba(0,0,0,0.4)" : "0 10px 32px rgba(255,31,125,0.32)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: HERO_GLOW[tod] }} />
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 90% 85%, rgba(0,0,0,0.12) 0%, transparent 50%)" }} />
-          <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-            style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.25))" }} />
+          <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+            style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.2))" }} />
 
           {/* Women count */}
-          <div className="absolute top-6 right-6 text-right">
-            <div className="text-6xl font-bold leading-none text-white"
-              style={{ fontFamily: "var(--font-instrument)", textShadow: "0 4px 20px rgba(0,0,0,0.25)" }}>
+          <div className="absolute top-4 right-4 text-right">
+            <div className="text-5xl font-bold leading-none text-white"
+              style={{ fontFamily: "var(--font-instrument)", textShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
               {mood.women}
             </div>
-            <div className="text-[9px] font-bold tracking-[0.2em] uppercase mt-0.5"
+            <div className="text-[8px] font-bold tracking-[0.2em] uppercase mt-0.5"
               style={{ color: "rgba(255,255,255,0.6)" }}>
-              {tod === "morning" ? "WOMEN THIS MORNING" : tod === "afternoon" ? "WOMEN OUT TODAY" : "WOMEN TONIGHT"}
+              {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "OUT TODAY" : "TONIGHT"}
             </div>
           </div>
 
-          <div className="relative p-6 pt-7 pr-24 pb-7 flex flex-col justify-between" style={{ minHeight: "240px" }}>
+          <div className="relative p-5 pr-20 flex flex-col justify-between" style={{ minHeight: "168px" }}>
             <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-4"
-                style={{ color: "rgba(255,255,255,0.7)" }}>
+              <p className="text-[8px] font-bold tracking-[0.25em] uppercase mb-3"
+                style={{ color: "rgba(255,255,255,0.65)" }}>
                 ✦ {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "THIS AFTERNOON" : tod === "evening" ? "THIS EVENING" : "TONIGHT"} IN WILLIAMSBURG
               </p>
-              <p className="text-white leading-snug mb-2"
-                style={{ fontFamily: "var(--font-instrument)", fontSize: "1.5rem", fontStyle: "italic" }}>
+              <p className="text-white leading-snug mb-1"
+                style={{ fontFamily: "var(--font-instrument)", fontSize: "1.2rem", fontStyle: "italic" }}>
                 {mood.vibe}
               </p>
-              <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                 {mood.weather} · {mood.temp} · Brooklyn
               </p>
             </div>
-            <div className="flex items-center gap-3 mt-6">
+            <div className="flex items-center gap-3 mt-4">
               <Link href="/member/happenings"
-                className="inline-block px-6 py-2.5 rounded-full font-bold text-sm"
+                className="inline-block px-5 py-2 rounded-full font-bold text-xs"
                 style={{ background: "rgba(255,255,255,0.22)", color: "white", backdropFilter: "blur(8px)" }}>
                 See what&apos;s on →
               </Link>
-              <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>
                 {tod === "morning" || tod === "afternoon" ? "Plans forming" : "Still time"}
               </span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ── WITNESS — compact pill right under hero ── */}
+      {witnessShown && (
+        <div className="px-5 mb-3 md:px-8">
+          <Link href="/member/lounge" style={{ textDecoration: "none" }}>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+              style={{
+                background: isNight ? "rgba(40,10,22,0.9)" : "rgba(255,240,248,0.95)",
+                border: "1px solid rgba(255,31,125,0.18)",
+                boxShadow: "0 2px 12px rgba(255,31,125,0.1)",
+              }}>
+              {/* Avatar */}
+              <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm text-white"
+                style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)", boxShadow: "0 3px 10px rgba(255,31,125,0.4)" }}>
+                K
+              </div>
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded"
+                    style={{ background: "#FF1F7D", color: "white" }}>WITNESSED YOU</span>
+                </div>
+                <p className="text-xs italic leading-snug"
+                  style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
+                  &ldquo;She makes every table feel full.&rdquo;
+                </p>
+                <p className="text-[9px] mt-0.5" style={{ fontFamily: "var(--font-caveat)", fontSize: "11px", color: "rgba(255,31,125,0.55)" }}>
+                  ✦ Yande surfaced this for you
+                </p>
+              </div>
+              {/* Right side */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+                <button
+                  onClick={e => { e.preventDefault(); setWitnessShown(false); }}
+                  className="w-5 h-5 rounded-full flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.1)" }}>
+                  <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke={isNight ? "rgba(255,255,255,0.4)" : "#bbb"} strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M1 1l8 8M9 1l-8 8"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* ── YANDE SAYS — compact pill, tap to edit ── */}
       <div className="px-5 mb-5 md:px-8">
@@ -326,89 +373,100 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </div>
           </div>
 
-          {/* WITNESS — mobile only — tap to go to exact message */}
-          {witnessShown && (
-            <div className="px-5 mb-6 md:hidden">
-              <div className="rounded-2xl p-5 relative"
-                style={{ background: cardBg, border: "1px solid rgba(255,31,125,0.12)", boxShadow: "0 4px 20px rgba(255,31,125,0.07)" }}>
-                <div className="flex items-start gap-3">
-                  <Link href="/member/messages?witness=kezia" className="flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                      style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>
-                      K
-                    </div>
-                  </Link>
-                  <Link href="/member/messages?witness=kezia" className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
-                      <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded"
-                        style={{ background: "#FF1F7D", color: "white" }}>witnessed you</span>
-                    </div>
-                    <p className="text-sm leading-relaxed" style={{ color: textMuted }}>
-                      &ldquo;She makes every table feel full. She showed up for us when we were just 12 women.&rdquo;
-                    </p>
-                  </Link>
-                  <button onClick={() => setWitnessShown(false)}
-                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
-                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
-                      <path d="M1 1l8 8M9 1l-8 8"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* LOBBY TEASER — mobile only */}
+          {/* GIRL BAR DOOR — mobile only */}
           <div className="px-5 mb-6 md:hidden">
-            <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: isNight ? (isEvening ? "#1C1410" : "#141010") : "#111111" }}>
-              <div className="absolute inset-0 pointer-events-none"
-                style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.18) 0%, transparent 60%)" }} />
-              <div className="relative">
-                <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF69B4" }}>THE LOBBY</p>
-                <p className="text-white font-bold text-base mb-1">Girl Bar is live now</p>
-                <p className="text-sm mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  8 women in The Wall · 3 new posts · Someone is asking about Morocco
-                </p>
-                <span className="inline-block px-5 py-2.5 rounded-full text-xs font-bold"
-                  style={{ background: "#FF1F7D", color: "white" }}>
-                  Enter the Lobby →
-                </span>
+            <Link href="/member/room" style={{ textDecoration: "none" }}>
+              <div className="relative rounded-3xl overflow-hidden"
+                style={{
+                  background: "linear-gradient(170deg, #1A0D1A 0%, #0D0512 100%)",
+                  boxShadow: "0 8px 36px rgba(255,31,125,0.2), inset 0 0 0 1px rgba(255,105,180,0.1)",
+                  minHeight: "110px",
+                }}>
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 50% 120%, rgba(255,31,125,0.4) 0%, transparent 55%)" }} />
+                <div className="relative flex items-center gap-5 px-5 py-5">
+                  {/* Door object */}
+                  <div className="relative flex-shrink-0"
+                    style={{
+                      width: 58, height: 82,
+                      borderRadius: "6px 6px 2px 2px",
+                      background: "linear-gradient(180deg, #2D1020 0%, #180910 100%)",
+                      border: "1px solid rgba(255,105,180,0.28)",
+                      boxShadow: "inset 0 0 16px rgba(255,31,125,0.12), 3px 6px 20px rgba(0,0,0,0.6)",
+                    }}>
+                    <div className="absolute" style={{ top: 8, left: 6, right: 6, height: 22, borderRadius: 3, border: "1px solid rgba(255,105,180,0.22)" }} />
+                    <div className="absolute" style={{ top: 36, left: 6, right: 6, height: 34, borderRadius: 3, border: "1px solid rgba(255,105,180,0.22)" }} />
+                    <div className="absolute" style={{ width: 7, height: 7, borderRadius: "50%", background: "#D4A853", boxShadow: "0 0 8px rgba(212,168,83,0.9)", top: "60%", right: "14%" }} />
+                    <div className="absolute bottom-0 left-1 right-1 h-3 rounded-b"
+                      style={{ background: "rgba(255,31,125,0.6)", filter: "blur(5px)" }} />
+                  </div>
+                  {/* Info */}
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1.5" style={{ color: "#FF69B4" }}>✦ THE GIRL BAR</p>
+                    <p className="font-bold italic leading-tight mb-1.5"
+                      style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", color: "rgba(255,238,220,0.92)" }}>
+                      Live now.
+                    </p>
+                    <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                      8 women inside · 3 new posts
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
+                      <span className="text-[11px] font-bold" style={{ color: "#FF1F7D" }}>Enter the Bar →</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Link>
           </div>
 
-          {/* YOUR CLUBS — mobile only, with crest seals */}
+          {/* YOUR CLUBS — mobile only, horizontal crest row with activity badges */}
           <div className="px-5 mb-6 md:hidden">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold italic"
                 style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
                 Your clubs, right now
               </h2>
               <Link href="/member/clubs" className="text-xs font-bold" style={{ color: "#FF1F7D" }}>All →</Link>
             </div>
-            <div className="flex flex-col gap-2">
-              {CLUB_PULSE.map((club, i) => (
-                <Link key={i} href="/member/clubs"
-                  className="rounded-2xl p-3.5 flex items-center gap-3"
-                  style={{ background: cardBg, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
-                  <MiniCrest name={club.name} color={club.color} crestBg={club.crestBg} size={40} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate" style={{ color: headingColor }}>{club.name}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />}
-                      <p className="text-xs truncate" style={{ color: club.live ? "#FF1F7D" : textMuted }}>{club.status}</p>
+            <div className="flex gap-5 overflow-x-auto -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+              {CLUB_PULSE.map((club, i) => {
+                const missed = [3, 0, 5][i] ?? 0;
+                return (
+                  <Link key={i} href="/member/clubs"
+                    className="flex-shrink-0 flex flex-col items-center gap-2"
+                    style={{ textDecoration: "none" }}>
+                    <div className="relative" style={{ animation: club.live ? "crestGlow 2s ease-in-out infinite alternate" : undefined }}>
+                      <MiniCrest name={club.name} color={club.color} crestBg={club.crestBg} size={56} />
+                      {missed > 0 && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                          style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.55)" }}>
+                          {missed}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </Link>
-              ))}
+                    <p className="text-[10px] font-bold text-center leading-tight"
+                      style={{ color: headingColor, maxWidth: "58px" }}>
+                      {club.name.split(" ").slice(0, 2).join(" ")}
+                    </p>
+                    {club.live && (
+                      <div className="flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
+                        <span className="text-[8px] font-bold" style={{ color: "#FF1F7D" }}>live</span>
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
+
+          <style>{`
+            @keyframes crestGlow {
+              from { filter: drop-shadow(0 0 3px rgba(255,31,125,0.35)); }
+              to   { filter: drop-shadow(0 0 10px rgba(255,31,125,0.75)); }
+            }
+          `}</style>
         </div>
 
         {/* ── DESKTOP SIDEBAR ── */}

@@ -98,7 +98,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="9" width="17" height="12" rx="2"/>
                 <path d="M3 9a8.5 8.5 0 0 1 17 0"/>
@@ -111,7 +111,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               className="w-8 h-8 rounded-full flex items-center justify-center relative"
               style={{ background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -122,7 +122,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
@@ -131,7 +131,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
