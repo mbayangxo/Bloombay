@@ -353,7 +353,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             {/* YOUR APARTMENT label */}
             <p
               className="text-[9px] font-bold tracking-[0.28em] uppercase mb-3"
-              style={{ color: "rgba(255,165,50,0.55)" }}
+              style={{ color: "rgba(255,165,50,0.75)" }}
             >
               YOUR APARTMENT
             </p>
@@ -389,7 +389,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             {/* Address sub-line */}
             <p
               className="text-xs tracking-wide"
-              style={{ color: "rgba(255,200,100,0.45)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
+              style={{ color: "rgba(255,200,100,0.65)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
             >
               APT 3F · {displayNeighborhood}
             </p>
@@ -687,6 +687,85 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* ── Her Story — Scrapbook Section ── */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "rgba(255,165,50,0.6)" }}>✦ HER STORY</p>
+                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: headingColor }}>Your scrapbook.</p>
+                  </div>
+                  <button className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                    style={{ background: "rgba(255,31,125,0.15)", color: "#FF69B4", border: "1px solid rgba(255,31,125,0.2)" }}>
+                    + Add
+                  </button>
+                </div>
+
+                {/* Polaroid stack */}
+                <div className="flex gap-4 overflow-x-auto pb-4 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+                  {[
+                    { emoji: "🌸", caption: "Brooklyn brunch with the girls", date: "Apr 2026", rotate: "-3deg", color: "#FFF5F8" },
+                    { emoji: "🥂", caption: "Rooftop after the gallery show", date: "Mar 2026", rotate: "2.5deg", color: "#FFF8EC" },
+                    { emoji: "🌙", caption: "Midnight walk through SoHo", date: "Feb 2026", rotate: "-1.5deg", color: "#F5F0FF" },
+                    { emoji: "☕", caption: "Solo Saturday at La Mercerie", date: "Jan 2026", rotate: "3deg", color: "#FFF5F8" },
+                  ].map((p, i) => (
+                    <div key={i} className="flex-shrink-0 transition-transform active:scale-[0.97]"
+                      style={{ transform: `rotate(${p.rotate})`, transformOrigin: "center top" }}>
+                      <div className="p-3 pb-8 shadow-2xl"
+                        style={{ background: p.color, borderRadius: "4px", width: "148px", boxShadow: "0 8px 28px rgba(0,0,0,0.35)" }}>
+                        <div className="w-full h-28 flex items-center justify-center rounded-sm mb-1"
+                          style={{ background: "rgba(0,0,0,0.06)" }}>
+                          <span style={{ fontSize: "48px", opacity: 0.7 }}>{p.emoji}</span>
+                        </div>
+                        <div className="pt-2 px-1">
+                          <p className="text-xs leading-snug text-center"
+                            style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#444", lineHeight: 1.4 }}>
+                            {p.caption}
+                          </p>
+                          <p className="text-[9px] text-center mt-1" style={{ color: "#bbb" }}>{p.date}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add new polaroid */}
+                  <div className="flex-shrink-0" style={{ transform: "rotate(1deg)" }}>
+                    <button className="p-3 pb-8 transition-all active:scale-95"
+                      style={{ background: "rgba(255,255,255,0.06)", borderRadius: "4px", width: "148px", border: "1.5px dashed rgba(255,255,255,0.15)", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
+                      <div className="w-full h-28 flex items-center justify-center rounded-sm mb-1"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1.5px dashed rgba(255,255,255,0.1)" }}>
+                        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "32px" }}>+</span>
+                      </div>
+                      <p className="text-xs text-center pt-2"
+                        style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(255,255,255,0.22)" }}>
+                        Add a memory
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Notes area */}
+                <div className="rounded-2xl p-5 mt-2"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,200,130,0.1)" }}>
+                  <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(255,165,50,0.5)" }}>MISC NOTES</p>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      "Tried the clay class — life changed. Going back with Zara.",
+                      "Morocco trip: 11 women. Changed how I see friendship.",
+                      "The smoked fish platter at Sadelle's > everything.",
+                    ].map((note, i) => (
+                      <div key={i} className="flex items-start gap-2.5">
+                        <span style={{ color: "#FF69B4", fontSize: "10px", marginTop: "2px" }}>✦</span>
+                        <p className="text-sm leading-relaxed" style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "rgba(255,230,200,0.65)", lineHeight: 1.55 }}>{note}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="mt-4 w-full py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                    style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    + Write something
+                  </button>
                 </div>
               </div>
             </div>

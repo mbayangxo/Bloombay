@@ -314,8 +314,15 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
                 The City →
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {CITY_EVENTS.map((ev, idx) => <EventPoster key={ev.id} ev={ev} idx={idx} />)}
+            <div
+              className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 md:mx-0 md:px-0 md:grid md:grid-cols-3"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {CITY_EVENTS.map((ev, idx) => (
+                <div key={ev.id} className="flex-shrink-0 md:flex-shrink md:w-auto" style={{ width: "clamp(200px, 58vw, 260px)" }}>
+                  <EventPoster ev={ev} idx={idx} />
+                </div>
+              ))}
             </div>
           </div>
 

@@ -22,8 +22,8 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
   return (
     <div className="hidden md:flex items-center gap-2">
 
-      {/* Mail — inbox / messages */}
-      <Link href="/member/messages" aria-label="Messages"
+      {/* Mail — inbox / mailbox */}
+      <Link href="/member/messages" aria-label="Mailbox"
         className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
         style={{ background: iconBg }}>
         <svg width={sz+2} height={sz+2} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

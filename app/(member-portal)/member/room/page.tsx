@@ -706,12 +706,152 @@ function TheWall({ onBack }: { onBack: () => void }) {
 
 // ── Girl Bar ─────────────────────────────────────────────────────────────────
 
+// ── Girl Bar Room Entry ───────────────────────────────────────────────────────
+
+type GBRoom = typeof GIRL_BAR_ROOMS[number];
+
+function GirlBarRoomEntry({ room, onLeave }: { room: GBRoom; onLeave: () => void }) {
+  const [speaking, setSpeaking] = useState(false);
+  const avatarColors = ["#FF1F7D","#FF69B4","#C084FC","#FB923C","#34D399","#60A5FA","#F472B6","#A78BFA"];
+  const speakerInitials = ["A","J","Z","M","N","S","T","K","R","L","I","D"];
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: "#050209" }}>
+      <style>{`
+        @keyframes room-glow { 0%,100% { opacity:0.5; transform:scale(1); } 50% { opacity:0.85; transform:scale(1.05); } }
+        @keyframes room-wave { 0%,100% { height:12px; } 50% { height:32px; } }
+        @keyframes room-wave2 { 0%,100% { height:20px; } 50% { height:8px; } }
+        @keyframes room-wave3 { 0%,100% { height:16px; } 50% { height:36px; } }
+        @keyframes room-speak { 0%,100% { transform:scale(1); box-shadow: 0 0 0 0 rgba(255,31,125,0.4); } 50% { transform:scale(1.06); box-shadow: 0 0 0 8px rgba(255,31,125,0); } }
+        .room-glow { animation: room-glow 3s ease-in-out infinite; }
+        .room-w1 { animation: room-wave 0.7s ease-in-out infinite; }
+        .room-w2 { animation: room-wave2 0.9s ease-in-out infinite; }
+        .room-w3 { animation: room-wave3 0.6s ease-in-out infinite; }
+        .room-w4 { animation: room-wave2 0.8s ease-in-out infinite; }
+        .room-w5 { animation: room-wave 1.1s ease-in-out infinite; }
+        .room-speak { animation: room-speak 1.2s ease-in-out infinite; }
+      `}</style>
+
+      {/* Ambient glow background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="room-glow absolute rounded-full" style={{ width:"340px", height:"340px", top:"-80px", left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%)" }} />
+        <div className="absolute rounded-full" style={{ width:"200px", height:"200px", bottom:"120px", right:"-40px", background:"radial-gradient(circle, rgba(160,84,252,0.12) 0%, transparent 70%)", animation:"room-glow 4s ease-in-out infinite 1s" }} />
+      </div>
+
+      {/* Top bar */}
+      <div className="relative flex items-center justify-between px-5 pt-14 pb-4">
+        <button onClick={onLeave}
+          className="px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+          style={{ background:"rgba(255,255,255,0.07)", color:"rgba(255,255,255,0.6)", border:"1px solid rgba(255,255,255,0.1)" }}>
+          ← Leave
+        </button>
+        <div className="flex items-center gap-1.5">
+          {room.live && <div className="w-2 h-2 rounded-full" style={{ background:"#FF1F7D", boxShadow:"0 0 6px #FF1F7D", animation:"room-glow 1.6s ease-in-out infinite" }} />}
+          <span className="text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: room.live ? "#FF1F7D" : "rgba(255,255,255,0.3)" }}>{room.live ? "LIVE" : "COMING SOON"}</span>
+        </div>
+        <div className="w-9 h-9" />
+      </div>
+
+      {/* Room name */}
+      <div className="relative px-6 mt-4 mb-8 text-center">
+        <p className="text-[9px] font-bold tracking-[0.3em] uppercase mb-2" style={{ color:"rgba(255,105,180,0.5)" }}>GIRL BAR · ROOM</p>
+        <h1 className="font-black italic leading-none mb-3" style={{ fontFamily:"var(--font-playfair)", fontSize:"clamp(36px,10vw,52px)", color:"white", letterSpacing:"-0.02em" }}>
+          {room.name}
+        </h1>
+        <p className="text-sm leading-relaxed" style={{ color:"rgba(255,255,255,0.38)", fontFamily:"var(--font-instrument)" }}>{room.desc}</p>
+      </div>
+
+      {/* Live waveform */}
+      {room.live && (
+        <div className="flex items-end justify-center gap-1.5 mb-8" style={{ height:"48px" }}>
+          {[1,2,3,4,5,6,7,8,9,10,11,12,13].map((_, i) => (
+            <div key={i} className={["room-w1","room-w2","room-w3","room-w4","room-w5","room-w3","room-w2","room-w1","room-w4","room-w5","room-w2","room-w3","room-w1"][i]}
+              style={{ width:"3px", borderRadius:"2px", background: i % 3 === 0 ? "#FF1F7D" : "rgba(255,105,180,0.4)", minHeight:"6px" }} />
+          ))}
+        </div>
+      )}
+
+      {/* Speaker avatars */}
+      <div className="relative px-6 flex-1">
+        <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"rgba(255,255,255,0.2)" }}>
+          {room.women} WOMEN {room.live ? "IN THE ROOM" : "WAITING"}
+        </p>
+        <div className="flex flex-wrap gap-5 justify-center">
+          {Array.from({ length: Math.min(room.women, 12) }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <div
+                className={i < 3 && room.live ? "room-speak" : ""}
+                style={{ width:"52px", height:"52px", borderRadius:"50%", background:`linear-gradient(135deg, ${avatarColors[i % 8]}, ${avatarColors[(i+2)%8]}88)`, display:"flex", alignItems:"center", justifyContent:"center", boxShadow: i < 3 && room.live ? `0 0 0 2px ${avatarColors[i%8]}` : "none" }}>
+                <span style={{ color:"white", fontWeight:700, fontSize:"16px" }}>{speakerInitials[i % 12]}</span>
+              </div>
+              {i < 3 && room.live && (
+                <div className="flex gap-0.5 items-end" style={{ height:"10px" }}>
+                  {[0,1,2].map(b => (
+                    <div key={b} className={["room-w2","room-w1","room-w3"][b]} style={{ width:"2px", borderRadius:"1px", background:"rgba(255,105,180,0.6)", minHeight:"3px" }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          {room.women > 12 && (
+            <div className="flex flex-col items-center gap-2">
+              <div style={{ width:"52px", height:"52px", borderRadius:"50%", background:"rgba(255,255,255,0.07)", display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,255,255,0.12)" }}>
+                <span style={{ color:"rgba(255,255,255,0.4)", fontWeight:700, fontSize:"12px" }}>+{room.women-12}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom controls */}
+      <div className="relative px-6 pb-12 pt-6">
+        <div className="flex gap-3 justify-center">
+          {room.live ? (
+            <>
+              <button
+                onClick={() => setSpeaking(s => !s)}
+                className="flex-1 max-w-[200px] py-4 rounded-2xl font-bold text-sm transition-all active:scale-95"
+                style={speaking
+                  ? { background:"#FF1F7D", color:"white", boxShadow:"0 8px 24px rgba(255,31,125,0.5)" }
+                  : { background:"rgba(255,255,255,0.07)", color:"rgba(255,255,255,0.6)", border:"1px solid rgba(255,255,255,0.12)" }}>
+                {speaking ? "🎙 Speaking..." : "✦ Request Mic"}
+              </button>
+              <button
+                className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-95"
+                style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round">
+                  <path d="M12 2a3 3 0 003 3v8a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3M8 22h8"/>
+                </svg>
+              </button>
+            </>
+          ) : (
+            <div className="text-center">
+              <p className="text-sm font-bold mb-2" style={{ color:"rgba(255,255,255,0.5)" }}>Room opens soon</p>
+              <button className="px-8 py-3 rounded-full text-sm font-bold transition-all active:scale-95"
+                style={{ background:"rgba(255,31,125,0.15)", color:"#FF69B4", border:"1px solid rgba(255,31,125,0.3)" }}>
+                Notify Me When Live
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function GirlBar({ onBack }: { onBack: () => void }) {
   const [joined, setJoined] = useState<Set<number>>(new Set());
   const [notified, setNotified] = useState<Set<number>>(new Set());
+  const [activeRoom, setActiveRoom] = useState<GBRoom | null>(null);
 
   const liveCount = GIRL_BAR_ROOMS.filter(r => r.live).reduce((acc, r) => acc + r.women, 0);
   const avatarColors = ["#FF1F7D","#FF69B4","#C084FC","#FB923C","#34D399","#60A5FA","#F472B6","#A78BFA"];
+
+  if (activeRoom) {
+    return <GirlBarRoomEntry room={activeRoom} onLeave={() => setActiveRoom(null)} />;
+  }
 
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0D0810" }}>
@@ -778,7 +918,8 @@ function GirlBar({ onBack }: { onBack: () => void }) {
         {GIRL_BAR_ROOMS.map(r => (
           <div
             key={r.id}
-            className="relative rounded-2xl overflow-hidden"
+            className="relative rounded-2xl overflow-hidden cursor-pointer transition-all active:scale-[0.98]"
+            onClick={() => setActiveRoom(r)}
             style={{
               background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.07)",
@@ -807,9 +948,9 @@ function GirlBar({ onBack }: { onBack: () => void }) {
                   </p>
                 </div>
                 <button
-                  onClick={() => r.live
+                  onClick={e => { e.stopPropagation(); r.live
                     ? setJoined(p => { const n = new Set(p); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })
-                    : setNotified(p => new Set([...p, r.id]))}
+                    : setNotified(p => new Set([...p, r.id])); }}
                   className="flex-shrink-0 ml-4 px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all active:scale-95"
                   style={r.live
                     ? joined.has(r.id)

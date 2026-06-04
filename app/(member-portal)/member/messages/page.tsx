@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -820,115 +821,64 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Mailbox item — grid card ───────────────────────────────────────────────────
+// ── Mailbox item — compact row ────────────────────────────────────────────────
 
 function MailboxCard({ chat, isUnread, onClick }: { chat: ChatEntry; isUnread: boolean; onClick: () => void }) {
-  const typeLabel =
-    chat.type === "bloombay" ? "HQ" :
-    chat.type === "club"     ? `${chat.members} members` :
-    chat.type === "group"    ? `${chat.members} women` :
-    "Bloomie";
-
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl overflow-hidden text-left transition-all active:scale-[0.97] flex flex-col"
-      style={{
-        background: chat.type === "bloombay" ? "#111111" : "white",
-        boxShadow: isUnread
-          ? `0 4px 20px ${chat.color}22`
-          : "0 2px 12px rgba(0,0,0,0.07)",
-      }}
+      className="w-full flex items-center gap-3.5 px-5 py-3.5 text-left transition-all active:scale-[0.98]"
+      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}
     >
-      {/* Mailbox top — colored area */}
-      <div
-        className="relative flex flex-col items-start justify-between p-3.5"
-        style={{
-          background: chat.type === "bloombay"
-            ? `radial-gradient(ellipse at 85% 50%, rgba(255,31,125,0.3) 0%, transparent 60%)`
-            : `linear-gradient(135deg, ${chat.color} 0%, ${chat.color}88 100%)`,
-          minHeight: "80px",
-          backgroundColor: chat.type === "bloombay" ? "transparent" : undefined,
-        }}
-      >
-        {/* Avatar */}
+      {/* Avatar with optional unread ring */}
+      <div className="relative flex-shrink-0">
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+          className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
           style={{
             background: chat.type === "bloombay"
-              ? "#FF1F7D"
-              : "rgba(0,0,0,0.18)",
-            boxShadow: chat.type === "bloombay" ? "0 2px 10px rgba(255,31,125,0.5)" : "none",
-            fontSize: chat.initial.length > 1 ? "10px" : "14px",
+              ? "linear-gradient(135deg, #FF1F7D, #C51B7A)"
+              : `linear-gradient(135deg, ${chat.color}, ${chat.color}BB)`,
+            fontSize: chat.initial.length > 1 ? "10px" : "15px",
+            boxShadow: isUnread ? `0 0 0 2px #FF1F7D, 0 0 0 4px var(--pale-pink-bg)` : "none",
           }}
         >
           {chat.initial}
         </div>
-
-        {/* Unread badge */}
         {isUnread && (
           <div
-            className="absolute top-2.5 right-2.5 min-w-[22px] h-[22px] rounded-full flex items-center justify-center px-1.5"
-            style={{
-              background: chat.type === "bloombay" ? "#FF1F7D" : "white",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-            }}
+            className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center"
+            style={{ background: "#FF1F7D", boxShadow: "0 1px 4px rgba(255,31,125,0.6)" }}
           >
-            <span
-              className="text-[10px] font-black leading-none"
-              style={{ color: chat.type === "bloombay" ? "white" : chat.color }}
-            >
-              {chat.unread}
-            </span>
+            <span className="text-[9px] font-black text-white leading-none px-1">{chat.unread}</span>
           </div>
         )}
-
-        {/* Type tag */}
-        <span
-          className="text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide"
-          style={{
-            background: chat.type === "bloombay" ? "rgba(255,31,125,0.25)" : "rgba(255,255,255,0.25)",
-            color: chat.type === "bloombay" ? "#FF69B4" : "rgba(255,255,255,0.9)",
-          }}
-        >
-          {typeLabel}
-        </span>
       </div>
 
-      {/* Mailbox body */}
-      <div className="p-3 flex-1">
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-0.5">
+          <p
+            className="font-bold text-sm truncate leading-tight"
+            style={{
+              color: "var(--heading-color, #111111)",
+              fontWeight: isUnread ? 700 : 500,
+            }}
+          >
+            {chat.name}
+          </p>
+          <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-muted, #bbb)" }}>{chat.time}</span>
+        </div>
         <p
-          className="font-bold text-sm leading-tight mb-1 truncate"
-          style={{
-            color: chat.type === "bloombay" ? "white" : "#111",
-            fontWeight: isUnread ? 700 : 500,
-            fontFamily: chat.type === "bloomie" ? "var(--font-playfair)" : undefined,
-            fontStyle: chat.type === "bloomie" ? "italic" : undefined,
-          }}
-        >
-          {chat.name}
-        </p>
-        <p
-          className="text-xs leading-snug"
-          style={{
-            color: chat.type === "bloombay"
-              ? isUnread ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.4)"
-              : isUnread ? "#555" : "#bbb",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
+          className="text-xs truncate leading-relaxed"
+          style={{ color: isUnread ? "var(--text-color, #555)" : "var(--text-muted, #bbb)" }}
         >
           {chat.preview}
         </p>
-        <p
-          className="text-[10px] mt-1.5"
-          style={{ color: chat.type === "bloombay" ? "rgba(255,255,255,0.25)" : "#ddd" }}
-        >
-          {chat.time}
-        </p>
       </div>
+
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
     </button>
   );
 }
@@ -975,103 +925,30 @@ export default function MessagesPage() {
     <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>✦ MAILBOX</p>
-            <div className="flex items-end gap-3">
-              <h1 className="font-bold italic leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontSize: "clamp(42px,11vw,58px)" }}>
+        <div className="flex items-center gap-3 mb-3">
+          <Link href="/member/home"
+            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "rgba(0,0,0,0.06)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </Link>
+          <div className="flex-1">
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MAILBOX</p>
+            <div className="flex items-center gap-2">
+              <h1 className="font-bold italic leading-none" style={{ color: "var(--heading-color, #111111)", fontFamily: "var(--font-playfair)", fontSize: "clamp(38px,10vw,52px)" }}>
                 Mailbox
               </h1>
               {totalUnread > 0 && (
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white mb-2" style={{ background: "#FF1F7D" }}>
-                  {totalUnread}
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white self-end mb-1" style={{ background: "#FF1F7D" }}>
+                  {totalUnread} unread
                 </span>
               )}
             </div>
           </div>
-          <button
-            onClick={() => setShowNewGroup(true)}
-            className="mt-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-            style={{ background: "#111111", color: "white" }}
-          >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Group
-          </button>
         </div>
       </div>
 
-      {/* Plan Room Door — big, bold, no borders, shakes when unread */}
-      <div className="px-5 mb-5 md:px-8">
-        <button
-          onClick={openPlan}
-          className="w-full relative overflow-hidden transition-all active:scale-[0.98]"
-          style={{ borderRadius: "24px" }}
-        >
-          <div
-            className="relative flex items-center gap-5 px-6 py-7"
-            style={{ background: "#111111", minHeight: "148px" }}
-          >
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,31,125,0.28) 0%, transparent 55%)" }} />
-
-            {/* Large door — no border, fills vertically */}
-            <div
-              className="relative flex-shrink-0 flex flex-col items-center justify-center"
-              style={{
-                width: "72px",
-                height: "112px",
-                borderRadius: "36px 36px 4px 4px",
-                background: "rgba(255,31,125,0.18)",
-                animation: totalUnread > 0 ? "doorShake 0.7s ease-in-out 0.5s 3" : "none",
-              }}
-            >
-              {/* Door handle */}
-              <div
-                className="absolute right-2.5"
-                style={{ top: "50%", width: "8px", height: "24px", borderRadius: "4px", background: "rgba(255,31,125,0.55)", transform: "translateY(-50%)" }}
-              />
-              <span style={{ fontSize: "26px" }}>✿</span>
-              {/* Unread badge on door */}
-              {totalUnread > 0 && (
-                <div
-                  className="absolute -top-2 -right-2 min-w-[24px] h-6 rounded-full flex items-center justify-center px-1.5"
-                  style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.55)" }}
-                >
-                  <span className="text-[11px] font-black text-white leading-none">{totalUnread}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 relative text-left">
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF1F7D" }}>PLAN ROOM</p>
-              <p
-                className="font-bold italic mb-1.5"
-                style={{ fontFamily: "var(--font-playfair)", color: "white", fontSize: "22px", lineHeight: 1.2 }}
-              >
-                Saturday in Soho
-              </p>
-              <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>02 days · 7 confirmed</p>
-
-              {totalUnread > 0 && (
-                <div
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-                  style={{ background: "rgba(255,31,125,0.2)" }}
-                >
-                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
-                  <span className="text-[10px] font-bold" style={{ color: "#FF69B4" }}>
-                    {totalUnread} new {totalUnread === 1 ? "message" : "messages"}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-shrink-0 relative">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </div>
-          </div>
-        </button>
-      </div>
 
       {/* Filter chips */}
       <div className="px-5 mb-4 flex gap-2 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
@@ -1086,8 +963,8 @@ export default function MessagesPage() {
         ))}
       </div>
 
-      {/* Mailbox grid — 2 per row */}
-      <div className="px-5 grid grid-cols-2 gap-3 md:px-8 md:grid-cols-3">
+      {/* Mailbox list */}
+      <div className="mx-5 md:mx-8 rounded-3xl overflow-hidden" style={{ background: "var(--card-bg, white)", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
         {shown.map((chat) => (
           <MailboxCard
             key={chat.id}

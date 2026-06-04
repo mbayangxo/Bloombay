@@ -83,21 +83,30 @@ export default function CalendarPage() {
 
       {/* Header */}
       <div className="px-5 pt-20 pb-4 md:px-10 md:pt-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Link href="/member/home"
-            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(255,255,255,0.07)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </Link>
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MY CALENDAR</p>
-            <h1 className="font-black leading-none"
-              style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,6vw,40px)", color: "rgba(255,238,220,0.92)", lineHeight: 1 }}>
-              Schedule.
-            </h1>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Link href="/member/home"
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(255,255,255,0.07)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </Link>
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MY CALENDAR</p>
+              <h1 className="font-black leading-none"
+                style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,6vw,40px)", color: "rgba(255,238,220,0.92)", lineHeight: 1 }}>
+                Schedule.
+              </h1>
+            </div>
           </div>
+          <button
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style={{ background: "#FF1F7D", boxShadow: "0 4px 12px rgba(255,31,125,0.4)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -253,13 +262,6 @@ export default function CalendarPage() {
         )}
       </div>
 
-      {/* Add event CTA */}
-      <div className="px-5 mt-6 md:px-10">
-        <button className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
-          style={{ background: "rgba(255,31,125,0.12)", color: "#FF1F7D", border: "1px dashed rgba(255,31,125,0.25)" }}>
-          + Add to my calendar
-        </button>
-      </div>
     </div>
   );
 }

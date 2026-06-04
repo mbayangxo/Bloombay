@@ -611,7 +611,7 @@ export default function MatchPage() {
         <h1
           className="font-bold italic leading-none mb-3"
           style={{
-            color: "var(--bb-black)",
+            color: "var(--heading-color, #111111)",
             fontFamily: "var(--font-playfair)",
             fontSize: "clamp(52px, 14vw, 72px)",
           }}

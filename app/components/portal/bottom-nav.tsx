@@ -22,7 +22,8 @@ const PAGE_LABELS: Record<string, string> = {
   "/member/match":         "CONNECT",
   "/member/calendar":      "CALENDAR",
   "/member/happenings":    "HAPPENINGS",
-  "/member/messages":      "MESSAGES",
+  "/member/messages":      "MAILBOX",
+  "/member/chat":          "CHAT",
   "/member/notifications": "PINGS",
   "/member/plans":         "PLANS",
   "/member/room":          "THE WALL",
@@ -94,9 +95,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {/* Right — utility icons + avatar */}
           <div className="flex items-center gap-3">
             <Link href="/member/messages" aria-label="Mailbox"
-              className="w-9 h-9 rounded-full flex items-center justify-center"
+              className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -104,36 +105,31 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
             </Link>
             <Link href="/member/notifications" aria-label="Ping"
-              className="w-9 h-9 rounded-full flex items-center justify-center relative"
+              className="w-8 h-8 rounded-full flex items-center justify-center relative"
               style={{ background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
             </Link>
             <Link href="/member/calendar" aria-label="Calendar"
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: pathname.startsWith("/member/happenings") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/happenings") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
                 strokeWidth="2" strokeLinecap="round">
-                <rect x="1" y="4" width="22" height="16" rx="2"/>
-                <line x1="1" y1="10" x2="23" y2="10"/>
-                <line x1="8" y1="4" x2="8" y2="2"/>
-                <line x1="16" y1="4" x2="16" y2="2"/>
-                <text x="12" y="20" textAnchor="middle" fontSize="7" fontWeight="bold"
-                  fill={pathname.startsWith("/member/happenings") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
-                  stroke="none" strokeWidth="0">
-                  {new Date().getDate()}
-                </text>
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
             </Link>
             <Link href="/member/lounge" aria-label="Your apartment">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.42)" }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
                 {user?.initial ?? "M"}
               </div>
             </Link>

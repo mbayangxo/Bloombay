@@ -671,10 +671,10 @@ export function CityPage() {
       {/* ── Header ── */}
       <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
-        <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+        <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "var(--heading-color, #111)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
           Girl Picks.
         </h1>
-        <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+        <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
           The city, through women.
         </p>
 
@@ -684,8 +684,8 @@ export function CityPage() {
             <button key={key} onClick={() => setActiveTab(key)}
               className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all"
               style={activeTab === key
-                ? { background: "#111", color: "white" }
-                : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                ? { background: "var(--heading-color, #111)", color: "var(--pale-pink-bg, white)" }
+                : { background: "var(--card-bg, white)", color: "#666", border: "1.5px solid var(--card-border, #E8E8E8)" }}>
               {label}
             </button>
           ))}
@@ -704,7 +704,10 @@ export function CityPage() {
           <div className="flex flex-col gap-6">
             {/* Women's Picks carousel */}
             <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
+                <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</button>
+              </div>
               <div
                 className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0"
                 style={{ scrollbarWidth: "none" }}
@@ -717,9 +720,18 @@ export function CityPage() {
 
             <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
               <div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
+                  <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</button>
+                </div>
+                <div
+                  className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
+                  style={{ scrollbarWidth: "none" }}
+                >
                   {RESTAURANTS.map(r => (
-                    <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+                    <div key={r.id} className="flex-shrink-0 md:flex-shrink md:w-auto" style={{ width: "clamp(180px, 52vw, 240px)" }}>
+                      <EatGridCard r={r} onClick={() => setSelectedRestaurant(r)} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -748,7 +760,7 @@ export function CityPage() {
               <div className="flex items-baseline justify-between mb-3">
                 <div>
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
-                  <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>Places the city loves</h3>
+                  <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "var(--heading-color, #111)" }}>Places the city loves</h3>
                 </div>
               </div>
               <div className="flex flex-col gap-3">
