@@ -12,8 +12,9 @@ const PLACES = [
   { href: "/member/happenings", baseLabel: "HAPPENINGS", n: "02" },
   { href: "/member/city",       baseLabel: "THE CITY",   n: "03" },
   { href: "/member/clubs",      baseLabel: "CLUBS",      n: "04" },
-  { href: "/member/lounge",     baseLabel: "APT",        n: "05" },
-  { href: "/member/match",      baseLabel: "INTROS",     n: "06" },
+  { href: "/member/room",       baseLabel: "THE LOBBY",  n: "05" },
+  { href: "/member/lounge",     baseLabel: "APT",        n: "06" },
+  { href: "/member/match",      baseLabel: "INTROS",     n: "07" },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
