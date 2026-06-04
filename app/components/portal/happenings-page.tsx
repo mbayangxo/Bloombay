@@ -11,7 +11,7 @@ type HappeningType = "gallery" | "popup" | "rooftop" | "workshop" | "class" | "f
 type TimeTag = "tonight" | "today" | "weekend";
 type CelebType = "birthday" | "promotion" | "new_home" | "anniversary" | "graduation" | "new_job" | "breakup";
 type CelebFilter = "All" | "Birthdays" | "Wins" | "Milestones";
-type HapFilter = "All" | "Tonight" | "This Week" | "Coming Up" | "Free";
+type HapFilter = "All" | "Today" | "Tomorrow" | "This Week" | "Free";
 
 interface Happening {
   id: number; type: HappeningType; title: string; venue: string;
@@ -1090,6 +1090,156 @@ function MembersOnlyEventPage({ ev, appliedClubs, onApplyClub, onBack }: {
   );
 }
 
+// ── New section data ─────────────────────────────────────────────────────────
+
+const PINK_DAYS = [
+  { id: 1, title: "First Friday",        sub: "5 museums · Free admission",  date: "Fri Jun 6",  emoji: "🌸", accent: "#FF1F7D" },
+  { id: 2, title: "Sunday Soft Pilates", sub: "Prospect Park · No signup",   date: "Sun Jun 8",  emoji: "🧘", accent: "#FF69B4" },
+  { id: 3, title: "Chelsea Gallery Walk",sub: "5 galleries · Curated picks", date: "Sat Jun 14", emoji: "🎨", accent: "#C51B7A" },
+  { id: 4, title: "Film Night · IFC",    sub: "Complimentary screening",     date: "Wed Jun 11", emoji: "🎬", accent: "#FF1F7D" },
+];
+
+interface GatheringItem {
+  id: number; title: string; venue: string; time: string; women: number; host: string; color: string;
+}
+const GATHERINGS_DATA: GatheringItem[] = [
+  { id: 1, title: "Coffee Morning",  venue: "Blue Bottle, DUMBO",         time: "Sat · 10AM", women: 6,  host: "Sofia",  color: "#FF69B4" },
+  { id: 2, title: "Park Picnic",     venue: "Sheep Meadow, Central Park", time: "Sun · 1PM",  women: 12, host: "Nadia",  color: "#83C5A0" },
+  { id: 3, title: "Book Swap",       venue: "McNally Jackson Café",        time: "Sat · 3PM",  women: 8,  host: "Zeynep", color: "#FF1F7D" },
+  { id: 4, title: "Morning Walk",    venue: "Prospect Park",               time: "Sat · 7AM",  women: 5,  host: "Amara",  color: "#C084FC" },
+];
+
+interface TableItem {
+  id: number; title: string; venue: string; time: string; seats: number; total: number; price: string;
+}
+const TABLES_DATA: TableItem[] = [
+  { id: 1, title: "Long Table Dinner", venue: "Carbone, SoHo",         time: "Sat 8PM",  seats: 2, total: 8,  price: "$65" },
+  { id: 2, title: "Sunday Brunch",     venue: "Jack's Wife Freda",     time: "Sun 11AM", seats: 3, total: 6,  price: "$35" },
+  { id: 3, title: "Jazz & Dinner",     venue: "Minton's, Harlem",      time: "Fri 9PM",  seats: 1, total: 4,  price: "$45" },
+  { id: 4, title: "Farm Table Lunch",  venue: "Via Carota, W Village", time: "Sun 12PM", seats: 4, total: 10, price: "$28" },
+];
+
+interface OpenSeatItem {
+  id: number; title: string; venue: string; seats: number; time: string; type: string; price: string;
+}
+const OPEN_SEATS_DATA: OpenSeatItem[] = [
+  { id: 1, title: "Book Society",   venue: "McNally Jackson", seats: 2, time: "Thu · 7PM", type: "Club",     price: "Free"    },
+  { id: 2, title: "Darkroom Night", venue: "Bushwick Studio", seats: 1, time: "Fri · 8PM", type: "Workshop", price: "Members" },
+  { id: 3, title: "Girls Dinner",   venue: "Carbone, SoHo",  seats: 3, time: "Sat · 8PM", type: "Dinner",   price: "$65"     },
+  { id: 4, title: "Rooftop Mixer",  venue: "Westlight Hotel", seats: 5, time: "Sat · 9PM", type: "Social",   price: "$25"     },
+];
+
+// ── Section row wrapper ────────────────────────────────────────────────────────
+
+function SectionRow({ label, sub, accent = "#FF1F7D", dark = false, children }: {
+  label: string; sub?: string; accent?: string; dark?: boolean; children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-5" style={dark ? { background: "#0A0804", paddingTop: "20px", paddingBottom: "20px" } : {}}>
+      <div className="flex items-center justify-between px-5 mb-3">
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.26em] uppercase" style={{ color: accent }}>{label}</p>
+          {sub && <p className="text-[10px] mt-0.5 italic" style={{ fontFamily: "var(--font-instrument)", color: dark ? "rgba(255,255,255,0.28)" : "#bbb" }}>{sub}</p>}
+        </div>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-2" style={{ paddingLeft: "20px", paddingRight: "20px", scrollbarWidth: "none" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Pink Day Card ─────────────────────────────────────────────────────────────
+
+function PinkDayCard({ item }: { item: typeof PINK_DAYS[0] }) {
+  return (
+    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+      style={{ width: "148px", background: `${item.accent}10`, border: `1.5px solid ${item.accent}28`, padding: "14px 12px" }}>
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: `${item.accent}18` }}>
+        <span style={{ fontSize: "22px" }}>{item.emoji}</span>
+      </div>
+      <p className="font-black text-[13px] leading-tight mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{item.title}</p>
+      <p className="text-[9px] mb-2" style={{ color: "#999" }}>{item.sub}</p>
+      <div className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
+        <p className="text-[9px] font-bold" style={{ color: "#FF1F7D" }}>FREE · {item.date}</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Gathering Card ────────────────────────────────────────────────────────────
+
+function GatheringCard({ g }: { g: GatheringItem }) {
+  return (
+    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+      style={{ width: "152px", background: "white", boxShadow: "0 3px 14px rgba(0,0,0,0.07)", padding: "14px" }}>
+      <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black text-white mb-3"
+        style={{ background: g.color }}>{g.host[0]}</div>
+      <p className="font-black text-[13px] leading-tight mb-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{g.title}</p>
+      <p className="text-[9px] mb-0.5" style={{ color: "#aaa" }}>{g.venue}</p>
+      <p className="text-[9px] font-semibold mb-2" style={{ color: "#888" }}>{g.time}</p>
+      <div className="flex items-center gap-1.5">
+        <div className="flex">
+          {Array.from({ length: Math.min(3, g.women) }).map((_, i) => (
+            <div key={i} className="w-4 h-4 rounded-full"
+              style={{ background: g.color, border: "1.5px solid white", marginLeft: i > 0 ? "-3px" : "0", opacity: 0.85 - i * 0.15 }} />
+          ))}
+        </div>
+        <span className="text-[9px]" style={{ color: "#bbb" }}>{g.women} going</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Table Card ────────────────────────────────────────────────────────────────
+
+function TableCard({ t }: { t: TableItem }) {
+  const filled = t.total - t.seats;
+  return (
+    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+      style={{ width: "152px", background: "#FDFAF5", boxShadow: "0 3px 14px rgba(0,0,0,0.08)", padding: "14px" }}>
+      <div className="flex items-center justify-between mb-3">
+        <span style={{ fontSize: "22px" }}>🍽</span>
+        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>{t.seats} left</span>
+      </div>
+      <p className="font-black text-[13px] leading-tight mb-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.title}</p>
+      <p className="text-[9px] mb-0.5" style={{ color: "#aaa" }}>{t.venue}</p>
+      <p className="text-[9px] font-semibold mb-3" style={{ color: "#888" }}>{t.time}</p>
+      <div className="h-1 rounded-full mb-1.5" style={{ background: "#F0E8EC" }}>
+        <div className="h-1 rounded-full" style={{ width: `${(filled / t.total) * 100}%`, background: "#FF1F7D" }} />
+      </div>
+      <p className="text-[9px] font-bold" style={{ color: "#FF1F7D" }}>{t.price} · Join table →</p>
+    </div>
+  );
+}
+
+// ── Open Seat Card ────────────────────────────────────────────────────────────
+
+function OpenSeatCard({ item }: { item: OpenSeatItem }) {
+  return (
+    <div className="flex-shrink-0 rounded-2xl transition-transform active:scale-[0.97]"
+      style={{ width: "152px", background: "white", boxShadow: "0 3px 14px rgba(0,0,0,0.07)", padding: "14px" }}>
+      <div className="mb-3">
+        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{item.type}</span>
+      </div>
+      <p className="font-black text-[13px] leading-tight mb-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{item.title}</p>
+      <p className="text-[9px] mb-0.5" style={{ color: "#aaa" }}>{item.venue}</p>
+      <p className="text-[9px] font-semibold mb-3" style={{ color: "#888" }}>{item.time}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          <span className="text-[9px] font-bold" style={{ color: "#FF1F7D" }}>{item.seats} open</span>
+        </div>
+        <span className="text-[9px] font-bold" style={{ color: "#111" }}>{item.price} →</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Main HappeningsPage ───────────────────────────────────────────────────────
 
 export function HappeningsPage() {
@@ -1102,13 +1252,14 @@ export function HappeningsPage() {
   const [hapFilter, setHapFilter] = useState<HapFilter>("All");
   const [appliedClubs, setAppliedClubs] = useState<Set<number>>(new Set());
   const [selectedFMEvent, setSelectedFMEvent] = useState<FMEvent | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
-    if (hapFilter === "Tonight") return h.timeTag === "tonight";
-    if (hapFilter === "This Week") return h.timeTag === "today";
-    if (hapFilter === "Coming Up") return h.timeTag === "weekend";
-    if (hapFilter === "Free") return h.price === 0;
+    if (hapFilter === "Today")      return h.timeTag === "today" || h.timeTag === "tonight";
+    if (hapFilter === "Tomorrow")   return h.timeTag === "weekend";
+    if (hapFilter === "This Week")  return true;
+    if (hapFilter === "Free")       return h.price === 0;
     return true;
   });
 
@@ -1135,108 +1286,99 @@ export function HappeningsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FDFAF5" }}>
+    <div className="min-h-screen pb-32" style={{ background: "#FDFAF5" }}>
 
       {/* Header */}
-      <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
+      <div className="px-5 pt-12 pb-3 md:px-10 md:pt-8">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · HAPPENINGS</p>
-        <div className="flex items-end justify-between mb-5">
-          <div>
-            <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-              What&apos;s<br />happening.
-            </h1>
-            <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Tonight and beyond.</p>
-          </div>
-          <button onClick={() => setShowAddSheet(true)} className="px-4 py-2 rounded-full text-xs font-bold text-white transition-all active:scale-95" style={{ background: "#111" }}>+ Add</button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
-          {(["All", "Tonight", "This Week", "Coming Up", "Free"] as HapFilter[]).map(f => (
-            <button key={f} onClick={() => setHapFilter(f)}
-              className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-              style={hapFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-              {f}
-            </button>
-          ))}
-        </div>
+        <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+          What&apos;s<br />happening.
+        </h1>
+        <p className="text-sm italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>Tonight and beyond.</p>
       </div>
 
-      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto flex flex-col gap-10">
+      {/* Collapsible filter */}
+      <div className="px-5 pb-5">
+        <button
+          onClick={() => setFilterOpen(f => !f)}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+          style={hapFilter !== "All"
+            ? { background: "#FF1F7D", color: "white", border: "1.5px solid #FF1F7D" }
+            : { background: "white", color: "#666", border: "1.5px solid #E8E8E8", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>
+          </svg>
+          {hapFilter === "All" ? "Filter" : hapFilter}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+            style={{ transform: filterOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
 
-        {/* ── BLOOM EVENTS ── */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <p className="text-[9px] font-bold tracking-[0.26em] uppercase" style={{ color: "#FF1F7D" }}>✦ BLOOM EVENTS</p>
-            <p className="text-[9px]" style={{ color: "#ccc" }}>— open to all members</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {filteredHap.map(h => (
-              <HappeningPoster key={h.id} h={h} onOpen={() => setSelectedEvent(h)} />
-            ))}
-            {filteredHap.length === 0 && (
-              <div className="col-span-2 md:col-span-3 rounded-3xl p-12 text-center bg-white">
-                <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>Nothing here right now. Try a different filter.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── MEMBERS ONLY ── */}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="2.5">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
-              <p className="text-[9px] font-bold tracking-[0.26em] uppercase" style={{ color: "rgba(0,0,0,0.4)" }}>MEMBERS ONLY</p>
-            </div>
-            <p className="text-[9px] font-medium" style={{ color: "#bbb" }}>Club events · Join to attend</p>
-          </div>
-          <p className="text-xs italic mb-4" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-            These are private events hosted by clubs. Join a club to unlock the full details.
-          </p>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0" style={{ scrollbarWidth: "none" }}>
-            {CLUB_EVENTS.map(ev => (
-              <MembersOnlyCard key={ev.id} ev={ev} onPress={() => setSelectedClubEvent(ev)} />
-            ))}
-          </div>
-        </div>
-
-        {/* ── CONFETTI ── */}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6 pb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.28em] uppercase mb-1" style={{ color: "#FF1F7D" }}>CONFETTI ✿</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,4vw,26px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                We show up<br />for our girls.
-              </h2>
-            </div>
-            <div className="hidden md:flex gap-1">
-              {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
-                <button key={f} onClick={() => setCelebFilter(f)}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all"
-                  style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1px solid #E8E8E8" }}>
-                  {f === "All" ? "All" : f}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-1 md:hidden">
-            {(["All", "Birthdays", "Wins", "Milestones"] as CelebFilter[]).map(f => (
-              <button key={f} onClick={() => setCelebFilter(f)}
+        {filterOpen && (
+          <div className="flex gap-2 mt-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {(["All", "Today", "Tomorrow", "This Week", "Free"] as HapFilter[]).map(f => (
+              <button key={f} onClick={() => { setHapFilter(f); setFilterOpen(false); }}
                 className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                style={celebFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-                {f === "All" ? "All Celebrations" : f}
+                style={hapFilter === f
+                  ? { background: "#FF1F7D", color: "white" }
+                  : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                {f}
               </button>
             ))}
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 px-5 md:mx-0 md:px-0">
-            {filteredConfetti.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
-            <PlanSomethingCard />
-          </div>
-        </div>
+        )}
       </div>
+
+      {/* ── MEMBERS ONLY — top, personalized, only clubs you're in ── */}
+      <SectionRow label="MEMBERS ONLY" sub="Your clubs · Only you see this" accent="rgba(0,0,0,0.45)">
+        {CLUB_EVENTS.map(ev => (
+          <MembersOnlyCard key={ev.id} ev={ev} onPress={() => setSelectedClubEvent(ev)} />
+        ))}
+      </SectionRow>
+
+      <div style={{ height: "1px", background: "rgba(0,0,0,0.05)", margin: "0 20px 20px" }} />
+
+      {/* ── BLOOM EVENTS ── */}
+      <SectionRow label="✦ BLOOM EVENTS" sub="Open to all members">
+        {filteredHap.map(h => (
+          <div key={h.id} className="flex-shrink-0" style={{ width: "200px" }}>
+            <HappeningPoster h={h} onOpen={() => setSelectedEvent(h)} />
+          </div>
+        ))}
+        {filteredHap.length === 0 && (
+          <div className="flex-shrink-0 rounded-2xl flex items-center justify-center"
+            style={{ width: "200px", height: "210px", background: "white", border: "1.5px dashed #F0E8EC" }}>
+            <p className="text-sm italic px-4 text-center" style={{ fontFamily: "var(--font-instrument)", color: "#ccc" }}>Nothing for this filter.</p>
+          </div>
+        )}
+      </SectionRow>
+
+      {/* ── PINK DAYS — free days for all members ── */}
+      <SectionRow label="PINK DAYS 🌸" sub="Free days · All members" accent="#FF69B4">
+        {PINK_DAYS.map(item => <PinkDayCard key={item.id} item={item} />)}
+      </SectionRow>
+
+      {/* ── GATHERINGS ── */}
+      <SectionRow label="GATHERINGS" sub="Women making plans">
+        {GATHERINGS_DATA.map(g => <GatheringCard key={g.id} g={g} />)}
+      </SectionRow>
+
+      {/* ── CONFETTI — celebrations ── */}
+      <SectionRow label="CONFETTI ✿" sub="We show up for our girls">
+        {filteredConfetti.map(c => <ConfettiCard key={c.id} c={c} onOpen={() => setSelectedCeleb(c)} />)}
+        <PlanSomethingCard />
+      </SectionRow>
+
+      {/* ── TABLES — open seats at dinner tables ── */}
+      <SectionRow label="TABLES" sub="Open seats at dinner tables" accent="#D4A853">
+        {TABLES_DATA.map(t => <TableCard key={t.id} t={t} />)}
+      </SectionRow>
+
+      {/* ── OPEN SEATS ── */}
+      <SectionRow label="OPEN SEATS" sub="Join something happening now">
+        {OPEN_SEATS_DATA.map(item => <OpenSeatCard key={item.id} item={item} />)}
+      </SectionRow>
 
       {/* ── FOUNDING MOTHERS ONLY ── */}
       <FoundingMothersSection onOpenEvent={ev => setSelectedFMEvent(ev)} />
@@ -1253,6 +1395,24 @@ export function HappeningsPage() {
       )}
 
       {showAddSheet && <AddEventSheet onClose={() => setShowAddSheet(false)} />}
+
+      {/* Floating + create button */}
+      <button
+        onClick={() => setShowAddSheet(true)}
+        className="fixed z-30 flex items-center justify-center transition-all active:scale-90"
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 96px)",
+          right: "20px",
+          width: "52px",
+          height: "52px",
+          borderRadius: "50%",
+          background: "#FF1F7D",
+          boxShadow: "0 4px 20px rgba(255,31,125,0.5), 0 2px 8px rgba(0,0,0,0.15)",
+        }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
     </div>
   );
 }
