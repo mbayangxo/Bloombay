@@ -34,7 +34,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
   }
 
   function strokeColor(href: string): string {
-    return pathname.startsWith(href) ? "#FF1F7D" : isNight ? "rgba(255,255,255,0.65)" : "#FF1F7D";
+    return pathname.startsWith(href) ? "#FF1F7D" : "#FF69B4";
   }
 
   const sz = 15;

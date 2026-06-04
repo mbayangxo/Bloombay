@@ -106,7 +106,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 animation: !pathname.startsWith("/member/messages") ? "mailboxShake 6s ease-in-out 2s infinite" : undefined,
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
+                stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "#FF69B4"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
@@ -127,7 +127,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 animation: !pathname.startsWith("/member/notifications") ? "bellShake 5s ease-in-out 3s infinite" : undefined,
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
+                stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "#FF69B4"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -145,7 +145,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 boxShadow: pathname.startsWith("/member/chat") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
+                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "#FF69B4"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
@@ -158,7 +158,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 boxShadow: pathname.startsWith("/member/calendar") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
+                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "#FF69B4"}
                 strokeWidth="2" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
@@ -179,7 +179,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
               )}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/plans") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
+                stroke={pathname.startsWith("/member/plans") ? "#FF1F7D" : "#FF69B4"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
                 <line x1="8" y1="2" x2="8" y2="18"/>
