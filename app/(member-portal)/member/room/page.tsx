@@ -551,21 +551,21 @@ function TheWall({ onBack }: { onBack: () => void }) {
   const filterAccent = activeZoneInfo ? activeZoneInfo.accent : "#FF1F7D";
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#E8DECE" }}>
+    <div className="min-h-screen pb-28" style={{ background: "linear-gradient(160deg, #FF1F7D 0%, #C51B7A 55%, #A0145E 100%)" }}>
       <style>{`
         @keyframes wall-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .wall-note { animation: wall-fade 0.28s ease both; }
         .wall-bg {
           background-image:
-            radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px),
-            radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+            radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px),
+            radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
           background-size: 28px 28px, 14px 14px;
           background-position: 0 0, 7px 7px;
         }
       `}</style>
 
-      {/* Cork texture layer */}
-      <div className="fixed inset-0 pointer-events-none wall-bg" style={{ opacity: 0.35 }} />
+      {/* Subtle dot grid overlay */}
+      <div className="fixed inset-0 pointer-events-none wall-bg" />
 
       {/* ── HEADER ── */}
       <div className="relative px-5 pt-12 pb-5 md:px-8 md:pt-8">
@@ -573,30 +573,30 @@ function TheWall({ onBack }: { onBack: () => void }) {
         <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack}
             className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(0,0,0,0.12)", backdropFilter: "blur(8px)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3A2A20" strokeWidth="2.5" strokeLinecap="round">
+            style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
           </button>
-          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(80,50,40,0.55)" }}>THE LOBBY</p>
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(255,255,255,0.55)" }}>THE LOBBY</p>
         </div>
 
         {/* Title block */}
         <div className="flex items-end justify-between mb-4">
           <div>
             <h1 className="font-black italic leading-none"
-              style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(44px,11vw,60px)", color: "#2A1A14", lineHeight: 0.86, letterSpacing: "-0.025em" }}>
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(44px,11vw,60px)", color: "white", lineHeight: 0.86, letterSpacing: "-0.025em" }}>
               The<br />
-              <span style={{ color: "#FF1F7D" }}>Wall.</span>
+              <span style={{ color: "rgba(255,255,255,0.75)" }}>Wall.</span>
             </h1>
-            <p className="text-sm italic mt-2.5" style={{ fontFamily: "var(--font-instrument)", color: "#B08870" }}>
+            <p className="text-sm italic mt-2.5" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.6)" }}>
               A community board. Leave something.
             </p>
           </div>
 
           {/* Live chip */}
           <div className="rounded-2xl px-4 py-3 text-center flex-shrink-0"
-            style={{ background: "#1A0E08", boxShadow: "0 4px 16px rgba(0,0,0,0.3)" }}>
+            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(12px)", boxShadow: "0 4px 16px rgba(0,0,0,0.3)" }}>
             <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", color: "white" }}>
               {WOMEN_HERE}
             </p>
@@ -612,12 +612,12 @@ function TheWall({ onBack }: { onBack: () => void }) {
             {WALL_AVATARS.map((a, i) => (
               <div key={i}
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                style={{ background: a.c, border: "2px solid #E8DECE", marginLeft: i > 0 ? "-8px" : "0" }}>
+                style={{ background: a.c, border: "2px solid #FF1F7D", marginLeft: i > 0 ? "-8px" : "0" }}>
                 {a.i}
               </div>
             ))}
           </div>
-          <p className="text-[10px] ml-2" style={{ color: "#A08060" }}>
+          <p className="text-[10px] ml-2" style={{ color: "rgba(255,255,255,0.55)" }}>
             +{WOMEN_HERE - WALL_AVATARS.length} more reading right now
           </p>
           <span className="ml-auto w-2 h-2 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
@@ -630,17 +630,17 @@ function TheWall({ onBack }: { onBack: () => void }) {
           onClick={() => { setComposingCat("gather"); setComposing(true); }}
           className="w-full rounded-2xl flex items-center justify-between px-5 py-4 transition-all active:scale-[0.98]"
           style={{
-            background: "rgba(255,255,255,0.82)",
-            boxShadow: "0 3px 18px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
-            border: "1.5px dashed rgba(255,31,125,0.25)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(255,255,255,0.18)",
+            boxShadow: "0 3px 18px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)",
+            border: "1.5px dashed rgba(255,255,255,0.45)",
+            backdropFilter: "blur(12px)",
           }}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
               <span className="text-white text-xs font-bold">Y</span>
             </div>
-            <p className="italic" style={{ fontFamily: "var(--font-caveat)", color: "#C0A8A0", fontSize: "16px" }}>
+            <p className="italic" style={{ fontFamily: "var(--font-caveat)", color: "rgba(255,255,255,0.6)", fontSize: "16px" }}>
               Leave something on the wall…
             </p>
           </div>
@@ -663,8 +663,8 @@ function TheWall({ onBack }: { onBack: () => void }) {
               onClick={() => setActiveFilter(f.id)}
               className="flex-shrink-0 px-4 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95"
               style={isActive
-                ? { background: accent, color: "white", boxShadow: `0 3px 12px ${accent}55` }
-                : { background: "rgba(255,255,255,0.75)", color: "#6A4030", border: "1.5px solid rgba(0,0,0,0.08)" }}
+                ? { background: "white", color: "#FF1F7D", boxShadow: "0 3px 12px rgba(0,0,0,0.2)" }
+                : { background: "rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.88)", border: "1.5px solid rgba(255,255,255,0.3)" }}
             >
               {f.emoji} {f.label}
               {f.id !== "all" && (
@@ -679,7 +679,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
 
       {/* ── NOTE COUNT ── */}
       <div className="relative px-5 md:px-8 pb-3">
-        <p className="text-[10px] font-semibold" style={{ color: "rgba(80,50,30,0.45)" }}>
+        <p className="text-[10px] font-semibold" style={{ color: "rgba(255,255,255,0.45)" }}>
           {sorted.length} note{sorted.length !== 1 ? "s" : ""} on the wall
           {activeFilter !== "all" && activeZoneInfo && ` · ${activeZoneInfo.label}`}
         </p>
