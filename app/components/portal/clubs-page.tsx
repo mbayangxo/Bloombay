@@ -28,6 +28,15 @@ interface Whisper {
   col: 0 | 1;
 }
 
+type Zone = {
+  id: number;
+  name: string;
+  desc: string;
+  emoji: string;
+  members: number;
+  status: "open" | "invite" | "mama-run";
+};
+
 type Club = {
   id: number;
   name: string;
@@ -42,6 +51,7 @@ type Club = {
   live: boolean;
   vibe: string;
   worlds: World[];
+  zones?: Zone[];
 };
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -99,6 +109,12 @@ const CLUBS: Club[] = [
       { id: 1, name: "Build Log", emoji: "💻", bg: "#050A0F", accent: "#0EA5E9", vibe: "what we're shipping", activeNow: 5 },
       { id: 2, name: "Founder Feels", emoji: "🚀", bg: "#0A050F", accent: "#C084FC", vibe: "the honest startup moments", activeNow: 3 },
       { id: 3, name: "Resources Drop", emoji: "📌", bg: "#050F0A", accent: "#34D399", vibe: "links, tools, opportunities", activeNow: 2 },
+    ],
+    zones: [
+      { id: 1, name: "Coders", desc: "Engineering, dev tools, code reviews, pair programming", emoji: "💻", members: 34, status: "open" },
+      { id: 2, name: "Founders", desc: "Startups, fundraising, pitch prep, investor connections", emoji: "🚀", members: 18, status: "invite" },
+      { id: 3, name: "Designers", desc: "UI/UX, product design, portfolio critiques", emoji: "🎨", members: 12, status: "open" },
+      { id: 4, name: "PM & Strategy", desc: "Product management, road-mapping, strategy chats", emoji: "📋", members: 9, status: "mama-run" },
     ],
   },
   {
@@ -309,6 +325,137 @@ function WorldCard({ world, onEnter }: { world: World; onEnter: () => void }) {
   );
 }
 
+// ─── Zones Section ────────────────────────────────────────────────────────────
+
+function ZonesSection({ club }: { club: Club }) {
+  const [joined, setJoined] = useState<Set<number>>(new Set());
+  const [requested, setRequested] = useState<Set<number>>(new Set());
+  const [showRequest, setShowRequest] = useState(false);
+  const [newZoneName, setNewZoneName] = useState("");
+  const [newZoneDesc, setNewZoneDesc] = useState("");
+
+  const statusLabel = (z: Zone) => {
+    if (z.status === "mama-run") return { text: "Club Mama", color: "#D4A853" };
+    if (z.status === "invite") return { text: "Invite Only", color: "#A78BFA" };
+    return { text: "Open", color: "#4ADE80" };
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>ZONES</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            Niche spaces within the club
+          </p>
+        </div>
+        <button
+          onClick={() => setShowRequest(true)}
+          className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+          style={{ background: `${club.color}22`, color: club.color, border: `1px solid ${club.color}44` }}>
+          + Request a Zone
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {club.zones!.map(z => {
+          const s = statusLabel(z);
+          const isJoined = joined.has(z.id);
+          const isRequested = requested.has(z.id);
+          return (
+            <div key={z.id} className="rounded-2xl p-4"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                  style={{ background: `${club.color}18` }}>
+                  {z.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                    <p className="font-bold text-sm" style={{ color: "rgba(255,238,220,0.9)" }}>{z.name}</p>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: `${s.color}18`, color: s.color }}>
+                      {s.text}
+                    </span>
+                  </div>
+                  <p className="text-[11px] mb-2 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{z.desc}</p>
+                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.22)" }}>{z.members} women in this zone</p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (isJoined) {
+                      setJoined(p => { const n = new Set(p); n.delete(z.id); return n; });
+                    } else if (z.status === "open") {
+                      setJoined(p => new Set([...p, z.id]));
+                    } else {
+                      setRequested(p => new Set([...p, z.id]));
+                    }
+                  }}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                  style={isJoined
+                    ? { background: `${club.color}22`, color: club.color, border: `1px solid ${club.color}44` }
+                    : isRequested
+                      ? { background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.1)" }
+                      : z.status === "open"
+                        ? { background: club.color, color: "white", boxShadow: `0 4px 12px ${club.color}44` }
+                        : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.12)" }
+                  }>
+                  {isJoined ? "✓ In Zone" : isRequested ? "Requested" : z.status === "open" ? "Join" : "Request"}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Request new zone sheet */}
+      {showRequest && (
+        <>
+          <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+            onClick={() => setShowRequest(false)} />
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl p-6 pb-10"
+            style={{ background: "#111111", boxShadow: "0 -16px 48px rgba(0,0,0,0.5)" }}>
+            <div className="flex justify-center mb-4">
+              <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
+            </div>
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: club.color }}>✦ PROPOSE A ZONE</p>
+            <h3 className="font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: "rgba(255,238,220,0.9)" }}>
+              Request a Zone
+            </h3>
+            <p className="text-xs mb-5" style={{ color: "rgba(255,255,255,0.35)" }}>
+              The Club Mama will review and approve your request.
+            </p>
+            <div className="flex flex-col gap-3">
+              <input
+                value={newZoneName}
+                onChange={e => setNewZoneName(e.target.value)}
+                placeholder="Zone name (e.g. Coders, Wellness, Books)"
+                className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,238,220,0.9)" }}
+              />
+              <textarea
+                value={newZoneDesc}
+                onChange={e => setNewZoneDesc(e.target.value)}
+                placeholder="What will this zone be about? Who's it for?"
+                rows={3}
+                className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,238,220,0.9)" }}
+              />
+              <button
+                onClick={() => { if (newZoneName.trim()) { setShowRequest(false); setNewZoneName(""); setNewZoneDesc(""); } }}
+                disabled={!newZoneName.trim()}
+                className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-40"
+                style={{ background: club.color, color: "white", boxShadow: `0 8px 24px ${club.color}44` }}>
+                Submit Request to Club Mama
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Club Detail Page ──────────────────────────────────────────────────────────
 
 function ClubDetailPage({ club, onBack, onEnterWorld }: {
@@ -364,6 +511,11 @@ function ClubDetailPage({ club, onBack, onEnterWorld }: {
             ))}
           </div>
         </div>
+
+        {/* Zones section */}
+        {club.zones && club.zones.length > 0 && (
+          <ZonesSection club={club} />
+        )}
 
         {/* About section */}
         <div>
@@ -930,8 +1082,8 @@ export function ClubsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2">
-          {["DISCOVER", myClubs.length > 0 ? `PASSPORT · ${myClubs.length}` : "PASSPORT"].map((label, i) => (
+        <div className="flex items-center gap-2">
+          {["DISCOVER"].map((label, i) => (
             <button key={i} onClick={() => setActiveTab(i)}
               className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap transition-all"
               style={activeTab === i
@@ -940,6 +1092,11 @@ export function ClubsPage() {
               {label}
             </button>
           ))}
+          <Link href="/member/lounge"
+            className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap transition-all"
+            style={{ background: "white", color: "#888", border: "1.5px solid #E8E8E8" }}>
+            MY PASSPORT →
+          </Link>
         </div>
       </div>
 
@@ -999,54 +1156,7 @@ export function ClubsPage() {
           </div>
         )}
 
-        {/* ── PASSPORT ── */}
-        {activeTab === 1 && (
-          <div className="flex flex-col gap-4">
-            <PassportCover count={myClubs.length} />
-
-            {myClubs.length === 0 ? (
-              <div className="flex flex-col items-center text-center py-12">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
-                  style={{ background: "#F5F5F5" }}>
-                  <span style={{ fontSize: "22px", color: "#ccc" }}>✦</span>
-                </div>
-                <p className="text-lg font-bold italic mb-2"
-                  style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
-                  Your passport is empty.
-                </p>
-                <p className="text-sm mb-1"
-                  style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", color: "#aaa" }}>
-                  Every great circle starts with the first door.
-                </p>
-                <p className="mb-6" style={{ fontFamily: "var(--font-caveat)", fontSize: "17px", color: "#FF1F7D" }}>
-                  Yande is ready to help you find your people.
-                </p>
-                <button onClick={() => setActiveTab(0)}
-                  className="px-6 py-3 rounded-full font-bold text-sm text-white"
-                  style={{ background: "#FF1F7D" }}>
-                  Find My Clubs →
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {myClubs.map(club => {
-                  const isPending = requested.has(club.id) && !joined.has(club.id);
-                  const m = MEMBERSHIP[club.id];
-                  return (
-                    <PassportStamp
-                      key={club.id}
-                      club={club}
-                      events={m?.events ?? 0}
-                      since={m?.since ?? "2024"}
-                      isPending={isPending}
-                      onSelect={() => handleSelectClub(club)}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Passport has moved to your Lounge profile */}
       </div>
     </div>
   );

@@ -996,6 +996,52 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 </button>
               </div>
 
+              {/* ── Club Passport ── */}
+              <div className="rounded-3xl overflow-hidden" style={{ background: "#0A0804", boxShadow: "0 8px 32px rgba(0,0,0,0.3)", border: "1px solid rgba(212,168,83,0.15)" }}>
+                <div className="px-5 pt-5 pb-4 relative overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 100% 0%, rgba(212,168,83,0.15) 0%, transparent 50%)" }} />
+                  <div className="relative flex items-start justify-between">
+                    <div>
+                      <p className="text-[9px] font-bold tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(212,168,83,0.55)" }}>✦ CLUB PASSPORT</p>
+                      <h3 className="font-black italic leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: "rgba(255,238,220,0.9)" }}>
+                        {displayName.split(" ")[0]}&apos;s Clubs
+                      </h3>
+                      <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>3 active memberships</p>
+                    </div>
+                    <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: "rgba(212,168,83,0.12)", border: "1px solid rgba(212,168,83,0.25)" }}>
+                      <span style={{ fontSize: "18px" }}>🎫</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="px-5 pb-5 flex flex-col gap-3">
+                  {[
+                    { name: "Art & Wine Society", color: "#FF69B4", emoji: "🍷", role: "Member", since: "Jan 2026" },
+                    { name: "Dinner Society NYC", color: "#FF1F7D", emoji: "🥂", role: "Member", since: "Feb 2026" },
+                    { name: "Sunday Walk Circle", color: "#83C5A0", emoji: "🌿", role: "Founding Member", since: "Mar 2026" },
+                  ].map((club, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base"
+                        style={{ background: `${club.color}22` }}>
+                        {club.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold truncate" style={{ color: "rgba(255,238,220,0.85)" }}>{club.name}</p>
+                        <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>{club.role} · Since {club.since}</p>
+                      </div>
+                      <span className="text-[9px] font-bold px-2 py-1 rounded-full flex-shrink-0"
+                        style={{ background: `${club.color}22`, color: club.color }}>✓</span>
+                    </div>
+                  ))}
+                  <Link href="/member/clubs"
+                    className="w-full py-3 text-center text-xs font-bold rounded-2xl transition-all active:scale-95 block"
+                    style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    View All Clubs →
+                  </Link>
+                </div>
+              </div>
+
               <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
                 <Link
                   href="/member/notifications"

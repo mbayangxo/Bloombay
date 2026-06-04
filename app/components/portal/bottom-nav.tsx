@@ -115,6 +115,15 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
             </Link>
+            <Link href="/member/chat" aria-label="Chat"
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </Link>
             <Link href="/member/calendar" aria-label="Calendar"
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
@@ -232,10 +241,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <div className="mx-5 mt-4 mb-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
               <div className="flex items-center gap-0 pt-3 pb-1">
                 {[
-                  { href: "/member/messages",      label: "Messages" },
-                  { href: "/member/notifications",  label: "Pings"    },
                   { href: "/member/messages",       label: "Mailbox"  },
-                  { href: "/member/calendar",       label: "Calendar" },
+                  { href: "/member/chat",            label: "Chat"     },
+                  { href: "/member/notifications",   label: "Pings"    },
+                  { href: "/member/calendar",        label: "Calendar" },
                 ].map((item, i, arr) => (
                   <Link
                     key={item.label}
@@ -247,9 +256,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                     <span
                       className="text-[10px] font-semibold tracking-[0.08em]"
                       style={{
-                        color: pathname.startsWith(item.href) && item.label !== "Mailbox"
-                          ? "#FF1F7D"
-                          : "rgba(255,255,255,0.3)",
+                        color: pathname.startsWith(item.href) ? "#FF1F7D" : "rgba(255,255,255,0.3)",
                       }}
                     >
                       {item.label}
