@@ -20,42 +20,60 @@ const MOMENTS = [
   { id: 12, initial: "B", avatarColor: "#FF69B4", location: "Smorgasburg", neighborhood: "Williamsburg", caption: "Saturday ritual.", flowers: 38, timeAgo: "3d", bgColor: "#E8FFE8", emoji: "🌮" },
 ];
 
-function PolaroidCard({ m, idx, flowered, onFlower }: {
+function PolaroidCard({ m, idx, flowered, onFlower, size = "normal" }: {
   m: typeof MOMENTS[0]; idx: number; flowered: boolean; onFlower: () => void;
+  size?: "normal" | "large";
 }) {
   const rot = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
+  const photoH = size === "large" ? 170 : 120;
+  const width = size === "large" ? 190 : 150;
+  const captionSize = size === "large" ? "15px" : "13px";
+  const bottomPad = size === "large" ? 44 : 32;
+
   return (
-    <div className="relative" style={{ transform: `rotate(${rot})`, transformOrigin: "center" }}>
-      <div className="rounded-sm overflow-hidden"
-        style={{
-          background: "white",
-          padding: "10px 10px 28px",
-          boxShadow: "0 4px 18px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)",
-          width: "clamp(140px,40vw,180px)",
-        }}>
-        <div className="rounded-sm overflow-hidden relative mb-2"
-          style={{ aspectRatio: "1", background: m.bgColor }}>
+    <div
+      className="cursor-pointer transition-transform active:scale-[0.97]"
+      style={{ transform: `rotate(${rot})`, transformOrigin: "center" }}
+    >
+      <div style={{
+        background: "white",
+        borderRadius: "3px",
+        padding: `9px 9px ${bottomPad}px`,
+        width: `${width}px`,
+        boxShadow: "0 6px 24px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.07)",
+      }}>
+        {/* Photo area */}
+        <div className="relative overflow-hidden"
+          style={{ height: `${photoH}px`, background: m.bgColor, borderRadius: "2px" }}>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span style={{ fontSize: "clamp(36px,10vw,50px)", opacity: 0.55 }}>{m.emoji}</span>
+            <span style={{ fontSize: size === "large" ? "64px" : "46px", opacity: 0.55 }}>{m.emoji}</span>
           </div>
-          <div className="absolute top-1.5 left-2 flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0"
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
+            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-bold text-white"
               style={{ background: m.avatarColor }}>
               {m.initial}
             </div>
-            <span className="text-[8px] font-bold" style={{ color: "rgba(0,0,0,0.5)" }}>{m.timeAgo}</span>
+            <span className="text-[8px] font-medium px-1 py-px rounded"
+              style={{ color: "rgba(0,0,0,0.45)", background: "rgba(255,255,255,0.7)" }}>
+              {m.timeAgo}
+            </span>
           </div>
         </div>
-        <p className="text-[10px] leading-snug" style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#333" }}>
-          {m.caption}
-        </p>
-        <p className="text-[9px] mt-0.5" style={{ color: "#aaa" }}>{m.location}</p>
-        <div className="flex items-center justify-between mt-1.5">
-          <button onClick={onFlower} className="flex items-center gap-1 transition-transform active:scale-110">
+        {/* Caption */}
+        <div className="pt-2.5 px-0.5 text-center">
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: captionSize, color: "#333", lineHeight: 1.3 }}>
+            {m.caption}
+          </p>
+          <p className="text-[9px] mt-0.5" style={{ color: "#bbb" }}>{m.location}</p>
+          <button
+            onClick={e => { e.stopPropagation(); onFlower(); }}
+            className="flex items-center justify-center gap-1 mt-2 w-full transition-transform active:scale-110"
+          >
             <span style={{ fontSize: 12, color: flowered ? "#FF1F7D" : "#ccc" }}>✿</span>
-            <span className="text-[9px] font-bold" style={{ color: flowered ? "#FF1F7D" : "#ccc" }}>{m.flowers + (flowered ? 1 : 0)}</span>
+            <span className="text-[9px] font-bold" style={{ color: flowered ? "#FF1F7D" : "#ccc" }}>
+              {m.flowers + (flowered ? 1 : 0)}
+            </span>
           </button>
-          <span className="text-[8px]" style={{ color: "#ccc" }}>{m.neighborhood}</span>
         </div>
       </div>
     </div>
@@ -67,6 +85,7 @@ export default function MomentsPage() {
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "#FDFAF5" }}>
+      {/* Header */}
       <div className="px-5 pt-20 pb-4 md:pt-8 flex items-center gap-3">
         <Link href="/member/city"
           className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
@@ -90,20 +109,45 @@ export default function MomentsPage() {
         </button>
       </div>
 
-      <div className="px-5 pb-4">
-        <p className="text-xs" style={{ color: "#aaa", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+      <div className="px-5 pb-2">
+        <p className="text-xs italic" style={{ color: "#aaa", fontFamily: "var(--font-instrument)" }}>
           {MOMENTS.length} moments shared this week
         </p>
       </div>
 
-      {/* Polaroid masonry grid */}
+      {/* Horizontal swipe row — featured */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between px-5 mb-2">
+          <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: "#aaa" }}>RECENT</p>
+        </div>
+        <div
+          className="flex gap-6 overflow-x-auto pb-8 px-5"
+          style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
+        >
+          {MOMENTS.slice(0, 6).map((m, idx) => (
+            <PolaroidCard
+              key={m.id}
+              m={m}
+              idx={idx}
+              size="large"
+              flowered={flowered.has(m.id)}
+              onFlower={() => setFlowered(p => new Set([...p, m.id]))}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Masonry grid — all moments */}
+      <div className="px-5 pb-1">
+        <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#aaa" }}>ALL MOMENTS</p>
+      </div>
       <div className="px-4 pb-6">
         <div className="columns-2 gap-4">
           {MOMENTS.map((m, idx) => (
-            <div key={m.id} className="mb-4 break-inside-avoid flex justify-center">
+            <div key={m.id} className="mb-5 break-inside-avoid flex justify-center">
               <PolaroidCard
                 m={m}
-                idx={idx}
+                idx={idx + 2}
                 flowered={flowered.has(m.id)}
                 onFlower={() => setFlowered(p => new Set([...p, m.id]))}
               />

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type CityTab = "eat" | "go" | "solo" | "trending";
+type CityTab = "eat" | "go" | "solo" | "trending" | "moments";
 type GoFilter = "All" | "Museums" | "Parks" | "Events" | "Experiences";
 
 interface Restaurant {
@@ -121,6 +121,7 @@ const TAB_LABELS: { key: CityTab; label: string }[] = [
   { key: "go",       label: "Go" },
   { key: "solo",     label: "Solo" },
   { key: "trending", label: "Trending" },
+  { key: "moments",  label: "Moments" },
 ];
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
@@ -584,37 +585,104 @@ function TrendCard({ t }: { t: TrendItem }) {
 
 const POLAROID_ROTATIONS = ["-2.5deg", "2deg", "-1deg", "3deg", "-1.8deg", "1.5deg"];
 
-function MomentCard({ m, onFlower, idx }: { m: CityMoment & { flowered?: boolean }; onFlower: () => void; idx: number }) {
+function MomentCard({ m, onFlower, idx, onClick }: {
+  m: CityMoment & { flowered?: boolean };
+  onFlower: () => void;
+  idx: number;
+  onClick?: () => void;
+}) {
   const rotate = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
   return (
-    <div className="flex-shrink-0 transition-transform active:scale-[0.97]"
-      style={{ transform: `rotate(${rotate})`, transformOrigin: "center top" }}>
-      <div className="p-2.5 pb-8 shadow-2xl"
-        style={{ background: m.bgColor, borderRadius: "3px", width: "148px", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
+    <div
+      className="flex-shrink-0 cursor-pointer transition-transform active:scale-[0.97]"
+      style={{ transform: `rotate(${rotate})`, transformOrigin: "center top" }}
+      onClick={onClick}
+    >
+      {/* Polaroid frame — white card with image area + handwritten caption */}
+      <div style={{
+        background: "white",
+        borderRadius: "3px",
+        padding: "9px 9px 32px",
+        width: "152px",
+        boxShadow: "0 8px 28px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)",
+      }}>
         {/* Photo area */}
-        <div className="w-full h-28 flex items-center justify-center rounded-sm relative overflow-hidden"
-          style={{ background: `${m.bgColor}` }}>
-          <span style={{ fontSize: "52px", opacity: 0.6 }}>{m.emoji}</span>
+        <div className="w-full relative overflow-hidden"
+          style={{ height: "130px", background: m.bgColor, borderRadius: "2px" }}>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span style={{ fontSize: "54px", opacity: 0.55 }}>{m.emoji}</span>
+          </div>
+          {/* Avatar + neighborhood overlay */}
           <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
             <div className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-bold text-white flex-shrink-0"
-              style={{ background: m.avatarColor, boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>{m.initial}</div>
-            <p className="text-[8px] font-semibold" style={{ color: "rgba(0,0,0,0.45)", background: "rgba(255,255,255,0.7)", borderRadius: "4px", padding: "1px 4px" }}>{m.neighborhood}</p>
+              style={{ background: m.avatarColor, boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
+              {m.initial}
+            </div>
+            <p className="text-[8px] font-semibold rounded px-1 py-px"
+              style={{ color: "rgba(0,0,0,0.5)", background: "rgba(255,255,255,0.75)" }}>
+              {m.neighborhood}
+            </p>
           </div>
-          <p className="absolute top-1.5 right-1.5 text-[8px] font-medium px-1.5 py-0.5 rounded"
-            style={{ color: "rgba(0,0,0,0.4)", background: "rgba(255,255,255,0.6)" }}>{m.timeAgo}</p>
+          <p className="absolute top-1.5 right-1.5 text-[8px] font-medium px-1.5 py-px rounded"
+            style={{ color: "rgba(0,0,0,0.4)", background: "rgba(255,255,255,0.65)" }}>
+            {m.timeAgo}
+          </p>
         </div>
-        {/* Caption area */}
-        <div className="pt-2 px-1">
-          <p className="text-xs italic leading-snug text-center"
-            style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#444", lineHeight: 1.4 }}>
+        {/* Polaroid caption area — white space below image */}
+        <div className="pt-2.5 px-0.5">
+          <p className="leading-snug text-center"
+            style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "#333", lineHeight: 1.3 }}>
             {m.caption}
           </p>
-          <p className="text-[9px] text-center mt-1" style={{ color: "#aaa" }}>{m.location}</p>
-          <button onClick={e => { e.stopPropagation(); onFlower(); }}
+          <p className="text-[9px] text-center mt-0.5" style={{ color: "#bbb" }}>{m.location}</p>
+          <button
+            onClick={e => { e.stopPropagation(); onFlower(); }}
             className="flex items-center justify-center gap-1 mt-2 w-full text-[9px] font-bold transition-all"
-            style={{ color: m.flowered ? "#FF1F7D" : "#bbb" }}>
-            ✿ {m.flowers}
+            style={{ color: m.flowered ? "#FF1F7D" : "#ccc" }}>
+            ✿ {m.flowers + (m.flowered ? 1 : 0)}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MomentDetailSheet({ m, onClose }: { m: CityMoment; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.7)" }} onClick={onClose}>
+      <div className="flex-1" />
+      <div
+        className="rounded-t-3xl p-6 pb-10"
+        style={{ background: "#FDFAF5" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close bar */}
+        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
+        {/* Large polaroid */}
+        <div className="mx-auto" style={{ width: "200px", transform: "rotate(-1deg)" }}>
+          <div style={{ background: "white", borderRadius: "3px", padding: "10px 10px 44px", boxShadow: "0 10px 36px rgba(0,0,0,0.18)" }}>
+            <div className="relative overflow-hidden" style={{ height: "180px", background: m.bgColor, borderRadius: "2px" }}>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span style={{ fontSize: "72px", opacity: 0.55 }}>{m.emoji}</span>
+              </div>
+            </div>
+            <div className="pt-3 px-1 text-center">
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "17px", color: "#333", lineHeight: 1.3 }}>{m.caption}</p>
+              <p className="text-[10px] mt-1" style={{ color: "#aaa" }}>{m.location}, {m.neighborhood}</p>
+            </div>
+          </div>
+        </div>
+        {/* Meta */}
+        <div className="mt-5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+              style={{ background: m.avatarColor }}>{m.initial}</div>
+            <div>
+              <p className="text-xs font-bold" style={{ color: "#111" }}>{m.neighborhood}</p>
+              <p className="text-[10px]" style={{ color: "#aaa" }}>{m.timeAgo} ago</p>
+            </div>
+          </div>
+          <span className="text-sm font-bold" style={{ color: "#FF1F7D" }}>✿ {m.flowers}</span>
         </div>
       </div>
     </div>
@@ -674,8 +742,8 @@ export function CityPage() {
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [selectedMoment, setSelectedMoment] = useState<CityMoment | null>(null);
   const [showAllSpots, setShowAllSpots]     = useState(false);
-  const [showAllMoments, setShowAllMoments] = useState(false);
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
@@ -843,39 +911,66 @@ export function CityPage() {
           </div>
         )}
 
-        {/* ── MOMENTS — Polaroid carousel, always visible ── */}
-        <div style={{ borderTop: "1px solid var(--card-border, rgba(0,0,0,0.06))" }} className="pt-6">
-          <div className="flex items-end justify-between mb-4">
+        {/* ── MOMENTS tab ── */}
+        {activeTab === "moments" && (
+          <div className="flex flex-col gap-6">
+            {/* Header */}
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ MOMENTS</p>
+                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,5vw,32px)", color: "var(--heading-color, #111)", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                  Not influencers.<br />Just women.
+                </h2>
+                <p className="text-xs mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
+                  Real life. Real places. Real city.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
+                  + Share
+                </button>
+              </div>
+            </div>
+
+            {/* Polaroid swipe row */}
             <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ MOMENTS</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "var(--heading-color, #111)", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                Not influencers.<br />Just women.
-              </h2>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: "#aaa" }}>RECENT</p>
+                <Link href="/member/city/moments" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>
+                  See More →
+                </Link>
+              </div>
+              <div
+                className="flex gap-6 overflow-x-auto pb-8 -mx-5 px-5"
+                style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
+              >
+                {MOMENTS.map((m, idx) => (
+                  <MomentCard
+                    key={m.id}
+                    m={{ ...m, flowered: floweredMoments.has(m.id) }}
+                    onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
+                    idx={idx}
+                    onClick={() => setSelectedMoment(m)}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Link href="/member/city/moments" className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
-                See More →
-              </Link>
-              <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
-                + Share
-              </button>
-            </div>
+
+            {/* Explore more CTA */}
+            <Link href="/member/city/moments"
+              className="flex items-center justify-center gap-2 rounded-2xl py-4 transition-all active:scale-[0.98]"
+              style={{ background: "#111", color: "white" }}>
+              <span className="text-sm font-bold">See all moments →</span>
+            </Link>
           </div>
-          <div
-            className="flex gap-5 overflow-x-auto pb-6 -mx-5 px-5"
-            style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
-          >
-            {(showAllMoments ? MOMENTS : MOMENTS.slice(0, 4)).map((m, idx) => (
-              <MomentCard key={m.id}
-                m={{ ...m, flowered: floweredMoments.has(m.id) }}
-                onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
-                idx={idx}
-              />
-            ))}
-          </div>
-        </div>
+        )}
 
       </div>
+
+      {/* Moment detail sheet */}
+      {selectedMoment && (
+        <MomentDetailSheet m={selectedMoment} onClose={() => setSelectedMoment(null)} />
+      )}
     </div>
   );
 }
