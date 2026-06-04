@@ -581,23 +581,40 @@ function TrendCard({ t }: { t: TrendItem }) {
 
 // ── MOMENTS components ────────────────────────────────────────────────────────
 
-function MomentCard({ m, onFlower }: { m: CityMoment & { flowered?: boolean }; onFlower: () => void }) {
+const POLAROID_ROTATIONS = ["-2.5deg", "2deg", "-1deg", "3deg", "-1.8deg", "1.5deg"];
+
+function MomentCard({ m, onFlower, idx }: { m: CityMoment & { flowered?: boolean }; onFlower: () => void; idx: number }) {
+  const rotate = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}>
-      <div className="relative flex items-center justify-center" style={{ height: "120px", background: m.bgColor }}>
-        <span style={{ fontSize: "52px", opacity: 0.65 }}>{m.emoji}</span>
-        <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: m.avatarColor }}>{m.initial}</div>
-          <p className="text-[9px] font-semibold" style={{ color: "#555" }}>{m.neighborhood}</p>
+    <div className="flex-shrink-0 transition-transform active:scale-[0.97]"
+      style={{ transform: `rotate(${rotate})`, transformOrigin: "center top" }}>
+      <div className="p-2.5 pb-8 shadow-2xl"
+        style={{ background: m.bgColor, borderRadius: "3px", width: "148px", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
+        {/* Photo area */}
+        <div className="w-full h-28 flex items-center justify-center rounded-sm relative overflow-hidden"
+          style={{ background: `${m.bgColor}` }}>
+          <span style={{ fontSize: "52px", opacity: 0.6 }}>{m.emoji}</span>
+          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
+            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-bold text-white flex-shrink-0"
+              style={{ background: m.avatarColor, boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>{m.initial}</div>
+            <p className="text-[8px] font-semibold" style={{ color: "rgba(0,0,0,0.45)", background: "rgba(255,255,255,0.7)", borderRadius: "4px", padding: "1px 4px" }}>{m.neighborhood}</p>
+          </div>
+          <p className="absolute top-1.5 right-1.5 text-[8px] font-medium px-1.5 py-0.5 rounded"
+            style={{ color: "rgba(0,0,0,0.4)", background: "rgba(255,255,255,0.6)" }}>{m.timeAgo}</p>
         </div>
-        <p className="absolute top-2 right-2 text-[9px]" style={{ color: "#aaa" }}>{m.timeAgo}</p>
-      </div>
-      <div className="bg-white px-3 py-2.5">
-        <p className="text-xs italic" style={{ fontFamily: "var(--font-playfair)", color: "#333" }}>{m.caption}</p>
-        <p className="text-[10px] mt-0.5" style={{ color: "#bbb" }}>{m.location}</p>
-        <button onClick={onFlower} className="flex items-center gap-1 mt-1.5 text-[10px] font-semibold" style={{ color: "#FF1F7D" }}>
-          ✿ {m.flowers}
-        </button>
+        {/* Caption area */}
+        <div className="pt-2 px-1">
+          <p className="text-xs italic leading-snug text-center"
+            style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: "#444", lineHeight: 1.4 }}>
+            {m.caption}
+          </p>
+          <p className="text-[9px] text-center mt-1" style={{ color: "#aaa" }}>{m.location}</p>
+          <button onClick={e => { e.stopPropagation(); onFlower(); }}
+            className="flex items-center justify-center gap-1 mt-2 w-full text-[9px] font-bold transition-all"
+            style={{ color: m.flowered ? "#FF1F7D" : "#bbb" }}>
+            ✿ {m.flowers}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -823,27 +840,33 @@ export function CityPage() {
           </div>
         )}
 
-        {/* ── MOMENTS — always visible, its own world ── */}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }} className="pt-6">
+        {/* ── MOMENTS — Polaroid carousel, always visible ── */}
+        <div style={{ borderTop: "1px solid var(--card-border, rgba(0,0,0,0.06))" }} className="pt-6">
           <div className="flex items-end justify-between mb-4">
             <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>MOMENTS</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ MOMENTS</p>
+              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "var(--heading-color, #111)", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
                 Not influencers.<br />Just women.
               </h2>
-              <p className="text-xs italic mt-1" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                Women sharing things they love in the city.
-              </p>
             </div>
-            <button className="px-4 py-2 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
-              + Share
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
+                See More →
+              </button>
+              <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
+                + Share
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {MOMENTS.map(m => (
+          <div
+            className="flex gap-5 overflow-x-auto pb-6 -mx-5 px-5"
+            style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
+          >
+            {MOMENTS.map((m, idx) => (
               <MomentCard key={m.id}
                 m={{ ...m, flowered: floweredMoments.has(m.id) }}
                 onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
+                idx={idx}
               />
             ))}
           </div>

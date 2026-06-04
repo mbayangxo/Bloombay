@@ -14,6 +14,40 @@ const TAB_BACKGROUNDS = [
   "#FDFAF6", // Mirror     — vanity/dressing room
 ];
 
+// ── BloomBay World Themes ──────────────────────────────────────────────────────
+const WORLD_THEMES = [
+  { id: "bloom",    label: "Bloom",    emoji: "🌸", desc: "Soft pink, floral, warm", accent: "#FF1F7D", bg: "#FFF5F8", stationery: "#FFE0EE" },
+  { id: "velvet",   label: "Velvet",   emoji: "🍷", desc: "Deep red, rich, opulent", accent: "#8B0000", bg: "#1A0508", stationery: "#3D0B14" },
+  { id: "dawn",     label: "Dawn",     emoji: "🌅", desc: "Warm gold, soft morning", accent: "#D4A853", bg: "#FFF8EC", stationery: "#FFF0D0" },
+  { id: "midnight", label: "Midnight", emoji: "🌙", desc: "Deep navy, stars, quiet", accent: "#818CF8", bg: "#05060F", stationery: "#0A0C20" },
+  { id: "society",  label: "Society",  emoji: "✦",  desc: "Noir black, structured",  accent: "#FFFFFF", bg: "#0A0A0A", stationery: "#181818" },
+  { id: "petal",    label: "Petal",    emoji: "🌷", desc: "Dusty rose, vintage, soft", accent: "#C97EFF", bg: "#FAF0FF", stationery: "#F5E8FF" },
+] as const;
+
+type WorldThemeId = typeof WORLD_THEMES[number]["id"];
+
+// ── Pinned Objects ─────────────────────────────────────────────────────────────
+const PINNABLE_OBJECTS = [
+  { id: "candle",    emoji: "🕯️", label: "Candle" },
+  { id: "flowers",   emoji: "🌸", label: "Flowers" },
+  { id: "book",      emoji: "📚", label: "Book" },
+  { id: "perfume",   emoji: "✨", label: "Perfume" },
+  { id: "plant",     emoji: "🌿", label: "Plant" },
+  { id: "mirror",    emoji: "🪞", label: "Mirror" },
+  { id: "camera",    emoji: "📷", label: "Camera" },
+  { id: "vinyl",     emoji: "🎵", label: "Vinyl" },
+  { id: "tea",       emoji: "☕", label: "Tea" },
+  { id: "journal",   emoji: "📓", label: "Journal" },
+];
+
+// ── Witness Stack entries ──────────────────────────────────────────────────────
+const WITNESS_ENTRIES = [
+  { initial: "A", color: "#FF1F7D",  text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
+  { initial: "Z", color: "#FF69B4",  text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
+  { initial: "N", color: "#C084FC",  text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
+  { initial: "M", color: "#FB923C",  text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
+];
+
 const BOUQUET_MEMBERS = [
   { name: "Aaliyah M.", neighborhood: "Crown Heights", color: "#FF1F7D", initial: "A", since: "Jan 2026" },
   { name: "Sofia K.", neighborhood: "Williamsburg", color: "#FF69B4", initial: "S", since: "Feb 2026" },
@@ -268,6 +302,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [tod, setTod] = useState<TimeOfDay>("morning");
+  const [worldTheme, setWorldTheme] = useState<WorldThemeId>("bloom");
+  const [pinnedObjects, setPinnedObjects] = useState<Set<string>>(new Set(["candle", "flowers", "book"]));
+  const [showWorldPicker, setShowWorldPicker] = useState(false);
+  const [showObjectPicker, setShowObjectPicker] = useState(false);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
@@ -618,6 +656,143 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
           )}
 
+          {/* ── Living Room: Pinned Objects ── */}
+          {activeTab === 0 && (
+            <div className="flex flex-col gap-5 mt-2">
+              {/* Pinned Objects */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ PINNED OBJECTS</p>
+                    <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Your apartment, your things.</p>
+                  </div>
+                  <button onClick={() => setShowObjectPicker(true)}
+                    className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
+                    Edit
+                  </button>
+                </div>
+                <div className="flex gap-4">
+                  {PINNABLE_OBJECTS.filter(o => pinnedObjects.has(o.id)).slice(0, 5).map(obj => (
+                    <div key={obj.id} className="flex flex-col items-center gap-1.5">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+                        style={{ background: "#F5EEE8", boxShadow: "0 2px 10px rgba(255,105,180,0.1)" }}>
+                        {obj.emoji}
+                      </div>
+                      <p className="text-[9px] font-medium" style={{ color: "#aaa" }}>{obj.label}</p>
+                    </div>
+                  ))}
+                  {pinnedObjects.size < 5 && (
+                    <button onClick={() => setShowObjectPicker(true)}
+                      className="flex flex-col items-center gap-1.5">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                        style={{ background: "#F5F5F5", border: "1.5px dashed #E0D0C8" }}>
+                        <span style={{ color: "#ccc", fontSize: "20px" }}>+</span>
+                      </div>
+                      <p className="text-[9px] font-medium" style={{ color: "#ddd" }}>Add</p>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* World Theme chip */}
+              <div className="flex items-center justify-between rounded-2xl px-4 py-3.5"
+                style={{ background: "#F5EEE8", border: "1.5px solid #F0E0D0" }}>
+                <div>
+                  <p className="text-[9px] font-bold tracking-[0.18em] uppercase" style={{ color: "#aaa" }}>YOUR WORLD</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span style={{ fontSize: "16px" }}>{WORLD_THEMES.find(w => w.id === worldTheme)?.emoji}</span>
+                    <p className="font-bold text-sm" style={{ color: "#111" }}>{WORLD_THEMES.find(w => w.id === worldTheme)?.label}</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowWorldPicker(true)}
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                  style={{ background: "#FF1F7D", color: "white" }}>
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── World Picker Sheet ── */}
+          {showWorldPicker && (
+            <>
+              <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+                onClick={() => setShowWorldPicker(false)} />
+              <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl p-6 pb-10"
+                style={{ background: "#0A0A0A", boxShadow: "0 -16px 48px rgba(0,0,0,0.5)" }}>
+                <div className="flex justify-center mb-4">
+                  <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
+                </div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ CHOOSE YOUR WORLD</p>
+                <h3 className="font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: "rgba(255,238,220,0.9)" }}>
+                  Your world, your vibe.
+                </h3>
+                <p className="text-xs mb-5" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  Recolors your Lounge, Mailbox, and Stationery. Never changes the layout.
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {WORLD_THEMES.map(theme => (
+                    <button key={theme.id}
+                      onClick={() => { setWorldTheme(theme.id); setShowWorldPicker(false); }}
+                      className="rounded-2xl p-3.5 flex flex-col items-center gap-1.5 transition-all active:scale-95"
+                      style={{
+                        background: worldTheme === theme.id ? `${theme.accent}22` : "rgba(255,255,255,0.05)",
+                        border: worldTheme === theme.id ? `2px solid ${theme.accent}` : "1.5px solid rgba(255,255,255,0.08)",
+                        boxShadow: worldTheme === theme.id ? `0 4px 16px ${theme.accent}33` : "none",
+                      }}>
+                      <span style={{ fontSize: "24px" }}>{theme.emoji}</span>
+                      <p className="text-xs font-bold" style={{ color: worldTheme === theme.id ? theme.accent : "rgba(255,255,255,0.65)" }}>{theme.label}</p>
+                      <p className="text-[9px] text-center leading-snug" style={{ color: "rgba(255,255,255,0.28)" }}>{theme.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── Object Picker Sheet ── */}
+          {showObjectPicker && (
+            <>
+              <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+                onClick={() => setShowObjectPicker(false)} />
+              <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl p-6 pb-10"
+                style={{ background: "#FFF8F4", boxShadow: "0 -16px 48px rgba(0,0,0,0.15)" }}>
+                <div className="flex justify-center mb-4">
+                  <div className="w-10 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} />
+                </div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>PINNED OBJECTS</p>
+                <h3 className="font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>
+                  Choose up to 5 objects.
+                </h3>
+                <p className="text-xs mb-5" style={{ color: "#bbb" }}>These live in your apartment.</p>
+                <div className="grid grid-cols-5 gap-3 mb-5">
+                  {PINNABLE_OBJECTS.map(obj => {
+                    const isPinned = pinnedObjects.has(obj.id);
+                    return (
+                      <button key={obj.id}
+                        onClick={() => setPinnedObjects(p => {
+                          const n = new Set(p);
+                          if (n.has(obj.id)) { n.delete(obj.id); }
+                          else if (n.size < 5) { n.add(obj.id); }
+                          return n;
+                        })}
+                        className="flex flex-col items-center gap-1 rounded-2xl p-2 transition-all active:scale-95"
+                        style={{ background: isPinned ? "#FFF0F5" : "#F5F5F5", border: isPinned ? "1.5px solid #FF1F7D" : "1.5px solid transparent" }}>
+                        <span style={{ fontSize: "24px" }}>{obj.emoji}</span>
+                        <p className="text-[8px] font-medium" style={{ color: isPinned ? "#FF1F7D" : "#aaa" }}>{obj.label}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button onClick={() => setShowObjectPicker(false)}
+                  className="w-full py-4 rounded-2xl font-bold text-sm"
+                  style={{ background: "#FF1F7D", color: "white" }}>
+                  Save ({pinnedObjects.size}/5)
+                </button>
+              </div>
+            </>
+          )}
+
           {/* ── Gallery Tab (was Memories) ── */}
           {activeTab === 1 && (
             <div className="flex flex-col gap-6">
@@ -936,6 +1111,52 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              {/* ── Witness Stack ── */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ WITNESS STACK</p>
+                    <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>What other women see.</p>
+                  </div>
+                  <span className="text-[9px] font-medium px-2.5 py-1 rounded-full"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{WITNESS_ENTRIES.length} notes</span>
+                </div>
+                {/* Stacked cards with slight rotation */}
+                <div className="relative" style={{ height: `${Math.min(WITNESS_ENTRIES.length, 3) * 16 + 100}px` }}>
+                  {WITNESS_ENTRIES.slice(0, 3).map((w, i) => (
+                    <div key={i} className="absolute inset-x-0 rounded-2xl p-4"
+                      style={{
+                        background: "white",
+                        boxShadow: "0 4px 16px rgba(255,105,180,0.08)",
+                        top: `${i * 14}px`,
+                        zIndex: WITNESS_ENTRIES.length - i,
+                        transform: `rotate(${[-1.5, 1, -0.5][i]}deg)`,
+                        border: "1px solid #FFE8F0",
+                      }}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                          style={{ background: w.color }}>
+                          {w.initial}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm italic leading-relaxed"
+                            style={{ fontFamily: "var(--font-playfair)", color: "#333", lineHeight: 1.5 }}>
+                            &ldquo;{w.text}&rdquo;
+                          </p>
+                          <p className="text-[10px] mt-1" style={{ color: "#bbb" }}>{w.date}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {WITNESS_ENTRIES.length > 3 && (
+                  <button className="mt-3 w-full py-2.5 text-center text-xs font-bold transition-all active:scale-95 rounded-2xl"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+                    See all {WITNESS_ENTRIES.length} observations →
+                  </button>
+                )}
               </div>
 
               {/* ── YOUR PORTALS ── */}

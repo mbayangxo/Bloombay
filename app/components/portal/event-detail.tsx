@@ -264,6 +264,58 @@ function AttendeeProfileCard({ attendee }: { attendee: AttendeeData }) {
   );
 }
 
+// ── Add to Calendar Banner ────────────────────────────────────────────────────
+
+function AddToCalendarBanner({ event }: { event: EventData }) {
+  const [added, setAdded] = useState(false);
+  if (added) {
+    return (
+      <div className="px-5 md:px-8 mb-4">
+        <div className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+          style={{ background: "#FFF5F8", border: "1.5px solid #FFB6D0" }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FF1F7D" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold" style={{ color: "#111" }}>Added to your calendar</p>
+            <p className="text-[10px]" style={{ color: "#bbb" }}>{event.time}</p>
+          </div>
+          <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>✓</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="px-5 md:px-8 mb-4">
+      <div className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+        style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1.5px dashed #FFB6D0" }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: "#FFF0F5" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold" style={{ color: "#111" }}>Add to your calendar?</p>
+          <p className="text-[10px]" style={{ color: "#bbb" }}>{event.title} · {event.time}</p>
+        </div>
+        <button
+          onClick={() => setAdded(true)}
+          className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex-shrink-0"
+          style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.3)" }}>
+          Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── EventDetail ───────────────────────────────────────────────────────────────
 
 export function EventDetail({ event, onBack }: { event: EventData; onBack: () => void }) {
@@ -491,6 +543,9 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             </div>
           </div>
         </div>
+
+        {/* Add to Calendar prompt */}
+        <AddToCalendarBanner event={event} />
 
         {/* Action buttons */}
         <div className="px-5 md:px-8 flex gap-3 mb-4">
