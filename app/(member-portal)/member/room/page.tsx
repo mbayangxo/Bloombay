@@ -80,189 +80,150 @@ const GIRL_BAR_ROOMS = [
   { id: 4, name: "Hot Topics",        sub: "What's on everyone's mind",    desc: "The conversations happening right now.",                 women: 84,  live: true,  color: "#F59E0B", emoji: "🔥" },
 ];
 
+// ── Seed content ─────────────────────────────────────────────────────────────
+
+const SEED_POSTS: WallPost[] = [
+  { id: 101, author: "Aaliyah M.", initial: "A", color: "#FF1F7D", time: "2m ago",  text: "Just watched the most beautiful sunset at the High Line. Go RIGHT NOW if you can — 30 min of this light left.", likes: 34, replies: 8,  pinned: false, category: "now"      },
+  { id: 102, author: "Jade O.",    initial: "J", color: "#FF69B4", time: "8m ago",  text: "Drinks at Employees Only in 45 min. Table for 4, one spot left. DM fast.",                                          likes: 12, replies: 5,  pinned: false, category: "now"      },
+  { id: 103, author: "Sofia K.",   initial: "S", color: "#FF1F7D", time: "1h ago",  text: "Sunday slow walk in Prospect Park. Looking for 3–4 women who want a gentle morning. No agenda, just good air.",    likes: 28, replies: 11, pinned: true,  category: "gather"   },
+  { id: 104, author: "Naomi B.",   initial: "N", color: "#FF69B4", time: "2h ago",  text: "Anyone for Sadelle's brunch Saturday? I'll book for 6 if we have people. The smoked salmon platter is non-negotiable.", likes: 19, replies: 7,  pinned: false, category: "gather"   },
+  { id: 105, author: "Priya R.",   initial: "P", color: "#F472B6", time: "3h ago",  text: "Yoga in Prospect Park, Tuesday 8AM. Free. Bring a mat and someone to talk to after.",                             likes: 41, replies: 14, pinned: false, category: "gather"   },
+  { id: 106, author: "Kezia T.",   initial: "K", color: "#FF1F7D", time: "5h ago",  text: "The Met at 9:30AM on weekday mornings — empty, beautiful, the Temple of Dendur room is yours. Anyone is welcome.", likes: 56, replies: 18, pinned: false, category: "gather"   },
+  { id: 107, author: "Iris D.",    initial: "I", color: "#A78BFA", time: "30m ago", text: "Best solo dinner spot in the West Village? I want somewhere warm and not too loud. Friday night.",                likes: 22, replies: 19, pinned: false, category: "ask"      },
+  { id: 108, author: "Rachel M.",  initial: "R", color: "#C084FC", time: "1h ago",  text: "Has anyone tried therapy in NYC they'd recommend? Looking for someone warm, not too clinical, not too expensive.", likes: 45, replies: 31, pinned: true,  category: "ask"      },
+  { id: 109, author: "Deja W.",    initial: "D", color: "#FF69B4", time: "2h ago",  text: "What do you wear to an art gallery opening? First one ever, tomorrow night, I genuinely have no idea.",            likes: 33, replies: 24, pinned: false, category: "ask"      },
+  { id: 110, author: "Lena V.",    initial: "L", color: "#A78BFA", time: "4h ago",  text: "Anyone know a good tailor in Brooklyn who does alterations well and actually takes her time?",                     likes: 17, replies: 9,  pinned: false, category: "ask"      },
+  { id: 111, author: "Zara F.",    initial: "Z", color: "#FF1F7D", time: "45m ago", text: "The Archway Café under the Manhattan Bridge on a Tuesday morning is a religious experience. You need to go.",      likes: 67, replies: 22, pinned: true,  category: "discover" },
+  { id: 112, author: "Sofia K.",   initial: "S", color: "#FF69B4", time: "2h ago",  text: "You can get into MoMA free after 5:30PM on Fridays if you know a member. I'm a member. Just DM me.",             likes: 89, replies: 41, pinned: false, category: "discover" },
+  { id: 113, author: "Naomi B.",   initial: "N", color: "#FF1F7D", time: "4h ago",  text: "McNally Jackson has a quiet reading room upstairs nobody talks about. You can sit there for hours with no one bothering you.", likes: 54, replies: 16, pinned: false, category: "discover" },
+  { id: 114, author: "Aaliyah M.", initial: "A", color: "#F472B6", time: "6h ago",  text: "Russ & Daughters before 9AM on a Wednesday — empty, peaceful, the best bagels of your life. No wait at all.",     likes: 72, replies: 27, pinned: false, category: "discover" },
+  { id: 115, author: "Book Club",  initial: "B", color: "#FF1F7D", time: "1h ago",  text: "Reading The Women by Kristin Hannah this month. Meeting March 15 at McNally Jackson, 6PM. Reply to RSVP.",         likes: 38, replies: 22, pinned: true,  category: "plan"     },
+  { id: 116, author: "Sofia K.",   initial: "S", color: "#FF69B4", time: "3h ago",  text: "Chelsea gallery crawl Saturday afternoon. 3 galleries, 4PM start. Slow walk, no rush, wine at the end.",           likes: 29, replies: 13, pinned: false, category: "plan"     },
+  { id: 117, author: "Priya R.",   initial: "P", color: "#F472B6", time: "5h ago",  text: "Summer rooftop series — one every Friday in June. Westlight to start. Save the dates, it's happening.",            likes: 61, replies: 34, pinned: false, category: "plan"     },
+];
+
 // ── Wall Note Card ────────────────────────────────────────────────────────────
+
+const PIN_COLORS: Record<WallCategory, string> = {
+  now: "#FF1F7D", gather: "#FF69B4", ask: "#A78BFA", discover: "#FBBF24", plan: "#34D399",
+};
+const NOTE_BG: Record<WallCategory, string> = {
+  now: "#1C0E16", gather: "#FDFAF6", ask: "#FAF8FF", discover: "#FFFEF8", plan: "#FDFFF8",
+};
 
 function WallNoteCard({
   post, zone, liked, setLiked, onExpand,
 }: {
-  post: WallPost;
-  zone: WallZone;
-  liked: Set<number>;
+  post: WallPost; zone: WallZone; liked: Set<number>;
   setLiked: React.Dispatch<React.SetStateAction<Set<number>>>;
   onExpand: () => void;
 }) {
   const isLiked = liked.has(post.id);
-  const rot = ((post.id * 13 + 7) % 11 - 5) * 0.55;
-
-  return (
-    <button
-      onClick={onExpand}
-      className="flex-shrink-0 rounded-2xl text-left wall-note active:scale-[0.96] transition-transform"
-      style={{
-        width: zone.id === "now" ? "238px" : "192px",
-        background: zone.noteBg,
-        transform: `rotate(${rot}deg)`,
-        boxShadow: zone.dark
-          ? "0 6px 24px rgba(255,31,125,0.18), 0 0 0 1px rgba(255,255,255,0.04)"
-          : "0 3px 16px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04)",
-        padding: "16px",
-        minHeight: "130px",
-      }}
-    >
-      {/* Author seal */}
-      <div className="flex items-center gap-2 mb-3">
-        <div
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-          style={{ background: post.color }}
-        >
-          {post.initial}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p
-            className="text-[12px] font-bold italic leading-tight truncate"
-            style={{ fontFamily: "var(--font-playfair)", color: zone.textColor }}
-          >
-            {post.author}
-          </p>
-          <p className="text-[9px]" style={{ color: zone.subColor }}>{post.time}</p>
-        </div>
-        {zone.id === "now" && (
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
-        )}
-      </div>
-
-      {/* Note text */}
-      <p
-        className="text-[13px] leading-relaxed mb-3 flex-1"
-        style={{
-          fontFamily: "var(--font-instrument)",
-          color: zone.textColor,
-          lineHeight: "1.65",
-        }}
-      >
-        {post.text}
-      </p>
-
-      {/* Footer */}
-      <div className="flex items-center gap-3 mt-auto">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            const n = new Set(liked);
-            n.has(post.id) ? n.delete(post.id) : n.add(post.id);
-            setLiked(n);
-          }}
-          className="flex items-center gap-1 transition-all"
-          style={{ color: isLiked ? zone.accent : zone.subColor }}
-        >
-          <span style={{ fontSize: "13px" }}>{isLiked ? "♥" : "♡"}</span>
-          <span className="text-[10px] font-bold">{post.likes + (isLiked ? 1 : 0)}</span>
-        </button>
-        <div className="flex items-center gap-1" style={{ color: zone.subColor }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span className="text-[10px] font-bold">{post.replies}</span>
-        </div>
-        <span className="ml-auto text-[9px] font-bold uppercase tracking-wider" style={{ color: zone.subColor, opacity: 0.7 }}>
-          {zone.emoji}
-        </span>
-      </div>
-    </button>
-  );
-}
-
-// ── Wall Zone Section ─────────────────────────────────────────────────────────
-
-function WallZoneSection({
-  zone, posts, liked, setLiked, onAddNote, onExpand,
-}: {
-  zone: WallZone;
-  posts: WallPost[];
-  liked: Set<number>;
-  setLiked: React.Dispatch<React.SetStateAction<Set<number>>>;
-  onAddNote: (cat: WallCategory) => void;
-  onExpand: (post: WallPost, zone: WallZone) => void;
-}) {
-  const zonePosts = posts.filter(p => p.category === zone.id);
+  const rot = ((post.id * 13 + 7) % 11 - 5) * 0.42;
+  const pinColor = PIN_COLORS[zone.id];
+  const noteBg = NOTE_BG[zone.id];
 
   return (
     <div
-      className="mb-6"
-      style={zone.dark ? { background: "#0D0810", paddingTop: "20px", paddingBottom: "24px" } : {}}
+      className="relative cursor-pointer wall-note"
+      style={{ paddingTop: "13px", transform: `rotate(${rot}deg)`, transformOrigin: "top center" }}
+      onClick={onExpand}
     >
-      {/* Zone header */}
-      <div className="px-5 md:px-8 flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span style={{ fontSize: "14px" }}>{zone.emoji}</span>
-          <p
-            className="text-[10px] font-bold tracking-[0.18em] uppercase"
-            style={{ color: zone.dark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.38)" }}
+      {/* Pushpin */}
+      <div
+        className="absolute left-1/2 top-0 z-10 w-[18px] h-[18px] rounded-full"
+        style={{
+          transform: "translateX(-50%)",
+          background: `radial-gradient(circle at 38% 35%, rgba(255,255,255,0.55) 0%, ${pinColor} 52%, color-mix(in srgb, ${pinColor} 70%, black) 100%)`,
+          boxShadow: `0 3px 8px rgba(0,0,0,0.4), 0 0 0 2.5px rgba(255,255,255,0.18)`,
+        }}
+      />
+
+      {/* Note paper */}
+      <div
+        className="transition-transform active:scale-[0.97]"
+        style={{
+          background: noteBg,
+          borderRadius: "2px",
+          padding: "14px 13px 12px",
+          borderTop: `3px solid ${pinColor}`,
+          boxShadow: zone.dark
+            ? "0 8px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4)"
+            : "0 6px 24px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9)",
+        }}
+      >
+        {/* Zone + pin indicator */}
+        <div className="flex items-center justify-between mb-3">
+          <span
+            className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
+            style={{ background: `${zone.accent}18`, color: zone.accent }}
           >
-            {zone.label}
+            {zone.emoji} {zone.label}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {post.pinned && <span className="text-[9px]" style={{ color: zone.accent }}>📌</span>}
+            {zone.id === "now" && <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />}
+          </div>
+        </div>
+
+        {/* Main text */}
+        <p
+          style={{
+            fontFamily: "var(--font-instrument)",
+            fontSize: "13.5px",
+            color: zone.textColor,
+            lineHeight: "1.68",
+            marginBottom: "14px",
+          }}
+        >
+          {post.text}
+        </p>
+
+        {/* Author row */}
+        <div className="flex items-center gap-2 mb-3">
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0"
+            style={{ background: post.color }}
+          >
+            {post.initial}
+          </div>
+          <p className="text-[10px] font-bold italic flex-1 min-w-0 truncate"
+            style={{ fontFamily: "var(--font-playfair)", color: zone.subColor }}>
+            {post.author}
           </p>
-          {zone.id === "now" && (
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
-          )}
-          {zonePosts.length > 0 && (
-            <span
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-              style={{
-                background: zone.dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)",
-                color: zone.dark ? "rgba(255,255,255,0.3)" : "#bbb",
-              }}
-            >
-              {zonePosts.length}
+          <p className="text-[9px] flex-shrink-0" style={{ color: zone.subColor, opacity: 0.55 }}>{post.time}</p>
+        </div>
+
+        {/* Actions */}
+        <div
+          className="flex items-center gap-4 pt-2.5"
+          style={{ borderTop: zone.dark ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(0,0,0,0.06)" }}
+        >
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              const n = new Set(liked);
+              n.has(post.id) ? n.delete(post.id) : n.add(post.id);
+              setLiked(n);
+            }}
+            className="flex items-center gap-1 transition-all"
+            style={{ color: isLiked ? zone.accent : zone.subColor }}
+          >
+            <span style={{ fontSize: "13px" }}>{isLiked ? "♥" : "♡"}</span>
+            <span className="text-[10px] font-bold">{post.likes + (isLiked ? 1 : 0)}</span>
+          </button>
+          <div className="flex items-center gap-1" style={{ color: zone.subColor }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+            <span className="text-[10px] font-bold">{post.replies}</span>
+          </div>
+          {post.replies > 15 && (
+            <span className="ml-auto text-[8px] font-bold tracking-wider uppercase" style={{ color: zone.accent }}>
+              Hot thread
             </span>
           )}
         </div>
-        <button
-          onClick={() => onAddNote(zone.id)}
-          className="text-[10px] font-bold tracking-wider transition-opacity active:opacity-60"
-          style={{ color: zone.accent }}
-        >
-          + leave a note
-        </button>
-      </div>
-
-      {/* Horizontal scroll of notes */}
-      <div
-        className="flex gap-4 overflow-x-auto pb-3"
-        style={{ paddingLeft: "20px", paddingRight: "20px", scrollbarWidth: "none", alignItems: "flex-start" }}
-      >
-        {zonePosts.map(p => (
-          <WallNoteCard
-            key={p.id}
-            post={p}
-            zone={zone}
-            liked={liked}
-            setLiked={setLiked}
-            onExpand={() => onExpand(p, zone)}
-          />
-        ))}
-
-        {/* Empty state placeholder — tap to compose */}
-        {zonePosts.length === 0 && (
-          <button
-            onClick={() => onAddNote(zone.id)}
-            className="flex-shrink-0 rounded-2xl flex flex-col items-center justify-center gap-2 text-center active:scale-[0.97] transition-transform"
-            style={{
-              width: "160px",
-              minHeight: "110px",
-              padding: "20px",
-              background: zone.dark ? "rgba(255,255,255,0.03)" : "white",
-              border: `1.5px dashed ${zone.accent}44`,
-            }}
-          >
-            <span style={{ fontSize: "20px", opacity: 0.3 }}>{zone.emoji}</span>
-            <p
-              className="italic"
-              style={{ fontFamily: "var(--font-caveat)", color: zone.dark ? "rgba(255,255,255,0.2)" : "#ccc", fontSize: "13px" }}
-            >
-              {zone.emptyText}
-            </p>
-          </button>
-        )}
       </div>
     </div>
   );
@@ -534,18 +495,38 @@ const WALL_AVATARS = [
   { i: "N", c: "#FF1F7D" }, { i: "Z", c: "#F472B6" }, { i: "I", c: "#FF69B4" },
 ];
 
+const ZONE_FILTERS: { id: WallCategory | "all"; label: string; emoji: string }[] = [
+  { id: "all",      label: "All",         emoji: "✦" },
+  { id: "now",      label: "Happening Now", emoji: "🔥" },
+  { id: "gather",   label: "Gather",      emoji: "🌸" },
+  { id: "ask",      label: "Ask the Room", emoji: "💬" },
+  { id: "discover", label: "Discover",    emoji: "✦" },
+  { id: "plan",     label: "Plan",        emoji: "📌" },
+];
+
 function TheWall({ onBack }: { onBack: () => void }) {
-  const [liked, setLiked] = useState<Set<number>>(new Set());
-  const [posts, setPosts] = useState<WallPost[]>([]);
-  const [replies, setReplies] = useState<WallReply[]>([]);
+  const [liked, setLiked]       = useState<Set<number>>(new Set());
+  const [userPosts, setUserPosts] = useState<WallPost[]>([]);
+  const [replies, setReplies]   = useState<WallReply[]>([]);
   const [composing, setComposing] = useState(false);
   const [composingCat, setComposingCat] = useState<WallCategory>("gather");
   const [expanded, setExpanded] = useState<{ post: WallPost; zone: WallZone } | null>(null);
+  const [activeFilter, setActiveFilter] = useState<WallCategory | "all">("all");
 
   const WOMEN_HERE = 12;
+  const allPosts = [...userPosts, ...SEED_POSTS];
+  const displayed = activeFilter === "all"
+    ? allPosts
+    : allPosts.filter(p => p.category === activeFilter);
+
+  // pinned first within filter
+  const sorted = [
+    ...displayed.filter(p => p.pinned),
+    ...displayed.filter(p => !p.pinned),
+  ];
 
   function handlePost(text: string, cat: WallCategory) {
-    setPosts(prev => [{
+    setUserPosts(prev => [{
       id: Date.now(), author: "You", initial: "Y", color: "#FF1F7D",
       time: "just now", text, likes: 0, replies: 0, pinned: false, category: cat,
     }, ...prev]);
@@ -553,16 +534,9 @@ function TheWall({ onBack }: { onBack: () => void }) {
 
   function handleReply(postId: number, text: string) {
     setReplies(prev => [...prev, {
-      id: Date.now(), postId,
-      author: "You", initial: "Y", color: "#FF1F7D",
+      id: Date.now(), postId, author: "You", initial: "Y", color: "#FF1F7D",
       time: "just now", text,
     }]);
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: p.replies + 1 } : p));
-  }
-
-  function openCompose(cat: WallCategory) {
-    setComposingCat(cat);
-    setComposing(true);
   }
 
   function toggleLike(id: number) {
@@ -573,93 +547,100 @@ function TheWall({ onBack }: { onBack: () => void }) {
     });
   }
 
+  const activeZoneInfo = WALL_ZONES.find(z => z.id === activeFilter);
+  const filterAccent = activeZoneInfo ? activeZoneInfo.accent : "#FF1F7D";
+
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FAF5EE" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#E8DECE" }}>
       <style>{`
-        @keyframes wall-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .wall-note { animation: wall-fade 0.32s ease both; }
+        @keyframes wall-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .wall-note { animation: wall-fade 0.28s ease both; }
+        .wall-bg {
+          background-image:
+            radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px),
+            radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+          background-size: 28px 28px, 14px 14px;
+          background-position: 0 0, 7px 7px;
+        }
       `}</style>
 
+      {/* Cork texture layer */}
+      <div className="fixed inset-0 pointer-events-none wall-bg" style={{ opacity: 0.35 }} />
+
       {/* ── HEADER ── */}
-      <div className="px-5 pt-12 pb-6 md:px-8 md:pt-8">
-        <div className="flex items-center gap-3 mb-5">
+      <div className="relative px-5 pt-12 pb-5 md:px-8 md:pt-8">
+        {/* Back */}
+        <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack}
             className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(255,31,125,0.08)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
+            style={{ background: "rgba(0,0,0,0.12)", backdropFilter: "blur(8px)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3A2A20" strokeWidth="2.5" strokeLinecap="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
           </button>
-          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>THE LOBBY</p>
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(80,50,40,0.55)" }}>THE LOBBY</p>
         </div>
 
-        {/* Title + live count side by side */}
-        <div className="flex items-start justify-between">
+        {/* Title block */}
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <h1
-              className="font-black italic leading-none"
-              style={{
-                fontFamily: "var(--font-playfair)",
-                fontSize: "clamp(40px,11vw,56px)",
-                color: "#1A1010",
-                lineHeight: 0.86,
-                letterSpacing: "-0.025em",
-              }}
-            >
+            <h1 className="font-black italic leading-none"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(44px,11vw,60px)", color: "#2A1A14", lineHeight: 0.86, letterSpacing: "-0.025em" }}>
               The<br />
               <span style={{ color: "#FF1F7D" }}>Wall.</span>
             </h1>
-            <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "#C0A8B0" }}>
-              Your room. Leave something here.
+            <p className="text-sm italic mt-2.5" style={{ fontFamily: "var(--font-instrument)", color: "#B08870" }}>
+              A community board. Leave something.
             </p>
           </div>
-          {/* Live counter */}
-          <div className="rounded-2xl px-4 py-3 text-center" style={{ background: "#111111", minWidth: "72px" }}>
-            <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "30px", color: "white" }}>
+
+          {/* Live chip */}
+          <div className="rounded-2xl px-4 py-3 text-center flex-shrink-0"
+            style={{ background: "#1A0E08", boxShadow: "0 4px 16px rgba(0,0,0,0.3)" }}>
+            <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", color: "white" }}>
               {WOMEN_HERE}
             </p>
-            <p className="text-[7px] font-bold tracking-[0.22em] uppercase mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-[7px] font-bold tracking-[0.22em] uppercase mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
               HERE NOW
             </p>
           </div>
         </div>
 
         {/* Live avatars */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-2">
           <div className="flex">
             {WALL_AVATARS.map((a, i) => (
-              <div
-                key={i}
+              <div key={i}
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                style={{ background: a.c, border: "2px solid #FAF5EE", marginLeft: i > 0 ? "-7px" : "0" }}
-              >
+                style={{ background: a.c, border: "2px solid #E8DECE", marginLeft: i > 0 ? "-8px" : "0" }}>
                 {a.i}
               </div>
             ))}
           </div>
-          <p className="text-[10px] ml-1" style={{ color: "#bbb" }}>
-            +{WOMEN_HERE - WALL_AVATARS.length} more on the wall
+          <p className="text-[10px] ml-2" style={{ color: "#A08060" }}>
+            +{WOMEN_HERE - WALL_AVATARS.length} more reading right now
           </p>
           <span className="ml-auto w-2 h-2 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
         </div>
       </div>
 
       {/* ── COMPOSE TRIGGER ── */}
-      <div className="px-5 md:px-8 mb-7">
+      <div className="relative px-5 md:px-8 mb-5">
         <button
-          onClick={() => openCompose("gather")}
-          className="w-full py-4 rounded-2xl flex items-center justify-between px-5 transition-all active:scale-[0.98]"
+          onClick={() => { setComposingCat("gather"); setComposing(true); }}
+          className="w-full rounded-2xl flex items-center justify-between px-5 py-4 transition-all active:scale-[0.98]"
           style={{
-            background: "white",
-            boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
-            border: "1.5px dashed rgba(255,31,125,0.2)",
+            background: "rgba(255,255,255,0.82)",
+            boxShadow: "0 3px 18px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
+            border: "1.5px dashed rgba(255,31,125,0.25)",
+            backdropFilter: "blur(8px)",
           }}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FF1F7D" }}>
               <span className="text-white text-xs font-bold">Y</span>
             </div>
-            <p className="italic" style={{ fontFamily: "var(--font-caveat)", color: "#C0A8B0", fontSize: "16px" }}>
+            <p className="italic" style={{ fontFamily: "var(--font-caveat)", color: "#C0A8A0", fontSize: "16px" }}>
               Leave something on the wall…
             </p>
           </div>
@@ -667,18 +648,79 @@ function TheWall({ onBack }: { onBack: () => void }) {
         </button>
       </div>
 
-      {/* ── ZONES ── */}
-      {WALL_ZONES.map(zone => (
-        <WallZoneSection
-          key={zone.id}
-          zone={zone}
-          posts={posts}
-          liked={liked}
-          setLiked={setLiked}
-          onAddNote={openCompose}
-          onExpand={(post, z) => setExpanded({ post, zone: z })}
-        />
-      ))}
+      {/* ── SUBJECT FILTER ── */}
+      <div
+        className="relative flex gap-2 overflow-x-auto px-5 pb-4 md:px-8"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {ZONE_FILTERS.map(f => {
+          const isActive = activeFilter === f.id;
+          const zone = WALL_ZONES.find(z => z.id === f.id);
+          const accent = zone ? zone.accent : "#FF1F7D";
+          return (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className="flex-shrink-0 px-4 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95"
+              style={isActive
+                ? { background: accent, color: "white", boxShadow: `0 3px 12px ${accent}55` }
+                : { background: "rgba(255,255,255,0.75)", color: "#6A4030", border: "1.5px solid rgba(0,0,0,0.08)" }}
+            >
+              {f.emoji} {f.label}
+              {f.id !== "all" && (
+                <span className="ml-1.5 text-[9px] font-bold opacity-60">
+                  {allPosts.filter(p => p.category === f.id).length}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── NOTE COUNT ── */}
+      <div className="relative px-5 md:px-8 pb-3">
+        <p className="text-[10px] font-semibold" style={{ color: "rgba(80,50,30,0.45)" }}>
+          {sorted.length} note{sorted.length !== 1 ? "s" : ""} on the wall
+          {activeFilter !== "all" && activeZoneInfo && ` · ${activeZoneInfo.label}`}
+        </p>
+      </div>
+
+      {/* ── MASONRY BOARD ── */}
+      <div className="relative px-4 md:px-8 pb-10">
+        <div className="columns-2 md:columns-3 gap-x-4">
+          {sorted.map((post) => {
+            const zone = WALL_ZONES.find(z => z.id === post.category) ?? WALL_ZONES[1];
+            return (
+              <div key={post.id} className="mb-5 break-inside-avoid" style={{ paddingTop: "2px" }}>
+                <WallNoteCard
+                  post={post}
+                  zone={zone}
+                  liked={liked}
+                  setLiked={setLiked}
+                  onExpand={() => setExpanded({ post, zone })}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {sorted.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <span style={{ fontSize: "36px", opacity: 0.3 }}>
+              {activeZoneInfo?.emoji ?? "✦"}
+            </span>
+            <p className="italic text-center" style={{ fontFamily: "var(--font-caveat)", color: "#B08870", fontSize: "16px" }}>
+              Nothing here yet. Be the first to leave a note.
+            </p>
+            <button
+              onClick={() => { setComposingCat(activeFilter as WallCategory); setComposing(true); }}
+              className="px-5 py-2.5 rounded-full text-xs font-bold text-white mt-1 active:scale-95 transition-transform"
+              style={{ background: filterAccent }}>
+              + Leave a note
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* ── COMPOSE SHEET ── */}
       {composing && (
