@@ -673,6 +673,8 @@ export function CityPage() {
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [showAllSpots, setShowAllSpots]     = useState(false);
+  const [showAllMoments, setShowAllMoments] = useState(false);
 
   function handleStamp(id: number) {
     if (stampedPlaces.has(id)) return;
@@ -723,13 +725,13 @@ export function CityPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
-                <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</button>
+                <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllSpots(true)}>See More →</button>
               </div>
               <div
                 className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0"
                 style={{ scrollbarWidth: "none" }}
               >
-                {RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000).map(r => (
+                {(showAllSpots ? RESTAURANTS : RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000)).map(r => (
                   <EatCarouselCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
                 ))}
               </div>
@@ -739,13 +741,13 @@ export function CityPage() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
-                  <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</button>
+                  <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllSpots(true)}>See More →</button>
                 </div>
                 <div
                   className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
                   style={{ scrollbarWidth: "none" }}
                 >
-                  {RESTAURANTS.map(r => (
+                  {(showAllSpots ? RESTAURANTS : RESTAURANTS.slice(0, 5)).map(r => (
                     <div key={r.id} className="flex-shrink-0 md:flex-shrink md:w-auto" style={{ width: "clamp(180px, 52vw, 240px)" }}>
                       <EatGridCard r={r} onClick={() => setSelectedRestaurant(r)} />
                     </div>
@@ -850,7 +852,7 @@ export function CityPage() {
               </h2>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <button className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
+              <button className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllMoments(true)}>
                 See More →
               </button>
               <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
@@ -862,7 +864,7 @@ export function CityPage() {
             className="flex gap-5 overflow-x-auto pb-6 -mx-5 px-5"
             style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
           >
-            {MOMENTS.map((m, idx) => (
+            {(showAllMoments ? MOMENTS : MOMENTS.slice(0, 4)).map((m, idx) => (
               <MomentCard key={m.id}
                 m={{ ...m, flowered: floweredMoments.has(m.id) }}
                 onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}

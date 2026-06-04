@@ -262,6 +262,60 @@ export default function CalendarPage() {
         )}
       </div>
 
+      {/* Coordinate with Bloomies */}
+      <div className="px-5 mt-6 mb-4 md:px-10">
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-3"
+          style={{ color: "rgba(255,255,255,0.3)" }}>
+          COORDINATE
+        </p>
+        <div className="rounded-2xl p-4" style={{ background: "#1A1218" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-bold" style={{ color: "rgba(255,238,220,0.9)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                Plan with other women.
+              </p>
+              <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                Share your calendar or coordinate an outing.
+              </p>
+            </div>
+          </div>
+          {/* Suggested bloomies */}
+          <div className="flex items-center gap-2 mb-4">
+            {[
+              { initial: "Z", color: "#FF1F7D", name: "Zara" },
+              { initial: "A", color: "#FF69B4", name: "Amara" },
+              { initial: "N", color: "#A855F7", name: "Nia" },
+              { initial: "S", color: "#0EA5E9", name: "Sofia" },
+            ].map(b => (
+              <div key={b.initial} className="flex flex-col items-center gap-1">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                  style={{ background: b.color }}>
+                  {b.initial}
+                </div>
+                <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>{b.name}</span>
+              </div>
+            ))}
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px dashed rgba(255,255,255,0.2)" }}>
+                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 18 }}>+</span>
+              </div>
+              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>Add</span>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button className="flex-1 py-3 rounded-xl text-xs font-bold transition-all active:scale-[0.97]"
+              style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.35)" }}>
+              + Create a Plan Room
+            </button>
+            <button className="px-4 py-3 rounded-xl text-xs font-bold transition-all active:scale-[0.97]"
+              style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

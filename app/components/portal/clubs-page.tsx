@@ -803,6 +803,62 @@ function DiscoverCard({ club, isJoined, isRequested, onSelect }: {
   );
 }
 
+// ─── Club Cover Card ──────────────────────────────────────────────────────────
+
+function ClubCoverCard({ club, isJoined, onSelect }: {
+  club: Club; isJoined: boolean; onSelect: () => void;
+}) {
+  return (
+    <button onClick={onSelect} className="relative rounded-2xl overflow-hidden text-left w-full transition-all active:scale-[0.97]"
+      style={{
+        background: `linear-gradient(150deg, ${club.color}CC 0%, ${club.crestBg} 100%)`,
+        minHeight: 150,
+        boxShadow: `0 6px 20px ${club.color}30`,
+        animation: club.live ? "clubShake 5s ease-in-out 1s infinite" : undefined,
+      }}>
+      {/* Decorative circle */}
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full pointer-events-none"
+        style={{ background: "rgba(255,255,255,0.06)", transform: "translate(40%,-40%)" }} />
+      {/* Live badge */}
+      {club.live && (
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full"
+          style={{ background: "rgba(0,0,0,0.3)" }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "white" }} />
+          <span className="text-[8px] font-bold text-white/80">LIVE</span>
+        </div>
+      )}
+      {/* Official badge */}
+      {club.type === "hq" && !club.live && (
+        <div className="absolute top-3 right-3">
+          <span className="text-[8px] font-bold px-2 py-1 rounded-full"
+            style={{ background: "rgba(0,0,0,0.3)", color: "white" }}>✦ Official</span>
+        </div>
+      )}
+      <div className="relative z-10 p-4 flex flex-col justify-between" style={{ minHeight: 150 }}>
+        <div>
+          <p className="text-[9px] font-bold tracking-widest uppercase mb-1.5"
+            style={{ color: "rgba(255,255,255,0.5)" }}>{club.tags.join(" · ")}</p>
+          <h3 className="text-base font-bold italic text-white leading-snug"
+            style={{ fontFamily: "var(--font-playfair)" }}>
+            {club.name}
+          </h3>
+          <p className="text-[11px] mt-1 leading-snug"
+            style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            {club.vibe}
+          </p>
+        </div>
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.6)" }}>{club.women} women</span>
+          <span className="text-[10px] font-bold px-3 py-1.5 rounded-full"
+            style={{ background: isJoined ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.35)", color: "white" }}>
+            {isJoined ? "In ✓" : "Enter →"}
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 // ─── Yande Recommendation ─────────────────────────────────────────────────────
 
 function YandeRec() {
@@ -1117,19 +1173,17 @@ export function ClubsPage() {
               <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>
                 {q ? `${filtered.length} clubs` : "ALL CLUBS"}
               </p>
-              <div className="rounded-3xl overflow-hidden"
-                style={{ background: "white", boxShadow: "0 1px 16px rgba(0,0,0,0.06)" }}>
+              <div className="grid grid-cols-2 gap-3">
                 {rest.map(club => (
-                  <DiscoverCard
+                  <ClubCoverCard
                     key={club.id}
                     club={club}
                     isJoined={joined.has(club.id)}
-                    isRequested={requested.has(club.id)}
                     onSelect={() => handleSelectClub(club)}
                   />
                 ))}
                 {rest.length === 0 && (
-                  <div className="py-12 text-center">
+                  <div className="col-span-2 py-12 text-center rounded-2xl" style={{ background: "white" }}>
                     <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
                       No clubs match that search.
                     </p>
@@ -1158,6 +1212,17 @@ export function ClubsPage() {
 
         {/* Passport has moved to your Lounge profile */}
       </div>
+
+      <style>{`
+        @keyframes clubShake {
+          0%, 85%, 100% { transform: translateX(0) rotate(0deg); }
+          87% { transform: translateX(-3px) rotate(-0.8deg); }
+          89% { transform: translateX(3px) rotate(0.8deg); }
+          91% { transform: translateX(-2px) rotate(-0.4deg); }
+          93% { transform: translateX(2px) rotate(0.4deg); }
+          95% { transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -99,9 +99,12 @@ export function BottomNav({ user }: { user?: NavUser }) {
               style={{ background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.52)"}
-                strokeWidth="2" strokeLinecap="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="9" width="17" height="12" rx="2"/>
+                <path d="M3 9a8.5 8.5 0 0 1 17 0"/>
+                <line x1="7" y1="16" x2="13" y2="16"/>
+                <line x1="20" y1="9" x2="20" y2="5"/>
+                <polyline points="20,5 23,6.5 20,8"/>
               </svg>
             </Link>
             <Link href="/member/notifications" aria-label="Ping"
