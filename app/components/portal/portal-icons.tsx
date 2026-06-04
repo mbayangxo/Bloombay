@@ -98,10 +98,17 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           </svg>
         </Link>
 
-        {/* Plans */}
+        {/* Plans — glows + pulses when not active */}
         <Link href="/member/plans" aria-label="Plans"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-          style={iconStyle("/member/plans")}>
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
+          style={{
+            ...iconStyle("/member/plans"),
+            animation: !pathname.startsWith("/member/plans") ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
+          }}>
+          {!pathname.startsWith("/member/plans") && (
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+              style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px white" }} />
+          )}
           <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={strokeColor("/member/plans")} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
             <line x1="8" y1="2" x2="8" y2="18"/>
@@ -137,6 +144,10 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           89% { transform: rotate(-5deg); }
           93% { transform: rotate(3deg); }
           97% { transform: rotate(0deg); }
+        }
+        @keyframes plansPulse {
+          0%, 100% { box-shadow: 0 1px 6px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.4); }
+          50% { box-shadow: 0 0 0 4px rgba(255,31,125,0.22), 0 0 18px rgba(255,31,125,0.4), inset 0 1px 0 rgba(255,255,255,0.4); }
         }
       `}</style>
     </>

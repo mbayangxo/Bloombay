@@ -164,12 +164,17 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
             </Link>
             <Link href="/member/plans" aria-label="Plans"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 relative"
               style={{
                 background: pathname.startsWith("/member/plans") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/plans") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/plans") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
+                animation: !pathname.startsWith("/member/plans") ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
               }}>
+              {!pathname.startsWith("/member/plans") && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
+              )}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/plans") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -345,6 +350,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
           89% { transform: rotate(-5deg); }
           93% { transform: rotate(3deg); }
           97% { transform: rotate(0deg); }
+        }
+        @keyframes plansPulse {
+          0%, 100% { box-shadow: none; }
+          50% { box-shadow: 0 0 0 3px rgba(255,31,125,0.2), 0 0 16px rgba(255,31,125,0.35); }
         }
       `}</style>
     </>
