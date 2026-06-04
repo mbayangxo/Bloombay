@@ -281,12 +281,14 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
           {/* INVITATIONS — ticket stubs */}
           <div className="px-5 mb-7 md:px-0">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold italic"
-                style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
-                Your invitations
-              </h2>
-              <Link href="/member/happenings" className="text-xs font-bold tracking-wider" style={{ color: "#FF1F7D" }}>
-                All happenings →
+              <Link href="/member/messages?filter=invitations" style={{ textDecoration: "none" }}>
+                <h2 className="text-base font-bold italic"
+                  style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
+                  Your invitations
+                </h2>
+              </Link>
+              <Link href="/member/messages?filter=invitations" className="text-xs font-bold tracking-wider" style={{ color: "#FF1F7D" }}>
+                All invitations →
               </Link>
             </div>
 
@@ -294,7 +296,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             <div className="flex gap-3 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
               style={{ scrollbarWidth: "none" }}>
               {INVITATIONS.map((inv) => (
-                <Link key={inv.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, width: "clamp(260px, 72vw, 300px)" }}
+                <Link key={inv.id} href={`/member/invitations/${inv.id}`} style={{ textDecoration: "none", flexShrink: 0, width: "clamp(260px, 72vw, 300px)" }}
                   className="md:w-auto md:flex-shrink-[unset]">
                   <div
                     className="rounded-2xl overflow-hidden"

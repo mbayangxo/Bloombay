@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type MailboxItemType = "letter" | "certificate" | "invitation" | "milestone" | "recognition";
 
@@ -16,17 +17,52 @@ interface MailboxItem {
   date: string;
   opened: boolean;
   body?: string;
+  inviteId?: string;
 }
 
 const TYPE_ICONS: Record<MailboxItemType, string> = {
   letter:      "✉",
   certificate: "🏅",
-  invitation:  "✦",
+  invitation:  "🎟",
   milestone:   "🌸",
   recognition: "✦",
 };
 
 const MAILBOX_ITEMS: MailboxItem[] = [
+  // ── Invitations (matching homepage) ──────────────────────────────────────────
+  {
+    id: 200, type: "invitation", from: "Aminah M.", initial: "Am", color: "#FF69B4",
+    subject: "Girls Dinner · Carbone",
+    preview: "Aminah saved you a seat. Tonight 7:30 PM.",
+    date: "Tonight", opened: false,
+    body: "Aminah saved you a seat at the table. She's been thinking of you. Tonight at Carbone — individual pay, intimate crowd. Come.",
+    inviteId: "1",
+  },
+  {
+    id: 201, type: "invitation", from: "Sofia K.", initial: "S", color: "#FF1F7D",
+    subject: "Pilates + Matcha Morning",
+    preview: "Sofia and 2 others are going. Sunday 9 AM.",
+    date: "Sunday", opened: false,
+    body: "Sofia thought of you for this one. Pilates, then matcha after. Studio Bloom in Williamsburg. $20. Sunday 9 AM.",
+    inviteId: "2",
+  },
+  {
+    id: 202, type: "invitation", from: "Girl Creatives", initial: "GC", color: "#EC4899",
+    subject: "MoMA + Froyo After",
+    preview: "Girl Creatives are going as a group. Saturday 2 PM.",
+    date: "Saturday", opened: false,
+    body: "The club is going together — MoMA then froyo after. $1 deposit hold. Saturday 2 PM. You'd fit right in.",
+    inviteId: "3",
+  },
+  {
+    id: 203, type: "invitation", from: "African Girls Club", initial: "AG", color: "#FF69B4",
+    subject: "You've been invited to join",
+    preview: "African Girls Club would like to officially welcome you.",
+    date: "May 28", opened: false,
+    body: "You have been extended a formal invitation to join African Girls Club.\n\nThis is a curated circle of African women in NYC building community through culture, food, and joy.\n\nAccept your invitation to unlock full club access.",
+  },
+
+  // ── Letters ───────────────────────────────────────────────────────────────────
   {
     id: 100, type: "letter", from: "Yande", initial: "Y", color: "#FF1F7D",
     subject: "June Letter from Yande",
@@ -35,25 +71,20 @@ const MAILBOX_ITEMS: MailboxItem[] = [
     body: "Dear Bloom,\n\nThis month I watched women in our community choose softness in the hardest moments. I watched someone sit alone at a gallery opening and own it. I watched a first-time founder raise her hand at a dinner she almost didn't attend.\n\nThat is what BloomBay is. Not the events. Not the platform. The woman who almost didn't come — and did.\n\nWith love,\nYande ✦",
   },
   {
+    id: 105, type: "letter", from: "Yande", initial: "Y", color: "#FF1F7D",
+    subject: "May Letter from Yande",
+    preview: "On rest, resistance, and the radical act of choosing yourself.",
+    date: "May 1", opened: true,
+    body: "Dear Bloom,\n\nRest is not something you earn. It is something you take.\n\nThis month's letter is about the women in our community who are learning — sometimes painfully — that choosing themselves is not selfish. It is the work.\n\nI love you for being here.\nYande ✦",
+  },
+
+  // ── Certificates & Recognition ────────────────────────────────────────────────
+  {
     id: 101, type: "certificate", from: "BloomBay", initial: "✦", color: "#D4A853",
     subject: "Original Member Certificate",
     preview: "You are one of the women who built this from nothing.",
     date: "Jan 2026", opened: true,
     body: "This certifies that you are an Original Member of BloomBay.\n\nYou joined before the world knew what this was. Your presence shaped the energy, the standards, and the possibility of this community.\n\nYou are BloomBay.\n\n✦ Certificate #047",
-  },
-  {
-    id: 102, type: "invitation", from: "African Girls Club", initial: "AG", color: "#FF69B4",
-    subject: "You've been invited to join",
-    preview: "African Girls Club would like to officially welcome you.",
-    date: "May 28", opened: false,
-    body: "You have been extended a formal invitation to join African Girls Club.\n\nThis is a curated circle of African women in NYC building community through culture, food, and joy.\n\nAccept your invitation to unlock full club access.",
-  },
-  {
-    id: 103, type: "milestone", from: "BloomBay", initial: "✦", color: "#FF1F7D",
-    subject: "You inspired 100 women",
-    preview: "100 women have saved or reacted to something you shared.",
-    date: "May 15", opened: true,
-    body: "100 women have been touched by something you contributed to this community.\n\nA recommendation you left. A moment you captured. A question you asked that opened up a room.\n\nThis is quiet influence. This is what we're building.",
   },
   {
     id: 104, type: "recognition", from: "BloomBay", initial: "✦", color: "#D4A853",
@@ -62,35 +93,85 @@ const MAILBOX_ITEMS: MailboxItem[] = [
     date: "Jan 2026", opened: true,
     body: "You are Founding Mother #47.\n\nOf the women who came when BloomBay was only a vision, you were one of the first 100. That matters more than you know.\n\nYour certificate, your number, and your place in this history are permanent.\n\n#47 · Always. ✦",
   },
+
+  // ── Milestones ────────────────────────────────────────────────────────────────
   {
-    id: 105, type: "letter", from: "Yande", initial: "Y", color: "#FF1F7D",
-    subject: "May Letter from Yande",
-    preview: "On rest, resistance, and the radical act of choosing yourself.",
-    date: "May 1", opened: true,
-    body: "Dear Bloom,\n\nRest is not something you earn. It is something you take.\n\nThis month's letter is about the women in our community who are learning — sometimes painfully — that choosing themselves is not selfish. It is the work.\n\nI love you for being here.\nYande ✦",
+    id: 103, type: "milestone", from: "BloomBay", initial: "✦", color: "#FF1F7D",
+    subject: "You inspired 100 women",
+    preview: "100 women have saved or reacted to something you shared.",
+    date: "May 15", opened: true,
+    body: "100 women have been touched by something you contributed to this community.\n\nA recommendation you left. A moment you captured. A question you asked that opened up a room.\n\nThis is quiet influence. This is what we're building.",
   },
 ];
 
-// ── MailboxItemCard ────────────────────────────────────────────────────────────
+// ── Invitation card (special treatment) ──────────────────────────────────────
 
-function MailboxItemCard({ item, onClick }: { item: MailboxItem; onClick: () => void }) {
-  const isUnopened = !item.opened;
-  const isGold = item.type === "certificate" || item.type === "recognition";
-  const accent = isGold ? "#D4A853" : item.color;
+function InvitationCard({ item, isOpened, onClick }: {
+  item: MailboxItem;
+  isOpened: boolean;
+  onClick: () => void;
+}) {
+  const isUnopened = !isOpened;
+  const accent = item.color;
 
+  // If it has an inviteId, link directly to the invitation detail page
+  if (item.inviteId) {
+    return (
+      <Link href={`/member/invitations/${item.inviteId}`} style={{ textDecoration: "none" }}>
+        <div className="flex items-center gap-3.5 px-5 py-4 w-full"
+          style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+          <div className="relative flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${accent} 0%, ${accent}BB 100%)`,
+                color: "white",
+                fontSize: item.initial.length > 2 ? "9px" : item.initial.length > 1 ? "10px" : "16px",
+                boxShadow: isUnopened ? `0 0 0 2px ${accent}, 0 0 0 4px var(--pale-pink-bg, #FDFAF5)` : "none",
+              }}>
+              {item.initial}
+            </div>
+            {isUnopened && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center"
+                style={{ background: "#FF1F7D", boxShadow: "0 1px 6px rgba(255,31,125,0.5)" }}>
+                <span style={{ color: "white", fontSize: "9px", fontWeight: 900 }}>•</span>
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-0.5">
+              <p className="text-sm truncate leading-tight"
+                style={{ color: "var(--heading-color, #111)", fontWeight: isUnopened ? 700 : 500 }}>
+                {item.subject}
+              </p>
+              <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-muted, #bbb)" }}>{item.date}</span>
+            </div>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+                style={{ background: "rgba(255,31,125,0.08)", color: accent }}>
+                🎟 {item.from}
+              </span>
+              <p className="text-[11px] truncate" style={{ color: "var(--text-muted, #bbb)" }}>{item.preview}</p>
+            </div>
+          </div>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+      </Link>
+    );
+  }
+
+  // Otherwise use the regular onClick (letter view)
   return (
     <button onClick={onClick}
       className="w-full flex items-center gap-3.5 px-5 py-4 text-left transition-all active:scale-[0.98]"
       style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-      {/* Avatar */}
       <div className="relative flex-shrink-0">
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0"
           style={{
-            background: isGold
-              ? "linear-gradient(135deg, #D4A853 0%, #B8922D 100%)"
-              : `linear-gradient(135deg, ${item.color} 0%, ${item.color}BB 100%)`,
+            background: `linear-gradient(135deg, ${accent} 0%, ${accent}BB 100%)`,
             color: "white",
-            fontSize: item.initial.length > 1 ? "10px" : "16px",
+            fontSize: item.initial.length > 2 ? "9px" : item.initial.length > 1 ? "10px" : "16px",
             boxShadow: isUnopened ? `0 0 0 2px ${accent}, 0 0 0 4px var(--pale-pink-bg, #FDFAF5)` : "none",
           }}>
           {item.initial}
@@ -102,10 +183,8 @@ function MailboxItemCard({ item, onClick }: { item: MailboxItem; onClick: () => 
           </div>
         )}
       </div>
-
-      {/* Text */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex items-center justify-between gap-2 mb-0.5">
           <p className="text-sm truncate leading-tight"
             style={{ color: "var(--heading-color, #111)", fontWeight: isUnopened ? 700 : 500 }}>
             {item.subject}
@@ -114,13 +193,12 @@ function MailboxItemCard({ item, onClick }: { item: MailboxItem; onClick: () => 
         </div>
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-            style={{ background: isGold ? "rgba(212,168,83,0.12)" : "rgba(255,31,125,0.08)", color: accent }}>
+            style={{ background: "rgba(255,31,125,0.08)", color: accent }}>
             {TYPE_ICONS[item.type]} {item.from}
           </span>
           <p className="text-[11px] truncate" style={{ color: "var(--text-muted, #bbb)" }}>{item.preview}</p>
         </div>
       </div>
-
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
@@ -147,7 +225,6 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
         </button>
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: accentColor }}>✦ MAILBOX</p>
       </div>
-
       <div className="px-5 md:px-8">
         <div className="rounded-3xl overflow-hidden relative"
           style={{
@@ -156,7 +233,6 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
             border: `1px solid ${isGold ? "rgba(212,168,83,0.2)" : "#FFE8F0"}`,
           }}>
           <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accentColor}66, transparent)` }} />
-
           <div className="px-6 pt-6 pb-3">
             <div className="flex items-start gap-4 mb-5">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
@@ -174,14 +250,11 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                 <p className="text-[10px] mt-1" style={{ color: isGold ? "rgba(255,255,255,0.3)" : "#bbb" }}>{item.date}</p>
               </div>
             </div>
-
             <div className="mb-5" style={{ height: "1px", background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
-
             <div className="whitespace-pre-wrap text-sm leading-[1.85] mb-6"
               style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", color: isGold ? "rgba(255,238,220,0.82)" : "#444" }}>
               {item.body ?? item.preview}
             </div>
-
             <div className="flex items-center gap-2 mb-4">
               <span className="text-[9px] font-bold px-3 py-1.5 rounded-full"
                 style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}33` }}>
@@ -189,7 +262,6 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
               </span>
             </div>
           </div>
-
           <div style={{ height: "1px", background: `linear-gradient(90deg, transparent, ${accentColor}33, transparent)` }} />
           <div className="px-6 py-3 flex justify-between items-center">
             <p className="text-[9px] tracking-[0.2em]" style={{ color: isGold ? "rgba(212,168,83,0.35)" : "#ddd" }}>BloomBay · Permanent</p>
@@ -201,15 +273,24 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
   );
 }
 
-// ── Main Mailbox Page ─────────────────────────────────────────────────────────
+// ── Inner page (uses search params) ───────────────────────────────────────────
 
-export default function MessagesPage() {
+function MailboxInner() {
+  const searchParams = useSearchParams();
+  const initialFilter = (searchParams.get("filter") as MailboxItemType | "all") ?? "all";
+
   const [view, setView] = useState<"hub" | "letter">("hub");
   const [activeItem, setActiveItem] = useState<MailboxItem | null>(null);
-  const [filter, setFilter] = useState<MailboxItemType | "all">("all");
+  const [filter, setFilter] = useState<MailboxItemType | "all">(initialFilter);
   const [openedItems, setOpenedItems] = useState<Set<number>>(
     new Set(MAILBOX_ITEMS.filter(i => i.opened).map(i => i.id))
   );
+
+  // Sync filter if URL param changes (e.g. navigating back)
+  useEffect(() => {
+    const f = searchParams.get("filter") as MailboxItemType | "all" | null;
+    if (f) setFilter(f);
+  }, [searchParams]);
 
   function openMailboxItem(item: MailboxItem) {
     setOpenedItems(p => new Set([...p, item.id]));
@@ -221,15 +302,16 @@ export default function MessagesPage() {
   if (view === "letter" && activeItem) return <LetterView item={activeItem} onBack={back} />;
 
   const FILTERS: { label: string; value: MailboxItemType | "all" }[] = [
-    { label: "All",          value: "all" },
-    { label: "Letters",      value: "letter" },
+    { label: "All",          value: "all"         },
+    { label: "Invitations",  value: "invitation"  },
+    { label: "Letters",      value: "letter"      },
     { label: "Certificates", value: "certificate" },
-    { label: "Invitations",  value: "invitation" },
-    { label: "Milestones",   value: "milestone" },
+    { label: "Milestones",   value: "milestone"   },
   ];
 
   const shown = MAILBOX_ITEMS.filter(i => filter === "all" || i.type === filter);
   const unread = MAILBOX_ITEMS.filter(i => !openedItems.has(i.id)).length;
+  const inviteUnread = MAILBOX_ITEMS.filter(i => i.type === "invitation" && !openedItems.has(i.id)).length;
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
@@ -260,9 +342,35 @@ export default function MessagesPage() {
           </div>
         </div>
         <p className="text-[11px] italic" style={{ color: "var(--text-muted, #aaa)", fontFamily: "var(--font-instrument)" }}>
-          Permanent things. Letters, certificates, invitations.
+          Invitations, letters, certificates.
         </p>
       </div>
+
+      {/* Invitations spotlight (when showing all or invitations filter) */}
+      {(filter === "all" || filter === "invitation") && inviteUnread > 0 && (
+        <div className="px-5 mb-4 md:px-8">
+          <div className="rounded-2xl px-4 py-3 flex items-center gap-3"
+            style={{ background: "#111111", border: "1px solid rgba(255,31,125,0.2)" }}>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(255,31,125,0.15)" }}>
+              <span style={{ fontSize: "16px" }}>🎟</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold" style={{ color: "rgba(255,238,220,0.9)" }}>
+                {inviteUnread} invitation{inviteUnread !== 1 ? "s" : ""} waiting
+              </p>
+              <p className="text-[10px] mt-0.5 italic" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)" }}>
+                Someone saved you a seat.
+              </p>
+            </div>
+            <button onClick={() => setFilter("invitation")}
+              className="text-[10px] font-bold px-3 py-1.5 rounded-full transition-all active:scale-95"
+              style={{ background: "#FF1F7D", color: "white" }}>
+              View →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filter chips */}
       <div className="px-5 mb-5 flex gap-2 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
@@ -273,11 +381,17 @@ export default function MessagesPage() {
               ? { background: "var(--heading-color, #111)", color: "var(--pale-pink-bg, white)", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
               : { background: "var(--card-bg, white)", color: "var(--text-color, #555)", border: "1.5px solid var(--card-border, #E8E8E8)" }}>
             {f.label}
+            {f.value === "invitation" && inviteUnread > 0 && (
+              <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
+                style={{ background: "#FF1F7D" }}>
+                {inviteUnread}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      {/* Mailbox items */}
+      {/* Items list */}
       <div className="mx-5 md:mx-8 rounded-3xl overflow-hidden"
         style={{ background: "var(--card-bg, white)", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
         {shown.length === 0 ? (
@@ -292,9 +406,10 @@ export default function MessagesPage() {
           </div>
         ) : (
           shown.map(item => (
-            <MailboxItemCard
+            <InvitationCard
               key={item.id}
-              item={{ ...item, opened: openedItems.has(item.id) }}
+              item={item}
+              isOpened={openedItems.has(item.id)}
               onClick={() => openMailboxItem(item)}
             />
           ))
@@ -324,5 +439,19 @@ export default function MessagesPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+// ── Page export (Suspense wrapper for useSearchParams) ────────────────────────
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--pale-pink-bg)" }}>
+        <p className="text-sm italic" style={{ color: "#bbb" }}>Loading mailbox…</p>
+      </div>
+    }>
+      <MailboxInner />
+    </Suspense>
   );
 }
