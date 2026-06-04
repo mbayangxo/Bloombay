@@ -5,7 +5,12 @@ import Link from "next/link";
 import { logout } from "@/lib/auth/actions";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
-const TABS = ["Living Room", "Gallery", "Door", "Mirror"];
+const ROOM_TABS = [
+  { label: "Living",   fullLabel: "Living Room" },
+  { label: "Gallery",  fullLabel: "Gallery"     },
+  { label: "Door",     fullLabel: "Door"        },
+  { label: "Mirror",   fullLabel: "Mirror"      },
+];
 
 const TAB_BACKGROUNDS = [
   "#FAF3EB", // Living Room — warm cream
@@ -439,21 +444,112 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           className="sticky top-0 z-30 px-5 py-3 overflow-x-auto md:px-8"
           style={{ background: "#120C06", scrollbarWidth: "none", borderBottom: "1px solid rgba(255,165,50,0.08)" }}
         >
-          <div className="flex gap-2 w-max">
-            {TABS.map((tab, i) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(i)}
-                className="px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
-                style={
-                  activeTab === i
-                    ? { background: "#FF1F7D", color: "white", boxShadow: "0 2px 10px rgba(255,31,125,0.35)" }
-                    : { background: "rgba(255,200,130,0.10)", color: "rgba(255,220,170,0.60)", border: "1px solid rgba(255,200,130,0.14)" }
-                }
-              >
-                {tab}
-              </button>
-            ))}
+          <div className="flex gap-3 w-max">
+            {[
+              {
+                label: "Living",
+                icon: (active: boolean) => (
+                  <svg width="26" height="20" viewBox="0 0 26 20" fill="none"
+                    stroke={active ? "white" : "rgba(255,200,130,0.7)"}
+                    strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {/* sofa back */}
+                    <rect x="5" y="1" width="16" height="9" rx="2"/>
+                    {/* left arm */}
+                    <rect x="1" y="7" width="5" height="9" rx="1.5"/>
+                    {/* right arm */}
+                    <rect x="20" y="7" width="5" height="9" rx="1.5"/>
+                    {/* seat */}
+                    <rect x="5" y="10" width="16" height="6" rx="1"/>
+                    {/* cushion divider */}
+                    <line x1="13" y1="10" x2="13" y2="16"/>
+                    {/* legs */}
+                    <line x1="7" y1="16" x2="7" y2="19"/>
+                    <line x1="19" y1="16" x2="19" y2="19"/>
+                  </svg>
+                ),
+              },
+              {
+                label: "Gallery",
+                icon: (active: boolean) => (
+                  <svg width="24" height="22" viewBox="0 0 24 22" fill="none"
+                    stroke={active ? "white" : "rgba(255,200,130,0.7)"}
+                    strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {/* frame */}
+                    <rect x="1" y="1" width="22" height="17" rx="2"/>
+                    {/* mat inside */}
+                    <rect x="3" y="3" width="18" height="13" rx="1"/>
+                    {/* landscape scene */}
+                    <polyline points="3,13 7,8 11,11 15,7 21,11 21,16 3,16"/>
+                    {/* sun dot */}
+                    <circle cx="6.5" cy="6.5" r="1.5" fill={active ? "white" : "rgba(255,200,130,0.7)"} stroke="none"/>
+                    {/* hanging wire */}
+                    <line x1="8" y1="1" x2="8" y2="0"/>
+                    <line x1="16" y1="1" x2="16" y2="0"/>
+                    <path d="M8 0 Q12 -2 16 0" strokeWidth="1.2"/>
+                    {/* nail */}
+                    <line x1="12" y1="-2" x2="12" y2="-4"/>
+                  </svg>
+                ),
+              },
+              {
+                label: "Door",
+                icon: (active: boolean) => (
+                  <svg width="18" height="24" viewBox="0 0 18 24" fill="none"
+                    stroke={active ? "white" : "rgba(255,200,130,0.7)"}
+                    strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {/* door frame */}
+                    <rect x="1" y="1" width="16" height="22" rx="1.5"/>
+                    {/* top panel */}
+                    <rect x="3" y="3" width="12" height="7" rx="1"/>
+                    {/* bottom panel */}
+                    <rect x="3" y="12" width="12" height="8" rx="1"/>
+                    {/* knob */}
+                    <circle cx="12.5" cy="12" r="1.5" fill={active ? "white" : "rgba(255,200,130,0.7)"} stroke="none"/>
+                    {/* step */}
+                    <rect x="0" y="22" width="18" height="2" rx="0.5"/>
+                  </svg>
+                ),
+              },
+              {
+                label: "Mirror",
+                icon: (active: boolean) => (
+                  <svg width="20" height="26" viewBox="0 0 20 28" fill="none"
+                    stroke={active ? "white" : "rgba(255,200,130,0.7)"}
+                    strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {/* outer frame */}
+                    <ellipse cx="10" cy="12" rx="9" ry="12"/>
+                    {/* inner reflection */}
+                    <ellipse cx="10" cy="12" rx="6" ry="9"/>
+                    {/* highlight gleam */}
+                    <path d="M5 7 Q6 5 8 6" strokeWidth="1.2" stroke={active ? "rgba(255,255,255,0.6)" : "rgba(255,200,130,0.4)"}/>
+                    {/* stand */}
+                    <line x1="7" y1="24" x2="13" y2="24"/>
+                    <line x1="10" y1="24" x2="10" y2="27"/>
+                    <line x1="7" y1="27" x2="13" y2="27"/>
+                  </svg>
+                ),
+              },
+            ].map((tab, i) => {
+              const active = activeTab === i;
+              return (
+                <button
+                  key={tab.label}
+                  onClick={() => setActiveTab(i)}
+                  className="flex flex-col items-center gap-1.5 px-3 pt-2.5 pb-2 rounded-2xl transition-all active:scale-95 flex-shrink-0"
+                  style={
+                    active
+                      ? { background: "#FF1F7D", boxShadow: "0 2px 14px rgba(255,31,125,0.45)" }
+                      : { background: "rgba(255,200,130,0.07)", border: "1px solid rgba(255,200,130,0.12)" }
+                  }
+                >
+                  {tab.icon(active)}
+                  <span className="text-[9px] font-bold tracking-[0.08em] uppercase"
+                    style={{ color: active ? "rgba(255,255,255,0.9)" : "rgba(255,220,170,0.45)" }}>
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

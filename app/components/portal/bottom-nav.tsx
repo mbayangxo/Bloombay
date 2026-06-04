@@ -10,7 +10,7 @@ const PLACES = [
   { href: "/member/happenings", baseLabel: "HAPPENINGS", n: "02" },
   { href: "/member/city",       baseLabel: "THE CITY",   n: "03" },
   { href: "/member/clubs",      baseLabel: "CLUBS",      n: "04" },
-  { href: "/member/lounge",     baseLabel: "LOUNGE",     n: "05" },
+  { href: "/member/lounge",     baseLabel: "APT",        n: "05" },
   { href: "/member/match",      baseLabel: "CONNECT",    n: "06" },
 ];
 
@@ -18,7 +18,7 @@ const PAGE_LABELS: Record<string, string> = {
   "/member/home":          "HOME",
   "/member/city":          "THE CITY",
   "/member/clubs":         "CLUBS",
-  "/member/lounge":        "LOUNGE",
+  "/member/lounge":        "APT",
   "/member/match":         "CONNECT",
   "/member/calendar":      "CALENDAR",
   "/member/happenings":    "HAPPENINGS",
@@ -95,62 +95,66 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {/* Right — utility icons + avatar */}
           <div className="flex items-center gap-2">
             <Link href="/member/messages" aria-label="Mailbox"
-              className="w-8 h-8 rounded-full flex items-center justify-center relative transition-all active:scale-90"
+              className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/messages") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/messages") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
                 animation: !pathname.startsWith("/member/messages") ? "mailboxShake 6s ease-in-out 2s infinite" : undefined,
               }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
               {!pathname.startsWith("/member/messages") && (
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white"
+                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
-                  Y
+                  3
                 </div>
               )}
             </Link>
             <Link href="/member/notifications" aria-label="Pings"
-              className="w-8 h-8 rounded-full flex items-center justify-center relative transition-all active:scale-90"
+              className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/notifications") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/notifications") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
+                animation: !pathname.startsWith("/member/notifications") ? "bellShake 5s ease-in-out 3s infinite" : undefined,
               }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
+              {!pathname.startsWith("/member/notifications") && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
+              )}
             </Link>
             <Link href="/member/chat" aria-label="Chat"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/chat") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/chat") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
               }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
             </Link>
             <Link href="/member/calendar" aria-label="Calendar"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/calendar") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/calendar") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
               }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -160,7 +164,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               </svg>
             </Link>
             <Link href="/member/lounge" aria-label="Your apartment" className="active:scale-90 transition-all">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+              <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
                 style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 2px 10px rgba(255,31,125,0.45), 0 0 0 2px rgba(255,31,125,0.2)" }}>
                 {user?.initial ?? "M"}
               </div>
@@ -316,6 +320,16 @@ export function BottomNav({ user }: { user?: NavUser }) {
           92% { transform: rotate(4deg); }
           95% { transform: rotate(-2deg); }
           98% { transform: rotate(0deg); }
+        }
+        @keyframes bellShake {
+          0%, 70%, 100% { transform: rotate(0deg); }
+          73% { transform: rotate(-18deg); }
+          77% { transform: rotate(15deg); }
+          81% { transform: rotate(-12deg); }
+          85% { transform: rotate(9deg); }
+          89% { transform: rotate(-5deg); }
+          93% { transform: rotate(3deg); }
+          97% { transform: rotate(0deg); }
         }
       `}</style>
     </>
