@@ -6,7 +6,7 @@ import Link from "next/link";
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-type EventType = "event" | "plan" | "personal" | "bloomie";
+type EventType = "event" | "plan" | "personal" | "bloomie" | "note" | "todo";
 
 interface CalEvent {
   id: number;
@@ -18,6 +18,8 @@ interface CalEvent {
   type: EventType;
   color: string;
   with?: string;
+  body?: string;
+  checked?: boolean;
 }
 
 const TODAY = new Date();
@@ -30,6 +32,8 @@ const TYPE_COLORS: Record<EventType, string> = {
   plan:     "#83C5A0",
   personal: "#C97EFF",
   bloomie:  "#FF69B4",
+  note:     "#D4A853",
+  todo:     "#0EA5E9",
 };
 
 const TYPE_LABELS: Record<EventType, string> = {
@@ -37,10 +41,12 @@ const TYPE_LABELS: Record<EventType, string> = {
   plan:     "Plan Room",
   personal: "Personal",
   bloomie:  "With Bloomie",
+  note:     "Note",
+  todo:     "To-Do",
 };
 
 const TYPE_EMOJIS: Record<EventType, string> = {
-  event: "🎟", plan: "🗓", bloomie: "🌸", personal: "✦",
+  event: "🎟", plan: "🗓", bloomie: "🌸", personal: "✦", note: "📝", todo: "☐",
 };
 
 function getDaysInMonth(year: number, month: number) {
@@ -55,6 +61,8 @@ function getFirstDayOfMonth(year: number, month: number) {
 
 const TIME_CHIPS = ["9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM", "8 PM", "9 PM", "10 PM"];
 
+const SHEET_TYPES: EventType[] = ["event", "bloomie", "personal", "plan", "note", "todo"];
+
 function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }: {
   defaultDay: number;
   defaultMonth: number;
@@ -65,6 +73,9 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("7 PM");
   const [type, setType] = useState<EventType>("personal");
+  const [body, setBody] = useState("");
+
+  const hasTime = type !== "note" && type !== "todo";
 
   function handleAdd() {
     if (!title.trim()) return;
@@ -74,9 +85,11 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
       month: defaultMonth,
       year: defaultYear,
       title: title.trim(),
-      time,
+      time: hasTime ? time : "",
       type,
       color: TYPE_COLORS[type],
+      body: body.trim() || undefined,
+      checked: type === "todo" ? false : undefined,
     });
     onClose();
   }
@@ -87,7 +100,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose} />
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl"
-        style={{ background: "#1A1218", boxShadow: "0 -8px 48px rgba(0,0,0,0.6)", maxHeight: "88vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        style={{ background: "#1A1218", boxShadow: "0 -8px 48px rgba(0,0,0,0.6)", maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
 
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -98,7 +111,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
         <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0"
           style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ ADD TO CALENDAR</p>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ NEW ENTRY</p>
             <p className="text-sm font-semibold mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{dayLabel}</p>
           </div>
           <button onClick={onClose}
@@ -111,48 +124,70 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
+          {/* Type row — first so it sets context */}
+          <div className="mb-5">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>What kind?</p>
+            <div className="grid grid-cols-3 gap-2">
+              {SHEET_TYPES.map(k => (
+                <button key={k} onClick={() => setType(k)}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                  style={type === k
+                    ? { background: `${TYPE_COLORS[k]}22`, border: `1.5px solid ${TYPE_COLORS[k]}66`, color: TYPE_COLORS[k] }
+                    : { background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.38)" }}>
+                  <span className="text-sm">{TYPE_EMOJIS[k]}</span>
+                  <span>{TYPE_LABELS[k]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Title */}
           <div className="mb-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>What's happening?</p>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+              {type === "note" ? "Note title" : type === "todo" ? "What to do?" : "What's happening?"}
+            </p>
             <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="Dinner at Tatiana, coffee, gallery…"
+              placeholder={
+                type === "note" ? "My thoughts on…" :
+                type === "todo" ? "Pick up dress, confirm reservation…" :
+                "Dinner at Tatiana, coffee, gallery…"
+              }
               className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
               style={{ background: "rgba(255,255,255,0.06)", border: "1.5px solid rgba(255,255,255,0.1)", color: "rgba(255,238,220,0.9)", caretColor: "#FF1F7D" }}
               autoFocus />
           </div>
 
-          {/* Time chips */}
-          <div className="mb-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>Time</p>
-            <div className="flex gap-2 flex-wrap">
-              {TIME_CHIPS.map(t => (
-                <button key={t} onClick={() => setTime(t)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold transition-all active:scale-95"
-                  style={time === t
-                    ? { background: "#FF1F7D", color: "white", boxShadow: "0 2px 10px rgba(255,31,125,0.4)" }
-                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  {t}
-                </button>
-              ))}
+          {/* Body textarea — for notes and todos */}
+          {(type === "note" || type === "todo" || type === "personal") && (
+            <div className="mb-5">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+                {type === "note" ? "Details / thoughts" : "Notes (optional)"}
+              </p>
+              <textarea value={body} onChange={e => setBody(e.target.value)}
+                placeholder={type === "note" ? "Write anything…" : "Any details…"}
+                rows={3}
+                className="w-full px-4 py-3 rounded-2xl text-sm outline-none resize-none"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1.5px solid rgba(255,255,255,0.1)", color: "rgba(255,238,220,0.8)", caretColor: "#FF1F7D" }} />
             </div>
-          </div>
+          )}
 
-          {/* Type */}
-          <div className="mb-6">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>Type</p>
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.entries(TYPE_LABELS) as [EventType, string][]).map(([k, label]) => (
-                <button key={k} onClick={() => setType(k)}
-                  className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
-                  style={type === k
-                    ? { background: `${TYPE_COLORS[k]}22`, border: `1.5px solid ${TYPE_COLORS[k]}66`, color: TYPE_COLORS[k] }
-                    : { background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)" }}>
-                  <span>{TYPE_EMOJIS[k]}</span>
-                  <span>{label}</span>
-                </button>
-              ))}
+          {/* Time chips — hidden for notes/todos */}
+          {hasTime && (
+            <div className="mb-5">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>Time</p>
+              <div className="flex gap-2 flex-wrap">
+                {TIME_CHIPS.map(t => (
+                  <button key={t} onClick={() => setTime(t)}
+                    className="px-3.5 py-2 rounded-full text-xs font-semibold transition-all active:scale-95"
+                    style={time === t
+                      ? { background: "#FF1F7D", color: "white", boxShadow: "0 2px 10px rgba(255,31,125,0.4)" }
+                      : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* CTA */}
@@ -162,13 +197,70 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
             disabled={!title.trim()}
             className="w-full py-4 rounded-full text-sm font-bold transition-all active:scale-[0.98]"
             style={title.trim()
-              ? { background: "#FF1F7D", color: "white", boxShadow: "0 4px 18px rgba(255,31,125,0.4)" }
+              ? { background: TYPE_COLORS[type], color: "white", boxShadow: `0 4px 18px ${TYPE_COLORS[type]}55` }
               : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)" }}>
-            {title.trim() ? `Add "${title}" to ${dayLabel}` : "Enter an event name"}
+            {title.trim()
+              ? type === "todo" ? `Add to-do for ${dayLabel}`
+              : type === "note" ? `Save note for ${dayLabel}`
+              : `Add to ${dayLabel}`
+              : "Enter a title first"}
           </button>
         </div>
       </div>
     </>
+  );
+}
+
+// ── Event Card ─────────────────────────────────────────────────────────────────
+
+function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
+  const isNote = ev.type === "note";
+  const isTodo = ev.type === "todo";
+
+  return (
+    <div className="rounded-2xl p-4"
+      style={{ background: isNote ? `${ev.color}11` : "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
+      <div className="flex items-start gap-3">
+        {isTodo ? (
+          <button onClick={onToggle}
+            className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-all active:scale-90"
+            style={ev.checked
+              ? { background: ev.color, border: `1.5px solid ${ev.color}` }
+              : { background: "transparent", border: `1.5px solid rgba(255,255,255,0.25)` }}>
+            {ev.checked && (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            )}
+          </button>
+        ) : (
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: `${ev.color}22` }}>
+            <span className="text-sm">{TYPE_EMOJIS[ev.type]}</span>
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-sm"
+            style={{ color: ev.checked ? "rgba(255,255,255,0.3)" : "rgba(255,238,220,0.9)", textDecoration: ev.checked ? "line-through" : "none" }}>
+            {ev.title}
+          </p>
+          {ev.time && (
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
+              {ev.time} · {TYPE_LABELS[ev.type]}
+            </p>
+          )}
+          {!ev.time && (
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
+          )}
+          {ev.with && (
+            <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
+          )}
+          {ev.body && (
+            <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{ev.body}</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -339,22 +431,8 @@ export default function CalendarPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {selectedEvents.map(ev => (
-                  <div key={ev.id} className="rounded-2xl p-4 flex items-center gap-4"
-                    style={{ background: "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
-                        {ev.time} · {TYPE_LABELS[ev.type]}
-                      </p>
-                      {ev.with && (
-                        <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
-                      )}
-                    </div>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${ev.color}22` }}>
-                      <span className="text-base">{TYPE_EMOJIS[ev.type]}</span>
-                    </div>
-                  </div>
+                  <EventCard key={ev.id} ev={ev}
+                    onToggle={ev.type === "todo" ? () => setEvents(prev => prev.map(e => e.id === ev.id ? { ...e, checked: !e.checked } : e)) : undefined} />
                 ))}
               </div>
             )}
@@ -369,19 +447,29 @@ export default function CalendarPage() {
                 .sort((a, b) => a.date - b.date)
                 .map(ev => (
                   <button key={ev.id} onClick={() => setSelectedDay(ev.date)}
-                    className="rounded-2xl p-4 flex items-center gap-4 text-left w-full transition-all active:scale-[0.98]"
-                    style={{ background: "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
+                    className="rounded-2xl p-4 flex items-start gap-4 text-left w-full transition-all active:scale-[0.98]"
+                    style={{ background: ev.type === "note" ? `${ev.color}11` : "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
                     <div className="text-center flex-shrink-0 w-10">
                       <p className="text-xs font-bold" style={{ color: ev.color }}>{MONTHS[ev.month].slice(0, 3).toUpperCase()}</p>
                       <p className="text-xl font-black leading-none" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.date}</p>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
-                        {ev.time} · {TYPE_LABELS[ev.type]}
+                      <p className="font-bold text-sm"
+                        style={{ color: ev.checked ? "rgba(255,255,255,0.3)" : "rgba(255,238,220,0.9)", textDecoration: ev.checked ? "line-through" : "none" }}>
+                        {TYPE_EMOJIS[ev.type]} {ev.title}
                       </p>
+                      {ev.time ? (
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
+                          {ev.time} · {TYPE_LABELS[ev.type]}
+                        </p>
+                      ) : (
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
+                      )}
                       {ev.with && (
                         <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
+                      )}
+                      {ev.body && (
+                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }} >{ev.body}</p>
                       )}
                     </div>
                   </button>
@@ -403,31 +491,41 @@ export default function CalendarPage() {
               Share your calendar or coordinate an outing.
             </p>
           </div>
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-end gap-2 mb-4 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
             {[
-              { initial: "Z", color: "#FF1F7D", name: "Zara" },
-              { initial: "A", color: "#FF69B4", name: "Amara" },
-              { initial: "N", color: "#A855F7", name: "Nia" },
-              { initial: "S", color: "#0EA5E9", name: "Sofia" },
+              { initial: "Z", color: "#FF1F7D", name: "Zara",  status: "free",    freeDay: "Sat" },
+              { initial: "A", color: "#FF69B4", name: "Amara", status: "busy",    freeDay: "Sun" },
+              { initial: "N", color: "#A855F7", name: "Nia",   status: "free",    freeDay: "Fri" },
+              { initial: "S", color: "#0EA5E9", name: "Sofia", status: "maybe",   freeDay: "Sat" },
             ].map(b => (
-              <div key={b.initial} className="flex flex-col items-center gap-1">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                  style={{ background: b.color }}>
-                  {b.initial}
+              <div key={b.initial} className="flex flex-col items-center gap-1 flex-shrink-0">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                    style={{ background: b.color }}>
+                    {b.initial}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                    style={{
+                      borderColor: "#1A1218",
+                      background: b.status === "free" ? "#4ADE80" : b.status === "busy" ? "#F87171" : "#FBBF24",
+                    }} />
                 </div>
                 <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>{b.name}</span>
+                <span className="text-[8px] font-semibold" style={{ color: b.status === "free" ? "#4ADE80" : b.status === "busy" ? "rgba(255,255,255,0.2)" : "#FBBF24" }}>
+                  {b.status === "free" ? `Free ${b.freeDay}` : b.status === "busy" ? "Busy" : `Maybe ${b.freeDay}`}
+                </span>
               </div>
             ))}
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
               <div className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.07)", border: "1px dashed rgba(255,255,255,0.2)" }}>
                 <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 18 }}>+</span>
               </div>
-              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>Add</span>
+              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>Invite</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <Link href="/member/chat"
+            <Link href="/member/plans"
               className="flex-1 py-3 rounded-xl text-xs font-bold text-center transition-all active:scale-[0.97]"
               style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.35)" }}>
               + Create a Plan Room
