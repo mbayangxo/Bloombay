@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 
+const PENDING_INVITATIONS = 3;
+
 const PLACES = [
   { href: "/member/home",       baseLabel: "HOME",       n: "01" },
   { href: "/member/happenings", baseLabel: "HAPPENINGS", n: "02" },
@@ -111,7 +113,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               {!pathname.startsWith("/member/messages") && (
                 <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
-                  3
+                  {PENDING_INVITATIONS}
                 </div>
               )}
             </Link>

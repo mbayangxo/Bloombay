@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 import { usePathname } from "next/navigation";
 
+const PENDING_INVITATIONS = 3;
+
 export function PortalIcons({ initial = "M" }: { initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const pathname = usePathname();
@@ -55,7 +57,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           {!pathname.startsWith("/member/messages") && (
             <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
               style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px white", lineHeight: 1 }}>
-              3
+              {PENDING_INVITATIONS}
             </div>
           )}
         </Link>
