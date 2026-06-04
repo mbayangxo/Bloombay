@@ -1062,9 +1062,14 @@ export function ClubsPage() {
       )
     : CLUBS;
 
+  const CLUB_MISSED: Record<number, number> = { 0: 12, 1: 8, 2: 3, 3: 5, 4: 7, 5: 2, 6: 4 };
+  const CLUB_MISSED_LABEL: Record<number, string> = {
+    0: "3 chats · 2 events", 1: "8 new posts", 2: "zone update",
+    3: "2 chats · new zone", 4: "run confirmed", 5: "showcase posted", 6: "4 new posts",
+  };
+
   const featured = CLUBS[0];
   const rest = filtered.filter(c => c.id !== 0);
-  const ranked = [...CLUBS].sort((a, b) => b.women - a.women);
   const myClubs = CLUBS.filter(c => joined.has(c.id) || requested.has(c.id));
 
   const handleSelectClub = (club: Club) => {
@@ -1151,53 +1156,120 @@ export function ClubsPage() {
 
         {/* ── DISCOVER ── */}
         {activeTab === 0 && (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-6">
             <YandeRec />
 
-            {/* Featured door */}
+            {/* Featured spotlight club */}
             {(!q || featured.name.toLowerCase().includes(q)) && (
-              <FeaturedDoor club={featured} onSelect={() => handleSelectClub(featured)} />
-            )}
-
-            {/* Club list */}
-            <div>
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "#bbb" }}>
-                {q ? `${filtered.length} clubs` : "ALL CLUBS"}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {rest.map(club => (
-                  <ClubCoverCard
-                    key={club.id}
-                    club={club}
-                    isJoined={joined.has(club.id)}
-                    onSelect={() => handleSelectClub(club)}
-                  />
-                ))}
-                {rest.length === 0 && (
-                  <div className="col-span-2 py-12 text-center rounded-2xl" style={{ background: "white" }}>
-                    <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
-                      No clubs match that search.
-                    </p>
+              <div className="relative">
+                <FeaturedDoor club={featured} onSelect={() => handleSelectClub(featured)} />
+                {CLUB_MISSED[featured.id] > 0 && (
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                    style={{ background: "#FF1F7D", boxShadow: "0 3px 10px rgba(255,31,125,0.5)" }}>
+                    <span className="text-[9px] font-bold text-white">{CLUB_MISSED[featured.id]} new</span>
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Club Board */}
-            {!q && (
-              <div>
-                <div className="flex items-center gap-3 mb-3">
-                  <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>CLUB BOARD</p>
-                  <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.06)" }} />
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#bbb" }}>ranked by the city</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {ranked.map((club, i) => (
-                    <BoardRow key={club.id} club={club} rank={i + 1} onSelect={() => handleSelectClub(club)} />
-                  ))}
-                </div>
-              </div>
             )}
+
+            {/* ALL CLUBS — horizontal scroll of cover cards */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
+                  {q ? `${filtered.length} CLUBS` : "ALL CLUBS"}
+                </p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#bbb" }}>
+                  {CLUBS.length} circles · swipe to explore
+                </p>
+              </div>
+
+              {rest.length === 0 ? (
+                <div className="py-12 text-center rounded-2xl" style={{ background: "white" }}>
+                  <p className="text-sm italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                    No clubs match that search.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-3" style={{ scrollbarWidth: "none" }}>
+                  {rest.map(club => {
+                    const missed = CLUB_MISSED[club.id] ?? 0;
+                    const missedLabel = CLUB_MISSED_LABEL[club.id] ?? "";
+                    return (
+                      <button
+                        key={club.id}
+                        onClick={() => handleSelectClub(club)}
+                        className="flex-shrink-0 relative rounded-2xl overflow-hidden text-left transition-all active:scale-[0.97]"
+                        style={{
+                          width: "clamp(150px, 44vw, 190px)",
+                          minHeight: 210,
+                          background: `linear-gradient(150deg, ${club.color}CC 0%, ${club.crestBg} 100%)`,
+                          boxShadow: `0 6px 20px ${club.color}30`,
+                          animation: club.live ? "clubShake 5s ease-in-out 1s infinite" : undefined,
+                        }}>
+                        {/* Decorative glow circle */}
+                        <div className="absolute top-0 right-0 w-28 h-28 rounded-full pointer-events-none"
+                          style={{ background: "rgba(255,255,255,0.07)", transform: "translate(35%,-35%)" }} />
+
+                        {/* Missed activity badge */}
+                        {missed > 0 && (
+                          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full"
+                            style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.5)" }}>
+                            <span className="text-[9px] font-bold text-white">{missed}</span>
+                          </div>
+                        )}
+
+                        {/* Live / Official badge */}
+                        {club.live ? (
+                          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+                            style={{ background: "rgba(0,0,0,0.35)" }}>
+                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "white" }} />
+                            <span className="text-[8px] font-bold text-white/80">LIVE</span>
+                          </div>
+                        ) : club.type === "hq" ? (
+                          <div className="absolute top-2.5 right-2.5">
+                            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+                              style={{ background: "rgba(0,0,0,0.35)", color: "white" }}>✦ Official</span>
+                          </div>
+                        ) : null}
+
+                        <div className="relative z-10 p-4 flex flex-col justify-between" style={{ minHeight: 210 }}>
+                          <div>
+                            <p className="text-[8px] font-bold tracking-widest uppercase mb-2"
+                              style={{ color: "rgba(255,255,255,0.45)" }}>{club.tags.join(" · ")}</p>
+                            <h3 className="text-sm font-bold italic text-white leading-snug mb-1"
+                              style={{ fontFamily: "var(--font-playfair)" }}>
+                              {club.name}
+                            </h3>
+                            <p className="text-[10px] leading-snug"
+                              style={{ color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                              {club.vibe}
+                            </p>
+                          </div>
+                          <div>
+                            {/* What you missed */}
+                            {missed > 0 && (
+                              <p className="text-[9px] mb-2 italic"
+                                style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-instrument)" }}>
+                                While you were away: {missedLabel}
+                              </p>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] font-bold" style={{ color: "rgba(255,255,255,0.55)" }}>
+                                {club.women} women
+                              </span>
+                              <span className="text-[9px] font-bold px-2.5 py-1.5 rounded-full"
+                                style={{ background: joined.has(club.id) ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.4)", color: "white" }}>
+                                {joined.has(club.id) ? "In ✓" : "Enter →"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
