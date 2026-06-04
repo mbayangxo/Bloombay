@@ -168,6 +168,41 @@ const WHAT_WOMEN_SAY: Record<number, string[]> = {
   5: ["\"NYC on a plate. Don't skip the bagels with lox.\"", "\"Line moves fast. The food is worth every minute.\""],
 };
 
+// ── Go Place Notes data ───────────────────────────────────────────────────────
+
+const GO_NOTES: Record<number, string[]> = {
+  1: ['"Golden hour from Pier 1 is the most beautiful thing in Brooklyn."', '"Go on a weekday evening — totally different energy."'],
+  2: ['"The Egyptian Wing at 9:30AM before the crowds is sacred."', '"Pay what you wish and stay all day."'],
+  3: ['"Hidden gem under the bridge. Nobody knows about this."', '"Best coffee with the best view."'],
+  4: ['"Best morning walk in the city. Go before 8AM."', '"The art installations make every walk different."'],
+  5: ['"Every Saturday of summer. This is the ritual."', '"100 vendors and you can\'t go wrong."'],
+  6: ['"The Matisse floor never gets old. Ever."', '"MoMA on a Friday evening is peaceful and perfect."'],
+  7: ['"Four hours, one coffee, zero interruptions."', '"The back room upstairs is the best kept secret."'],
+};
+
+// ── Trend context data ────────────────────────────────────────────────────────
+
+const TREND_CONTEXT: Record<number, string> = {
+  1: "Russ & Daughters has been a Lower East Side institution since 1914, and the bagel with lox remains the most photographed dish in BloomBay history. Women are saving it faster than any other item this season, driven by a wave of weekend brunch posts from the SoHo crowd.",
+  2: "DUMBO has quietly become the city's most beloved neighborhood for golden-hour seekers, with Brooklyn Bridge Park serving as the anchor. The combination of bridge views, waterfront access, and a growing café scene has made weekday evenings here a ritual for thousands of women.",
+  3: "Bangkok Supper Club's Tom Yum has climbed 23% in saves this week alone, fueled by late-night posts that keep landing on the For You page equivalent inside BloomBay. The Lower East Side spot has become the default answer when women ask where to go after 9PM.",
+  4: "Archway Café opened its doors six months ago and has been quietly gaining followers ever since. Tucked under the Manhattan Bridge in DUMBO, it offers a combination of stunning views and unhurried energy that is rare in New York City — and 643 women discovered it this month alone.",
+  5: "Solo trips are on the rise across every BloomBay city, but New York leads the charge. This week's count of 1,247 solo outings marks a 14% increase from last week, with parks and museum mornings making up the largest share of solo check-ins.",
+};
+
+// ── WALL_AVATARS-style placeholder avatars ────────────────────────────────────
+
+const DISH_SAVES_AVATARS = [
+  { initial: "A", color: "#FF1F7D" },
+  { initial: "S", color: "#FF69B4" },
+  { initial: "K", color: "#FF1F7D" },
+  { initial: "N", color: "#FF69B4" },
+  { initial: "Z", color: "#FF1F7D" },
+  { initial: "I", color: "#FF69B4" },
+  { initial: "P", color: "#FF1F7D" },
+  { initial: "D", color: "#FF69B4" },
+];
+
 // ── EAT components ────────────────────────────────────────────────────────────
 
 function StarRating({ value }: { value: number }) {
@@ -326,10 +361,126 @@ function EatGridCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
   );
 }
 
+// ── Bottom sheet: BloomNoteSheet ──────────────────────────────────────────────
+
+function BloomNoteSheet({ note, onClose }: {
+  note: { note: string; author: string; avatarColor: string };
+  onClose: () => void;
+}) {
+  const [ownNote, setOwnNote] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  function handleSubmit() {
+    if (ownNote.trim()) {
+      setSubmitted(true);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose}>
+      <div
+        className="fixed bottom-0 left-0 right-0 rounded-t-3xl p-6 pb-10"
+        style={{ background: "#FDFAF6" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
+
+        {/* Quote */}
+        <div className="rounded-2xl p-4 mb-4" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+          <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>
+            &ldquo;{note.note}&rdquo;
+          </p>
+          <div className="flex items-center gap-2 mt-3">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" style={{ background: note.avatarColor }}>
+              {note.author[0]}
+            </div>
+            <p className="text-xs font-semibold" style={{ color: "#aaa" }}>— {note.author}</p>
+          </div>
+        </div>
+
+        {/* Leave own note */}
+        <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "#FF1F7D" }}>LEAVE YOUR OWN NOTE</p>
+        {submitted ? (
+          <div className="rounded-2xl p-4 text-center" style={{ background: "#FFF0F5" }}>
+            <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Note submitted ✿</p>
+            <p className="text-xs mt-1" style={{ color: "#aaa" }}>Thank you for sharing.</p>
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={ownNote}
+              onChange={e => setOwnNote(e.target.value)}
+              placeholder="Share what you love about this place…"
+              rows={3}
+              className="w-full rounded-2xl p-3.5 text-sm resize-none outline-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#333", fontFamily: "var(--font-instrument)" }}
+            />
+            <button
+              onClick={handleSubmit}
+              className="mt-3 w-full py-3 rounded-full text-sm font-bold transition-all active:scale-[0.98]"
+              style={{ background: "#FF1F7D", color: "white" }}
+            >
+              Submit note
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Bottom sheet: DishSavesSheet ──────────────────────────────────────────────
+
+function DishSavesSheet({ r, onClose }: { r: Restaurant; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose}>
+      <div
+        className="fixed bottom-0 left-0 right-0 rounded-t-3xl p-6 pb-10"
+        style={{ background: "#FDFAF6" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
+
+        {/* Dish hero */}
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: r.bgColor }}>
+            {r.emoji}
+          </div>
+          <div>
+            <h3 className="font-black text-lg leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.notableDish}</h3>
+            <p className="text-xs mt-0.5 font-semibold" style={{ color: "#FF1F7D" }}>889 women saved this</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{r.notableDishNote}</p>
+          </div>
+        </div>
+
+        {/* Avatar scroll */}
+        <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WOMEN WHO SAVED THIS</p>
+        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          {DISH_SAVES_AVATARS.map((av, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 flex-shrink-0">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                style={{ background: av.color }}
+              >
+                {av.initial}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Restaurant Detail view ────────────────────────────────────────────────────
 
 function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) {
   const [saved, setSaved] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<{ note: string; author: string; avatarColor: string } | null>(null);
+  const [dishSheetOpen, setDishSheetOpen] = useState(false);
+
   const rating = ratingFromWomenLoved(r.womenLoved);
   const notes = BLOOM_NOTES[r.id] ?? [
     { note: "A hidden gem — always leaves me happy", author: "Priya R.", avatarColor: "#FF1F7D" },
@@ -412,7 +563,12 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
           <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>BLOOM NOTES</p>
           <div className="flex flex-col gap-2.5">
             {notes.map((n, i) => (
-              <div key={i} className="rounded-2xl p-3.5 flex items-start gap-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+              <button
+                key={i}
+                className="rounded-2xl p-3.5 flex items-start gap-3 cursor-pointer text-left w-full"
+                style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)", border: "none" }}
+                onClick={() => setSelectedNote(n)}
+              >
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" style={{ background: n.avatarColor }}>
                   {n.author[0]}
                 </div>
@@ -420,7 +576,7 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
                   <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>&ldquo;{n.note}&rdquo;</p>
                   <p className="text-[10px] mt-1 font-semibold" style={{ color: "#bbb" }}>— {n.author}</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -477,13 +633,17 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
         {r.notableDish && (
           <div>
             <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>FAVORITE DISH</p>
-            <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <button
+              className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer w-full text-left"
+              style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "none" }}
+              onClick={() => setDishSheetOpen(true)}
+            >
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: r.bgColor }}>{r.emoji}</div>
               <div>
                 <p className="font-black text-base" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.notableDish}</p>
                 <p className="text-[10px] mt-0.5" style={{ color: "#FF1F7D" }}>{r.notableDishNote}</p>
               </div>
-            </div>
+            </button>
           </div>
         )}
 
@@ -499,16 +659,30 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
           </div>
         </div>
       </div>
+
+      {/* Bloom Note sheet */}
+      {selectedNote && (
+        <BloomNoteSheet note={selectedNote} onClose={() => setSelectedNote(null)} />
+      )}
+
+      {/* Dish saves sheet */}
+      {dishSheetOpen && r.notableDish && (
+        <DishSavesSheet r={r} onClose={() => setDishSheetOpen(false)} />
+      )}
     </div>
   );
 }
 
 // ── GO components ─────────────────────────────────────────────────────────────
 
-function GoCard({ p }: { p: GoPlace }) {
+function GoCard({ p, onClick }: { p: GoPlace; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: p.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+    <div
+      className="rounded-2xl overflow-hidden cursor-pointer"
+      style={{ background: p.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-center" style={{ height: "88px", background: `linear-gradient(135deg, ${p.bgColor} 0%, ${p.bgColor}99 100%)` }}>
         <span style={{ fontSize: "44px", opacity: 0.75 }}>{p.emoji}</span>
       </div>
@@ -518,7 +692,11 @@ function GoCard({ p }: { p: GoPlace }) {
             <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h3>
             <p className="text-[10px]" style={{ color: "#999" }}>{p.neighborhood}</p>
           </div>
-          <button onClick={() => setSaved(s => !s)} className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "white" }}>
+          <button
+            onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
+            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "white" }}
+          >
             <svg width="10" height="10" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
               <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
             </svg>
@@ -534,12 +712,91 @@ function GoCard({ p }: { p: GoPlace }) {
   );
 }
 
+// ── GoPlace Detail view ───────────────────────────────────────────────────────
+
+function GoPlaceDetail({ p, onBack }: { p: GoPlace; onBack: () => void }) {
+  const [saved, setSaved] = useState(false);
+  const quotes = GO_NOTES[p.id] ?? [
+    '"A wonderful spot. Never disappoints."',
+    '"Worth every visit — add it to your list."',
+  ];
+
+  return (
+    <div className="flex flex-col gap-0" style={{ background: "var(--pale-pink-bg)", minHeight: "100vh" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-10 px-5 pt-4 pb-3" style={{ background: "var(--pale-pink-bg)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+        <div className="flex items-center justify-between">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "#FF1F7D" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back
+          </button>
+          <button onClick={() => setSaved(s => !s)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "white", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="relative flex items-center justify-center" style={{ height: "140px", background: `linear-gradient(135deg, ${p.bgColor} 0%, #E8F4FF 100%)` }}>
+        <span style={{ fontSize: "64px", opacity: 0.65 }}>{p.emoji}</span>
+      </div>
+
+      {/* Core info */}
+      <div className="px-5 pt-4 pb-3" style={{ background: "white" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="font-black text-2xl leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h2>
+            <p className="text-xs mt-1" style={{ color: "#999" }}>{p.neighborhood} · {p.filter}</p>
+          </div>
+          <FlowerCount count={p.womenLoved} />
+        </div>
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          {p.soloFriendly && <span className="text-[8px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#111", color: "white" }}>SOLO FRIENDLY</span>}
+          {p.tags.map(t => (
+            <span key={t} className="text-[9px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "#FFF5F8", color: "#888", border: "1px solid #EEE" }}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-5 px-5 pt-5 pb-8">
+        {/* Blurb / quote */}
+        <div className="rounded-2xl p-4" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>
+            &ldquo;{p.blurb}&rdquo;
+          </p>
+          <p className="text-[10px] mt-2 font-semibold" style={{ color: "#bbb" }}>— {p.submittedBy}</p>
+        </div>
+
+        {/* What Women Say */}
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WHAT WOMEN SAY</p>
+          <div className="flex flex-col gap-2.5">
+            {quotes.map((quote, i) => (
+              <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>{quote}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── SOLO components ───────────────────────────────────────────────────────────
 
-function SoloCard({ s }: { s: SoloSpot }) {
+function SoloCard({ s, onClick }: { s: SoloSpot; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
   return (
-    <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 10px rgba(0,0,0,0.05)" }}>
+    <div
+      className="bg-white rounded-2xl overflow-hidden flex cursor-pointer"
+      style={{ boxShadow: "0 1px 10px rgba(0,0,0,0.05)" }}
+      onClick={onClick}
+    >
       <div className="w-1.5 flex-shrink-0" style={{ background: "#111" }} />
       <div className="p-4 flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -550,7 +807,11 @@ function SoloCard({ s }: { s: SoloSpot }) {
               <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{s.neighborhood} · {s.type}</p>
             </div>
           </div>
-          <button onClick={() => setSaved(sv => !sv)} className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#FFF5F8" }}>
+          <button
+            onClick={e => { e.stopPropagation(); setSaved(sv => !sv); }}
+            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "#FFF5F8" }}
+          >
             <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
               <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
             </svg>
@@ -566,16 +827,161 @@ function SoloCard({ s }: { s: SoloSpot }) {
   );
 }
 
+// ── SoloSpot Detail view ──────────────────────────────────────────────────────
+
+function SoloSpotDetail({ s, onBack }: { s: SoloSpot; onBack: () => void }) {
+  const [saved, setSaved] = useState(false);
+
+  const SOLO_BG_COLORS: Record<number, string> = {
+    1: "#FDFAF5",
+    2: "#FFF0F5",
+    3: "#F0F8FF",
+    4: "#F0FFF4",
+    5: "#FFF8F0",
+  };
+  const bgColor = SOLO_BG_COLORS[s.id] ?? "#FFF5F8";
+
+  const WHY_WOMEN_LOVE: Record<number, string[]> = {
+    1: ['"Bar seating with natural light. You never feel watched or rushed."', '"The quietest loud restaurant in the city. Perfect paradox."'],
+    2: ['"Back of the bookstore is its own world. Zero judgment if you stay three hours."', '"Best kept secret in Nolita — real cozy, real coffee."'],
+    3: ['"The view under the bridge is cinematic. You almost forget you\'re in NYC."', '"Solo here feels like a little vacation from the week."'],
+    4: ['"Breeze Hill has the best people-watching in all of Brooklyn."', '"Nobody is in a rush here. It\'s the city\'s secret permission slip to slow down."'],
+    5: ['"The Temple of Dendur at opening time is one of the most peaceful places on earth."', '"Solo morning at the Met is a ritual I protect at all costs."'],
+  };
+
+  const loveQuotes = WHY_WOMEN_LOVE[s.id] ?? [
+    '"A place that feels made for you, alone."',
+    '"Solo time here is the best kind of reset."',
+  ];
+
+  return (
+    <div className="flex flex-col gap-0" style={{ background: "var(--pale-pink-bg)", minHeight: "100vh" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-10 px-5 pt-4 pb-3" style={{ background: "var(--pale-pink-bg)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+        <div className="flex items-center justify-between">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "#FF1F7D" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back
+          </button>
+          <button onClick={() => setSaved(sv => !sv)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "white", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="relative flex items-center justify-center" style={{ height: "140px", background: `linear-gradient(135deg, ${bgColor} 0%, #FFF0F5 100%)` }}>
+        <span style={{ fontSize: "64px", opacity: 0.65 }}>{s.emoji}</span>
+        <span className="absolute top-3 left-4 text-[9px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full" style={{ background: "#111", color: "white" }}>
+          SOLO SPOT
+        </span>
+      </div>
+
+      {/* Core info */}
+      <div className="px-5 pt-4 pb-3" style={{ background: "white" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="font-black text-2xl leading-none" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{s.name}</h2>
+            <p className="text-xs mt-1" style={{ color: "#999" }}>{s.neighborhood} · {s.type}</p>
+          </div>
+          <FlowerCount count={s.womenLoved} />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-5 px-5 pt-5 pb-8">
+        {/* Why quote */}
+        <div className="rounded-2xl p-4" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>
+            {s.why}
+          </p>
+          <p className="text-[10px] mt-2 font-semibold" style={{ color: "#bbb" }}>— {s.submittedBy}</p>
+        </div>
+
+        {/* Why women love it */}
+        <div>
+          <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WHY WOMEN LOVE IT</p>
+          <div className="flex flex-col gap-2.5">
+            {loveQuotes.map((quote, i) => (
+              <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+                <p className="text-sm italic" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>{quote}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── TRENDING components ───────────────────────────────────────────────────────
 
-function TrendCard({ t }: { t: TrendItem }) {
+function TrendCard({ t, onClick }: { t: TrendItem; onClick?: () => void }) {
   return (
-    <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: t.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+    <div
+      className={`rounded-2xl p-4 flex items-start gap-3${onClick ? " cursor-pointer" : ""}`}
+      style={{ background: t.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}
+      onClick={onClick}
+    >
       <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: "white" }}>{t.emoji}</div>
       <div className="flex-1 min-w-0">
         <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>{t.title}</p>
         <p className="text-sm font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.sub}</p>
         {t.count && <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>✿ {t.count.toLocaleString()} women{t.change ? ` · ${t.change}` : ""}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ── Bottom sheet: TrendDetailSheet ────────────────────────────────────────────
+
+function TrendDetailSheet({ t, onClose }: { t: TrendItem; onClose: () => void }) {
+  const context = TREND_CONTEXT[t.id] ?? "This trend has been gaining momentum across BloomBay. Women are discovering it at a rapid pace and sharing their experiences within the community.";
+
+  return (
+    <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose}>
+      <div
+        className="fixed bottom-0 left-0 right-0 rounded-t-3xl p-6 pb-10"
+        style={{ background: "#FDFAF6" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
+
+        {/* Emoji + title */}
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: t.bgColor }}>
+            {t.emoji}
+          </div>
+          <div className="flex-1">
+            <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>{t.title}</p>
+            <h3 className="font-black text-lg leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.sub}</h3>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        {t.count && (
+          <div className="flex items-center gap-4 mb-4 rounded-2xl p-3" style={{ background: t.bgColor }}>
+            <div>
+              <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>✿ {t.count.toLocaleString()}</p>
+              <p className="text-[9px]" style={{ color: "#888" }}>women</p>
+            </div>
+            {t.change && (
+              <div>
+                <p className="text-xs font-bold" style={{ color: "#111" }}>{t.change}</p>
+                <p className="text-[9px]" style={{ color: "#888" }}>trend</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Context paragraph */}
+        <p className="text-sm leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "#555" }}>
+          {context}
+        </p>
       </div>
     </div>
   );
@@ -691,10 +1097,19 @@ function MomentDetailSheet({ m, onClose }: { m: CityMoment; onClose: () => void 
 
 // ── Girl Picks card ───────────────────────────────────────────────────────────
 
-function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean; onStamp: () => void }) {
+function PlaceCard({ place, stamped, onStamp, onClick }: {
+  place: Place;
+  stamped: boolean;
+  onStamp: () => void;
+  onClick: () => void;
+}) {
   const tc = PLACE_TYPE_COLOR[place.type];
   return (
-    <div className="bg-white rounded-2xl overflow-hidden flex" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+    <div
+      className="bg-white rounded-2xl overflow-hidden flex cursor-pointer"
+      style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
+      onClick={onClick}
+    >
       <div className="w-1 flex-shrink-0" style={{ background: "#FF1F7D" }} />
       <div className="p-4 flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -722,9 +1137,12 @@ function PlaceCard({ place, stamped, onStamp }: { place: Place; stamped: boolean
             <span className="text-xs" style={{ color: "#aaa" }}>— {place.submittedBy}</span>
             <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
           </div>
-          <button onClick={onStamp} disabled={stamped}
+          <button
+            onClick={e => { e.stopPropagation(); onStamp(); }}
+            disabled={stamped}
             className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
-            style={stamped ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" } : { background: "#FF1F7D", color: "white" }}>
+            style={stamped ? { background: "#FFF0F5", color: "#FF1F7D", cursor: "default" } : { background: "#FF1F7D", color: "white" }}
+          >
             {stamped ? "Stamped ✓" : "Stamp it"}
           </button>
         </div>
@@ -743,6 +1161,9 @@ export function CityPage() {
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [selectedMoment, setSelectedMoment] = useState<CityMoment | null>(null);
+  const [selectedGoPlace, setSelectedGoPlace] = useState<GoPlace | null>(null);
+  const [selectedSoloSpot, setSelectedSoloSpot] = useState<SoloSpot | null>(null);
+  const [selectedTrend, setSelectedTrend]   = useState<TrendItem | null>(null);
   const [showAllSpots, setShowAllSpots]     = useState(false);
 
   function handleStamp(id: number) {
@@ -751,7 +1172,30 @@ export function CityPage() {
     setGirlPicks(p => p.map(pl => pl.id === id ? { ...pl, stamps: pl.stamps + 1 } : pl));
   }
 
+  function handlePlaceCardClick(place: Place) {
+    if (place.type === "eat") {
+      const restaurant = RESTAURANTS.find(r => r.name === place.name);
+      if (restaurant) {
+        setSelectedRestaurant(restaurant);
+        setActiveTab("eat");
+      }
+    } else {
+      // "place" or "gem" — find matching go place
+      // Try exact name match first, then partial match
+      const exactName = place.name.replace(" under Manhattan Bridge", "");
+      const goPlace = GO_PLACES.find(p => p.name === place.name || p.name === exactName || place.name.startsWith(p.name));
+      if (goPlace) {
+        setSelectedGoPlace(goPlace);
+      }
+    }
+  }
+
   const filteredGo = goFilter === "All" ? GO_PLACES : GO_PLACES.filter(p => p.filter === goFilter);
+
+  // Full-page detail routes
+  if (selectedRestaurant) return <RestaurantDetail r={selectedRestaurant} onBack={() => setSelectedRestaurant(null)} />;
+  if (selectedGoPlace) return <GoPlaceDetail p={selectedGoPlace} onBack={() => setSelectedGoPlace(null)} />;
+  if (selectedSoloSpot) return <SoloSpotDetail s={selectedSoloSpot} onBack={() => setSelectedSoloSpot(null)} />;
 
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
@@ -784,11 +1228,7 @@ export function CityPage() {
       <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
 
         {/* ── EAT ── */}
-        {activeTab === "eat" && selectedRestaurant && (
-          <RestaurantDetail r={selectedRestaurant} onBack={() => setSelectedRestaurant(null)} />
-        )}
-
-        {activeTab === "eat" && !selectedRestaurant && (
+        {activeTab === "eat" && (
           <div className="flex flex-col gap-6">
             {/* Women's Picks carousel */}
             <div>
@@ -839,7 +1279,7 @@ export function CityPage() {
                     ))}
                   </div>
                 </div>
-                <TrendCard t={TRENDING[0]} />
+                <TrendCard t={TRENDING[0]} onClick={() => setSelectedTrend(TRENDING[0])} />
               </div>
             </div>
 
@@ -853,7 +1293,13 @@ export function CityPage() {
               </div>
               <div className="flex flex-col gap-3">
                 {girlPicks.map(place => (
-                  <PlaceCard key={place.id} place={place} stamped={stampedPlaces.has(place.id)} onStamp={() => handleStamp(place.id)} />
+                  <PlaceCard
+                    key={place.id}
+                    place={place}
+                    stamped={stampedPlaces.has(place.id)}
+                    onStamp={() => handleStamp(place.id)}
+                    onClick={() => handlePlaceCardClick(place)}
+                  />
                 ))}
               </div>
             </div>
@@ -873,7 +1319,7 @@ export function CityPage() {
               ))}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredGo.map(p => <GoCard key={p.id} p={p} />)}
+              {filteredGo.map(p => <GoCard key={p.id} p={p} onClick={() => setSelectedGoPlace(p)} />)}
             </div>
           </div>
         )}
@@ -891,7 +1337,7 @@ export function CityPage() {
               </p>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
-              {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} />)}
+              {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} onClick={() => setSelectedSoloSpot(s)} />)}
             </div>
           </div>
         )}
@@ -906,7 +1352,7 @@ export function CityPage() {
               </h2>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
-              {TRENDING.map(t => <TrendCard key={t.id} t={t} />)}
+              {TRENDING.map(t => <TrendCard key={t.id} t={t} onClick={() => setSelectedTrend(t)} />)}
             </div>
           </div>
         )}
@@ -970,6 +1416,11 @@ export function CityPage() {
       {/* Moment detail sheet */}
       {selectedMoment && (
         <MomentDetailSheet m={selectedMoment} onClose={() => setSelectedMoment(null)} />
+      )}
+
+      {/* Trend detail sheet */}
+      {selectedTrend && (
+        <TrendDetailSheet t={selectedTrend} onClose={() => setSelectedTrend(null)} />
       )}
     </div>
   );
