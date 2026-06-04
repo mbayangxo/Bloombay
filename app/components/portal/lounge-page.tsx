@@ -467,18 +467,21 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           {activeTab === 0 && (
             <div className="flex flex-col gap-6">
 
-              {/* ── ON YOUR SHELF — first thing you see when you walk in ── */}
+              {/* ── MY SHELF — pinned objects that shape the homepage ── */}
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-1">
                   <div>
-                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ ON YOUR SHELF</p>
-                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Your apartment, your things.</p>
+                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MY SHELF</p>
+                    <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Pin what interests you.</p>
                   </div>
                   <button onClick={() => setShowObjectPicker(true)}
                     className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
                     Edit
                   </button>
                 </div>
+                <p className="text-[10px] italic mb-3" style={{ color: "#bbb", fontFamily: "var(--font-instrument)" }}>
+                  What you pin shapes what appears on your homepage.
+                </p>
                 {/* Objects sitting on a shelf */}
                 <div className="relative">
                   <div className="flex gap-3 pb-3">

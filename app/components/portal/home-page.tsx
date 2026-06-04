@@ -213,9 +213,9 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
       </div>
 
 
-      {/* ── YANDE SAYS — compact pill, tap to edit ── */}
+      {/* ── YANDE SAYS — compact pill → links to dedicated picks page ── */}
       <div className="px-5 mb-5 md:px-8">
-        <Link href="/member/clubs">
+        <Link href="/member/clubs/yande-picks">
           <div className="inline-flex items-center gap-2.5 rounded-2xl px-4 py-2.5"
             style={{ background: surfaceBg, maxWidth: "100%" }}>
             <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
@@ -233,6 +233,43 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </svg>
           </div>
         </Link>
+      </div>
+
+      {/* ── YOUR SHELF — personalized from Lounge pins ── */}
+      <div className="px-5 mb-6 md:px-8">
+        <div className="flex items-center justify-between mb-2.5">
+          <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ YOUR SHELF</p>
+          <Link href="/member/lounge" className="text-[10px] font-semibold" style={{ color: "#FF1F7D" }}>Customize →</Link>
+        </div>
+        <div className="flex gap-3 items-end overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          {[
+            { id: "book",    emoji: "📚", label: "Book Club",    href: "/member/clubs" },
+            { id: "candle",  emoji: "🕯️", label: "Soft Life",   href: "/member/happenings" },
+            { id: "flowers", emoji: "🌸", label: "Events",       href: "/member/happenings" },
+            { id: "vinyl",   emoji: "🎵", label: "Jazz & Wine",  href: "/member/clubs" },
+            { id: "camera",  emoji: "📷", label: "Lens & Light", href: "/member/clubs" },
+          ].map(obj => (
+            <Link key={obj.id} href={obj.href} style={{ textDecoration: "none", flexShrink: 0 }}>
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95"
+                  style={{ background: isNight ? "rgba(255,255,255,0.07)" : "white", boxShadow: isNight ? "0 2px 8px rgba(0,0,0,0.2)" : "0 3px 12px rgba(0,0,0,0.07)" }}>
+                  {obj.emoji}
+                </div>
+                <p className="text-[9px] font-medium text-center" style={{ color: textMuted }}>{obj.label}</p>
+              </div>
+            </Link>
+          ))}
+          <Link href="/member/lounge" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                style={{ background: "transparent", border: "1.5px dashed rgba(255,31,125,0.25)" }}>
+                <span style={{ color: "#FF1F7D", fontSize: "20px", lineHeight: 1 }}>+</span>
+              </div>
+              <p className="text-[9px] font-medium" style={{ color: textMuted }}>Add</p>
+            </div>
+          </Link>
+        </div>
+        <div className="h-[2px] mt-2 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${isNight ? "rgba(180,140,100,0.3)" : "rgba(180,140,100,0.25)"} 50%, transparent)` }} />
       </div>
 
       {/* ── 2-col on desktop ── */}

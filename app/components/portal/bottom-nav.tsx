@@ -93,23 +93,21 @@ export function BottomNav({ user }: { user?: NavUser }) {
           </Link>
 
           {/* Right — utility icons + avatar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link href="/member/messages" aria-label="Mailbox"
-              className="w-8 h-8 rounded-full flex items-center justify-center relative"
+              className="w-8 h-8 rounded-full flex items-center justify-center relative transition-all active:scale-90"
               style={{
-                background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)",
+                background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
+                border: pathname.startsWith("/member/messages") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
+                boxShadow: pathname.startsWith("/member/messages") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
                 animation: !pathname.startsWith("/member/messages") ? "mailboxShake 6s ease-in-out 2s infinite" : undefined,
               }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="9" width="17" height="12" rx="2"/>
-                <path d="M3 9a8.5 8.5 0 0 1 17 0"/>
-                <line x1="7" y1="16" x2="13" y2="16"/>
-                <line x1="20" y1="9" x2="20" y2="5"/>
-                <polyline points="20,5 23,6.5 20,8"/>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
               </svg>
-              {/* Sender avatar — shows when not on mailbox page */}
               {!pathname.startsWith("/member/messages") && (
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
@@ -117,30 +115,42 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 </div>
               )}
             </Link>
-            <Link href="/member/notifications" aria-label="Ping"
-              className="w-8 h-8 rounded-full flex items-center justify-center relative"
-              style={{ background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            <Link href="/member/notifications" aria-label="Pings"
+              className="w-8 h-8 rounded-full flex items-center justify-center relative transition-all active:scale-90"
+              style={{
+                background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
+                border: pathname.startsWith("/member/notifications") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
+                boxShadow: pathname.startsWith("/member/notifications") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
+              }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
             </Link>
             <Link href="/member/chat" aria-label="Chat"
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+              style={{
+                background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
+                border: pathname.startsWith("/member/chat") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
+                boxShadow: pathname.startsWith("/member/chat") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
+              }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
             </Link>
             <Link href="/member/calendar" aria-label="Calendar"
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+              style={{
+                background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
+                border: pathname.startsWith("/member/calendar") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
+                boxShadow: pathname.startsWith("/member/calendar") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
+              }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -149,9 +159,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
             </Link>
-            <Link href="/member/lounge" aria-label="Your apartment">
+            <Link href="/member/lounge" aria-label="Your apartment" className="active:scale-90 transition-all">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
+                style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 2px 10px rgba(255,31,125,0.45), 0 0 0 2px rgba(255,31,125,0.2)" }}>
                 {user?.initial ?? "M"}
               </div>
             </Link>

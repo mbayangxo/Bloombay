@@ -754,7 +754,7 @@ function FeaturedDoor({ club, onSelect }: { club: Club; onSelect: () => void }) 
               style={{ fontFamily: "var(--font-playfair)" }}>{club.name}</h2>
             <span className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full"
               style={{ background: "rgba(255,255,255,0.18)", color: "white" }}>
-              Enter the Clubhouse →
+              Enter Club →
             </span>
           </div>
         </div>
@@ -1109,7 +1109,7 @@ export function ClubsPage() {
           <div>
             <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
             <h1 className="text-4xl font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "var(--heading-color, #111111)" }}>
-              Club House
+              Clubs.
             </h1>
             <p className="text-sm mt-1.5" style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", color: "#bbb" }}>
               {CLUBS.length} circles · {CLUBS.reduce((a, c) => a + c.women, 0).toLocaleString()} women
@@ -1122,6 +1122,15 @@ export function ClubsPage() {
               ✦ {myClubs.length} clubs
             </button>
           )}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap"
+            style={{ background: "#111111", color: "white" }}>
+            DISCOVER
+          </button>
         </div>
 
         {/* Search */}
@@ -1141,15 +1150,6 @@ export function ClubsPage() {
             </button>
           )}
         </div>
-
-        {/* Tabs */}
-        <div className="flex items-center gap-2">
-          <button
-            className="px-4 py-2 rounded-full text-xs font-bold tracking-wider whitespace-nowrap"
-            style={{ background: "#111111", color: "white" }}>
-            DISCOVER
-          </button>
-        </div>
       </div>
 
       <div className="px-5 pb-8 md:px-8 md:max-w-[820px] md:mx-auto">
@@ -1157,7 +1157,6 @@ export function ClubsPage() {
         {/* ── DISCOVER ── */}
         {activeTab === 0 && (
           <div className="flex flex-col gap-6">
-            <YandeRec />
 
             {/* Featured spotlight club */}
             {(!q || featured.name.toLowerCase().includes(q)) && (
