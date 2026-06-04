@@ -241,7 +241,6 @@ function NewGroupSheet({ onClose }: { onClose: () => void }) {
           <button
             onClick={() => {
               if (selected.size >= 2 && groupName.trim()) {
-                alert(`Group "${groupName}" created with ${selected.size} women!`);
                 onClose();
               }
             }}
@@ -371,7 +370,6 @@ export default function ChatPage() {
 
   function handleOpen(convo: Convo) {
     markRead(convo.id);
-    alert(`Opening "${convo.name}" chat — full chat view coming soon.`);
   }
 
   const shown = CONVOS.filter(
@@ -530,7 +528,7 @@ export default function ChatPage() {
 
       {/* ── FAB: New conversation ────────────────────────────────────────────── */}
       <button
-        onClick={() => alert("Start a new conversation — coming soon.")}
+        onClick={() => setShowNewGroup(true)}
         className="fixed flex items-center justify-center transition-all active:scale-90"
         style={{
           bottom: "88px",

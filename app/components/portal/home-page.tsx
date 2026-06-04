@@ -132,7 +132,7 @@ function EventPoster({ ev, idx }: { ev: typeof CITY_EVENTS[0]; idx: number }) {
 export function HomePage({ firstName = "there", initial = "M" }: { firstName?: string; initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const [greeting, setGreeting] = useState("Good morning");
-  const [witnessShown, setWitnessShown] = useState(true);
+
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -212,54 +212,6 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
         </div>
       </div>
 
-      {/* ── WITNESS — compact pill right under hero ── */}
-      {witnessShown && (
-        <div className="px-5 mb-3 md:px-8">
-          <Link href="/member/lounge" style={{ textDecoration: "none" }}>
-            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
-              style={{
-                background: isNight ? "rgba(40,10,22,0.9)" : "rgba(255,240,248,0.95)",
-                border: "1px solid rgba(255,31,125,0.18)",
-                boxShadow: "0 2px 12px rgba(255,31,125,0.1)",
-              }}>
-              {/* Avatar */}
-              <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm text-white"
-                style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)", boxShadow: "0 3px 10px rgba(255,31,125,0.4)" }}>
-                K
-              </div>
-              {/* Text */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded"
-                    style={{ background: "#FF1F7D", color: "white" }}>WITNESSED YOU</span>
-                </div>
-                <p className="text-xs italic leading-snug"
-                  style={{ fontFamily: "var(--font-instrument)", color: textMuted }}>
-                  &ldquo;She makes every table feel full.&rdquo;
-                </p>
-                <p className="text-[9px] mt-0.5" style={{ fontFamily: "var(--font-caveat)", fontSize: "11px", color: "rgba(255,31,125,0.55)" }}>
-                  ✦ Yande surfaced this for you
-                </p>
-              </div>
-              {/* Right side */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-                <button
-                  onClick={e => { e.preventDefault(); setWitnessShown(false); }}
-                  className="w-5 h-5 rounded-full flex items-center justify-center"
-                  style={{ background: "rgba(255,255,255,0.1)" }}>
-                  <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke={isNight ? "rgba(255,255,255,0.4)" : "#bbb"} strokeWidth="1.5" strokeLinecap="round">
-                    <path d="M1 1l8 8M9 1l-8 8"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
 
       {/* ── YANDE SAYS — compact pill, tap to edit ── */}
       <div className="px-5 mb-5 md:px-8">
@@ -471,35 +423,6 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
         {/* ── DESKTOP SIDEBAR ── */}
         <div className="hidden md:flex flex-col gap-4">
-
-          {witnessShown && (
-            <div className="rounded-2xl p-4 relative"
-              style={{ background: cardBg, border: "1px solid rgba(255,31,125,0.12)", boxShadow: "0 4px 16px rgba(255,31,125,0.07)" }}>
-              <div className="flex items-start gap-3">
-                <Link href="/member/messages?witness=kezia" className="flex-shrink-0">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)" }}>K</div>
-                </Link>
-                <Link href="/member/messages?witness=kezia" className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-xs font-bold" style={{ color: headingColor }}>Kezia A.</p>
-                    <span className="text-[8px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded"
-                      style={{ background: "#FF1F7D", color: "white" }}>witnessed</span>
-                  </div>
-                  <p className="text-xs leading-relaxed" style={{ color: textMuted }}>
-                    &ldquo;She showed up when we had 12 members. She&apos;s the real one.&rdquo;
-                  </p>
-                </Link>
-                <button onClick={() => setWitnessShown(false)}
-                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: isNight ? "rgba(255,255,255,0.08)" : "#F0E8E4" }}>
-                  <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke={textMuted} strokeWidth="1.5" strokeLinecap="round">
-                    <path d="M1 1l8 8M9 1l-8 8"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Yande pick */}
           <div className="rounded-3xl overflow-hidden relative"

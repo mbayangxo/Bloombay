@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Notif {
   id: number;
@@ -12,6 +13,7 @@ interface Notif {
   unread: boolean;
   clubName?: string;
   clubCrest?: string;
+  witnessId?: string;
 }
 
 const INITIAL_NOW: Notif[] = [
@@ -23,22 +25,30 @@ const INITIAL_NOW: Notif[] = [
     clubName: "Lens & Light", clubCrest: "📸",
   },
   {
-    id: 1, type: "seat",
+    id: 1, type: "stamp",
+    title: "Kezia A. witnessed you",
+    body: '"She makes every table feel full."',
+    time: "4m ago", unread: true,
+    witnessId: "kezia",
+  },
+  {
+    id: 2, type: "seat",
     title: "You grabbed a seat",
     body: "Girls dinner · Carbone · Tonight 7:30PM",
-    time: "2m ago", unread: true,
+    time: "12m ago", unread: true,
   },
   {
-    id: 2, type: "stamp",
+    id: 3, type: "stamp",
     title: "Sofia K. witnessed you",
     body: '"You made the whole table feel like home."',
-    time: "8m ago", unread: true,
+    time: "28m ago", unread: true,
+    witnessId: "sofia",
   },
   {
-    id: 3, type: "event",
+    id: 4, type: "event",
     title: "Paint + sip + dinner is almost full",
     body: "2 seats left · Tonight 7PM",
-    time: "14m ago", unread: true,
+    time: "45m ago", unread: true,
   },
 ];
 
@@ -58,8 +68,9 @@ const INITIAL_EARLIER: Notif[] = [
   {
     id: 6, type: "stamp",
     title: "Priya R. witnessed you",
-    body: '"You made everyone feel welcome."',
+    body: '"You made everyone feel welcome. That\'s a rare thing."',
     time: "5h ago", unread: false,
+    witnessId: "priya",
   },
   {
     id: 7, type: "event",
@@ -94,9 +105,11 @@ function NotifIcon({ type }: { type: Notif["type"] }) {
 
   if (type === "stamp") {
     return (
-      <div className={baseClass} style={{ background: "#111111", boxShadow: "0 2px 10px rgba(0,0,0,0.15)" }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF1F7D">
-          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+      <div className={baseClass} style={{ background: "#111111", boxShadow: "0 2px 10px rgba(255,31,125,0.25)" }}>
+        {/* Witness eye */}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3" fill="#FF1F7D" stroke="none"/>
         </svg>
       </div>
     );
@@ -220,46 +233,56 @@ function ClubAcceptedPing({ n }: { n: Notif }) {
 function NotifRow({ n }: { n: Notif }) {
   if (n.type === "club_accepted") return <ClubAcceptedPing n={n} />;
 
-  return (
+  const inner = (
     <div
       className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden"
       style={{
-        background: "white",
+        background: n.type === "stamp" ? "#0D0508" : "white",
         boxShadow: n.unread
-          ? "0 3px 16px rgba(255,31,125,0.1)"
+          ? n.type === "stamp"
+            ? "0 4px 20px rgba(255,31,125,0.18)"
+            : "0 3px 16px rgba(255,31,125,0.1)"
           : "0 1px 8px rgba(0,0,0,0.06)",
-        borderLeft: n.unread ? "3px solid var(--bb-pink)" : "3px solid transparent",
+        borderLeft: n.unread
+          ? n.type === "stamp"
+            ? "3px solid #FF1F7D"
+            : "3px solid var(--bb-pink)"
+          : "3px solid transparent",
+        border: n.type === "stamp" ? "1px solid rgba(255,31,125,0.18)" : undefined,
       }}
     >
       <NotifIcon type={n.type} />
       <div className="flex-1 min-w-0">
-        <p
-          className="text-sm leading-snug"
-          style={{ color: "#111111", fontWeight: n.unread ? 700 : 500 }}
-        >
+        <p className="text-sm leading-snug"
+          style={{ color: n.type === "stamp" ? "rgba(255,235,215,0.9)" : "#111111", fontWeight: n.unread ? 700 : 500 }}>
           {n.title}
         </p>
-        <p
-          className="text-xs mt-1 leading-relaxed"
+        <p className="text-xs mt-1 leading-relaxed"
           style={{
-            color: n.type === "stamp" ? "var(--bb-pink)" : "#999",
+            color: n.type === "stamp" ? "#FF69B4" : "#999",
             fontStyle: n.type === "stamp" ? "italic" : "normal",
-          }}
-        >
+          }}>
           {n.body}
         </p>
+        {n.type === "stamp" && (
+          <p className="text-[9px] mt-1.5 font-bold tracking-wide" style={{ color: "rgba(255,31,125,0.5)" }}>
+            Tap to read the full note →
+          </p>
+        )}
       </div>
       <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-        <p className="text-[11px]" style={{ color: "#ccc" }}>{n.time}</p>
+        <p className="text-[11px]" style={{ color: n.type === "stamp" ? "rgba(255,255,255,0.2)" : "#ccc" }}>{n.time}</p>
         {n.unread && (
-          <div
-            className="w-2 h-2 rounded-full"
-            style={{ background: "var(--bb-pink)" }}
-          />
+          <div className="w-2 h-2 rounded-full" style={{ background: "var(--bb-pink)" }} />
         )}
       </div>
     </div>
   );
+
+  if (n.type === "stamp" && n.witnessId) {
+    return <Link href={`/member/witness/${n.witnessId}`} style={{ textDecoration: "none" }}>{inner}</Link>;
+  }
+  return inner;
 }
 
 export default function NotificationsPage() {
