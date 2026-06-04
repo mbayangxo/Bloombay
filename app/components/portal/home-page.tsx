@@ -294,7 +294,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
         {/* Girl Bar Door — only evening & night, mobile only */}
         {isNight && (
-          <Link href="/member/room" className="md:hidden flex-shrink-0"
+          <Link href="/member/room?enter=girlbar" className="md:hidden flex-shrink-0"
             style={{ textDecoration: "none", width: "88px", display: "flex" }}>
             <GirlBarDoor tod={tod} />
           </Link>
@@ -538,7 +538,7 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
 
           {/* Girl Bar door — desktop sidebar, night only */}
           {isNight ? (
-            <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
+            <Link href="/member/room?enter=girlbar" className="block rounded-3xl p-5 relative overflow-hidden"
               style={{
                 background: "rgba(8,3,14,0.88)",
                 backdropFilter: "blur(24px)",

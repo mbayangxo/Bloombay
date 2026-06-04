@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 type Room = "lobby" | "wall" | "girlbar" | "new-keys" | "vanity" | "closet";
 type WallCategory = "gather" | "discover" | "plan" | "now" | "ask";
@@ -1024,6 +1025,13 @@ function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBa
 
 // ── The Lobby ────────────────────────────────────────────────────────────────
 
+function useEnterRoom(): Room {
+  const params = useSearchParams();
+  const enter = params.get("enter");
+  if (enter === "girlbar" || enter === "wall") return enter as Room;
+  return "lobby";
+}
+
 const LOBBY_DOORS = [
   { id: "wall" as Room, n: "01", name: "The Wall", sub: "Community board", hint: "Leave something here", bg: "#FAF5EE", dark: false, accent: "#FF1F7D", available: true },
   { id: "girlbar" as Room, n: "02", name: "Girl Bar", sub: "Live audio rooms", hint: "🔴 27 women listening", bg: "#1A1008", dark: true, accent: "#FF69B4", available: true },
@@ -1032,8 +1040,9 @@ const LOBBY_DOORS = [
   { id: "closet" as Room, n: "05", name: "The Closet", sub: "Outfits & what to wear", hint: "", bg: "#F9F5F0", dark: false, accent: "#FF1F7D", available: false },
 ];
 
-export default function TheLobbyPage() {
-  const [room, setRoom] = useState<Room>("lobby");
+function TheLobbyInner() {
+  const enterRoom = useEnterRoom();
+  const [room, setRoom] = useState<Room>(enterRoom);
 
   if (room === "wall")      return <TheWall         onBack={() => setRoom("lobby")} />;
   if (room === "girlbar")   return <GirlBar          onBack={() => setRoom("lobby")} />;
@@ -1133,5 +1142,13 @@ export default function TheLobbyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TheLobbyPage() {
+  return (
+    <Suspense>
+      <TheLobbyInner />
+    </Suspense>
   );
 }
