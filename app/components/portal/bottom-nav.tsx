@@ -95,8 +95,11 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {/* Right — utility icons + avatar */}
           <div className="flex items-center gap-3">
             <Link href="/member/messages" aria-label="Mailbox"
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)" }}>
+              className="w-8 h-8 rounded-full flex items-center justify-center relative"
+              style={{
+                background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.2)" : "rgba(255,255,255,0.07)",
+                animation: !pathname.startsWith("/member/messages") ? "mailboxShake 6s ease-in-out 2s infinite" : undefined,
+              }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "rgba(255,255,255,0.72)"}
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,6 +109,13 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <line x1="20" y1="9" x2="20" y2="5"/>
                 <polyline points="20,5 23,6.5 20,8"/>
               </svg>
+              {/* Sender avatar — shows when not on mailbox page */}
+              {!pathname.startsWith("/member/messages") && (
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white"
+                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
+                  Y
+                </div>
+              )}
             </Link>
             <Link href="/member/notifications" aria-label="Ping"
               className="w-8 h-8 rounded-full flex items-center justify-center relative"
@@ -287,6 +297,15 @@ export function BottomNav({ user }: { user?: NavUser }) {
         @keyframes navSlideUp {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes mailboxShake {
+          0%, 80%, 100% { transform: rotate(0deg); }
+          83% { transform: rotate(-8deg); }
+          86% { transform: rotate(7deg); }
+          89% { transform: rotate(-5deg); }
+          92% { transform: rotate(4deg); }
+          95% { transform: rotate(-2deg); }
+          98% { transform: rotate(0deg); }
         }
       `}</style>
     </>

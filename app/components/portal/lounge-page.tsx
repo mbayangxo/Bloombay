@@ -1217,6 +1217,60 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 </button>
               </div>
 
+              {/* ── BloomBay ID Card ── */}
+              <div className="rounded-3xl overflow-hidden relative"
+                style={{
+                  background: "linear-gradient(135deg, #0D0512 0%, #1A0820 60%, #0D0512 100%)",
+                  boxShadow: "0 8px 40px rgba(255,31,125,0.18), inset 0 0 0 1px rgba(255,105,180,0.15)",
+                  minHeight: "130px",
+                }}>
+                {/* Background texture */}
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(255,31,125,0.15) 0%, transparent 55%)" }} />
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 20% 80%, rgba(212,168,83,0.08) 0%, transparent 50%)" }} />
+                <div className="relative px-5 py-5 flex items-center justify-between">
+                  {/* Left: info */}
+                  <div>
+                    <p className="text-[8px] font-bold tracking-[0.35em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.25)" }}>
+                      BLOOMBAY · NEW YORK · ESTD. 2024
+                    </p>
+                    <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-0.5" style={{ color: "#FF69B4" }}>MEMBERSHIP ID</p>
+                    <p className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "rgba(255,238,220,0.95)", lineHeight: 1.1 }}>
+                      {displayName}
+                    </p>
+                    <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      Founding Member · #0047 · Since Jan 2024
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-3">
+                      <span className="text-[8px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: "rgba(212,168,83,0.2)", color: "#D4A853", border: "1px solid rgba(212,168,83,0.3)" }}>
+                        ✦ FOUNDING MOTHER
+                      </span>
+                    </div>
+                  </div>
+                  {/* Right: avatar + BB mark */}
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl text-white"
+                      style={{ background: "linear-gradient(135deg,#FF1F7D,#C51B7A)", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}>
+                      {displayName[0] ?? "M"}
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <span style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "13px", fontWeight: 900 }}>BB</span>
+                      <span className="w-1 h-1 rounded-full" style={{ background: "#FF1F7D", opacity: 0.6 }} />
+                    </div>
+                  </div>
+                </div>
+                {/* Card footer strip */}
+                <div className="px-5 py-2.5 flex items-center justify-between"
+                  style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.2)" }}>
+                  <p className="text-[8px] tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    VALID · ALL BLOOMBAY EVENTS
+                  </p>
+                  <p className="text-[8px] font-bold tracking-[0.1em]" style={{ color: "rgba(255,31,125,0.5)" }}>♦ ♦ ♦ ♦ 0047</p>
+                </div>
+              </div>
+
               {/* ── Club Passport ── */}
               <div className="rounded-3xl overflow-hidden" style={{ background: "#0A0804", boxShadow: "0 8px 32px rgba(0,0,0,0.3)", border: "1px solid rgba(212,168,83,0.15)" }}>
                 <div className="px-5 pt-5 pb-4 relative overflow-hidden">

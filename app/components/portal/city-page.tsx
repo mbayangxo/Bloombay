@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -725,13 +726,13 @@ export function CityPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
-                <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllSpots(true)}>See More →</button>
+                <Link href="/member/city/places" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</Link>
               </div>
               <div
                 className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0"
                 style={{ scrollbarWidth: "none" }}
               >
-                {(showAllSpots ? RESTAURANTS : RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000)).map(r => (
+                {RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000).map(r => (
                   <EatCarouselCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
                 ))}
               </div>
@@ -741,7 +742,7 @@ export function CityPage() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
-                  <button className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllSpots(true)}>See More →</button>
+                  <Link href="/member/city/places" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</Link>
                 </div>
                 <div
                   className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
@@ -852,9 +853,9 @@ export function CityPage() {
               </h2>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <button className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }} onClick={() => setShowAllMoments(true)}>
+              <Link href="/member/city/moments" className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
                 See More →
-              </button>
+              </Link>
               <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
                 + Share
               </button>
