@@ -1168,6 +1168,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     One of the original 100
                   </p>
                 </div>
+                {/* New In Town status */}
+                <div className="flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full"
+                  style={{ background: "#FFF5F0", border: "1px solid rgba(232,106,69,0.2)" }}>
+                  <span style={{ fontSize: "11px" }}>📍</span>
+                  <span className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#E86A45" }}>
+                    New to New York · 5 months
+                  </span>
+                </div>
+
                 {/* Stats row — pink numbers */}
                 <div className="flex gap-6 w-full justify-center">
                   <div className="text-center">

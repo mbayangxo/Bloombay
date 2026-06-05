@@ -108,6 +108,24 @@ const INTEREST_CLUSTERS = [
     ]},
 ];
 
+const NEW_IN_TOWN = [
+  { id: 1, initial: "I", name: "Ifeoma O.", color: "#FF1F7D",
+    status: "New to New York", since: "3 weeks",
+    neighborhood: "Crown Heights",
+    note: "Just moved from Lagos. Looking for everything — people, places, a rhythm.",
+    clubs: ["African Girls Club"] },
+  { id: 2, initial: "C", name: "Camille D.", color: "#FF69B4",
+    status: "Just moved here", since: "2 weeks",
+    neighborhood: "Upper East Side",
+    note: "Relocated from Paris. NYC is a lot. Looking to make it feel smaller.",
+    clubs: ["Soft Life Club NYC"] },
+  { id: 3, initial: "O", name: "Obioma L.", color: "#0EA5E9",
+    status: "New to Brooklyn", since: "1 month",
+    neighborhood: "Bed-Stuy",
+    note: "Tech founder, first year in NYC. Still learning the subway.",
+    clubs: ["Girl Tech Collective"] },
+];
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function ProfileAvatar({ initial, color, size = 44 }: { initial: string; color: string; size?: number }) {
@@ -353,6 +371,8 @@ export default function IntroductionsPage() {
   const [joined, setJoined] = useState<Set<number>>(new Set());
   const [orbitConnected, setOrbitConnected] = useState<Set<number>>(new Set());
   const [orbitShaking, setOrbitShaking] = useState<Set<number>>(new Set());
+  const [newInTownConnected, setNewInTownConnected] = useState<Set<number>>(new Set());
+  const [newInTownShaking, setNewInTownShaking] = useState<Set<number>>(new Set());
   const [clusterConnected, setClusterConnected] = useState<Set<number>>(new Set());
   const [clusterShaking, setClusterShaking] = useState<Set<number>>(new Set());
   const [activeCluster, setActiveCluster] = useState<typeof INTEREST_CLUSTERS[0] | null>(null);
@@ -369,6 +389,13 @@ export default function IntroductionsPage() {
     setOrbitShaking(p => new Set([...p, id]));
     showToast(`Bloombay request sent to ${name.split(" ")[0]} ✓`);
     setTimeout(() => setOrbitShaking(p => { const n = new Set(p); n.delete(id); return n; }), 650);
+  }
+
+  function introduceNewInTown(id: number, name: string) {
+    setNewInTownConnected(p => new Set([...p, id]));
+    setNewInTownShaking(p => new Set([...p, id]));
+    showToast(`Bloom request sent to ${name.split(" ")[0]} ✓`);
+    setTimeout(() => setNewInTownShaking(p => { const n = new Set(p); n.delete(id); return n; }), 650);
   }
 
   function introduceCluster(id: number, name: string) {
@@ -481,6 +508,49 @@ export default function IntroductionsPage() {
                 shaking={orbitShaking.has(girl.id)}
                 onConnect={() => introduceOrbit(girl.id, girl.name)}
               />
+            ))}
+          </div>
+        </section>
+
+        {/* ── 2.5. NEW IN TOWN ── */}
+        <section className="px-5">
+          <SectionHeader
+            eyebrow="NEW IN TOWN"
+            title="Just arrived. Ready to belong."
+            note="Women who recently moved — looking for people and places."
+          />
+          <div className="flex flex-col gap-3">
+            {NEW_IN_TOWN.map(girl => (
+              <div key={girl.id} className="bg-white rounded-2xl p-4"
+                style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: `3px solid ${girl.color}` }}>
+                <div className="flex items-start gap-3 mb-3">
+                  <ProfileAvatar initial={girl.initial} color={girl.color} size={44} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm" style={{ color: "#111" }}>{girl.name}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{girl.neighborhood}</p>
+                    <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded-full mt-1.5"
+                      style={{ background: `${girl.color}15`, color: girl.color }}>
+                      ✦ {girl.status} · {girl.since}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-sm italic leading-relaxed mb-3"
+                  style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>
+                  &ldquo;{girl.note}&rdquo;
+                </p>
+                <button
+                  onClick={() => !newInTownConnected.has(girl.id) && introduceNewInTown(girl.id, girl.name)}
+                  className="px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+                  style={
+                    newInTownConnected.has(girl.id)
+                      ? { background: "#eee", color: "#aaa" }
+                      : newInTownShaking.has(girl.id)
+                        ? { background: girl.color, color: "white", animation: "shakePop 0.65s cubic-bezier(0.36,0.07,0.19,0.97) both" }
+                        : { background: "#111", color: "white", transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1)" }
+                  }>
+                  {newInTownConnected.has(girl.id) ? "Sent ✓" : "Introduce me →"}
+                </button>
+              </div>
             ))}
           </div>
         </section>

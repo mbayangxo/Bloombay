@@ -249,6 +249,116 @@ const TRADITIONS_DATA: Record<number, Tradition[]> = {
   ],
 };
 
+// ─── New Member Alerts ────────────────────────────────────────────────────────
+
+interface NewMemberAlert {
+  id: number;
+  name: string;
+  initial: string;
+  color: string;
+  joinedAgo: string;
+  tags: string[];
+  neighborhood?: string;
+}
+
+const NEW_MEMBERS_DATA: Record<number, NewMemberAlert[]> = {
+  0: [ // African Girls Club
+    { id: 1, initial: "I", name: "Ifeoma O.", color: "#FF1F7D", joinedAgo: "2 days ago",
+      tags: ["First-time BloomBay member", "New to NYC", "Just moved from Lagos"],
+      neighborhood: "Crown Heights" },
+    { id: 2, initial: "A", name: "Adaeze N.", color: "#FF8C42", joinedAgo: "5 days ago",
+      tags: ["New to Brooklyn", "Looking to make friends"],
+      neighborhood: "Flatbush" },
+  ],
+  1: [ // Soft Life Club NYC
+    { id: 1, initial: "C", name: "Camille D.", color: "#FF69B4", joinedAgo: "1 day ago",
+      tags: ["First-time BloomBay member", "New to NYC", "Looking to make friends"],
+      neighborhood: "Upper East Side" },
+    { id: 2, initial: "M", name: "Mia T.", color: "#C084FC", joinedAgo: "3 days ago",
+      tags: ["Just moved here", "Looking to make friends"],
+      neighborhood: "Astoria" },
+  ],
+  2: [ // Muslim Women NYC
+    { id: 1, initial: "S", name: "Sana A.", color: "#A855F7", joinedAgo: "1 day ago",
+      tags: ["First-time BloomBay member", "New to New York"],
+      neighborhood: "Jackson Heights" },
+  ],
+  3: [ // Girl Tech Collective
+    { id: 1, initial: "O", name: "Obioma L.", color: "#0EA5E9", joinedAgo: "3 days ago",
+      tags: ["First-time BloomBay member", "Founder", "New to Brooklyn"],
+      neighborhood: "Bed-Stuy" },
+    { id: 2, initial: "P", name: "Pooja R.", color: "#C084FC", joinedAgo: "6 days ago",
+      tags: ["New to NYC", "Looking to make friends", "Engineer"],
+      neighborhood: "Long Island City" },
+  ],
+  4: [ // Girls Who Move
+    { id: 1, initial: "T", name: "Tasha M.", color: "#F59E0B", joinedAgo: "2 days ago",
+      tags: ["New to NYC", "Looking to make friends", "Just moved from Atlanta"],
+      neighborhood: "Williamsburg" },
+  ],
+  5: [ // Girl Creatives
+    { id: 1, initial: "N", name: "Nadia F.", color: "#EC4899", joinedAgo: "4 days ago",
+      tags: ["First-time BloomBay member", "New to Brooklyn", "Looking to make friends"],
+      neighborhood: "DUMBO" },
+    { id: 2, initial: "E", name: "Elan B.", color: "#818CF8", joinedAgo: "Yesterday",
+      tags: ["New to New York", "Photographer", "Looking to make friends"],
+      neighborhood: "Greenpoint" },
+  ],
+  6: [ // Jazz & Wine Girls
+    { id: 1, initial: "V", name: "Vivienne L.", color: "#8B5CF6", joinedAgo: "3 days ago",
+      tags: ["First-time BloomBay member", "New to NYC"],
+      neighborhood: "West Village" },
+  ],
+};
+
+// ─── Club Places ──────────────────────────────────────────────────────────────
+
+interface ClubPlace {
+  id: number;
+  name: string;
+  emoji: string;
+  neighborhood: string;
+  note: string;
+}
+
+const CLUB_PLACES_DATA: Record<number, ClubPlace[]> = {
+  0: [ // African Girls Club
+    { id: 1, emoji: "🍛", name: "Eko Kitchen", neighborhood: "Crown Heights", note: "Best jollof in Brooklyn. Full stop." },
+    { id: 2, emoji: "🎭", name: "National Sawdust", neighborhood: "Williamsburg", note: "For the culture nights that feel sacred." },
+    { id: 3, emoji: "☕", name: "Café Rue Dix", neighborhood: "Crown Heights", note: "Our unofficial Sunday morning HQ." },
+  ],
+  1: [ // Soft Life Club NYC
+    { id: 1, emoji: "🧖‍♀️", name: "Great Jones Spa", neighborhood: "NoHo", note: "The steam pool. The silence. Go." },
+    { id: 2, emoji: "🌿", name: "La Mercerie", neighborhood: "SoHo", note: "For when brunch deserves to be beautiful." },
+    { id: 3, emoji: "💆", name: "AIRE Ancient Baths", neighborhood: "TriBeCa", note: "When you need to feel like a different woman." },
+  ],
+  2: [ // Muslim Women NYC
+    { id: 1, emoji: "🍽️", name: "Zab Thaïs", neighborhood: "Flushing", note: "Halal Thai. Always someone from the group here." },
+    { id: 2, emoji: "📚", name: "Kinokuniya Bookstore", neighborhood: "Midtown", note: "A whole world. You won't leave quickly." },
+    { id: 3, emoji: "🌙", name: "Maison Kayser", neighborhood: "UES", note: "Halal-friendly café. Perfect for sister circles." },
+  ],
+  3: [ // Girl Tech Collective
+    { id: 1, emoji: "💻", name: "Caffe Bene", neighborhood: "Midtown", note: "Reliable wifi, no pressure to leave. Our co-work spot." },
+    { id: 2, emoji: "🚀", name: "Soho House", neighborhood: "Meatpacking", note: "For the pitch days and the after." },
+    { id: 3, emoji: "☕", name: "Blank Street Coffee", neighborhood: "Various", note: "Fast, good, always near a meeting." },
+  ],
+  4: [ // Girls Who Move
+    { id: 1, emoji: "🌄", name: "Prospect Park", neighborhood: "Brooklyn", note: "Our Sunday home. The 4-mile loop is sacred." },
+    { id: 2, emoji: "🥐", name: "Runner's High Café", neighborhood: "Williamsburg", note: "The post-run pastries tradition." },
+    { id: 3, emoji: "🌿", name: "Riverside Park", neighborhood: "UWS", note: "Quieter than Central Park. More ours." },
+  ],
+  5: [ // Girl Creatives
+    { id: 1, emoji: "📚", name: "The Morgan Library", neighborhood: "Midtown", note: "Members go here like it's a second studio." },
+    { id: 2, emoji: "☕", name: "Cafe Grumpy", neighborhood: "Chelsea", note: "Where the writing circle was born." },
+    { id: 3, emoji: "🎨", name: "Printed Matter", neighborhood: "Chelsea", note: "Art zines, prints, conversation. Never leave empty-handed." },
+  ],
+  6: [ // Jazz & Wine Girls
+    { id: 1, emoji: "🎷", name: "Smalls Jazz Club", neighborhood: "West Village", note: "Friday at 9pm. Non-negotiable." },
+    { id: 2, emoji: "🍷", name: "L'Artusi", neighborhood: "West Village", note: "The pasta and wine pairing is the tradition." },
+    { id: 3, emoji: "🕯️", name: "Jazz Standard", neighborhood: "Gramercy", note: "For the big evenings. When the music matters." },
+  ],
+};
+
 const MEMBERSHIP: Record<number, { events: number; since: string }> = {
   1: { events: 4, since: "Mar 2024" },
   2: { events: 1, since: "Apr 2024" },
@@ -594,6 +704,112 @@ function TraditionsSection({ club }: { club: { id: number; color: string } }) {
   );
 }
 
+// ─── New Members Section ──────────────────────────────────────────────────────
+
+function NewMembersSection({ club }: { club: { id: number; color: string; name: string } }) {
+  const [welcomed, setWelcomed] = useState<Set<number>>(new Set());
+  const members = NEW_MEMBERS_DATA[club.id] ?? [];
+  if (members.length === 0) return null;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-[10px] font-bold tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.3)" }}>NEW MEMBERS</p>
+          <p className="text-[11px] mt-0.5"
+            style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            Welcome them in. They&apos;re new here.
+          </p>
+        </div>
+        <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+          style={{ background: `${club.color}22`, color: club.color }}>
+          {members.length} this week
+        </span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {members.map(member => (
+          <div key={member.id} className="rounded-2xl p-4"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: `1px solid ${club.color}22`,
+            }}>
+            <div className="flex items-start gap-3 mb-3">
+              <div className="rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
+                style={{ width: 40, height: 40, background: `linear-gradient(135deg, ${member.color} 0%, ${member.color}CC 100%)`, fontSize: 15 }}>
+                {member.initial}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  {member.name}
+                </p>
+                <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {member.neighborhood ? `${member.neighborhood} · ` : ""}{member.joinedAgo}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {member.tags.map(tag => (
+                <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={() => setWelcomed(p => new Set([...p, member.id]))}
+              className="text-[11px] font-bold px-4 py-2 rounded-full transition-all active:scale-95"
+              style={welcomed.has(member.id)
+                ? { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }
+                : { background: `${club.color}22`, color: club.color, border: `1px solid ${club.color}33` }}>
+              {welcomed.has(member.id) ? "Welcome sent ✓" : "Send a welcome →"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Club Places Section ──────────────────────────────────────────────────────
+
+function ClubPlacesSection({ club }: { club: { id: number; color: string } }) {
+  const places = CLUB_PLACES_DATA[club.id] ?? [];
+  if (places.length === 0) return null;
+
+  return (
+    <div>
+      <div className="mb-4">
+        <p className="text-[10px] font-bold tracking-widest uppercase"
+          style={{ color: "rgba(255,255,255,0.3)" }}>MEMBERS LOVE</p>
+        <p className="text-[11px] mt-0.5"
+          style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+          Places that belong to this club&apos;s identity.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        {places.map((place, i) => (
+          <div key={place.id} className="rounded-2xl px-4 py-3.5 flex items-start gap-3"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderLeft: i === 0 ? `3px solid ${club.color}` : "1px solid rgba(255,255,255,0.07)",
+            }}>
+            <span style={{ fontSize: 22, flexShrink: 0 }}>{place.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.88)" }}>{place.name}</p>
+              <p className="text-[10px] mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>{place.neighborhood}</p>
+              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.5)" }}>
+                &ldquo;{place.note}&rdquo;
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Club Post Card ───────────────────────────────────────────────────────────
 
 function ClubPostCard({ post, clubColor, onJoin, joined }: {
@@ -866,8 +1082,14 @@ function ClubDetailPage({ club, onBack, onEnterWorld }: {
         {/* Member Posts section — activity asks */}
         <ClubPostsSection club={{ id: club.id, color: club.color, name: club.name }} />
 
+        {/* New Members — context-rich welcome alerts */}
+        <NewMembersSection club={{ id: club.id, color: club.color, name: club.name }} />
+
         {/* Traditions — recurring cultural rituals */}
         <TraditionsSection club={{ id: club.id, color: club.color }} />
+
+        {/* Club Places — curated spots that belong to this club's identity */}
+        <ClubPlacesSection club={{ id: club.id, color: club.color }} />
 
         {/* Worlds section */}
         <div>
