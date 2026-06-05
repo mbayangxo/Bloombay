@@ -669,8 +669,15 @@ function RestaurantDetail({ r, onBack }: { r: Restaurant; onBack: () => void }) 
 
 // ── GO components ─────────────────────────────────────────────────────────────
 
+const GO_GOING_COUNTS: Record<number, number> = {
+  1: 12, 2: 8, 3: 5, 4: 9, 5: 7, 6: 11, 7: 4,
+};
+
 function GoCard({ p, onClick }: { p: GoPlace; onClick: () => void }) {
   const [saved, setSaved] = useState(false);
+  const [going, setGoing] = useState(false);
+  const goingBase = GO_GOING_COUNTS[p.id] ?? 3;
+
   return (
     <div
       className="rounded-2xl overflow-hidden cursor-pointer"
@@ -700,6 +707,22 @@ function GoCard({ p, onClick }: { p: GoPlace; onClick: () => void }) {
         <div className="flex items-center justify-between mt-2">
           <FlowerCount count={p.womenLoved} />
           {p.soloFriendly && <span className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#111", color: "white" }}>SOLO</span>}
+        </div>
+        {/* Going this weekend */}
+        <div className="mt-2.5 pt-2.5 flex items-center justify-between"
+          style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}
+          onClick={e => e.stopPropagation()}>
+          <span className="text-[9px] font-semibold" style={{ color: "#aaa" }}>
+            {going ? goingBase + 1 : goingBase} going this weekend
+          </span>
+          <button
+            onClick={e => { e.stopPropagation(); setGoing(g => !g); }}
+            className="text-[9px] font-bold px-2.5 py-1 rounded-full transition-all active:scale-95"
+            style={going
+              ? { background: "#FF1F7D", color: "white" }
+              : { background: "rgba(255,31,125,0.08)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.15)" }}>
+            {going ? "You're going ✓" : "I'm going →"}
+          </button>
         </div>
       </div>
     </div>

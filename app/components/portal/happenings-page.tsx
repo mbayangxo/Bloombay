@@ -120,6 +120,83 @@ const CELEB_WISH_DEFAULT: Record<CelebType, string> = {
   breakup: "Freedom looks good on you 👑",
 };
 
+// ── Happening attendees (per ID) ─────────────────────────────────────────────
+
+const HAPPENING_ATTENDEES: Record<number, { initial: string; color: string; neighborhood: string }[]> = {
+  1: [
+    { initial: "A", color: "#FF1F7D", neighborhood: "Crown Heights" },
+    { initial: "N", color: "#FF69B4", neighborhood: "Williamsburg" },
+    { initial: "Z", color: "#C084FC", neighborhood: "SoHo" },
+    { initial: "M", color: "#FF1F7D", neighborhood: "Bed-Stuy" },
+  ],
+  2: [
+    { initial: "K", color: "#FF69B4", neighborhood: "Greenpoint" },
+    { initial: "S", color: "#FF1F7D", neighborhood: "Park Slope" },
+    { initial: "J", color: "#FF69B4", neighborhood: "DUMBO" },
+  ],
+  3: [
+    { initial: "T", color: "#FF1F7D", neighborhood: "West Village" },
+    { initial: "P", color: "#FF69B4", neighborhood: "UWS" },
+  ],
+  4: [
+    { initial: "B", color: "#FF1F7D", neighborhood: "SoHo" },
+    { initial: "L", color: "#FF69B4", neighborhood: "Nolita" },
+    { initial: "C", color: "#C084FC", neighborhood: "Brooklyn Heights" },
+    { initial: "O", color: "#FF1F7D", neighborhood: "Flatbush" },
+    { initial: "D", color: "#FF69B4", neighborhood: "LES" },
+    { initial: "Y", color: "#FF1F7D", neighborhood: "Chelsea" },
+    { initial: "I", color: "#FF69B4", neighborhood: "Williamsburg" },
+  ],
+  5: [
+    { initial: "A", color: "#FF1F7D", neighborhood: "UWS" },
+    { initial: "N", color: "#FF69B4", neighborhood: "Midtown" },
+    { initial: "Z", color: "#FF1F7D", neighborhood: "Crown Heights" },
+    { initial: "M", color: "#C084FC", neighborhood: "Harlem" },
+    { initial: "P", color: "#FF69B4", neighborhood: "East Village" },
+  ],
+  6: [
+    { initial: "K", color: "#FF1F7D", neighborhood: "Sunset Park" },
+    { initial: "S", color: "#FF69B4", neighborhood: "Bay Ridge" },
+    { initial: "J", color: "#FF1F7D", neighborhood: "Greenwood" },
+    { initial: "T", color: "#FF69B4", neighborhood: "Park Slope" },
+  ],
+  7: [
+    { initial: "B", color: "#FF1F7D", neighborhood: "Nolita" },
+    { initial: "L", color: "#FF69B4", neighborhood: "Williamsburg" },
+  ],
+  8: [
+    { initial: "C", color: "#FF1F7D", neighborhood: "Chelsea" },
+    { initial: "O", color: "#FF69B4", neighborhood: "West Village" },
+    { initial: "D", color: "#C084FC", neighborhood: "Meatpacking" },
+  ],
+};
+
+// ── AttendeeRow ───────────────────────────────────────────────────────────────
+
+function AttendeeRow({ happeningId, onSee }: { happeningId: number; onSee: () => void }) {
+  const attendees = HAPPENING_ATTENDEES[happeningId] ?? [];
+  if (attendees.length === 0) return null;
+  return (
+    <button onClick={onSee} className="w-full mt-1.5 flex items-center justify-between px-0.5 py-1">
+      <div className="flex items-center gap-1.5">
+        <div className="flex">
+          {attendees.slice(0, 3).map((a, i) => (
+            <div key={i}
+              className="w-5 h-5 rounded-full flex items-center justify-center font-black text-white"
+              style={{ background: a.color, border: "1.5px solid white", marginLeft: i > 0 ? "-4px" : "0", fontSize: "8px" }}>
+              {a.initial}
+            </div>
+          ))}
+        </div>
+        <span className="text-[10px] font-semibold" style={{ color: "#888" }}>
+          {attendees.length} woman{attendees.length !== 1 ? "s" : ""} attending
+        </span>
+      </div>
+      <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>See who →</span>
+    </button>
+  );
+}
+
 // ── Unique poster designs per event type ──────────────────────────────────────
 
 function HappeningPoster({ h, onOpen }: { h: Happening; onOpen: () => void }) {
@@ -1240,6 +1317,44 @@ function OpenSeatCard({ item, onPress }: { item: OpenSeatItem; onPress: () => vo
   );
 }
 
+// ── Attendee Sheet ───────────────────────────────────────────────────────────
+
+function AttendeeSheet({ happeningId, onClose }: { happeningId: number | null; onClose: () => void }) {
+  if (happeningId === null) return null;
+  const attendees = HAPPENING_ATTENDEES[happeningId] ?? [];
+  const h = HAPPENINGS.find(hap => hap.id === happeningId);
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.5)" }} onClick={onClose} />
+      <div className="fixed bottom-0 inset-x-0 z-50 rounded-t-3xl pb-10 px-5 pt-4"
+        style={{ background: "white", boxShadow: "0 -8px 40px rgba(0,0,0,0.15)" }}>
+        <div className="flex justify-center mb-3">
+          <div className="w-8 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} />
+        </div>
+        <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>WHO&apos;S GOING</p>
+        <p className="font-black text-lg leading-tight mb-4"
+          style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{h?.title}</p>
+        <div className="flex flex-col gap-2">
+          {attendees.map((a, i) => (
+            <div key={i} className="flex items-center gap-3 py-2.5 px-3 rounded-2xl" style={{ background: "#FFF5F8" }}>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{ background: a.color }}>{a.initial}</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: "#111" }}>BloomBay Member</p>
+                <p className="text-[10px]" style={{ color: "#bbb" }}>{a.neighborhood}</p>
+              </div>
+              <button className="text-[11px] font-bold px-3 py-1.5 rounded-full"
+                style={{ background: "rgba(255,31,125,0.08)", color: "#FF1F7D" }}>
+                Message
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Main HappeningsPage ───────────────────────────────────────────────────────
 
 export function HappeningsPage() {
@@ -1254,6 +1369,7 @@ export function HappeningsPage() {
   const [appliedClubs, setAppliedClubs] = useState<Set<number>>(new Set());
   const [selectedFMEvent, setSelectedFMEvent] = useState<FMEvent | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [attendeeSheet, setAttendeeSheet] = useState<number | null>(null);
 
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
@@ -1349,6 +1465,7 @@ export function HappeningsPage() {
         {filteredHap.map(h => (
           <div key={h.id} className="flex-shrink-0" style={{ width: "200px" }}>
             <HappeningPoster h={h} onOpen={() => setSelectedEvent(h)} />
+            <AttendeeRow happeningId={h.id} onSee={() => setAttendeeSheet(h.id)} />
           </div>
         ))}
         {filteredHap.length === 0 && (
@@ -1426,6 +1543,9 @@ export function HappeningsPage() {
       )}
 
       {showAddSheet && <AddEventSheet onClose={() => setShowAddSheet(false)} />}
+
+      {/* ── Attendee sheet ── */}
+      <AttendeeSheet happeningId={attendeeSheet} onClose={() => setAttendeeSheet(null)} />
 
       {/* Floating + create button */}
       <button

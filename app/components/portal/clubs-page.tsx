@@ -995,6 +995,24 @@ function ClubPostsSection({ club }: { club: { id: number; color: string; name: s
         </div>
       </div>
 
+      {/* Who's joining me — featured invite */}
+      <button
+        onClick={() => { setDraft("Who's joining me for "); setComposing(true); }}
+        className="w-full rounded-2xl p-4 mb-3 flex items-center gap-3 text-left transition-all active:scale-[0.98]"
+        style={{ background: `${club.color}12`, border: `1px solid ${club.color}28` }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: `${club.color}22` }}>
+          <span style={{ fontSize: "16px" }}>🙋‍♀️</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-sm" style={{ color: club.color }}>Who&apos;s joining me?</p>
+          <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+            Ask women in this club to join you for something.
+          </p>
+        </div>
+        <span style={{ color: club.color, fontSize: "16px" }}>→</span>
+      </button>
+
       {/* Quick-prompt chips + compose trigger */}
       <div className="rounded-2xl p-4 mb-4"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>

@@ -138,6 +138,50 @@ function FirstMonthCard({ isNight }: { isNight: boolean }) {
   );
 }
 
+// ─── This Week (social calendar layer) ───────────────────────────────────────
+
+const THIS_WEEK_EVENTS = [
+  { day: "Wednesday", club: "Book Girls NYC",   time: "7PM · BK Heights",  color: "#A855F7" },
+  { day: "Friday",    club: "Dinner Club",       time: "8PM · West Village", color: "#FF1F7D" },
+  { day: "Saturday",  club: "Museum Meetup",     time: "2PM · The Met, UES", color: "#0EA5E9" },
+];
+
+function ThisWeekCard({ isNight }: { isNight: boolean }) {
+  const cardBg   = isNight ? "#13080E" : "white";
+  const divColor = isNight ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
+  const labelColor = isNight ? "rgba(255,255,255,0.25)" : "#ccc";
+  const headColor  = isNight ? "rgba(255,238,220,0.88)" : "#111";
+
+  return (
+    <div className="mx-5 mb-2 overflow-hidden"
+      style={{
+        background: cardBg,
+        borderRadius: "4px",
+        boxShadow: isNight ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 12px rgba(0,0,0,0.06)",
+      }}>
+      <div className="px-5 pt-4 pb-3 flex items-baseline justify-between"
+        style={{ borderBottom: `1px solid ${divColor}` }}>
+        <p className="font-bold tracking-[0.22em] uppercase" style={{ fontSize: "9px", color: PINK }}>THIS WEEK</p>
+        <Link href="/member/happenings" className="text-[9px] font-bold" style={{ color: PINK, textDecoration: "none" }}>See all →</Link>
+      </div>
+      {THIS_WEEK_EVENTS.map((ev, i) => (
+        <div key={i} className="flex items-center gap-3 px-5 py-3"
+          style={{
+            borderBottom: i < THIS_WEEK_EVENTS.length - 1 ? `1px solid ${divColor}` : "none",
+            borderLeft: `3px solid ${ev.color}`,
+          }}>
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] font-bold uppercase tracking-wide mb-0.5" style={{ color: labelColor }}>{ev.day}</p>
+            <p className="font-bold text-sm leading-tight" style={{ color: headColor }}>{ev.club}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: labelColor }}>{ev.time}</p>
+          </div>
+          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ev.color }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Social Momentum (Yande quiet observation) ───────────────────────────────
 
 const YANDE_OBSERVATIONS = [
@@ -540,6 +584,9 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           {mood.vibe}
         </p>
       </div>
+
+      {/* ── THIS WEEK (social calendar layer) ── */}
+      <ThisWeekCard isNight={isNight} />
 
       {/* ── SOCIAL MOMENTUM (Yande quiet observation) ── */}
       <SocialMomentumCard isNight={isNight} />
