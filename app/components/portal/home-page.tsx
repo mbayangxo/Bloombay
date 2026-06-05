@@ -51,6 +51,60 @@ const MY_INTERESTS = [
   { tag: "Girls Dinner",emoji: "🍷", href: "/member/happenings", label: "Tables for tonight →" },
 ];
 
+// ─── Mini Notification Badge ──────────────────────────────────────────────────
+
+function MiniNotif({ type, count, href }: { type: "invite" | "messages" | "pings" | "plans"; count: number; href: string }) {
+  const cfg = {
+    invite:   { color: "#FF1F7D", anim: "inviteShake 3.5s ease-in-out 0.8s infinite" },
+    messages: { color: "#FF69B4", anim: "msgBounce 4.2s ease-in-out 1.6s infinite"  },
+    pings:    { color: "#FF1F7D", anim: "pingRing 5s ease-in-out 2.5s infinite"      },
+    plans:    { color: "#D4A853", anim: "planPulse 3s ease-in-out 3s infinite"       },
+  }[type];
+  return (
+    <Link href={href} style={{ textDecoration: "none" }}>
+      <div className="relative transition-transform active:scale-90"
+        style={{ animation: count > 0 ? cfg.anim : undefined }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+          style={{ background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.15)" }}>
+          {type === "invite" && (
+            <svg width="14" height="11" viewBox="0 0 32 24" fill="none">
+              <rect x="1" y="1" width="30" height="22" rx="3.5" stroke={cfg.color} strokeWidth="2"/>
+              <path d="M1 5 L16 14.5 L31 5" stroke={cfg.color} strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          )}
+          {type === "messages" && (
+            <svg width="14" height="13" viewBox="0 0 30 28" fill="none">
+              <path d="M2 3C2 1.9 2.9 1 4 1H26C27.1 1 28 1.9 28 3V18C28 19.1 27.1 20 26 20H9.5L3 26V20H4C2.9 20 2 19.1 2 18V3Z"
+                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+          {type === "pings" && (
+            <svg width="13" height="14" viewBox="0 0 26 30" fill="none">
+              <path d="M13 2C13 2 5 7.5 5 16H3C2.4 16 2 16.4 2 17C2 17.6 2.4 18 3 18H23C23.6 18 24 17.6 24 17C24 16.4 23.6 16 23 16H21C21 7.5 13 2 13 2Z"
+                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10.5 18C10.5 19.4 11.6 20.5 13 20.5C14.4 20.5 15.5 19.4 15.5 18"
+                stroke={cfg.color} strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          )}
+          {type === "plans" && (
+            <svg width="11" height="14" viewBox="0 0 22 28" fill="none">
+              <path d="M11 1C6.6 1 3 4.6 3 9C3 15 11 27 11 27C11 27 19 15 19 9C19 4.6 15.4 1 11 1Z"
+                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="11" cy="9" r="3" stroke={cfg.color} strokeWidth="2"/>
+            </svg>
+          )}
+        </div>
+        {count > 0 && (
+          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
+            style={{ background: cfg.color, boxShadow: "0 0 0 1.5px white" }}>
+            {count}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 // ─── Mini Crest ───────────────────────────────────────────────────────────────
 
 function MiniCrest({ name, color, crestBg, size = 40 }: {
@@ -362,23 +416,33 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
             </h1>
           </div>
 
-          {/* Girl Bar — tiny, top right */}
-          <Link
-            href="/member/room?enter=girlbar"
-            className="flex-shrink-0 flex flex-col items-center gap-0.5 mt-1 transition-transform active:scale-90"
-          >
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center relative"
-              style={{
-                background: "linear-gradient(135deg, #1A0410, #3D0820)",
-                border: "1px solid rgba(255,31,125,0.35)",
-                boxShadow: "0 0 12px rgba(255,31,125,0.3)",
-              }}>
-              <span style={{ fontSize: "16px" }}>🍸</span>
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ background: "#FF1F7D", boxShadow: "0 0 4px #FF1F7D" }} />
+          {/* Right column: notification grid + Girl Bar */}
+          <div className="flex-shrink-0 flex flex-col items-end gap-2 mt-1">
+            {/* 2×2 compact notification grid */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <MiniNotif type="invite"   count={INBOX_INVITES}  href="/member/messages?filter=invitations" />
+              <MiniNotif type="messages" count={INBOX_MESSAGES} href="/member/messages" />
+              <MiniNotif type="pings"    count={INBOX_PINGS}    href="/member/notifications" />
+              <MiniNotif type="plans"    count={INBOX_PLANS}    href="/member/plans" />
             </div>
-            <p className="text-[7px] font-bold tracking-wider uppercase" style={{ color: "#FF1F7D" }}>Bar</p>
-          </Link>
+            {/* Girl Bar */}
+            <Link
+              href="/member/room?enter=girlbar"
+              className="flex flex-col items-center gap-0.5 transition-transform active:scale-90"
+            >
+              <div className="w-[66px] h-7 rounded-xl flex items-center justify-center gap-1.5 relative"
+                style={{
+                  background: "linear-gradient(135deg, #1A0410, #3D0820)",
+                  border: "1px solid rgba(255,31,125,0.35)",
+                  boxShadow: "0 0 10px rgba(255,31,125,0.25)",
+                }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
+                  style={{ background: "#FF1F7D", boxShadow: "0 0 4px #FF1F7D" }} />
+                <span className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "#FF69B4" }}>Bar</span>
+                <span style={{ fontSize: "12px" }}>🍸</span>
+              </div>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -413,22 +477,6 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
               </Link>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ── INBOX OBJECTS ── */}
-      <div className="mb-6">
-        <div className="px-5 flex items-center justify-between mb-3 md:px-8">
-          <div>
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ CHECK IN</p>
-            <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-instrument)", color: headingColor }}>What&apos;s waiting for you.</p>
-          </div>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-1 md:px-8" style={{ scrollbarWidth: "none" }}>
-          <InboxObject type="invite"   count={INBOX_INVITES}  href="/member/messages?filter=invitations" dark={isNight} />
-          <InboxObject type="messages" count={INBOX_MESSAGES} href="/member/messages"                    dark={isNight} />
-          <InboxObject type="pings"    count={INBOX_PINGS}    href="/member/notifications"               dark={isNight} />
-          <InboxObject type="plans"    count={INBOX_PLANS}    href="/member/plans"                       dark={isNight} />
         </div>
       </div>
 

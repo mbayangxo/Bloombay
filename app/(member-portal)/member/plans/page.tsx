@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -16,6 +17,7 @@ interface PlanRoom {
   date: string;
   venue?: string;
   time?: string;
+  eventId?: number;
 }
 
 interface PlanMessage {
@@ -34,9 +36,12 @@ type NewPlanStep = "choose" | "room" | "bloomie" | "club";
 // ── Data ───────────────────────────────────────────────────────────────────────
 
 const PLAN_ROOMS: PlanRoom[] = [
-  { id: 1, name: "Morocco October",      emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7, members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026"  },
-  { id: 2, name: "Afrobeats Night",      emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3, members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM" },
-  { id: 3, name: "Sunday Walk Circle",   emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0, members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM"   },
+  { id: 1, name: "Morocco October",      emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7, members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026"   },
+  { id: 2, name: "Afrobeats Night",      emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3, members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", eventId: 6 },
+  { id: 3, name: "Sunday Walk Circle",   emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0, members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   eventId: 4 },
+  { id: 4, name: "Women in Lens",        emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2, members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     eventId: 1 },
+  { id: 5, name: "Wheel Throwing",       emoji: "🏺",  bg: "#0A1518", accent: "#83C5A0", unread: 1, members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  eventId: 2 },
+  { id: 6, name: "Golden Hour Rooftop",  emoji: "🌅",  bg: "#180A06", accent: "#F59E0B", unread: 0, members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     eventId: 3 },
 ];
 
 const BLOOMIES_LIST = [
@@ -55,6 +60,24 @@ const CLUBS_LIST = [
 ];
 
 const ROOM_MESSAGES: Record<number, PlanMessage[]> = {
+  4: [
+    { id: 1, sender: "Amara",  initial: "A", color: "#FF1F7D", text: "So excited for tonight!! Anyone getting there early to grab a spot near the front?", time: "2:30 PM" },
+    { id: 2, sender: "Sofía",  initial: "S", color: "#FF69B4", text: "I'll be there by 6:45. They said the opening talk starts at 7:15", time: "2:34 PM" },
+    { id: 3, sender: "Me",     initial: "Y", color: "#FF1F7D", text: "I'll come with you Sofía! Meeting at the corner of Wyckoff?", time: "2:38 PM", isMe: true },
+    { id: 4, sender: "Nia",    initial: "N", color: "#C0185F", text: "Yes!! The photographer doing the artist talk is incredible. I've been following her work for years", time: "2:42 PM" },
+    { id: 5, sender: "Amara",  initial: "A", color: "#FF1F7D", text: "Also — champagne reception is free 🥂🥂 this night is going to be everything", time: "2:45 PM" },
+  ],
+  5: [
+    { id: 1, sender: "Priya",  initial: "P", color: "#FF69B4", text: "First time doing wheel throwing. Should I wear old clothes?", time: "10:00 AM" },
+    { id: 2, sender: "Mia",    initial: "M", color: "#FF1F7D", text: "Absolutely. I ruined a white top last time 😅 clay goes everywhere", time: "10:04 AM" },
+    { id: 3, sender: "Me",     initial: "Y", color: "#FF1F7D", text: "Good call. I'm wearing my black overalls", time: "10:06 AM", isMe: true },
+    { id: 4, sender: "Jade",   initial: "J", color: "#FF69B4", text: "The instructor is so good — she'll teach you how to center the clay in the first 10 minutes", time: "10:09 AM" },
+  ],
+  6: [
+    { id: 1, sender: "Imani",  initial: "I", color: "#FF1F7D", text: "Golden hour from the rooftop tonight 🌅 who's hyped?", time: "3:00 PM" },
+    { id: 2, sender: "Luna",   initial: "L", color: "#FF69B4", text: "Been waiting for this all week. What's everyone wearing?", time: "3:03 PM" },
+    { id: 3, sender: "Me",     initial: "Y", color: "#FF1F7D", text: "Something gold obviously 😂 see you all at 8!", time: "3:07 PM", isMe: true },
+  ],
   1: [
     { id: 1, sender: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Who's booking flights? We should coordinate — group deals are cheaper", time: "9:12 AM" },
     { id: 2, sender: "Jade K.",    initial: "J", color: "#FF69B4", text: "Skyscanner has a group booking tool 👀 let me look into it", time: "9:14 AM" },
@@ -804,12 +827,22 @@ function HorizontalTicketCard({ room, hasUnread, onOpen, onViewTicket }: {
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
-export default function PlansPage() {
+function PlansPageInner() {
+  const searchParams = useSearchParams();
   const [view, setView]             = useState<View>("list");
   const [activeRoom, setActiveRoom] = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom] = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [read, setRead]             = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const eventId = searchParams.get("event");
+    if (eventId) {
+      const room = PLAN_ROOMS.find(r => r.eventId === parseInt(eventId, 10));
+      if (room) { openRoom(room); }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function openRoom(room: PlanRoom) {
     setRead(prev => new Set([...prev, room.id]));
@@ -924,5 +957,13 @@ export default function PlansPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function PlansPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }} />}>
+      <PlansPageInner />
+    </Suspense>
   );
 }

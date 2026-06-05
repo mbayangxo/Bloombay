@@ -645,7 +645,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
                   </p>
                 )}
               </div>
-              <Link href="/member/plans"
+              <Link href={`/member/plans?event=${event.id}`}
                 className="px-4 py-2 rounded-xl text-xs font-bold active:scale-[0.97] transition-transform"
                 style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.4)" }}>
                 Enter Room →
@@ -727,7 +727,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             style={{ background: "#111111", color: "white" }}>
             💌 Invite a Bloomie
           </button>
-          <Link href="/member/plans"
+          <Link href={`/member/plans?event=${event.id}`}
             className="flex-1 py-3.5 rounded-2xl font-bold text-sm text-white inline-flex items-center justify-center active:scale-[0.97] transition-transform"
             style={{ background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>
             Plan Room →
@@ -916,20 +916,26 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             </div>
           </div>
 
-          {/* Who's Coming — profile card preview */}
+          {/* Who's Coming */}
           <div className="mb-5">
             <div className="px-5 md:px-0 flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>WHO&apos;S COMING</p>
-              <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>RSVP to see all →</p>
+              <p className="text-[10px] font-semibold italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+                {ext.attendees.length} women · avg {Math.round(ext.attendees.reduce((s, a) => s + a.compatibility, 0) / ext.attendees.length)}% match
+              </p>
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2"
               style={{ paddingLeft: "20px", paddingRight: "20px", scrollbarWidth: "none" }}>
-              {ext.attendees.slice(0, 3).map((a, i) => (
+              {ext.attendees.map((a, i) => (
                 <div key={i} className="flex-shrink-0 rounded-2xl overflow-hidden"
-                  style={{ width: "110px", background: "white", boxShadow: "0 4px 14px rgba(0,0,0,0.07)", filter: "blur(0px)" }}>
-                  <div className="h-[60px] flex items-center justify-center"
+                  style={{ width: "110px", background: "white", boxShadow: "0 4px 14px rgba(0,0,0,0.07)" }}>
+                  <div className="h-[60px] flex items-center justify-center relative"
                     style={{ background: `linear-gradient(135deg, ${a.color}66 0%, ${a.color}33 100%)` }}>
                     <span className="text-xl font-black" style={{ color: a.color }}>{a.initial}</span>
+                    <div className="absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.5"
+                      style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
+                      <span className="text-[8px] font-black text-white">{a.compatibility}%</span>
+                    </div>
                   </div>
                   <div className="px-3 py-2">
                     <p className="text-xs font-bold" style={{ color: "#111" }}>{a.name}</p>
@@ -937,17 +943,6 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
                   </div>
                 </div>
               ))}
-              {/* Locked / blurred card hinting there are more */}
-              <div className="flex-shrink-0 rounded-2xl overflow-hidden relative"
-                style={{ width: "110px", background: "#F8F5F7", boxShadow: "0 4px 14px rgba(0,0,0,0.07)" }}>
-                <div className="h-[60px] flex items-center justify-center" style={{ background: "#F0EAF0" }}>
-                  <span className="text-xl">🔒</span>
-                </div>
-                <div className="px-3 py-2">
-                  <p className="text-xs font-bold" style={{ color: "#bbb" }}>+{ext.attendees.length - 3} more</p>
-                  <p className="text-[9px] mt-0.5" style={{ color: "#ccc" }}>RSVP to see</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -961,28 +956,6 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
               </div>
               <div className="flex-1">
                 <ChemistryBars chemistry={ext.chemistry} />
-              </div>
-            </div>
-          </div>
-
-          {/* Plan Room teaser */}
-          <div className="px-5 md:px-0 mb-5">
-            <div className="rounded-2xl overflow-hidden" style={{ background: "#0D0810", boxShadow: "0 4px 18px rgba(0,0,0,0.2)" }}>
-              <div className="relative px-5 py-4">
-                <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 25% 0%, rgba(255,31,125,0.10) 0%, transparent 65%)" }} />
-                <div className="relative flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF1F7D" }} />
-                      <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>PLAN ROOM · UNLOCKS AFTER RSVP</p>
-                    </div>
-                    <p className="text-sm font-bold text-white">{event.title}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{ext.attendees.length} women going · Private chat</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)" }}>
-                    <span style={{ fontSize: "18px", opacity: 0.4 }}>🔒</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1076,15 +1049,26 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             </div>
           )}
 
-          {/* CTA buttons */}
+          {/* 4 Intent CTAs */}
           <button onClick={handleRSVP}
-            className="w-full py-5 rounded-2xl text-base font-bold text-white transition-all active:scale-[0.97]"
-            style={{ background: "#FF1F7D", boxShadow: "0 6px 22px rgba(255,31,125,0.4)", padding: "18px" }}>
-            {isFree ? "RSVP — I'm Going ✿" : "SECURE MY SEAT ✿"}
+            className="w-full rounded-2xl text-sm font-bold text-white transition-all active:scale-[0.97]"
+            style={{ background: "#FF1F7D", boxShadow: "0 6px 22px rgba(255,31,125,0.4)", padding: "17px" }}>
+            {isFree ? "I'm Going ✿" : "I'm Going — Secure My Seat ✿"}
           </button>
-          <button className="w-full py-4 rounded-2xl text-sm font-bold transition-all active:scale-[0.97]"
-            style={{ background: "white", color: "#111", border: "1.5px solid #E0E0E0" }}>
-            SAVE FOR LATER ◻
+          <button onClick={() => setSaved(true)}
+            className="w-full py-3.5 rounded-2xl text-sm font-semibold transition-all active:scale-[0.97]"
+            style={{ background: "#FFF0F5", color: "#FF1F7D", border: "1.5px solid rgba(255,31,125,0.2)" }}>
+            I Might Go — Remind me ◷
+          </button>
+          <button
+            className="w-full py-3.5 rounded-2xl text-sm font-semibold transition-all active:scale-[0.97]"
+            style={{ background: "white", color: "#888", border: "1.5px solid #E8E8E8" }}>
+            Not sure yet
+          </button>
+          <button onClick={onBack}
+            className="w-full py-2 text-xs font-medium transition-all active:opacity-60"
+            style={{ color: "#ccc" }}>
+            Maybe next time →
           </button>
           <p className="text-[10px] text-center" style={{ color: "#bbb" }}>✿ All women are verified. All vibes are real.</p>
         </div>
