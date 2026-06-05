@@ -63,10 +63,10 @@ const FIRST_MONTH_WEEKS = [
 const CURRENT_WEEK = 2;
 
 function FirstMonthCard({ isNight }: { isNight: boolean }) {
-  const cardBg      = isNight ? "#141414" : "white";
+  const cardBg      = isNight ? "#2E2E2E" : "white";
   const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#111";
   const mutedColor  = isNight ? "rgba(255,255,255,0.3)" : "#bbb";
-  const dividerColor = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+  const dividerColor = isNight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)";
 
   return (
     <div className="mx-5 md:mx-8 overflow-hidden"
@@ -147,8 +147,8 @@ const THIS_WEEK_EVENTS = [
 ];
 
 function ThisWeekCard({ isNight }: { isNight: boolean }) {
-  const cardBg   = isNight ? "#111111" : "white";
-  const divColor = isNight ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
+  const cardBg   = isNight ? "#2A2A2A" : "white";
+  const divColor = isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
   const labelColor = isNight ? "rgba(255,255,255,0.25)" : "#ccc";
   const headColor  = isNight ? "rgba(255,238,220,0.88)" : "#111";
 
@@ -195,8 +195,8 @@ function SocialMomentumCard({ isNight }: { isNight: boolean }) {
   return (
     <div className="mx-5 mb-2 rounded-2xl px-5 py-4 flex gap-3 items-start"
       style={{
-        background: isNight ? "rgba(255,31,125,0.06)" : "#FFF5F8",
-        border: `1px solid ${isNight ? "rgba(255,31,125,0.12)" : "rgba(255,31,125,0.1)"}`,
+        background: isNight ? "rgba(255,31,125,0.13)" : "#FFF5F8",
+        border: `1px solid ${isNight ? "rgba(255,31,125,0.22)" : "rgba(255,31,125,0.1)"}`,
       }}>
       <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "2px" }}>🌸</span>
       <div className="flex-1 min-w-0">
@@ -280,7 +280,7 @@ function InvitationCard({ inv, isNight }: {
       <Link href="/member/messages?filter=invitations" style={{ textDecoration: "none", flexShrink: 0 }}>
         <div className="relative overflow-hidden transition-transform active:scale-[0.97]"
           style={{ width: `${W}px`, height: `${H}px`,
-            background: isNight ? "#252525" : "#F5E8D5",
+            background: isNight ? "#383838" : "#F5E8D5",
             borderRadius: "3px",
             boxShadow: "0 6px 24px rgba(0,0,0,0.16)" }}>
           {/* Envelope flap */}
@@ -288,14 +288,14 @@ function InvitationCard({ inv, isNight }: {
             position: "absolute", top: 0, left: 0, right: 0, height: 0,
             borderLeft: `${W / 2}px solid transparent`,
             borderRight: `${W / 2}px solid transparent`,
-            borderTop: `${Math.round(H * 0.38)}px solid ${isNight ? "#2E2E2E" : "#E2C99A"}`,
+            borderTop: `${Math.round(H * 0.38)}px solid ${isNight ? "#424242" : "#E2C99A"}`,
           }} />
           {/* Bottom triangle */}
           <div style={{
             position: "absolute", bottom: 0, left: 0, right: 0, height: 0,
             borderLeft: `${W / 2}px solid transparent`,
             borderRight: `${W / 2}px solid transparent`,
-            borderBottom: `${Math.round(H * 0.34)}px solid ${isNight ? "#252525" : "#EBCFA0"}`,
+            borderBottom: `${Math.round(H * 0.34)}px solid ${isNight ? "#383838" : "#EBCFA0"}`,
           }} />
           {/* Wax seal */}
           <div className="absolute flex items-center justify-center"
@@ -315,7 +315,7 @@ function InvitationCard({ inv, isNight }: {
     );
   }
 
-  const cardBg = isNight ? "#1E1E1E" : "white";
+  const cardBg = isNight ? "#323232" : "white";
   const textMain = isNight ? "rgba(255,238,220,0.92)" : "#111";
   const textMuted = isNight ? "rgba(255,255,255,0.32)" : "#aaa";
 
@@ -363,7 +363,7 @@ function InvitationCard({ inv, isNight }: {
 function TonightCard({ isNight }: { isNight: boolean }) {
   const [going, setGoing] = useState(false);
   const ev = TONIGHT_EVENT;
-  const cardBg = isNight ? "#181818" : "white";
+  const cardBg = isNight ? "#2A2A2A" : "white";
   const titleColor = isNight ? "rgba(255,238,220,0.95)" : "#111";
   const mutedColor = isNight ? "rgba(255,255,255,0.35)" : "#aaa";
 
@@ -376,7 +376,7 @@ function TonightCard({ isNight }: { isNight: boolean }) {
       <div className="relative overflow-hidden flex-shrink-0"
         style={{ width: "42%",
           background: isNight
-            ? "linear-gradient(160deg, #282828 0%, #1A1A1A 100%)"
+            ? "linear-gradient(160deg, #363636 0%, #2C2C2C 100%)"
             : "linear-gradient(160deg, #2E0010 0%, #FF1F7D18 100%)" }}>
         <div className="absolute inset-0 flex items-center justify-center">
           <span style={{ fontSize: "56px", opacity: 0.65 }}>🍷</span>
@@ -406,13 +406,13 @@ function TonightCard({ isNight }: { isNight: boolean }) {
             {ev.avatars.map((a, i) => (
               <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white"
                 style={{ background: a.c, marginLeft: i > 0 ? "-5px" : "0",
-                  border: `2px solid ${isNight ? "#181818" : "white"}` }}>
+                  border: `2px solid ${isNight ? "#2A2A2A" : "white"}` }}>
                 {a.i}
               </div>
             ))}
             <div className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-black text-white"
               style={{ background: "#111", marginLeft: "-5px",
-                border: `2px solid ${isNight ? "#181818" : "white"}` }}>
+                border: `2px solid ${isNight ? "#2A2A2A" : "white"}` }}>
               +{ev.extra}
             </div>
           </div>
@@ -458,7 +458,7 @@ function ClubCrest({ club, isNight }: {
         <div className="relative">
           <div className="w-14 h-14 flex flex-col items-center justify-center relative"
             style={{
-              background: isNight ? "rgba(255,31,125,0.07)" : "white",
+              background: isNight ? "rgba(255,31,125,0.14)" : "white",
               border: `1.5px solid ${isNight ? "rgba(255,31,125,0.28)" : "rgba(0,0,0,0.1)"}`,
               borderRadius: "4px",
               boxShadow: isNight ? "none" : "0 2px 8px rgba(0,0,0,0.07)",
@@ -517,12 +517,12 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
 
   const mood      = CITY_MOOD[tod];
   const isNight   = tod === "evening" || tod === "night";
-  const pageBg    = isNight ? "#111111" : "#FDF4EC";
+  const pageBg    = isNight ? "#242424" : "#FDF4EC";
   const headingColor  = isNight ? "rgba(255,238,220,0.95)" : "#111";
   const mutedColor    = isNight ? "rgba(255,255,255,0.38)" : "#999";
   const sectionLabel  = isNight ? "rgba(255,255,255,0.42)" : "#888";
-  const dividerColor  = isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
-  const cardBg        = isNight ? "#181818" : "white";
+  const dividerColor  = isNight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.07)";
+  const cardBg        = isNight ? "#2A2A2A" : "white";
 
   const tonightLabel =
     tod === "morning" ? "COMING UP TONIGHT" :
@@ -601,7 +601,7 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
             <Link key={sc.label} href={sc.href} style={{ textDecoration: "none", flex: 1 }}>
               <div className="flex items-center justify-center gap-3 py-4 transition-transform active:scale-[0.97]"
                 style={{
-                  background: isNight ? "rgba(255,31,125,0.07)" : "white",
+                  background: isNight ? "rgba(255,31,125,0.14)" : "white",
                   border: `1px solid ${dividerColor}`,
                   borderRadius: "4px",
                   boxShadow: isNight ? "none" : "0 2px 10px rgba(0,0,0,0.05)",
