@@ -1017,7 +1017,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
                   {/* Add new polaroid */}
                   <div className="flex-shrink-0" style={{ transform: "rotate(1deg)" }}>
-                    <button className="p-3 pb-8 transition-all active:scale-95"
+                    <button
+                      onClick={() => { setToast("Memory feature coming soon ✦"); setTimeout(() => setToast(null), 2500); }}
+                      className="p-3 pb-8 transition-all active:scale-95"
                       style={{ background: "rgba(255,255,255,0.06)", borderRadius: "4px", width: "148px", border: "1.5px dashed rgba(255,255,255,0.15)", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
                       <div className="w-full h-28 flex items-center justify-center rounded-sm mb-1"
                         style={{ background: "rgba(255,255,255,0.04)", border: "1.5px dashed rgba(255,255,255,0.1)" }}>

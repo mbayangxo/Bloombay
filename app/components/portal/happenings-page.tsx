@@ -122,52 +122,52 @@ const CELEB_WISH_DEFAULT: Record<CelebType, string> = {
 
 // ── Happening attendees (per ID) ─────────────────────────────────────────────
 
-const HAPPENING_ATTENDEES: Record<number, { initial: string; color: string; neighborhood: string }[]> = {
+const HAPPENING_ATTENDEES: Record<number, { initial: string; name: string; color: string; neighborhood: string }[]> = {
   1: [
-    { initial: "A", color: "#FF1F7D", neighborhood: "Crown Heights" },
-    { initial: "N", color: "#FF69B4", neighborhood: "Williamsburg" },
-    { initial: "Z", color: "#C084FC", neighborhood: "SoHo" },
-    { initial: "M", color: "#FF1F7D", neighborhood: "Bed-Stuy" },
+    { initial: "A", name: "Aminah C.",  color: "#FF1F7D", neighborhood: "Crown Heights" },
+    { initial: "N", name: "Ngozi M.",   color: "#FF69B4", neighborhood: "Williamsburg" },
+    { initial: "Z", name: "Zara F.",    color: "#C084FC", neighborhood: "SoHo" },
+    { initial: "M", name: "Maya T.",    color: "#FF1F7D", neighborhood: "Bed-Stuy" },
   ],
   2: [
-    { initial: "K", color: "#FF69B4", neighborhood: "Greenpoint" },
-    { initial: "S", color: "#FF1F7D", neighborhood: "Park Slope" },
-    { initial: "J", color: "#FF69B4", neighborhood: "DUMBO" },
+    { initial: "K", name: "Kezia N.",   color: "#FF69B4", neighborhood: "Greenpoint" },
+    { initial: "S", name: "Sofia K.",   color: "#FF1F7D", neighborhood: "Park Slope" },
+    { initial: "J", name: "Jade O.",    color: "#FF69B4", neighborhood: "DUMBO" },
   ],
   3: [
-    { initial: "T", color: "#FF1F7D", neighborhood: "West Village" },
-    { initial: "P", color: "#FF69B4", neighborhood: "UWS" },
+    { initial: "T", name: "Temi A.",    color: "#FF1F7D", neighborhood: "West Village" },
+    { initial: "P", name: "Priya S.",   color: "#FF69B4", neighborhood: "UWS" },
   ],
   4: [
-    { initial: "B", color: "#FF1F7D", neighborhood: "SoHo" },
-    { initial: "L", color: "#FF69B4", neighborhood: "Nolita" },
-    { initial: "C", color: "#C084FC", neighborhood: "Brooklyn Heights" },
-    { initial: "O", color: "#FF1F7D", neighborhood: "Flatbush" },
-    { initial: "D", color: "#FF69B4", neighborhood: "LES" },
-    { initial: "Y", color: "#FF1F7D", neighborhood: "Chelsea" },
-    { initial: "I", color: "#FF69B4", neighborhood: "Williamsburg" },
+    { initial: "B", name: "Bea T.",     color: "#FF1F7D", neighborhood: "SoHo" },
+    { initial: "L", name: "Leila M.",   color: "#FF69B4", neighborhood: "Nolita" },
+    { initial: "C", name: "Camille D.", color: "#C084FC", neighborhood: "Brooklyn Heights" },
+    { initial: "O", name: "Ogechi T.",  color: "#FF1F7D", neighborhood: "Flatbush" },
+    { initial: "D", name: "Deja W.",    color: "#FF69B4", neighborhood: "LES" },
+    { initial: "Y", name: "Yemi O.",    color: "#FF1F7D", neighborhood: "Chelsea" },
+    { initial: "I", name: "Ifeoma O.",  color: "#FF69B4", neighborhood: "Williamsburg" },
   ],
   5: [
-    { initial: "A", color: "#FF1F7D", neighborhood: "UWS" },
-    { initial: "N", color: "#FF69B4", neighborhood: "Midtown" },
-    { initial: "Z", color: "#FF1F7D", neighborhood: "Crown Heights" },
-    { initial: "M", color: "#C084FC", neighborhood: "Harlem" },
-    { initial: "P", color: "#FF69B4", neighborhood: "East Village" },
+    { initial: "A", name: "Aaliyah M.", color: "#FF1F7D", neighborhood: "UWS" },
+    { initial: "N", name: "Naomi B.",   color: "#FF69B4", neighborhood: "Midtown" },
+    { initial: "Z", name: "Zara F.",    color: "#FF1F7D", neighborhood: "Crown Heights" },
+    { initial: "M", name: "Maya K.",    color: "#C084FC", neighborhood: "Harlem" },
+    { initial: "P", name: "Priya S.",   color: "#FF69B4", neighborhood: "East Village" },
   ],
   6: [
-    { initial: "K", color: "#FF1F7D", neighborhood: "Sunset Park" },
-    { initial: "S", color: "#FF69B4", neighborhood: "Bay Ridge" },
-    { initial: "J", color: "#FF1F7D", neighborhood: "Greenwood" },
-    { initial: "T", color: "#FF69B4", neighborhood: "Park Slope" },
+    { initial: "K", name: "Kemi A.",    color: "#FF1F7D", neighborhood: "Sunset Park" },
+    { initial: "S", name: "Sofia K.",   color: "#FF69B4", neighborhood: "Bay Ridge" },
+    { initial: "J", name: "Jade O.",    color: "#FF1F7D", neighborhood: "Greenwood" },
+    { initial: "T", name: "Tara L.",    color: "#FF69B4", neighborhood: "Park Slope" },
   ],
   7: [
-    { initial: "B", color: "#FF1F7D", neighborhood: "Nolita" },
-    { initial: "L", color: "#FF69B4", neighborhood: "Williamsburg" },
+    { initial: "B", name: "Bea T.",     color: "#FF1F7D", neighborhood: "Nolita" },
+    { initial: "L", name: "Lola B.",    color: "#FF69B4", neighborhood: "Williamsburg" },
   ],
   8: [
-    { initial: "C", color: "#FF1F7D", neighborhood: "Chelsea" },
-    { initial: "O", color: "#FF69B4", neighborhood: "West Village" },
-    { initial: "D", color: "#C084FC", neighborhood: "Meatpacking" },
+    { initial: "C", name: "Chidera L.", color: "#FF1F7D", neighborhood: "Chelsea" },
+    { initial: "O", name: "Obioma L.",  color: "#FF69B4", neighborhood: "West Village" },
+    { initial: "D", name: "Deja W.",    color: "#C084FC", neighborhood: "Meatpacking" },
   ],
 };
 
@@ -189,7 +189,7 @@ function AttendeeRow({ happeningId, onSee }: { happeningId: number; onSee: () =>
           ))}
         </div>
         <span className="text-[10px] font-semibold" style={{ color: "#888" }}>
-          {attendees.length} woman{attendees.length !== 1 ? "s" : ""} attending
+          {attendees.length} {attendees.length === 1 ? "woman" : "women"} attending
         </span>
       </div>
       <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>See who →</span>
@@ -1340,7 +1340,7 @@ function AttendeeSheet({ happeningId, onClose }: { happeningId: number | null; o
               <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                 style={{ background: a.color }}>{a.initial}</div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm" style={{ color: "#111" }}>BloomBay Member</p>
+                <p className="font-bold text-sm" style={{ color: "#111" }}>{a.name}</p>
                 <p className="text-[10px]" style={{ color: "#bbb" }}>{a.neighborhood}</p>
               </div>
               <button className="text-[11px] font-bold px-3 py-1.5 rounded-full"

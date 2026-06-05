@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 
+// ── Logged-in user (replace with real auth context when backend is ready) ─────
+
+const ME = { initial: "D", color: "#FF1F7D", name: "dmbayang" };
+
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const BLOOM_REQUESTS = [
@@ -162,10 +166,11 @@ function BloomRequestEnvelope({ req, accepted, onOpen }: {
           <p className="font-bold text-sm" style={{ color: "#111" }}>{req.name}</p>
           <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{req.neighborhood}</p>
         </div>
-        <span className="text-xs font-bold px-3 py-1.5 rounded-full"
-          style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
-          Bloomies ✦
-        </span>
+        <button
+          className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-95"
+          style={{ background: "#FF1F7D", color: "white" }}>
+          Message →
+        </button>
       </div>
     );
   }
@@ -394,8 +399,8 @@ function BothBloomiesOverlay({ req, onDone }: {
         </div>
         {/* Your avatar */}
         <div className="w-20 h-20 rounded-full flex items-center justify-center font-black text-white border-4 border-white"
-          style={{ background: "#C0185F", fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
-          D
+          style={{ background: ME.color, fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+          {ME.initial}
         </div>
       </div>
 
@@ -501,7 +506,7 @@ function ComeWithMeCard({ post, joined, onJoin }: {
         <button onClick={onJoin}
           className="px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
           style={joined ? { background: "#FFF0F5", color: "#FF1F7D" } : { background: "#111", color: "white" }}>
-          {joined ? "You&apos;re in ✓" : "Join her →"}
+          {joined ? "You're in ✓" : "Join her →"}
         </button>
       </div>
     </div>
@@ -799,7 +804,7 @@ export default function IntroductionsPage() {
                 joined={joined.has(post.id)}
                 onJoin={() => {
                   setJoined(p => new Set([...p, post.id]));
-                  showToast("You&apos;re in ✓");
+                  showToast("You're in ✓");
                 }}
               />
             ))}

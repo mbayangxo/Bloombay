@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const ME = { initial: "D", color: "#FF1F7D", name: "dmbayang" };
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 type ClubType = "hq" | "user";
@@ -970,8 +972,8 @@ function ClubPostsSection({ club }: { club: { id: number; color: string; name: s
     const newPost: ClubPost = {
       id: Date.now(),
       author: "You",
-      initial: "M",
-      color: "#FF69B4",
+      initial: ME.initial,
+      color: ME.color,
       text,
       time: "Just now",
       inCount: 0,
