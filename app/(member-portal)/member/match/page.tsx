@@ -232,10 +232,17 @@ function ConnectTab() {
   const [queue, setQueue] = useState(GIRL_MATE_QUEUE);
   const [connected, setConnected] = useState<Set<number>>(new Set());
   const [joinedMoments, setJoinedMoments] = useState<Set<number>>(new Set());
+  const [toast, setToast] = useState<string | null>(null);
 
-  function connect(id: number) {
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2600);
+  }
+
+  function connect(id: number, name: string) {
     setConnected((p) => new Set([...p, id]));
-    setTimeout(() => setQueue((q) => q.filter((g) => g.id !== id)), 700);
+    showToast(`Request sent to ${name.split(" ")[0]} ✓`);
+    setTimeout(() => setQueue((q) => q.filter((g) => g.id !== id)), 900);
   }
   function pass(id: number) {
     setQueue((q) => q.filter((g) => g.id !== id));
@@ -243,6 +250,14 @@ function ConnectTab() {
 
   return (
     <div className="px-5 flex flex-col gap-6">
+      {/* Connect toast */}
+      {toast && (
+        <div className="fixed bottom-24 left-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full text-sm font-semibold text-white"
+          style={{ background: "#111111", transform: "translateX(-50%)", boxShadow: "0 8px 24px rgba(0,0,0,0.3)", animation: "slideUpToast 0.25s ease-out", whiteSpace: "nowrap" }}>
+          <span>{toast}</span>
+          <style>{`@keyframes slideUpToast { from { opacity:0; transform:translateX(-50%) translateY(12px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }`}</style>
+        </div>
+      )}
       {/* Shared Moments — lead with what's happening */}
       <div>
         <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--bb-pink)" }}>
@@ -320,7 +335,7 @@ function ConnectTab() {
               </p>
 
               <button
-                onClick={() => connect(girl.id)}
+                onClick={() => connect(girl.id, girl.name)}
                 className="w-full py-2.5 rounded-full text-[11px] font-bold text-white transition-all active:scale-[0.97]"
                 style={connected.has(girl.id)
                   ? { background: "#eee", color: "#aaa" }

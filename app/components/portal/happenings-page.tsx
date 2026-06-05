@@ -11,7 +11,7 @@ type HappeningType = "gallery" | "popup" | "rooftop" | "workshop" | "class" | "f
 type TimeTag = "tonight" | "today" | "weekend";
 type CelebType = "birthday" | "promotion" | "new_home" | "anniversary" | "graduation" | "new_job" | "breakup";
 type CelebFilter = "All" | "Birthdays" | "Wins" | "Milestones";
-type HapFilter = "All" | "Today" | "Tomorrow" | "This Week" | "Free";
+type HapFilter = "All" | "Today" | "Weekend" | "This Week" | "Free";
 
 interface Happening {
   id: number; type: HappeningType; title: string; venue: string;
@@ -1258,7 +1258,7 @@ export function HappeningsPage() {
   const filteredConfetti = CONFETTI.filter(c => CELEB_FILTER_MAP[celebFilter].includes(c.celebType));
   const filteredHap = HAPPENINGS.filter(h => {
     if (hapFilter === "Today")      return h.timeTag === "today" || h.timeTag === "tonight";
-    if (hapFilter === "Tomorrow")   return h.timeTag === "weekend";
+    if (hapFilter === "Weekend")    return h.timeTag === "weekend";
     if (hapFilter === "This Week")  return true;
     if (hapFilter === "Free")       return h.price === 0;
     return true;
@@ -1322,7 +1322,7 @@ export function HappeningsPage() {
 
         {filterOpen && (
           <div className="flex gap-2 mt-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-            {(["All", "Today", "Tomorrow", "This Week", "Free"] as HapFilter[]).map(f => (
+            {(["All", "Today", "Weekend", "This Week", "Free"] as HapFilter[]).map(f => (
               <button key={f} onClick={() => { setHapFilter(f); setFilterOpen(false); }}
                 className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
                 style={hapFilter === f

@@ -8,11 +8,11 @@ import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 
 const PINK = "#FF1F7D";
 
-const CITY_MOOD: Record<TimeOfDay, { weather: string; line2: string; temp: string; vibe: string }> = {
-  morning:   { weather: "SUNNY",  line2: "MORNING",   temp: "68°", vibe: "The city is waking up."        },
-  afternoon: { weather: "SUNNY",  line2: "AFTERNOON", temp: "74°", vibe: "The city feels busy today."    },
-  evening:   { weather: "CLEAR",  line2: "EVENING",   temp: "72°", vibe: "The city feels alive tonight." },
-  night:     { weather: "CLEAR",  line2: "NIGHT",     temp: "64°", vibe: "The city is still going."      },
+const CITY_MOOD: Record<TimeOfDay, { weather: string; line2: string; vibe: string }> = {
+  morning:   { weather: "SUNNY",  line2: "MORNING",   vibe: "The city is waking up."        },
+  afternoon: { weather: "SUNNY",  line2: "AFTERNOON", vibe: "The city feels busy today."    },
+  evening:   { weather: "CLEAR",  line2: "EVENING",   vibe: "The city feels alive tonight." },
+  night:     { weather: "CLEAR",  line2: "NIGHT",     vibe: "The city is still going."      },
 };
 
 const WEATHER_ICON: Record<TimeOfDay, string> = {
@@ -20,9 +20,9 @@ const WEATHER_ICON: Record<TimeOfDay, string> = {
 };
 
 const MY_INVITATIONS = [
-  { id: 1, title: "DINNER\nSOCIETY", venue: "CARBONE",         date: "FRI, MAY 24", time: "7:30PM",  seats: "4 SEATS", revealed: true  },
-  { id: 2, title: "MUSEUM\nGIRLS",   venue: "BROOKLYN MUSEUM", date: "SAT, MAY 25", time: "11:00AM", seats: null,      revealed: false },
-  { id: 3, title: "WALK\n& COFFEE",  venue: "WEST VILLAGE",    date: "SUN, MAY 26", time: "10:00AM", seats: null,      revealed: true  },
+  { id: 1, title: "DINNER\nSOCIETY", venue: "CARBONE",         date: "THIS FRIDAY",   time: "7:30PM",  seats: "4 SEATS", revealed: true  },
+  { id: 2, title: "MUSEUM\nGIRLS",   venue: "BROOKLYN MUSEUM", date: "THIS SATURDAY", time: "11:00AM", seats: null,      revealed: false },
+  { id: 3, title: "WALK\n& COFFEE",  venue: "WEST VILLAGE",    date: "THIS SUNDAY",   time: "10:00AM", seats: null,      revealed: true  },
 ];
 
 const TONIGHT_EVENT = {
@@ -339,12 +339,14 @@ function ClubCrest({ club, isNight }: {
 export function HomePage({ firstName = "May", initial = "M" }: { firstName?: string; initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("afternoon");
   const [greeting, setGreeting] = useState("Good afternoon");
+  const [dayLabel, setDayLabel] = useState("TODAY");
   const [showYande, setShowYande] = useState(false);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
     setTod(t);
     setGreeting(getGreeting(t));
+    setDayLabel(new Date().toLocaleDateString("en-US", { weekday: "short" }).toUpperCase());
   }, []);
 
   const mood      = CITY_MOOD[tod];
@@ -366,13 +368,13 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
       {/* ── GREETING BLOCK ── */}
       <div className="px-5 pt-24 pb-1 md:px-8 md:pt-12">
 
-        {/* Temperature row */}
+        {/* Day row */}
         <div className="flex items-start gap-5 mb-3">
-          {/* Huge temp number */}
+          {/* Big day-of-week */}
           <p className="font-black leading-none"
             style={{ fontFamily: "var(--font-playfair)", fontSize: "82px", color: PINK,
               lineHeight: 0.86, letterSpacing: "-0.04em" }}>
-            {mood.temp}
+            {dayLabel}
           </p>
           {/* Weather label */}
           <div className="pt-2.5 flex flex-col gap-1">

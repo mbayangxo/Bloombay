@@ -274,9 +274,12 @@ export default function InvitationDetailPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="text-center py-2">
-                  <p className="text-xs italic" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)" }}>
-                    {invite.fromFull.split(" ")[0]} will understand. Next time.
+                <div className="text-center py-3">
+                  <p className="font-bold italic mb-1.5" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.7)", fontSize: "16px" }}>
+                    Another time.
+                  </p>
+                  <p className="text-xs italic" style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-instrument)" }}>
+                    You can always reach out when you&apos;re ready.
                   </p>
                 </div>
               )}

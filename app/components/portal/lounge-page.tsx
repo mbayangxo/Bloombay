@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { logout } from "@/lib/auth/actions";
+import { logout, updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 
 const ROOM_TABS = [
@@ -108,6 +108,20 @@ const BLOOMIE_UPDATES: Record<string, { emoji: string; text: string; time: strin
     { emoji: "🍷", text: "That rooftop spot in Flatbush is unreal. Telling everyone.", time: "3 days ago" },
   ],
 };
+
+// Deterministic member number derived from name (100–999)
+function getMemberNumber(name: string): string {
+  const sum = name.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const num = ((sum * 31 + 17) % 900) + 100;
+  return num.toString().padStart(4, "0");
+}
+
+// Deterministic referral code derived from name
+function getReferralCode(name: string): string {
+  const sum = name.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const num = ((sum * 17 + 23) % 9000) + 1000;
+  return `BB-NYC-${num}`;
+}
 
 interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
 
@@ -294,12 +308,94 @@ function BloomiesListSheet({ onClose, onSelectBloomie }: {
   );
 }
 
+function EditProfileSheet({
+  name, neighborhood, bio, onClose, onSave,
+}: {
+  name: string; neighborhood: string; bio: string;
+  onClose: () => void;
+  onSave: (name: string, neighborhood: string, bio: string) => void;
+}) {
+  const [editName, setEditName] = useState(name);
+  const [editNeighborhood, setEditNeighborhood] = useState(neighborhood);
+  const [editBio, setEditBio] = useState(bio);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSave() {
+    setPending(true);
+    setError(null);
+    const fd = new FormData();
+    fd.set("first_name", editName.trim());
+    fd.set("neighborhood", editNeighborhood.trim());
+    fd.set("bio", editBio.trim());
+    const result = await updateProfile(fd);
+    setPending(false);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      onSave(editName.trim(), editNeighborhood.trim(), editBio.trim());
+      onClose();
+    }
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "85vh", overflowY: "auto" }}>
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+        <div className="px-6 pb-2 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>EDIT PROFILE</p>
+            <p className="text-lg font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Your details.</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.07)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
+        </div>
+        <div className="px-6 pb-8 flex flex-col gap-4 mt-4">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>NAME</p>
+            <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Your first name"
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>NEIGHBORHOOD</p>
+            <input value={editNeighborhood} onChange={e => setEditNeighborhood(e.target.value)} placeholder="Your neighborhood"
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
+            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111", lineHeight: 1.6, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }} />
+          </div>
+          {error && <p className="text-xs" style={{ color: "#e53e3e" }}>{error}</p>}
+          <button onClick={handleSave} disabled={pending}
+            className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+            style={{ background: pending ? "#FFB6D0" : "#FF1F7D", color: "white" }}>
+            {pending ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function LoungePage({ user }: { user?: LoungeUser }) {
-  const displayName = user?.name ?? "May";
-  const displayInitial = user?.initial ?? "M";
-  const displayNeighborhood = user?.neighborhood ?? "NYC";
-  const displayBio = user?.bio ?? "Part of the world made for women.";
-  const displayHandle = (user?.name?.split(" ")[0] ?? "member").toLowerCase();
+  const [localName, setLocalName] = useState(user?.name ?? "May");
+  const [localNeighborhood, setLocalNeighborhood] = useState(user?.neighborhood ?? "NYC");
+  const [localBio, setLocalBio] = useState(user?.bio ?? "Part of the world made for women.");
+  const displayName = localName;
+  const displayInitial = localName[0]?.toUpperCase() ?? "M";
+  const displayNeighborhood = localNeighborhood;
+  const displayBio = localBio;
+  const displayHandle = (localName.split(" ")[0]).toLowerCase();
+  const memberNum = getMemberNumber(localName);
+  const referralCode = getReferralCode(localName);
   const [activeTab, setActiveTab] = useState(0);
   const [flowered, setFlowered] = useState<Set<string>>(new Set());
   const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
@@ -311,6 +407,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const [pinnedObjects, setPinnedObjects] = useState<Set<string>>(new Set(["candle", "flowers", "book"]));
   const [showWorldPicker, setShowWorldPicker] = useState(false);
   const [showObjectPicker, setShowObjectPicker] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
@@ -979,7 +1076,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 <p className="text-xs font-bold tracking-widest uppercase mb-2 relative" style={{ color: "var(--bb-pink)" }}>
                   REFERRAL CODE
                 </p>
-                <p className="text-white text-2xl font-bold mb-1 relative">GF-NYC-7842</p>
+                <p className="text-white text-2xl font-bold mb-1 relative">{referralCode}</p>
                 <p className="text-xs relative" style={{ color: "rgba(255,255,255,0.45)" }}>
                   Invite women you actually know. Quality over quantity.
                 </p>
@@ -1016,7 +1113,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     style={{ background: "linear-gradient(135deg, #1A1208 0%, #2D1E08 100%)", border: "1px solid rgba(212,168,83,0.45)" }}>
                     <span style={{ color: "#D4A853", fontSize: "9px" }}>✦</span>
                     <span className="text-[10px] font-bold tracking-[0.14em] uppercase" style={{ color: "#D4A853" }}>Founding Mother</span>
-                    <span className="text-[10px] font-bold" style={{ color: "rgba(212,168,83,0.55)" }}>#47</span>
+                    <span className="text-[10px] font-bold" style={{ color: "rgba(212,168,83,0.55)" }}>#{memberNum}</span>
                   </div>
                   <p className="text-[9px] italic" style={{ color: "#ccc", fontFamily: "var(--font-instrument)" }}>
                     One of the original 100
@@ -1174,7 +1271,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold" style={{ color: "rgba(212,168,83,0.9)" }}>Founding Mother Access</p>
-                    <p className="text-[10px]" style={{ color: "rgba(212,168,83,0.4)" }}>Secret events · FM messages · #47</p>
+                    <p className="text-[10px]" style={{ color: "rgba(212,168,83,0.4)" }}>Secret events · FM messages · #{memberNum}</p>
                   </div>
                   <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
                     style={{ background: "rgba(212,168,83,0.15)", color: "#D4A853" }}>Active</span>
@@ -1204,7 +1301,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                       {displayName}
                     </p>
                     <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      Founding Member · #0047 · Since Jan 2024
+                      Founding Member · #{memberNum} · Since Jan 2024
                     </p>
                     <div className="flex items-center gap-1.5 mt-3">
                       <span className="text-[8px] font-bold px-2 py-0.5 rounded-full"
@@ -1231,7 +1328,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   <p className="text-[8px] tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>
                     VALID · ALL BLOOMBAY EVENTS
                   </p>
-                  <p className="text-[8px] font-bold tracking-[0.1em]" style={{ color: "rgba(255,31,125,0.5)" }}>♦ ♦ ♦ ♦ 0047</p>
+                  <p className="text-[8px] font-bold tracking-[0.1em]" style={{ color: "rgba(255,31,125,0.5)" }}>♦ ♦ ♦ ♦ {memberNum}</p>
                 </div>
               </div>
 
@@ -1292,18 +1389,26 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
-                {["Edit profile", "Privacy & Safety", "BloomBay Premium"].map((label) => (
-                  <button
+                <button
+                  onClick={() => setShowEditProfile(true)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
+                  style={{ borderBottom: "1px solid #F5F5F5" }}
+                >
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Edit profile</p>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {["Privacy & Safety", "BloomBay Premium"].map((label) => (
+                  <div
                     key={label}
-                    onClick={() => showToast("Coming soon")}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3.5"
                     style={{ borderBottom: "1px solid #F5F5F5" }}
                   >
-                    <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>{label}</p>
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                    <p className="flex-1 text-sm font-semibold" style={{ color: "#BBBBBB" }}>{label}</p>
+                    <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                      style={{ background: "#F5F5F5", color: "#ccc" }}>Soon</span>
+                  </div>
                 ))}
                 <form action={logout}>
                   <button
@@ -1334,6 +1439,17 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
       {/* Bloomie profile sheet */}
       {selectedBloomie && (
         <BloomieSheet bloomie={selectedBloomie} onClose={() => setSelectedBloomie(null)} />
+      )}
+
+      {/* Edit profile sheet */}
+      {showEditProfile && (
+        <EditProfileSheet
+          name={localName}
+          neighborhood={localNeighborhood}
+          bio={localBio}
+          onClose={() => setShowEditProfile(false)}
+          onSave={(n, nb, b) => { setLocalName(n); setLocalNeighborhood(nb); setLocalBio(b); }}
+        />
       )}
 
       {/* Toast — bottom-center, smooth slide-up animation */}
