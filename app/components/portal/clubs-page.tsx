@@ -359,6 +359,53 @@ const CLUB_PLACES_DATA: Record<number, ClubPlace[]> = {
   ],
 };
 
+// ─── Club Regulars Data ───────────────────────────────────────────────────────
+
+interface ClubRegular {
+  id: number;
+  name: string;
+  initial: string;
+  color: string;
+  neighborhood: string;
+  presence: string;
+}
+
+const CLUB_REGULARS_DATA: Record<number, ClubRegular[]> = {
+  0: [ // African Girls Club
+    { id: 1, initial: "A", name: "Aminah C.",  color: "#FF1F7D", neighborhood: "Crown Heights",   presence: "Every second Sunday, without fail." },
+    { id: 2, initial: "N", name: "Ngozi M.",   color: "#FF8C42", neighborhood: "Bed-Stuy",         presence: "Three Culture Nights in a row." },
+    { id: 3, initial: "O", name: "Ogechi T.",  color: "#83C5A0", neighborhood: "Flatbush",          presence: "Been here since the beginning." },
+  ],
+  1: [ // Soft Life Club NYC
+    { id: 1, initial: "S", name: "Sofia K.",   color: "#FF69B4", neighborhood: "Greenpoint",       presence: "Never misses a Soft Saturday." },
+    { id: 2, initial: "M", name: "Maya T.",    color: "#C084FC", neighborhood: "SoHo",             presence: "Five brunches and counting." },
+    { id: 3, initial: "J", name: "Jade R.",    color: "#FF69B4", neighborhood: "Williamsburg",     presence: "Always brings someone new." },
+  ],
+  2: [ // Muslim Women NYC
+    { id: 1, initial: "Z", name: "Zara F.",    color: "#A855F7", neighborhood: "Jackson Heights",  presence: "Every Halal Table, every month." },
+    { id: 2, initial: "H", name: "Hana M.",    color: "#F59E0B", neighborhood: "Flushing",          presence: "Sister Circle every single time." },
+  ],
+  3: [ // Girl Tech Collective
+    { id: 1, initial: "P", name: "Priya S.",   color: "#0EA5E9", neighborhood: "Brooklyn Heights", presence: "Co-Work Wednesday, every week." },
+    { id: 2, initial: "T", name: "Temi A.",    color: "#C084FC", neighborhood: "Crown Heights",    presence: "Monthly Wins Night — never skips." },
+    { id: 3, initial: "N", name: "Naomi B.",   color: "#0EA5E9", neighborhood: "SoHo",             presence: "Here since the first hackathon." },
+  ],
+  4: [ // Girls Who Move
+    { id: 1, initial: "K", name: "Kemi A.",    color: "#F59E0B", neighborhood: "Crown Heights",    presence: "Sunrise Saturday, every single week." },
+    { id: 2, initial: "B", name: "Bea T.",     color: "#FF69B4", neighborhood: "Brooklyn Heights", presence: "Never missed a trail day." },
+    { id: 3, initial: "C", name: "Chidera L.", color: "#4ADE80", neighborhood: "DUMBO",             presence: "Always first to the start line." },
+  ],
+  5: [ // Girl Creatives
+    { id: 1, initial: "Y", name: "Yemi O.",    color: "#EC4899", neighborhood: "SoHo",             presence: "Every showcase. Every brunch." },
+    { id: 2, initial: "L", name: "Lola B.",    color: "#818CF8", neighborhood: "Williamsburg",     presence: "She built the writing circle." },
+    { id: 3, initial: "A", name: "Ada M.",     color: "#EC4899", neighborhood: "Crown Heights",    presence: "First Sunday Brunch — founding member." },
+  ],
+  6: [ // Jazz & Wine Girls
+    { id: 1, initial: "A", name: "Amanda R.",  color: "#8B5CF6", neighborhood: "West Village",      presence: "Velvet Friday, every month for a year." },
+    { id: 2, initial: "N", name: "Nina K.",    color: "#FB7185", neighborhood: "Greenwich Village",  presence: "Wine Drop — she's reviewed them all." },
+  ],
+};
+
 const MEMBERSHIP: Record<number, { events: number; since: string }> = {
   1: { events: 4, since: "Mar 2024" },
   2: { events: 1, since: "Apr 2024" },
@@ -810,6 +857,39 @@ function ClubPlacesSection({ club }: { club: { id: number; color: string } }) {
   );
 }
 
+// ─── Club Regulars Section ────────────────────────────────────────────────────
+
+function ClubRegularsSection({ club }: { club: { id: number; color: string } }) {
+  const regulars = CLUB_REGULARS_DATA[club.id] ?? [];
+  if (regulars.length === 0) return null;
+  return (
+    <div>
+      <div className="mb-4">
+        <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>REGULARS</p>
+        <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+          Always here. You&apos;ll know them soon.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        {regulars.map(r => (
+          <div key={r.id} className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div className="rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
+              style={{ width: 36, height: 36, background: r.color, fontSize: 13 }}>{r.initial}</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>{r.name}</p>
+              <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.28)" }}>{r.neighborhood}</p>
+              <p className="text-xs italic mt-0.5" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.42)" }}>
+                {r.presence}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Club Post Card ───────────────────────────────────────────────────────────
 
 function ClubPostCard({ post, clubColor, onJoin, joined }: {
@@ -1087,6 +1167,9 @@ function ClubDetailPage({ club, onBack, onEnterWorld }: {
 
         {/* Traditions — recurring cultural rituals */}
         <TraditionsSection club={{ id: club.id, color: club.color }} />
+
+        {/* Regulars — women who consistently show up */}
+        <ClubRegularsSection club={{ id: club.id, color: club.color }} />
 
         {/* Club Places — curated spots that belong to this club's identity */}
         <ClubPlacesSection club={{ id: club.id, color: club.color }} />

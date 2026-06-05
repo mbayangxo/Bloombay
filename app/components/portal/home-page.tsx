@@ -138,6 +138,41 @@ function FirstMonthCard({ isNight }: { isNight: boolean }) {
   );
 }
 
+// ─── Social Momentum (Yande quiet observation) ───────────────────────────────
+
+const YANDE_OBSERVATIONS = [
+  { note: "You've attended three gatherings this month.", follow: "Looks like you're settling into the city.", cta: null as { label: string; href: string } | null },
+  { note: "You haven't been out in a few weeks.", follow: "Want me to find something cozy this weekend?", cta: { label: "Find something →", href: "/member/happenings" } as { label: string; href: string } | null },
+  { note: "You keep going to the same Book Club.", follow: "One of those women is going to become a friend.", cta: null as { label: string; href: string } | null },
+];
+
+function SocialMomentumCard({ isNight }: { isNight: boolean }) {
+  const obs = YANDE_OBSERVATIONS[0];
+  return (
+    <div className="mx-5 mb-2 rounded-2xl px-5 py-4 flex gap-3 items-start"
+      style={{
+        background: isNight ? "rgba(255,31,125,0.06)" : "#FFF5F8",
+        border: `1px solid ${isNight ? "rgba(255,31,125,0.12)" : "rgba(255,31,125,0.1)"}`,
+      }}>
+      <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "2px" }}>🌸</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: PINK }}>YANDE NOTICED</p>
+        <p className="text-sm font-semibold mb-0.5"
+          style={{ color: isNight ? "rgba(255,238,220,0.88)" : "#222" }}>{obs.note}</p>
+        <p className="text-xs italic leading-relaxed"
+          style={{ fontFamily: "var(--font-instrument)", color: isNight ? "rgba(255,255,255,0.42)" : "#888" }}>
+          {obs.follow}
+        </p>
+        {obs.cta && (
+          <Link href={obs.cta.href} className="inline-block mt-2 text-xs font-bold" style={{ color: PINK, textDecoration: "none" }}>
+            {obs.cta.label}
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Yande Sheet ──────────────────────────────────────────────────────────────
 
 function YandeSheet({ onClose }: { onClose: () => void }) {
@@ -505,6 +540,9 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           {mood.vibe}
         </p>
       </div>
+
+      {/* ── SOCIAL MOMENTUM (Yande quiet observation) ── */}
+      <SocialMomentumCard isNight={isNight} />
 
       {/* ── SHORTCUTS: DAILY BLOOM + THE LOBBY ── */}
       <div className="px-5 pt-5 pb-6 md:px-8">
