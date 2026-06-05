@@ -635,7 +635,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                   className="flex flex-col items-center gap-1.5 px-3 pt-2.5 pb-2 rounded-2xl transition-all active:scale-95 flex-shrink-0"
                   style={
                     active
-                      ? { background: "#FF1F7D", boxShadow: "0 2px 14px rgba(255,31,125,0.45)" }
+                      ? { background: "#FF1F7D", boxShadow: "0 2px 14px rgba(255,31,125,0.45)", animation: "tabPop 0.32s cubic-bezier(0.34,1.56,0.64,1) both" }
                       : { background: "rgba(255,200,130,0.07)", border: "1px solid rgba(255,200,130,0.12)" }
                   }
                 >
@@ -658,7 +658,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
           {/* ── Living Room Tab ── */}
           {activeTab === 0 && (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
 
               {/* ── MY SHELF — pinned objects that shape the homepage ── */}
               <div>
@@ -856,7 +856,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
           {/* ── Gallery Tab (was Memories) ── */}
           {activeTab === 1 && (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
               {/* YANDE REMEMBERS — glowing pink text */}
               <div>
                 <p
@@ -1009,7 +1009,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
           {/* ── Door Tab (was My Link) ── */}
           {activeTab === 2 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
               <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
                 <p
                   className="text-base font-bold italic mb-1"
@@ -1086,7 +1086,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
           {/* ── Mirror Tab (was Profile) ── */}
           {activeTab === 3 && (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
               <div className="bg-white rounded-3xl p-6 flex flex-col items-center text-center" style={{ boxShadow: "0 2px 16px rgba(255,31,125,0.08)" }}>
                 {/* Large styled initial circle */}
                 <div
@@ -1220,64 +1220,6 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                 )}
               </div>
 
-              {/* ── YOUR PORTALS ── */}
-              <div className="rounded-3xl overflow-hidden" style={{ background: "#111111", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
-                <div className="px-4 pt-4 pb-2 relative overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none"
-                    style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(212,168,83,0.12) 0%, transparent 55%)" }} />
-                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase relative" style={{ color: "rgba(212,168,83,0.6)" }}>
-                    ✦ YOUR PORTALS
-                  </p>
-                </div>
-
-                {/* Club Mama Portal */}
-                <button onClick={() => showToast("Club Mama Portal — coming soon")}
-                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5"
-                  style={{ borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
-                    style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.2)" }}>
-                    🏠
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold" style={{ color: "rgba(255,238,220,0.9)" }}>Club Mama Portal</p>
-                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>Create & manage your club</p>
-                  </div>
-                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>Activate</span>
-                </button>
-
-                {/* Bloom Curator Portal */}
-                <button onClick={() => showToast("Curator applications open soon")}
-                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5"
-                  style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                    🔒
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.4)" }}>Curator Portal</p>
-                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>Bloom Curators only · Apply</p>
-                  </div>
-                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.3)" }}>Apply</span>
-                </button>
-
-                {/* Founding Mother Portal - active since FM */}
-                <button onClick={() => showToast("Founding Mother access — always on")}
-                  className="w-full px-4 py-3.5 flex items-center gap-3 text-left transition-all active:bg-white/5">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
-                    style={{ background: "rgba(212,168,83,0.12)", border: "1px solid rgba(212,168,83,0.3)" }}>
-                    ✦
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold" style={{ color: "rgba(212,168,83,0.9)" }}>Founding Mother Access</p>
-                    <p className="text-[10px]" style={{ color: "rgba(212,168,83,0.4)" }}>Secret events · FM messages · #{memberNum}</p>
-                  </div>
-                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: "rgba(212,168,83,0.15)", color: "#D4A853" }}>Active</span>
-                </button>
-              </div>
-
               {/* ── BloomBay ID Card ── */}
               <div className="rounded-3xl overflow-hidden relative"
                 style={{
@@ -1399,6 +1341,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
+                <button
+                  onClick={() => showToast("Curator applications opening soon — stay close ✦")}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-pink-50"
+                  style={{ borderBottom: "1px solid #F5F5F5" }}
+                >
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Apply to be a Bloom Curator</p>
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>Apply</span>
+                </button>
                 {["Privacy & Safety", "BloomBay Premium"].map((label) => (
                   <div
                     key={label}
@@ -1471,6 +1422,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         @keyframes slideUpToast {
           from { opacity: 0; transform: translateX(-50%) translateY(12px); }
           to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes tabPop {
+          0%   { transform: scale(0.92); }
+          55%  { transform: scale(1.05); }
+          100% { transform: scale(1); }
         }
       `}</style>
     </div>

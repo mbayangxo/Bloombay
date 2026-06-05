@@ -231,31 +231,62 @@ function MomentCard({ moment, joined, onJoin }: {
 function ConnectTab() {
   const [queue, setQueue] = useState(GIRL_MATE_QUEUE);
   const [connected, setConnected] = useState<Set<number>>(new Set());
+  const [shaking, setShaking] = useState<Set<number>>(new Set());
   const [joinedMoments, setJoinedMoments] = useState<Set<number>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(null), 2600);
+    setTimeout(() => setToast(null), 2800);
   }
 
   function connect(id: number, name: string) {
+    // Mark connected + trigger shake simultaneously (shake = confirmation feedback)
     setConnected((p) => new Set([...p, id]));
-    showToast(`Request sent to ${name.split(" ")[0]} ✓`);
-    setTimeout(() => setQueue((q) => q.filter((g) => g.id !== id)), 900);
+    setShaking((p) => new Set([...p, id]));
+    showToast(`Bloombay request sent to ${name.split(" ")[0]} ✓`);
+    setTimeout(() => setShaking((p) => { const n = new Set(p); n.delete(id); return n; }), 650);
+    setTimeout(() => setQueue((q) => q.filter((g) => g.id !== id)), 1600);
   }
   function pass(id: number) {
     setQueue((q) => q.filter((g) => g.id !== id));
   }
 
   return (
-    <div className="px-5 flex flex-col gap-6">
+    <div className="px-5 flex flex-col gap-6" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
+      {/* Animations */}
+      <style>{`
+        @keyframes slideUpToast { from { opacity:0; transform:translateX(-50%) translateY(14px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }
+        @keyframes fadeSlideIn  { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes shakePop {
+          0%   { transform: scale(1)    translateX(0); }
+          12%  { transform: scale(1.08) translateX(-5px); }
+          24%  { transform: scale(1.08) translateX(5px); }
+          36%  { transform: scale(1.05) translateX(-4px); }
+          48%  { transform: scale(1.05) translateX(4px); }
+          60%  { transform: scale(1.03) translateX(-2px); }
+          72%  { transform: scale(1.03) translateX(2px); }
+          86%  { transform: scale(1.01) translateX(-1px); }
+          100% { transform: scale(1)    translateX(0); }
+        }
+        @keyframes heartPop {
+          0%   { transform: scale(1); }
+          30%  { transform: scale(0.82); }
+          65%  { transform: scale(1.28); }
+          85%  { transform: scale(0.95); }
+          100% { transform: scale(1); }
+        }
+        @keyframes tabPop {
+          0%   { transform: scale(0.94); }
+          55%  { transform: scale(1.04); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
       {/* Connect toast */}
       {toast && (
         <div className="fixed bottom-24 left-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full text-sm font-semibold text-white"
-          style={{ background: "#111111", transform: "translateX(-50%)", boxShadow: "0 8px 24px rgba(0,0,0,0.3)", animation: "slideUpToast 0.25s ease-out", whiteSpace: "nowrap" }}>
+          style={{ background: "#111111", transform: "translateX(-50%)", boxShadow: "0 8px 24px rgba(0,0,0,0.3)", animation: "slideUpToast 0.28s cubic-bezier(0.34,1.56,0.64,1)", whiteSpace: "nowrap" }}>
           <span>{toast}</span>
-          <style>{`@keyframes slideUpToast { from { opacity:0; transform:translateX(-50%) translateY(12px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }`}</style>
         </div>
       )}
       {/* Shared Moments — lead with what's happening */}
@@ -335,13 +366,17 @@ function ConnectTab() {
               </p>
 
               <button
-                onClick={() => connect(girl.id, girl.name)}
-                className="w-full py-2.5 rounded-full text-[11px] font-bold text-white transition-all active:scale-[0.97]"
-                style={connected.has(girl.id)
-                  ? { background: "#eee", color: "#aaa" }
-                  : { background: girl.color, boxShadow: `0 4px 12px ${girl.color}44` }}
+                onClick={() => !connected.has(girl.id) && connect(girl.id, girl.name)}
+                className="w-full py-2.5 rounded-full text-[11px] font-bold text-white"
+                style={
+                  connected.has(girl.id)
+                    ? { background: "#eee", color: "#aaa", transition: "all 0.2s ease" }
+                    : shaking.has(girl.id)
+                      ? { background: girl.color, boxShadow: `0 4px 12px ${girl.color}44`, animation: "shakePop 0.65s cubic-bezier(0.36,0.07,0.19,0.97) both" }
+                      : { background: girl.color, boxShadow: `0 4px 12px ${girl.color}44`, transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1)" }
+                }
               >
-                {connected.has(girl.id) ? "Sent ✓" : `Connect`}
+                {connected.has(girl.id) ? "Sent ✓" : "Introduce me"}
               </button>
               <button onClick={() => pass(girl.id)} className="w-full text-center text-[10px] py-1.5 mt-1" style={{ color: "#ccc" }}>
                 Not now
@@ -371,7 +406,7 @@ function RequestsTab() {
   }
 
   return (
-    <div className="px-5 flex flex-col gap-8">
+    <div className="px-5 flex flex-col gap-8" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
       {/* Incoming */}
       <div>
         <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "#FF1F7D" }}>
@@ -498,7 +533,7 @@ function FindTab() {
   );
 
   return (
-    <div className="px-5">
+    <div className="px-5" style={{ animation: "fadeSlideIn 0.22s ease-out" }}>
       {/* Search — pink focus ring */}
       <div className="relative mb-4">
         <input
@@ -645,11 +680,11 @@ export default function MatchPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-[0.96] relative"
+              className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap relative"
               style={
                 activeTab === tab
-                  ? { background: "#111111", color: "white", boxShadow: "0 3px 10px rgba(0,0,0,0.20)" }
-                  : { background: "white", color: "#555555", border: "1.5px solid #E0E0E0" }
+                  ? { background: "#111111", color: "white", boxShadow: "0 3px 10px rgba(0,0,0,0.20)", animation: "tabPop 0.25s cubic-bezier(0.34,1.56,0.64,1)", transition: "background 0.15s ease, color 0.15s ease" }
+                  : { background: "white", color: "#555555", border: "1.5px solid #E0E0E0", transition: "all 0.15s ease" }
               }
             >
               {tab}
