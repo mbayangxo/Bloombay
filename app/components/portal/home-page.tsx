@@ -4,170 +4,95 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 
-// ─── City mood by time ────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const CITY_MOOD: Record<TimeOfDay, { weather: string; temp: string; vibe: string; women: number }> = {
-  morning:   { weather: "Golden morning light",       temp: "68°", vibe: "The city is waking up. Coffee breath and good intentions.",  women: 6  },
-  afternoon: { weather: "Sunny afternoon",             temp: "74°", vibe: "24 women making plans right now.",                           women: 24 },
-  evening:   { weather: "Golden hour, Williamsburg",   temp: "72°", vibe: "Williamsburg is buzzing. 18 women out tonight.",             women: 18 },
-  night:     { weather: "Quiet city, still alive",     temp: "64°", vibe: "17 women still looking for a plan. Still time.",            women: 17 },
+const PINK = "#FF1F7D";
+
+const CITY_MOOD: Record<TimeOfDay, { weather: string; line2: string; temp: string; vibe: string }> = {
+  morning:   { weather: "SUNNY",  line2: "MORNING",   temp: "68°", vibe: "The city is waking up."        },
+  afternoon: { weather: "SUNNY",  line2: "AFTERNOON", temp: "74°", vibe: "The city feels busy today."    },
+  evening:   { weather: "CLEAR",  line2: "EVENING",   temp: "72°", vibe: "The city feels alive tonight." },
+  night:     { weather: "CLEAR",  line2: "NIGHT",     temp: "64°", vibe: "The city is still going."      },
 };
 
-const HERO_BG: Record<TimeOfDay, string> = {
-  morning:   "linear-gradient(150deg, #FF69B4 0%, #FF1F7D 45%, #C51B7A 100%)",
-  afternoon: "linear-gradient(145deg, #FF1F7D 0%, #FF69B4 50%, #FF1F7D 100%)",
-  evening:   "linear-gradient(150deg, #C51B7A 0%, #FF1F7D 55%, #FF69B4 100%)",
-  night:     "linear-gradient(150deg, #7F0030 0%, #C51B7A 60%, #FF1F7D 100%)",
+const WEATHER_ICON: Record<TimeOfDay, string> = {
+  morning: "☀️", afternoon: "🌤", evening: "🌙", night: "🌙",
 };
 
-const HERO_GLOW: Record<TimeOfDay, string> = {
-  morning:   "radial-gradient(ellipse at 15% 20%, rgba(255,255,255,0.22) 0%, transparent 55%)",
-  afternoon: "radial-gradient(ellipse at 80% 15%, rgba(255,255,255,0.18) 0%, transparent 50%)",
-  evening:   "radial-gradient(ellipse at 15% 20%, rgba(255,105,180,0.3) 0%, transparent 55%)",
-  night:     "radial-gradient(ellipse at 10% 20%, rgba(255,31,125,0.22) 0%, transparent 55%)",
-};
-
-// ─── Inbox counts ─────────────────────────────────────────────────────────────
-
-const INBOX_INVITES  = 3;
-const INBOX_MESSAGES = 5;
-const INBOX_PINGS    = 2;
-const INBOX_PLANS    = 1;
-
-// ─── Club Pulse ───────────────────────────────────────────────────────────────
-
-const CLUB_PULSE = [
-  { name: "Soft Life Club NYC",   status: "12 women online · buzzing",    live: true,  color: "#FF69B4", crestBg: "#C51B7A" },
-  { name: "African Girls Club",   status: "Event coming Friday",           live: false, color: "#FF1F7D", crestBg: "#7F0030" },
-  { name: "Girls Who Move",       status: "5 active · planning something", live: true,  color: "#F59E0B", crestBg: "#92400E" },
+const MY_INVITATIONS = [
+  { id: 1, title: "DINNER\nSOCIETY", venue: "CARBONE",         date: "FRI, MAY 24", time: "7:30PM",  seats: "4 SEATS", revealed: true  },
+  { id: 2, title: "MUSEUM\nGIRLS",   venue: "BROOKLYN MUSEUM", date: "SAT, MAY 25", time: "11:00AM", seats: null,      revealed: false },
+  { id: 3, title: "WALK\n& COFFEE",  venue: "WEST VILLAGE",    date: "SUN, MAY 26", time: "10:00AM", seats: null,      revealed: true  },
 ];
 
-// ─── Your interests (from profile) ───────────────────────────────────────────
+const TONIGHT_EVENT = {
+  time: "7:30PM", neighborhood: "WEST VILLAGE",
+  title1: "Girls Dinner", title2: "· Carbone",
+  seats: "4 SEATS · INDIVIDUAL PAY",
+  avatars: [
+    { i: "A", c: "#FF1F7D" }, { i: "S", c: "#FF69B4" },
+    { i: "K", c: "#C0185F" }, { i: "N", c: "#FF69B4" },
+  ],
+  extra: 1,
+};
 
-const MY_INTERESTS = [
-  { tag: "Books",       emoji: "📚", href: "/member/clubs",      label: "Book Club →"          },
-  { tag: "Art & Galleries", emoji: "🎨", href: "/member/city",   label: "Gallery Walk →"       },
-  { tag: "Pilates",     emoji: "🧘", href: "/member/happenings", label: "Morning Class →"      },
-  { tag: "Girls Dinner",emoji: "🍷", href: "/member/happenings", label: "Tables for tonight →" },
+const MY_CLUBS = [
+  { id: 1, abbr: "MG", name: "Museum Girls",  unread: 3, live: true  },
+  { id: 2, abbr: "JW", name: "Jazz & Wine",   unread: 1, live: true  },
+  { id: 3, abbr: "BC", name: "Book Club",     unread: 5, live: true  },
+  { id: 4, abbr: "AG", name: "African Girls", unread: 2, live: true  },
 ];
 
-// ─── Mini Notification Badge ──────────────────────────────────────────────────
+const SHELF = [
+  { id: "vogue",   emoji: "📰", href: "/member/city"       },
+  { id: "bloom",   emoji: "🌸", href: "/member/happenings" },
+  { id: "camera",  emoji: "📷", href: "/member/clubs"      },
+  { id: "book",    emoji: "📚", href: "/member/clubs"      },
+  { id: "candle",  emoji: "🕯️", href: "/member/room"      },
+];
 
-function MiniNotif({ type, count, href }: { type: "invite" | "messages" | "pings" | "plans"; count: number; href: string }) {
-  const cfg = {
-    invite:   { color: "#FF1F7D", anim: "inviteShake 3.5s ease-in-out 0.8s infinite" },
-    messages: { color: "#FF69B4", anim: "msgBounce 4.2s ease-in-out 1.6s infinite"  },
-    pings:    { color: "#FF1F7D", anim: "pingRing 5s ease-in-out 2.5s infinite"      },
-    plans:    { color: "#D4A853", anim: "planPulse 3s ease-in-out 3s infinite"       },
-  }[type];
-  return (
-    <Link href={href} style={{ textDecoration: "none" }}>
-      <div className="relative transition-transform active:scale-90"
-        style={{ animation: count > 0 ? cfg.anim : undefined }}>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-          style={{ background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.15)" }}>
-          {type === "invite" && (
-            <svg width="14" height="11" viewBox="0 0 32 24" fill="none">
-              <rect x="1" y="1" width="30" height="22" rx="3.5" stroke={cfg.color} strokeWidth="2"/>
-              <path d="M1 5 L16 14.5 L31 5" stroke={cfg.color} strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          )}
-          {type === "messages" && (
-            <svg width="14" height="13" viewBox="0 0 30 28" fill="none">
-              <path d="M2 3C2 1.9 2.9 1 4 1H26C27.1 1 28 1.9 28 3V18C28 19.1 27.1 20 26 20H9.5L3 26V20H4C2.9 20 2 19.1 2 18V3Z"
-                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          )}
-          {type === "pings" && (
-            <svg width="13" height="14" viewBox="0 0 26 30" fill="none">
-              <path d="M13 2C13 2 5 7.5 5 16H3C2.4 16 2 16.4 2 17C2 17.6 2.4 18 3 18H23C23.6 18 24 17.6 24 17C24 16.4 23.6 16 23 16H21C21 7.5 13 2 13 2Z"
-                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M10.5 18C10.5 19.4 11.6 20.5 13 20.5C14.4 20.5 15.5 19.4 15.5 18"
-                stroke={cfg.color} strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          )}
-          {type === "plans" && (
-            <svg width="11" height="14" viewBox="0 0 22 28" fill="none">
-              <path d="M11 1C6.6 1 3 4.6 3 9C3 15 11 27 11 27C11 27 19 15 19 9C19 4.6 15.4 1 11 1Z"
-                stroke={cfg.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="11" cy="9" r="3" stroke={cfg.color} strokeWidth="2"/>
-            </svg>
-          )}
-        </div>
-        {count > 0 && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
-            style={{ background: cfg.color, boxShadow: "0 0 0 1.5px white" }}>
-            {count}
-          </div>
-        )}
-      </div>
-    </Link>
-  );
-}
-
-// ─── Mini Crest ───────────────────────────────────────────────────────────────
-
-function MiniCrest({ name, color, crestBg, size = 40 }: {
-  name: string; color: string; crestBg: string; size?: number;
-}) {
-  const initials = name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
-  return (
-    <div className="flex-shrink-0 relative rounded-full flex items-center justify-center font-bold text-white"
-      style={{
-        width: size, height: size,
-        background: `radial-gradient(circle at 35% 35%, ${color}, ${crestBg})`,
-        boxShadow: `0 3px 12px ${color}44, inset 0 1px 0 rgba(255,255,255,0.2)`,
-        fontSize: size / 3.2,
-      }}>
-      <div className="absolute inset-0 rounded-full pointer-events-none"
-        style={{ border: "1.5px solid rgba(255,255,255,0.22)", transform: "scale(0.84)" }} />
-      <span className="relative z-10">{initials}</span>
-    </div>
-  );
-}
-
-// ─── Yande Popup ──────────────────────────────────────────────────────────────
+// ─── Yande Sheet ──────────────────────────────────────────────────────────────
 
 function YandeSheet({ onClose }: { onClose: () => void }) {
   const clubs = [
-    { name: "Soft Life Club NYC",    why: "Matches your calm, intentional energy",    color: "#FF69B4", crestBg: "#C51B7A" },
-    { name: "Chelsea Art Circle",    why: "You tagged Art & Galleries in your profile", color: "#A78BFA", crestBg: "#6D28D9" },
-    { name: "Williamsburg Book Soc.", why: "Books are your thing. This club is active.", color: "#FF1F7D", crestBg: "#7F0030" },
+    { name: "Soft Life Club NYC",     why: "Matches your calm, intentional energy",     color: "#FF69B4", bg: "#C51B7A" },
+    { name: "Chelsea Art Circle",     why: "You tagged Art & Galleries in your profile", color: "#A78BFA", bg: "#6D28D9" },
+    { name: "Williamsburg Book Soc.", why: "Books are your thing. This club is active.", color: PINK,      bg: "#7F0030" },
   ];
-
   return (
     <>
-      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }} onClick={onClose} />
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl pb-10"
-        style={{ background: "#FDFAF6", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
-        <div className="flex justify-center pt-3 pb-4">
+        style={{ background: "#FDF4EC", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
+        <div className="flex justify-center pt-3 pb-3">
           <div className="w-8 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} />
         </div>
-        <div className="px-5 pb-2 flex items-center gap-2 mb-4">
+        <div className="px-5 flex items-center gap-2 mb-3">
           <span style={{ fontSize: "22px" }}>🌸</span>
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>YANDE</p>
-            <p className="text-base font-black italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+            <p className="font-bold tracking-[0.22em] uppercase" style={{ fontSize: "9px", color: PINK }}>YANDE</p>
+            <p className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "#111" }}>
               I found 3 clubs for you.
             </p>
           </div>
         </div>
-        <p className="px-5 text-sm mb-5 leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "#888", fontStyle: "italic" }}>
-          You haven&apos;t chosen a club yet. Based on your profile, these match you best.
+        <p className="px-5 italic mb-5 leading-relaxed" style={{ fontFamily: "var(--font-instrument)", fontSize: "14px", color: "#888" }}>
+          You haven&apos;t chosen a club yet. These match your profile best.
         </p>
         <div className="flex flex-col gap-3 px-5">
           {clubs.map((club, i) => (
-            <div key={i} className="rounded-2xl p-4 flex items-center gap-3"
-              style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.1)" }}>
-              <MiniCrest name={club.name} color={club.color} crestBg={club.crestBg} size={42} />
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm leading-tight" style={{ color: "#111" }}>{club.name}</p>
-                <p className="text-[11px] mt-0.5 italic" style={{ fontFamily: "var(--font-instrument)", color: "#FF1F7D" }}>{club.why}</p>
+            <div key={i} className="rounded-xl p-4 flex items-center gap-3"
+              style={{ background: "white", border: "1px solid rgba(255,31,125,0.1)" }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0"
+                style={{ background: `radial-gradient(circle at 35% 35%, ${club.color}, ${club.bg})` }}>
+                {club.name.split(" ").slice(0, 2).map(w => w[0]).join("")}
               </div>
-              <button className="px-3 py-1.5 rounded-full text-[10px] font-bold text-white flex-shrink-0"
-                style={{ background: "#FF1F7D" }}>
-                Join
-              </button>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: "#111" }}>{club.name}</p>
+                <p className="italic mt-0.5" style={{ fontFamily: "var(--font-instrument)", fontSize: "11px", color: PINK }}>{club.why}</p>
+              </div>
+              <button className="px-3 py-1.5 rounded-full font-bold text-white flex-shrink-0"
+                style={{ background: PINK, fontSize: "10px" }}>Join</button>
             </div>
           ))}
         </div>
@@ -176,94 +101,232 @@ function YandeSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Inbox Object ─────────────────────────────────────────────────────────────
+// ─── Invitation Card ──────────────────────────────────────────────────────────
 
-function InboxObject({ type, count, href, dark = false }: {
-  type: "invite" | "messages" | "pings" | "plans";
-  count: number; href: string; dark?: boolean;
+function InvitationCard({ inv, isNight }: {
+  inv: typeof MY_INVITATIONS[0]; isNight: boolean;
 }) {
-  const configs = {
-    invite: {
-      label: "Invitations",
-      anim: "inviteShake 3.5s ease-in-out 0.8s infinite",
-      bg:     dark ? "rgba(255,31,125,0.15)" : "#FFF0F5",
-      border: dark ? "rgba(255,31,125,0.35)" : "rgba(255,31,125,0.2)",
-      iconColor: "#FF1F7D",
-      labelColor: "#FF1F7D",
-    },
-    messages: {
-      label: "Messages",
-      anim: "msgBounce 4.2s ease-in-out 1.6s infinite",
-      bg:     dark ? "rgba(255,105,180,0.14)" : "#FFF5F8",
-      border: dark ? "rgba(255,105,180,0.35)" : "rgba(255,105,180,0.22)",
-      iconColor: "#FF69B4",
-      labelColor: "#FF69B4",
-    },
-    pings: {
-      label: "Pings",
-      anim: "pingRing 5s ease-in-out 2.5s infinite",
-      bg:     dark ? "rgba(255,31,125,0.12)" : "#FFF0F5",
-      border: dark ? "rgba(255,31,125,0.3)" : "rgba(255,31,125,0.18)",
-      iconColor: "#FF1F7D",
-      labelColor: "#FF1F7D",
-    },
-    plans: {
-      label: "My Plans",
-      anim: "planPulse 3s ease-in-out 3s infinite",
-      bg:     dark ? "rgba(212,168,83,0.12)" : "#FFFBF0",
-      border: dark ? "rgba(212,168,83,0.35)" : "rgba(212,168,83,0.25)",
-      iconColor: "#D4A853",
-      labelColor: "#C4902A",
-    },
-  };
-  const cfg = configs[type];
+  const W = 128;
+  const H = 176;
 
-  return (
-    <Link href={href} style={{ textDecoration: "none", flexShrink: 0 }}>
-      <div className="relative transition-transform active:scale-90"
-        style={{ animation: count > 0 ? cfg.anim : undefined }}>
-        <div className="rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all"
-          style={{ width: "80px", height: "88px", background: cfg.bg, border: `1.5px solid ${cfg.border}`, boxShadow: count > 0 ? "0 4px 16px rgba(255,31,125,0.12)" : "0 2px 8px rgba(0,0,0,0.05)" }}>
-
-          {type === "invite" && (
-            <svg width="32" height="24" viewBox="0 0 32 24" fill="none">
-              <rect x="1" y="1" width="30" height="22" rx="3.5" fill={`${cfg.iconColor}18`} stroke={cfg.iconColor} strokeWidth="1.4"/>
-              <path d="M1 5 L16 14.5 L31 5" stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-          )}
-          {type === "messages" && (
-            <svg width="30" height="28" viewBox="0 0 30 28" fill="none">
-              <path d="M2 3C2 1.9 2.9 1 4 1H26C27.1 1 28 1.9 28 3V18C28 19.1 27.1 20 26 20H9.5L3 26V20H4C2.9 20 2 19.1 2 18V3Z"
-                fill={`${cfg.iconColor}18`} stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="8" y1="8" x2="22" y2="8" stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round"/>
-              <line x1="8" y1="13" x2="17" y2="13" stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-          )}
-          {type === "pings" && (
-            <svg width="26" height="28" viewBox="0 0 26 30" fill="none">
-              <path d="M13 2C13 2 5 7.5 5 16H3C2.4 16 2 16.4 2 17C2 17.6 2.4 18 3 18H23C23.6 18 24 17.6 24 17C24 16.4 23.6 16 23 16H21C21 7.5 13 2 13 2Z"
-                fill={`${cfg.iconColor}18`} stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M10.5 18C10.5 19.4 11.6 20.5 13 20.5C14.4 20.5 15.5 19.4 15.5 18"
-                stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-          )}
-          {type === "plans" && (
-            <svg width="22" height="28" viewBox="0 0 22 28" fill="none">
-              <path d="M11 1C6.6 1 3 4.6 3 9C3 15 11 27 11 27C11 27 19 15 19 9C19 4.6 15.4 1 11 1Z"
-                fill={`${cfg.iconColor}18`} stroke={cfg.iconColor} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="11" cy="9" r="3" stroke={cfg.iconColor} strokeWidth="1.4"/>
-            </svg>
-          )}
-
-          <p className="text-[8.5px] font-bold tracking-wide text-center" style={{ color: cfg.labelColor }}>
-            {cfg.label}
+  if (!inv.revealed) {
+    return (
+      <Link href="/member/messages?filter=invitations" style={{ textDecoration: "none", flexShrink: 0 }}>
+        <div className="relative overflow-hidden transition-transform active:scale-[0.97]"
+          style={{ width: `${W}px`, height: `${H}px`,
+            background: isNight ? "#3A1020" : "#F5E8D5",
+            borderRadius: "3px",
+            boxShadow: "0 6px 24px rgba(0,0,0,0.16)" }}>
+          {/* Envelope flap */}
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: 0,
+            borderLeft: `${W / 2}px solid transparent`,
+            borderRight: `${W / 2}px solid transparent`,
+            borderTop: `${Math.round(H * 0.38)}px solid ${isNight ? "#55182E" : "#E2C99A"}`,
+          }} />
+          {/* Bottom triangle */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 0,
+            borderLeft: `${W / 2}px solid transparent`,
+            borderRight: `${W / 2}px solid transparent`,
+            borderBottom: `${Math.round(H * 0.34)}px solid ${isNight ? "#4A1228" : "#EBCFA0"}`,
+          }} />
+          {/* Wax seal */}
+          <div className="absolute flex items-center justify-center"
+            style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              width: "52px", height: "52px", borderRadius: "50%", zIndex: 2,
+              background: "radial-gradient(circle at 35% 35%, #FF1F7D, #7F0030)",
+              boxShadow: "0 3px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
+            <span className="font-black italic text-white"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", letterSpacing: "-0.01em" }}>BB</span>
+          </div>
+          <p className="absolute bottom-4 left-0 right-0 text-center font-bold tracking-[0.24em] uppercase"
+            style={{ fontSize: "8px", color: isNight ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.3)", zIndex: 2 }}>
+            OPEN ME
           </p>
         </div>
+      </Link>
+    );
+  }
 
-        {count > 0 && (
-          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white"
-            style={{ background: "#FF1F7D", boxShadow: "0 0 0 2px white" }}>
-            {count}
+  const cardBg = isNight ? "#280A18" : "white";
+  const textMain = isNight ? "rgba(255,238,220,0.92)" : "#111";
+  const textMuted = isNight ? "rgba(255,255,255,0.32)" : "#aaa";
+
+  return (
+    <Link href="/member/messages?filter=invitations" style={{ textDecoration: "none", flexShrink: 0 }}>
+      <div className="relative overflow-hidden transition-transform active:scale-[0.97]"
+        style={{ width: `${W}px`, height: `${H}px`, background: cardBg,
+          borderRadius: "3px", boxShadow: "0 6px 24px rgba(0,0,0,0.12)" }}>
+        {/* Inner decorative border */}
+        <div className="absolute pointer-events-none"
+          style={{ inset: "8px", border: `0.5px solid ${isNight ? "rgba(255,31,125,0.18)" : "rgba(0,0,0,0.07)"}` }} />
+        <div className="relative flex flex-col justify-between h-full px-4 py-[14px]">
+          <p className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: "12px", color: PINK }}>BB.</p>
+          <div>
+            <p className="font-black leading-none whitespace-pre-line uppercase"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: textMain,
+                lineHeight: 0.88, letterSpacing: "-0.01em" }}>
+              {inv.title}
+            </p>
+            <p className="font-bold tracking-[0.16em] uppercase mt-2"
+              style={{ fontSize: "9px", color: textMuted }}>
+              {inv.venue}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold" style={{ fontSize: "9px", color: textMuted, lineHeight: 1.6 }}>{inv.date}</p>
+            <p className="font-semibold" style={{ fontSize: "9px", color: textMuted }}>{inv.time}</p>
+            {inv.seats && (
+              <p className="font-bold mt-1" style={{ fontSize: "9px", color: PINK }}>{inv.seats}</p>
+            )}
+            <p className="mt-2 font-black italic"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "14px",
+                color: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)" }}>
+              BB.
+            </p>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Tonight Card ─────────────────────────────────────────────────────────────
+
+function TonightCard({ isNight }: { isNight: boolean }) {
+  const [going, setGoing] = useState(false);
+  const ev = TONIGHT_EVENT;
+  const cardBg = isNight ? "#1E0812" : "white";
+  const titleColor = isNight ? "rgba(255,238,220,0.95)" : "#111";
+  const mutedColor = isNight ? "rgba(255,255,255,0.35)" : "#aaa";
+
+  return (
+    <div className="mx-5 overflow-hidden flex"
+      style={{ background: cardBg, borderRadius: "4px",
+        boxShadow: isNight ? "0 8px 32px rgba(0,0,0,0.45)" : "0 6px 24px rgba(0,0,0,0.1)",
+        minHeight: "148px" }}>
+      {/* Left: photo area */}
+      <div className="relative overflow-hidden flex-shrink-0"
+        style={{ width: "42%",
+          background: isNight
+            ? "linear-gradient(160deg, #3A0012 0%, #140006 100%)"
+            : "linear-gradient(160deg, #2E0010 0%, #FF1F7D18 100%)" }}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span style={{ fontSize: "56px", opacity: 0.65 }}>🍷</span>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-14"
+          style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.55))" }} />
+      </div>
+      {/* Right: info */}
+      <div className="flex-1 flex" style={{ padding: "14px 12px 14px 14px" }}>
+        <div className="flex-1 flex flex-col justify-between min-w-0">
+          <div>
+            <p className="font-bold tracking-[0.18em] uppercase" style={{ fontSize: "8px", color: PINK }}>
+              {ev.time} · {ev.neighborhood}
+            </p>
+            <p className="font-black leading-none mt-1.5"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", color: titleColor, lineHeight: 0.92 }}>
+              {ev.title1}
+            </p>
+            <p className="italic leading-none"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", color: titleColor, fontWeight: 400, lineHeight: 1 }}>
+              {ev.title2}
+            </p>
+            <p className="mt-1.5" style={{ fontSize: "9px", color: mutedColor }}>{ev.seats}</p>
+          </div>
+          {/* Avatars */}
+          <div className="flex items-center">
+            {ev.avatars.map((a, i) => (
+              <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white"
+                style={{ background: a.c, marginLeft: i > 0 ? "-5px" : "0",
+                  border: `2px solid ${isNight ? "#1E0812" : "white"}` }}>
+                {a.i}
+              </div>
+            ))}
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-black text-white"
+              style={{ background: "#111", marginLeft: "-5px",
+                border: `2px solid ${isNight ? "#1E0812" : "white"}` }}>
+              +{ev.extra}
+            </div>
+          </div>
+        </div>
+        {/* I'M IN ticket button */}
+        <button
+          onClick={() => setGoing(g => !g)}
+          className="flex-shrink-0 flex flex-col items-center justify-between rounded transition-all active:scale-[0.96] ml-3"
+          style={{ width: "46px", padding: "10px 0 7px",
+            background: going ? "#C0185F" : PINK,
+            borderRadius: "4px",
+            boxShadow: `0 4px 16px ${PINK}55` }}>
+          <div className="flex flex-col items-center justify-center gap-0.5" style={{ flex: 1 }}>
+            <span className="font-black text-white leading-none" style={{ fontSize: "11px", letterSpacing: "0.06em" }}>I&apos;M</span>
+            <span className="font-black text-white leading-none" style={{ fontSize: "11px", letterSpacing: "0.06em" }}>IN</span>
+            {going && (
+              <svg className="mt-0.5" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5">
+                <polyline points="2 6 5 9 10 3"/>
+              </svg>
+            )}
+          </div>
+          {/* Barcode stub */}
+          <div className="flex gap-[1.5px] items-end" style={{ marginTop: "6px" }}>
+            {[2,1,3,1,2,1,1,3,2,1].map((w, i) => (
+              <div key={i} style={{ width: `${w}px`, height: "12px",
+                background: "rgba(255,255,255,0.45)", borderRadius: "0.5px" }} />
+            ))}
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Club Crest ───────────────────────────────────────────────────────────────
+
+function ClubCrest({ club, isNight }: {
+  club: typeof MY_CLUBS[0]; isNight: boolean;
+}) {
+  return (
+    <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
+      <div className="flex flex-col items-center gap-1.5 transition-transform active:scale-95">
+        <div className="relative">
+          <div className="w-14 h-14 flex flex-col items-center justify-center relative"
+            style={{
+              background: isNight ? "rgba(255,31,125,0.07)" : "white",
+              border: `1.5px solid ${isNight ? "rgba(255,31,125,0.28)" : "rgba(0,0,0,0.1)"}`,
+              borderRadius: "4px",
+              boxShadow: isNight ? "none" : "0 2px 8px rgba(0,0,0,0.07)",
+            }}>
+            {/* Inner border */}
+            <div className="absolute pointer-events-none"
+              style={{ inset: "4px", border: `0.5px solid ${isNight ? "rgba(255,31,125,0.18)" : "rgba(0,0,0,0.06)"}` }} />
+            {/* Mini crown */}
+            <svg style={{ marginBottom: "1px" }} width="14" height="7" viewBox="0 0 24 12">
+              <path d="M1 12 L3 5 L7 9 L12 1 L17 9 L21 5 L23 12 Z"
+                fill={isNight ? PINK : "#111"} fillOpacity={isNight ? "0.7" : "0.75"} />
+            </svg>
+            <p className="relative z-10 font-black leading-none"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "13px",
+                color: isNight ? "rgba(255,238,220,0.9)" : "#111",
+                letterSpacing: "0.04em" }}>
+              {club.abbr}
+            </p>
+          </div>
+          {club.unread > 0 && (
+            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white"
+              style={{ background: PINK, boxShadow: "0 1px 6px rgba(255,31,125,0.5)" }}>
+              {club.unread}
+            </div>
+          )}
+        </div>
+        <p className="text-center font-semibold leading-tight"
+          style={{ fontSize: "9px", color: isNight ? "rgba(255,255,255,0.5)" : "#555", maxWidth: "56px" }}>
+          {club.name.split(" ").slice(0, 2).join(" ")}
+        </p>
+        {club.live && (
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: PINK }} />
+            <span className="font-bold" style={{ fontSize: "8px", color: PINK }}>live</span>
           </div>
         )}
       </div>
@@ -271,99 +334,9 @@ function InboxObject({ type, count, href, dark = false }: {
   );
 }
 
-// ─── Upcoming Ticket ──────────────────────────────────────────────────────────
-
-function UpcomingTicket({ isNight }: { isNight: boolean }) {
-  return (
-    <Link href="/member/tickets" style={{ textDecoration: "none", display: "block" }}>
-      <div className="relative overflow-hidden rounded-2xl transition-transform active:scale-[0.98]"
-        style={{
-          background: isNight ? "#1A0E14" : "white",
-          boxShadow: isNight ? "0 4px 20px rgba(0,0,0,0.35)" : "0 4px 20px rgba(255,31,125,0.12)",
-          border: "1.5px solid rgba(255,31,125,0.14)",
-        }}>
-        {/* Pink top bar */}
-        <div style={{ height: "4px", background: "linear-gradient(90deg, #FF1F7D, #FF69B4)" }} />
-
-        {/* Ticket body */}
-        <div className="flex items-stretch">
-          {/* Left accent */}
-          <div className="w-1.5 flex-shrink-0" style={{ background: "#FF1F7D" }} />
-
-          <div className="flex-1 px-4 py-4">
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
-              ✦ YOUR TICKET
-            </p>
-            <h3 className="font-black leading-tight mb-0.5"
-              style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: isNight ? "rgba(255,238,220,0.95)" : "#111" }}>
-              Book Club
-            </h3>
-            <p className="text-[11px] mb-3" style={{ color: isNight ? "rgba(255,255,255,0.38)" : "#999" }}>
-              Wednesday · 6PM · McNally Jackson, Nolita
-            </p>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                style={{ background: "#FF1F7D", color: "white" }}>
-                Confirmed ✓
-              </span>
-              <span className="text-[10px] font-semibold" style={{ color: isNight ? "rgba(255,255,255,0.28)" : "#bbb" }}>
-                Free · Seat reserved
-              </span>
-            </div>
-          </div>
-
-          {/* Right stub */}
-          <div className="flex-shrink-0 flex flex-col items-center justify-center px-4 gap-1"
-            style={{
-              borderLeft: "1.5px dashed rgba(255,31,125,0.2)",
-              minWidth: "60px",
-            }}>
-            <p className="text-[18px] font-black text-center leading-none"
-              style={{ fontFamily: "var(--font-playfair)", color: "#FF1F7D" }}>
-              Wed
-            </p>
-            <p className="text-[9px] font-bold" style={{ color: isNight ? "rgba(255,255,255,0.35)" : "#bbb" }}>
-              Jun 4
-            </p>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-// ─── For You section ──────────────────────────────────────────────────────────
-
-function ForYouCard({ interest, isNight }: { interest: typeof MY_INTERESTS[0]; isNight: boolean }) {
-  return (
-    <Link href={interest.href} style={{ textDecoration: "none", flexShrink: 0 }}>
-      <div className="rounded-2xl overflow-hidden transition-transform active:scale-[0.97]"
-        style={{
-          width: "136px",
-          background: isNight ? "#1A0E14" : "white",
-          boxShadow: isNight ? "0 3px 14px rgba(0,0,0,0.28)" : "0 3px 14px rgba(255,31,125,0.08)",
-          border: "1.5px solid rgba(255,31,125,0.1)",
-        }}>
-        <div className="flex items-center justify-center"
-          style={{ height: "72px", background: "linear-gradient(135deg, #FFF0F5, #FFE0EE)" }}>
-          <span style={{ fontSize: "32px" }}>{interest.emoji}</span>
-        </div>
-        <div className="p-3">
-          <p className="text-[9px] font-bold tracking-wider uppercase mb-0.5" style={{ color: "#FF1F7D" }}>
-            {interest.tag}
-          </p>
-          <p className="text-[11px] font-semibold" style={{ color: isNight ? "rgba(255,255,255,0.55)" : "#888" }}>
-            {interest.label}
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-export function HomePage({ firstName = "there", initial = "M" }: { firstName?: string; initial?: string }) {
+export function HomePage({ firstName = "May", initial = "M" }: { firstName?: string; initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("afternoon");
   const [greeting, setGreeting] = useState("Good afternoon");
   const [showYande, setShowYande] = useState(false);
@@ -374,342 +347,210 @@ export function HomePage({ firstName = "there", initial = "M" }: { firstName?: s
     setGreeting(getGreeting(t));
   }, []);
 
-  const mood       = CITY_MOOD[tod];
-  const isNight    = tod === "evening" || tod === "night";
-  const isEvening  = tod === "evening";
-  const textMuted  = isNight ? "rgba(215,175,155,0.58)" : "#888";
-  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#111111";
-  const cardBg     = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
-  const heroBg     = HERO_BG[tod];
+  const mood      = CITY_MOOD[tod];
+  const isNight   = tod === "evening" || tod === "night";
+  const pageBg    = isNight ? "#140010" : "#FDF4EC";
+  const headingColor  = isNight ? "rgba(255,238,220,0.95)" : "#111";
+  const mutedColor    = isNight ? "rgba(255,255,255,0.38)" : "#999";
+  const sectionLabel  = isNight ? "rgba(255,255,255,0.42)" : "#888";
+  const dividerColor  = isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
+  const cardBg        = isNight ? "#1E0A14" : "white";
+
+  const tonightLabel =
+    tod === "morning" ? "COMING UP TONIGHT" :
+    tod === "night"   ? "RIGHT NOW"         : "TONIGHT";
 
   return (
-    <div className="min-h-screen pb-24 md:pb-12">
+    <div className="min-h-screen pb-28" style={{ background: pageBg }}>
 
-      {/* ── Header row: Yande flower · Greeting · Girl Bar ── */}
-      <header className="px-5 pt-20 pb-4 md:px-8 md:pt-10">
-        <div className="flex items-start justify-between gap-3">
+      {/* ── GREETING BLOCK ── */}
+      <div className="px-5 pt-24 pb-1 md:px-8 md:pt-12">
 
-          {/* Yande flower icon */}
+        {/* Temperature row */}
+        <div className="flex items-start gap-5 mb-3">
+          {/* Huge temp number */}
+          <p className="font-black leading-none"
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "82px", color: PINK,
+              lineHeight: 0.86, letterSpacing: "-0.04em" }}>
+            {mood.temp}
+          </p>
+          {/* Weather label */}
+          <div className="pt-2.5 flex flex-col gap-1">
+            <span style={{ fontSize: "18px", lineHeight: 1 }}>{WEATHER_ICON[tod]}</span>
+            <p className="font-bold tracking-[0.18em] uppercase leading-snug"
+              style={{ fontSize: "10px", color: sectionLabel }}>
+              {mood.weather}<br/>{mood.line2}
+            </p>
+          </div>
+        </div>
+
+        {/* "Good afternoon," */}
+        <p className="leading-none"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "30px",
+            color: headingColor, fontWeight: 500 }}>
+          {greeting},
+        </p>
+
+        {/* "May." + Yande flower */}
+        <div className="flex items-center gap-3 mt-0.5">
+          <p className="font-black italic leading-none"
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "58px", color: PINK,
+              lineHeight: 0.88, letterSpacing: "-0.02em" }}>
+            {firstName}.
+          </p>
           <button
             onClick={() => setShowYande(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-1 transition-transform active:scale-90"
-            style={{
-              background: isNight ? "rgba(255,31,125,0.18)" : "#FFF0F5",
-              border: "1.5px solid rgba(255,31,125,0.25)",
-              animation: "yandePulse 3s ease-in-out 2s infinite",
-            }}
-            aria-label="Yande"
-          >
-            <span style={{ fontSize: "18px", lineHeight: 1 }}>🌸</span>
+            className="transition-transform active:scale-90 flex-shrink-0"
+            style={{ animation: "flowerPulse 3s ease-in-out 2.5s infinite" }}
+            aria-label="Yande">
+            <span style={{
+              fontSize: "34px", lineHeight: 1,
+              filter: isNight ? "drop-shadow(0 0 10px rgba(255,31,125,0.7))" : "none",
+            }}>🌸</span>
           </button>
+        </div>
 
-          {/* Greeting */}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>
-              {mood.weather} · {mood.temp}
-            </p>
-            <h1 className="font-bold leading-tight mt-0.5 md:text-5xl" style={{ fontSize: "clamp(26px,7vw,36px)", color: headingColor }}>
-              {greeting},{" "}
-              <span className="italic" style={{ fontFamily: "var(--font-instrument)", color: "#FF1F7D", fontWeight: 400 }}>
-                {firstName}.
-              </span>
-            </h1>
-          </div>
+        {/* City vibe */}
+        <p className="mt-2.5 italic leading-snug"
+          style={{ fontFamily: "var(--font-instrument)", fontSize: "15px", color: mutedColor }}>
+          {mood.vibe}
+        </p>
+      </div>
 
-          {/* Right column: notification grid + Girl Bar */}
-          <div className="flex-shrink-0 flex flex-col items-end gap-2 mt-1">
-            {/* 2×2 compact notification grid */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <MiniNotif type="invite"   count={INBOX_INVITES}  href="/member/messages?filter=invitations" />
-              <MiniNotif type="messages" count={INBOX_MESSAGES} href="/member/messages" />
-              <MiniNotif type="pings"    count={INBOX_PINGS}    href="/member/notifications" />
-              <MiniNotif type="plans"    count={INBOX_PLANS}    href="/member/plans" />
-            </div>
-            {/* Girl Bar */}
-            <Link
-              href="/member/room?enter=girlbar"
-              className="flex flex-col items-center gap-0.5 transition-transform active:scale-90"
-            >
-              <div className="w-[66px] h-7 rounded-xl flex items-center justify-center gap-1.5 relative"
+      {/* ── SHORTCUTS: DAILY BLOOM + THE LOBBY ── */}
+      <div className="px-5 pt-5 pb-6 md:px-8">
+        <div className="flex items-stretch gap-3">
+          {[
+            { label: "DAILY BLOOM", emoji: "📰", href: "/member/city"  },
+            { label: "THE LOBBY",   emoji: "🚪", href: "/member/room"  },
+          ].map(sc => (
+            <Link key={sc.label} href={sc.href} style={{ textDecoration: "none", flex: 1 }}>
+              <div className="flex items-center justify-center gap-3 py-4 transition-transform active:scale-[0.97]"
                 style={{
-                  background: "linear-gradient(135deg, #1A0410, #3D0820)",
-                  border: "1px solid rgba(255,31,125,0.35)",
-                  boxShadow: "0 0 10px rgba(255,31,125,0.25)",
+                  background: isNight ? "rgba(255,31,125,0.07)" : "white",
+                  border: `1px solid ${dividerColor}`,
+                  borderRadius: "4px",
+                  boxShadow: isNight ? "none" : "0 2px 10px rgba(0,0,0,0.05)",
                 }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
-                  style={{ background: "#FF1F7D", boxShadow: "0 0 4px #FF1F7D" }} />
-                <span className="text-[9px] font-bold tracking-wider uppercase" style={{ color: "#FF69B4" }}>Bar</span>
-                <span style={{ fontSize: "12px" }}>🍸</span>
+                <span style={{ fontSize: "22px" }}>{sc.emoji}</span>
+                <p className="font-bold tracking-[0.2em] uppercase"
+                  style={{ fontSize: "9px", color: sectionLabel }}>{sc.label}</p>
               </div>
             </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Hero Card ── */}
-      <div className="px-5 mb-4 md:px-8">
-        <div className="w-full rounded-3xl relative overflow-hidden"
-          style={{ background: heroBg, minHeight: "148px", boxShadow: isNight ? "0 10px 32px rgba(0,0,0,0.4)" : "0 10px 32px rgba(255,31,125,0.32)" }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: HERO_GLOW[tod] }} />
-          <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.2))" }} />
-          <div className="absolute top-4 right-4 text-right">
-            <div className="text-4xl font-bold leading-none text-white" style={{ fontFamily: "var(--font-instrument)", textShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
-              {mood.women}
-            </div>
-            <div className="text-[7px] font-bold tracking-[0.2em] uppercase mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>
-              {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "OUT TODAY" : "TONIGHT"}
-            </div>
-          </div>
-          <div className="relative p-5 pr-20 flex flex-col justify-between" style={{ minHeight: "148px" }}>
-            <div>
-              <p className="text-[8px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.65)" }}>
-                ✦ {tod === "morning" ? "THIS MORNING" : tod === "afternoon" ? "THIS AFTERNOON" : tod === "evening" ? "THIS EVENING" : "TONIGHT"} IN WILLIAMSBURG
-              </p>
-              <p className="text-white leading-snug mb-1" style={{ fontFamily: "var(--font-instrument)", fontSize: "1.1rem", fontStyle: "italic" }}>
-                {mood.vibe}
-              </p>
-            </div>
-            <div className="flex items-center gap-3 mt-3">
-              <Link href="/member/happenings"
-                className="inline-block px-4 py-2 rounded-full font-bold text-xs"
-                style={{ background: "rgba(255,255,255,0.22)", color: "white", backdropFilter: "blur(8px)" }}>
-                See what&apos;s on →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── UPCOMING TICKET ── */}
-      <div className="px-5 mb-6 md:px-8">
-        <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "#FF1F7D" }}>✦ COMING UP</p>
-        <UpcomingTicket isNight={isNight} />
-      </div>
-
-      {/* ── FOR YOU — based on your interests ── */}
-      <div className="mb-6">
-        <div className="px-5 flex items-center justify-between mb-3 md:px-8">
-          <div>
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ FOR YOU</p>
-            <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-instrument)", color: headingColor }}>Based on your interests.</p>
-          </div>
-          <Link href="/member/lounge" className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>Edit tags →</Link>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-1 md:px-8" style={{ scrollbarWidth: "none" }}>
-          {MY_INTERESTS.map((interest, i) => (
-            <ForYouCard key={i} interest={interest} isNight={isNight} />
           ))}
         </div>
+      </div>
+
+      {/* ── YOUR INVITATIONS ── */}
+      <div className="mb-6">
+        <div className="px-5 flex items-center justify-between mb-3 md:px-8">
+          <p className="font-bold tracking-[0.2em] uppercase" style={{ fontSize: "10px", color: sectionLabel }}>
+            YOUR INVITATIONS
+          </p>
+          <Link href="/member/messages?filter=invitations"
+            className="font-semibold" style={{ fontSize: "11px", color: PINK, textDecoration: "none" }}>
+            See all →
+          </Link>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-3 px-5 md:px-8" style={{ scrollbarWidth: "none" }}>
+          {MY_INVITATIONS.map(inv => (
+            <InvitationCard key={inv.id} inv={inv} isNight={isNight} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── TONIGHT ── */}
+      <div className="mb-6">
+        <div className="px-5 flex items-center justify-between mb-3 md:px-8">
+          <p className="font-bold tracking-[0.2em] uppercase" style={{ fontSize: "10px", color: sectionLabel }}>
+            {tonightLabel}
+          </p>
+          <Link href="/member/happenings"
+            className="font-semibold" style={{ fontSize: "11px", color: PINK, textDecoration: "none" }}>
+            View details →
+          </Link>
+        </div>
+        <TonightCard isNight={isNight} />
       </div>
 
       {/* ── YOUR SHELF ── */}
       <div className="px-5 mb-6 md:px-8">
-        <div className="flex items-center justify-between mb-2.5">
-          <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ YOUR SHELF</p>
-          <Link href="/member/lounge" className="text-[10px] font-semibold" style={{ color: "#FF1F7D" }}>Customize →</Link>
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-bold tracking-[0.2em] uppercase" style={{ fontSize: "10px", color: sectionLabel }}>
+            YOUR SHELF
+          </p>
+          <Link href="/member/lounge"
+            className="font-semibold" style={{ fontSize: "11px", color: PINK, textDecoration: "none" }}>
+            Edit →
+          </Link>
         </div>
-        <div className="flex gap-3 items-end overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {[
-            { id: "book",    emoji: "📚", label: "Book Club",    href: "/member/clubs"      },
-            { id: "candle",  emoji: "🕯️", label: "Soft Life",   href: "/member/happenings" },
-            { id: "flowers", emoji: "🌸", label: "Events",       href: "/member/happenings" },
-            { id: "vinyl",   emoji: "🎵", label: "Jazz & Wine",  href: "/member/clubs"      },
-            { id: "camera",  emoji: "📷", label: "Lens & Light", href: "/member/clubs"      },
-          ].map(obj => (
-            <Link key={obj.id} href={obj.href} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95"
-                  style={{ background: isNight ? "rgba(255,255,255,0.07)" : "white", boxShadow: isNight ? "0 2px 8px rgba(0,0,0,0.2)" : "0 3px 12px rgba(0,0,0,0.07)" }}>
-                  {obj.emoji}
+        <div className="relative">
+          {/* Objects */}
+          <div className="flex items-end justify-between pb-2 overflow-x-auto"
+            style={{ scrollbarWidth: "none", gap: "12px" }}>
+            {SHELF.map(obj => (
+              <Link key={obj.id} href={obj.href} style={{ textDecoration: "none", flexShrink: 0 }}>
+                <div className="transition-all active:scale-90">
+                  <span style={{ fontSize: "30px", lineHeight: 1, display: "block" }}>{obj.emoji}</span>
                 </div>
-                <p className="text-[9px] font-medium text-center" style={{ color: textMuted }}>{obj.label}</p>
-              </div>
-            </Link>
+              </Link>
+            ))}
+          </div>
+          {/* Shelf plank */}
+          <div style={{
+            height: "10px", borderRadius: "2px",
+            background: isNight
+              ? "linear-gradient(180deg, #5C3018 0%, #3A1C0A 100%)"
+              : "linear-gradient(180deg, #C8A070 0%, #A87848 100%)",
+            boxShadow: isNight ? "0 4px 16px rgba(0,0,0,0.5)" : "0 4px 14px rgba(0,0,0,0.18)",
+          }} />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="mx-5 mb-6" style={{ height: "1px", background: dividerColor }} />
+
+      {/* ── YOUR CLUBS ── */}
+      <div className="mb-10">
+        <div className="px-5 flex items-center justify-between mb-4 md:px-8">
+          <p className="font-bold tracking-[0.2em] uppercase" style={{ fontSize: "10px", color: sectionLabel }}>
+            YOUR CLUBS
+          </p>
+          <Link href="/member/clubs"
+            className="font-semibold" style={{ fontSize: "11px", color: PINK, textDecoration: "none" }}>
+            See all →
+          </Link>
+        </div>
+        <div className="flex gap-5 overflow-x-auto px-5 pb-2 md:px-8" style={{ scrollbarWidth: "none" }}>
+          {MY_CLUBS.map(club => (
+            <ClubCrest key={club.id} club={club} isNight={isNight} />
           ))}
-          <Link href="/member/lounge" style={{ textDecoration: "none", flexShrink: 0 }}>
+          {/* Join a Club */}
+          <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
             <div className="flex flex-col items-center gap-1.5">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ background: "transparent", border: "1.5px dashed rgba(255,31,125,0.25)" }}>
-                <span style={{ color: "#FF1F7D", fontSize: "20px", lineHeight: 1 }}>+</span>
+              <div className="w-14 h-14 flex items-center justify-center"
+                style={{
+                  border: `1.5px dashed ${isNight ? "rgba(255,31,125,0.28)" : "rgba(0,0,0,0.12)"}`,
+                  borderRadius: "4px",
+                }}>
+                <span style={{ fontSize: "22px", color: isNight ? "rgba(255,31,125,0.45)" : "rgba(0,0,0,0.18)" }}>+</span>
               </div>
-              <p className="text-[9px] font-medium" style={{ color: textMuted }}>Add</p>
+              <p className="text-center font-semibold" style={{ fontSize: "9px", color: mutedColor, maxWidth: "56px" }}>
+                Join a Club
+              </p>
             </div>
           </Link>
         </div>
-        <div className="h-[2px] mt-2 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${isNight ? "rgba(180,140,100,0.3)" : "rgba(180,140,100,0.25)"} 50%, transparent)` }} />
       </div>
 
-      {/* ── 2-col on desktop ── */}
-      <div className="md:grid md:grid-cols-[1fr_320px] md:gap-8 md:px-10 md:items-start">
-
-        {/* ── LEFT: Your Clubs ── */}
-        <div>
-          <div className="px-5 mb-6 md:hidden">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold italic" style={{ fontFamily: "var(--font-instrument)", color: headingColor, fontSize: "1.1rem" }}>
-                Your clubs, right now
-              </h2>
-              <Link href="/member/clubs" className="text-xs font-bold" style={{ color: "#FF1F7D" }}>All →</Link>
-            </div>
-            <div className="flex gap-5 overflow-x-auto -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
-              {CLUB_PULSE.map((club, i) => {
-                const missed = [3, 0, 5][i] ?? 0;
-                return (
-                  <Link key={i} href="/member/clubs"
-                    className="flex-shrink-0 flex flex-col items-center gap-2"
-                    style={{ textDecoration: "none" }}>
-                    <div className="relative" style={{ animation: club.live ? "crestGlow 2s ease-in-out infinite alternate" : undefined }}>
-                      <MiniCrest name={club.name} color={club.color} crestBg={club.crestBg} size={56} />
-                      {missed > 0 && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                          style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.55)" }}>
-                          {missed}
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-[10px] font-bold text-center leading-tight"
-                      style={{ color: headingColor, maxWidth: "58px" }}>
-                      {club.name.split(" ").slice(0, 2).join(" ")}
-                    </p>
-                    {club.live && (
-                      <div className="flex items-center gap-1">
-                        <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: "#FF1F7D" }} />
-                        <span className="text-[8px] font-bold" style={{ color: "#FF1F7D" }}>live</span>
-                      </div>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* ── DESKTOP SIDEBAR ── */}
-        <div className="hidden md:flex flex-col gap-4">
-          <div className="rounded-3xl overflow-hidden relative"
-            style={{
-              background: isNight ? (isEvening ? "#1E1612" : "#15100C") : "#FFF0F5",
-              boxShadow: isNight ? "0 8px 28px rgba(0,0,0,0.25)" : "0 4px 20px rgba(255,31,125,0.12)",
-              border: isNight ? "none" : "1px solid rgba(255,31,125,0.12)",
-            }}>
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: isNight ? "radial-gradient(ellipse at 10% 85%, rgba(255,31,125,0.2) 0%, transparent 60%)" : "none" }} />
-            <div className="relative p-5">
-              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: isNight ? "#FF69B4" : "#FF1F7D" }}>
-                ✦ YANDE PICKED THIS
-              </p>
-              <p className="font-bold text-base leading-snug mb-1 italic"
-                style={{ fontFamily: "var(--font-instrument)", fontWeight: 500, color: isNight ? "white" : "#111111" }}>
-                Matcha morning in Williamsburg
-              </p>
-              <p className="text-xs mb-4 leading-relaxed" style={{ color: textMuted }}>
-                Sunday 10AM · 3 seats · $1 deposit. The girls who went last week are going back.
-              </p>
-              <Link href="/member/happenings"
-                className="inline-block px-5 py-2.5 rounded-full font-bold text-xs"
-                style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 14px rgba(255,31,125,0.4)" }}>
-                See the seat →
-              </Link>
-            </div>
-          </div>
-
-          {isNight ? (
-            <Link href="/member/room?enter=girlbar" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: "rgba(8,3,14,0.88)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,105,180,0.22)", boxShadow: "inset 0 0 28px rgba(255,31,125,0.12), 0 0 28px rgba(255,31,125,0.18), 0 6px 24px rgba(0,0,0,0.4)" }}>
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 110%, rgba(255,31,125,0.4) 0%, transparent 55%)" }} />
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />
-                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF69B4" }}>LIVE TONIGHT</p>
-                </div>
-                <p className="text-white font-bold text-sm mb-0.5" style={{ fontFamily: "var(--font-playfair)" }}>The Girl Bar</p>
-                <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
-                  8 women inside · 3 new posts. The Wall is talking.
-                </p>
-                <span className="inline-block px-4 py-2 rounded-full text-xs font-bold" style={{ background: "#FF1F7D", color: "white", boxShadow: "0 4px 12px rgba(255,31,125,0.4)" }}>Enter →</span>
-              </div>
-            </Link>
-          ) : (
-            <Link href="/member/room" className="block rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: isEvening ? "#1C1410" : "#111111", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 85% 15%, rgba(255,105,180,0.1) 0%, transparent 60%)" }} />
-              <div className="relative">
-                <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF69B4" }}>THE LOBBY</p>
-                <p className="text-white font-bold text-sm mb-1">Come inside</p>
-                <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>The Wall is live. Girl Bar opens tonight.</p>
-                <span className="inline-block px-4 py-2 rounded-full text-xs font-bold" style={{ background: "#FF1F7D", color: "white" }}>Enter Lobby →</span>
-              </div>
-            </Link>
-          )}
-
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-instrument)", color: headingColor }}>Your clubs tonight</p>
-              <Link href="/member/clubs" className="text-xs font-bold" style={{ color: "#FF1F7D" }}>All →</Link>
-            </div>
-            <div className="flex flex-col gap-2">
-              {CLUB_PULSE.map((club, i) => (
-                <Link key={i} href="/member/clubs"
-                  className="rounded-2xl p-3 flex items-center gap-3"
-                  style={{ background: cardBg, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                  <MiniCrest name={club.name} color={club.color} crestBg={club.crestBg} size={36} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-xs truncate" style={{ color: headingColor }}>{club.name}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      {club.live && <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#FF1F7D" }} />}
-                      <p className="text-[11px] mt-0.5 truncate" style={{ color: club.live ? "#FF1F7D" : textMuted }}>{club.status}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Yande sheet ── */}
+      {/* Yande sheet */}
       {showYande && <YandeSheet onClose={() => setShowYande(false)} />}
 
       <style>{`
-        @keyframes inviteShake {
-          0%, 78%, 100% { transform: rotate(0deg); }
-          79% { transform: rotate(-10deg); }
-          81% { transform: rotate(8deg); }
-          83% { transform: rotate(-6deg); }
-          85% { transform: rotate(5deg); }
-          87% { transform: rotate(-3deg); }
-          89% { transform: rotate(1deg); }
-          91% { transform: rotate(0deg); }
-        }
-        @keyframes msgBounce {
-          0%, 80%, 100% { transform: translateY(0px); }
-          82% { transform: translateY(-7px); }
-          84% { transform: translateY(-2px); }
-          86% { transform: translateY(-5px); }
-          88% { transform: translateY(-1px); }
-          90% { transform: translateY(0px); }
-        }
-        @keyframes pingRing {
-          0%, 72%, 100% { transform: rotate(0deg); }
-          74% { transform: rotate(-16deg); }
-          77% { transform: rotate(13deg); }
-          80% { transform: rotate(-9deg); }
-          83% { transform: rotate(6deg); }
-          86% { transform: rotate(-3deg); }
-          89% { transform: rotate(1.5deg); }
-          92% { transform: rotate(0deg); }
-        }
-        @keyframes planPulse {
-          0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-          50% { box-shadow: 0 0 0 4px rgba(212,168,83,0.18), 0 4px 16px rgba(212,168,83,0.25); }
-        }
-        @keyframes crestGlow {
-          from { filter: drop-shadow(0 0 3px rgba(255,31,125,0.35)); }
-          to   { filter: drop-shadow(0 0 10px rgba(255,31,125,0.75)); }
-        }
-        @keyframes yandePulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(255,31,125,0); }
-          50% { box-shadow: 0 0 0 5px rgba(255,31,125,0.15); }
+        @keyframes flowerPulse {
+          0%,  100% { transform: scale(1) rotate(0deg);   }
+          45%        { transform: scale(1.14) rotate(10deg); }
+          90%        { transform: scale(1.04) rotate(-4deg); }
         }
       `}</style>
     </div>
