@@ -148,51 +148,283 @@ function SectionHeader({ eyebrow, title, note }: { eyebrow: string; title: strin
   );
 }
 
-// ── Bloom Request Card ────────────────────────────────────────────────────────
+// ── Bloom Request — Sealed Envelope (list) ───────────────────────────────────
 
-function BloomRequestCard({ req, accepted, onAccept, onDecline }: {
-  req: typeof BLOOM_REQUESTS[0]; accepted: boolean;
-  onAccept: () => void; onDecline: () => void;
+function BloomRequestEnvelope({ req, accepted, onOpen }: {
+  req: typeof BLOOM_REQUESTS[0]; accepted: boolean; onOpen: () => void;
 }) {
-  return (
-    <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 2px 14px rgba(255,31,125,0.08)", borderLeft: "3px solid #FF1F7D" }}>
-      <div className="flex items-start gap-3 mb-3">
-        <ProfileAvatar initial={req.initial} color={req.color} size={44} />
+  if (accepted) {
+    return (
+      <div className="rounded-2xl px-5 py-4 flex items-center gap-3"
+        style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.05)", border: "1.5px solid rgba(255,31,125,0.12)" }}>
+        <ProfileAvatar initial={req.initial} color={req.color} size={40} />
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm" style={{ color: "#111" }}>
-            <span style={{ color: "#FF1F7D" }}>{req.name.split(" ")[0]}</span>{" "}would like to meet you.
-          </p>
+          <p className="font-bold text-sm" style={{ color: "#111" }}>{req.name}</p>
           <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{req.neighborhood}</p>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {req.clubs.map(c => (
-              <span key={c} className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{c}</span>
-            ))}
+        </div>
+        <span className="text-xs font-bold px-3 py-1.5 rounded-full"
+          style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+          Bloomies ✦
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <button onClick={onOpen} className="w-full text-left transition-transform active:scale-[0.98]"
+      style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
+      {/* Envelope flap */}
+      <div style={{ background: "#FF69B4", height: "32px", clipPath: "polygon(0 0, 50% 100%, 100% 0)" }} />
+      {/* Envelope body */}
+      <div className="px-5 pt-2 pb-4" style={{ background: "#FF1F7D" }}>
+        <p className="text-[8px] font-bold tracking-[0.3em] uppercase mb-3"
+          style={{ color: "rgba(255,255,255,0.55)" }}>BLOOM REQUEST · AN INVITATION TO A REAL CONNECTION</p>
+        <div className="flex items-center gap-4">
+          {/* Wax seal */}
+          <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{
+              background: "radial-gradient(circle at 35% 35%, #FF69B4, #C0185F)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
+            }}>
+            <span className="font-black italic text-white" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px" }}>B</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-black italic text-white leading-tight"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "18px" }}>
+              She sees something<br/>in you.
+            </p>
+            <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.55)" }}>
+              And she&apos;d love to get to know the real you.
+            </p>
           </div>
         </div>
       </div>
-      {req.message && (
-        <div className="rounded-xl px-4 py-3 mb-3" style={{ background: "#FFF5F8" }}>
-          <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>
-            &ldquo;{req.message}&rdquo;
-          </p>
+      {/* Envelope bottom */}
+      <div className="px-5 py-3 flex items-center justify-between"
+        style={{ background: "#C0185F" }}>
+        <div>
+          <p className="text-[9px] font-bold" style={{ color: "rgba(255,255,255,0.6)" }}>From</p>
+          <p className="text-sm font-bold text-white">{req.name} · {req.neighborhood}</p>
         </div>
-      )}
-      {accepted ? (
-        <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>You&apos;re Bloomies now ✦</p>
-      ) : (
-        <div className="flex gap-2">
+        <span className="text-[11px] font-bold text-white">Open →</span>
+      </div>
+    </button>
+  );
+}
+
+// ── Bloom Request — Letter (full-page reading) ────────────────────────────────
+
+const COMPATIBILITY_POINTS = ["Values aligned", "Lifestyle aligned", "Energy aligned", "Vibe aligned"];
+
+function BloomRequestLetterPage({ req, onAccept, onDecline, onBack }: {
+  req: typeof BLOOM_REQUESTS[0];
+  onAccept: () => void;
+  onDecline: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: "#FDF4EC" }}>
+      {/* Sticky back */}
+      <div className="sticky top-0 z-10 px-5 pt-4 pb-3 flex items-center justify-between"
+        style={{ background: "#FDF4EC", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: "#FF1F7D" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back
+        </button>
+        <p className="text-[8px] font-bold tracking-[0.3em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
+        <div style={{ width: 48 }} />
+      </div>
+
+      <div className="px-5 pt-2 pb-28">
+        {/* Header */}
+        <div className="text-center py-6">
+          <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>You just received a</p>
+          <h1 className="font-black uppercase leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "36px", color: "#111" }}>
+            BLOOM<br/>REQUEST
+          </h1>
+          <p className="text-[9px] font-bold tracking-[0.22em] uppercase mt-1" style={{ color: "#aaa" }}>AN INVITATION TO A REAL CONNECTION</p>
+        </div>
+
+        {/* The letter card */}
+        <div className="rounded-3xl overflow-hidden mb-5"
+          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)", background: "white" }}>
+          {/* Pink wax seal strip */}
+          <div className="flex items-center justify-center py-4"
+            style={{ background: "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 100%)" }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ background: "radial-gradient(circle at 35% 35%, #FF69B4, #C0185F)", boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}>
+              <span className="font-black italic text-white" style={{ fontFamily: "var(--font-playfair)", fontSize: "18px" }}>B</span>
+            </div>
+          </div>
+          {/* Letter body */}
+          <div className="px-7 py-6">
+            <p className="font-black italic leading-tight mb-2 text-center"
+              style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: "#FF1F7D" }}>
+              She sees something<br/>in you.
+            </p>
+            <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: "#555" }}>
+              And she&apos;d love to get<br/>to know the real you.
+            </p>
+            {req.message && (
+              <div className="rounded-2xl px-5 py-4 mb-2" style={{ background: "#FFF5F8", borderLeft: "3px solid #FF1F7D" }}>
+                <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>
+                  &ldquo;{req.message}&rdquo;
+                </p>
+              </div>
+            )}
+            {/* Yande note */}
+            <div className="mt-4 pt-4" style={{ borderTop: "1px dashed rgba(255,31,125,0.18)" }}>
+              <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>YANDE SAYS:</p>
+              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+                The right connections don&apos;t just happen, they&apos;re chosen. You bring the intention, we bring the women.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* About Her */}
+        <div className="rounded-3xl p-5 mb-4 bg-white" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <p className="text-[8px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#FF1F7D" }}>ABOUT HER</p>
+          <div className="flex items-center gap-4">
+            <ProfileAvatar initial={req.initial} color={req.color} size={56} />
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-xl italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+                {req.name.split(" ")[0]}
+              </p>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {req.clubs.map(c => (
+                  <span key={c} className="text-[9px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{c}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-col gap-1.5">
+            <p className="text-xs flex items-center gap-2" style={{ color: "#666" }}>
+              <span style={{ color: "#FF1F7D" }}>📍</span> {req.neighborhood}
+            </p>
+            <p className="text-xs flex items-center gap-2" style={{ color: "#666" }}>
+              <span style={{ color: "#FF1F7D" }}>✦</span> In your orbit
+            </p>
+          </div>
+        </div>
+
+        {/* Compatibility */}
+        <div className="rounded-3xl p-5 mb-6 bg-white" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>COMPATIBILITY</p>
+              <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "48px", color: "#FF1F7D" }}>91<span style={{ fontSize: "24px" }}>%</span></p>
+            </div>
+            <div className="flex-1 flex flex-col gap-1.5">
+              {COMPATIBILITY_POINTS.map(pt => (
+                <div key={pt} className="flex items-center gap-2">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="7" fill="#FF1F7D" fillOpacity="0.12"/>
+                    <polyline points="3.5,7 5.5,9.5 10.5,4.5" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-xs" style={{ color: "#444" }}>{pt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col gap-3">
+          <button onClick={onAccept}
+            className="w-full py-4 rounded-2xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            style={{ background: "#FF1F7D", boxShadow: "0 6px 24px rgba(255,31,125,0.35)", fontSize: "15px", letterSpacing: "0.04em" }}>
+            OPEN BLOOM REQUEST
+            <span style={{ fontSize: "18px" }}>✿</span>
+          </button>
           <button onClick={onDecline}
-            className="flex-1 py-3 rounded-full text-sm font-semibold border transition-all active:scale-[0.97]"
-            style={{ borderColor: "#E8E8E8", color: "#888" }}>
+            className="w-full py-3.5 rounded-2xl font-semibold transition-all active:scale-[0.98]"
+            style={{ background: "transparent", border: "1.5px solid #E8E8E8", color: "#888", fontSize: "14px" }}>
             Not now
           </button>
-          <button onClick={onAccept}
-            className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all active:scale-[0.97]"
-            style={{ background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>
-            Accept
-          </button>
+          <p className="text-center text-[9px]" style={{ color: "#ccc" }}>
+            This request is private. You decide what happens next.
+          </p>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+// ── Both Bloomies — celebration overlay ───────────────────────────────────────
+
+function BothBloomiesOverlay({ req, onDone }: {
+  req: typeof BLOOM_REQUESTS[0]; onDone: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8"
+      style={{ background: "#FF1F7D" }}>
+      <style>{`
+        @keyframes bloomFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-14px) scale(1.06)} }
+        @keyframes petalFall  { 0%{opacity:0;transform:translateY(-30px) rotate(0deg)} 20%{opacity:1} 100%{opacity:0;transform:translateY(100vh) rotate(360deg)} }
+        @keyframes bloomIn    { 0%{opacity:0;transform:scale(0.6)} 60%{transform:scale(1.06)} 100%{opacity:1;transform:scale(1)} }
+      `}</style>
+
+      {/* Falling petals */}
+      {["10%","25%","40%","60%","75%","88%"].map((left, i) => (
+        <div key={i} className="fixed pointer-events-none"
+          style={{ left, top: 0, fontSize: "20px", opacity: 0,
+            animation: `petalFall ${2.5 + i * 0.4}s ease-in ${i * 0.3}s infinite` }}>
+          🌸
+        </div>
+      ))}
+
+      {/* Avatars connecting */}
+      <div className="flex items-center gap-0 mb-10" style={{ animation: "bloomIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+        {/* Her avatar */}
+        <div className="w-20 h-20 rounded-full flex items-center justify-center font-black text-white border-4 border-white"
+          style={{ background: req.color, fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+          {req.initial}
+        </div>
+        {/* Connecting flower */}
+        <div className="flex items-center justify-center mx-[-8px] z-10"
+          style={{ animation: "bloomFloat 2s ease-in-out infinite" }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ background: "white", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
+            <span style={{ fontSize: "24px" }}>✿</span>
+          </div>
+        </div>
+        {/* Your avatar */}
+        <div className="w-20 h-20 rounded-full flex items-center justify-center font-black text-white border-4 border-white"
+          style={{ background: "#C0185F", fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+          D
+        </div>
+      </div>
+
+      {/* Text */}
+      <div className="text-center mb-8" style={{ animation: "bloomIn 0.5s 0.15s cubic-bezier(0.34,1.56,0.64,1) both", opacity: 0 }}>
+        <p className="font-bold tracking-[0.2em] uppercase text-white mb-2" style={{ fontSize: "11px", opacity: 0.7 }}>
+          YOU&apos;RE BOTH
+        </p>
+        <p className="font-black italic text-white leading-tight"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "42px", lineHeight: 0.95 }}>
+          Bloomies<br/>now.
+        </p>
+        <p className="italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.7)", fontSize: "15px" }}>
+          You and {req.name.split(" ")[0]} are now connected.<br/>Say hello.
+        </p>
+      </div>
+
+      {/* Buttons */}
+      <div className="w-full flex flex-col gap-3" style={{ animation: "bloomIn 0.5s 0.3s cubic-bezier(0.34,1.56,0.64,1) both", opacity: 0 }}>
+        <button
+          className="w-full py-4 rounded-2xl font-bold text-[#FF1F7D] transition-all active:scale-[0.97]"
+          style={{ background: "white", fontSize: "15px", boxShadow: "0 6px 24px rgba(0,0,0,0.15)" }}
+          onClick={onDone}>
+          Message {req.name.split(" ")[0]} →
+        </button>
+        <button onClick={onDone} className="w-full py-3 font-semibold" style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px" }}>
+          Maybe later
+        </button>
+      </div>
     </div>
   );
 }
@@ -378,6 +610,8 @@ export default function IntroductionsPage() {
   const [activeCluster, setActiveCluster] = useState<typeof INTEREST_CLUSTERS[0] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [notifyGirlmates, setNotifyGirlmates] = useState(false);
+  const [openLetter, setOpenLetter] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
+  const [bloomiesOf, setBloomiesOf] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -457,16 +691,13 @@ export default function IntroductionsPage() {
               <p className="text-xs mt-1" style={{ color: "#bbb" }}>— Yande</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {pendingRequests.map(req => (
-                <BloomRequestCard key={req.id} req={req}
-                  accepted={req.accepted}
-                  onAccept={() => setRequests(rs => rs.map(r => r.id === req.id ? { ...r, accepted: true } : r))}
-                  onDecline={() => setRequests(rs => rs.filter(r => r.id !== req.id))}
-                />
+                <BloomRequestEnvelope key={req.id} req={req} accepted={false}
+                  onOpen={() => setOpenLetter(req)} />
               ))}
               {acceptedRequests.map(req => (
-                <BloomRequestCard key={req.id} req={req} accepted onAccept={() => {}} onDecline={() => {}} />
+                <BloomRequestEnvelope key={req.id} req={req} accepted onOpen={() => {}} />
               ))}
             </div>
           )}
@@ -641,6 +872,31 @@ export default function IntroductionsPage() {
           style={{ background: "#111", transform: "translateX(-50%)", boxShadow: "0 8px 24px rgba(0,0,0,0.28)", animation: "slideUpToast 0.28s cubic-bezier(0.34,1.56,0.64,1)", whiteSpace: "nowrap" }}>
           {toast}
         </div>
+      )}
+
+      {/* ── Letter overlay ── */}
+      {openLetter && (
+        <BloomRequestLetterPage
+          req={openLetter}
+          onBack={() => setOpenLetter(null)}
+          onAccept={() => {
+            setRequests(rs => rs.map(r => r.id === openLetter.id ? { ...r, accepted: true } : r));
+            setBloomiesOf(openLetter);
+            setOpenLetter(null);
+          }}
+          onDecline={() => {
+            setRequests(rs => rs.filter(r => r.id !== openLetter.id));
+            setOpenLetter(null);
+          }}
+        />
+      )}
+
+      {/* ── Both Bloomies celebration ── */}
+      {bloomiesOf && (
+        <BothBloomiesOverlay
+          req={bloomiesOf}
+          onDone={() => setBloomiesOf(null)}
+        />
       )}
     </div>
   );
