@@ -971,30 +971,6 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
 
         {/* ── RIGHT / BOOKING SIDEBAR ── */}
         <div className="px-5 md:px-0 flex flex-col gap-4">
-          {/* Your Seat ticket */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-            <div className="px-5 py-3" style={{ background: "#FF1F7D" }}>
-              <p className="text-xs font-black tracking-[0.2em] uppercase text-white">YOUR SEAT</p>
-            </div>
-            <div className="p-5">
-              <div className="flex gap-4 mb-3">
-                <div>
-                  <p className="text-[8px] font-bold tracking-wider uppercase mb-1" style={{ color: "#bbb" }}>SEAT</p>
-                  <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", color: "#FF1F7D" }}>{ext.tableNum}</p>
-                </div>
-                <div>
-                  <p className="text-[8px] font-bold tracking-wider uppercase mb-1" style={{ color: "#bbb" }}>SECTION</p>
-                  <p className="text-xs font-black tracking-wider uppercase" style={{ color: "#FF1F7D" }}>MAIN TABLE</p>
-                  <p className="text-[9px] mt-1" style={{ color: "#bbb" }}>TABLE OF {ext.seats} WOMEN</p>
-                </div>
-                <div className="ml-auto">
-                  <Barcode code="BLOOMBAY" />
-                </div>
-              </div>
-              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>You&apos;re in good company. ✿</p>
-            </div>
-          </div>
-
           {/* Reserve countdown */}
           <div className="rounded-2xl p-4 bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#111" }}>RESERVE YOUR SEAT</p>
