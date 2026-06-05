@@ -1317,7 +1317,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               {/* ── BloomBay ID Card ── */}
               <div className="rounded-3xl overflow-hidden relative"
                 style={{
-                  background: "linear-gradient(135deg, #0D0512 0%, #1A0820 60%, #0D0512 100%)",
+                  background: "linear-gradient(135deg, #111111 0%, #1A1A1A 60%, #111111 100%)",
                   boxShadow: "0 8px 40px rgba(255,31,125,0.18), inset 0 0 0 1px rgba(255,105,180,0.15)",
                   minHeight: "130px",
                 }}>
