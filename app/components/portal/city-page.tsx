@@ -6,6 +6,7 @@ import Link from "next/link";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type CityTab = "eat" | "go" | "solo" | "girl-picks";
+type CityCategory = "eats" | "things-to-do" | "trending" | "dont-miss" | "bloomies-favorites";
 type GoFilter = "All" | "Museums" | "Parks" | "Events" | "Experiences";
 type GirlPicksFilter = "Bloomie Gems" | "City Secrets" | "New In Town" | "Most Loved";
 
@@ -87,6 +88,22 @@ const GIRL_PICKS: Place[] = [
   { id: 15, type: "gem", name: "Sunday in Brooklyn", neighborhood: "Williamsburg", review: "Malted pancakes, natural light, great energy. The brunch spot everyone is finding.", submittedBy: "Sofia K.", rating: 4.8, stamps: 53, girlCategory: "New In Town" },
   { id: 16, type: "place", name: "Industry City", neighborhood: "Sunset Park", review: "Brooklyn's best-kept neighbourhood secret. Art, food, and zero tourists.", submittedBy: "Priya R.", rating: 4.7, stamps: 36, girlCategory: "New In Town" },
 ];
+
+const TRENDING_ITEMS = [
+  { id: 1, name: "The Met", neighborhood: "Upper East Side", emoji: "🏛", count: 6210, bgColor: "#FFF8F0", note: "Women are here every weekend.", goPlaceId: 2 },
+  { id: 2, name: "Smorgasburg", neighborhood: "Williamsburg", emoji: "🌮", count: 5102, bgColor: "#FFFAF0", note: "Peak season — don't sleep on it.", goPlaceId: 5 },
+  { id: 3, name: "Brooklyn Bridge Park", neighborhood: "DUMBO", emoji: "🌉", count: 4821, bgColor: "#F0F8FF", note: "Golden hour is unmatched right now.", goPlaceId: 1 },
+  { id: 4, name: "The High Line", neighborhood: "Chelsea", emoji: "🌿", count: 3987, bgColor: "#F0FFF4", note: "Morning walks are having a moment.", goPlaceId: 4 },
+  { id: 5, name: "Russ & Daughters", neighborhood: "Lower East Side", emoji: "🥯", count: 3102, bgColor: "#FFF5F8", note: "Still the most reordered brunch.", restaurantId: 5 },
+  { id: 6, name: "Sadelle's", neighborhood: "SoHo", emoji: "🥯", count: 2847, bgColor: "#FFF0F5", note: "2,847 women can't be wrong.", restaurantId: 1 },
+] as const;
+
+const DONT_MISS_ITEMS = [
+  { id: 1, name: "Sadelle's", neighborhood: "SoHo", emoji: "🥯", badge: "WOMEN'S PICK", note: "Still the best Sunday brunch in the city. Get there early.", bgColor: "#FFF0F5", restaurantId: 1 },
+  { id: 2, name: "Smorgasburg", neighborhood: "Williamsburg", emoji: "🌮", badge: "SEASONAL", note: "Saturdays through October. 100 vendors at the waterfront.", bgColor: "#FFFAF0", goPlaceId: 5 },
+  { id: 3, name: "Archway Café", neighborhood: "DUMBO", emoji: "☕", badge: "CITY SECRET", note: "Under the Manhattan Bridge. Hidden, beautiful, yours.", bgColor: "#F5F0FF", goPlaceId: 3 },
+  { id: 4, name: "Bangkok Supper Club", neighborhood: "LES", emoji: "🍜", badge: "NEW MENU", note: "New menu just dropped. The tom yum is still the move.", bgColor: "#FFF5F8", restaurantId: 2 },
+] as const;
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -951,10 +968,111 @@ function PlaceCard({ place, stamped, onStamp, onClick }: {
   );
 }
 
+// ── City Hub landing ─────────────────────────────────────────────────────────
+
+function CityHub({ onSelect }: { onSelect: (c: CityCategory) => void }) {
+  return (
+    <div className="min-h-screen pb-28" style={{ background: "#FDFAF5" }}>
+      <div className="px-5 pt-14 pb-5">
+        <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC</p>
+        <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(40px,9vw,52px)", color: "#111", lineHeight: 0.9, letterSpacing: "-0.02em" }}>
+          The City.
+        </h1>
+        <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>
+          Places worth knowing. Always.
+        </p>
+      </div>
+
+      <div className="px-5 flex flex-col gap-3">
+        {/* Eats — hero card */}
+        <button onClick={() => onSelect("eats")}
+          className="w-full rounded-3xl text-left transition-transform active:scale-[0.98]"
+          style={{ background: "#FFF5EC", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", minHeight: "160px", position: "relative", overflow: "hidden" }}>
+          <div className="absolute right-4 top-4 flex gap-2">
+            {["🥯","🍜","🥐"].map((e, i) => (
+              <div key={i} className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl"
+                style={{ background: "rgba(255,255,255,0.65)", transform: `rotate(${([-5,3,-2])[i]}deg)` }}>{e}</div>
+            ))}
+          </div>
+          <div className="p-5 flex flex-col justify-between" style={{ minHeight: "160px" }}>
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF1F7D" }}>✦ EATS</p>
+              <h2 className="font-black italic leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "30px", color: "#111" }}>Where to eat.</h2>
+              <p className="text-xs mt-1" style={{ color: "#aaa" }}>Restaurants worth the reservation.</p>
+            </div>
+            <div className="flex items-center justify-between mt-5">
+              <span className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>5 must-visit spots</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </button>
+
+        {/* Row: Things To Do + Trending */}
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => onSelect("things-to-do")}
+            className="rounded-3xl text-left transition-transform active:scale-[0.98]"
+            style={{ background: "#F0FFF4", boxShadow: "0 3px 16px rgba(0,0,0,0.06)", minHeight: "168px" }}>
+            <div className="p-4 flex flex-col justify-between" style={{ minHeight: "168px" }}>
+              <div>
+                <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#22C55E" }}>THINGS TO DO</p>
+                <h3 className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "21px", color: "#111" }}>Get out<br/>there.</h3>
+                <div className="flex gap-1 mt-3">{["🌉","🏛","🌿"].map((e,i) => <span key={i} style={{ fontSize: "17px" }}>{e}</span>)}</div>
+              </div>
+              <p className="text-[9px] mt-2" style={{ color: "#aaa" }}>7 places →</p>
+            </div>
+          </button>
+
+          <button onClick={() => onSelect("trending")}
+            className="rounded-3xl text-left transition-transform active:scale-[0.98]"
+            style={{ background: "#111", boxShadow: "0 3px 20px rgba(0,0,0,0.22)", minHeight: "168px" }}>
+            <div className="p-4 flex flex-col justify-between" style={{ minHeight: "168px" }}>
+              <div>
+                <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF69B4" }}>TRENDING</p>
+                <h3 className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "21px", color: "white" }}>Right<br/>now.</h3>
+                <p className="text-[10px] mt-2 italic" style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-instrument)" }}>What women are into this week.</p>
+              </div>
+              <p className="text-[9px] mt-2" style={{ color: "#FF69B4" }}>6 spots →</p>
+            </div>
+          </button>
+        </div>
+
+        {/* Row: Don't Miss + Bloomies' Favorites */}
+        <div className="grid grid-cols-2 gap-3 pb-4">
+          <button onClick={() => onSelect("dont-miss")}
+            className="rounded-3xl text-left transition-transform active:scale-[0.98]"
+            style={{ background: "#FFF0F5", boxShadow: "0 3px 16px rgba(255,31,125,0.08)", minHeight: "152px" }}>
+            <div className="p-4 flex flex-col justify-between" style={{ minHeight: "152px" }}>
+              <div>
+                <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF1F7D" }}>DON&apos;T MISS</p>
+                <h3 className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "21px", color: "#111" }}>Must-<br/>knows.</h3>
+                <div className="flex gap-1 mt-2">{["🌮","☕","🥯"].map((e,i) => <span key={i} style={{ fontSize: "15px" }}>{e}</span>)}</div>
+              </div>
+              <p className="text-[9px] mt-2" style={{ color: "#aaa" }}>4 picks →</p>
+            </div>
+          </button>
+
+          <button onClick={() => onSelect("bloomies-favorites")}
+            className="rounded-3xl text-left transition-transform active:scale-[0.98]"
+            style={{ background: "white", boxShadow: "0 3px 16px rgba(255,31,125,0.1)", border: "1.5px solid #FFE0EE", minHeight: "152px" }}>
+            <div className="p-4 flex flex-col justify-between" style={{ minHeight: "152px" }}>
+              <div>
+                <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>BLOOMIES&apos;</p>
+                <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF1F7D" }}>FAVORITES</p>
+                <h3 className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: "19px", color: "#111" }}>Your<br/>people&apos;s picks.</h3>
+              </div>
+              <p className="text-[9px] mt-2" style={{ color: "#FF1F7D" }}>16 picks →</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main CityPage ─────────────────────────────────────────────────────────────
 
 export function CityPage() {
-  const [activeTab, setActiveTab]           = useState<CityTab>("eat");
+  const [activeCategory, setActiveCategory] = useState<CityCategory | null>(null);
   const [goFilter, setGoFilter]             = useState<GoFilter>("All");
   const [girlPicksFilter, setGirlPicksFilter] = useState<GirlPicksFilter>("Most Loved");
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
@@ -972,246 +1090,206 @@ export function CityPage() {
 
   function handlePlaceCardClick(place: Place) {
     if (place.type === "eat") {
-      const restaurant = RESTAURANTS.find(r => r.name === place.name);
-      if (restaurant) {
-        setSelectedRestaurant(restaurant);
-        setActiveTab("eat");
-      }
+      const r = RESTAURANTS.find(r => r.name === place.name);
+      if (r) setSelectedRestaurant(r);
     } else {
-      // "place" or "gem" — find matching go place
-      // Try exact name match first, then partial match
       const exactName = place.name.replace(" under Manhattan Bridge", "");
-      const goPlace = GO_PLACES.find(p => p.name === place.name || p.name === exactName || place.name.startsWith(p.name));
-      if (goPlace) {
-        setSelectedGoPlace(goPlace);
-      }
+      const gp = GO_PLACES.find(p => p.name === place.name || p.name === exactName || place.name.startsWith(p.name));
+      if (gp) setSelectedGoPlace(gp);
     }
+  }
+
+  function openLinkedItem(item: { restaurantId?: number; goPlaceId?: number }) {
+    if (item.restaurantId != null) { const r = RESTAURANTS.find(r => r.id === item.restaurantId); if (r) setSelectedRestaurant(r); }
+    else if (item.goPlaceId != null) { const gp = GO_PLACES.find(p => p.id === item.goPlaceId); if (gp) setSelectedGoPlace(gp); }
   }
 
   const filteredGo = goFilter === "All" ? GO_PLACES : GO_PLACES.filter(p => p.filter === goFilter);
 
-  // Full-page detail routes
+  // Detail views always take priority
   if (selectedRestaurant) return <RestaurantDetail r={selectedRestaurant} onBack={() => setSelectedRestaurant(null)} />;
-  if (selectedGoPlace) return <GoPlaceDetail p={selectedGoPlace} onBack={() => setSelectedGoPlace(null)} />;
-  if (selectedSoloSpot) return <SoloSpotDetail s={selectedSoloSpot} onBack={() => setSelectedSoloSpot(null)} />;
+  if (selectedGoPlace)    return <GoPlaceDetail p={selectedGoPlace} onBack={() => setSelectedGoPlace(null)} />;
+  if (selectedSoloSpot)   return <SoloSpotDetail s={selectedSoloSpot} onBack={() => setSelectedSoloSpot(null)} />;
+
+  // Hub landing
+  if (!activeCategory) return <CityHub onSelect={setActiveCategory} />;
+
+  // Category meta
+  const CATEGORY_META: Record<CityCategory, { eyebrow: string; title: string; tagline: string }> = {
+    "eats":               { eyebrow: "EATS",               title: "Where to eat.",         tagline: "Restaurants worth the reservation." },
+    "things-to-do":       { eyebrow: "THINGS TO DO",       title: "Get out there.",         tagline: "Parks, museums, and hidden spots." },
+    "trending":           { eyebrow: "TRENDING",           title: "Right now.",             tagline: "What women are visiting this week." },
+    "dont-miss":          { eyebrow: "DON'T MISS",         title: "Must-knows.",            tagline: "Limited time. Worth every visit." },
+    "bloomies-favorites": { eyebrow: "BLOOMIES' FAVORITES", title: "Your people's picks.", tagline: "Places your Bloomies actually love." },
+  };
+  const meta = CATEGORY_META[activeCategory];
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: "#FDFAF5" }}>
 
-      {/* ── Header ── */}
-      <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
-        <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "var(--heading-color, #111)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-          The City.
+      {/* Category header */}
+      <div className="px-5 pt-14 pb-4">
+        <button
+          onClick={() => setActiveCategory(null)}
+          className="flex items-center gap-2 mb-4 text-xs font-bold transition-opacity active:opacity-60"
+          style={{ color: "#FF1F7D" }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          The City
+        </button>
+        <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ {meta.eyebrow}</p>
+        <h1 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(32px,7vw,44px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+          {meta.title}
         </h1>
-        <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
-          Places worth knowing. Always.
-        </p>
-
-        {/* ── Tab bar ── */}
-        <div className="flex gap-1 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
-          {TAB_LABELS.map(({ key, label }) => (
-            <button key={key} onClick={() => setActiveTab(key)}
-              className="flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all"
-              style={activeTab === key
-                ? { background: "var(--heading-color, #111)", color: "var(--pale-pink-bg, white)" }
-                : { background: "var(--card-bg, white)", color: "#666", border: "1.5px solid var(--card-border, #E8E8E8)" }}>
-              {label}
-            </button>
-          ))}
-        </div>
+        <p className="text-sm italic mt-1.5" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>{meta.tagline}</p>
       </div>
 
-      {/* ── Tab content ── */}
-      <div className="px-5 md:px-10 md:max-w-[1280px] md:mx-auto pt-6 flex flex-col gap-6">
-
-        {/* ── EAT ── */}
-        {activeTab === "eat" && (
-          <div className="flex flex-col gap-6">
-            {/* Women's Picks carousel */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
-                <Link href="/member/city/places" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</Link>
-              </div>
-              <div
-                className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0"
-                style={{ scrollbarWidth: "none" }}
-              >
-                {RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000).map(r => (
-                  <EatCarouselCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
-                ))}
-              </div>
-            </div>
-
-            <div className="md:grid md:grid-cols-[1fr_1fr] md:gap-6">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
-                  <Link href="/member/city/places" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</Link>
-                </div>
-                <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-3">
-                  {(showAllSpots ? RESTAURANTS : RESTAURANTS.slice(0, 4)).map(r => (
-                    <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
-                  ))}
-                </div>
-                {!showAllSpots && RESTAURANTS.length > 4 && (
-                  <button onClick={() => setShowAllSpots(true)}
-                    className="mt-3 w-full py-3 rounded-2xl text-xs font-bold transition-all active:scale-[0.98]"
-                    style={{ background: "var(--card-bg, white)", color: "#FF1F7D", border: "1.5px solid rgba(255,31,125,0.2)", boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
-                    Show all spots →
-                  </button>
-                )}
-              </div>
-              <div className="hidden md:block">
-                <div className="rounded-2xl p-5 mb-4" style={{ background: "#111", boxShadow: "0 8px 28px rgba(0,0,0,0.18)" }}>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF69B4" }}>WOMEN ARE EATING</p>
-                  <div className="flex flex-col gap-3">
-                    {RESTAURANTS.filter(r => r.notableDish).map((r, i) => (
-                      <div key={r.id} className="flex items-center gap-3 py-2" style={{ borderBottom: i < RESTAURANTS.filter(x => x.notableDish).length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
-                        <span className="text-xl">{r.emoji}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold truncate" style={{ color: "white" }}>{r.notableDish}</p>
-                          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{r.name} · {r.neighborhood}</p>
-                        </div>
-                        <p className="text-[10px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>✿ {r.notableDishNote?.split(" ")[0]}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: "#FFF0F5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: "white" }}>🥯</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>MOST SAVED</p>
-                    <p className="text-sm font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Bagel with Lox at Russ &amp; Daughters</p>
-                    <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>✿ 3,102 women love this</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Girl Picks */}
-            <div>
-              <div className="flex items-baseline justify-between mb-3">
-                <div>
-                  <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>GIRL PICKS</p>
-                  <h3 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "var(--heading-color, #111)" }}>Places the city loves</h3>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3">
-                {girlPicks.map(place => (
-                  <PlaceCard
-                    key={place.id}
-                    place={place}
-                    stamped={stampedPlaces.has(place.id)}
-                    onStamp={() => handleStamp(place.id)}
-                    onClick={() => handlePlaceCardClick(place)}
-                  />
-                ))}
-              </div>
+      {/* ── EATS ── */}
+      {activeCategory === "eats" && (
+        <div className="px-5 flex flex-col gap-6">
+          <div>
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>WOMEN&apos;S PICKS</p>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+              {RESTAURANTS.filter(r => r.featured || r.womenLoved > 1000).map(r => (
+                <EatCarouselCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+              ))}
             </div>
           </div>
-        )}
+          <div>
+            <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-3" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
+            <div className="grid grid-cols-2 gap-3">
+              {(showAllSpots ? RESTAURANTS : RESTAURANTS.slice(0, 4)).map(r => (
+                <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
+              ))}
+            </div>
+            {!showAllSpots && RESTAURANTS.length > 4 && (
+              <button onClick={() => setShowAllSpots(true)}
+                className="mt-3 w-full py-3 rounded-2xl text-xs font-bold transition-all active:scale-[0.98]"
+                style={{ background: "white", color: "#FF1F7D", border: "1.5px solid rgba(255,31,125,0.2)" }}>
+                Show all {RESTAURANTS.length} spots →
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-        {/* ── GO ── */}
-        {activeTab === "go" && (
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0">
+      {/* ── THINGS TO DO ── */}
+      {activeCategory === "things-to-do" && (
+        <div className="px-5 flex flex-col gap-6">
+          <div>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 mb-3" style={{ scrollbarWidth: "none" }}>
               {(["All", "Parks", "Museums", "Experiences", "Events"] as GoFilter[]).map(f => (
                 <button key={f} onClick={() => setGoFilter(f)}
                   className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                  style={goFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                  style={goFilter === f ? { background: "#111", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
                   {f}
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {filteredGo.map(p => <GoCard key={p.id} p={p} onClick={() => setSelectedGoPlace(p)} />)}
             </div>
           </div>
-        )}
-
-        {/* ── SOLO ── */}
-        {activeTab === "solo" && (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                Places women<br />love going alone.
-              </h2>
-              <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
-                Safe. Beautiful. Yours.
-              </p>
+          <div>
+            <div className="rounded-2xl p-4 mb-3" style={{ background: "#111" }}>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF69B4" }}>SOLO IN THE CITY</p>
+              <p className="font-black italic text-lg leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "white" }}>Places women love going alone.</p>
             </div>
-            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               {SOLO_SPOTS.map(s => <SoloCard key={s.id} s={s} onClick={() => setSelectedSoloSpot(s)} />)}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── GIRL PICKS ── */}
-        {activeTab === "girl-picks" && (
-          <div className="flex flex-col gap-6">
-            {/* Intro header */}
-            <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>GIRL PICKS</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                The places women<br />actually love.
-              </h2>
-              <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
-                Timeless. Local. Ours.
-              </p>
-            </div>
+      {/* ── TRENDING ── */}
+      {activeCategory === "trending" && (
+        <div className="px-5 flex flex-col gap-3">
+          {TRENDING_ITEMS.map((item, idx) => (
+            <button key={item.id} onClick={() => openLinkedItem(item)}
+              className="w-full rounded-2xl overflow-hidden text-left transition-transform active:scale-[0.98]"
+              style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+              <div className="flex items-center gap-4 p-4">
+                <div className="flex-shrink-0 w-8 text-center">
+                  <span className="font-black text-lg" style={{ fontFamily: "var(--font-playfair)", color: idx < 3 ? "#FF1F7D" : "#ddd" }}>
+                    {(idx + 1).toString().padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                  style={{ background: item.bgColor }}>
+                  {item.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{item.name}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{item.neighborhood}</p>
+                  <p className="text-[11px] mt-1 italic" style={{ color: "#aaa", fontFamily: "var(--font-instrument)" }}>{item.note}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <FlowerCount count={item.count} />
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
-            {/* Sub-filter pills */}
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0" style={{ scrollbarWidth: "none" }}>
-              {(["Most Loved", "Bloomie Gems", "City Secrets", "New In Town"] as GirlPicksFilter[]).map(f => (
-                <button key={f} onClick={() => setGirlPicksFilter(f)}
-                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
-                  style={girlPicksFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
-                  {f}
-                </button>
-              ))}
-            </div>
+      {/* ── DON'T MISS ── */}
+      {activeCategory === "dont-miss" && (
+        <div className="px-5 flex flex-col gap-3">
+          {DONT_MISS_ITEMS.map(item => (
+            <button key={item.id} onClick={() => openLinkedItem(item)}
+              className="w-full rounded-3xl overflow-hidden text-left transition-transform active:scale-[0.98]"
+              style={{ background: item.bgColor, boxShadow: "0 3px 16px rgba(0,0,0,0.07)" }}>
+              <div className="p-5 flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                  style={{ background: "rgba(255,255,255,0.7)" }}>
+                  {item.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="inline-block text-[8px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full mb-2"
+                    style={{ background: "#FF1F7D", color: "white" }}>{item.badge}</span>
+                  <p className="font-black text-base leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{item.name}</p>
+                  <p className="text-[10px] mt-0.5 mb-1" style={{ color: "#999" }}>{item.neighborhood}</p>
+                  <p className="text-xs italic leading-snug" style={{ color: "#666", fontFamily: "var(--font-instrument)" }}>{item.note}</p>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
-            {/* Sub-category description */}
-            {girlPicksFilter === "Most Loved" && (
-              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
-                The spots women return to, again and again.
-              </p>
-            )}
-            {girlPicksFilter === "Bloomie Gems" && (
-              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
-                Hand-picked favourites from BloomBay women.
-              </p>
-            )}
-            {girlPicksFilter === "City Secrets" && (
-              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
-                Under the radar. Off the tourist map. Entirely yours.
-              </p>
-            )}
-            {girlPicksFilter === "New In Town" && (
-              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
-                Recently discovered. Women are already obsessed.
-              </p>
-            )}
-
-            {/* Filtered places */}
-            <div className="flex flex-col gap-3">
-              {girlPicks.filter(p => p.girlCategory === girlPicksFilter).map(place => (
-                <PlaceCard
-                  key={place.id}
-                  place={place}
-                  stamped={stampedPlaces.has(place.id)}
-                  onStamp={() => handleStamp(place.id)}
-                  onClick={() => handlePlaceCardClick(place)}
-                />
-              ))}
-            </div>
+      {/* ── BLOOMIES' FAVORITES ── */}
+      {activeCategory === "bloomies-favorites" && (
+        <div className="px-5 flex flex-col gap-5">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+            {(["Most Loved", "Bloomie Gems", "City Secrets", "New In Town"] as GirlPicksFilter[]).map(f => (
+              <button key={f} onClick={() => setGirlPicksFilter(f)}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                style={girlPicksFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                {f}
+              </button>
+            ))}
           </div>
-        )}
-
-      </div>
+          <p className="text-xs italic -mt-2" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>
+            {girlPicksFilter === "Most Loved"  && "The spots women return to, again and again."}
+            {girlPicksFilter === "Bloomie Gems" && "Hand-picked favourites from BloomBay women."}
+            {girlPicksFilter === "City Secrets" && "Under the radar. Off the tourist map. Entirely yours."}
+            {girlPicksFilter === "New In Town"  && "Recently discovered. Women are already obsessed."}
+          </p>
+          <div className="flex flex-col gap-3">
+            {girlPicks.filter(p => p.girlCategory === girlPicksFilter).map(place => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                stamped={stampedPlaces.has(place.id)}
+                onStamp={() => handleStamp(place.id)}
+                onClick={() => handlePlaceCardClick(place)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   );
