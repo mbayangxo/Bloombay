@@ -46,10 +46,21 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [homeLabel, setHomeLabel] = useState("TODAY");
+  const [visited, setVisited] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setHomeLabel(getHomeLabel());
   }, []);
+
+  useEffect(() => {
+    setVisited(prev => {
+      const next = new Set(prev);
+      if (pathname.startsWith("/member/messages"))      next.add("messages");
+      if (pathname.startsWith("/member/notifications"))  next.add("notifications");
+      if (pathname.startsWith("/member/plans"))          next.add("plans");
+      return next;
+    });
+  }, [pathname]);
 
   const places = PLACES.map((p, i) => ({
     ...p,
@@ -111,7 +122,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              {!pathname.startsWith("/member/messages") && (
+              {!pathname.startsWith("/member/messages") && !visited.has("messages") && (
                 <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
                   {PENDING_INVITATIONS}
@@ -132,7 +143,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              {!pathname.startsWith("/member/notifications") && (
+              {!pathname.startsWith("/member/notifications") && !visited.has("notifications") && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
               )}
@@ -172,9 +183,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 background: pathname.startsWith("/member/plans") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/plans") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
                 boxShadow: pathname.startsWith("/member/plans") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-                animation: !pathname.startsWith("/member/plans") ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
+                animation: (!pathname.startsWith("/member/plans") && !visited.has("plans")) ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
               }}>
-              {!pathname.startsWith("/member/plans") && (
+              {!pathname.startsWith("/member/plans") && !visited.has("plans") && (
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full"
                   style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
               )}

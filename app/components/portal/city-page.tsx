@@ -252,8 +252,9 @@ function EatCarouselCard({ r, onClick }: { r: Restaurant; onClick: () => void })
       style={{
         width: "220px",
         height: "300px",
-        background: "white",
+        background: "var(--card-bg, white)",
         boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+        border: "1px solid var(--card-border, transparent)",
       }}
       onClick={onClick}
     >
@@ -294,11 +295,11 @@ function EatCarouselCard({ r, onClick }: { r: Restaurant; onClick: () => void })
       <div className="px-3.5 pt-3 pb-3 flex flex-col gap-1 flex-1">
         <h3
           className="font-black text-sm leading-snug"
-          style={{ fontFamily: "var(--font-playfair)", color: "#111" }}
+          style={{ fontFamily: "var(--font-playfair)", color: "var(--heading-color, #111)" }}
         >
           {r.name}
         </h3>
-        <p className="text-[10px]" style={{ color: "#999" }}>
+        <p className="text-[10px]" style={{ color: "var(--text-muted, #999)" }}>
           {r.neighborhood} · {r.price}
         </p>
         <StarRating value={rating} />
@@ -313,7 +314,7 @@ function EatGridCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
   return (
     <div
       className="rounded-2xl overflow-hidden cursor-pointer"
-      style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}
+      style={{ background: "var(--card-bg, white)", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid var(--card-border, transparent)" }}
       onClick={onClick}
     >
       <div className="relative flex items-center justify-center" style={{ height: "80px", background: `linear-gradient(135deg, ${r.bgColor} 0%, #FFE0EE 100%)` }}>
@@ -329,8 +330,8 @@ function EatGridCard({ r, onClick }: { r: Restaurant; onClick: () => void }) {
         </button>
       </div>
       <div className="p-3">
-        <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.name}</h3>
-        <p className="text-[10px] mt-0.5 mb-1.5" style={{ color: "#999" }}>{r.neighborhood} · {r.price}</p>
+        <h3 className="font-black text-sm leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "var(--heading-color, #111)" }}>{r.name}</h3>
+        <p className="text-[10px] mt-0.5 mb-1.5" style={{ color: "var(--text-muted, #999)" }}>{r.neighborhood} · {r.price}</p>
         <StarRating value={rating} />
       </div>
     </div>
@@ -917,9 +918,9 @@ function PlaceCard({ place, stamped, onStamp, onClick }: {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider" style={{ background: tc.bg, color: tc.color }}>
                 {PLACE_TYPE_LABEL[place.type]}
               </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#F5F5F5", color: "#888" }}>{place.neighborhood}</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--light-pink, #F5F5F5)", color: "var(--text-muted, #888)" }}>{place.neighborhood}</span>
             </div>
-            <p className="font-bold text-sm" style={{ color: "#111" }}>{place.name}</p>
+            <p className="font-bold text-sm" style={{ color: "var(--heading-color, #111)" }}>{place.name}</p>
           </div>
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {[1,2,3,4,5].map(star => (
@@ -927,13 +928,13 @@ function PlaceCard({ place, stamped, onStamp, onClick }: {
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}
-            <span className="text-xs font-bold ml-0.5" style={{ color: "#111" }}>{place.rating.toFixed(1)}</span>
+            <span className="text-xs font-bold ml-0.5" style={{ color: "var(--heading-color, #111)" }}>{place.rating.toFixed(1)}</span>
           </div>
         </div>
-        <p className="text-xs italic leading-relaxed mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#666" }}>&ldquo;{place.review}&rdquo;</p>
+        <p className="text-xs italic leading-relaxed mb-2" style={{ fontFamily: "var(--font-playfair)", color: "var(--text-color, #666)" }}>&ldquo;{place.review}&rdquo;</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs" style={{ color: "#aaa" }}>— {place.submittedBy}</span>
+            <span className="text-xs" style={{ color: "var(--text-muted, #aaa)" }}>— {place.submittedBy}</span>
             <span className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>✿ {place.stamps}</span>
           </div>
           <button
@@ -1049,16 +1050,18 @@ export function CityPage() {
                   <p className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#FF1F7D" }}>ALL SPOTS</p>
                   <Link href="/member/city/places" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>See More →</Link>
                 </div>
-                <div
-                  className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2"
-                  style={{ scrollbarWidth: "none" }}
-                >
-                  {(showAllSpots ? RESTAURANTS : RESTAURANTS.slice(0, 5)).map(r => (
-                    <div key={r.id} className="flex-shrink-0 md:flex-shrink md:w-auto" style={{ width: "clamp(180px, 52vw, 240px)" }}>
-                      <EatGridCard r={r} onClick={() => setSelectedRestaurant(r)} />
-                    </div>
+                <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-3">
+                  {(showAllSpots ? RESTAURANTS : RESTAURANTS.slice(0, 4)).map(r => (
+                    <EatGridCard key={r.id} r={r} onClick={() => setSelectedRestaurant(r)} />
                   ))}
                 </div>
+                {!showAllSpots && RESTAURANTS.length > 4 && (
+                  <button onClick={() => setShowAllSpots(true)}
+                    className="mt-3 w-full py-3 rounded-2xl text-xs font-bold transition-all active:scale-[0.98]"
+                    style={{ background: "var(--card-bg, white)", color: "#FF1F7D", border: "1.5px solid rgba(255,31,125,0.2)", boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+                    Show all spots →
+                  </button>
+                )}
               </div>
               <div className="hidden md:block">
                 <div className="rounded-2xl p-5 mb-4" style={{ background: "#111", boxShadow: "0 8px 28px rgba(0,0,0,0.18)" }}>

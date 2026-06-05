@@ -1117,11 +1117,8 @@ function TheLobbyInner() {
   const enterRoom = useEnterRoom();
   const [room, setRoom] = useState<Room>(enterRoom);
 
-  if (room === "wall")      return <TheWall         onBack={() => setRoom("lobby")} />;
-  if (room === "girlbar")   return <GirlBar          onBack={() => setRoom("lobby")} />;
-  if (room === "new-keys")  return <ComingSoonRoom   name="New Keys"   sub="Where newcomers arrive and introduce themselves."                                   onBack={() => setRoom("lobby")} />;
-  if (room === "vanity")    return <ComingSoonRoom   name="The Vanity" sub="Beauty advice, recommendations, and routines from women who know."                  onBack={() => setRoom("lobby")} />;
-  if (room === "closet")    return <ComingSoonRoom   name="The Closet" sub="Outfit questions, style finds, and dressing for the city."                          onBack={() => setRoom("lobby")} />;
+  if (room === "wall")    return <TheWall onBack={() => setRoom("lobby")} />;
+  if (room === "girlbar") return <GirlBar onBack={() => setRoom("lobby")} />;
 
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0C050F" }}>
@@ -1203,34 +1200,19 @@ function TheLobbyInner() {
 
         </div>
 
-        {/* ── Three secondary doors ── */}
-        <div className="flex gap-2.5">
-          {LOBBY_DOORS.slice(2).map((door) => (
-            <button
-              key={door.id}
-              onClick={() => setRoom(door.id)}
-              className="relative flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-[0.96]"
-              style={{
-                height: "175px",
-                borderRadius: "50% 50% 6px 6px / 16% 16% 6px 6px",
-                background: "rgba(255,240,235,0.28)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,31,125,0.12)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.14)",
-                opacity: 0.72,
-              }}
-            >
-              <div className="absolute right-3 top-1/2 -translate-y-1/2"
-                style={{ width: "3.5px", height: "20px", borderRadius: "2px", background: "rgba(255,255,255,0.18)" }} />
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: "13px", fontStyle: "italic", fontWeight: 700, color: "rgba(255,245,235,0.78)", textAlign: "center", lineHeight: 1.25, padding: "0 12px" }}>
-                {door.name}
-              </p>
-              <span style={{ fontSize: "7px", background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)", fontWeight: 700, letterSpacing: "0.14em", padding: "2px 7px", borderRadius: "4px", textTransform: "uppercase" as const }}>
-                Soon
-              </span>
-            </button>
-          ))}
+        {/* ── More rooms teaser ── */}
+        <div className="flex items-center gap-4 px-5 py-4 rounded-2xl mt-1"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="flex flex-col flex-1 min-w-0">
+            <p className="text-xs font-bold" style={{ color: "rgba(255,31,125,0.65)" }}>More rooms on the way</p>
+            <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              New Keys · The Vanity · The Closet
+            </p>
+          </div>
+          <span className="flex-shrink-0 text-[9px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full"
+            style={{ background: "rgba(255,31,125,0.1)", color: "rgba(255,31,125,0.55)", border: "1px solid rgba(255,31,125,0.18)" }}>
+            SOON
+          </span>
         </div>
 
       </div>

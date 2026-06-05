@@ -864,11 +864,11 @@ function PlansPageInner() {
         <div>
           <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ YOUR PLANS</p>
           <h1 className="font-black leading-none"
-            style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#111", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "var(--heading-color, #111)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
             Plans.
           </h1>
-          <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
-            Your rooms, tickets & plan threads.
+          <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
+            {PLAN_ROOMS.length} active rooms · your tickets &amp; threads.
           </p>
         </div>
         <button onClick={() => setShowNewPlan(true)}

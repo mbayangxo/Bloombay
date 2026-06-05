@@ -401,7 +401,7 @@ function ThreadView({ convo, messages, onBack }: { convo: Convo; messages: Messa
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--pale-pink-bg)" }}>
       {/* Header */}
-      <div className="px-5 pt-14 pb-4 flex items-center gap-3 flex-shrink-0 md:pt-10"
+      <div className="px-5 pt-14 pb-4 flex items-center gap-3 flex-shrink-0 md:pt-10 sticky top-0 z-10"
         style={{ background: "var(--card-bg, white)", borderBottom: "1px solid var(--card-border, #F0F0F0)", boxShadow: "0 1px 12px rgba(0,0,0,0.05)" }}>
         <button onClick={onBack}
           className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95"

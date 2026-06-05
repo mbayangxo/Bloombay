@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface Notif {
@@ -293,11 +293,14 @@ export default function NotificationsPage() {
   const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
 
   const unreadCount = [...nowItems, ...earlierItems].filter(n => n.unread).length;
+  const totalItems  = nowItems.length + earlierItems.length;
 
   function markAllRead() {
     setNowItems(prev => prev.map(n => ({ ...n, unread: false })));
     setEarlierItems(prev => prev.map(n => ({ ...n, unread: false })));
   }
+
+  useEffect(() => { markAllRead(); }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
@@ -357,21 +360,41 @@ export default function NotificationsPage() {
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       <div className="px-5 pb-28 flex flex-col gap-7 pt-2">
-        {/* Right Now */}
-        <div>
-          <SectionHeader label="RIGHT NOW" />
-          <div className="flex flex-col gap-2.5">
-            {nowItems.map(n => <NotifRow key={n.id} n={n} />)}
+        {totalItems === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <p style={{ fontSize: "44px", opacity: 0.22 }}>✦</p>
+            <p className="font-black italic text-center"
+              style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.38)", fontSize: "22px" }}>
+              All caught up.
+            </p>
+            <p className="text-xs text-center leading-relaxed"
+              style={{ color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              When something happens in your world,<br />it will show up here.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Right Now */}
+            {nowItems.length > 0 && (
+              <div>
+                <SectionHeader label="RIGHT NOW" />
+                <div className="flex flex-col gap-2.5">
+                  {nowItems.map(n => <NotifRow key={n.id} n={n} />)}
+                </div>
+              </div>
+            )}
 
-        {/* Earlier */}
-        <div>
-          <SectionHeader label="EARLIER TODAY" faint />
-          <div className="flex flex-col gap-2.5">
-            {earlierItems.map(n => <NotifRow key={n.id} n={n} />)}
-          </div>
-        </div>
+            {/* Earlier */}
+            {earlierItems.length > 0 && (
+              <div>
+                <SectionHeader label="EARLIER TODAY" faint />
+                <div className="flex flex-col gap-2.5">
+                  {earlierItems.map(n => <NotifRow key={n.id} n={n} />)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

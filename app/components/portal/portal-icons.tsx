@@ -10,10 +10,21 @@ const PENDING_INVITATIONS = 3;
 export function PortalIcons({ initial = "M" }: { initial?: string }) {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const pathname = usePathname();
+  const [visited, setVisited] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
   }, []);
+
+  useEffect(() => {
+    setVisited(prev => {
+      const next = new Set(prev);
+      if (pathname.startsWith("/member/messages"))      next.add("messages");
+      if (pathname.startsWith("/member/notifications"))  next.add("notifications");
+      if (pathname.startsWith("/member/plans"))          next.add("plans");
+      return next;
+    });
+  }, [pathname]);
 
   const isNight   = tod === "evening" || tod === "night";
 
@@ -54,7 +65,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <polyline points="22,6 12,13 2,6"/>
           </svg>
-          {!pathname.startsWith("/member/messages") && (
+          {!pathname.startsWith("/member/messages") && !visited.has("messages") && (
             <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
               style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px white", lineHeight: 1 }}>
               {PENDING_INVITATIONS}
@@ -82,7 +93,7 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
-          {!pathname.startsWith("/member/notifications") && (
+          {!pathname.startsWith("/member/notifications") && !visited.has("notifications") && (
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
               style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px white" }}/>
           )}
@@ -105,9 +116,9 @@ export function PortalIcons({ initial = "M" }: { initial?: string }) {
           className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
           style={{
             ...iconStyle("/member/plans"),
-            animation: !pathname.startsWith("/member/plans") ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
+            animation: (!pathname.startsWith("/member/plans") && !visited.has("plans")) ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
           }}>
-          {!pathname.startsWith("/member/plans") && (
+          {!pathname.startsWith("/member/plans") && !visited.has("plans") && (
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
               style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px white" }} />
           )}
