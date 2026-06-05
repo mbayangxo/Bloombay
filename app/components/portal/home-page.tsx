@@ -51,6 +51,93 @@ const SHELF = [
   { id: "candle",  emoji: "🕯️", href: "/member/room"      },
 ];
 
+// ─── First Month Journey ──────────────────────────────────────────────────────
+
+const FIRST_MONTH_WEEKS = [
+  { week: 1, task: "Join 3 clubs",             cta: { label: "Browse clubs →",        href: "/member/clubs"      }, done: true  },
+  { week: 2, task: "Attend 1 gathering",        cta: { label: "Find a gathering →",    href: "/member/happenings" }, done: false },
+  { week: 3, task: "Introduce yourself",        cta: { label: "Go to Introductions →", href: "/member/match"      }, done: false },
+  { week: 4, task: "Save 5 places in The City", cta: { label: "Explore The City →",    href: "/member/city"       }, done: false },
+];
+
+const CURRENT_WEEK = 2;
+
+function FirstMonthCard({ isNight }: { isNight: boolean }) {
+  const cardBg      = isNight ? "#1A0814" : "white";
+  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#111";
+  const mutedColor  = isNight ? "rgba(255,255,255,0.3)" : "#bbb";
+  const dividerColor = isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+
+  return (
+    <div className="mx-5 md:mx-8 overflow-hidden"
+      style={{
+        background: cardBg,
+        borderRadius: "4px",
+        boxShadow: isNight ? "0 8px 32px rgba(0,0,0,0.4)" : "0 4px 20px rgba(0,0,0,0.07)",
+      }}>
+      {/* Header */}
+      <div className="px-5 pt-5 pb-4 flex items-baseline justify-between"
+        style={{ borderBottom: `1px solid ${dividerColor}` }}>
+        <div>
+          <p className="font-bold tracking-[0.2em] uppercase mb-0.5"
+            style={{ fontSize: "9px", color: PINK }}>MY FIRST MONTH</p>
+          <p className="font-black italic leading-none"
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: headingColor }}>
+            A guided beginning.
+          </p>
+        </div>
+        <p className="font-bold tracking-[0.15em] uppercase flex-shrink-0"
+          style={{ fontSize: "9px", color: mutedColor }}>
+          Week {CURRENT_WEEK} of 4
+        </p>
+      </div>
+
+      {/* Weeks */}
+      {FIRST_MONTH_WEEKS.map((w) => {
+        const isActive   = w.week === CURRENT_WEEK && !w.done;
+        const isDone     = w.done;
+        const isUpcoming = !w.done && !isActive;
+
+        return (
+          <div key={w.week}
+            className="px-5 py-4"
+            style={{
+              borderBottom: `1px solid ${dividerColor}`,
+              borderLeft: isActive ? `3px solid ${PINK}` : "3px solid transparent",
+              opacity: isUpcoming ? 0.4 : 1,
+            }}>
+            <p className="font-bold tracking-[0.18em] uppercase mb-1"
+              style={{ fontSize: "8px", color: isActive ? PINK : mutedColor }}>
+              WEEK {w.week}
+            </p>
+            <p className="font-black italic leading-tight"
+              style={{
+                fontFamily: "var(--font-playfair)",
+                fontSize: "18px",
+                color: isDone ? mutedColor : headingColor,
+                textDecoration: isDone ? "line-through" : "none",
+                textDecorationColor: isNight ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)",
+              }}>
+              {w.task}
+            </p>
+            {isActive && (
+              <Link href={w.cta.href}
+                className="inline-block mt-2.5 font-bold"
+                style={{ fontSize: "12px", color: PINK, textDecoration: "none" }}>
+                {w.cta.label}
+              </Link>
+            )}
+            {isDone && (
+              <p className="mt-0.5 font-bold tracking-[0.15em] uppercase"
+                style={{ fontSize: "8px", color: mutedColor }}>Done</p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Yande Sheet ──────────────────────────────────────────────────────────────
 
 function YandeSheet({ onClose }: { onClose: () => void }) {
@@ -441,6 +528,11 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* ── MY FIRST MONTH ── */}
+      <div className="mb-6">
+        <FirstMonthCard isNight={isNight} />
       </div>
 
       {/* ── YOUR INVITATIONS ── */}

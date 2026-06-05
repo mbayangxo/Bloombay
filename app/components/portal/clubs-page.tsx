@@ -208,6 +208,47 @@ const CLUB_POSTS_DATA: Record<number, ClubPost[]> = {
   ],
 };
 
+// ─── Club Traditions ──────────────────────────────────────────────────────────
+
+interface Tradition {
+  id: number;
+  name: string;
+  schedule: string;
+  desc: string;
+  emoji: string;
+}
+
+const TRADITIONS_DATA: Record<number, Tradition[]> = {
+  0: [ // African Girls Club
+    { id: 1, emoji: "🍛", name: "Sunday Jollof",  schedule: "Second Sunday of the month",  desc: "Potluck style. Someone makes the jollof. Everyone brings something." },
+    { id: 2, emoji: "🎭", name: "Culture Night",   schedule: "Last Friday of the month",    desc: "Film, music, or art rooted in African culture. Rotating hosts." },
+  ],
+  1: [ // Soft Life Club NYC
+    { id: 1, emoji: "🧖‍♀️", name: "The Soft Saturday", schedule: "First Saturday of the month", desc: "Brunch or spa. No agenda. Just soft living and good company." },
+    { id: 2, emoji: "🌙",    name: "Sunday Wind-Down",  schedule: "Every Sunday evening",         desc: "A quiet check-in. How was your week? What are you grateful for?" },
+  ],
+  2: [ // Muslim Women NYC
+    { id: 1, emoji: "🍽️", name: "Halal Table",   schedule: "Every other Friday",           desc: "New restaurant, halal, always somewhere different. The group votes." },
+    { id: 2, emoji: "🌙",  name: "Sister Circle",  schedule: "First Sunday of the month",   desc: "Open circle. Deen, life, fashion, food — everything is welcome." },
+  ],
+  3: [ // Girl Tech Collective
+    { id: 1, emoji: "🚀", name: "Monthly Wins Night", schedule: "Last Tuesday of the month", desc: "Every woman shares one win. No qualifications. No minimizing." },
+    { id: 2, emoji: "💻", name: "Co-Work Wednesday",  schedule: "Every other Wednesday",      desc: "A rotating café. Work side by side. Leave knowing someone new." },
+  ],
+  4: [ // Girls Who Move
+    { id: 1, emoji: "🌄", name: "Sunrise Saturday",  schedule: "Every Saturday · 6:30am",       desc: "Park or waterfront. All paces. Pastries after — non-negotiable." },
+    { id: 2, emoji: "🌿", name: "Monthly Trail Day",  schedule: "First Sunday of the month",     desc: "A different trail every month. The city has more nature than you think." },
+  ],
+  5: [ // Girl Creatives
+    { id: 1, emoji: "🎨", name: "Monthly Showcase",    schedule: "Last Thursday of the month",  desc: "Members share something they made. Any medium. Any stage." },
+    { id: 2, emoji: "☕", name: "First Sunday Brunch",  schedule: "First Sunday of the month",   desc: "Slow morning. Good coffee. Talk about what you're making and why." },
+  ],
+  6: [ // Jazz & Wine Girls
+    { id: 1, emoji: "🎷", name: "Velvet Friday", schedule: "Last Friday of the month",      desc: "A jazz bar, a wine bar, or someone's living room. Always intentional." },
+    { id: 2, emoji: "🍷", name: "Wine Drop",     schedule: "Every other Thursday evening",  desc: "A bottle recommendation, a bar, or a tasting. Shared notes every time." },
+  ],
+};
+
 const MEMBERSHIP: Record<number, { events: number; since: string }> = {
   1: { events: 4, since: "Mar 2024" },
   2: { events: 1, since: "Apr 2024" },
@@ -505,6 +546,54 @@ function ZonesSection({ club }: { club: Club }) {
   );
 }
 
+// ─── Traditions Section ───────────────────────────────────────────────────────
+
+function TraditionsSection({ club }: { club: { id: number; color: string } }) {
+  const traditions = TRADITIONS_DATA[club.id] ?? [];
+  if (traditions.length === 0) return null;
+
+  return (
+    <div>
+      <div className="mb-4">
+        <p className="text-[10px] font-bold tracking-widest uppercase"
+          style={{ color: "rgba(255,255,255,0.3)" }}>TRADITIONS</p>
+        <p className="text-[11px] mt-0.5"
+          style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+          What this club does, every time.
+        </p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {traditions.map(t => (
+          <div key={t.id} className="rounded-2xl p-4"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderLeft: `3px solid ${club.color}`,
+            }}>
+            <div className="flex items-start gap-3">
+              <span style={{ fontSize: "22px", flexShrink: 0, marginTop: "1px" }}>{t.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold italic leading-none mb-1.5"
+                  style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "rgba(255,238,220,0.92)" }}>
+                  {t.name}
+                </p>
+                <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2"
+                  style={{ color: club.color }}>
+                  {t.schedule}
+                </p>
+                <p className="text-xs leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.48)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                  {t.desc}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Club Post Card ───────────────────────────────────────────────────────────
 
 function ClubPostCard({ post, clubColor, onJoin, joined }: {
@@ -776,6 +865,9 @@ function ClubDetailPage({ club, onBack, onEnterWorld }: {
       <div className="px-5 py-6 flex flex-col gap-8">
         {/* Member Posts section — activity asks */}
         <ClubPostsSection club={{ id: club.id, color: club.color, name: club.name }} />
+
+        {/* Traditions — recurring cultural rituals */}
+        <TraditionsSection club={{ id: club.id, color: club.color }} />
 
         {/* Worlds section */}
         <div>
