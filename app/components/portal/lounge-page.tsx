@@ -123,6 +123,33 @@ function getReferralCode(name: string): string {
   return `BB-NYC-${num}`;
 }
 
+// ── Flowers Recognition System ─────────────────────────────────────────────────
+const ALL_FLOWERS = [
+  { id: "host",      emoji: "🌹", label: "Host Flower",      desc: "Hosted Seats",                          color: "#E63946", bg: "#FFF0F0" },
+  { id: "connector", emoji: "🌸", label: "Connector Flower",  desc: "Introduced women who became friends",   color: "#FF69B4", bg: "#FFF0F8" },
+  { id: "community", emoji: "🌺", label: "Community Flower",  desc: "Helped many women",                    color: "#FF1F7D", bg: "#FFF0F5" },
+  { id: "explorer",  emoji: "🌷", label: "Explorer Flower",   desc: "Discovered places, shared Bloom Notes", color: "#E86A45", bg: "#FFF5F0" },
+  { id: "culture",   emoji: "🌼", label: "Culture Flower",    desc: "Museums, books, galleries, talks",      color: "#D4A853", bg: "#FDFAF0" },
+  { id: "adventure", emoji: "🌻", label: "Adventure Flower",  desc: "Trips, experiences, new things",        color: "#E89A3C", bg: "#FFFBF0" },
+  { id: "wisdom",    emoji: "🪷", label: "Wisdom Flower",     desc: "Mentorship and guidance",               color: "#C084FC", bg: "#FDF0FF" },
+  { id: "society",   emoji: "🌹", label: "Society Flower",    desc: "Club leadership",                      color: "#991B1B", bg: "#FFF5F0" },
+  { id: "founding",  emoji: "🌺", label: "Founding Flower",   desc: "Founding 100 · Originals",             color: "#D4A853", bg: "#FDF9F0" },
+  { id: "bloombay",  emoji: "💮", label: "BloomBay Flower",   desc: "Highest community honor",               color: "#FF1F7D", bg: "#FFF0F5" },
+] as const;
+
+type FlowerId = typeof ALL_FLOWERS[number]["id"];
+
+const USER_EARNED_FLOWER_IDS: FlowerId[] = ["founding", "connector", "culture", "explorer"];
+
+const BLOOMIE_FLOWER_IDS: Record<string, FlowerId[]> = {
+  "Aaliyah M.": ["host", "community"],
+  "Sofia K.":   ["connector", "adventure"],
+  "Kelechi O.": ["culture", "wisdom"],
+  "Naomi B.":   ["explorer"],
+  "Temi A.":    ["community"],
+  "Zara F.":    ["adventure", "connector"],
+};
+
 interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
 
 interface BloomieProfile {
@@ -224,7 +251,7 @@ function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: 
 
         {/* Her updates */}
         {updates.length > 0 && (
-          <div className="px-6 pb-8">
+          <div className="px-6 pb-5">
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>HER UPDATES</p>
             <div className="flex flex-col gap-2.5">
               {updates.map((u, i) => (
@@ -238,6 +265,28 @@ function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: 
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Her flowers */}
+        {(BLOOMIE_FLOWER_IDS[bloomie.name]?.length ?? 0) > 0 && (
+          <div className="px-6 pb-8">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>HER FLOWERS</p>
+            <div className="flex gap-2 flex-wrap">
+              {BLOOMIE_FLOWER_IDS[bloomie.name].map(fid => {
+                const flower = ALL_FLOWERS.find(f => f.id === fid);
+                if (!flower) return null;
+                return (
+                  <div key={fid} className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
+                    style={{ background: flower.bg, border: `1px solid ${flower.color}44` }}>
+                    <span style={{ fontSize: "14px" }}>{flower.emoji}</span>
+                    <span className="text-[10px] font-bold" style={{ color: flower.color }}>
+                      {flower.label.replace(" Flower", "")}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -1172,6 +1221,42 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              {/* ── YOUR FLOWERS ── */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ YOUR FLOWERS</p>
+                    <p className="text-sm font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#0A0A0A" }}>Recognition in bloom.</p>
+                  </div>
+                  <span className="text-[9px] font-medium px-2.5 py-1 rounded-full"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{USER_EARNED_FLOWER_IDS.length} earned</span>
+                </div>
+                <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-5 px-5" style={{ scrollbarWidth: "none" }}>
+                  {ALL_FLOWERS.map(flower => {
+                    const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
+                    return (
+                      <div key={flower.id}
+                        className="flex-shrink-0 flex flex-col items-center gap-1.5 rounded-2xl px-3 py-3"
+                        style={{
+                          background: earned ? flower.bg : "#F8F8F8",
+                          border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`,
+                          opacity: earned ? 1 : 0.42,
+                          minWidth: "72px",
+                        }}>
+                        <span style={{ fontSize: "26px" }}>{flower.emoji}</span>
+                        <p className="text-[9px] font-bold text-center leading-snug"
+                          style={{ color: earned ? flower.color : "#bbb", maxWidth: "64px" }}>
+                          {flower.label.replace(" Flower", "")}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] italic mt-2" style={{ color: "#bbb", fontFamily: "var(--font-instrument)" }}>
+                  Flowers tell the story of who you are in this community.
+                </p>
               </div>
 
               {/* ── Witness Stack ── */}
