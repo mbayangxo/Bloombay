@@ -8,6 +8,17 @@ import Link from "next/link";
 type ClubType = "hq" | "user";
 type JourneyLevel = "member" | "regular" | "insider";
 
+interface ClubPost {
+  id: number;
+  author: string;
+  initial: string;
+  color: string;
+  text: string;
+  time: string;
+  inCount: number;
+  emoji?: string;
+}
+
 interface World {
   id: number;
   name: string;
@@ -158,6 +169,44 @@ const CLUBS: Club[] = [
     ],
   },
 ];
+
+// ─── Club Posts (member activity asks) ────────────────────────────────────────
+
+const CLUB_POSTS_DATA: Record<number, ClubPost[]> = {
+  0: [ // African Girls Club
+    { id: 1, author: "Aminah C.", initial: "A", color: "#FF1F7D",  emoji: "🍛", text: "Looking for a few women to check out that new West African spot on Atlantic Ave this Saturday. 7pm-ish?", time: "45m ago", inCount: 6 },
+    { id: 2, author: "Fatima A.", initial: "F", color: "#FF8C42",  emoji: "🎨", text: "Going to the African Diaspora Art exhibition at Brooklyn Museum on Sunday. Tickets are $15. Anyone want to come?", time: "2h ago", inCount: 3 },
+    { id: 3, author: "Ngozi M.",  initial: "N", color: "#83C5A0",  emoji: "☕", text: "Matcha date this morning, anyone nearby? I'm in Crown Heights.", time: "4h ago", inCount: 2 },
+  ],
+  1: [ // Soft Life Club NYC
+    { id: 1, author: "Maya T.",  initial: "M", color: "#FF69B4",  emoji: "🧖‍♀️", text: "Spa day in Williamsburg this Saturday — looking for 2-3 women. Steam room, then lunch after.", time: "1h ago", inCount: 5 },
+    { id: 2, author: "Jade R.",  initial: "J", color: "#C084FC",  emoji: "🥂", text: "Rooftop brunch Sunday morning. Good view, no rush. Who's free?", time: "3h ago", inCount: 7 },
+    { id: 3, author: "Sofia K.", initial: "S", color: "#FF1F7D",  emoji: "🌿", text: "DUMBO farmers market tomorrow at 9am. Come walk with me.", time: "6h ago", inCount: 2 },
+  ],
+  2: [ // Muslim Women NYC
+    { id: 1, author: "Zara F.",  initial: "Z", color: "#A855F7",  emoji: "🕌", text: "Halal Korean BBQ in Flushing this Friday evening. 6:30pm. A few spots open.", time: "2h ago", inCount: 4 },
+    { id: 2, author: "Hana M.",  initial: "H", color: "#F59E0B",  emoji: "📚", text: "Anyone want to do a book exchange this week? I have 4 books looking for new homes.", time: "5h ago", inCount: 3 },
+  ],
+  3: [ // Girl Tech Collective
+    { id: 1, author: "Priya S.", initial: "P", color: "#0EA5E9",  emoji: "💻", text: "Co-working at Caffe Bene on 38th this Wednesday afternoon. I'll be there from 1–5pm. Join if you want company.", time: "30m ago", inCount: 8 },
+    { id: 2, author: "Temi A.",  initial: "T", color: "#C084FC",  emoji: "🚀", text: "Doing a live pitch practice Friday morning — need 3 women to give honest feedback. 45 min max.", time: "2h ago", inCount: 3 },
+    { id: 3, author: "Remi O.",  initial: "R", color: "#0EA5E9",  emoji: "🎤", text: "There's a female founders panel in Soho Thursday night. Free tickets. Going with one friend, seats for 3 more.", time: "4h ago", inCount: 5 },
+  ],
+  4: [ // Girls Who Move
+    { id: 1, author: "Kemi A.",  initial: "K", color: "#F59E0B",  emoji: "🏃‍♀️", text: "Sunday run from Prospect Park entrance at 7:30am. Easy 4-mile loop, pastries after. All paces welcome.", time: "1h ago", inCount: 11 },
+    { id: 2, author: "Bea T.",   initial: "B", color: "#FF69B4",  emoji: "🧘", text: "Free outdoor yoga in Central Park Saturday 8am. Just need a mat and yourself.", time: "3h ago", inCount: 6 },
+    { id: 3, author: "Chidera L.", initial: "C", color: "#4ADE80", emoji: "🚴‍♀️", text: "Citi Bike ride along the waterfront tomorrow evening — leaving from DUMBO at 6pm.", time: "5h ago", inCount: 4 },
+  ],
+  5: [ // Girl Creatives
+    { id: 1, author: "Yemi O.",  initial: "Y", color: "#EC4899",  emoji: "🎨", text: "Looking for a museum buddy this Saturday. MoMA at 11am, then froyo. Anyone?", time: "2h ago", inCount: 4 },
+    { id: 2, author: "Lola B.",  initial: "L", color: "#818CF8",  emoji: "📸", text: "Going to the Morgan Library this Sunday to see the new photography show. Ticket is $20. Who's in?", time: "4h ago", inCount: 3 },
+    { id: 3, author: "Ada M.",   initial: "A", color: "#EC4899",  emoji: "✍️", text: "Starting a small writing circle — meeting every other Wednesday evening, max 5 people. Curious?", time: "Yesterday", inCount: 6 },
+  ],
+  6: [ // Jazz & Wine Girls
+    { id: 1, author: "Amanda R.", initial: "A", color: "#8B5CF6", emoji: "🎷", text: "Jazz at Smalls this Friday 9pm. Tickets are $25 at the door. I'll be there — looking for a few more.", time: "1h ago", inCount: 5 },
+    { id: 2, author: "Nina K.",  initial: "N", color: "#FB7185",  emoji: "🍷", text: "Wine tasting in the West Village Saturday afternoon — $35 for 6 pours, very chill. Anybody?", time: "3h ago", inCount: 4 },
+  ],
+};
 
 const MEMBERSHIP: Record<number, { events: number; since: string }> = {
   1: { events: 4, since: "Mar 2024" },
@@ -456,6 +505,230 @@ function ZonesSection({ club }: { club: Club }) {
   );
 }
 
+// ─── Club Post Card ───────────────────────────────────────────────────────────
+
+function ClubPostCard({ post, clubColor, onJoin, joined }: {
+  post: ClubPost;
+  clubColor: string;
+  onJoin: () => void;
+  joined: boolean;
+}) {
+  return (
+    <div className="rounded-2xl p-4"
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderLeft: `3px solid ${clubColor}`,
+      }}>
+      {/* Author row */}
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+          style={{ background: post.color }}>
+          {post.initial}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold leading-none" style={{ color: "rgba(255,238,220,0.9)" }}>{post.author}</p>
+          <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.28)" }}>{post.time}</p>
+        </div>
+        {post.emoji && <span style={{ fontSize: "18px" }}>{post.emoji}</span>}
+      </div>
+
+      {/* Post text */}
+      <p className="text-sm leading-relaxed mb-3"
+        style={{ color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+        {post.text}
+      </p>
+
+      {/* Footer: who's in + join button */}
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.28)" }}>
+          {joined ? post.inCount + 1 : post.inCount} {joined ? "going (you're in!)" : "going"}
+        </p>
+        <button
+          onClick={onJoin}
+          className="px-4 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95"
+          style={joined
+            ? { background: `${clubColor}33`, color: clubColor, border: `1px solid ${clubColor}55` }
+            : { background: clubColor, color: "white", boxShadow: `0 3px 10px ${clubColor}44` }}>
+          {joined ? "You're in ✓" : "I'm in →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Club Posts Section ────────────────────────────────────────────────────────
+
+function ClubPostsSection({ club }: { club: { id: number; color: string; name: string } }) {
+  const [posts, setPosts]     = useState<ClubPost[]>(CLUB_POSTS_DATA[club.id] ?? []);
+  const [joined, setJoined]   = useState<Set<number>>(new Set());
+  const [composing, setComposing] = useState(false);
+  const [draft, setDraft]     = useState("");
+  const [prompt, setPrompt]   = useState("");
+
+  const PROMPTS = [
+    "I'm going to…",
+    "Anyone want to…",
+    "Looking for a buddy for…",
+    "Thinking about…",
+  ];
+
+  function handlePromptTap(p: string) {
+    setPrompt(p);
+    setDraft(p === draft ? "" : p + " ");
+    setComposing(true);
+  }
+
+  function submitPost() {
+    const text = draft.trim();
+    if (!text) return;
+    const newPost: ClubPost = {
+      id: Date.now(),
+      author: "You",
+      initial: "M",
+      color: "#FF69B4",
+      text,
+      time: "Just now",
+      inCount: 0,
+    };
+    setPosts(prev => [newPost, ...prev]);
+    setDraft("");
+    setPrompt("");
+    setComposing(false);
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-[10px] font-bold tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.3)" }}>MEMBER POSTS</p>
+          <p className="text-[11px] mt-0.5"
+            style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            Plans, asks, and activity ideas from women in this club.
+          </p>
+        </div>
+      </div>
+
+      {/* Quick-prompt chips + compose trigger */}
+      <div className="rounded-2xl p-4 mb-4"
+        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+        <p className="text-[10px] font-bold tracking-wider uppercase mb-3"
+          style={{ color: "rgba(255,255,255,0.25)" }}>POST AN ACTIVITY ASK</p>
+        <div className="flex gap-2 flex-wrap mb-3">
+          {PROMPTS.map(p => (
+            <button key={p} onClick={() => handlePromptTap(p)}
+              className="px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95"
+              style={{
+                background: prompt === p ? `${club.color}30` : "rgba(255,255,255,0.07)",
+                color: prompt === p ? club.color : "rgba(255,255,255,0.45)",
+                border: prompt === p ? `1px solid ${club.color}55` : "1px solid rgba(255,255,255,0.1)",
+              }}>
+              {p}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setComposing(true)}
+          className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all active:scale-[0.98]"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: "rgba(255,255,255,0.28)",
+            fontFamily: "var(--font-instrument)",
+            fontStyle: "italic",
+          }}>
+          {draft || "What are you planning? Ask who wants to join…"}
+        </button>
+      </div>
+
+      {/* Posts list */}
+      <div className="flex flex-col gap-3">
+        {posts.map(post => (
+          <ClubPostCard
+            key={post.id}
+            post={post}
+            clubColor={club.color}
+            joined={joined.has(post.id)}
+            onJoin={() => setJoined(p => {
+              const n = new Set(p);
+              n.has(post.id) ? n.delete(post.id) : n.add(post.id);
+              return n;
+            })}
+          />
+        ))}
+      </div>
+
+      {/* Compose sheet */}
+      {composing && (
+        <div className="fixed inset-0 z-40 flex flex-col justify-end"
+          style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)" }}
+          onClick={e => { if (e.target === e.currentTarget) setComposing(false); }}>
+          <div className="rounded-t-3xl p-6 flex flex-col gap-4"
+            style={{
+              background: "#0F0F0F",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "none",
+              paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)",
+            }}>
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-0.5"
+                  style={{ color: "rgba(255,255,255,0.3)" }}>POST TO {club.name.toUpperCase()}</p>
+                <p className="text-xs italic" style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-instrument)" }}>
+                  Only members of this club will see this.
+                </p>
+              </div>
+              <button onClick={() => setComposing(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.08)" }}>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M1 1l8 8M9 1l-8 8"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Prompt chips inline */}
+            <div className="flex gap-2 flex-wrap">
+              {PROMPTS.map(p => (
+                <button key={p}
+                  onClick={() => setDraft(p + " ")}
+                  className="px-3 py-1 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              placeholder="I'm going to the Met this Saturday at 11am — anyone want to join?"
+              rows={4}
+              className="w-full outline-none resize-none rounded-2xl p-4 text-sm"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                color: "rgba(255,255,255,0.85)",
+                fontFamily: "var(--font-instrument)",
+                fontStyle: "italic",
+              }}
+              autoFocus
+            />
+            <button
+              onClick={submitPost}
+              disabled={!draft.trim()}
+              className="w-full py-4 rounded-full font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-30"
+              style={{ background: club.color, color: "white", boxShadow: `0 8px 24px ${club.color}44` }}>
+              Post to {club.name} →
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Club Detail Page ──────────────────────────────────────────────────────────
 
 function ClubDetailPage({ club, onBack, onEnterWorld }: {
@@ -501,6 +774,9 @@ function ClubDetailPage({ club, onBack, onEnterWorld }: {
       </div>
 
       <div className="px-5 py-6 flex flex-col gap-8">
+        {/* Member Posts section — activity asks */}
+        <ClubPostsSection club={{ id: club.id, color: club.color, name: club.name }} />
+
         {/* Worlds section */}
         <div>
           <p className="text-[10px] font-bold tracking-widest uppercase mb-4"
