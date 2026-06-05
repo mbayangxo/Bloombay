@@ -5,8 +5,9 @@ import Link from "next/link";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type CityTab = "eat" | "go" | "solo" | "trending" | "moments";
+type CityTab = "eat" | "go" | "solo" | "girl-picks";
 type GoFilter = "All" | "Museums" | "Parks" | "Events" | "Experiences";
+type GirlPicksFilter = "Bloomie Gems" | "City Secrets" | "New In Town" | "Most Loved";
 
 interface Restaurant {
   id: number; name: string; neighborhood: string; blurb: string;
@@ -27,23 +28,12 @@ interface SoloSpot {
   why: string; womenLoved: number; submittedBy: string; emoji: string;
 }
 
-interface TrendItem {
-  id: number; type: "place" | "dish" | "neighborhood" | "stat";
-  title: string; sub: string; count?: number; change?: string;
-  emoji: string; bgColor: string;
-}
-
-interface CityMoment {
-  id: number; initial: string; avatarColor: string; location: string;
-  neighborhood: string; caption: string; flowers: number;
-  timeAgo: string; bgColor: string; emoji: string;
-}
-
 type PlaceType = "place" | "eat" | "gem";
 
 interface Place {
   id: number; type: PlaceType; name: string; neighborhood: string;
   review: string; submittedBy: string; rating: number; stamps: number;
+  girlCategory: GirlPicksFilter;
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -74,32 +64,28 @@ const SOLO_SPOTS: SoloSpot[] = [
   { id: 5, name: "The Met — Egyptian Wing", neighborhood: "Upper East Side", type: "Museum", why: "The Temple of Dendur room at 9:30AM is one of the most peaceful places in NYC.", womenLoved: 3102, submittedBy: "Sofia K.", emoji: "🏛" },
 ];
 
-const TRENDING: TrendItem[] = [
-  { id: 1, type: "stat", title: "Most Saved This Week", sub: "Bagels with Lox at Russ & Daughters", count: 889, emoji: "🥯", bgColor: "#FFF0F5" },
-  { id: 2, type: "neighborhood", title: "Neighborhood of the Moment", sub: "DUMBO — Golden hour and bridge views. Best on weekday evenings.", emoji: "🌉", bgColor: "#F0F8FF" },
-  { id: 3, type: "dish", title: "Most Loved Dish", sub: "Tom Yum at Bangkok Supper Club", count: 1432, change: "+23% this week", emoji: "🍜", bgColor: "#FFF5F8" },
-  { id: 4, type: "place", title: "New on Everyone's List", sub: "Archway Café, DUMBO — 643 women discovered this month.", count: 643, emoji: "☕", bgColor: "#F5F0FF" },
-  { id: 5, type: "stat", title: "Solo Trips This Week", sub: "1,247 women tagged themselves going solo.", count: 1247, emoji: "✦", bgColor: "#FDFAF5" },
-];
-
-const MOMENTS: CityMoment[] = [
-  { id: 1, initial: "A", avatarColor: "#FF1F7D", location: "Sadelle's", neighborhood: "SoHo", caption: "Sunday brunch season never ends.", flowers: 47, timeAgo: "2h", bgColor: "#FFE8F0", emoji: "🥯" },
-  { id: 2, initial: "S", avatarColor: "#FF69B4", location: "Brooklyn Bridge Park", neighborhood: "DUMBO", caption: "Golden hour ✦", flowers: 83, timeAgo: "4h", bgColor: "#E8F4FF", emoji: "🌉" },
-  { id: 3, initial: "P", avatarColor: "#FF1F7D", location: "The Met", neighborhood: "Upper East Side", caption: "Matisse forever.", flowers: 61, timeAgo: "6h", bgColor: "#FFF8E8", emoji: "🎨" },
-  { id: 4, initial: "Z", avatarColor: "#FF69B4", location: "High Line", neighborhood: "Chelsea", caption: "8AM and the city is still asleep.", flowers: 34, timeAgo: "8h", bgColor: "#E8FFE8", emoji: "🌿" },
-  { id: 5, initial: "N", avatarColor: "#FF1F7D", location: "La Mercerie", neighborhood: "SoHo", caption: "This croissant is my whole personality.", flowers: 112, timeAgo: "10h", bgColor: "#FFF0F5", emoji: "🥐" },
-  { id: 6, initial: "J", avatarColor: "#FF69B4", location: "Archway Café", neighborhood: "DUMBO", caption: "Found my new place.", flowers: 28, timeAgo: "12h", bgColor: "#F5E8FF", emoji: "🌉" },
-];
 
 const GIRL_PICKS: Place[] = [
-  { id: 1, type: "place", name: "The High Line", neighborhood: "Chelsea", review: "Best morning walk in the city. Go early before the crowds.", submittedBy: "Sofia K.", rating: 4.8, stamps: 127 },
-  { id: 2, type: "place", name: "Brooklyn Bridge Park", neighborhood: "DUMBO", review: "Golden hour from the pier. Bring a blanket and stay for hours.", submittedBy: "Priya R.", rating: 4.9, stamps: 203 },
-  { id: 3, type: "eat", name: "Sadelle's", neighborhood: "SoHo", review: "The smoked fish platter for brunch. Every time.", submittedBy: "Aaliyah M.", rating: 4.9, stamps: 89 },
-  { id: 4, type: "eat", name: "Bangkok Supper Club", neighborhood: "Lower East Side", review: "The tom yum is religious. Go late, go often.", submittedBy: "Jade O.", rating: 4.8, stamps: 64 },
-  { id: 5, type: "eat", name: "La Mercerie", neighborhood: "SoHo", review: "Quiet, elegant, the best croissant. Perfect solo lunch.", submittedBy: "Naomi B.", rating: 4.7, stamps: 44 },
-  { id: 6, type: "gem", name: "McNally Jackson Café", neighborhood: "Nolita", review: "Tiny tables, good coffee, and nobody bothers you for hours.", submittedBy: "Rachel M.", rating: 4.8, stamps: 71 },
-  { id: 7, type: "gem", name: "Russ & Daughters Café", neighborhood: "Lower East Side", review: "The OG. Bagels, lox, and history on every wall.", submittedBy: "Deja W.", rating: 4.7, stamps: 55 },
-  { id: 8, type: "gem", name: "Archway Café under Manhattan Bridge", neighborhood: "DUMBO", review: "Nobody knows about this. Best kept secret in Brooklyn.", submittedBy: "Zara F.", rating: 5.0, stamps: 38 },
+  // Most Loved
+  { id: 1, type: "place", name: "Brooklyn Bridge Park", neighborhood: "DUMBO", review: "Golden hour from the pier. Bring a blanket and stay for hours.", submittedBy: "Priya R.", rating: 4.9, stamps: 203, girlCategory: "Most Loved" },
+  { id: 2, type: "place", name: "The High Line", neighborhood: "Chelsea", review: "Best morning walk in the city. Go early before the crowds.", submittedBy: "Sofia K.", rating: 4.8, stamps: 127, girlCategory: "Most Loved" },
+  { id: 3, type: "eat", name: "Sadelle's", neighborhood: "SoHo", review: "The smoked fish platter for brunch. Every single time.", submittedBy: "Aaliyah M.", rating: 4.9, stamps: 89, girlCategory: "Most Loved" },
+  { id: 4, type: "place", name: "The Met", neighborhood: "Upper East Side", review: "Pay what you wish and stay all day. The Egyptian Wing at 9:30AM is a ritual.", submittedBy: "Sofia K.", rating: 4.9, stamps: 312, girlCategory: "Most Loved" },
+  // Bloomie Gems
+  { id: 5, type: "gem", name: "Russ & Daughters Café", neighborhood: "Lower East Side", review: "The OG. Bagels, lox, and a century of New York on every wall.", submittedBy: "Deja W.", rating: 4.7, stamps: 155, girlCategory: "Bloomie Gems" },
+  { id: 6, type: "eat", name: "La Mercerie", neighborhood: "SoHo", review: "Quiet, elegant, the best croissant in the city. Perfect solo lunch.", submittedBy: "Naomi B.", rating: 4.7, stamps: 94, girlCategory: "Bloomie Gems" },
+  { id: 7, type: "eat", name: "Loring Place", neighborhood: "West Village", review: "Small plates made for sharing. The best girls dinner in the city.", submittedBy: "Sofia K.", rating: 4.8, stamps: 78, girlCategory: "Bloomie Gems" },
+  { id: 8, type: "place", name: "Prospect Park — Breeze Hill", neighborhood: "Park Slope", review: "Less tourists, more locals with blankets and books. Completely yours.", submittedBy: "Priya R.", rating: 4.7, stamps: 61, girlCategory: "Bloomie Gems" },
+  // City Secrets
+  { id: 9, type: "gem", name: "Archway Café", neighborhood: "DUMBO", review: "Under the Manhattan Bridge. Nobody knows about this. Best kept secret in Brooklyn.", submittedBy: "Zara F.", rating: 5.0, stamps: 38, girlCategory: "City Secrets" },
+  { id: 10, type: "gem", name: "McNally Jackson Café", neighborhood: "Nolita", review: "Back of the bookstore. Loud enough to feel alive, quiet enough to think.", submittedBy: "Rachel M.", rating: 4.8, stamps: 71, girlCategory: "City Secrets" },
+  { id: 11, type: "place", name: "The Ramble — Central Park", neighborhood: "Upper West Side", review: "A secret woodland in the middle of Manhattan. Even locals forget it exists.", submittedBy: "Naomi B.", rating: 4.8, stamps: 44, girlCategory: "City Secrets" },
+  { id: 12, type: "eat", name: "Lucali", neighborhood: "Carroll Gardens", review: "No phone orders, cash only, bring wine. The city's best kept pizza secret.", submittedBy: "Jade O.", rating: 5.0, stamps: 29, girlCategory: "City Secrets" },
+  // New In Town
+  { id: 13, type: "eat", name: "Bangkok Supper Club", neighborhood: "Lower East Side", review: "The tom yum is religious. Late-night energy, go often.", submittedBy: "Jade O.", rating: 4.8, stamps: 64, girlCategory: "New In Town" },
+  { id: 14, type: "place", name: "The Seaport District", neighborhood: "FiDi", review: "Completely transformed. Cobblestones, water views, and actually good food.", submittedBy: "Aaliyah M.", rating: 4.6, stamps: 41, girlCategory: "New In Town" },
+  { id: 15, type: "gem", name: "Sunday in Brooklyn", neighborhood: "Williamsburg", review: "Malted pancakes, natural light, great energy. The brunch spot everyone is finding.", submittedBy: "Sofia K.", rating: 4.8, stamps: 53, girlCategory: "New In Town" },
+  { id: 16, type: "place", name: "Industry City", neighborhood: "Sunset Park", review: "Brooklyn's best-kept neighbourhood secret. Art, food, and zero tourists.", submittedBy: "Priya R.", rating: 4.7, stamps: 36, girlCategory: "New In Town" },
 ];
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -117,11 +103,10 @@ const PLACE_TYPE_COLOR: Record<PlaceType, { bg: string; color: string }> = {
 };
 
 const TAB_LABELS: { key: CityTab; label: string }[] = [
-  { key: "eat",      label: "Eat" },
-  { key: "go",       label: "Go" },
-  { key: "solo",     label: "Solo" },
-  { key: "trending", label: "Trending" },
-  { key: "moments",  label: "Moments" },
+  { key: "eat",        label: "Eat" },
+  { key: "go",         label: "Go" },
+  { key: "solo",       label: "Solo" },
+  { key: "girl-picks", label: "Girl Picks" },
 ];
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
@@ -180,15 +165,6 @@ const GO_NOTES: Record<number, string[]> = {
   7: ['"Four hours, one coffee, zero interruptions."', '"The back room upstairs is the best kept secret."'],
 };
 
-// ── Trend context data ────────────────────────────────────────────────────────
-
-const TREND_CONTEXT: Record<number, string> = {
-  1: "Russ & Daughters has been a Lower East Side institution since 1914, and the bagel with lox remains the most photographed dish in BloomBay history. Women are saving it faster than any other item this season, driven by a wave of weekend brunch posts from the SoHo crowd.",
-  2: "DUMBO has quietly become the city's most beloved neighborhood for golden-hour seekers, with Brooklyn Bridge Park serving as the anchor. The combination of bridge views, waterfront access, and a growing café scene has made weekday evenings here a ritual for thousands of women.",
-  3: "Bangkok Supper Club's Tom Yum has climbed 23% in saves this week alone, fueled by late-night posts that keep landing on the For You page equivalent inside BloomBay. The Lower East Side spot has become the default answer when women ask where to go after 9PM.",
-  4: "Archway Café opened its doors six months ago and has been quietly gaining followers ever since. Tucked under the Manhattan Bridge in DUMBO, it offers a combination of stunning views and unhurried energy that is rare in New York City — and 643 women discovered it this month alone.",
-  5: "Solo trips are on the rise across every BloomBay city, but New York leads the charge. This week's count of 1,247 solo outings marks a 14% increase from last week, with parks and museum mornings making up the largest share of solo check-ins.",
-};
 
 // ── WALL_AVATARS-style placeholder avatars ────────────────────────────────────
 
@@ -917,183 +893,6 @@ function SoloSpotDetail({ s, onBack }: { s: SoloSpot; onBack: () => void }) {
   );
 }
 
-// ── TRENDING components ───────────────────────────────────────────────────────
-
-function TrendCard({ t, onClick }: { t: TrendItem; onClick?: () => void }) {
-  return (
-    <div
-      className={`rounded-2xl p-4 flex items-start gap-3${onClick ? " cursor-pointer" : ""}`}
-      style={{ background: t.bgColor, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}
-      onClick={onClick}
-    >
-      <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: "white" }}>{t.emoji}</div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>{t.title}</p>
-        <p className="text-sm font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.sub}</p>
-        {t.count && <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>✿ {t.count.toLocaleString()} women{t.change ? ` · ${t.change}` : ""}</p>}
-      </div>
-    </div>
-  );
-}
-
-// ── Bottom sheet: TrendDetailSheet ────────────────────────────────────────────
-
-function TrendDetailSheet({ t, onClose }: { t: TrendItem; onClose: () => void }) {
-  const context = TREND_CONTEXT[t.id] ?? "This trend has been gaining momentum across BloomBay. Women are discovering it at a rapid pace and sharing their experiences within the community.";
-
-  return (
-    <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose}>
-      <div
-        className="fixed bottom-0 left-0 right-0 rounded-t-3xl p-6 pb-10"
-        style={{ background: "#FDFAF6" }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Drag handle */}
-        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
-
-        {/* Emoji + title */}
-        <div className="flex items-start gap-4 mb-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: t.bgColor }}>
-            {t.emoji}
-          </div>
-          <div className="flex-1">
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>{t.title}</p>
-            <h3 className="font-black text-lg leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{t.sub}</h3>
-          </div>
-        </div>
-
-        {/* Stats row */}
-        {t.count && (
-          <div className="flex items-center gap-4 mb-4 rounded-2xl p-3" style={{ background: t.bgColor }}>
-            <div>
-              <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>✿ {t.count.toLocaleString()}</p>
-              <p className="text-[9px]" style={{ color: "#888" }}>women</p>
-            </div>
-            {t.change && (
-              <div>
-                <p className="text-xs font-bold" style={{ color: "#111" }}>{t.change}</p>
-                <p className="text-[9px]" style={{ color: "#888" }}>trend</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Context paragraph */}
-        <p className="text-sm leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "#555" }}>
-          {context}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ── MOMENTS components ────────────────────────────────────────────────────────
-
-const POLAROID_ROTATIONS = ["-2.5deg", "2deg", "-1deg", "3deg", "-1.8deg", "1.5deg"];
-
-function MomentCard({ m, onFlower, idx, onClick }: {
-  m: CityMoment & { flowered?: boolean };
-  onFlower: () => void;
-  idx: number;
-  onClick?: () => void;
-}) {
-  const rotate = POLAROID_ROTATIONS[idx % POLAROID_ROTATIONS.length];
-  return (
-    <div
-      className="flex-shrink-0 cursor-pointer transition-transform active:scale-[0.97]"
-      style={{ transform: `rotate(${rotate})`, transformOrigin: "center top" }}
-      onClick={onClick}
-    >
-      {/* Polaroid frame — white card with image area + handwritten caption */}
-      <div style={{
-        background: "white",
-        borderRadius: "3px",
-        padding: "9px 9px 32px",
-        width: "152px",
-        boxShadow: "0 8px 28px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)",
-      }}>
-        {/* Photo area */}
-        <div className="w-full relative overflow-hidden"
-          style={{ height: "130px", background: m.bgColor, borderRadius: "2px" }}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span style={{ fontSize: "54px", opacity: 0.55 }}>{m.emoji}</span>
-          </div>
-          {/* Avatar + neighborhood overlay */}
-          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
-            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-bold text-white flex-shrink-0"
-              style={{ background: m.avatarColor, boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
-              {m.initial}
-            </div>
-            <p className="text-[8px] font-semibold rounded px-1 py-px"
-              style={{ color: "rgba(0,0,0,0.5)", background: "rgba(255,255,255,0.75)" }}>
-              {m.neighborhood}
-            </p>
-          </div>
-          <p className="absolute top-1.5 right-1.5 text-[8px] font-medium px-1.5 py-px rounded"
-            style={{ color: "rgba(0,0,0,0.4)", background: "rgba(255,255,255,0.65)" }}>
-            {m.timeAgo}
-          </p>
-        </div>
-        {/* Polaroid caption area — white space below image */}
-        <div className="pt-2.5 px-0.5">
-          <p className="leading-snug text-center"
-            style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "#333", lineHeight: 1.3 }}>
-            {m.caption}
-          </p>
-          <p className="text-[9px] text-center mt-0.5" style={{ color: "#bbb" }}>{m.location}</p>
-          <button
-            onClick={e => { e.stopPropagation(); onFlower(); }}
-            className="flex items-center justify-center gap-1 mt-2 w-full text-[9px] font-bold transition-all"
-            style={{ color: m.flowered ? "#FF1F7D" : "#ccc" }}>
-            ✿ {m.flowers + (m.flowered ? 1 : 0)}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MomentDetailSheet({ m, onClose }: { m: CityMoment; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.7)" }} onClick={onClose}>
-      <div className="flex-1" />
-      <div
-        className="rounded-t-3xl p-6 pb-10"
-        style={{ background: "#FDFAF5" }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Close bar */}
-        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "#E0E0E0" }} />
-        {/* Large polaroid */}
-        <div className="mx-auto" style={{ width: "200px", transform: "rotate(-1deg)" }}>
-          <div style={{ background: "white", borderRadius: "3px", padding: "10px 10px 44px", boxShadow: "0 10px 36px rgba(0,0,0,0.18)" }}>
-            <div className="relative overflow-hidden" style={{ height: "180px", background: m.bgColor, borderRadius: "2px" }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span style={{ fontSize: "72px", opacity: 0.55 }}>{m.emoji}</span>
-              </div>
-            </div>
-            <div className="pt-3 px-1 text-center">
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "17px", color: "#333", lineHeight: 1.3 }}>{m.caption}</p>
-              <p className="text-[10px] mt-1" style={{ color: "#aaa" }}>{m.location}, {m.neighborhood}</p>
-            </div>
-          </div>
-        </div>
-        {/* Meta */}
-        <div className="mt-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: m.avatarColor }}>{m.initial}</div>
-            <div>
-              <p className="text-xs font-bold" style={{ color: "#111" }}>{m.neighborhood}</p>
-              <p className="text-[10px]" style={{ color: "#aaa" }}>{m.timeAgo} ago</p>
-            </div>
-          </div>
-          <span className="text-sm font-bold" style={{ color: "#FF1F7D" }}>✿ {m.flowers}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── Girl Picks card ───────────────────────────────────────────────────────────
 
@@ -1156,14 +955,12 @@ function PlaceCard({ place, stamped, onStamp, onClick }: {
 export function CityPage() {
   const [activeTab, setActiveTab]           = useState<CityTab>("eat");
   const [goFilter, setGoFilter]             = useState<GoFilter>("All");
-  const [floweredMoments, setFloweredMoments] = useState<Set<number>>(new Set());
+  const [girlPicksFilter, setGirlPicksFilter] = useState<GirlPicksFilter>("Most Loved");
   const [girlPicks, setGirlPicks]           = useState<Place[]>(GIRL_PICKS);
   const [stampedPlaces, setStampedPlaces]   = useState<Set<number>>(new Set());
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
-  const [selectedMoment, setSelectedMoment] = useState<CityMoment | null>(null);
   const [selectedGoPlace, setSelectedGoPlace] = useState<GoPlace | null>(null);
   const [selectedSoloSpot, setSelectedSoloSpot] = useState<SoloSpot | null>(null);
-  const [selectedTrend, setSelectedTrend]   = useState<TrendItem | null>(null);
   const [showAllSpots, setShowAllSpots]     = useState(false);
 
   function handleStamp(id: number) {
@@ -1204,10 +1001,10 @@ export function CityPage() {
       <div className="px-5 pt-12 pb-0 md:px-10 md:pt-8 md:max-w-[1280px] md:mx-auto">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ NYC · WILLIAMSBURG</p>
         <h1 className="font-black leading-none mb-1" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "var(--heading-color, #111)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-          Girl Picks.
+          The City.
         </h1>
         <p className="text-sm italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
-          The city, through women.
+          Places worth knowing. Always.
         </p>
 
         {/* ── Tab bar ── */}
@@ -1279,7 +1076,14 @@ export function CityPage() {
                     ))}
                   </div>
                 </div>
-                <TrendCard t={TRENDING[0]} onClick={() => setSelectedTrend(TRENDING[0])} />
+                <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: "#FFF0F5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: "white" }}>🥯</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>MOST SAVED</p>
+                    <p className="text-sm font-bold leading-snug" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Bagel with Lox at Russ &amp; Daughters</p>
+                    <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>✿ 3,102 women love this</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1342,86 +1146,70 @@ export function CityPage() {
           </div>
         )}
 
-        {/* ── TRENDING ── */}
-        {activeTab === "trending" && (
-          <div className="flex flex-col gap-4">
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>THIS WEEK IN NYC</p>
-              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,5vw,32px)", color: "#111", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                What women<br />are loving.
-              </h2>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-3 flex flex-col gap-3">
-              {TRENDING.map(t => <TrendCard key={t.id} t={t} onClick={() => setSelectedTrend(t)} />)}
-            </div>
-          </div>
-        )}
-
-        {/* ── MOMENTS tab ── */}
-        {activeTab === "moments" && (
+        {/* ── GIRL PICKS ── */}
+        {activeTab === "girl-picks" && (
           <div className="flex flex-col gap-6">
-            {/* Header */}
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ MOMENTS</p>
-                <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,5vw,32px)", color: "var(--heading-color, #111)", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
-                  Not influencers.<br />Just women.
-                </h2>
-                <p className="text-xs mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
-                  Real life. Real places. Real city.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: "#FF1F7D" }}>
-                  + Share
+            {/* Intro header */}
+            <div className="rounded-2xl p-5" style={{ background: "#111", boxShadow: "0 6px 24px rgba(0,0,0,0.18)" }}>
+              <p className="text-[9px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#FF69B4" }}>GIRL PICKS</p>
+              <h2 className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,5vw,28px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.015em" }}>
+                The places women<br />actually love.
+              </h2>
+              <p className="text-xs mt-2 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.45)" }}>
+                Timeless. Local. Ours.
+              </p>
+            </div>
+
+            {/* Sub-filter pills */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:mx-0 md:px-0" style={{ scrollbarWidth: "none" }}>
+              {(["Most Loved", "Bloomie Gems", "City Secrets", "New In Town"] as GirlPicksFilter[]).map(f => (
+                <button key={f} onClick={() => setGirlPicksFilter(f)}
+                  className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                  style={girlPicksFilter === f ? { background: "#FF1F7D", color: "white" } : { background: "white", color: "#666", border: "1.5px solid #E8E8E8" }}>
+                  {f}
                 </button>
-              </div>
+              ))}
             </div>
 
-            {/* Polaroid swipe row */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: "#aaa" }}>RECENT</p>
-                <Link href="/member/city/moments" className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "#FF1F7D" }}>
-                  See More →
-                </Link>
-              </div>
-              <div
-                className="flex gap-6 overflow-x-auto pb-8 -mx-5 px-5"
-                style={{ scrollbarWidth: "none", alignItems: "flex-start" }}
-              >
-                {MOMENTS.map((m, idx) => (
-                  <MomentCard
-                    key={m.id}
-                    m={{ ...m, flowered: floweredMoments.has(m.id) }}
-                    onFlower={() => setFloweredMoments(p => new Set([...p, m.id]))}
-                    idx={idx}
-                    onClick={() => setSelectedMoment(m)}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* Sub-category description */}
+            {girlPicksFilter === "Most Loved" && (
+              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
+                The spots women return to, again and again.
+              </p>
+            )}
+            {girlPicksFilter === "Bloomie Gems" && (
+              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
+                Hand-picked favourites from BloomBay women.
+              </p>
+            )}
+            {girlPicksFilter === "City Secrets" && (
+              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
+                Under the radar. Off the tourist map. Entirely yours.
+              </p>
+            )}
+            {girlPicksFilter === "New In Town" && (
+              <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)", marginTop: "-12px" }}>
+                Recently discovered. Women are already obsessed.
+              </p>
+            )}
 
-            {/* Explore more CTA */}
-            <Link href="/member/city/moments"
-              className="flex items-center justify-center gap-2 rounded-2xl py-4 transition-all active:scale-[0.98]"
-              style={{ background: "#111", color: "white" }}>
-              <span className="text-sm font-bold">See all moments →</span>
-            </Link>
+            {/* Filtered places */}
+            <div className="flex flex-col gap-3">
+              {girlPicks.filter(p => p.girlCategory === girlPicksFilter).map(place => (
+                <PlaceCard
+                  key={place.id}
+                  place={place}
+                  stamped={stampedPlaces.has(place.id)}
+                  onStamp={() => handleStamp(place.id)}
+                  onClick={() => handlePlaceCardClick(place)}
+                />
+              ))}
+            </div>
           </div>
         )}
 
       </div>
 
-      {/* Moment detail sheet */}
-      {selectedMoment && (
-        <MomentDetailSheet m={selectedMoment} onClose={() => setSelectedMoment(null)} />
-      )}
-
-      {/* Trend detail sheet */}
-      {selectedTrend && (
-        <TrendDetailSheet t={selectedTrend} onClose={() => setSelectedTrend(null)} />
-      )}
     </div>
   );
 }
