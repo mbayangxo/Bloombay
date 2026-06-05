@@ -1408,11 +1408,18 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                         style={{ background: `${club.color}22`, color: club.color }}>✓</span>
                     </div>
                   ))}
-                  <Link href="/member/clubs"
-                    className="w-full py-3 text-center text-xs font-bold rounded-2xl transition-all active:scale-95 block"
-                    style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px dashed rgba(255,255,255,0.1)" }}>
-                    View All Clubs →
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link href="/member/clubs"
+                      className="flex-1 py-3 text-center text-xs font-bold rounded-2xl transition-all active:scale-95 block"
+                      style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                      View Clubs →
+                    </Link>
+                    <Link href="/member/clubs/create"
+                      className="flex-1 py-3 text-center text-xs font-bold rounded-2xl transition-all active:scale-95 block"
+                      style={{ background: "rgba(255,31,125,0.15)", color: "#FF69B4", border: "1px solid rgba(255,31,125,0.2)" }}>
+                      + Start a Club
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -1437,15 +1444,24 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <button
-                  onClick={() => showToast("Curator applications opening soon — stay close ✦")}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-pink-50"
+                <Link
+                  href="/member/clubs/create"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-pink-50 block"
                   style={{ borderBottom: "1px solid #F5F5F5" }}
                 >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Apply to be a Bloom Curator</p>
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Create a Club</p>
                   <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>Apply</span>
-                </button>
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>New</span>
+                </Link>
+                <Link
+                  href="/member/apply-club-mama"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-pink-50 block"
+                  style={{ borderBottom: "1px solid #F5F5F5" }}
+                >
+                  <p className="flex-1 text-sm font-semibold" style={{ color: "#0A0A0A" }}>Apply to be a Club Mama</p>
+                  <span className="text-[9px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>$250/mo</span>
+                </Link>
                 {["Privacy & Safety", "BloomBay Premium"].map((label) => (
                   <div
                     key={label}
