@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
@@ -221,6 +221,183 @@ function ToggleRow({ label, on, toggle }: { label: string; on: boolean; toggle: 
       <span className="text-sm font-medium" style={{ color: "var(--bb-black)" }}>{label}</span>
       {on && <span className="font-bold text-sm" style={{ color: "var(--bb-pink)" }}>✓</span>}
     </button>
+  );
+}
+
+// ─── SCATTERED BLOB CHIPS (Onboarding interest selector) ─────────────────────
+
+const BLOB_COLORS = [
+  { bg: "#FF1F7D", text: "white" },
+  { bg: "#FF69B4", text: "white" },
+  { bg: "#FFB6D0", text: "#c40060" },
+  { bg: "#FFC2D4", text: "#8B0040" },
+  { bg: "#FF1F7D", text: "white" },
+  { bg: "#FF69B4", text: "white" },
+  { bg: "#FFD6E8", text: "#c40060" },
+  { bg: "#FFB6D0", text: "#8B0040" },
+];
+const BLOB_ROTATIONS = [-4, 3, -6, 5, -2, 7, -5, 2, -3, 6, -1, 4];
+const BLOB_OFFSETS   = [0, 18, -10, 28, -18, 8, -28, 14, -4, 22, -14, 4];
+const BLOB_ICONS     = ["🌸", "✿", "🌷", "✦", "🌺", "✿", "🌸", "✦", "🌷", "🌸", "✿", "🌺"];
+
+function ScatteredBlobs({ items, selected, toggle }: { items: string[]; selected: Set<number>; toggle: (i: number) => void }) {
+  const [shaking, setShaking] = React.useState<number | null>(null);
+
+  function handlePress(i: number) {
+    toggle(i);
+    setShaking(i);
+    setTimeout(() => setShaking(null), 550);
+  }
+
+  return (
+    <>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "4px 0 12px" }}>
+        {items.map((label, i) => {
+          const on = selected.has(i);
+          const col = BLOB_COLORS[i % BLOB_COLORS.length];
+          const rot = BLOB_ROTATIONS[i % BLOB_ROTATIONS.length];
+          const dx  = BLOB_OFFSETS[i % BLOB_OFFSETS.length];
+          const icon = BLOB_ICONS[i % BLOB_ICONS.length];
+          return (
+            <button
+              key={i}
+              onClick={() => handlePress(i)}
+              style={{
+                borderRadius: "100px",
+                padding: "10px 18px",
+                background: on ? col.bg : "white",
+                color: on ? col.text : "#c40060",
+                border: `2px solid ${on ? col.bg : "#FFB6D0"}`,
+                fontWeight: on ? 700 : 500,
+                fontSize: "13px",
+                transform: `rotate(${rot}deg) translateX(${dx}px)`,
+                animation: shaking === i ? "blobShake 0.55s ease-in-out" : "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                boxShadow: on ? `0 4px 16px ${col.bg}55` : "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+                transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: "11px", lineHeight: 1 }}>{icon}</span>
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      <style>{`
+        @keyframes blobShake {
+          0%   { transform: rotate(var(--r, 0deg)) scale(1.0); }
+          12%  { transform: rotate(calc(var(--r, 0deg) + 14deg)) scale(1.18); }
+          25%  { transform: rotate(calc(var(--r, 0deg) - 12deg)) scale(1.18); }
+          38%  { transform: rotate(calc(var(--r, 0deg) + 8deg)) scale(1.12); }
+          50%  { transform: rotate(calc(var(--r, 0deg) - 5deg)) scale(1.07); }
+          65%  { transform: rotate(calc(var(--r, 0deg) + 3deg)) scale(1.04); }
+          80%  { transform: rotate(calc(var(--r, 0deg) - 1deg)) scale(1.02); }
+          100% { transform: rotate(var(--r, 0deg)) scale(1.0); }
+        }
+      `}</style>
+    </>
+  );
+}
+
+// ─── WELCOME SPLASH ───────────────────────────────────────────────────────────
+
+function WelcomeSplash({ onStart }: { onStart: () => void }) {
+  const [agreeTerms,   setAgreeTerms]   = React.useState(false);
+  const [agreePrivacy, setAgreePrivacy] = React.useState(false);
+  const [agreeRules,   setAgreeRules]   = React.useState(false);
+  const [agreeAge,     setAgreeAge]     = React.useState(false);
+  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+
+  return (
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "#FF1F7D" }}>
+
+      {/* Decorative circles */}
+      <div style={{ position: "absolute", top: "-60px", right: "-60px", width: "260px", height: "260px", borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "60px", right: "20px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "200px", left: "-80px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(0,0,0,0.06)", pointerEvents: "none" }} />
+
+      {/* Logo */}
+      <div style={{ position: "absolute", top: "52px", left: "24px", zIndex: 10 }}>
+        <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "22px", color: "white", letterSpacing: "0.06em" }}>BB</span>
+      </div>
+
+      {/* Main text hero */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", paddingLeft: "24px", paddingRight: "24px", paddingTop: "80px" }}>
+        <p style={{ fontWeight: 500, fontSize: "32px", color: "white", lineHeight: 1.1, margin: "0 0 4px" }}>
+          it&apos;s a
+        </p>
+        <p style={{ fontWeight: 900, fontSize: "72px", color: "#111", lineHeight: 0.9, margin: "0 0 0" }}>
+          girls
+        </p>
+        <p style={{ fontWeight: 900, fontSize: "72px", color: "#111", lineHeight: 0.9, margin: "0 0 4px" }}>
+          world,
+        </p>
+        {/* Outlined/stroke text */}
+        <p style={{
+          fontWeight: 900, fontSize: "64px", lineHeight: 0.95, margin: "0 0 20px",
+          WebkitTextStroke: "3px white",
+          WebkitTextFillColor: "transparent",
+          color: "transparent",
+        }}>
+          wear it.
+        </p>
+
+        {/* Divider */}
+        <div style={{ width: "40px", height: "3px", background: "rgba(255,255,255,0.4)", borderRadius: "2px", marginBottom: "16px" }} />
+
+        {/* Secondary line */}
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "22px", color: "rgba(255,255,255,0.82)", lineHeight: 1.3 }}>
+          women<br/>are gathering.
+        </p>
+      </div>
+
+      {/* Bottom strip */}
+      <div style={{ background: "rgba(0,0,0,0.22)", padding: "20px 24px", paddingBottom: "max(20px, env(safe-area-inset-bottom, 20px))" }}>
+        {[
+          { key: "terms",   state: agreeTerms,   set: setAgreeTerms,   label: "I agree to the Terms of Service" },
+          { key: "privacy", state: agreePrivacy, set: setAgreePrivacy, label: "I agree to the Privacy Policy"    },
+          { key: "rules",   state: agreeRules,   set: setAgreeRules,   label: "I agree to the Community Rules"  },
+          { key: "age",     state: agreeAge,     set: setAgreeAge,     label: "I am 18 or older"                },
+        ].map(({ key, state, set, label }) => (
+          <button key={key} onClick={() => set((v: boolean) => !v)}
+            className="w-full flex items-center gap-3 py-2 text-left"
+            style={{ background: "none", border: "none", cursor: "pointer" }}>
+            <div style={{
+              width: "20px", height: "20px", borderRadius: "6px", flexShrink: 0,
+              background: state ? "white" : "rgba(255,255,255,0.15)",
+              border: `2px solid ${state ? "white" : "rgba(255,255,255,0.35)"}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {state && <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5L4.5 8L9 3" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+            </div>
+            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.78)", fontWeight: 500 }}>{label}</span>
+          </button>
+        ))}
+
+        <button
+          onClick={allAgreed ? onStart : undefined}
+          style={{
+            marginTop: "14px", width: "100%", padding: "16px",
+            borderRadius: "100px",
+            background: allAgreed ? "white" : "rgba(255,255,255,0.3)",
+            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.5)",
+            fontWeight: 800, fontSize: "15px", letterSpacing: "0.06em",
+            cursor: allAgreed ? "pointer" : "default",
+            border: "none", transition: "all 0.2s",
+          }}>
+          LET&apos;S START →
+        </button>
+
+        <p style={{ textAlign: "center", marginTop: "12px", fontSize: "11px", color: "rgba(255,255,255,0.45)" }}>
+          already a member?{" "}
+          <a href="/member/login" style={{ color: "rgba(255,255,255,0.75)", fontWeight: 700 }}>sign in</a>
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -475,6 +652,12 @@ export function OnboardFlow() {
   }
 
   // ── RENDER ────────────────────────────────────────────────────────
+
+  // Step 0: full-screen splash before any form steps
+  if (step === 0 && !emailVerificationSent) {
+    return <WelcomeSplash onStart={advance} />;
+  }
+
   return (
     <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
       <div className="max-w-md mx-auto w-full px-5 pt-12 pb-20">
@@ -488,77 +671,6 @@ export function OnboardFlow() {
         )}
 
         <Progress step={step} />
-
-        {/* ── STEP 0: Welcome ─────────────────────────────────────────── */}
-        {step === 0 && (
-          <div>
-            <div className="flex flex-col items-center text-center mb-8">
-              <BBLogo size={56} />
-              <h1 className="text-4xl font-bold mt-5 leading-tight" style={{ color: "var(--bb-black)" }}>
-                It&apos;s a girl&apos;s world.{" "}
-                <br />
-                <span
-                  className="italic"
-                  style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
-                >
-                  We&apos;re living in it.
-                </span>
-              </h1>
-              <p className="text-gray-500 text-base leading-relaxed mt-3">
-                BloomBay is where NYC women build real friendships — through real plans, real places, and real people.
-              </p>
-            </div>
-
-            <div className="rounded-3xl p-4 mb-5" style={{ background: "var(--light-pink)" }}>
-              <div className="flex items-center gap-1.5 mb-2">
-                {["A", "S", "P", "K", "M"].map((l, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: ["#FF1F7D", "#FF69B4", "#c40060", "#FF69B4", "#1A0514"][i] }}
-                  >
-                    {l}
-                  </div>
-                ))}
-                <p className="text-xs font-bold ml-1" style={{ color: "var(--bb-pink)" }}>+242 inside</p>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>
-                247 verified women already inside.{" "}
-                <span className="font-normal text-gray-500">Founding wave — 253 spots left.</span>
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2.5 mb-8">
-              {[
-                { title: "Women only",          sub: "Live selfie verification — every single member" },
-                { title: "Real friendships",    sub: "Girl Match AI finds your people by energy + values" },
-                { title: "Your city is alive",  sub: "Gatherings, clubs, and real things to do together" },
-              ].map((f) => (
-                <div
-                  key={f.title}
-                  className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3"
-                  style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
-                    style={{ background: "var(--light-pink)" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 1v12M1 7h12M2.5 2.5l9 9M11.5 2.5l-9 9" stroke="var(--bb-pink)" strokeWidth="1.6" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{f.title}</p>
-                    <p className="text-xs text-gray-400">{f.sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <PinkBtn onClick={advance}>Join BloomBay →</PinkBtn>
-            <p className="text-center text-xs text-gray-400 mt-3">Free to join · Women only · NYC</p>
-          </div>
-        )}
 
         {/* ── EMAIL VERIFICATION PENDING ──────────────────────────────── */}
         {emailVerificationSent && (
@@ -834,7 +946,7 @@ export function OnboardFlow() {
               title="What brings you here?"
               sub="Choose everything that feels right — this is how Yande finds your people."
             />
-            <MultiGrid items={GOALS} selected={goals} toggle={(i) => setGoals(toggleNum(goals, i))} />
+            <ScatteredBlobs items={GOALS} selected={goals} toggle={(i) => setGoals(toggleNum(goals, i))} />
 
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 
@@ -863,7 +975,7 @@ export function OnboardFlow() {
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 
             <SectionTitle title="What are you into?" sub="Pick everything that feels like you." />
-            <MultiGrid items={INTERESTS} selected={interests} toggle={(i) => setInterests(toggleNum(interests, i))} />
+            <ScatteredBlobs items={INTERESTS} selected={interests} toggle={(i) => setInterests(toggleNum(interests, i))} />
 
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 

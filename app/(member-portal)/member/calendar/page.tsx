@@ -100,7 +100,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose} />
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl"
-        style={{ background: "#1A1218", boxShadow: "0 -8px 48px rgba(0,0,0,0.6)", maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        style={{ background: "#FFF8F5", boxShadow: "0 -8px 48px rgba(0,0,0,0.6)", maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
 
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -112,12 +112,12 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
           style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
           <div>
             <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ NEW ENTRY</p>
-            <p className="text-sm font-semibold mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{dayLabel}</p>
+            <p className="text-sm font-semibold mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{dayLabel}</p>
           </div>
           <button onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
-            style={{ background: "rgba(255,255,255,0.07)" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2.5" strokeLinecap="round">
+            style={{ background: "rgba(0,0,0,0.05)" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
@@ -126,14 +126,14 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {/* Type row — first so it sets context */}
           <div className="mb-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>What kind?</p>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(0,0,0,0.3)" }}>What kind?</p>
             <div className="grid grid-cols-3 gap-2">
               {SHEET_TYPES.map(k => (
                 <button key={k} onClick={() => setType(k)}
                   className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95"
                   style={type === k
                     ? { background: `${TYPE_COLORS[k]}22`, border: `1.5px solid ${TYPE_COLORS[k]}66`, color: TYPE_COLORS[k] }
-                    : { background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.38)" }}>
+                    : { background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.08)", color: "rgba(0,0,0,0.38)" }}>
                   <span className="text-sm">{TYPE_EMOJIS[k]}</span>
                   <span>{TYPE_LABELS[k]}</span>
                 </button>
@@ -143,7 +143,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
 
           {/* Title */}
           <div className="mb-5">
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.3)" }}>
               {type === "note" ? "Note title" : type === "todo" ? "What to do?" : "What's happening?"}
             </p>
             <input value={title} onChange={e => setTitle(e.target.value)}
@@ -153,14 +153,14 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
                 "Dinner at Tatiana, coffee, gallery…"
               }
               className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1.5px solid rgba(255,255,255,0.1)", color: "rgba(255,238,220,0.9)", caretColor: "#FF1F7D" }}
+              style={{ background: "rgba(255,255,255,0.06)", border: "1.5px solid rgba(255,255,255,0.1)", color: "#111", caretColor: "#FF1F7D" }}
               autoFocus />
           </div>
 
           {/* Body textarea — for notes and todos */}
           {(type === "note" || type === "todo" || type === "personal") && (
             <div className="mb-5">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.3)" }}>
                 {type === "note" ? "Details / thoughts" : "Notes (optional)"}
               </p>
               <textarea value={body} onChange={e => setBody(e.target.value)}
@@ -174,14 +174,14 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
           {/* Time chips — hidden for notes/todos */}
           {hasTime && (
             <div className="mb-5">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(255,255,255,0.3)" }}>Time</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(0,0,0,0.3)" }}>Time</p>
               <div className="flex gap-2 flex-wrap">
                 {TIME_CHIPS.map(t => (
                   <button key={t} onClick={() => setTime(t)}
                     className="px-3.5 py-2 rounded-full text-xs font-semibold transition-all active:scale-95"
                     style={time === t
                       ? { background: "#FF1F7D", color: "white", boxShadow: "0 2px 10px rgba(255,31,125,0.4)" }
-                      : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                      : { background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}>
                     {t}
                   </button>
                 ))}
@@ -198,7 +198,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
             className="w-full py-4 rounded-full text-sm font-bold transition-all active:scale-[0.98]"
             style={title.trim()
               ? { background: TYPE_COLORS[type], color: "white", boxShadow: `0 4px 18px ${TYPE_COLORS[type]}55` }
-              : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)" }}>
+              : { background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.3)" }}>
             {title.trim()
               ? type === "todo" ? `Add to-do for ${dayLabel}`
               : type === "note" ? `Save note for ${dayLabel}`
@@ -219,7 +219,7 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
 
   return (
     <div className="rounded-2xl p-4"
-      style={{ background: isNote ? `${ev.color}11` : "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
+      style={{ background: isNote ? `${ev.color}11` : "#FFF8F5", borderLeft: `3px solid ${ev.color}` }}>
       <div className="flex items-start gap-3">
         {isTodo ? (
           <button onClick={onToggle}
@@ -241,22 +241,22 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
         )}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm"
-            style={{ color: ev.checked ? "rgba(255,255,255,0.3)" : "rgba(255,238,220,0.9)", textDecoration: ev.checked ? "line-through" : "none" }}>
+            style={{ color: ev.checked ? "rgba(0,0,0,0.3)" : "#111", textDecoration: ev.checked ? "line-through" : "none" }}>
             {ev.title}
           </p>
           {ev.time && (
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>
               {ev.time} · {TYPE_LABELS[ev.type]}
             </p>
           )}
           {!ev.time && (
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
           )}
           {ev.with && (
             <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
           )}
           {ev.body && (
-            <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{ev.body}</p>
+            <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(0,0,0,0.5)" }}>{ev.body}</p>
           )}
         </div>
       </div>
@@ -307,7 +307,7 @@ export default function CalendarPage() {
   const addDay = selectedDay ?? TODAY_DATE;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#0D0810" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#FDFAF5" }}>
 
       {/* Header */}
       <div className="px-5 pt-20 pb-4 md:px-10 md:pt-8">
@@ -315,15 +315,15 @@ export default function CalendarPage() {
           <div className="flex items-center gap-3">
             <Link href="/member/home"
               className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round">
+              style={{ background: "rgba(0,0,0,0.05)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
             </Link>
             <div>
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MY CALENDAR</p>
               <h1 className="font-black leading-none"
-                style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,6vw,40px)", color: "rgba(255,238,220,0.92)", lineHeight: 1 }}>
+                style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,6vw,40px)", color: "#111", lineHeight: 1 }}>
                 Schedule.
               </h1>
             </div>
@@ -340,27 +340,27 @@ export default function CalendarPage() {
 
       {/* Calendar card */}
       <div className="px-5 md:px-10">
-        <div className="rounded-3xl overflow-hidden" style={{ background: "#1A1218", boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
+        <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
 
           {/* Month nav */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <button onClick={prevMonth}
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{ background: "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round">
+              style={{ background: "rgba(0,0,0,0.05)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
             </button>
             <div className="text-center">
-              <p className="text-base font-bold" style={{ color: "rgba(255,238,220,0.9)", fontFamily: "var(--font-playfair)" }}>
+              <p className="text-base font-bold" style={{ color: "#111", fontFamily: "var(--font-playfair)" }}>
                 {MONTHS[viewMonth]}
               </p>
-              <p className="text-[10px] tracking-[0.2em]" style={{ color: "rgba(255,255,255,0.3)" }}>{viewYear}</p>
+              <p className="text-[10px] tracking-[0.2em]" style={{ color: "rgba(0,0,0,0.3)" }}>{viewYear}</p>
             </div>
             <button onClick={nextMonth}
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{ background: "rgba(255,255,255,0.07)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round">
+              style={{ background: "rgba(0,0,0,0.05)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
@@ -370,7 +370,7 @@ export default function CalendarPage() {
           <div className="grid grid-cols-7 px-3 pb-1">
             {DAYS.map(d => (
               <div key={d} className="text-center py-1">
-                <span className="text-[9px] font-bold tracking-[0.1em]" style={{ color: "rgba(255,255,255,0.22)" }}>{d}</span>
+                <span className="text-[9px] font-bold tracking-[0.1em]" style={{ color: "rgba(0,0,0,0.35)" }}>{d}</span>
               </div>
             ))}
           </div>
@@ -388,7 +388,7 @@ export default function CalendarPage() {
                   className="flex flex-col items-center justify-center py-1.5 rounded-xl transition-all active:scale-90"
                   style={{ background: isSelected ? "#FF1F7D" : isToday ? "rgba(255,31,125,0.2)" : "transparent" }}>
                   <span className="text-sm font-semibold leading-none"
-                    style={{ color: isSelected ? "white" : isToday ? "#FF1F7D" : "rgba(255,255,255,0.72)" }}>
+                    style={{ color: isSelected ? "white" : isToday ? "#FF1F7D" : "rgba(0,0,0,0.72)" }}>
                     {day}
                   </span>
                   {hasEvent && !isSelected && (
@@ -406,7 +406,7 @@ export default function CalendarPage() {
         {selectedDay ? (
           <>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(0,0,0,0.3)" }}>
                 {MONTHS[viewMonth].toUpperCase()} {selectedDay}
               </p>
               <button onClick={() => setShowAddSheet(true)}
@@ -419,9 +419,9 @@ export default function CalendarPage() {
               </button>
             </div>
             {selectedEvents.length === 0 ? (
-              <div className="rounded-2xl p-6 text-center" style={{ background: "#1A1218" }}>
+              <div className="rounded-2xl p-6 text-center" style={{ background: "#FFF8F5" }}>
                 <p className="text-2xl mb-2">🌸</p>
-                <p className="text-sm font-medium mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>Nothing planned — free day.</p>
+                <p className="text-sm font-medium mb-3" style={{ color: "rgba(0,0,0,0.35)" }}>Nothing planned — free day.</p>
                 <button onClick={() => setShowAddSheet(true)}
                   className="px-5 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
                   style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>
@@ -439,7 +439,7 @@ export default function CalendarPage() {
           </>
         ) : (
           <>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>
               COMING UP
             </p>
             <div className="flex flex-col gap-3">
@@ -448,28 +448,28 @@ export default function CalendarPage() {
                 .map(ev => (
                   <button key={ev.id} onClick={() => setSelectedDay(ev.date)}
                     className="rounded-2xl p-4 flex items-start gap-4 text-left w-full transition-all active:scale-[0.98]"
-                    style={{ background: ev.type === "note" ? `${ev.color}11` : "#1A1218", borderLeft: `3px solid ${ev.color}` }}>
+                    style={{ background: ev.type === "note" ? `${ev.color}11` : "white", borderLeft: `3px solid ${ev.color}` }}>
                     <div className="text-center flex-shrink-0 w-10">
                       <p className="text-xs font-bold" style={{ color: ev.color }}>{MONTHS[ev.month].slice(0, 3).toUpperCase()}</p>
-                      <p className="text-xl font-black leading-none" style={{ color: "rgba(255,238,220,0.9)" }}>{ev.date}</p>
+                      <p className="text-xl font-black leading-none" style={{ color: "#111" }}>{ev.date}</p>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm"
-                        style={{ color: ev.checked ? "rgba(255,255,255,0.3)" : "rgba(255,238,220,0.9)", textDecoration: ev.checked ? "line-through" : "none" }}>
+                        style={{ color: ev.checked ? "rgba(0,0,0,0.3)" : "#111", textDecoration: ev.checked ? "line-through" : "none" }}>
                         {TYPE_EMOJIS[ev.type]} {ev.title}
                       </p>
                       {ev.time ? (
-                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>
                           {ev.time} · {TYPE_LABELS[ev.type]}
                         </p>
                       ) : (
-                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
                       )}
                       {ev.with && (
                         <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
                       )}
                       {ev.body && (
-                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }} >{ev.body}</p>
+                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(0,0,0,0.4)" }} >{ev.body}</p>
                       )}
                     </div>
                   </button>
@@ -481,13 +481,13 @@ export default function CalendarPage() {
 
       {/* Coordinate */}
       <div className="px-5 mt-6 mb-4 md:px-10">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>COORDINATE</p>
-        <div className="rounded-2xl p-4" style={{ background: "#1A1218" }}>
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>COORDINATE</p>
+        <div className="rounded-2xl p-4" style={{ background: "#FFF8F5" }}>
           <div className="mb-3">
-            <p className="text-sm font-bold" style={{ color: "rgba(255,238,220,0.9)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+            <p className="text-sm font-bold" style={{ color: "#111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               Plan with other women.
             </p>
-            <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            <p className="text-[11px] mt-0.5" style={{ color: "rgba(0,0,0,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
               Share your calendar or coordinate an outing.
             </p>
           </div>
@@ -506,11 +506,11 @@ export default function CalendarPage() {
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
                     style={{
-                      borderColor: "#1A1218",
+                      borderColor: "#FFF8F5",
                       background: b.status === "free" ? "#4ADE80" : b.status === "busy" ? "#F87171" : "#FBBF24",
                     }} />
                 </div>
-                <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>{b.name}</span>
+                <span className="text-[9px]" style={{ color: "rgba(0,0,0,0.35)" }}>{b.name}</span>
                 <span className="text-[8px] font-semibold" style={{ color: b.status === "free" ? "#4ADE80" : b.status === "busy" ? "rgba(255,255,255,0.2)" : "#FBBF24" }}>
                   {b.status === "free" ? `Free ${b.freeDay}` : b.status === "busy" ? "Busy" : `Maybe ${b.freeDay}`}
                 </span>
@@ -518,10 +518,10 @@ export default function CalendarPage() {
             ))}
             <div className="flex flex-col items-center gap-1 flex-shrink-0">
               <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px dashed rgba(255,255,255,0.2)" }}>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 18 }}>+</span>
+                style={{ background: "rgba(0,0,0,0.05)", border: "1px dashed rgba(255,255,255,0.2)" }}>
+                <span style={{ color: "rgba(0,0,0,0.4)", fontSize: 18 }}>+</span>
               </div>
-              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>Invite</span>
+              <span className="text-[9px]" style={{ color: "rgba(0,0,0,0.35)" }}>Invite</span>
             </div>
           </div>
           <div className="flex gap-2">
@@ -531,7 +531,7 @@ export default function CalendarPage() {
               + Create a Plan Room
             </Link>
             <button className="px-4 py-3 rounded-xl text-xs font-bold transition-all active:scale-[0.97]"
-              style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              style={{ background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
               Share
             </button>
           </div>

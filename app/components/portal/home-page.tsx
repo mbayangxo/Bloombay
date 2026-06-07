@@ -141,44 +141,191 @@ function FirstMonthCard({ isNight }: { isNight: boolean }) {
 // ─── This Week (social calendar layer) ───────────────────────────────────────
 
 const THIS_WEEK_EVENTS = [
-  { day: "Wednesday", club: "Book Girls NYC",   time: "7PM · BK Heights",  color: "#A855F7" },
-  { day: "Friday",    club: "Dinner Club",       time: "8PM · West Village", color: "#FF1F7D" },
-  { day: "Saturday",  club: "Museum Meetup",     time: "2PM · The Met, UES", color: "#0EA5E9" },
+  {
+    day: "Wednesday", club: "Book Girls NYC", time: "7PM", location: "BK Heights", color: "#A855F7",
+    todos: [
+      "Finish this month's chapter",
+      "Bring a snack to share",
+      "Message the host to confirm",
+      "Figure out subway route",
+    ],
+  },
+  {
+    day: "Friday", club: "Dinner Club", time: "8PM", location: "West Village", color: "#FF1F7D",
+    todos: [
+      "Confirm reservation with the group",
+      "Decide on outfit tonight",
+      "Venmo your share after dinner",
+      "Tag the restaurant in your Bloom",
+    ],
+  },
+  {
+    day: "Saturday", club: "Museum Meetup", time: "2PM", location: "The Met, UES", color: "#0EA5E9",
+    todos: [
+      "Check out the current exhibition online",
+      "Arrive 10 min early at the main steps",
+      "Bring a small notebook",
+      "Save the museum to your City spots",
+    ],
+  },
 ];
 
+type WeekEvent = typeof THIS_WEEK_EVENTS[number];
+
+function PlanDetailSheet({ ev, onClose, isNight }: { ev: WeekEvent; onClose: () => void; isNight: boolean }) {
+  const [checked, setChecked] = useState<Set<number>>(new Set());
+
+  function toggle(i: number) {
+    setChecked(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  }
+
+  const done = checked.size;
+  const total = ev.todos.length;
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col"
+        style={{
+          background: isNight ? "#1C1C1C" : "#FFFDF5",
+          boxShadow: "0 -8px 48px rgba(0,0,0,0.25)",
+          maxHeight: "88vh",
+        }}>
+
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+          <div className="w-9 h-1 rounded-full" style={{ background: isNight ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" }} />
+        </div>
+
+        {/* Header */}
+        <div className="px-6 pt-3 pb-4 flex-shrink-0"
+          style={{ borderBottom: `1px solid ${isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"}` }}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: ev.color }}>{ev.day} · {ev.time} · {ev.location}</p>
+              <h2 className="font-black leading-tight" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "26px", color: isNight ? "rgba(255,238,220,0.95)" : "#111" }}>
+                {ev.club}
+              </h2>
+            </div>
+            <button onClick={onClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-all active:scale-90"
+              style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isNight ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"} strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4 flex items-center gap-3">
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)" }}>
+              <div className="h-full rounded-full transition-all duration-300"
+                style={{ width: `${total > 0 ? (done / total) * 100 : 0}%`, background: ev.color }} />
+            </div>
+            <span className="text-[10px] font-bold flex-shrink-0" style={{ color: ev.color }}>{done}/{total}</span>
+          </div>
+        </div>
+
+        {/* To-do list */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-4" style={{ color: isNight ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>
+            TODAY&apos;S CHECKLIST
+          </p>
+          <div className="flex flex-col gap-3">
+            {ev.todos.map((todo, i) => {
+              const on = checked.has(i);
+              return (
+                <button key={i} onClick={() => toggle(i)}
+                  className="w-full flex items-center gap-4 text-left transition-all active:scale-[0.98]"
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all"
+                    style={{
+                      border: `2px solid ${on ? ev.color : isNight ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
+                      background: on ? ev.color : "transparent",
+                    }}>
+                    {on && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium flex-1" style={{
+                    color: on ? (isNight ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)") : (isNight ? "rgba(255,238,220,0.85)" : "#222"),
+                    textDecoration: on ? "line-through" : "none",
+                  }}>
+                    {todo}
+                  </span>
+                  {/* Time indicator */}
+                  <span className="text-[10px] font-bold flex-shrink-0" style={{ color: on ? "transparent" : ev.color }}>
+                    {ev.time}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer CTA */}
+        <div className="px-6 pb-8 pt-4 flex-shrink-0"
+          style={{ borderTop: `1px solid ${isNight ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}` }}>
+          <Link href="/member/plans"
+            className="w-full py-4 rounded-full font-bold text-sm flex items-center justify-center transition-all active:scale-[0.98]"
+            style={{ background: ev.color, color: "white", textDecoration: "none", boxShadow: `0 4px 18px ${ev.color}44` }}>
+            Open full plan room →
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+}
+
 function ThisWeekCard({ isNight }: { isNight: boolean }) {
+  const [openEvent, setOpenEvent] = useState<WeekEvent | null>(null);
   const cardBg   = isNight ? "#2A2A2A" : "white";
   const divColor = isNight ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
   const labelColor = isNight ? "rgba(255,255,255,0.25)" : "#ccc";
   const headColor  = isNight ? "rgba(255,238,220,0.88)" : "#111";
 
   return (
-    <div className="mx-5 mb-2 overflow-hidden"
-      style={{
-        background: cardBg,
-        borderRadius: "4px",
-        boxShadow: isNight ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 12px rgba(0,0,0,0.06)",
-      }}>
-      <div className="px-5 pt-4 pb-3 flex items-baseline justify-between"
-        style={{ borderBottom: `1px solid ${divColor}` }}>
-        <p className="font-bold tracking-[0.22em] uppercase" style={{ fontSize: "9px", color: PINK }}>THIS WEEK</p>
-        <Link href="/member/happenings" className="text-[9px] font-bold" style={{ color: PINK, textDecoration: "none" }}>See all →</Link>
-      </div>
-      {THIS_WEEK_EVENTS.map((ev, i) => (
-        <div key={i} className="flex items-center gap-3 px-5 py-3"
-          style={{
-            borderBottom: i < THIS_WEEK_EVENTS.length - 1 ? `1px solid ${divColor}` : "none",
-            borderLeft: `3px solid ${ev.color}`,
-          }}>
-          <div className="flex-1 min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-wide mb-0.5" style={{ color: labelColor }}>{ev.day}</p>
-            <p className="font-bold text-sm leading-tight" style={{ color: headColor }}>{ev.club}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: labelColor }}>{ev.time}</p>
-          </div>
-          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ev.color }} />
+    <>
+      <div className="mx-5 mb-2 overflow-hidden"
+        style={{
+          background: cardBg,
+          borderRadius: "4px",
+          boxShadow: isNight ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 12px rgba(0,0,0,0.06)",
+        }}>
+        <div className="px-5 pt-4 pb-3 flex items-baseline justify-between"
+          style={{ borderBottom: `1px solid ${divColor}` }}>
+          <p className="font-bold tracking-[0.22em] uppercase" style={{ fontSize: "9px", color: PINK }}>THIS WEEK</p>
+          <Link href="/member/happenings" className="text-[9px] font-bold" style={{ color: PINK, textDecoration: "none" }}>See all →</Link>
         </div>
-      ))}
-    </div>
+        {THIS_WEEK_EVENTS.map((ev, i) => (
+          <button key={i}
+            onClick={() => setOpenEvent(ev)}
+            className="w-full flex items-center gap-3 px-5 py-3 text-left transition-all active:scale-[0.99]"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              borderBottom: i < THIS_WEEK_EVENTS.length - 1 ? `1px solid ${divColor}` : "none",
+              borderLeft: `3px solid ${ev.color}`,
+            }}>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-bold uppercase tracking-wide mb-0.5" style={{ color: labelColor }}>{ev.day}</p>
+              <p className="font-bold text-sm leading-tight" style={{ color: headColor }}>{ev.club}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: labelColor }}>{ev.time} · {ev.location}</p>
+            </div>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={ev.color} strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        ))}
+      </div>
+
+      {openEvent && <PlanDetailSheet ev={openEvent} onClose={() => setOpenEvent(null)} isNight={isNight} />}
+    </>
   );
 }
 
