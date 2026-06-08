@@ -753,14 +753,42 @@ function ClubCrest({ club }: { club: typeof MY_CLUBS[0] }) {
   );
 }
 
-// ─── Club data with photo backgrounds ────────────────────────────────────────
+// ─── Club data with polaroid frame templates ──────────────────────────────────
 
 const CLUBS_PHOTO = [
-  { abbr: "MG", name: "Museum Girls",   unread: 3, live: true, img: null },
-  { abbr: "BC", name: "Book Club",       unread: 5, live: true, img: null },
-  { abbr: "RC", name: "Run Club",        unread: 2, live: true, img: null },
-  { abbr: "NG", name: "Night Out Girls", unread: 1, live: true, img: null },
-  { abbr: "CG", name: "Coffee Gang",     unread: 0, live: true, img: null },
+  { abbr: "MG", name: "Museum Girls",   unread: 3, live: true, frame: "E67AE5DD-286B-4E45-BA2E-080681D63958.PNG" },
+  { abbr: "BC", name: "Book Club",       unread: 5, live: true, frame: "6D79FE52-AEB9-4F4C-AD10-B954C218834D.PNG" },
+  { abbr: "RC", name: "Run Club",        unread: 2, live: true, frame: "D25A1545-F360-4978-93BB-9C19D97BACDA.PNG" },
+  { abbr: "NG", name: "Night Out Girls", unread: 1, live: true, frame: "E894643F-2A53-4ABE-A8EF-19792A45CC5E.PNG" },
+  { abbr: "CG", name: "Coffee Gang",     unread: 0, live: true, frame: "868945DF-0D9E-40F6-A76F-96A187EBC961.PNG" },
+];
+
+// ─── From the Girls notes ─────────────────────────────────────────────────────
+
+const FROM_THE_GIRLS = [
+  { png: "59D1AE37-7CAE-435E-A0D8-E30F08A5718D.PNG", name: "Sofia M.",  club: "Book Club",   msg: "Can't wait\nfor the museum\ntrip! 🎨"              },
+  { png: "DE2E2EDB-A41C-4E4A-97F9-02C433DF808C.PNG", name: "Amara K.", club: "Dinner Club", msg: "We're going\nto Carbone\nFri night!! 🍷"            },
+  { png: "E2F7BDB3-306A-45A4-A2A6-176057EFCFDD.PNG", name: "Nadia R.",  club: "Run Club",    msg: "Who's joining\nrun club\nSunday? 🏃‍♀️"             },
+  { png: "4F738DAC-222F-4616-ABD2-DCCB4A5186CF.PNG", name: "Zara L.",   club: "Book Club",   msg: "Book rec:\nThe Midnight\nLibrary ✨"                },
+];
+
+// ─── Invitation templates ─────────────────────────────────────────────────────
+
+const INVITATIONS_TEMPLATES = [
+  { png: "24788905-C6CC-4051-930B-BA8AE24510A4.PNG", title: "DINNER SOCIETY", venue: "Carbone",         date: "This Friday",   time: "7:30PM",  href: "/member/invitations/1" },
+  { png: "1ACAAAA5-F252-443B-A89F-9CE301C75E36.PNG", title: "MUSEUM GIRLS",   venue: "Brooklyn Museum", date: "This Saturday", time: "11:00AM", href: "/member/invitations/2" },
+  { png: "D1A2B637-ABC6-44F8-B8C5-74306CB59C5B.PNG", title: "WALK & COFFEE",  venue: "West Village",    date: "This Sunday",   time: "10:00AM", href: "/member/invitations/3" },
+];
+
+// ─── Memory polaroids ─────────────────────────────────────────────────────────
+
+const MEMORIES_TEMPLATES = [
+  { png: "5FFC4601-B3F5-41DD-9D8F-8FC660B3846D.PNG", caption: "Girls dinner\nat Carbone ♡",       date: "May 2024"   },
+  { png: "6496FAED-4397-415A-AB31-906E2E74E456.PNG", caption: "Museum morning\nwith the crew",     date: "April 2024" },
+  { png: "A915F822-2B18-4ACC-9C3F-07BA726D5F72.PNG", caption: "Book club\nreunion 📚",             date: "March 2024" },
+  { png: "6A3A70EF-F85F-4C2B-920C-F0F9B7E7D286.PNG", caption: "Sunday brunch\nin the village ☀️", date: "Feb 2024"   },
+  { png: "F65BB983-6FB7-4654-97A0-B6A247461C20.PNG", caption: "Art gallery\nnite! 🎨",             date: "Feb 2024"   },
+  { png: "F1F6716B-4BF0-4B76-8BDB-5034439F59DC.PNG", caption: "Run club\nsunrise 🌅",              date: "Jan 2024"   },
 ];
 
 const NEIGHBORHOODS = [
@@ -899,61 +927,61 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           style={{ position: "absolute", right: 6, top: -8, width: 68, transform: "rotate(3deg)", zIndex: 3, pointerEvents: "none" }} />
       </div>
 
-      {/* ═══ THREE CARDS — composition-first: fixed container, PNG inside ═══ */}
+      {/* ═══ THREE CARDS ═══ */}
       <div style={{ display: "flex", alignItems: "stretch", padding: "4px 14px 12px", gap: 8 }}>
 
         {/* MY FIRST MONTH */}
-        <Link href="/member/plans" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+        <Link href="/member/plans" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", width: "100%", height: 160 }}>
             <div style={{
-              position: "absolute", inset: "5%",
+              position: "absolute", inset: 0,
               backgroundImage: "url('/homepage-objects/C806CD84-83E7-4147-B213-BEC3CE92DE10.PNG')",
               backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
             }} />
-            <div style={{ position: "absolute", top: "12%", left: "10%", right: "6%", zIndex: 2 }}>
-              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 3 }}>MY FIRST MONTH</p>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 5 }}>
-                <span style={{ fontSize: 7, lineHeight: 1.4 }}>⭐</span>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Week 2:<br/>Attend 1<br/>gathering</p>
+            <div style={{ position: "absolute", top: "12%", left: "12%", right: "8%", zIndex: 2 }}>
+              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 4 }}>MY FIRST MONTH</p>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 6 }}>
+                <span style={{ fontSize: 10, lineHeight: 1.4 }}>⭐</span>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Week 2:<br/>Attend 1<br/>gathering</p>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <div style={{ flex: 1, height: 2, borderRadius: 999, background: "rgba(255,31,125,0.15)", overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,31,125,0.15)", overflow: "hidden" }}>
                   <div style={{ width: "75%", height: "100%", background: "#FF1F7D", borderRadius: 999 }} />
                 </div>
-                <span style={{ fontSize: "5.5px", fontWeight: 700, color: "#bbb" }}>3/4</span>
+                <span style={{ fontSize: 8, fontWeight: 700, color: "#bbb" }}>3/4</span>
               </div>
             </div>
           </div>
         </Link>
 
         {/* THIS WEEK */}
-        <Link href="/member/happenings" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+        <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", width: "100%", height: 160 }}>
             <div style={{
-              position: "absolute", inset: "5%",
+              position: "absolute", inset: 0,
               backgroundImage: "url('/homepage-objects/C4C93D7A-408F-4F2D-B125-CE81AC7C30C1.PNG')",
               backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
             }} />
-            <div style={{ position: "absolute", top: "12%", left: "10%", right: "6%", zIndex: 2 }}>
-              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 3 }}>THIS WEEK · 3 EVENTS</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Book Girls<br/>NYC</p>
-              <p style={{ fontSize: 9, color: "#888", marginTop: 3 }}>Wednesday</p>
+            <div style={{ position: "absolute", top: "12%", left: "12%", right: "8%", zIndex: 2 }}>
+              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 4 }}>THIS WEEK · 3 EVENTS</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Book Girls<br/>NYC</p>
+              <p style={{ fontSize: 10, color: "#888", marginTop: 4 }}>Wednesday</p>
             </div>
           </div>
         </Link>
 
         {/* CITY VIBES */}
-        <Link href="/member/city" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+        <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", width: "100%", height: 160 }}>
             <div style={{
-              position: "absolute", inset: "5%",
+              position: "absolute", inset: 0,
               backgroundImage: "url('/homepage-objects/930F0AEE-4D93-4733-B19D-B6937EE076F8.PNG')",
               backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
             }} />
-            <div style={{ position: "absolute", bottom: "16%", left: "10%", right: "6%", zIndex: 2 }}>
-              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 2 }}>CITY VIBES</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#555", lineHeight: 1.25 }}>Crown<br/>Heights</p>
-              <p style={{ fontSize: 9, color: "#aaa", marginTop: 2 }}>9 spots ♡</p>
+            <div style={{ position: "absolute", bottom: "18%", left: "12%", right: "8%", zIndex: 2 }}>
+              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 3 }}>CITY VIBES</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#555", lineHeight: 1.25 }}>Crown<br/>Heights</p>
+              <p style={{ fontSize: 10, color: "#aaa", marginTop: 3 }}>9 spots ♡</p>
             </div>
           </div>
         </Link>
@@ -961,39 +989,30 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
       </div>
 
       {/* ═══ TODAY + TONIGHT ═══ */}
-      <div style={{ display: "flex", gap: 10, padding: "0 14px 14px", position: "relative" }}>
+      <div style={{ display: "flex", gap: 10, padding: "0 14px 14px", position: "relative", alignItems: "flex-start" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/homepage-objects/029131C9-6891-4053-A980-F8F436DBA8AB.PNG" alt=""
-          style={{ position: "absolute", right: 130, top: -14, width: 32, transform: "rotate(22deg)", zIndex: 5, pointerEvents: "none" }} />
+          style={{ position: "absolute", right: 128, top: -14, width: 32, transform: "rotate(22deg)", zIndex: 5, pointerEvents: "none" }} />
 
-        {/* Today events */}
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D", marginBottom: 8 }}>
-            TODAY · {TODAY_EVENTS.length} EVENTS
-          </p>
-          {TODAY_EVENTS.map((ev, i) => (
-            <Link key={ev.id} href="/member/schedule" style={{ textDecoration: "none" }}>
-              <div style={{
-                display: "flex", alignItems: "flex-start", gap: 7,
-                padding: "6px 0",
-                paddingLeft: ev.isNext ? 7 : 0,
-                borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
-                borderLeft: ev.isNext ? "3px solid #FF1F7D" : "3px solid transparent",
-              }}>
-                <div style={{ flexShrink: 0, minWidth: 44 }}>
-                  <p style={{ fontSize: 10, fontWeight: 800, color: "#1C1B1C", lineHeight: 1 }}>{ev.time}</p>
-                  {ev.isNext && <p style={{ fontSize: "6px", fontWeight: 800, color: "#FF1F7D", letterSpacing: "0.1em", marginTop: 1 }}>NEXT</p>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.1 }}>{ev.name}</p>
-                  <p style={{ fontSize: "7.5px", color: "#bbb", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.location}</p>
-                </div>
-              </div>
+        {/* Today events — 9F25A2C1 notepad as visual frame */}
+        <div style={{ flex: 1, position: "relative" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/homepage-objects/9F25A2C1-BFCC-4D6C-84D8-DB85241B9187.PNG" alt=""
+            style={{ width: "100%", display: "block" }} />
+          <div style={{ position: "absolute", top: "18%", left: "12%", right: "8%", zIndex: 2 }}>
+            <p style={{ fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 7 }}>
+              TODAY · {TODAY_EVENTS.length} EVENTS
+            </p>
+            {TODAY_EVENTS.map((ev) => (
+              <Link key={ev.id} href="/member/schedule" style={{ textDecoration: "none", display: "block", marginBottom: 7 }}>
+                <p style={{ fontSize: 9, fontWeight: 800, color: ev.isNext ? "#FF1F7D" : "#888", lineHeight: 1 }}>{ev.time}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.1 }}>{ev.name}</p>
+              </Link>
+            ))}
+            <Link href="/member/schedule" style={{ textDecoration: "none" }}>
+              <p style={{ fontSize: "7px", fontWeight: 700, color: "#FF1F7D", letterSpacing: "0.08em", marginTop: 4 }}>VIEW ALL →</p>
             </Link>
-          ))}
-          <Link href="/member/schedule" style={{ textDecoration: "none" }}>
-            <p style={{ fontSize: "7.5px", fontWeight: 700, color: "#FF1F7D", letterSpacing: "0.08em", marginTop: 8 }}>VIEW FULL SCHEDULE →</p>
-          </Link>
+          </div>
         </div>
 
         {/* Tonight card */}
@@ -1017,7 +1036,7 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
         </div>
       </div>
 
-      {/* ═══ YOUR CLUBS — photo cards ═══ */}
+      {/* ═══ YOUR CLUBS — polaroid frame cards ═══ */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 8px" }}>
           <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D" }}>YOUR CLUBS</p>
@@ -1025,33 +1044,25 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
             <span style={{ fontSize: "9px", fontWeight: 600, color: "#bbb" }}>See all →</span>
           </Link>
         </div>
-        <div style={{ display: "flex", overflowX: "auto", padding: "0 16px 4px", gap: 8, scrollbarWidth: "none" as const }}>
+        <div style={{ display: "flex", overflowX: "auto", padding: "0 16px 8px", gap: 10, scrollbarWidth: "none" as const }}>
           {CLUBS_PHOTO.map((club, i) => (
             <Link key={i} href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{ position: "relative", width: 90, height: 118, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,0.2)" }}>
-                {club.img ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={club.img} alt="" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.58) 100%)" }} />
-                  </>
-                ) : (
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(145deg, #e8d5cc, #d4b8b0)" }} />
-                )}
-                <p style={{ position: "absolute", top: 8, left: 0, right: 0, textAlign: "center", fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.96)", textShadow: "0 1px 6px rgba(0,0,0,0.5)", zIndex: 2 }}>
-                  {club.abbr}
-                </p>
+              <div style={{ position: "relative", width: 92 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/homepage-objects/${club.frame}`} alt=""
+                  style={{ width: "100%", display: "block" }} />
                 {club.unread > 0 && (
-                  <div style={{ position: "absolute", top: 6, right: 6, width: 16, height: 16, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "#FF1F7D", zIndex: 3 }}>
+                  <div style={{ position: "absolute", top: 6, right: 6, width: 17, height: 17, borderRadius: "50%", background: "#FF1F7D", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", zIndex: 3, boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
                     {club.unread}
                   </div>
                 )}
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(0,0,0,0.32)", backdropFilter: "blur(3px)", padding: "4px 6px 6px", zIndex: 2 }}>
-                  <p style={{ fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.9)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.name}</p>
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 2, pointerEvents: "none" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#333", lineHeight: 1, textShadow: "0 1px 3px rgba(255,255,255,0.7)" }}>{club.abbr}</p>
+                  <p style={{ fontSize: "7px", fontWeight: 700, color: "#555", marginTop: 2, letterSpacing: "0.04em", textAlign: "center", maxWidth: 72 }}>{club.name}</p>
                   {club.live && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 2, marginTop: 3 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
-                      <span style={{ fontSize: "6px", color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>live</span>
+                      <span style={{ fontSize: "6px", color: "#888", fontWeight: 600 }}>live</span>
                     </div>
                   )}
                 </div>
@@ -1113,6 +1124,77 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           </Link>
         </div>
 
+      </div>
+
+      {/* ═══ FROM THE GIRLS ═══ */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ padding: "0 20px 8px" }}>
+          <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D" }}>FROM THE GIRLS</p>
+        </div>
+        <div style={{ display: "flex", overflowX: "auto", padding: "0 16px 8px", gap: 10, scrollbarWidth: "none" as const }}>
+          {FROM_THE_GIRLS.map((note, i) => (
+            <div key={i} style={{ position: "relative", width: 130, flexShrink: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/homepage-objects/${note.png}`} alt=""
+                style={{ width: "100%", display: "block" }} />
+              <div style={{ position: "absolute", top: "18%", left: "10%", right: "8%", zIndex: 2 }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#333", lineHeight: 1.45, whiteSpace: "pre-line" }}>{note.msg}</p>
+                <p style={{ fontSize: "7px", color: "#FF1F7D", fontWeight: 700, marginTop: 5 }}>— {note.name}</p>
+                <p style={{ fontSize: "6.5px", color: "#aaa" }}>{note.club}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ YOUR INVITATIONS ═══ */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 8px" }}>
+          <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D" }}>YOUR INVITATIONS</p>
+          <Link href="/member/invitations" style={{ textDecoration: "none" }}>
+            <span style={{ fontSize: "9px", fontWeight: 600, color: "#bbb" }}>See all →</span>
+          </Link>
+        </div>
+        <div style={{ display: "flex", overflowX: "auto", padding: "0 16px 8px", gap: 12, scrollbarWidth: "none" as const }}>
+          {INVITATIONS_TEMPLATES.map((inv, i) => (
+            <Link key={i} href={inv.href} style={{ textDecoration: "none", flexShrink: 0 }}>
+              <div style={{ position: "relative", width: 138 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/homepage-objects/${inv.png}`} alt=""
+                  style={{ width: "100%", display: "block" }} />
+                <div style={{ position: "absolute", top: "14%", left: "11%", right: "8%", zIndex: 2 }}>
+                  <p style={{ fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: "#FF1F7D", marginBottom: 3 }}>{inv.title}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.2 }}>{inv.venue}</p>
+                  <p style={{ fontSize: "8px", color: "#888", marginTop: 3 }}>{inv.date}</p>
+                  <p style={{ fontSize: "8px", color: "#aaa" }}>{inv.time}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ MEMORIES ═══ */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 8px" }}>
+          <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D" }}>MEMORIES</p>
+          <Link href="/member/memories" style={{ textDecoration: "none" }}>
+            <span style={{ fontSize: "9px", fontWeight: 600, color: "#bbb" }}>See all →</span>
+          </Link>
+        </div>
+        <div style={{ display: "flex", overflowX: "auto", padding: "0 16px 8px", gap: 10, scrollbarWidth: "none" as const }}>
+          {MEMORIES_TEMPLATES.map((mem, i) => (
+            <div key={i} style={{ position: "relative", width: 120, flexShrink: 0, transform: i % 2 === 0 ? "rotate(-1deg)" : "rotate(1.5deg)" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/homepage-objects/${mem.png}`} alt=""
+                style={{ width: "100%", display: "block" }} />
+              <div style={{ position: "absolute", top: "12%", left: "10%", right: "8%", zIndex: 2 }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#444", lineHeight: 1.4, whiteSpace: "pre-line" }}>{mem.caption}</p>
+                <p style={{ fontSize: "6.5px", color: "#aaa", marginTop: 3 }}>{mem.date}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {showYande && <YandeSheet onClose={() => setShowYande(false)} />}

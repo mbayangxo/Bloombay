@@ -20,24 +20,24 @@ export function getGreeting(tod: TimeOfDay): string {
 
 const TIME_STYLES: Record<TimeOfDay, React.CSSProperties> = {
   morning: {
-    "--pale-pink-bg": "#FFF5F8",
+    "--pale-pink-bg": "#F6F1EB",
     "--light-pink": "#FFE0EE",
     "--heading-color": "#111111",
     "--text-color": "#333333",
     "--text-muted": "#888888",
     "--card-bg": "#FFFFFF",
     "--card-border": "rgba(0,0,0,0.06)",
-    background: "#FFF5F8",
+    background: "#F6F1EB",
   } as React.CSSProperties,
   afternoon: {
-    "--pale-pink-bg": "#FFF0F5",
+    "--pale-pink-bg": "#F6F1EB",
     "--light-pink": "#FFD6E8",
     "--heading-color": "#111111",
     "--text-color": "#333333",
     "--text-muted": "#888888",
     "--card-bg": "#FFFFFF",
     "--card-border": "rgba(0,0,0,0.06)",
-    background: "#FFF0F5",
+    background: "#F6F1EB",
   } as React.CSSProperties,
   evening: {
     "--pale-pink-bg": "#120D0A",
