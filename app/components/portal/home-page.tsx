@@ -855,13 +855,13 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#bbb", marginTop: 2 }}>soft life, strong mind ♡</p>
           </div>
           {/* 22BF0D14 — PNG is the card, container has no background */}
-          <div style={{ width: 158, flexShrink: 0, marginRight: -4, marginTop: -8, position: "relative" }}>
+          <div style={{ width: 240, flexShrink: 0, marginRight: -4, marginTop: -12, position: "relative" }}>
             <p style={{ position: "absolute", top: "24%", left: "12%", right: "12%", textAlign: "center", zIndex: 4,
-              fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C" }}>
+              fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C" }}>
               {firstName}
             </p>
             <p style={{ position: "absolute", top: "42%", left: "12%", right: "12%", textAlign: "center", zIndex: 4,
-              fontFamily: "var(--font-caveat)", fontSize: 10, color: "#888", lineHeight: 1.2 }}>
+              fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", lineHeight: 1.2 }}>
               {TODAY_EVENTS[0]?.name}
             </p>
             {/* eslint-disable-next-line @next/next/no-img-element */}

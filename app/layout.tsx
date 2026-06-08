@@ -44,7 +44,7 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${jost.variable} ${caveat.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-white text-bb-black">
+      <body className="min-h-full text-bb-black" style={{ background: "#F6F1EB" }}>
         {children}
       </body>
     </html>
