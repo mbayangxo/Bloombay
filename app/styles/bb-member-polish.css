@@ -1,0 +1,269 @@
+/* Member polish — happenings invitations, connect, apartment, lobby */
+
+/* Happenings — invitations tab: content first, readable copy */
+.mp-happenings-head--invitations {
+  padding-bottom: 0.35rem;
+}
+
+.mp-happenings-head__invitations-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.35rem 0.75rem;
+  padding: 0.35rem 0 0.25rem;
+}
+
+.mp-happenings-head__invitations-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--bb-velvet);
+  line-height: 1;
+}
+
+.mp-happenings-head__invitations-whisper {
+  flex: 1 1 12rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bb-velvet);
+  margin: 0;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+.mp-happenings-head--invitations .mp-happenings-head__actions {
+  margin-left: auto;
+}
+
+.bb-mood--happenings .mp-happenings-head--invitations + .mp-happenings-tabs {
+  margin-top: 0.15rem;
+}
+
+.bb-happenings-parlor:has(.bb-happenings-invitations) {
+  margin-top: 0;
+  padding-top: 0.35rem;
+}
+
+.bb-happenings-after-invitations {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 0, 85, 0.1);
+}
+
+.bb-happenings-after-invitations .bb-yande-text,
+.bb-happenings-after-invitations .mp-challenge {
+  font-size: 0.78rem;
+}
+
+.bb-happenings-after-invitations .mp-challenge__title {
+  font-size: 0.85rem;
+}
+
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover--envelope .bb-place-cover__eyebrow,
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover--envelope .bb-place-cover__title,
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover--envelope .bb-place-cover__whisper {
+  color: var(--bb-velvet);
+}
+
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover--envelope .bb-place-cover__sheet {
+  background: linear-gradient(165deg, #ffffff 0%, #ffe4ec 55%, #ffb7ce 100%);
+  border-color: rgba(26, 5, 20, 0.12);
+}
+
+/* Connect */
+.bb-connect-head {
+  padding: 0.65rem 1rem 0.5rem;
+}
+
+.bb-connect-head__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--bb-velvet);
+  line-height: 1.05;
+}
+
+.bb-connect-head__sub {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bb-muted);
+  margin: 0.25rem 0 0;
+}
+
+.bb-connect-moments.bb-artifact-board--dense {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.65rem;
+  padding: 0 1rem 0.75rem;
+}
+
+.bb-connect-moment {
+  padding: 0.75rem 0.85rem;
+}
+
+.bb-connect-moment__emoji {
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.bb-connect-moment__scene {
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
+  margin-bottom: 0.35rem;
+}
+
+.bb-connect-moment__living {
+  font-size: 0.78rem;
+  margin-bottom: 0.25rem;
+}
+
+.bb-connect-moment__cast {
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.bb-connect-desk__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Apartment — full pink, edge to edge */
+.bb-apartment--full-pink {
+  background: #ffe4ec;
+  min-height: 100%;
+  padding: 0.5rem 0 2rem;
+}
+
+.bb-apartment--full-pink .bb-apartment__hero {
+  padding: 0 0.75rem;
+}
+
+.bb-apartment--full-pink .bb-apartment-objects {
+  padding: 0 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 130px));
+  gap: 0.65rem;
+}
+
+.bb-apartment--full-pink .bb-apartment-object {
+  padding: 0.65rem 0.5rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.bb-apartment-objects--home {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.65rem;
+  padding: 0 0.75rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .bb-apartment-objects--home {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .bb-apartment-objects--home {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding-inline: 0.5rem;
+  }
+}
+
+.bb-apartment__utility {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--bb-muted);
+  margin: 0;
+  padding: 0 0.75rem 1.5rem;
+  line-height: 1.45;
+}
+
+.bb-home-utility {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bb-muted);
+  margin: 0;
+  padding: 0 1rem 0.85rem;
+  text-align: center;
+}
+
+.bb-home-utility__link {
+  color: var(--bb-hot);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bb-home-utility__link:hover {
+  text-decoration: underline;
+}
+
+.bb-home-utility__tag {
+  opacity: 0.85;
+}
+
+.bb-city__back {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.mp-sidebar__link--utility .mp-sidebar__link-label {
+  font-size: 0.52rem;
+  opacity: 0.9;
+}
+
+.bb-mood--lounge .bb-mood__body {
+  background: #ffe4ec;
+  padding: 0;
+}
+
+/* Girl calendar — year navigation */
+.bb-cal-month__title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.bb-cal-month__year-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bb-cal-month__year {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--bb-muted);
+}
+
+.bb-cal-month__year-btn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bb-hot);
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+}
+
+.bb-cal-month__year-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}

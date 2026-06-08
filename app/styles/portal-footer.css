@@ -1,0 +1,40 @@
+.bb-portal-footer {
+  margin-top: auto;
+  padding: 1rem 1.25rem 1.5rem;
+  border-top: 1px solid rgba(26, 10, 46, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.bb-admin-main .bb-portal-footer {
+  margin: 2rem -0.5rem 0;
+  background: #fff;
+}
+
+.bb-portal-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+}
+
+.bb-portal-footer__link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(26, 10, 46, 0.65);
+  text-decoration: none;
+}
+
+.bb-portal-footer__link:hover,
+.bb-portal-footer__link--active {
+  color: var(--bb-hot-deep, #c4006a);
+}
+
+.cu-app .bb-portal-footer,
+.pp-shell .bb-portal-footer,
+.co-app .bb-portal-footer {
+  background: #fff;
+}
+
+.mp-root .bb-portal-footer {
+  background: var(--mp-cream, #faf6f0);
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}

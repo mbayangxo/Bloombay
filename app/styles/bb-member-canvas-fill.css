@@ -1,0 +1,438 @@
+/* Page kicker — one line, not a giant header */
+.mp-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 0.45rem 1rem;
+  border-bottom: 1px solid rgba(255, 0, 85, 0.1);
+  background: var(--mp-white, #ffffff);
+  color: var(--mp-ink, #1a0514);
+  z-index: 10;
+}
+
+.mp-top-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mp-top-bar__settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  color: var(--mp-ink, #1a0514);
+  text-decoration: none;
+}
+
+.mp-top-bar__settings:hover {
+  background: var(--mp-barbie-soft, #ffe4ec);
+}
+
+.mp-top-bar__brand .mp-brand__text {
+  font-size: 0.52rem;
+}
+
+@media (min-width: 768px) {
+  .mp-top-bar {
+    padding: 0.4rem 1.25rem;
+  }
+}
+
+.bb-page-kicker {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 0.65rem;
+  padding: 0.65rem 0 0;
+}
+
+/* Girl Calendar — month grid */
+.bb-cal-page {
+  width: 100%;
+  max-width: none;
+  padding-bottom: 2rem;
+}
+
+.bb-cal-month__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.bb-cal-month__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--bb-velvet);
+}
+
+.bb-cal-month__nav {
+  border: 1.5px solid var(--bb-hot);
+  background: #fff;
+  color: var(--bb-hot);
+  border-radius: 999px;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-cal-month__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 0, 85, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(26, 5, 20, 0.06);
+}
+
+.bb-cal-month__dow {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+  padding: 0.25rem;
+}
+
+.bb-cal-month__cell {
+  aspect-ratio: 1;
+  border: 1px solid rgba(26, 5, 20, 0.06);
+  border-radius: 6px;
+  background: #fffaf8;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--bb-velvet);
+  cursor: pointer;
+}
+
+.bb-cal-month__cell--empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.bb-cal-month__cell--has {
+  background: #ffe4ec;
+  border-color: rgba(255, 0, 85, 0.25);
+}
+
+.bb-cal-month__cell--selected {
+  background: var(--bb-hot);
+  color: #ffffff;
+  border-color: var(--bb-hot);
+}
+
+.bb-cal-month__cell--today {
+  box-shadow: inset 0 0 0 2px var(--bb-hot);
+}
+
+.bb-cal-month__day-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  text-transform: uppercase;
+  margin: 0 0 0.65rem;
+}
+
+.bb-cal-month__item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(26, 5, 20, 0.08);
+}
+
+.bb-cal-month__pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--bb-hot);
+  background: var(--bb-hot);
+  color: #fff;
+  cursor: pointer;
+}
+
+.bb-cal-month__pill--ghost {
+  background: #fff;
+  color: var(--bb-hot);
+}
+
+.bb-cal-month__all {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+/* Desktop member canvas — edge-to-edge beside nav, content-first headers */
+
+@media (min-width: 768px) {
+  .mp-root--sidebar .mp-content,
+  .mp-root--sidebar .mp-content--full {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+
+  .mp-root--sidebar .mp-main--flush {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .mp-content--full .mp-home-scroll,
+  .mp-content--full .bb-mood {
+    max-width: none;
+    width: 100%;
+  }
+
+  .mp-header--compact {
+    padding: 0.35rem 1rem !important;
+    min-height: 0 !important;
+    border-bottom-width: 2px;
+  }
+
+  .mp-header--compact .mp-header__left .mp-back {
+    font-size: 0.72rem;
+  }
+
+  /* Compact place covers — content is the hero */
+  .bb-place-cover {
+    padding: 0.5rem 0 0.65rem !important;
+  }
+
+  .bb-place-cover__title {
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem) !important;
+  }
+
+  .bb-place-cover__whisper {
+    font-size: 0.82rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .bb-place-cover__object {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .bb-mood-intro.bb-place-cover {
+    padding: 0.5rem 0 0.75rem !important;
+  }
+
+  /* Explore — bounded scroll, dense grid */
+  .bb-explore-page .bb-mood__body {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
+  }
+
+  .bb-explore-page .bb-explore-board {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .bb-explore-page .bb-wall-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 180px));
+    justify-content: start;
+    gap: 0.5rem;
+  }
+
+  .bb-explore-page .mp-explore-section {
+    margin-bottom: 0.85rem;
+  }
+
+  .bb-explore-page .mp-explore-section__head h2 {
+    font-size: 0.88rem !important;
+  }
+
+  .bb-explore-page .bb-wall-note {
+    transform: none !important;
+  }
+
+  .bb-explore-moment-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0 0 0.75rem;
+  }
+
+  /* Connect — compact moments, edge to edge */
+  .bb-mood--connect .bb-connect-head,
+  .bb-mood--connect .bb-connect-moments,
+  .bb-mood--connect .bb-connect-desk,
+  .bb-mood--connect .bb-connect-desk .bb-artifact-board {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .bb-mood--connect .bb-connect-moments {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    justify-content: stretch;
+  }
+
+  /* Clubs — full width grid from nav edge */
+  .mp-clubs-page {
+    max-width: none !important;
+    width: 100%;
+  }
+
+  .mp-clubs-hero {
+    padding: 0.5rem 0 0.35rem !important;
+  }
+
+  .mp-clubs-hero .bb-place-cover__title {
+    font-size: 1.25rem !important;
+  }
+
+  .mp-clubs-top {
+    background: #ffe4ec !important;
+    border-bottom: 2px solid var(--bb-hot) !important;
+    padding: 0.45rem 0 0.55rem !important;
+  }
+
+  .mp-clubs-top .mp-btn--hot {
+    background: var(--bb-velvet) !important;
+    border-color: var(--bb-velvet) !important;
+  }
+
+  .mp-clubs-page .mp-clubs-cats,
+  .mp-clubs-page .mp-clubs-top,
+  .mp-clubs-featured {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .bb-clubs-grid-posters--browse {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    justify-content: stretch !important;
+    width: 100% !important;
+  }
+
+  .bb-clubs-grid-posters--browse .bb-club-poster {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+    justify-content: stretch;
+    gap: 0.65rem !important;
+    width: 100%;
+  }
+
+  /* Happenings — slimmer head */
+  .mp-happenings-head--slim .mp-happenings-cover .bb-place-cover__sheet {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .mp-happenings-head--slim .bb-girl-calendar {
+    margin-top: 0.35rem;
+  }
+
+  .bb-happenings-parlor {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Apartment — full bleed objects */
+  .bb-apartment {
+    width: 100%;
+    max-width: none;
+    padding: 0.5rem 0 2rem;
+  }
+
+  .bb-apartment__hero {
+    padding: 0.5rem 0 0.65rem !important;
+  }
+
+  .bb-apartment-objects {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 180px)) !important;
+    justify-content: start;
+    width: 100%;
+  }
+
+  /* Header icons — visible upper right */
+  .bb-header-icons:not(.bb-header-icons--petite) .mp-icon-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 0, 85, 0.15);
+  }
+
+  .bb-header-icons:not(.bb-header-icons--petite) .mp-icon-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bb-header-icons--petite .bb-rose-gem {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .mp-root--sidebar .mp-content--full {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .mp-root--sidebar .mp-content--full .bb-mood--lounge .bb-apartment--full-pink,
+  .mp-root--sidebar .mp-content--full .mp-clubs-page,
+  .mp-root--sidebar .mp-content--full .bb-mood--happenings,
+  .mp-root--sidebar .mp-content--full .bb-mood--connect,
+  .mp-root--sidebar .mp-content--full .bb-mood--room {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    width: calc(100% + 1rem);
+  }
+
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 170px)) !important;
+  }
+
+  .bb-explore-page .bb-wall-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 240px));
+  }
+}
+
+@media (min-width: 1200px) {
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 180px)) !important;
+  }
+}
+
+/* Sidebar icon rail — width from --mp-sidebar-w */
+@media (min-width: 768px) {
+  .mp-sidebar--rail {
+    width: var(--mp-sidebar-w, 4.25rem);
+    padding: 0.85rem 0.5rem;
+  }
+}

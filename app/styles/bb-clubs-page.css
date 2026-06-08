@@ -1,0 +1,222 @@
+/* Clubs browse — clubs + search on one row, dense cover grid first */
+
+.mp-clubs-top {
+  padding: 0.5rem 0.65rem 0.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mp-clubs-top__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  width: 100%;
+}
+
+.mp-clubs-top__title {
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+}
+
+.mp-clubs-top__title h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+  color: var(--bb-velvet);
+}
+
+.mp-clubs-top__whisper {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--bb-muted);
+  margin: 0.2rem 0 0;
+  line-height: 1.3;
+}
+
+.mp-clubs-top .mp-clubs-search--toolbar {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: #ffe4ec;
+  border: 1.5px solid var(--bb-hot);
+}
+
+.mp-clubs-top__discover {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.mp-clubs-board-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.4rem 0.65rem;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ff0055 0%, #ff69b4 100%);
+  border: 2px solid var(--bb-velvet);
+  box-shadow: 0 3px 0 var(--bb-velvet);
+  text-decoration: none;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.15s ease;
+}
+
+.mp-clubs-board-pill:hover {
+  transform: translateY(-2px);
+}
+
+.mp-clubs-board-pill span {
+  line-height: 1.15;
+}
+
+.mp-clubs-page .mp-clubs-cats {
+  padding: 0.4rem 0.5rem 0.45rem;
+  gap: 0.35rem;
+}
+
+.mp-clubs-page .mp-clubs-featured {
+  margin-top: 1rem;
+  padding: 0.5rem 0.5rem 0;
+  border-top: 1px solid rgba(255, 0, 85, 0.12);
+}
+
+/* Browse grid — tight cover boxes (club mama photo slot) */
+.bb-clubs-grid-posters--browse {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0 0.5rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: stretch;
+}
+
+.bb-clubs-grid-posters--browse .bb-club-poster {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Compact = square cover box */
+.bb-club-poster--compact {
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  border: 2px solid rgba(26, 5, 20, 0.14);
+  box-shadow: 0 2px 10px rgba(26, 5, 20, 0.1);
+  background: #fff;
+}
+
+.bb-club-poster--compact .bb-club-poster__img {
+  border-radius: 8px 8px 0 0;
+}
+
+.bb-club-poster--compact .bb-club-poster__overlay {
+  background: linear-gradient(
+    180deg,
+    transparent 35%,
+    rgba(26, 5, 20, 0.35) 70%,
+    rgba(26, 5, 20, 0.82) 100%
+  );
+}
+
+.bb-club-poster--compact .bb-club-poster__content {
+  padding: 0.3rem 0.35rem 0.38rem;
+}
+
+.bb-club-poster--compact .bb-club-poster__category {
+  display: none;
+}
+
+.bb-club-poster--compact .bb-club-poster__name {
+  font-size: 0.62rem;
+  line-height: 1.1;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-club-poster--compact .bb-club-poster__tagline,
+.bb-club-poster--compact .bb-club-poster__meta {
+  display: none;
+}
+
+.bb-club-poster--compact .bb-club-poster__join {
+  top: 0.25rem;
+  right: 0.25rem;
+  padding: 0.12rem 0.32rem;
+  font-size: 0.45rem;
+  border-radius: 6px;
+}
+
+.bb-club-poster--compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 0, 85, 0.18);
+}
+
+@media (min-width: 400px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 520px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .bb-club-poster--compact .bb-club-poster__name {
+    font-size: 0.65rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    padding: 0 0.65rem 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .bb-club-poster--compact .bb-club-poster__name {
+    font-size: 0.68rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-clubs-grid-posters--browse {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,211 @@
+/* Yande — Daily Bloom guidance card (MVP) */
+
+.yande-daily-bloom {
+  margin: 0 1.25rem 1.15rem;
+  padding: 1.1rem 1.15rem 1.15rem;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #1a1218 0%, var(--bb-ink) 55%, #2a1020 100%);
+  border: 2px solid var(--mp-hot, var(--bb-hot));
+  box-shadow: 0 4px 0 var(--mp-barbie, #ffb7ce), 0 12px 32px rgba(18, 18, 18, 0.18);
+  color: #fffaf8;
+  position: relative;
+  overflow: hidden;
+}
+
+.yande-daily-bloom::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 55%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255, 45, 138, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.yande-daily-bloom__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.yande-daily-bloom__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.yande-daily-bloom__icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 45, 138, 0.2);
+  border: 1.5px solid var(--mp-hot, var(--bb-hot));
+}
+
+.yande-daily-bloom__titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.yande-daily-bloom__kicker {
+  margin: 0 0 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mp-barbie, #ffb7ce);
+}
+
+.yande-daily-bloom__title {
+  margin: 0;
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+  font-size: clamp(1.15rem, 3vw, 1.35rem);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.yande-daily-bloom__preface {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  color: rgba(255, 228, 236, 0.85);
+  font-style: italic;
+}
+
+.yande-daily-bloom__message {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 250, 248, 0.92);
+}
+
+.yande-daily-bloom__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.yande-daily-bloom__chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: inherit;
+  text-decoration: none;
+}
+
+.yande-daily-bloom--ivory .yande-daily-bloom__chip {
+  border-color: var(--bb-line);
+  color: var(--bb-ink);
+}
+
+.yande-daily-bloom__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  background: var(--mp-hot, var(--bb-hot));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+
+.yande-daily-bloom__cta:hover {
+  transform: translateY(-1px);
+  background: #e6006f;
+}
+
+/* Ivory variant — optional */
+.yande-daily-bloom--ivory {
+  background: linear-gradient(160deg, #fffaf6 0%, #ffe4ec 100%);
+  color: var(--mp-ink, var(--bb-ink));
+  box-shadow: 0 3px 0 var(--mp-hot, var(--bb-hot));
+}
+
+.yande-daily-bloom--ivory .yande-daily-bloom__title {
+  color: var(--mp-ink, var(--bb-ink));
+}
+
+.yande-daily-bloom--ivory .yande-daily-bloom__message {
+  color: rgba(18, 18, 18, 0.82);
+}
+
+/* Square tile on home */
+.yande-daily-bloom--square {
+  margin: 0;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.yande-daily-bloom--square .yande-daily-bloom__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 100%;
+  text-align: left;
+}
+
+.yande-daily-bloom--square .yande-daily-bloom__icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.35rem;
+}
+
+.yande-daily-bloom--square .yande-daily-bloom__title {
+  font-size: 1.05rem;
+}
+
+.yande-daily-bloom--square .yande-daily-bloom__message {
+  font-size: 0.78rem;
+  margin-bottom: 0.65rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.yande-daily-bloom--square .yande-daily-bloom__cta {
+  margin-top: auto;
+  width: 100%;
+  font-size: 0.65rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.mp-home-bloom-slot {
+  padding: 0 1.25rem 1rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (min-width: 900px) {
+  .yande-daily-bloom:not(.yande-daily-bloom--square) {
+    margin-left: 2.5rem;
+    margin-right: 2.5rem;
+  }
+
+  .mp-home-bloom-slot {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}

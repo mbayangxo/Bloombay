@@ -1,0 +1,285 @@
+/* BloomBay role login — responsive split layout */
+
+.bb-login {
+  display: grid;
+  min-height: 100dvh;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+}
+
+@media (min-width: 900px) {
+  .bb-login {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bb-login--layout-rose {
+  background: linear-gradient(160deg, #e8007a 0%, #ff5a9a 40%, #ffb7ce 100%);
+  color: #fff;
+}
+
+.bb-login--layout-founder {
+  background: #1a0a2e;
+  color: #fff;
+}
+
+.bb-login--layout-ticket {
+  background: linear-gradient(165deg, #e8007a 0%, #c4006a 50%, #1a0a2e 100%);
+  color: #fff;
+}
+
+.bb-login--layout-venue {
+  background: #1a0a2e;
+  color: #fff;
+}
+
+.bb-login__art {
+  position: relative;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+@media (min-width: 900px) {
+  .bb-login__art {
+    min-height: 100dvh;
+  }
+}
+
+.bb-login__art--rose .bb-login__bouquet {
+  width: min(220px, 70vw) !important;
+  height: auto !important;
+}
+
+.bb-login__art--founder {
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bb-login__art--ticket {
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.bb-login__ticket-float {
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));
+}
+
+.bb-login__polaroid {
+  transform: rotate(6deg);
+  border: 8px solid #fff;
+  border-radius: 4px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.bb-login__art--venue {
+  padding: 0;
+  overflow: hidden;
+}
+
+.bb-login__venue-img {
+  object-fit: cover;
+}
+
+.bb-login__venue-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(26, 10, 46, 0.85) 100%);
+}
+
+.bb-login__partner-stamp {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 2;
+}
+
+.bb-login__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 1.75rem 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .bb-login__side {
+    padding: 3rem 3.5rem;
+    background: #fff;
+    color: var(--bb-ink);
+  }
+
+  .bb-login--layout-founder .bb-login__side {
+    background: #fff;
+    color: var(--bb-ink);
+  }
+
+  .bb-login--layout-ticket .bb-login__side,
+  .bb-login--layout-venue .bb-login__side {
+    background: #fff;
+    color: var(--bb-ink);
+  }
+}
+
+.bb-login__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin: 0 0 0.75rem;
+}
+
+@media (min-width: 900px) {
+  .bb-login__eyebrow {
+    color: var(--bb-muted);
+    opacity: 1;
+  }
+}
+
+.bb-login__title {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.35rem);
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+.bb-login__sub {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  max-width: 28rem;
+  line-height: 1.45;
+}
+
+.bb-login__secure {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 1rem;
+}
+
+.bb-login__panel {
+  max-width: 400px;
+}
+
+.bb-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.bb-login__input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid rgba(26, 10, 46, 0.12);
+  border-radius: 12px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: #fff;
+  color: var(--bb-ink);
+}
+
+.bb-login__input:focus {
+  border-color: var(--bb-hot);
+  outline: none;
+}
+
+.bb-login__error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--bb-hot);
+  background: #fff5f8;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+}
+
+.bb-login__submit {
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--bb-hot);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+}
+
+.bb-login__submit:disabled {
+  opacity: 0.65;
+}
+
+.bb-login__hint {
+  margin: 1rem 0 0;
+  font-size: 0.68rem;
+  color: var(--bb-muted);
+  line-height: 1.4;
+}
+
+.bb-login__hint code {
+  font-size: 0.62rem;
+}
+
+.bb-login__link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.bb-login__invite-banner {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.bb-login__invite-banner a {
+  color: #ffb7ce;
+  font-weight: 700;
+}
+
+.bb-login--company .bb-login__footer a,
+.bb-login--company .bb-login__portals a {
+  color: #ffb7ce;
+}
+
+.bb-login__footer {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+}
+
+.bb-login__footer a {
+  color: var(--bb-hot);
+  font-weight: 600;
+}
+
+.bb-login__portals {
+  margin: 1.25rem 0 0;
+  font-size: 0.72rem;
+  color: var(--bb-muted);
+}
+
+.bb-login__portals a {
+  color: var(--bb-hot);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (max-width: 899px) {
+  .bb-login__portals a {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .bb-login__footer a {
+    color: #fff;
+  }
+}

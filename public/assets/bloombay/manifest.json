@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "hero-paper-note",
+      "file": "hero-paper-note.png",
+      "width": 520,
+      "height": 620
+    },
+    {
+      "id": "polaroid-frame",
+      "file": "polaroid-frame.png",
+      "width": 380,
+      "height": 460,
+      "photoHole": {
+        "x": 44,
+        "y": 44,
+        "w": 292,
+        "h": 292
+      }
+    },
+    {
+      "id": "calendar-strip",
+      "file": "calendar-strip.png",
+      "width": 900,
+      "height": 200
+    },
+    {
+      "id": "invitation-envelope",
+      "file": "invitation-envelope.png",
+      "width": 420,
+      "height": 340
+    },
+    {
+      "id": "pink-sticky-note",
+      "file": "pink-sticky-note.png",
+      "width": 280,
+      "height": 280
+    },
+    {
+      "id": "masking-tape-cream-1",
+      "file": "masking-tape-cream-1.png",
+      "width": 200,
+      "height": 56
+    },
+    {
+      "id": "masking-tape-cream-2",
+      "file": "masking-tape-cream-2.png",
+      "width": 180,
+      "height": 48
+    },
+    {
+      "id": "masking-tape-grid-1",
+      "file": "masking-tape-grid-1.png",
+      "width": 190,
+      "height": 52
+    },
+    {
+      "id": "masking-tape-grid-2",
+      "file": "masking-tape-grid-2.png",
+      "width": 170,
+      "height": 46
+    },
+    {
+      "id": "masking-tape-pink",
+      "file": "masking-tape-pink.png",
+      "width": 160,
+      "height": 40
+    },
+    {
+      "id": "flower-sticker",
+      "file": "flower-sticker.png",
+      "width": 200,
+      "height": 200
+    }
+  ]
+}

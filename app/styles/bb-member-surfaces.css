@@ -1,0 +1,190 @@
+/* Girl Calendar strip on Invitations */
+.bb-girl-calendar {
+  margin: 0 1.25rem 1rem;
+  padding: 1rem 1.1rem;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 0, 85, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(255, 0, 85, 0.08);
+}
+
+@media (min-width: 900px) {
+  .bb-girl-calendar {
+    margin: 0 2rem 1rem;
+  }
+}
+
+.bb-girl-calendar__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.bb-girl-calendar__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--bb-velvet);
+}
+
+.bb-girl-calendar__full {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--bb-hot);
+  text-decoration: none;
+}
+
+.bb-girl-calendar__empty {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--bb-muted);
+  margin: 0;
+}
+
+.bb-girl-calendar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .bb-girl-calendar__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-girl-calendar__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bb-girl-calendar__item {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  background: #ffe4ec;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bb-girl-calendar__link {
+  flex: 1;
+  padding: 0.55rem 0.65rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.bb-girl-calendar__when {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+}
+
+.bb-girl-calendar__name {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.bb-girl-calendar__place {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--bb-muted);
+}
+
+.bb-girl-calendar__remove {
+  border: none;
+  background: transparent;
+  color: var(--bb-hot);
+  font-size: 1.25rem;
+  padding: 0 0.5rem;
+  cursor: pointer;
+}
+
+/* Explore — neighborhood place chips */
+.bb-explore-places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.bb-explore-place {
+  flex: 0 1 auto;
+  min-width: 8.5rem;
+  max-width: 10.5rem;
+  padding: 0.85rem 0.9rem;
+  text-decoration: none;
+  color: inherit;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 0, 85, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(255, 0, 85, 0.08);
+  transition: transform 0.15s ease;
+}
+
+.bb-explore-place:hover {
+  transform: translateY(-2px);
+  border-color: var(--bb-hot);
+}
+
+.bb-explore-place__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.05;
+  color: var(--bb-velvet);
+}
+
+.bb-explore-place__vibe {
+  display: block;
+  font-family: var(--font-accent);
+  font-size: 0.78rem;
+  font-style: italic;
+  margin-top: 0.25rem;
+  color: var(--bb-muted);
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .bb-explore-places {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bb-explore-place {
+    max-width: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-explore-places {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: var(--bb-canvas-max, 1280px);
+    margin-inline: auto;
+  }
+
+  .bb-explore-place {
+    max-width: none;
+  }
+}

@@ -1,0 +1,244 @@
+/* Home — full canvas, six place doors, living scenes below */
+
+.mp-home-scroll {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
+  box-sizing: border-box;
+}
+
+.bb-home-top {
+  width: 100%;
+  padding: 0.65rem 1rem 0.5rem;
+  color: var(--bb-page-ink, var(--bb-velvet));
+  box-sizing: border-box;
+}
+
+.bb-home-top__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.bb-home-top__hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.bb-home-top__greeting-line {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bb-page-muted, var(--bb-muted));
+  margin: 0 0 0.15rem;
+}
+
+.bb-home-top__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--bb-page-ink, var(--bb-velvet));
+}
+
+.bb-home-top__weather {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
+}
+
+.bb-home-top__temp {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--bb-page-accent, var(--bb-hot));
+}
+
+.bb-home-top__sky {
+  font-family: var(--font-accent);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--bb-page-ink, var(--bb-velvet));
+}
+
+.bb-home-top__pulse {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--bb-page-ink, var(--bb-velvet));
+  margin: 0.15rem 0 0;
+  line-height: 1.15;
+}
+
+.bb-home-top__yande .bb-yande-text {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+.bb-home-top__yande .bb-yande-text__from {
+  font-size: 0.65rem;
+  margin-bottom: 0.15rem;
+}
+
+.bb-home-top__yande .bb-yande-text__body {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  margin: 0 0 0.25rem;
+}
+
+.bb-home-top__yande .bb-yande-text__link {
+  font-size: 0.72rem;
+}
+
+/* Six place doors */
+.bb-home-places {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0 0 0.5rem;
+}
+
+.bb-home-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.55rem 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 0, 85, 0.14);
+  box-shadow: 0 3px 12px rgba(26, 5, 20, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 4.5rem;
+}
+
+.bb-home-place:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(255, 0, 85, 0.14);
+}
+
+.bb-home-place__object {
+  filter: drop-shadow(0 3px 8px rgba(255, 0, 85, 0.12));
+}
+
+.bb-home-place__label {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.15;
+  color: var(--bb-page-ink, #1a0514);
+}
+
+/* Living scenes — directly under doors */
+.mp-home-scroll .bb-scene-stack {
+  padding: 0.35rem 1rem 1.5rem;
+  margin: 0;
+  gap: 0.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mp-home-scroll .bb-scene {
+  padding: 0.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .bb-home-top {
+    padding: 0.75rem 1.25rem 0.5rem;
+  }
+
+  .bb-home-top__hero {
+    grid-template-columns: minmax(0, 1fr) auto minmax(200px, 0.45fr);
+    align-items: start;
+  }
+
+  .bb-home-top__weather {
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 0.15rem;
+  }
+
+  .bb-home-top__yande {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    text-align: right;
+    max-width: 22rem;
+  }
+
+  .bb-home-top__intro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .bb-home-top__pulse {
+    grid-column: 1 / -1;
+  }
+
+  .bb-home-places {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.65rem;
+    max-width: none;
+  }
+
+  .bb-home-place {
+    min-height: 5rem;
+    padding: 0.65rem 0.4rem 0.55rem;
+  }
+
+  .bb-home-place__label {
+    font-size: 0.62rem;
+  }
+
+  .mp-home-scroll .bb-scene-stack {
+    padding: 0.5rem 1.25rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.5rem 1.25rem;
+  }
+
+  .mp-home-scroll .bb-scene {
+    border-bottom: none;
+    padding: 0.4rem 0;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-home-top {
+    padding: 0.85rem 1.5rem 0.55rem;
+  }
+
+  .mp-home-scroll .bb-scene-stack {
+    padding-inline: 1.5rem;
+  }
+}
+
+.bb-mood--home .bb-home-greeting {
+  display: none;
+}

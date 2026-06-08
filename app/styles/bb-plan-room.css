@@ -1,0 +1,500 @@
+/* Plan Room — merged BB plan room designs */
+
+.bb-plan-room {
+  background: #1a0514;
+  color: #ffffff;
+  min-height: 100%;
+}
+
+.bb-plan-room__header {
+  padding: 0.65rem 1rem 1rem;
+  position: relative;
+}
+
+.bb-plan-room__room-label {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bb-barbie);
+  margin: 0 0 0.35rem;
+}
+
+.bb-plan-room__iconic {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 6vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: 0;
+  max-width: 14ch;
+}
+
+.bb-plan-room__iconic-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--bb-hot);
+  text-transform: lowercase;
+  font-weight: 500;
+}
+
+.bb-plan-room__plan-for {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin: 0.5rem 0 0.15rem;
+}
+
+.bb-plan-room__plan-for span {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.bb-plan-room__meta {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+.bb-plan-room__scrap {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  width: 42%;
+  max-width: 160px;
+  pointer-events: none;
+}
+
+.bb-plan-room__polaroid {
+  background: #ffffff;
+  padding: 0.45rem 0.45rem 1.5rem;
+  transform: rotate(8deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.bb-plan-room__polaroid-img {
+  aspect-ratio: 1;
+  background: linear-gradient(145deg, #ffb7ce, #ff0055);
+  margin-bottom: 0.35rem;
+}
+
+.bb-plan-room__polaroid p {
+  font-family: var(--font-accent);
+  font-size: 0.62rem;
+  font-style: italic;
+  color: var(--bb-velvet);
+  margin: 0;
+  text-align: center;
+}
+
+.bb-plan-room__sticky {
+  position: absolute;
+  top: 55%;
+  right: -0.25rem;
+  background: #ffe4ec;
+  padding: 0.45rem 0.55rem;
+  transform: rotate(-6deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-width: 5.5rem;
+}
+
+.bb-plan-room__sticky-label {
+  font-family: var(--font-accent);
+  font-size: 0.62rem;
+  font-style: italic;
+  color: var(--bb-velvet);
+  display: block;
+}
+
+.bb-plan-room__wave {
+  display: block;
+  height: 12px;
+  margin-top: 0.25rem;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--bb-hot) 0,
+    var(--bb-hot) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  opacity: 0.6;
+}
+
+.bb-plan-room__tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bb-plan-room__tab {
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.35rem 0;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+.bb-plan-room__tab--active {
+  color: var(--bb-hot);
+  border-bottom-color: var(--bb-hot);
+}
+
+.bb-plan-room__body {
+  background: #fff8f9;
+  color: var(--bb-velvet);
+  border-radius: 24px 24px 0 0;
+  margin-top: 0.35rem;
+  padding: 1rem 1rem 2rem;
+  min-height: 50vh;
+}
+
+.bb-plan-room__plan-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 1rem 1rem;
+  box-shadow: 0 8px 28px rgba(255, 0, 85, 0.08);
+  margin-bottom: 0.85rem;
+}
+
+.bb-plan-room__ribbon {
+  position: absolute;
+  top: 0.65rem;
+  left: -0.35rem;
+  background: var(--bb-hot);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  transform: rotate(-4deg);
+}
+
+.bb-plan-room__steps {
+  list-style: none;
+  margin: 1.25rem 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.bb-plan-room__steps li {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bb-plan-room__dress {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--bb-hot);
+  margin: 0 0 0.75rem;
+}
+
+.bb-plan-room__voice-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.65rem;
+  background: #ffe4ec;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  margin-bottom: 0.75rem;
+}
+
+.bb-plan-room__voice-dur {
+  font-weight: 700;
+  color: var(--bb-hot);
+}
+
+.bb-plan-room__outfit {
+  background: #fdf4ec;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 0, 85, 0.15);
+}
+
+.bb-plan-room__outfit strong {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.bb-plan-room__outfit p {
+  font-size: 0.75rem;
+  margin: 0 0 0.45rem;
+  color: var(--bb-muted);
+}
+
+.bb-plan-room__outfit-avatars {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.bb-plan-room__outfit-avatars span {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-plan-room__countdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  background: var(--bb-velvet);
+  color: #fff;
+  padding: 0.75rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 0.85rem;
+}
+
+.bb-plan-room__countdown span {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: block;
+}
+
+.bb-plan-room__countdown p {
+  grid-column: 1 / -1;
+  font-size: 0.68rem;
+  margin: 0.25rem 0 0;
+  opacity: 0.8;
+}
+
+.bb-plan-room__chat h2 {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 0.65rem;
+}
+
+.bb-plan-room__chat ul {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bb-plan-room__chat-bubble,
+.bb-plan-room__chat-bubble--mine {
+  max-width: 85%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.bb-plan-room__chat-bubble {
+  background: #ffffff;
+  border: 1px solid rgba(26, 5, 20, 0.08);
+  align-self: flex-start;
+}
+
+.bb-plan-room__chat-bubble--mine {
+  background: linear-gradient(145deg, #ff3d7a, #ff0055);
+  color: #fff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.bb-plan-room__chat-from {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--bb-hot);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.bb-plan-room__chat-bubble p,
+.bb-plan-room__chat-bubble--mine p {
+  margin: 0;
+}
+
+.bb-plan-room__chat-react {
+  position: absolute;
+  bottom: -0.35rem;
+  right: 0.35rem;
+  font-size: 0.65rem;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.1rem 0.35rem;
+  color: var(--bb-hot);
+}
+
+.bb-plan-room__chat-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffe4ec;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+}
+
+.bb-plan-room__chat-input button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--bb-hot);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-plan-room__chat-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.bb-plan-room__people h2,
+.bb-plan-room__details h2,
+.bb-plan-room__orders h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+}
+
+.bb-plan-room__attendee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.65rem;
+}
+
+.bb-plan-room__attendee {
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.55rem 0.35rem;
+  border: 1px solid rgba(255, 0, 85, 0.1);
+}
+
+.bb-plan-room__attendee-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffb7ce, #ff0055);
+  color: #fff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.35rem;
+}
+
+.bb-plan-room__attendee-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: block;
+}
+
+.bb-plan-room__attendee-status {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+}
+
+.bb-plan-room__voice-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.bb-plan-room__voice-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  padding: 0.5rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.78rem;
+}
+
+.bb-plan-room__wave-sm {
+  flex: 1;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, var(--bb-hot) 0, var(--bb-hot) 2px, transparent 2px, transparent 5px);
+  opacity: 0.5;
+}
+
+.bb-plan-room__details dl {
+  margin: 0 0 1rem;
+}
+
+.bb-plan-room__details dt {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+}
+
+.bb-plan-room__details dd {
+  margin: 0 0 0.65rem;
+  font-weight: 600;
+}
+
+.bb-plan-room__orders p {
+  font-size: 0.85rem;
+  color: var(--bb-muted);
+}
+
+.bb-plan-room__order-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  font-size: 1.75rem;
+}
+
+@media (min-width: 900px) {
+  .bb-plan-room__body {
+    max-width: 640px;
+    margin-inline: auto;
+    border-radius: 24px;
+  }
+}

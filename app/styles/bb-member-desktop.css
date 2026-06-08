@@ -1,0 +1,434 @@
+/* ─────────────────────────────────────────────────────
+   Member portal — desktop = more of the world
+   Pack more objects per row; never stretch one card to fill the canvas.
+   ───────────────────────────────────────────────────── */
+
+:root {
+  --bb-canvas-max: 1280px;
+  /* Column slots on the board (not viewport %) */
+  --bb-col-compact: 220px;
+  --bb-col-standard: 280px;
+  --bb-col-feature: 320px;
+  --bb-artifact-compact: 260px;
+  --bb-artifact-standard: 300px;
+  --bb-artifact-feature: 340px;
+}
+
+.mp-member-canvas,
+.mp-content:not(.mp-content--full) {
+  width: 100%;
+  max-width: var(--bb-canvas-max);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* Home scrapbook fills the main column edge-to-edge */
+.mp-content--full .mp-home-scroll,
+.mp-content--full .mp-home-scroll .bb-home-canvas {
+  max-width: none;
+  width: 100%;
+}
+
+.mp-member-canvas-inset {
+  width: 100%;
+  max-width: var(--bb-canvas-max);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* ── Artifact caps: fixed width, never grow with screen ── */
+
+.bb-artifact--compact,
+.bb-artifact--standard,
+.bb-artifact--feature {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .bb-artifact--compact {
+    max-width: var(--bb-artifact-compact);
+  }
+
+  .bb-artifact--standard {
+    max-width: var(--bb-artifact-standard);
+  }
+
+  .bb-artifact--feature {
+    max-width: var(--bb-artifact-feature);
+  }
+}
+
+a.bb-envelope.bb-artifact--compact,
+a.bb-envelope.bb-artifact--standard,
+a.bb-envelope.bb-artifact--feature,
+a.bb-event-poster.bb-artifact--compact,
+a.bb-event-poster.bb-artifact--standard,
+a.bb-event-poster.bb-artifact--feature,
+a.bb-request-note.bb-artifact--compact,
+a.bb-request-note.bb-artifact--standard,
+a.bb-ticket.bb-artifact--standard,
+a.bb-notice.bb-artifact--standard,
+a.bb-polaroid.bb-artifact--compact,
+.bb-wall-note.bb-artifact--compact {
+  display: block;
+}
+
+/* ── Boards: auto-fill fixed columns (NO 1fr stretch) ── */
+
+.bb-artifact-board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+@media (min-width: 900px) {
+  .mp-page-body,
+  .mp-page-head,
+  .mp-discovery,
+  .bb-connect-moments,
+  .bb-connect-desk,
+  .bb-happening-moment,
+  .mp-lobby-pulse,
+  .mp-room-lobby--minimal {
+    max-width: var(--bb-canvas-max);
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  .bb-mood--room .bb-lobby-page,
+  .bb-mood--room .bb-lobby-room {
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .bb-lobby-room__body .bb-artifact-board,
+  .bb-lobby-room__body .bb-artifact-stack.bb-artifact-stack--board {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mp-content--full .bb-mood--happenings,
+  .mp-content--full .bb-mood--happenings .mp-happenings-head,
+  .mp-content--full .bb-mood--happenings .mp-page-body {
+    max-width: none;
+    width: 100%;
+  }
+
+  .mp-content--full .bb-mood--happenings .mp-happenings-head {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .mp-content--full .bb-mood--happenings .bb-happenings-parlor {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: none;
+  }
+
+  .mp-clubs-page:not(.mp-clubs-page--magazine) {
+    max-width: var(--bb-canvas-max);
+    margin-inline: auto;
+  }
+
+  .mp-clubs-page--magazine,
+  .mp-content--full .bb-clubs-discover {
+    max-width: none;
+    margin-inline: 0;
+    width: 100%;
+  }
+
+  .mp-clubs-head,
+  .mp-clubs-cats,
+  .bb-clubs-grid-posters {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .mp-content--full .mp-home-scroll {
+    max-width: none;
+    margin-inline: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .mp-content--full .mp-ed-hero {
+    max-width: none;
+    width: 100%;
+  }
+
+  .bb-mood--lounge .mp-lounge-hero,
+  .bb-mood--lounge .bb-lounge-mantle,
+  .bb-mood--lounge .bb-mood-doors,
+  .bb-mood--lounge .mp-portal-muted {
+    max-width: var(--bb-canvas-max);
+    margin-inline: auto;
+  }
+
+  /* Pack columns — each cell capped; empty space stays on the right */
+  .bb-artifact-board,
+  .bb-artifact-stack.bb-artifact-stack--board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--bb-col-compact), var(--bb-col-standard)));
+    gap: 1rem 1.15rem;
+    align-items: start;
+    justify-content: start;
+    justify-items: start;
+  }
+
+  .bb-artifact-board--dense {
+    grid-template-columns: repeat(auto-fill, minmax(200px, var(--bb-col-compact)));
+  }
+
+  .bb-artifact-board--invitations {
+    grid-template-columns: repeat(auto-fill, minmax(240px, var(--bb-col-standard)));
+  }
+
+  .bb-artifact-board > *,
+  .bb-artifact-stack.bb-artifact-stack--board > * {
+    width: 100%;
+    max-width: var(--bb-col-standard);
+    justify-self: start;
+  }
+
+  .bb-artifact-board > .bb-artifact--compact,
+  .bb-artifact-board > .bb-wall-note.bb-artifact--compact {
+    max-width: var(--bb-col-compact);
+  }
+
+  .bb-artifact-board > .bb-artifact--feature,
+  .bb-artifact-board__feature {
+    max-width: var(--bb-col-feature) !important;
+    grid-column: auto;
+  }
+
+  .bb-discovery-artifacts.bb-artifact-board > li {
+    max-width: var(--bb-col-standard);
+  }
+
+  .bb-discovery-artifacts.bb-artifact-board > li > a,
+  .bb-discovery-artifacts.bb-artifact-board > li > .bb-ticket,
+  .bb-discovery-artifacts.bb-artifact-board > li > article {
+    max-width: 100%;
+  }
+
+  .bb-connect-moments.bb-artifact-board {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
+  }
+
+  .bb-connect-moment {
+    max-width: 300px;
+    width: 100%;
+    padding: var(--space-4);
+  }
+
+  .bb-connect-moment__scene {
+    font-size: 1.15rem;
+  }
+
+  .bb-connect-moment__living {
+    font-size: 0.9rem;
+  }
+
+  .mp-lobby-pins {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 240px));
+    justify-content: start;
+    gap: 0.65rem;
+    max-width: var(--bb-canvas-max);
+    margin-inline: auto;
+  }
+
+  .mp-lobby-pin {
+    min-height: auto;
+    max-width: 240px;
+    width: 100%;
+  }
+
+  .mp-lobby-pulse__kicker {
+    font-size: 1.35rem;
+  }
+
+  .mp-room-lobby__title {
+    font-size: 1.85rem;
+  }
+
+  .bb-mood-doors {
+    max-width: 100%;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 200px));
+    justify-content: start;
+    gap: 0.75rem;
+  }
+
+  .bb-mood-door {
+    max-width: 200px;
+  }
+
+  .bb-mood-door__label {
+    font-size: 0.92rem;
+  }
+
+  .bb-scene-stack {
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 360px));
+    gap: 0.5rem 1.5rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .bb-scene {
+    max-width: 360px;
+    border-bottom: none;
+    padding: var(--space-3) 0;
+  }
+
+  .bb-scene__line {
+    font-size: 1.1rem;
+  }
+
+  .bb-scene--hero .bb-scene__line {
+    font-size: 1.25rem;
+  }
+
+  .bb-mood-intro {
+    max-width: 480px;
+    margin-inline: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .bb-mood-intro__scene {
+    font-size: 1.5rem;
+  }
+
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 180px));
+    justify-content: start;
+    gap: 1rem;
+  }
+
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) .bb-club-poster {
+    max-width: 180px;
+    width: 100%;
+  }
+
+  .bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) .bb-club-poster__name {
+    font-size: 0.95rem;
+  }
+
+  /* Browse grid fills row — no capped width gaps */
+  .bb-clubs-grid-posters--browse {
+    justify-content: stretch !important;
+    max-width: none !important;
+    padding-left: 0.65rem !important;
+    padding-right: 0.65rem !important;
+  }
+
+  .bb-clubs-grid-posters--browse .bb-club-poster {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .bb-lounge-mantle {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 170px));
+    gap: 0.85rem;
+    justify-content: start;
+    padding: 0 2rem 1.5rem;
+    max-width: var(--bb-canvas-max);
+    margin-inline: auto;
+  }
+
+  .bb-lounge-mantle .bb-polaroid {
+    max-width: 170px;
+    width: 100%;
+  }
+
+  .bb-artifact-stack:not(.bb-artifact-stack--board) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 300px));
+    justify-content: start;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .bb-artifact-stack:not(.bb-artifact-stack--board) > * {
+    max-width: var(--bb-col-standard);
+    justify-self: start;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --bb-col-compact: 240px;
+    --bb-col-standard: 300px;
+  }
+
+  .bb-artifact-board,
+  .bb-artifact-stack.bb-artifact-stack--board {
+    gap: 1.1rem 1.25rem;
+  }
+
+  .bb-mood-doors {
+    grid-template-columns: repeat(4, 200px);
+  }
+}
+
+/* Typography inside artifacts — same size on desktop as mobile */
+.bb-artifact--compact .bb-event-poster__title,
+.bb-event-poster--compact .bb-event-poster__title {
+  font-size: 1.2rem;
+}
+
+.bb-artifact--standard .bb-event-poster__title {
+  font-size: 1.3rem;
+}
+
+.bb-artifact--feature .bb-event-poster__title {
+  font-size: 1.4rem;
+}
+
+.bb-artifact--compact .bb-envelope__event-name {
+  font-size: 1.15rem;
+}
+
+.bb-artifact--standard .bb-envelope__event-name {
+  font-size: 1.25rem;
+}
+
+.bb-artifact--feature .bb-envelope__event-name {
+  font-size: 1.3rem;
+}
+
+.bb-artifact--standard .bb-ticket__title,
+.bb-artifact--compact .bb-ticket__title {
+  font-size: 1.45rem;
+}
+
+.bb-artifact--compact .bb-request-note__headline {
+  font-size: 1.05rem;
+}
+
+.bb-artifact--standard .bb-request-note__headline {
+  font-size: 1.15rem;
+}
+
+/* Event poster padding — shorter cards, more rows visible */
+@media (min-width: 900px) {
+  .bb-artifact-board .bb-event-poster__inner {
+    padding: var(--space-4);
+  }
+
+  .bb-artifact-board .bb-envelope__body {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+}

@@ -1,0 +1,498 @@
+/* BloomBay Crest System — uses public bloom object SVGs */
+
+.bb-object-icon {
+  display: block;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.bb-crest {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bb-crest__frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-crest__shield-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 14px rgba(26, 10, 46, 0.14));
+}
+
+.bb-crest__symbol-slot {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42%;
+  height: 42%;
+  pointer-events: none;
+}
+
+.bb-crest__symbol-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+.bb-crest__overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0 8%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bb-crest__overlay-cat {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--bb-barbie);
+  background: var(--bb-ink);
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.bb-crest--sm .bb-crest__overlay-cat {
+  font-size: 0.38rem;
+}
+
+.bb-crest--lg .bb-crest__overlay-cat {
+  font-size: 0.52rem;
+}
+
+.bb-crest__overlay-club {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: var(--bb-ink);
+  background: var(--bb-white);
+  border: 1.5px solid var(--bb-ink);
+  border-radius: 6px;
+  padding: 0.15rem 0.35rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.bb-crest--sm .bb-crest__overlay-club {
+  font-size: 0.42rem;
+}
+
+.bb-crest--lg .bb-crest__overlay-club {
+  font-size: 0.58rem;
+}
+
+.bb-crest__caption {
+  margin: 0;
+  font-size: 0.65rem;
+  color: var(--mp-muted, var(--bb-muted));
+  text-align: center;
+}
+
+.bb-crest__caption-cat {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+}
+
+.bb-crest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1.25rem 1rem;
+  padding: 0.5rem 0;
+}
+
+.bb-crest-grid__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bb-crest-grid__name {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.bb-crest-empty {
+  padding: 1.25rem;
+  border: 2px dashed var(--bb-barbie);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--mp-muted, var(--bb-muted));
+}
+
+.bb-crest-empty a {
+  color: var(--bb-hot);
+  font-weight: 600;
+}
+
+/* Club owner crest builder */
+.co-crest-preview {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(160deg, var(--bb-barbie-soft), var(--bb-barbie));
+  border-radius: 16px;
+  border: 2px solid var(--bb-ink);
+  margin-bottom: 1.25rem;
+}
+
+.co-crest-pickers {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.co-crest-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.5rem;
+}
+
+.co-crest-symbol-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.35rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  background: var(--bb-white);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.co-crest-symbol-btn--on {
+  border-color: var(--bb-hot);
+  background: var(--bb-barbie-soft);
+}
+
+.co-crest-symbol-btn .bb-object-icon {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+.co-crest-symbol-btn span {
+  font-size: 0.62rem;
+  font-weight: 400;
+  color: var(--bb-muted);
+  text-align: center;
+}
+
+.co-crest-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.co-crest-cat-btn {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 2px solid var(--bb-ink);
+  background: var(--bb-white);
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.co-crest-cat-btn--on {
+  background: var(--bb-hot);
+  color: var(--bb-white);
+  border-color: var(--bb-hot);
+}
+
+.co-crest-lock-note {
+  padding: 0.75rem 1rem;
+  background: var(--bb-ink);
+  color: var(--bb-barbie);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.mp-club-landing-crest {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin: 0 1.25rem 0.5rem;
+  background: var(--bb-white);
+  border: 2px solid var(--bb-ink);
+  border-radius: 14px;
+}
+
+.mp-club-landing-crest__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.mp-club-landing-crest__copy p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--mp-muted);
+}
+
+.mp-club-landing-crest__copy strong {
+  display: block;
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--bb-hot);
+  margin-bottom: 0.2rem;
+}
+
+/* Generated crest (symbol + accent + rose motif) */
+.bb-crest__flip-hit {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: default;
+  perspective: 720px;
+}
+
+.bb-crest--flippable .bb-crest__flip-hit {
+  cursor: pointer;
+}
+
+.bb-crest__cube {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease;
+}
+
+.bb-crest--flipped .bb-crest__cube {
+  transform: rotateY(180deg);
+}
+
+.bb-crest__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
+
+.bb-crest__face--front {
+  position: relative;
+}
+
+.bb-crest__face--back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: var(--bb-ink);
+  color: var(--bb-white);
+  border: 2px solid var(--bb-hot);
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+
+.bb-crest__accent-wash {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bb-crest__shield-img {
+  position: relative;
+  z-index: 0;
+}
+
+.bb-crest__symbol-slot {
+  z-index: 2;
+  top: 40%;
+}
+
+.bb-crest__rose-slot {
+  position: absolute;
+  right: 14%;
+  bottom: 22%;
+  z-index: 2;
+  width: 22%;
+  pointer-events: none;
+}
+
+.bb-crest__rose-img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.bb-crest__overlay-designation {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.42rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--crest-ink, var(--bb-white));
+  background: var(--crest-accent, var(--bb-hot));
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.bb-crest__overlay-club {
+  color: var(--bb-ink);
+}
+
+.bb-crest__origin-title {
+  margin: 0;
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.bb-crest__origin-sub,
+.bb-crest__origin-accent {
+  margin: 0;
+  font-size: 0.55rem;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.bb-club-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.bb-club-identity--stack {
+  flex-direction: column;
+  text-align: center;
+}
+
+.bb-club-identity__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.bb-club-identity__name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.bb-club-identity__designation {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--mp-muted, var(--bb-muted));
+}
+
+.mp-club-tile--identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.65rem 0.5rem 0.75rem;
+  gap: 0.35rem;
+}
+
+.mp-club-tile--identity .mp-club-tile__img {
+  display: none;
+}
+
+.co-crest-accent-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.co-crest-accent-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.65rem;
+  border: 2px solid var(--bb-ink);
+  border-radius: 12px;
+  background: var(--bb-white);
+  cursor: pointer;
+  min-width: 72px;
+}
+
+.co-crest-accent-btn--on {
+  outline: 3px solid var(--bb-hot);
+  outline-offset: 2px;
+}
+
+.co-crest-accent-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bb-ink);
+}
+
+.co-crest-accent-btn span {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.co-crest-examples {
+  font-size: 0.78rem;
+  color: var(--bb-muted);
+  line-height: 1.45;
+  margin: 0 0 1rem;
+}
+
+.mp-happenings-head__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mp-happenings-ticket-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mp-happenings-ticket-label small {
+  font-size: 0.62rem;
+  color: var(--mp-muted);
+  font-weight: 500;
+}

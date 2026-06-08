@@ -1,0 +1,391 @@
+/**
+ * Desktop-only fixes — mobile rules untouched.
+ * Shell contrast, home canvas bleed, city header, invitations tidy, calendar studio.
+ */
+
+@media (min-width: 768px) {
+  /* ── Shell: sidebar stays on top, main column clips bleed ── */
+  .mp-root--sidebar {
+    overflow: hidden;
+  }
+
+  .mp-root__main {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    background: var(--mp-white, #ffffff);
+  }
+
+  .mp-sidebar--rail {
+    z-index: 50;
+    flex-shrink: 0;
+  }
+
+  /* ── Top bar: readable icons, no spill onto nav ── */
+  .mp-top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(26, 5, 20, 0.1) !important;
+    box-shadow: 0 1px 0 rgba(26, 5, 20, 0.04);
+    isolation: isolate;
+  }
+
+  .mp-top-bar .mp-brand__text {
+    color: #1a0514 !important;
+  }
+
+  .mp-top-bar .bb-header-icons .mp-icon-btn,
+  .mp-top-bar .mp-top-bar__settings {
+    background: #f4f2f0 !important;
+    border: 1px solid rgba(26, 5, 20, 0.14) !important;
+    color: #1a0514 !important;
+    border-radius: 10px;
+  }
+
+  .mp-top-bar .bb-header-icons .mp-icon-btn svg,
+  .mp-top-bar .mp-top-bar__settings svg {
+    stroke: #1a0514 !important;
+    color: #1a0514 !important;
+  }
+
+  .mp-header .bb-header-icons:not(.bb-header-icons--petite) .mp-icon-btn {
+    background: #f4f2f0 !important;
+    border: 1px solid rgba(26, 5, 20, 0.14) !important;
+    color: #1a0514 !important;
+  }
+
+  .mp-header .bb-header-icons:not(.bb-header-icons--petite) .mp-icon-btn svg {
+    stroke: #1a0514 !important;
+  }
+
+  /* ── Home: no black void below scrapbook ── */
+  .mp-app .mp-content--full .bb-mood--home,
+  .mp-app .mp-content--full .bb-mood--home .bb-mood__body,
+  .mp-app .mp-home-scroll {
+    background: linear-gradient(165deg, #fff9fb 0%, #fff4f0 42%, #fde8ef 100%) !important;
+    min-height: auto !important;
+  }
+
+  .mp-app[data-mp-theme="night"] .mp-content--full .bb-mood--home,
+  .mp-app[data-mp-theme="night"] .mp-content--full .bb-mood--home .bb-mood__body,
+  .mp-app[data-mp-theme="night"] .mp-home-scroll {
+    background: linear-gradient(165deg, #fff9fb 0%, #fff4f0 42%, #fde8ef 100%) !important;
+    color: #1a0514 !important;
+  }
+
+  .mp-app .bb-home-canvas {
+    min-height: 34rem;
+    height: auto;
+    padding-bottom: 2.5rem;
+    background: linear-gradient(165deg, #fff9fb 0%, #fff4f0 42%, #fde8ef 100%);
+  }
+
+  .mp-main--flush:has(.bb-mood--home) {
+    background: linear-gradient(165deg, #fff9fb 0%, #fff4f0 42%, #fde8ef 100%);
+  }
+
+  /* ── City: smaller header, scrollable (no trapped overflow) ── */
+  .bb-explore-page .bb-mood__body {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .bb-city__hero--compact {
+    padding: 0.65rem 1.25rem 0.75rem !important;
+    border-bottom: 1px solid rgba(255, 0, 85, 0.1);
+    background: #fffaf8;
+  }
+
+  .bb-city__hero--compact .bb-city__title {
+    font-size: clamp(1.1rem, 2vw, 1.45rem) !important;
+    margin-bottom: 0.25rem !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+  }
+
+  .bb-city__hero--compact .bb-city__whisper {
+    font-size: 0.82rem !important;
+    margin: 0 !important;
+  }
+
+  .bb-explore-page .bb-city-section__object {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .bb-explore-page .bb-city-section__head {
+    gap: 0.5rem;
+  }
+
+  .bb-explore-page .bb-city-nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+  }
+
+  /* ── Apartment: light icons ── */
+  .bb-apartment-object__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 auto 0.35rem;
+    border-radius: 12px;
+    background: rgba(255, 0, 85, 0.08);
+  }
+
+  .bb-apartment-object__svg {
+    width: 20px;
+    height: 20px;
+    stroke: #1a0514;
+    color: #1a0514;
+  }
+
+  /* ── Invitations parlor: tidy sections, keep confetti shapes ── */
+  .bb-happenings-parlor:has(.bb-happenings-invitations) {
+    padding: 0 1.25rem 2rem !important;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  .bb-happenings-invitations section {
+    margin-bottom: 1.75rem;
+  }
+
+  .bb-happenings-invitations .mp-section__title,
+  .bb-happenings-invitations .bb-eyebrow {
+    margin-left: 0 !important;
+    padding-left: 0;
+  }
+
+  .bb-happenings-invitations .bb-caption,
+  .bb-happenings-invitations .bb-happenings-confetti__intro {
+    margin-left: 0 !important;
+  }
+
+  .bb-happenings-invitations .bb-confetti-hero-tile {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .bb-happenings-invitations .bb-confetti-scatter {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.85rem;
+    padding: 0;
+  }
+
+  .bb-happenings-invitations .bb-physical-wall__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 220px));
+    gap: 1rem;
+    justify-content: start;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+
+  .bb-happenings-invitations .bb-physical-wall__row .bb-physical-object {
+    transform: none !important;
+    max-width: 220px;
+  }
+
+  /* ── Calendar month + day studio ── */
+  .bb-cal-page {
+    padding: 0 1.25rem 2rem;
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+
+  .bb-cal-month__hint {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--bb-muted);
+    margin: 0 0 0.75rem;
+  }
+
+  .bb-cal-month__open-day {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--bb-hot);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .bb-cal-studio {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 2.5rem;
+  }
+
+  .bb-cal-studio__head {
+    margin-bottom: 1.5rem;
+  }
+
+  .bb-cal-studio__back {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--bb-hot);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .bb-cal-studio__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+    color: var(--bb-velvet);
+  }
+
+  .bb-cal-studio__sub {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--bb-muted);
+  }
+
+  .bb-cal-studio__section-title {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bb-hot);
+    margin: 0 0 0.65rem;
+  }
+
+  .bb-cal-studio__plans,
+  .bb-cal-studio__journal {
+    margin-bottom: 1.75rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid rgba(26, 5, 20, 0.08);
+    border-radius: 12px;
+  }
+
+  .bb-cal-studio__plan-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .bb-cal-studio__plan {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(26, 5, 20, 0.06);
+  }
+
+  .bb-cal-studio__plan-title {
+    font-weight: 700;
+    color: var(--bb-velvet);
+    text-decoration: none;
+  }
+
+  .bb-cal-studio__plan-meta {
+    margin: 0.15rem 0 0;
+    font-size: 0.8rem;
+    color: var(--bb-muted);
+  }
+
+  .bb-cal-studio__plan-remove {
+    border: none;
+    background: transparent;
+    color: var(--bb-muted);
+    font-size: 0.72rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .bb-cal-studio__note {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(26, 5, 20, 0.12);
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    resize: vertical;
+    margin-bottom: 0.75rem;
+  }
+
+  .bb-cal-studio__image-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--bb-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .bb-cal-studio__image-input {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(26, 5, 20, 0.12);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  .bb-cal-studio__preview {
+    display: block;
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+
+  .bb-cal-studio__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .bb-cal-studio__saved {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--bb-hot);
+  }
+
+  /* ── Lobby: avoid layout lock on desktop ── */
+  .mp-main--flush:has(.bb-mood--room) {
+    overflow: auto !important;
+  }
+
+  .bb-mood--room .bb-lobby-page {
+    overflow: auto !important;
+    max-height: none !important;
+  }
+
+  /* Remove edge bleed that tugged content under sidebar */
+  .mp-root--sidebar .mp-content--full .bb-mood--lounge .bb-apartment--full-pink,
+  .mp-root--sidebar .mp-content--full .bb-mood--happenings,
+  .mp-root--sidebar .mp-content--full .bb-mood--connect,
+  .mp-root--sidebar .mp-content--full .bb-mood--room {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mp-app .bb-home-canvas {
+    min-height: 36rem;
+  }
+
+  .bb-home-layer--calendar {
+    width: min(42rem, 70vw) !important;
+  }
+}

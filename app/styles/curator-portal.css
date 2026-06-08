@@ -1,0 +1,218 @@
+/* Curator portal — field culture leads */
+
+.cu-root {
+  --cu-hot: var(--bb-hot, #e8007a);
+  --cu-hot-soft: #ffe4ec;
+  --cu-ink: var(--bb-ink, #1a0a2e);
+  --cu-cream: #faf6f0;
+  --cu-line: rgba(26, 10, 46, 0.1);
+  background: var(--cu-cream);
+  color: var(--cu-ink);
+  min-height: 100dvh;
+}
+
+.cu-app {
+  display: grid;
+  min-height: 100dvh;
+}
+
+@media (min-width: 900px) {
+  .cu-app {
+    grid-template-columns: 220px 1fr;
+  }
+}
+
+.cu-sidebar {
+  background: var(--cu-ink);
+  color: #fff;
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cu-sidebar__brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.cu-sidebar__brand strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.cu-sidebar__brand span {
+  display: block;
+  font-size: 0.62rem;
+  opacity: 0.7;
+  margin-top: 0.15rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cu-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cu-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.cu-sidebar__link:hover,
+.cu-sidebar__link--active {
+  background: rgba(232, 0, 122, 0.28);
+  color: #fff;
+}
+
+.cu-sidebar__who {
+  margin: auto 0 0;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  line-height: 1.4;
+}
+
+.cu-app__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cu-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 1px solid var(--cu-line);
+  background: #fff;
+}
+
+.cu-topbar h1 {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.cu-topbar p {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: rgba(26, 10, 46, 0.65);
+  max-width: 36rem;
+}
+
+.cu-topbar__out {
+  border: 1px solid var(--cu-line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cu-content {
+  padding: 1.25rem 1.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cu-stat-row {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.cu-stat {
+  background: linear-gradient(145deg, var(--cu-hot) 0%, #ff5a9a 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+
+.cu-stat strong {
+  display: block;
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 1.5rem;
+}
+
+.cu-stat span {
+  font-size: 0.78rem;
+  opacity: 0.92;
+}
+
+.cu-card {
+  background: #fff;
+  border: 1px solid var(--cu-line);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 8px 28px rgba(232, 0, 122, 0.06);
+}
+
+.cu-card h2 {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.cu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cu-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--cu-line);
+}
+
+.cu-list__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.cu-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: var(--cu-hot-soft);
+  color: var(--cu-hot);
+}
+
+.cu-badge--draft {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.cu-badge--welcomed {
+  background: #e8f5e9;
+  color: #2d6a4f;
+}
+
+.cu-note {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}

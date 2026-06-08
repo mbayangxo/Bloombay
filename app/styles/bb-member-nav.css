@@ -1,0 +1,165 @@
+/**
+ * Member navigation — editorial, restrained.
+ */
+
+/* ─── Mobile bottom bar ─── */
+.mp-app .mp-bottom-nav {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  background: #1a0514 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mp-app .mp-bottom-nav__tab {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.2rem 0.45rem;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.42) !important;
+  border-top: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.mp-app .mp-bottom-nav__tab--active {
+  color: #ffffff !important;
+  border-top-color: #ff0055;
+}
+
+.mp-app .mp-bottom-nav__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.mp-app .mp-bottom-nav__tab--active .mp-bottom-nav__icon {
+  opacity: 1;
+}
+
+.mp-app .mp-bottom-nav__label {
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  line-height: 1.1;
+  text-align: center;
+  color: inherit !important;
+  opacity: 1 !important;
+  max-width: 4.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Desktop sidebar — icon rail ─── */
+.mp-app .mp-sidebar--rail {
+  background: #1a0514 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.mp-app .mp-sidebar--rail .mp-sidebar__brand {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mp-app .mp-sidebar--rail .mp-sidebar__foot {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mp-app .mp-sidebar__link {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.mp-app .mp-sidebar__link:not(.mp-sidebar__link--active) {
+  color: rgba(255, 255, 255, 0.46) !important;
+}
+
+.mp-app .mp-sidebar__link:not(.mp-sidebar__link--active) .mp-sidebar__svg {
+  color: rgba(255, 255, 255, 0.46) !important;
+  stroke: rgba(255, 255, 255, 0.46) !important;
+}
+
+.mp-app .mp-sidebar__link:hover:not(.mp-sidebar__link--active) {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.mp-app .mp-sidebar__link:hover:not(.mp-sidebar__link--active) .mp-sidebar__svg {
+  color: rgba(255, 255, 255, 0.92) !important;
+  stroke: rgba(255, 255, 255, 0.92) !important;
+}
+
+.mp-app .mp-sidebar__link--active {
+  background: rgba(255, 0, 85, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.mp-app .mp-sidebar__link--active::after {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.25rem;
+  border-radius: 0 3px 3px 0;
+  background: #ff0055;
+}
+
+.mp-app .mp-sidebar__link--active .mp-sidebar__svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.mp-app .mp-sidebar__link--signout:not(:hover) {
+  color: rgba(255, 255, 255, 0.34) !important;
+}
+
+.mp-app .mp-sidebar__link--signout:not(:hover) .mp-sidebar__svg {
+  stroke: rgba(255, 255, 255, 0.34) !important;
+}
+
+.mp-app .mp-sidebar__link:active {
+  transform: none !important;
+}
+
+/* Night theme */
+.mp-app[data-mp-theme="night"] .mp-bottom-nav {
+  background: #0d0609 !important;
+  border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.mp-app[data-mp-theme="night"] .mp-sidebar--rail {
+  background: #0d0609 !important;
+  border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mp-app[data-mp-theme="night"] .mp-sidebar__link--active {
+  background: rgba(255, 107, 157, 0.16) !important;
+}
+
+.mp-app[data-mp-theme="night"] .mp-sidebar__tip {
+  background: #0d0609;
+}
+
+.mp-app[data-mp-theme="night"] .mp-sidebar__tip::before {
+  border-right-color: #0d0609;
+}

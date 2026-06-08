@@ -1,0 +1,696 @@
+/* ─────────────────────────────────────────────────────
+   BloomBay space moods — cinematography per place
+   ───────────────────────────────────────────────────── */
+
+.bb-mood {
+  position: relative;
+  min-height: 100%;
+  color: var(--bb-velvet);
+  --mood-accent: var(--bb-hot);
+  --mood-glow: rgba(255, 0, 85, 0.12);
+  --mood-surface: var(--bb-ivory);
+}
+
+.bb-mood__grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+.bb-mood__body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scene lines — the movie frame */
+.bb-scene-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5) var(--space-4);
+}
+
+.bb-scene {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid rgba(26, 5, 20, 0.06);
+  transition: transform var(--duration-smooth) var(--ease-luxury), border-color var(--duration-fast);
+}
+
+.bb-scene:last-child {
+  border-bottom: none;
+}
+
+.bb-scene:hover {
+  transform: translateX(4px);
+  border-color: var(--bb-hot);
+}
+
+.bb-scene__line {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5.5vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--bb-page-ink, #1a0514);
+}
+
+.bb-scene--hero .bb-scene__line {
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  line-height: 0.95;
+}
+
+.bb-scene--hero .bb-scene__line {
+  color: var(--bb-velvet);
+}
+
+.bb-scene--pulse .bb-scene__line {
+  animation: bb-scene-pulse 3s ease-in-out infinite;
+}
+
+@keyframes bb-scene-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+
+.bb-scene--witness .bb-scene__line {
+  font-family: var(--font-accent);
+  font-style: italic;
+  text-transform: none;
+  font-weight: 500;
+  font-size: clamp(1.35rem, 4.5vw, 2rem);
+}
+
+.bb-scene--seat .bb-scene__line span,
+.bb-scene--seat .bb-scene__line {
+  /* hot word emphasis via markup later */
+}
+
+.bb-scene__whisper {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  color: var(--bb-muted);
+  margin: var(--space-2) 0 0;
+  letter-spacing: 0.02em;
+}
+
+.bb-scene--pulse .bb-scene__whisper {
+  color: var(--bb-hot);
+  font-weight: 600;
+}
+
+/* Mood intro — PlaceCover alias */
+.bb-mood-intro.bb-place-cover {
+  padding-bottom: var(--space-3);
+}
+
+.bb-mood-intro .bb-place-cover__eyebrow {
+  color: var(--mood-accent, var(--bb-hot));
+}
+
+/* Atmospheric doors — not dashboard pillars */
+.bb-mood-doors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-8);
+}
+
+.bb-mood-door {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-4);
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(26, 5, 20, 0.08);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-smooth);
+  backdrop-filter: blur(6px);
+}
+
+.bb-mood-door:hover {
+  border-color: var(--mood-accent);
+  box-shadow: 0 8px 24px var(--mood-glow);
+}
+
+.bb-mood-door__label {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.bb-mood-door__hint {
+  font-family: var(--font-accent);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--bb-muted);
+  line-height: 1.35;
+}
+
+/* Yande as a text, not a widget */
+.bb-yande-text {
+  margin: 0 var(--space-5) var(--space-4);
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.7);
+  border-left: 3px solid var(--bb-hot);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.bb-yande-text__from {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 var(--space-1);
+}
+
+.bb-yande-text__body {
+  font-family: var(--font-accent);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--bb-velvet);
+}
+
+.bb-yande-text__link {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--bb-hot);
+  text-decoration: none;
+}
+
+/* ── Home: light canvas + always-readable ink (night phase must not wash text) ── */
+.bb-mood--home {
+  background: #ffffff;
+  --bb-home-surface: #ffffff;
+  --bb-page-bg: var(--bb-home-surface);
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.55);
+  --mood-accent: var(--bb-hot);
+  --mood-glow: rgba(255, 0, 85, 0.12);
+  color: #1a0514;
+}
+
+.bb-mood--home .bb-mood__body {
+  background: var(--bb-home-surface);
+  color: #1a0514;
+}
+
+.mp-app[data-bb-phase="night"] .bb-mood--home,
+.mp-app[data-mp-theme="night"] .bb-mood--home {
+  --bb-home-surface: #fff8fb;
+  --bb-page-bg: #fff8fb;
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.62);
+}
+
+.bb-mood--home .bb-scene-stack {
+  padding-top: var(--space-4);
+}
+
+.bb-mood--home .bb-scene--hero .bb-scene__line,
+.bb-mood--home .bb-scene:not(.bb-scene--hero) .bb-scene__line {
+  color: var(--bb-velvet);
+  text-shadow: none;
+}
+
+.bb-mood--home .bb-scene--hero .bb-scene__whisper,
+.bb-mood--home .bb-scene__whisper {
+  color: var(--bb-muted);
+}
+
+.bb-mood--home .bb-mood-door {
+  background: var(--bb-white);
+  border: 1px solid var(--bb-line-soft);
+}
+
+/* Legacy hero hidden if still mounted elsewhere */
+.bb-mood--home .mp-ed-hero__title,
+.bb-mood--home .mp-ed-hero__script,
+.bb-mood--home .mp-torn-note {
+  display: none;
+}
+
+/* ── Happenings / tonight: phase-aware (no plum in daytime) ── */
+.bb-mood--happenings,
+.bb-mood--tonight {
+  background: linear-gradient(180deg, #ffffff 0%, #ffe4ec 55%, #ffb7ce 100%);
+  color: var(--bb-velvet);
+  --mood-accent: var(--bb-hot);
+  --mood-surface: #ffffff;
+}
+
+.mp-app[data-bb-phase="evening"] .bb-mood--happenings,
+.mp-app[data-bb-phase="evening"] .bb-mood--tonight {
+  background: linear-gradient(180deg, #fff5f8 0%, #ffd6e4 50%, #ffb7ce 100%);
+}
+
+.mp-app[data-bb-phase="night"] .bb-mood--connect,
+.mp-app[data-bb-phase="night"] .bb-mood--explore,
+.mp-app[data-bb-phase="night"] .bb-mood--lounge,
+.mp-app[data-bb-phase="night"] .bb-mood--room,
+.mp-app[data-bb-phase="night"] .bb-mood--happenings,
+.mp-app[data-bb-phase="night"] .bb-mood--tonight,
+.mp-app[data-mp-theme="night"] .bb-mood--connect,
+.mp-app[data-mp-theme="night"] .bb-mood--explore,
+.mp-app[data-mp-theme="night"] .bb-mood--lounge,
+.mp-app[data-mp-theme="night"] .bb-mood--room,
+.mp-app[data-mp-theme="night"] .bb-mood--happenings,
+.mp-app[data-mp-theme="night"] .bb-mood--tonight {
+  background: linear-gradient(180deg, #181018 0%, #12080c 55%, #10080c 100%);
+  color: var(--bb-page-ink, #f5e8ee);
+  --mood-accent: #ff6b9d;
+  --mood-surface: #221018;
+}
+
+.mp-app[data-bb-phase="night"] .bb-place-cover__title,
+.mp-app[data-mp-theme="night"] .bb-place-cover__title {
+  color: var(--bb-page-ink, #f5e8ee);
+}
+
+.mp-app[data-bb-phase="night"] .bb-place-cover__whisper,
+.mp-app[data-mp-theme="night"] .bb-place-cover__whisper {
+  color: var(--bb-page-muted, rgba(245, 220, 230, 0.52));
+}
+
+.bb-mood--happenings .mp-happenings-head {
+  padding-bottom: var(--space-2);
+}
+
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover__eyebrow {
+  color: var(--bb-barbie);
+}
+
+.bb-mood--happenings .mp-happenings-cover .bb-place-cover--envelope .bb-place-cover__sheet {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 183, 206, 0.35) 0%,
+    rgba(255, 244, 248, 0.12) 55%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  border-color: rgba(255, 0, 85, 0.25);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.mp-app[data-bb-phase="night"] .bb-mood--happenings .mp-happenings-cover .bb-place-cover__title,
+.mp-app[data-mp-theme="night"] .bb-mood--happenings .mp-happenings-cover .bb-place-cover__title {
+  color: var(--bb-white);
+}
+
+.bb-mood--happenings .mp-page-body,
+.bb-mood--happenings .mp-discovery {
+  background: var(--bb-ivory);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-top: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  color: var(--bb-velvet);
+}
+
+.bb-mood--happenings .bb-happenings-parlor:has(.bb-happenings-invitations) {
+  background: transparent;
+  border-radius: 0;
+  margin-top: 0;
+  padding-top: 0.25rem;
+}
+
+.bb-mood--tonight .mp-page-body {
+  color: var(--bb-velvet);
+}
+
+.bb-mood--happenings .mp-happenings-sub__title,
+.bb-mood--tonight .mp-tonight-board__head h1 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+}
+
+/* ── The Lobby: barbie hall, not brown cork ── */
+.bb-mood--room {
+  background: linear-gradient(180deg, #ffffff 0%, #ffe4ec 100%);
+  --mood-accent: var(--bb-hot);
+}
+
+.bb-mood--room .mp-room-lobby__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3rem);
+  text-transform: uppercase;
+}
+
+/* ── Lounge: apartment blush ── */
+.bb-mood--lounge {
+  background: #ffe4ec;
+  --mood-accent: var(--bb-hot);
+  --mood-glow: rgba(255, 0, 85, 0.15);
+}
+
+.bb-mood--lounge .bb-mood__body,
+.bb-mood--lounge .bb-apartment {
+  background: #ffe4ec;
+}
+
+.bb-mood--lounge .mp-lounge-hero__title {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  text-transform: none;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+}
+
+.bb-mood--lounge .bb-lounge-mantle {
+  display: flex;
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bb-mood--lounge .bb-lounge-mantle::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Connect: intimate letter ── */
+.bb-mood--connect {
+  background: linear-gradient(160deg, #fdf4ec 0%, #ffe4ec 50%, #fff0f5 100%);
+}
+
+.bb-mood--connect .mp-page-head__title {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* Connect — lived moments, not category chips */
+.bb-connect-moments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.bb-connect-moment {
+  background: var(--bb-white);
+  border: 1px solid rgba(26, 5, 20, 0.08);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.bb-connect-moment::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bb-hot);
+  opacity: 0.85;
+}
+
+.bb-connect-moment--travel {
+  background: linear-gradient(145deg, #f0f9ff 0%, #fff 55%);
+}
+
+.bb-connect-moment--seat {
+  border-color: rgba(255, 0, 85, 0.25);
+}
+
+.bb-connect-moment__emoji {
+  margin: 0 0 var(--space-2);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.bb-connect-moment__scene {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 5vw, 1.85rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--bb-velvet);
+  margin: 0 0 var(--space-3);
+}
+
+.bb-connect-moment__living {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-base);
+  font-weight: 600;
+  color: var(--bb-velvet);
+  margin: 0 0 var(--space-2);
+  line-height: 1.45;
+}
+
+.bb-connect-moment__cast {
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--bb-muted);
+  margin: 0 0 var(--space-4);
+  line-height: 1.5;
+}
+
+.bb-connect-moment__cta {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  text-decoration: none;
+}
+
+.bb-connect-moment__cta:hover {
+  text-decoration: underline;
+}
+
+.bb-connect-desk {
+  padding: 0 var(--space-5) var(--space-6);
+}
+
+.bb-connect-desk__title {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 var(--space-3);
+}
+
+.bb-happening-moment {
+  padding: var(--space-4) var(--space-5) 0;
+  color: var(--bb-white);
+}
+
+.bb-happening-moment__line {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 4.5vw, 1.75rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.bb-happening-moment__whisper {
+  font-family: var(--font-accent);
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: var(--space-2) 0 0;
+  opacity: 0.8;
+}
+
+.bb-explore-moment-strip {
+  padding: 0 var(--space-5) var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.bb-explore-moment-chip {
+  flex: 0 1 auto;
+  max-width: 11.5rem;
+  padding: 0.75rem 0.9rem;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 0, 85, 0.2);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 3px 12px rgba(255, 0, 85, 0.08);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s;
+}
+
+.bb-explore-moment-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--bb-hot);
+}
+
+.bb-explore-moment-chip__line {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+  color: var(--bb-velvet);
+  line-height: 1.05;
+}
+
+.bb-explore-moment-chip__body {
+  font-family: var(--font-accent);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0;
+  color: var(--bb-muted);
+  line-height: 1.35;
+}
+
+.bb-explore-moment-strip article a {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  color: var(--bb-hot);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: var(--space-2);
+}
+
+/* ── Explore: wander — white + barbie ── */
+.bb-mood--explore {
+  background: linear-gradient(180deg, #ffffff 0%, #ffe4ec 100%);
+}
+
+.bb-mood--explore .mp-explore-gem {
+  border-radius: 2px;
+  transform: rotate(-0.5deg);
+  font-family: var(--font-accent);
+}
+
+.bb-mood--explore .mp-explore-gem strong {
+  font-family: var(--font-display);
+  font-style: normal;
+}
+
+/* ── Club: museum marble ── */
+.bb-mood--club-museum {
+  background: linear-gradient(180deg, #f5f3f0 0%, #e8e4df 100%);
+  --mood-accent: #6b5b4f;
+}
+
+.bb-mood--club-museum .mp-world-hero,
+.bb-mood--club-museum .mp-world-pulse {
+  background: #3d3835;
+  color: #f5f3f0;
+}
+
+.bb-mood--club-museum .bb-mood-intro__scene {
+  font-family: var(--font-accent);
+  font-style: italic;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* ── Club: dinner candlelight ── */
+.bb-mood--club-dinner {
+  background: linear-gradient(180deg, #1a1208 0%, #2d1f0f 50%, #f7ede0 100%);
+  --mood-accent: #f4a261;
+}
+
+.bb-mood--club-dinner .mp-world-hero {
+  background: linear-gradient(135deg, #2d1f0f, #b07d00);
+  color: #fff8f0;
+}
+
+.bb-mood--club-dinner .bb-mood-intro__scene {
+  color: #fff8f0;
+}
+
+/* ── Club: books ── */
+.bb-mood--club-books {
+  background: linear-gradient(180deg, #f7ede0 0%, #e8d5c4 100%);
+  --mood-accent: #8b4513;
+}
+
+/* ── Club: wellness ── */
+.bb-mood--club-wellness {
+  background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+  --mood-accent: #059669;
+}
+
+/* ── Club: nightlife ── */
+.bb-mood--club-night {
+  background: #0a0a0a;
+  color: #fff;
+  --mood-accent: var(--bb-hot);
+}
+
+.bb-mood--club-night .bb-mood-intro__scene {
+  color: #fff;
+}
+
+/* ── Club: founders velvet ── */
+.bb-mood--club-founders {
+  background: linear-gradient(180deg, #1a0514 0%, #2a1520 100%);
+  color: #fff;
+}
+
+.bb-mood--club-founders .mp-world-hero {
+  background: #1a0514;
+  border-bottom: 2px solid var(--bb-hot);
+}
+
+.bb-mood--club-default {
+  background: var(--bb-ivory);
+}
+
+/* Club world: hide generic avatar row when mood active */
+.bb-mood[class*="club-"] .mp-avatars {
+  display: none;
+}
+
+.bb-mood[class*="club-"] .mp-moment-card {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(26, 5, 20, 0.08);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-accent);
+  font-style: italic;
+}
+
+.bb-club-alive {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  color: var(--bb-muted);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 0, 85, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+.bb-club-alive strong {
+  color: var(--bb-hot);
+  font-weight: 700;
+}

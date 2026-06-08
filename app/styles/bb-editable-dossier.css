@@ -1,0 +1,154 @@
+/**
+ * Editable Bloom Dossier — PNG badge only, transparent shell, no white card.
+ */
+
+.bb-editable-dossier {
+  width: 100%;
+  max-width: min(592px, 100%);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.bb-editable-dossier__frame {
+  position: relative;
+  width: 100%;
+  background: transparent;
+}
+
+.bb-editable-dossier__badge {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: none;
+  background: transparent;
+  filter: drop-shadow(0 10px 22px rgba(18, 5, 14, 0.14));
+}
+
+.bb-editable-dossier__overlays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bb-editable-dossier__overlays > * {
+  pointer-events: auto;
+}
+
+/* Mask baked-in ORCHIDEIA title — show member name */
+.bb-editable-dossier__title {
+  position: absolute;
+  top: 15.5%;
+  left: 7%;
+  right: 38%;
+  margin: 0;
+  padding: 0.12rem 0.35rem;
+  background: #f7f2ea;
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-size: clamp(0.62rem, 2.6vw, 0.76rem);
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #1a0514;
+  line-height: 1.15;
+  border: none;
+}
+
+/* Photo sits in left polaroid window on template */
+.bb-editable-dossier__photo {
+  position: absolute;
+  top: 23%;
+  left: 9.5%;
+  width: 23%;
+  height: 19%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bb-editable-dossier__photo:focus-visible {
+  outline: 2px dashed rgba(255, 0, 85, 0.55);
+  outline-offset: 2px;
+}
+
+.bb-editable-dossier__photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.bb-editable-dossier__photo-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 0, 85, 0.45);
+}
+
+.bb-editable-dossier__field {
+  position: absolute;
+  left: 9%;
+  right: 10%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  margin: 0;
+}
+
+.bb-editable-dossier__field-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.bb-editable-dossier__input {
+  width: 100%;
+  margin: 0;
+  padding: 0.1rem 0;
+  border: none;
+  background: transparent;
+  font-family: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
+  font-size: clamp(0.78rem, 3.2vw, 0.95rem);
+  color: #1a0514;
+  line-height: 1.25;
+  outline: none;
+}
+
+.bb-editable-dossier__input::placeholder {
+  color: rgba(26, 5, 20, 0.35);
+}
+
+.bb-editable-dossier__input:focus {
+  background: rgba(255, 228, 236, 0.35);
+  border-radius: 2px;
+}
+
+.bb-editable-dossier__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bb-editable-dossier__error {
+  margin: 0.5rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bb-hot, #ff0055);
+  text-align: center;
+}

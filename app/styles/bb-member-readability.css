@@ -1,0 +1,183 @@
+/**
+ * Member portal readability — light text must never land on white cards.
+ * Loaded last in member layout.
+ */
+
+/* Day + evening: explicit ink on shell (never inherit broken vars) */
+.mp-app,
+.mp-app .mp-root,
+.mp-app .mp-main,
+.mp-app .mp-content {
+  color: var(--mp-ink, var(--bb-page-ink, #1a0514));
+}
+
+.mp-app .mp-hero__title,
+.mp-app .mp-page-head__title,
+.mp-app .mp-page-head__sub,
+.mp-app .mp-section__title,
+.mp-app .mp-hero__sub,
+.mp-app .mp-list-row__title,
+.mp-app .mp-settings-row,
+.mp-app .mp-settings-appearance__title,
+.mp-app .mp-settings-appearance__sub,
+.mp-app .mp-portal-muted,
+.mp-app .mp-link {
+  color: inherit;
+}
+
+.mp-app .mp-page-head__sub,
+.mp-app .mp-hero__sub,
+.mp-app .mp-list-row__meta,
+.mp-app .mp-portal-muted {
+  color: var(--mp-muted, var(--bb-page-muted, rgba(26, 5, 20, 0.55)));
+}
+
+/* Velvet stays dark for copy on blush/white cards (night used to flip this to near-white) */
+.mp-app {
+  --bb-velvet: #1a0514;
+}
+
+/* Clock phase "night" alone = still readable (full dark only with data-mp-theme="night") */
+.mp-app[data-bb-phase="night"]:not([data-mp-theme="night"]) {
+  --bb-page-bg: #fff5f8;
+  --bb-page-bg-soft: #ffd6e4;
+  --bb-page-surface: #ffffff;
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.6);
+  --mp-ink: #1a0514;
+  --mp-muted: rgba(26, 5, 20, 0.6);
+  --mp-white: #ffffff;
+  --bb-velvet: #1a0514;
+}
+
+/* ─── Full night theme: dark shell + remap hardcoded white panels ─── */
+.mp-app[data-mp-theme="night"] {
+  --bb-velvet: #f5e8ee;
+}
+
+.mp-app[data-mp-theme="night"] .mp-root,
+.mp-app[data-mp-theme="night"] .mp-main {
+  background: var(--bb-page-bg, #10080c);
+  color: var(--bb-page-ink, #f5e8ee);
+}
+
+/* Panels that ship with #fff / blush — go dark so inherited ink works */
+.mp-app[data-mp-theme="night"] :is(
+  .mp-hero,
+  .mp-settings-group,
+  .mp-settings-appearance,
+  .mp-confirm-card,
+  .mp-page-head,
+  .mp-section,
+  .bb-girl-calendar,
+  .bb-girlmates-card,
+  .bb-girlmates__form,
+  .bb-girlmates__filters,
+  .bb-girlmates__filter--on,
+  .bb-girlmates-board__compose,
+  .bb-empty,
+  .bb-connect-teaser,
+  .bb-connect-moment,
+  .bb-lobby-card,
+  .bb-lobby-note,
+  .bb-cal-month__grid,
+  .bb-cal-month__cell,
+  .bb-happening-event__sheet,
+  .bb-happening-event__panel,
+  .bb-happening-event__deposit-panel,
+  .bb-plan-room__card,
+  .bb-plan-room__note,
+  .bb-club-cover-card,
+  .bb-club-cover-card--compact,
+  .bb-city-moment,
+  .bb-city-pick,
+  .bb-city-door,
+  .bb-mood-door,
+  .bb-scene,
+  .bb-scene--hero,
+  .bb-apartment-tile,
+  .bb-member-premium-card,
+  .mp-clubs-search--toolbar,
+  .mp-maps-preview,
+  .mp-polaroid,
+  .mp-mail-row,
+  .mp-tabs,
+  .bb-poster-demo,
+  .bb-poster-demo__chip
+) {
+  background-color: var(--bb-page-surface, #221018) !important;
+  color: var(--bb-page-ink, #f5e8ee);
+  border-color: rgba(255, 107, 157, 0.18);
+}
+
+.mp-app[data-mp-theme="night"] :is(
+  .mp-list-row,
+  .mp-card,
+  .mp-card--soft,
+  .mp-input,
+  textarea.mp-input
+) {
+  color: var(--bb-page-ink, #f5e8ee);
+}
+
+/* Home stays light with dark type (BloomBay day brand on home) */
+.mp-app[data-mp-theme="night"] .bb-mood--home,
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-mood__body {
+  background: var(--bb-home-surface, #fff8fb) !important;
+  --bb-page-ink: #1a0514;
+  --bb-velvet: #1a0514;
+  color: #1a0514;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home :is(
+  .bb-home-top__name,
+  .bb-home-top__temp,
+  .bb-home-top__pulse,
+  .bb-home-top__sky,
+  .bb-home-top__greeting-line,
+  .bb-scene__line,
+  .bb-scene__whisper,
+  .bb-mood-door__label
+) {
+  color: #1a0514;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-home-top__greeting-line,
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-scene__whisper {
+  color: rgba(26, 5, 20, 0.55);
+}
+
+/* Night theme must not paint home tiles/scenes as brown panels with dark type */
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-home-place {
+  background: #ffffff !important;
+  border-color: rgba(255, 0, 85, 0.2) !important;
+  color: #1a0514 !important;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-home-place__label {
+  color: #1a0514 !important;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home :is(.bb-scene, .bb-scene--hero) {
+  background-color: transparent !important;
+  color: #1a0514 !important;
+  border-bottom-color: rgba(26, 5, 20, 0.08) !important;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-scene__line {
+  color: #1a0514 !important;
+}
+
+.mp-app[data-mp-theme="night"] .bb-mood--home .bb-scene--pulse .bb-scene__whisper {
+  color: #ff0055 !important;
+}
+
+/* Top bar on home */
+.mp-app[data-mp-theme="night"] .mp-top-bar {
+  background: #fff8fb !important;
+  color: #1a0514;
+}
+
+.mp-app[data-mp-theme="night"] .mp-top-bar__settings {
+  color: #1a0514;
+}

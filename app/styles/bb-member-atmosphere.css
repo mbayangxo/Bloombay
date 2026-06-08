@@ -1,0 +1,177 @@
+/* BloomBay member atmosphere — Soho House × Glossier × luxury stationery */
+
+:root {
+  --bb-rose-gold: #c9a27a;
+  --bb-chrome: linear-gradient(135deg, #f8f8f8 0%, #d4d4d8 35%, #f5f5f5 70%, #e8e8ec 100%);
+  --bb-glass: rgba(255, 255, 255, 0.72);
+  --bb-glass-border: rgba(255, 255, 255, 0.85);
+  --bb-glass-blur: blur(14px);
+  --bb-satin: linear-gradient(165deg, #ffffff 0%, #fff8fb 45%, #ffe4ec 100%);
+  --bb-shadow-soft: 0 8px 32px rgba(255, 0, 85, 0.08);
+  --bb-shadow-lift: 0 12px 40px rgba(26, 5, 20, 0.1);
+  --bb-radius-glass: 14px;
+}
+
+/* Phase palettes */
+.mp-app[data-bb-phase="morning"],
+.mp-app[data-bb-phase="afternoon"] {
+  --bb-page-bg: #ffffff;
+  --bb-page-bg-soft: #ffe4ec;
+  --bb-page-surface: rgba(255, 255, 255, 0.88);
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.58);
+  --bb-page-accent: #ff0055;
+  --bb-page-accent-soft: #ffb7ce;
+  --bb-page-rose: #c9a27a;
+}
+
+.mp-app[data-bb-phase="evening"] {
+  --bb-page-bg: #fff0f5;
+  --bb-page-bg-soft: #ffd6e4;
+  --bb-page-surface: rgba(255, 245, 248, 0.9);
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.62);
+  --bb-page-accent: #ff0055;
+  --bb-page-accent-soft: #ff8fb8;
+  --bb-page-rose: #b88868;
+}
+
+.mp-app[data-mp-theme="night"] {
+  --bb-page-bg: #10080c;
+  --bb-page-bg-soft: #181018;
+  --bb-page-surface: #221018;
+  --bb-page-ink: #f5e8ee;
+  --bb-page-muted: rgba(245, 220, 230, 0.52);
+  --bb-page-accent: #ff6b9d;
+  --bb-page-accent-soft: #5c3040;
+  --bb-page-rose: #a88468;
+  --bb-glass: rgba(28, 14, 20, 0.88);
+  --bb-glass-border: rgba(255, 107, 157, 0.14);
+  --bb-satin: linear-gradient(165deg, #1c1016 0%, #14080c 50%, #10080c 100%);
+}
+
+.mp-app {
+  background: var(--bb-page-bg);
+  color: var(--bb-page-ink);
+  transition: background 0.5s ease, color 0.4s ease;
+}
+
+/* Premium type rhythm */
+.bb-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--bb-page-ink);
+}
+
+.bb-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--bb-page-ink);
+}
+
+.bb-ui {
+  font-family: var(--font-ui);
+  color: var(--bb-page-ink);
+}
+
+/* Glass cards */
+.bb-glass {
+  background: var(--bb-glass);
+  backdrop-filter: var(--bb-glass-blur);
+  -webkit-backdrop-filter: var(--bb-glass-blur);
+  border: 1px solid var(--bb-glass-border);
+  border-radius: var(--bb-radius-glass);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    var(--bb-shadow-soft, 0 8px 32px rgba(255, 0, 85, 0.08));
+  transition:
+    transform 0.15s cubic-bezier(0.34, 1.45, 0.64, 1),
+    box-shadow 0.15s ease;
+}
+
+.bb-glass:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 12px 36px rgba(255, 0, 85, 0.12);
+}
+
+/* Empty states */
+.bb-empty {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-radius: var(--bb-radius-glass);
+  background: var(--bb-page-surface);
+  border: 1px dashed rgba(255, 0, 85, 0.22);
+}
+
+.bb-empty__title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+  color: var(--bb-page-ink);
+}
+
+.bb-empty__body {
+  font-family: var(--font-accent);
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0 0 0.75rem;
+  color: var(--bb-page-muted);
+}
+
+.bb-empty__action {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bb-page-accent);
+  padding: 0.45rem 0.9rem;
+  border: 1.5px solid var(--bb-page-accent);
+  border-radius: 999px;
+}
+
+.bb-empty__action:hover {
+  background: var(--bb-page-accent);
+  color: #ffffff;
+}
+
+/* Club apply — membership moment */
+.bb-apply-shell {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+}
+
+.bb-apply-shell .bb-glass {
+  padding: 1.25rem 1.15rem;
+}
+
+.bb-apply-shell h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+}
+
+.bb-apply-shell .mp-input,
+.bb-apply-shell textarea {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  border-radius: 10px;
+}
+
+.mp-app[data-bb-phase="night"] .bb-apply-shell .mp-input,
+.mp-app[data-mp-theme="night"] .bb-apply-shell textarea {
+  background: rgba(26, 5, 20, 0.5);
+  color: var(--bb-page-ink);
+  border-color: rgba(255, 0, 85, 0.35);
+}

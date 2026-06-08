@@ -1,0 +1,186 @@
+/* Place covers — bloombaymemberui typography & torn-paper / envelope vibe */
+
+.bb-place-cover {
+  position: relative;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  color: var(--bb-velvet);
+}
+
+.bb-place-cover__sheet {
+  position: relative;
+  max-width: 42rem;
+}
+
+.bb-place-cover__object {
+  position: absolute;
+  top: -0.15rem;
+  right: 0;
+  z-index: 2;
+  filter: drop-shadow(0 6px 14px rgba(26, 5, 20, 0.12));
+}
+
+.bb-place-cover__eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 var(--space-2);
+}
+
+.bb-place-cover__title {
+  margin: 0;
+  color: var(--bb-velvet);
+  max-width: 18ch;
+}
+
+.bb-place-cover__whisper {
+  font-family: var(--font-accent);
+  font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--bb-muted);
+  margin: var(--space-3) 0 0;
+  max-width: 28ch;
+}
+
+.bb-place-cover__authored {
+  font-family: var(--font-authored);
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+  line-height: 1.35;
+  color: var(--bb-hot);
+  margin: var(--space-4) 0 0;
+  max-width: 16rem;
+  transform: rotate(-2.5deg);
+  padding: 0.65rem 0.85rem 0.75rem;
+  background: var(--bb-white);
+  box-shadow: 2px 5px 16px rgba(26, 5, 20, 0.1);
+  clip-path: polygon(
+    0% 3%,
+    5% 0%,
+    14% 4%,
+    28% 0%,
+    42% 3%,
+    58% 0%,
+    72% 4%,
+    88% 0%,
+    100% 3%,
+    100% 97%,
+    94% 100%,
+    78% 96%,
+    62% 100%,
+    46% 97%,
+    28% 100%,
+    12% 96%,
+    0% 100%
+  );
+}
+
+/* Poster — Barlow declarations (lobby, clubs energy) */
+.bb-place-cover--poster .bb-place-cover__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 5vw, 2.35rem);
+  font-weight: 900;
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Editorial — Cormorant headline (home, explore, apartment) */
+.bb-place-cover--editorial .bb-place-cover__title {
+  font-family: var(--font-accent);
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  max-width: 14ch;
+}
+
+.bb-place-cover--editorial .bb-place-cover__eyebrow {
+  color: var(--bb-muted);
+}
+
+/* Envelope — torn invitation strip (invitations, lobby, tonight) */
+.bb-place-cover--envelope {
+  padding-bottom: var(--space-6);
+}
+
+.bb-place-cover--envelope .bb-place-cover__sheet {
+  padding: var(--space-4) 5.5rem var(--space-5) var(--space-4);
+  background: linear-gradient(
+    165deg,
+    #ffe4ec 0%,
+    #ffffff 55%,
+    #ffffff 100%
+  );
+  border: 1px solid var(--bb-line-soft);
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    0 12px 32px rgba(255, 0, 85, 0.08),
+    0 2px 0 var(--bb-white);
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 92%,
+    96% 96%,
+    88% 93%,
+    76% 98%,
+    64% 94%,
+    52% 99%,
+    40% 95%,
+    28% 98%,
+    16% 94%,
+    6% 97%,
+    0% 93%
+  );
+}
+
+.bb-place-cover--envelope .bb-place-cover__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 6vw, 2.75rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  max-width: 12ch;
+}
+
+.bb-place-cover--envelope .bb-place-cover__eyebrow {
+  color: var(--bb-hot);
+}
+
+.mp-happenings-cover .bb-place-cover__object {
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.mp-happenings-cover .bb-place-cover__title {
+  max-width: 100%;
+  padding-right: 0;
+}
+
+.bb-mood--happenings {
+  background: #ffe4ec;
+}
+
+.bb-mood--happenings .bb-mood__body {
+  background: #ffe4ec;
+}
+
+@media (min-width: 900px) {
+  .bb-place-cover {
+    padding: var(--space-4) 0 var(--space-4);
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .bb-place-cover__object {
+    right: 0.5rem;
+  }
+}

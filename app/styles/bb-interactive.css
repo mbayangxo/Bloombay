@@ -1,0 +1,54 @@
+/* Ensure artifact cards and mood layers do not swallow clicks */
+
+a.bb-club-poster,
+a.bb-event-poster,
+a.bb-envelope,
+a.bb-wall-note,
+a.bb-notice,
+a.bb-request-note,
+a.bb-polaroid,
+a.bb-scene,
+a.bb-ticket {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.bb-club-poster__img,
+.bb-club-poster__overlay,
+.bb-event-poster__visual {
+  pointer-events: none;
+}
+
+.bb-mood__body a,
+.bb-mood__body button,
+.bb-mood__body .mp-btn,
+.bb-mood__body .mp-link,
+.bb-mood__body .mp-room-door,
+a.mp-room-door {
+  position: relative;
+  z-index: 2;
+}
+
+.mp-happenings-head a.mp-btn,
+.mp-happenings-head .mp-btn {
+  position: relative;
+  z-index: 3;
+}
+
+.mp-club-landing__cta {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  box-shadow: 0 -8px 24px rgba(26, 5, 20, 0.08);
+}
+
+.mp-club-landing__cta .mp-btn {
+  width: 100%;
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
+}
