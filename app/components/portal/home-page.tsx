@@ -756,11 +756,11 @@ function ClubCrest({ club }: { club: typeof MY_CLUBS[0] }) {
 // ─── Club data with photo backgrounds ────────────────────────────────────────
 
 const CLUBS_PHOTO = [
-  { abbr: "MG", name: "Museum Girls",   unread: 3, live: true, img: "/Event_Museum_Girls.png"  },
-  { abbr: "BC", name: "Book Club",       unread: 5, live: true, img: "/Event_Book_Society.png"  },
-  { abbr: "RC", name: "Run Club",        unread: 2, live: true, img: "/Event_Sunday_Walk.png"   },
-  { abbr: "NG", name: "Night Out Girls", unread: 1, live: true, img: "/01_Girls_Night.png"      },
-  { abbr: "CG", name: "Coffee Gang",     unread: 0, live: true, img: null                       },
+  { abbr: "MG", name: "Museum Girls",   unread: 3, live: true, img: null },
+  { abbr: "BC", name: "Book Club",       unread: 5, live: true, img: null },
+  { abbr: "RC", name: "Run Club",        unread: 2, live: true, img: null },
+  { abbr: "NG", name: "Night Out Girls", unread: 1, live: true, img: null },
+  { abbr: "CG", name: "Coffee Gang",     unread: 0, live: true, img: null },
 ];
 
 const NEIGHBORHOODS = [
