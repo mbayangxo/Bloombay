@@ -1,75 +1,83 @@
 import Link from "next/link";
-import { COMPANY_LOGIN, MEMBER_LOGIN } from "@/lib/auth/roles";
-import { PORTALS } from "@/lib/portal-identity";
-import "@/app/styles/portals-index.css";
+import { BBLogo } from "@/app/components/portal/bb-logo";
 
-const PORTAL_CARDS = [
-  { key: "member" as const, skin: "member", cta: "Sign in as member" },
-  { key: "founder" as const, skin: "founder", cta: "Founder sign-in" },
-  { key: "admin" as const, skin: "admin", cta: "Operations sign-in" },
-  { key: "clubhouse" as const, skin: "clubhouse", cta: "Club Mama sign-in" },
-  { key: "partner" as const, skin: "partner", cta: "Partner sign-in" },
-] as const;
-
-export default async function PortalsIndexPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ notice?: string }>;
-}) {
-  const { notice } = await searchParams;
-  const missingEnv = notice === "missing_env";
-
+export default function PortalsPage() {
   return (
-    <main className="bb-portals">
-      {missingEnv ? (
-        <p className="bb-portals__env-warn" role="alert">
-          Supabase is not configured. Copy <code>.env.example</code> to <code>.env.local</code> and
-          add your project URL and anon key, then restart <code>npm run dev</code>.
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
+      style={{ background: "#0D000A" }}
+    >
+      {/* Logo */}
+      <div className="flex flex-col items-center mb-10">
+        <BBLogo size={56} light />
+        <h1
+          className="mt-5 text-3xl font-bold tracking-tight text-white"
+          style={{ fontFamily: "var(--font-playfair)" }}
+        >
+          Bloom<span style={{ color: "#FF1F7D" }}>Bay</span>
+        </h1>
+        <p
+          className="mt-2 text-xs tracking-[0.25em] uppercase"
+          style={{ color: "#5a3048" }}
+        >
+          New York City
         </p>
-      ) : null}
-      <header className="bb-portals__head">
-        <h1>BloomBay portals</h1>
-        <p>
-          Two front doors: <strong>members</strong> (women in the community) and{" "}
-          <strong>company</strong> (founders, Club Mamas, partners, operations). Pick the world that
-          matches you — BloomBay routes you after sign-in.
-        </p>
-        <div className="bb-portals__signin-row">
-          <Link href={MEMBER_LOGIN} className="bb-portals__signin-btn bb-portals__signin-btn--member">
-            Member sign-in →
-          </Link>
-          <Link href={COMPANY_LOGIN} className="bb-portals__signin-btn">
-            Company sign-in →
-          </Link>
+      </div>
+
+      {/* Member login card */}
+      <Link
+        href="/member/login"
+        className="w-full max-w-sm rounded-3xl p-8 flex flex-col gap-5 transition-all hover:-translate-y-1 active:scale-[0.98]"
+        style={{
+          background: "#FFF5F8",
+          border: "1px solid rgba(255,31,125,0.15)",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.4)",
+          textDecoration: "none",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <BBLogo size={32} />
+          <p
+            className="text-xs font-bold tracking-[0.18em] uppercase"
+            style={{ color: "#FF1F7D" }}
+          >
+            BloomBay Members
+          </p>
         </div>
-      </header>
 
-      <ul className="bb-portals__grid">
-        {PORTAL_CARDS.map(({ key, skin, cta }) => {
-          const p = PORTALS[key];
-          const href = key === "member" ? p.login : COMPANY_LOGIN;
-          return (
-            <li key={key}>
-              <Link href={href} className={`bb-portals__card bb-portals__card--${skin}`}>
-                <span className="bb-portals__card-kicker">{key === "member" ? "Women" : "Company"}</span>
-                <strong className="bb-portals__card-title">{p.name}</strong>
-                <span className="bb-portals__card-tagline">{p.tagline}</span>
-                <span className="bb-portals__card-who">{p.who}</span>
-                <span className="bb-portals__card-cta">{cta} →</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+        <div>
+          <h2
+            className="text-2xl font-bold leading-tight"
+            style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}
+          >
+            Welcome home.
+          </h2>
+          <p className="text-sm mt-1" style={{ color: "#9e6070" }}>
+            Your world is waiting.
+          </p>
+        </div>
 
-      <p className="bb-portals__curator">
-        Company staff use one login at <Link href={COMPANY_LOGIN}>/company</Link> — then BloomBay sends
-        you to Founder, Operations, Club Mama, or Partner based on your role.
+        <div
+          className="self-start flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold tracking-wide text-white"
+          style={{
+            background: "#FF1F7D",
+            boxShadow: "0 4px 16px rgba(255,31,125,0.4)",
+          }}
+        >
+          Log in
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </Link>
+
+      {/* Join link */}
+      <p className="mt-8 text-sm" style={{ color: "#5a3048" }}>
+        Not a member?{" "}
+        <Link href="/onboard" className="font-bold transition-colors hover:text-pink-300" style={{ color: "#FF1F7D" }}>
+          Join BloomBay
+        </Link>
       </p>
-
-      <p className="bb-portals__back">
-        <Link href="/">← BloomBay home</Link>
-      </p>
-    </main>
+    </div>
   );
 }
