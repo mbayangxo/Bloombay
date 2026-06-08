@@ -13,9 +13,11 @@ export function HomePage({
   userId?: string | null;
 }) {
   return (
-    <div className="min-h-screen pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] md:pb-12 mp-home-scroll bb-home-page">
+    <div className="bb-home-page min-h-screen pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] md:pb-12 mp-home-scroll">
       <HomeScrapbookHeader />
-      <HomeScrapbookBoard firstName={firstName} userId={userId} />
+      <div className="bb-home-page__shell">
+        <HomeScrapbookBoard firstName={firstName} userId={userId} />
+      </div>
     </div>
   );
 }

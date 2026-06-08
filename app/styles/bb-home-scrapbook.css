@@ -1,11 +1,8 @@
 /* Home scrapbook — full-width responsive board (PNG layers + HTML text) */
 
+/* Background owned by bb-home-mockup.css — avoid duplicate flat gray here */
 .bb-home-page {
-  /* Mockup door / charcoal board — continuous surface behind header + collage */
-  background-color: #2c3438;
-  background-image:
-    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255, 183, 206, 0.08), transparent 55%),
-    linear-gradient(180deg, #323b3f 0%, #2c3438 40%, #262e32 100%);
+  background: transparent;
 }
 
 .bb-home-header {
