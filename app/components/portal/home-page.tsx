@@ -899,52 +899,61 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           style={{ position: "absolute", right: 6, top: -8, width: 68, transform: "rotate(3deg)", zIndex: 3, pointerEvents: "none" }} />
       </div>
 
-      {/* ═══ THREE CARDS — all visible at once ═══ */}
-      <div style={{ display: "flex", padding: "4px 14px 12px", gap: 8 }}>
+      {/* ═══ THREE CARDS — composition-first: fixed container, PNG inside ═══ */}
+      <div style={{ display: "flex", alignItems: "stretch", padding: "4px 14px 12px", gap: 8 }}>
 
-        <Link href="/member/plans" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/homepage-objects/C806CD84-83E7-4147-B213-BEC3CE92DE10.PNG" alt=""
-              style={{ width: "100%", height: "auto", display: "block" }} />
-            <div style={{ position: "absolute", top: "7%", left: "8%", right: "4%", zIndex: 2 }}>
-              <p style={{ fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.14em", color: "#FF1F7D", marginBottom: 2 }}>MY FIRST MONTH</p>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 4 }}>
-                <span style={{ fontSize: 8, lineHeight: 1.4 }}>⭐</span>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.2 }}>Week 2:<br/>Attend 1<br/>gathering</p>
+        {/* MY FIRST MONTH */}
+        <Link href="/member/plans" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+          <div style={{ position: "relative", width: "100%", height: 160 }}>
+            <div style={{
+              position: "absolute", inset: "5%",
+              backgroundImage: "url('/homepage-objects/C806CD84-83E7-4147-B213-BEC3CE92DE10.PNG')",
+              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
+            }} />
+            <div style={{ position: "absolute", top: "12%", left: "10%", right: "6%", zIndex: 2 }}>
+              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 3 }}>MY FIRST MONTH</p>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 5 }}>
+                <span style={{ fontSize: 7, lineHeight: 1.4 }}>⭐</span>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Week 2:<br/>Attend 1<br/>gathering</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                 <div style={{ flex: 1, height: 2, borderRadius: 999, background: "rgba(255,31,125,0.15)", overflow: "hidden" }}>
                   <div style={{ width: "75%", height: "100%", background: "#FF1F7D", borderRadius: 999 }} />
                 </div>
-                <span style={{ fontSize: "6px", fontWeight: 700, color: "#bbb" }}>3/4</span>
+                <span style={{ fontSize: "5.5px", fontWeight: 700, color: "#bbb" }}>3/4</span>
               </div>
             </div>
           </div>
         </Link>
 
-        <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/homepage-objects/C4C93D7A-408F-4F2D-B125-CE81AC7C30C1.PNG" alt=""
-              style={{ width: "100%", height: "auto", display: "block" }} />
-            <div style={{ position: "absolute", top: "7%", left: "8%", right: "4%", zIndex: 2 }}>
-              <p style={{ fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.14em", color: "#FF1F7D", marginBottom: 2 }}>THIS WEEK · 3 EVENTS</p>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#1C1B1C", lineHeight: 1.2 }}>Book Girls NYC</p>
-              <p style={{ fontSize: 10, color: "#888", marginTop: 2 }}>Wednesday</p>
+        {/* THIS WEEK */}
+        <Link href="/member/happenings" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+          <div style={{ position: "relative", width: "100%", height: 160 }}>
+            <div style={{
+              position: "absolute", inset: "5%",
+              backgroundImage: "url('/homepage-objects/C4C93D7A-408F-4F2D-B125-CE81AC7C30C1.PNG')",
+              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
+            }} />
+            <div style={{ position: "absolute", top: "12%", left: "10%", right: "6%", zIndex: 2 }}>
+              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 3 }}>THIS WEEK · 3 EVENTS</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Book Girls<br/>NYC</p>
+              <p style={{ fontSize: 9, color: "#888", marginTop: 3 }}>Wednesday</p>
             </div>
           </div>
         </Link>
 
-        <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/homepage-objects/930F0AEE-4D93-4733-B19D-B6937EE076F8.PNG" alt=""
-              style={{ width: "100%", height: "auto", display: "block" }} />
-            <div style={{ position: "absolute", bottom: "10%", left: "8%", right: "4%", zIndex: 2 }}>
-              <p style={{ fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.14em", color: "#FF1F7D", marginBottom: 1 }}>CITY VIBES</p>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#555", lineHeight: 1.2 }}>Crown Heights</p>
-              <p style={{ fontSize: 10, color: "#aaa" }}>9 spots ♡</p>
+        {/* CITY VIBES */}
+        <Link href="/member/city" style={{ textDecoration: "none", width: "31%", flexShrink: 0 }}>
+          <div style={{ position: "relative", width: "100%", height: 160 }}>
+            <div style={{
+              position: "absolute", inset: "5%",
+              backgroundImage: "url('/homepage-objects/930F0AEE-4D93-4733-B19D-B6937EE076F8.PNG')",
+              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
+            }} />
+            <div style={{ position: "absolute", bottom: "16%", left: "10%", right: "6%", zIndex: 2 }}>
+              <p style={{ fontSize: "5px", fontWeight: 800, letterSpacing: "0.13em", color: "#FF1F7D", marginBottom: 2 }}>CITY VIBES</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 10, fontWeight: 800, fontStyle: "italic", color: "#555", lineHeight: 1.25 }}>Crown<br/>Heights</p>
+              <p style={{ fontSize: 9, color: "#aaa", marginTop: 2 }}>9 spots ♡</p>
             </div>
           </div>
         </Link>
