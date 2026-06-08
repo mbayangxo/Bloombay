@@ -224,6 +224,7 @@ function ToggleRow({ label, on, toggle }: { label: string; on: boolean; toggle: 
   );
 }
 
+
 // ─── SCATTERED BLOB CHIPS (Onboarding interest selector) ─────────────────────
 
 const BLOB_COLORS = [
@@ -303,98 +304,117 @@ function ScatteredBlobs({ items, selected, toggle }: { items: string[]; selected
   );
 }
 
-// ─── WELCOME SPLASH ───────────────────────────────────────────────────────────
-
 function WelcomeSplash({ onStart }: { onStart: () => void }) {
-  const [agreeTerms,   setAgreeTerms]   = React.useState(false);
-  const [agreePrivacy, setAgreePrivacy] = React.useState(false);
-  const [agreeRules,   setAgreeRules]   = React.useState(false);
-  const [agreeAge,     setAgreeAge]     = React.useState(false);
+  const [agreeTerms, setAgreeTerms]     = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeRules, setAgreeRules]     = useState(false);
+  const [agreeAge, setAgreeAge]         = useState(false);
   const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "#FF1F7D" }}>
-
       {/* Decorative circles */}
-      <div style={{ position: "absolute", top: "-60px", right: "-60px", width: "260px", height: "260px", borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", top: "60px", right: "20px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "200px", left: "-80px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(0,0,0,0.06)", pointerEvents: "none" }} />
+      <div className="absolute pointer-events-none" style={{
+        width: "320px", height: "320px", borderRadius: "50%",
+        background: "rgba(255,255,255,0.07)",
+        top: "-80px", right: "-60px",
+      }} />
+      <div className="absolute pointer-events-none" style={{
+        width: "200px", height: "200px", borderRadius: "50%",
+        background: "rgba(255,255,255,0.05)",
+        top: "40px", left: "-50px",
+      }} />
+      <div className="absolute pointer-events-none" style={{
+        width: "280px", height: "280px", borderRadius: "50%",
+        background: "rgba(255,255,255,0.04)",
+        bottom: "180px", right: "20px",
+      }} />
 
-      {/* Logo */}
-      <div style={{ position: "absolute", top: "52px", left: "24px", zIndex: 10 }}>
-        <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "22px", color: "white", letterSpacing: "0.06em" }}>BB</span>
+      {/* Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ overflow: "hidden" }}>
+        <p className="font-black tracking-[0.15em] uppercase"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(52px,16vw,88px)",
+            color: "rgba(255,255,255,0.08)", whiteSpace: "nowrap" }}>
+          BLOOMBAY
+        </p>
       </div>
 
-      {/* Main text hero */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", paddingLeft: "24px", paddingRight: "24px", paddingTop: "80px" }}>
-        <p style={{ fontWeight: 500, fontSize: "32px", color: "white", lineHeight: 1.1, margin: "0 0 4px" }}>
+      {/* Top: Logo */}
+      <div className="relative flex items-center gap-2 px-6 pt-14">
+        <BBLogo size={28} />
+        <p className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "rgba(255,255,255,0.9)" }}>
+          BloomBay
+        </p>
+      </div>
+
+      {/* Main text */}
+      <div className="relative flex-1 flex flex-col justify-center px-6 pb-4">
+        <p style={{ fontWeight: 500, fontSize: "28px", color: "white", lineHeight: 1.1, margin: "0 0 4px" }}>
           it&apos;s a
         </p>
-        <p style={{ fontWeight: 900, fontSize: "72px", color: "#111", lineHeight: 0.9, margin: "0 0 0" }}>
-          girls
-        </p>
-        <p style={{ fontWeight: 900, fontSize: "72px", color: "#111", lineHeight: 0.9, margin: "0 0 4px" }}>
-          world,
-        </p>
-        {/* Outlined/stroke text */}
+        <h1 className="font-black leading-none"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(52px,14vw,72px)",
+            color: "#111", lineHeight: 0.88, letterSpacing: "-0.03em" }}>
+          girls<br />world,
+        </h1>
         <p style={{
-          fontWeight: 900, fontSize: "64px", lineHeight: 0.95, margin: "0 0 20px",
+          fontFamily: "var(--font-playfair)", fontWeight: 900,
+          fontSize: "clamp(44px,12vw,62px)", lineHeight: 0.95, margin: "4px 0 20px",
           WebkitTextStroke: "3px white",
           WebkitTextFillColor: "transparent",
           color: "transparent",
         }}>
           wear it.
         </p>
-
-        {/* Divider */}
         <div style={{ width: "40px", height: "3px", background: "rgba(255,255,255,0.4)", borderRadius: "2px", marginBottom: "16px" }} />
-
-        {/* Secondary line */}
-        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "22px", color: "rgba(255,255,255,0.82)", lineHeight: 1.3 }}>
-          women<br/>are gathering.
+        <p className="italic leading-relaxed"
+          style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "rgba(255,255,255,0.82)" }}>
+          women<br />are gathering.
         </p>
       </div>
 
       {/* Bottom strip */}
-      <div style={{ background: "rgba(0,0,0,0.22)", padding: "20px 24px", paddingBottom: "max(20px, env(safe-area-inset-bottom, 20px))" }}>
-        {[
-          { key: "terms",   state: agreeTerms,   set: setAgreeTerms,   label: "I agree to the Terms of Service" },
-          { key: "privacy", state: agreePrivacy, set: setAgreePrivacy, label: "I agree to the Privacy Policy"    },
-          { key: "rules",   state: agreeRules,   set: setAgreeRules,   label: "I agree to the Community Rules"  },
-          { key: "age",     state: agreeAge,     set: setAgreeAge,     label: "I am 18 or older"                },
-        ].map(({ key, state, set, label }) => (
-          <button key={key} onClick={() => set((v: boolean) => !v)}
-            className="w-full flex items-center gap-3 py-2 text-left"
-            style={{ background: "none", border: "none", cursor: "pointer" }}>
-            <div style={{
-              width: "20px", height: "20px", borderRadius: "6px", flexShrink: 0,
-              background: state ? "white" : "rgba(255,255,255,0.15)",
-              border: `2px solid ${state ? "white" : "rgba(255,255,255,0.35)"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              {state && <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5L4.5 8L9 3" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-            </div>
-            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.78)", fontWeight: 500 }}>{label}</span>
-          </button>
-        ))}
+      <div className="relative rounded-t-3xl px-6 pt-5 pb-6"
+        style={{ background: "rgba(0,0,0,0.22)", paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)" }}>
+        <div className="flex flex-col gap-2.5 mb-5">
+          {[
+            { key: "terms",   label: "I agree to the Terms of Service",     val: agreeTerms,   set: setAgreeTerms },
+            { key: "privacy", label: "I agree to the Privacy Policy",        val: agreePrivacy, set: setAgreePrivacy },
+            { key: "rules",   label: "I agree to the Community Guidelines",  val: agreeRules,   set: setAgreeRules },
+            { key: "age",     label: "I confirm I am 18 or older",           val: agreeAge,     set: setAgreeAge },
+          ].map(item => (
+            <button key={item.key} onClick={() => item.set(!item.val)}
+              className="flex items-center gap-3 text-left">
+              <div className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center"
+                style={{ background: item.val ? "white" : "rgba(255,255,255,0.15)",
+                  border: `2px solid ${item.val ? "white" : "rgba(255,255,255,0.35)"}` }}>
+                {item.val && (
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <span className="text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
 
         <button
-          onClick={allAgreed ? onStart : undefined}
+          onClick={onStart}
+          disabled={!allAgreed}
+          className="w-full py-4 rounded-full font-bold text-base transition-all active:scale-[0.98]"
           style={{
-            marginTop: "14px", width: "100%", padding: "16px",
-            borderRadius: "100px",
-            background: allAgreed ? "white" : "rgba(255,255,255,0.3)",
+            background: allAgreed ? "white" : "rgba(255,255,255,0.28)",
             color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.5)",
-            fontWeight: 800, fontSize: "15px", letterSpacing: "0.06em",
-            cursor: allAgreed ? "pointer" : "default",
-            border: "none", transition: "all 0.2s",
           }}>
-          LET&apos;S START →
+          {allAgreed ? "LET'S START →" : "Agree to all to continue"}
         </button>
 
-        <p style={{ textAlign: "center", marginTop: "12px", fontSize: "11px", color: "rgba(255,255,255,0.45)" }}>
-          already a member?{" "}
-          <a href="/member/login" style={{ color: "rgba(255,255,255,0.75)", fontWeight: 700 }}>sign in</a>
+        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.45)" }}>
+          Already a member?{" "}
+          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.75)" }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
@@ -447,9 +467,18 @@ export function OnboardFlow() {
   // Step 8 – invites
   const [inviteEmails, setInviteEmails] = useState(["", "", ""]);
 
+  // Agreements – required before joining
+  const [agreeTerms,   setAgreeTerms]   = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeRules,   setAgreeRules]   = useState(false);
+  const [agreeAge,     setAgreeAge]     = useState(false);
+  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+
   // ── helpers ──────────────────────────────────────────────────────
   function advance() { setStep((s) => s + 1); setError(null); }
   function goBack()  { setStep((s) => s - 1); setError(null); }
+
+  if (step === 0 && !emailVerificationSent) return <WelcomeSplash onStart={advance} />;
 
   async function getUser() {
     const supabase = createClient();
@@ -652,12 +681,6 @@ export function OnboardFlow() {
   }
 
   // ── RENDER ────────────────────────────────────────────────────────
-
-  // Step 0: full-screen splash before any form steps
-  if (step === 0 && !emailVerificationSent) {
-    return <WelcomeSplash onStart={advance} />;
-  }
-
   return (
     <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
       <div className="max-w-md mx-auto w-full px-5 pt-12 pb-20">
@@ -671,6 +694,8 @@ export function OnboardFlow() {
         )}
 
         <Progress step={step} />
+
+
 
         {/* ── EMAIL VERIFICATION PENDING ──────────────────────────────── */}
         {emailVerificationSent && (
