@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ClubPhotoUpload } from "@/app/components/shared/club-photo-upload";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,8 @@ type Tab =
   | "mailbox"
   | "gatherings"
   | "club-health"
-  | "crest";
+  | "crest"
+  | "photos";
 
 type AccessType = "free" | "one_time" | "subscription";
 type EntryStyle = "open" | "application" | "approval_paywall";
@@ -262,9 +264,74 @@ const TABS: { id: Tab; label: string; badge?: number }[] = [
   { id: "mailbox",      label: "MESSAGES",  badge: 3 },
   { id: "club-health",  label: "PULSE" },
   { id: "crest",        label: "CREST" },
+  { id: "photos",       label: "PHOTOS" },
   { id: "form-builder", label: "THE FORM" },
   { id: "settings",     label: "SETTINGS" },
 ];
+
+// Replace with real club ID from session once club pages are wired to DB
+const MOCK_CLUB_ID = "demo-club-id";
+
+function PhotosSection() {
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+
+  return (
+    <div className="max-w-xl">
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>PHOTOS</p>
+        <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
+          Your club&apos;s cover photo
+        </h2>
+        <p className="text-sm mt-2" style={{ color: "#888" }}>
+          This photo appears on your club card and landing page. Choose something that captures the vibe of your club.
+        </p>
+      </div>
+
+      <ClubPhotoUpload
+        clubId={MOCK_CLUB_ID}
+        currentUrl={coverUrl}
+        onUpdate={(url) => setCoverUrl(url)}
+      />
+
+      {coverUrl && (
+        <div
+          className="mt-6 rounded-2xl p-4 flex items-start gap-3"
+          style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.12)" }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0 mt-0.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "#111111" }}>Photo saved</p>
+            <p className="text-xs mt-0.5" style={{ color: "#888" }}>
+              Your members will see this photo on your club card. It may take a moment to appear.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div
+        className="mt-6 rounded-2xl p-5"
+        style={{ background: "white", boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#bbb" }}>Tips for a great club photo</p>
+        <ul className="flex flex-col gap-2">
+          {[
+            "Use a real photo from a gathering — authenticity beats stock photos",
+            "Warm lighting and candid moments feel most inviting",
+            "Avoid text overlays — your club name is already displayed separately",
+            "Landscape (wider than tall) photos work best",
+          ].map((tip, i) => (
+            <li key={i} className="flex items-start gap-2.5">
+              <span className="text-xs font-bold flex-shrink-0 mt-0.5" style={{ color: "#FF1F7D" }}>·</span>
+              <span className="text-sm" style={{ color: "#555" }}>{tip}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 // ── Section Components ─────────────────────────────────────────────────────
 
@@ -1303,6 +1370,7 @@ export default function TheClubhouse() {
         {activeTab === "gatherings" && <GatheringsSection />}
         {activeTab === "club-health" && <ClubHealthSection />}
         {activeTab === "crest" && <CrestSection />}
+        {activeTab === "photos" && <PhotosSection />}
       </div>
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
