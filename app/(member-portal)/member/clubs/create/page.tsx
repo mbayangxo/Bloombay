@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK = "#FF1F7D";
 
@@ -42,6 +43,8 @@ export default function CreateClubPage() {
 
   // Step 3 — Membership + Confirm
   const [membershipType, setMembershipType] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   function canNext(): boolean {
     if (step === 1) return clubName.trim().length >= 2 && !!category && neighborhood.trim().length >= 2;
@@ -425,6 +428,11 @@ export default function CreateClubPage() {
           </div>
         )}
 
+        {/* Error */}
+        {createError && (
+          <p className="text-xs mb-4 px-1" style={{ color: "#ef4444" }}>{createError}</p>
+        )}
+
         {/* Navigation */}
         <div className="flex gap-3">
           {step > 1 && (
@@ -436,18 +444,47 @@ export default function CreateClubPage() {
             </button>
           )}
           <button
-            onClick={() => {
-              if (!canNext()) return;
-              if (step < 3) { setStep(s => s + 1); }
-              else { setSubmitted(true); }
+            onClick={async () => {
+              if (!canNext() || creating) return;
+              if (step < 3) { setStep(s => s + 1); return; }
+
+              setCreating(true);
+              setCreateError(null);
+              try {
+                const supabase = createClient();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error("You must be logged in to create a club.");
+
+                const { error } = await supabase.from("clubs").insert({
+                  name: clubName,
+                  description,
+                  color: accentColor,
+                  emoji: clubEmoji,
+                  category,
+                  neighborhood,
+                  frequency,
+                  capacity,
+                  membership_type: membershipType,
+                  owner_id: user.id,
+                  is_active: true,
+                });
+                if (error) throw error;
+                setSubmitted(true);
+              } catch (err) {
+                setCreateError(err instanceof Error ? err.message : "Failed to create club. Please try again.");
+              } finally {
+                setCreating(false);
+              }
             }}
+            disabled={creating}
             className="flex-1 py-4 rounded-2xl text-sm font-bold transition-all active:scale-[0.97]"
             style={{
-              background: canNext() ? accentColor : "rgba(0,0,0,0.08)",
-              color: canNext() ? "white" : "rgba(0,0,0,0.2)",
-              boxShadow: canNext() ? `0 6px 20px ${accentColor}44` : "none",
+              background: canNext() && !creating ? accentColor : "rgba(0,0,0,0.08)",
+              color: canNext() && !creating ? "white" : "rgba(0,0,0,0.2)",
+              boxShadow: canNext() && !creating ? `0 6px 20px ${accentColor}44` : "none",
+              cursor: creating ? "default" : undefined,
             }}>
-            {step === 3 ? `Create ${clubEmoji} Club` : "Continue →"}
+            {creating ? "Creating…" : step === 3 ? `Create ${clubEmoji} Club` : "Continue →"}
           </button>
         </div>
 
