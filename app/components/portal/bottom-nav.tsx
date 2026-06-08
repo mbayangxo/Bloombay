@@ -68,7 +68,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
 
   return (
-    <nav className="bb-bottom-nav md:hidden" aria-label="Main navigation">
+    <nav className="bb-bottom-nav lg:hidden" aria-label="Main navigation">
       <div className="bb-bottom-nav__inner">
         {TABS.map((tab) => {
           const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);

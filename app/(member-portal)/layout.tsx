@@ -8,6 +8,8 @@ import { getAuthUser } from "@/lib/auth/get-user";
 import "@/app/styles/portal-scroll.css";
 import "@/app/styles/bb-home-scrapbook.css";
 import "@/app/styles/bb-home-mockup.css";
+import "@/app/styles/bb-home-mockup-mobile.css";
+import "@/app/styles/bb-home-mockup-desktop.css";
 import "@/app/styles/bb-poster-templates.css";
 import "@/app/styles/bb-member-polish.css";
 

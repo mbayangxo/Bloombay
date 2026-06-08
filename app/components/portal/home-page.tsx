@@ -3,7 +3,7 @@
 import { HomeScrapbookBoard } from "./home-scrapbook-board";
 import { HomeScrapbookHeader } from "./home-scrapbook-header";
 
-/** Member home — scrapbook collage mock-up only (no extra feed sections). */
+/** Member home — separate mobile + desktop scrapbook layouts. */
 export function HomePage({
   firstName = "there",
   userId = null,
@@ -13,11 +13,9 @@ export function HomePage({
   userId?: string | null;
 }) {
   return (
-    <div className="bb-home-page min-h-screen pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] md:pb-12 mp-home-scroll">
+    <div className="bb-home-page min-h-screen pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] lg:pb-12 mp-home-scroll">
       <HomeScrapbookHeader />
-      <div className="bb-home-page__shell">
-        <HomeScrapbookBoard firstName={firstName} userId={userId} />
-      </div>
+      <HomeScrapbookBoard firstName={firstName} userId={userId} />
     </div>
   );
 }
