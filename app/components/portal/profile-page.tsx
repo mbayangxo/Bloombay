@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { logout } from "@/lib/auth/actions";
 import { AvatarUpload } from "@/app/components/shared/avatar-upload";
+import { ProfilePhotoGallery } from "@/app/components/shared/profile-photo-gallery";
 import type { AuthUser } from "@/lib/auth/get-user";
 
 const PINK = "#FF1F7D";
@@ -80,11 +81,15 @@ export function ProfilePage({ user }: { user: AuthUser }) {
           </div>
         </div>
 
-        {/* Photo tip */}
-        <div style={{ marginBottom: 16, padding: "14px 16px", background: "rgba(255,31,125,0.06)", borderRadius: 16, border: "1px solid rgba(255,31,125,0.1)" }}>
-          <p style={{ fontSize: "11px", color: "#888", lineHeight: 1.5 }}>
-            <span style={{ fontWeight: 700, color: PINK }}>Tap your photo above</span> to change it.
-            Your photo appears on club member lists and at gatherings.
+        {/* Photo gallery */}
+        <div style={{ marginBottom: 16, padding: "16px", background: "white", borderRadius: 18, boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <ProfilePhotoGallery userId={user.id} />
+        </div>
+
+        {/* Avatar tip */}
+        <div style={{ marginBottom: 16, padding: "12px 14px", background: "rgba(255,31,125,0.05)", borderRadius: 14, border: "1px solid rgba(255,31,125,0.08)" }}>
+          <p style={{ fontSize: "10px", color: "#888", lineHeight: 1.5 }}>
+            <span style={{ fontWeight: 700, color: PINK }}>Tap your profile photo</span> (top left) to change your main avatar. Use the gallery above to add more photos to your profile.
           </p>
         </div>
 
