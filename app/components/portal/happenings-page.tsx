@@ -470,35 +470,119 @@ export function HappeningsPage() {
           </>
         )}
 
-        {/* ── CITY TAB ── */}
+        {/* ── CITY TAB — street sign pole ── */}
         {tab === "city" && (
-          <div style={{ padding: "16px 16px 0" }}>
-            <div style={{ backgroundImage: PAPER_TEX, backgroundColor: "#FEFCF7", backgroundSize: "200px 200px", borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.09)" }}>
-              <div style={{ height: 130, background: "linear-gradient(to bottom, #1a2a3a 0%, #0d1520 100%)", position: "relative", overflow: "hidden" }}>
-                <svg viewBox="0 0 400 80" style={{ width: "100%", height: "100%", display: "block" }} preserveAspectRatio="xMidYMid slice">
-                  <rect x="60"  y="20" width="30" height="60" fill="rgba(255,255,255,0.2)"/>
-                  <rect x="100" y="8"  width="22" height="72" fill="rgba(255,255,255,0.28)"/>
-                  <rect x="160" y="2"  width="16" height="78" fill="rgba(255,255,255,0.35)"/>
-                  <rect x="182" y="14" width="28" height="66" fill="rgba(255,255,255,0.22)"/>
-                  <rect x="240" y="10" width="20" height="70" fill="rgba(255,255,255,0.28)"/>
-                  <rect x="280" y="24" width="36" height="56" fill="rgba(255,255,255,0.18)"/>
-                  {[[80,22],[110,10],[170,4],[250,12],[290,26]].map(([x,y],i)=>(
-                    <circle key={i} cx={x} cy={y} r="1.5" fill="rgba(255,220,120,0.6)"/>
-                  ))}
-                </svg>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.5) 100%)" }}/>
-                <div style={{ position: "absolute", bottom: 12, left: 16 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Your City</p>
-                </div>
+          <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)", background: "linear-gradient(180deg, #D6E8F5 0%, #EAF2F9 35%, #F0EBE4 100%)" }}>
+
+            {/* Header */}
+            <div style={{ padding: "20px 20px 8px" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", marginTop: 4 }}>tap a neighborhood to explore</p>
+            </div>
+
+            {/* Street sign pole */}
+            <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 0 30px", minHeight: 520 }}>
+
+              {/* Decorative top ornament */}
+              <div style={{ width: 14, height: 14, borderRadius: "50%", background: "#8A8A8A", border: "3px solid #666", marginBottom: 0, zIndex: 2 }} />
+
+              {/* Pole */}
+              <div style={{ width: 8, height: "100%", position: "absolute", top: 14, background: "linear-gradient(90deg, #AAA 0%, #CCC 40%, #BBB 60%, #999 100%)", borderRadius: 4, zIndex: 1 }} />
+
+              {/* Signs — stacked down the pole */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, width: "100%", alignItems: "center", zIndex: 2 }}>
+
+                {/* Sign: Lower East Side — left-pointing */}
+                <Link href="/member/city?area=les" style={{ textDecoration: "none", alignSelf: "flex-start", marginLeft: "5%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 0, filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(-2deg)" }}>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderRight: `16px solid ${PINK}` }} />
+                    <div style={{ background: PINK, padding: "10px 18px 10px 10px", borderRadius: "0 8px 8px 0" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>Lower East Side</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>UNDERGROUND SPOTS · LATE NIGHTS</p>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Sign: Williamsburg — right-pointing */}
+                <Link href="/member/city?area=williamsburg" style={{ textDecoration: "none", alignSelf: "flex-end", marginRight: "5%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 0, filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(2.5deg)" }}>
+                    <div style={{ background: "#D86487", padding: "10px 10px 10px 18px", borderRadius: "8px 0 0 8px" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>Williamsburg</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>ROOFTOPS · STUDIOS · EATS</p>
+                    </div>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderLeft: `16px solid #D86487` }} />
+                  </div>
+                </Link>
+
+                {/* Sign: Crown Heights — left-pointing */}
+                <Link href="/member/city?area=crownheights" style={{ textDecoration: "none", alignSelf: "flex-start", marginLeft: "8%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(-1.5deg)" }}>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderRight: `16px solid #C0185F` }} />
+                    <div style={{ background: "#C0185F", padding: "10px 18px 10px 10px", borderRadius: "0 8px 8px 0" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>Crown Heights</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>BRUNCHES · RHYTHM · CULTURE</p>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Sign: Harlem — right-pointing */}
+                <Link href="/member/city?area=harlem" style={{ textDecoration: "none", alignSelf: "flex-end", marginRight: "8%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(1deg)" }}>
+                    <div style={{ background: PINK, padding: "10px 10px 10px 18px", borderRadius: "8px 0 0 8px" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>Harlem</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>CULTURE RUNS DEEP</p>
+                    </div>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderLeft: `16px solid ${PINK}` }} />
+                  </div>
+                </Link>
+
+                {/* Sign: SoHo — left-pointing */}
+                <Link href="/member/city?area=soho" style={{ textDecoration: "none", alignSelf: "flex-start", marginLeft: "5%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(-3deg)" }}>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderRight: `16px solid #E87BA8` }} />
+                    <div style={{ background: "#E87BA8", padding: "10px 18px 10px 10px", borderRadius: "0 8px 8px 0" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>SoHo</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>GALLERIES · DINNERS · FASHION</p>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Sign: DUMBO — right-pointing */}
+                <Link href="/member/city?area=dumbo" style={{ textDecoration: "none", alignSelf: "flex-end", marginRight: "5%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(2deg)" }}>
+                    <div style={{ background: "#D86487", padding: "10px 10px 10px 18px", borderRadius: "8px 0 0 8px" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>DUMBO</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>WATERFRONT · BRIDGE VIEWS</p>
+                    </div>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderLeft: `16px solid #D86487` }} />
+                  </div>
+                </Link>
+
+                {/* Sign: Bushwick — left-pointing */}
+                <Link href="/member/city?area=bushwick" style={{ textDecoration: "none", alignSelf: "flex-start", marginLeft: "10%" }}>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))", transform: "rotate(-1deg)" }}>
+                    <div style={{ width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderRight: `16px solid #C0185F` }} />
+                    <div style={{ background: "#C0185F", padding: "10px 18px 10px 10px", borderRadius: "0 8px 8px 0" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, whiteSpace: "nowrap" }}>Bushwick</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)", marginTop: 2 }}>ART · LATE NIGHTS · ENERGY</p>
+                    </div>
+                  </div>
+                </Link>
+
               </div>
-              <div style={{ padding: "14px 16px 16px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 6 }}>EATS · GO · SOLO · TRENDING</p>
-                <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#666", lineHeight: 1.5, marginBottom: 14 }}>
-                  Restaurants, bars, rooftops — everything worth doing in NYC, curated for you.
+            </div>
+
+            {/* Bottom CTA */}
+            <div style={{ padding: "0 20px" }}>
+              <div style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "16px 18px", border: "1px solid rgba(255,31,125,0.15)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 6 }}>FULL CITY GUIDE</p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#666", lineHeight: 1.5, marginBottom: 12 }}>
+                  Restaurants, bars, rooftops — curated by Bloomies for Bloomies.
                 </p>
                 <Link href="/member/city" style={{ textDecoration: "none" }}>
                   <div style={{ display: "inline-flex", background: PINK, color: "white", borderRadius: 999, padding: "9px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em", boxShadow: `0 4px 14px ${PINK}55` }}>
-                    EXPLORE CITY →
+                    ALL OF NYC →
                   </div>
                 </Link>
               </div>
