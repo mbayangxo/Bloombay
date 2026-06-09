@@ -882,19 +882,30 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#aaa", marginTop: 5 }}>you belong here</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#bbb", marginTop: 2 }}>soft life, strong mind ♡</p>
           </div>
-          {/* 22BF0D14 — PNG is the card, container has no background */}
-          <div style={{ width: 240, flexShrink: 0, marginRight: -4, marginTop: -12, position: "relative" }}>
-            <p style={{ position: "absolute", top: "24%", left: "12%", right: "12%", textAlign: "center", zIndex: 4,
-              fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C" }}>
-              {firstName}
-            </p>
-            <p style={{ position: "absolute", top: "42%", left: "12%", right: "12%", textAlign: "center", zIndex: 4,
-              fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", lineHeight: 1.2 }}>
-              {TODAY_EVENTS[0]?.name}
-            </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/homepage-objects/22BF0D14-A676-4B45-A133-EE13D17845F8.PNG" alt=""
-              style={{ width: "100%", height: "auto", display: "block" }} />
+          {/* Membership card */}
+          <div style={{ width: 118, flexShrink: 0, marginTop: -8 }}>
+            <div style={{
+              background: "linear-gradient(145deg, #FF1F7D 0%, #7F0030 100%)",
+              borderRadius: 18, padding: "14px 12px 12px",
+              boxShadow: "0 10px 28px rgba(255,31,125,0.38)",
+              position: "relative", overflow: "hidden", minHeight: 158,
+              display: "flex", flexDirection: "column", justifyContent: "space-between",
+            }}>
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 75% 18%, rgba(255,255,255,0.18) 0%, transparent 50%)", pointerEvents: "none" }} />
+              <div>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 13, color: "rgba(255,255,255,0.9)", marginBottom: 18 }}>BB*</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 800, fontSize: 20, color: "white", lineHeight: 0.9, marginBottom: 4 }}>{firstName}</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{TODAY_EVENTS[0]?.name}</p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <p style={{ fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>MEMBER</p>
+                <div style={{ display: "flex", gap: "1.5px" }}>
+                  {[2,1,3,1,2,1,2,3].map((w, i) => (
+                    <div key={i} style={{ width: w, height: 9, background: "rgba(255,255,255,0.2)", borderRadius: "0.5px" }} />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -932,57 +943,55 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
 
         {/* MY FIRST MONTH */}
         <Link href="/member/plans" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative", width: "100%", height: 160 }}>
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "url('/homepage-objects/C806CD84-83E7-4147-B213-BEC3CE92DE10.PNG')",
-              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
-            }} />
-            <div style={{ position: "absolute", top: "12%", left: "12%", right: "8%", zIndex: 2 }}>
-              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 4 }}>MY FIRST MONTH</p>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 6 }}>
-                <span style={{ fontSize: 10, lineHeight: 1.4 }}>⭐</span>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Week 2:<br/>Attend 1<br/>gathering</p>
+          <div style={{
+            position: "relative", overflow: "hidden", borderRadius: 18,
+            background: "white", boxShadow: "0 4px 16px rgba(0,0,0,0.07)",
+            transform: "rotate(-0.5deg)", padding: "14px 11px", minHeight: 152,
+            display: "flex", flexDirection: "column", justifyContent: "space-between",
+          }}>
+            <div style={{ position: "absolute", top: -5, left: "50%", transform: "translateX(-50%) rotate(-2deg)", width: 38, height: 13, background: "rgba(255,218,100,0.55)", borderRadius: 2 }} />
+            <div>
+              <p style={{ fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: PINK, marginBottom: 6 }}>MY FIRST MONTH</p>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 2, marginBottom: 8 }}>
+                <span style={{ fontSize: 10, lineHeight: 1.3 }}>⭐</span>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.3 }}>Week 2:<br/>Attend 1<br/>gathering</p>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,31,125,0.15)", overflow: "hidden" }}>
-                  <div style={{ width: "75%", height: "100%", background: "#FF1F7D", borderRadius: 999 }} />
-                </div>
-                <span style={{ fontSize: 8, fontWeight: 700, color: "#bbb" }}>3/4</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,31,125,0.1)", overflow: "hidden" }}>
+                <div style={{ width: "75%", height: "100%", background: PINK, borderRadius: 999 }} />
               </div>
+              <span style={{ fontSize: 7, fontWeight: 700, color: "#bbb" }}>3/4</span>
             </div>
           </div>
         </Link>
 
         {/* THIS WEEK */}
         <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative", width: "100%", height: 160 }}>
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "url('/homepage-objects/C4C93D7A-408F-4F2D-B125-CE81AC7C30C1.PNG')",
-              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
-            }} />
-            <div style={{ position: "absolute", top: "12%", left: "12%", right: "8%", zIndex: 2 }}>
-              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 4 }}>THIS WEEK · 3 EVENTS</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.25 }}>Book Girls<br/>NYC</p>
-              <p style={{ fontSize: 10, color: "#888", marginTop: 4 }}>Wednesday</p>
-            </div>
+          <div style={{
+            position: "relative", overflow: "hidden", borderRadius: 18,
+            background: "#FEF0F5", boxShadow: "0 4px 16px rgba(255,31,125,0.08)",
+            transform: "rotate(0.4deg)", padding: "14px 11px", minHeight: 152,
+          }}>
+            <div style={{ position: "absolute", top: -5, right: 12, transform: "rotate(3deg)", width: 38, height: 13, background: "rgba(255,218,100,0.55)", borderRadius: 2 }} />
+            <p style={{ fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: PINK, marginBottom: 6 }}>THIS WEEK · 3</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.3 }}>Book Girls<br/>NYC</p>
+            <p style={{ fontSize: 9, color: "#888", marginTop: 5 }}>Wednesday</p>
+            <p style={{ fontSize: 9, color: "#bbb", marginTop: 1 }}>+ 2 more</p>
           </div>
         </Link>
 
         {/* CITY VIBES */}
         <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ position: "relative", width: "100%", height: 160 }}>
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "url('/homepage-objects/930F0AEE-4D93-4733-B19D-B6937EE076F8.PNG')",
-              backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat",
-            }} />
-            <div style={{ position: "absolute", bottom: "18%", left: "12%", right: "8%", zIndex: 2 }}>
-              <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#FF1F7D", marginBottom: 3 }}>CITY VIBES</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#555", lineHeight: 1.25 }}>Crown<br/>Heights</p>
-              <p style={{ fontSize: 10, color: "#aaa", marginTop: 3 }}>9 spots ♡</p>
-            </div>
+          <div style={{
+            position: "relative", overflow: "hidden", borderRadius: 18,
+            background: "white", boxShadow: "0 4px 16px rgba(0,0,0,0.07)",
+            transform: "rotate(-0.3deg)", padding: "14px 11px", minHeight: 152,
+          }}>
+            <p style={{ fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: PINK, marginBottom: 6 }}>CITY VIBES</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.3 }}>Crown<br/>Heights</p>
+            <p style={{ fontSize: 9, color: "#aaa", marginTop: 5 }}>9 spots ♡</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.1)", position: "absolute", bottom: 10, right: 10 }}>explore →</p>
           </div>
         </Link>
 
@@ -994,25 +1003,27 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
         <img src="/homepage-objects/029131C9-6891-4053-A980-F8F436DBA8AB.PNG" alt=""
           style={{ position: "absolute", right: 128, top: -14, width: 32, transform: "rotate(22deg)", zIndex: 5, pointerEvents: "none" }} />
 
-        {/* Today events — 9F25A2C1 notepad as visual frame */}
-        <div style={{ flex: 1, position: "relative" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/homepage-objects/9F25A2C1-BFCC-4D6C-84D8-DB85241B9187.PNG" alt=""
-            style={{ width: "100%", display: "block" }} />
-          <div style={{ position: "absolute", top: "18%", left: "12%", right: "8%", zIndex: 2 }}>
-            <p style={{ fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 7 }}>
-              TODAY · {TODAY_EVENTS.length} EVENTS
-            </p>
-            {TODAY_EVENTS.map((ev) => (
-              <Link key={ev.id} href="/member/schedule" style={{ textDecoration: "none", display: "block", marginBottom: 7 }}>
-                <p style={{ fontSize: 9, fontWeight: 800, color: ev.isNext ? "#FF1F7D" : "#888", lineHeight: 1 }}>{ev.time}</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.1 }}>{ev.name}</p>
-              </Link>
+        {/* Today events — clean notepad card */}
+        <div style={{ flex: 1, position: "relative", background: "white", borderRadius: 20, padding: "14px 14px 12px", boxShadow: "0 4px 18px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+          {/* Ruled lines */}
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            {[48, 64, 80, 96, 112, 128].map(y => (
+              <div key={y} style={{ position: "absolute", left: 0, right: 0, top: y, height: 1, background: "rgba(255,31,125,0.05)" }} />
             ))}
-            <Link href="/member/schedule" style={{ textDecoration: "none" }}>
-              <p style={{ fontSize: "7px", fontWeight: 700, color: "#FF1F7D", letterSpacing: "0.08em", marginTop: 4 }}>VIEW ALL →</p>
-            </Link>
+            <div style={{ position: "absolute", top: 0, bottom: 0, left: 28, width: 1, background: "rgba(255,31,125,0.07)" }} />
           </div>
+          <p style={{ fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 7, position: "relative" }}>
+            TODAY · {TODAY_EVENTS.length} EVENTS
+          </p>
+          {TODAY_EVENTS.map((ev) => (
+            <Link key={ev.id} href="/member/schedule" style={{ textDecoration: "none", display: "block", marginBottom: 7, position: "relative" }}>
+              <p style={{ fontSize: 9, fontWeight: 800, color: ev.isNext ? "#FF1F7D" : "#888", lineHeight: 1 }}>{ev.time}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 800, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.1 }}>{ev.name}</p>
+            </Link>
+          ))}
+          <Link href="/member/schedule" style={{ textDecoration: "none", position: "relative" }}>
+            <p style={{ fontSize: "7px", fontWeight: 700, color: "#FF1F7D", letterSpacing: "0.08em", marginTop: 4 }}>VIEW ALL →</p>
+          </Link>
         </div>
 
         {/* Tonight card */}
@@ -1080,13 +1091,11 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           <p style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D", marginBottom: 3 }}>NEAR YOU</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", marginBottom: 8 }}>SoHo, NYC</p>
           <Link href="/member/city" style={{ textDecoration: "none", display: "block" }}>
-            <div style={{ position: "relative" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/homepage-objects/5F82AF10-AC61-49F3-AA6B-4392FBB2D387.PNG" alt=""
-                style={{ width: "100%", height: "auto", display: "block" }} />
-              <div style={{ position: "absolute", top: "6%", left: "4%", right: "4%", zIndex: 2, display: "flex", justifyContent: "space-between" }}>
+            <div style={{ borderRadius: 14, overflow: "hidden", background: "linear-gradient(145deg, #FEE8F0 0%, #FDF0F5 100%)", padding: "12px 10px 10px", boxShadow: "0 4px 14px rgba(255,31,125,0.08)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 4 }}>
                 {NEIGHBORHOODS.map((n, i) => (
-                  <div key={i} style={{ textAlign: "center", width: "32%" }}>
+                  <div key={i} style={{ textAlign: "center", flex: 1 }}>
+                    <div style={{ width: "100%", height: 32, borderRadius: 8, background: n.color, marginBottom: 5, opacity: 0.55 }} />
                     <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, fontWeight: 700, color: "#555", lineHeight: 1.2 }}>{n.name}</p>
                     <p style={{ fontSize: "6px", color: "#aaa" }}>{n.clubs}</p>
                   </div>
@@ -1107,13 +1116,11 @@ export function HomePage({ firstName = "May", initial = "M" }: { firstName?: str
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0)", marginBottom: 8 }}>·</p>
           <div style={{ transform: "rotate(1deg)" }}>
             <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-              <div style={{ position: "relative" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/homepage-objects/38417C11-72A8-4D3D-950A-B335CDFC2CB5.PNG" alt=""
-                  style={{ width: "100%", height: "auto", display: "block" }} />
-                <div style={{ position: "absolute", bottom: "18%", left: "10%", right: "10%", zIndex: 3 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 700, fontStyle: "italic", color: "#1C1B1C", lineHeight: 1.4 }}>&ldquo;Collect moments,<br/>not things.&rdquo;</p>
-                </div>
+              <div style={{ borderRadius: 14, overflow: "hidden", background: "linear-gradient(145deg, #1C1B1C 0%, #2D0015 100%)", padding: "18px 14px 16px", boxShadow: "0 8px 24px rgba(0,0,0,0.2)", position: "relative", minHeight: 110 }}>
+                <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 80% 20%, rgba(255,31,125,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 22, color: "rgba(255,255,255,0.08)", position: "absolute", top: 8, right: 10 }}>BB.</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 700, fontStyle: "italic", color: "#F1DFDD", lineHeight: 1.45, position: "relative" }}>&ldquo;Collect moments,<br/>not things.&rdquo;</p>
+                <p style={{ fontSize: "6.5px", fontWeight: 600, color: "rgba(255,255,255,0.28)", marginTop: 8, letterSpacing: "0.1em", position: "relative" }}>— bloombay</p>
               </div>
             </Link>
           </div>
