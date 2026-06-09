@@ -6,7 +6,7 @@ import { logout } from "@/lib/auth/actions";
 
 interface NavUser { name: string; initial: string; role: string; }
 
-// ─── Tab definitions ──────────────────────────────────────────────────────────
+// ─── Bottom tabs ──────────────────────────────────────────────────────────────
 
 const TABS = [
   {
@@ -23,28 +23,15 @@ const TABS = [
     ),
   },
   {
-    href: "/member/discover",
-    label: "Discover",
+    href: "/member/happenings",
+    label: "Happenings",
     icon: (active: boolean) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
         stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
         strokeWidth={active ? "2" : "1.6"}
         strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="M21 21l-4.35-4.35"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/city",
-    label: "Map",
-    icon: (active: boolean) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
-        strokeWidth={active ? "2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
-        <circle cx="12" cy="10" r="3"/>
+        {/* Sparkle / happening star */}
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
       </svg>
     ),
   },
@@ -64,26 +51,69 @@ const TABS = [
     ),
   },
   {
-    href: "/member/lounge",
-    label: "Profile",
-    icon: (active: boolean, initial?: string) => (
-      active ? (
-        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 0 0 2px #FF1F7D" }}>
-          {initial ?? "M"}
-        </div>
-      ) : (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-          stroke="rgba(255,255,255,0.38)"
-          strokeWidth="1.6"
-          strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      )
+    href: "/member/plans",
+    label: "Plans",
+    icon: (active: boolean) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
+        strokeWidth={active ? "2" : "1.6"}
+        strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <path d="M8 14l2.5 2.5L16 11"/>
+      </svg>
     ),
   },
 ];
+
+// ─── Top utility icons ────────────────────────────────────────────────────────
+
+function AptIcon({ active }: { active: boolean }) {
+  const c = active ? "#FF1F7D" : "#FF69B4";
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+      <path d="M9 21V15h6v6"/>
+      <rect x="9" y="10" width="2" height="3" rx="0.5"/>
+      <rect x="13" y="10" width="2" height="3" rx="0.5"/>
+    </svg>
+  );
+}
+
+function MailboxIcon({ active }: { active: boolean }) {
+  const c = active ? "#FF1F7D" : "#FF69B4";
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
+    </svg>
+  );
+}
+
+function ChatIcon({ active }: { active: boolean }) {
+  const c = active ? "#FF1F7D" : "#FF69B4";
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  );
+}
+
+function PinDropIcon({ active }: { active: boolean }) {
+  const c = active ? "#FF1F7D" : "#FF69B4";
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  );
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -93,6 +123,13 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
   }
+
+  const UTILITY = [
+    { href: "/member/lounge",        label: "Apt",      Icon: AptIcon,     badge: null },
+    { href: "/member/messages",      label: "Mailbox",  Icon: MailboxIcon, badge: "3" as string | null },
+    { href: "/member/chat",          label: "Chat",     Icon: ChatIcon,    badge: "dot" as string | null },
+    { href: "/member/city",          label: "Pins",     Icon: PinDropIcon, badge: null },
+  ];
 
   return (
     <>
@@ -117,40 +154,35 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <span className="w-1 h-1 rounded-full" style={{ background: "#FF1F7D", opacity: 0.6 }} />
           </Link>
 
-          {/* Utility icons */}
-          <div className="flex items-center gap-2">
-            <Link href="/member/messages" aria-label="Mailbox"
-              className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
-              style={{
-                background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
-                border: pathname.startsWith("/member/messages") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "#FF69B4"}
-                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
-                style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }}>
-                3
-              </div>
-            </Link>
-            <Link href="/member/notifications" aria-label="Pings"
-              className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
-              style={{
-                background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
-                border: pathname.startsWith("/member/notifications") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "#FF69B4"}
-                strokeWidth="2" strokeLinecap="round">
-                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 01-3.46 0"/>
-              </svg>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-                style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }} />
-            </Link>
+          {/* Utility icons: Apt · Mailbox · Chat · Pin drops */}
+          <div className="flex items-center gap-1.5">
+            {UTILITY.map(({ href, label, Icon, badge }) => {
+              const active = pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-label={label}
+                  className="w-8 h-8 rounded-full flex items-center justify-center relative transition-all active:scale-90"
+                  style={{
+                    background: active ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
+                    border: active ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
+                  }}
+                >
+                  <Icon active={active} />
+                  {badge === "dot" && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+                      style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }} />
+                  )}
+                  {badge && badge !== "dot" && (
+                    <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
+                      style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }}>
+                      {badge}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -181,9 +213,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                     style={{ background: "#FF1F7D" }}
                   />
                 )}
-                {tab.label === "Profile"
-                  ? tab.icon(active, user?.initial)
-                  : tab.icon(active)}
+                {tab.icon(active)}
                 <span
                   className="text-[9px] font-semibold tracking-wide"
                   style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.3)" }}
@@ -195,17 +225,6 @@ export function BottomNav({ user }: { user?: NavUser }) {
           })}
         </div>
       </div>
-
-      <style>{`
-        @keyframes mailboxShake {
-          0%, 80%, 100% { transform: rotate(0deg); }
-          83% { transform: rotate(-8deg); }
-          86% { transform: rotate(7deg); }
-          89% { transform: rotate(-5deg); }
-          92% { transform: rotate(4deg); }
-          95% { transform: rotate(-2deg); }
-        }
-      `}</style>
     </>
   );
 }
