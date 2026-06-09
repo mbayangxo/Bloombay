@@ -277,7 +277,7 @@ export function HappeningsPage() {
         background: NAV_BG,
         borderBottom: "1px solid rgba(0,0,0,0.07)",
         boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
-        height: 48,
+        height: 54,
         paddingTop: "env(safe-area-inset-top, 0px)",
         display: "flex", alignItems: "center",
       }}>
@@ -299,14 +299,14 @@ export function HappeningsPage() {
           }}>
             {(["happenings","city"] as HapTab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
-                padding: "6px 18px", borderRadius: 999, border: "none",
+                padding: "8px 20px", borderRadius: 999, border: "none",
                 background: tab === t ? PINK : "transparent",
                 color: tab === t ? "white" : "rgba(0,0,0,0.4)",
-                fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800,
-                letterSpacing: "0.12em", cursor: "pointer", transition: "all 0.18s",
+                fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800,
+                letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
                 boxShadow: tab === t ? `0 2px 10px ${PINK}44` : "none",
               }}>
-                {t === "happenings" ? "HAPPENINGS" : "CITY"}
+                {t === "happenings" ? "HAPPENINGS" : "THE CITY"}
               </button>
             ))}
           </div>
@@ -343,7 +343,7 @@ export function HappeningsPage() {
       {/* ── Filter dropdown (collapsible) ── */}
       {filterOpen && tab === "happenings" && (
         <div style={{
-          position: "fixed", top: 48, left: 0, right: 0, zIndex: 50,
+          position: "fixed", top: 54, left: 0, right: 0, zIndex: 50,
           background: NAV_BG,
           borderBottom: "1px solid rgba(0,0,0,0.08)",
           padding: "10px 16px 12px",
@@ -370,7 +370,7 @@ export function HappeningsPage() {
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: 48 }}>
+      <div style={{ paddingTop: 54 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {tab === "happenings" && (
