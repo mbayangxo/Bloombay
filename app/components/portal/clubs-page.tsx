@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape } from "./scrapbook";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -35,32 +36,6 @@ const NEAR_YOU = [
   { name: "Astoria", clubs: 8, grad: "linear-gradient(135deg,#c96b9e,#7a2250)" },
 ];
 
-function Tape({ style }: { style?: React.CSSProperties }) {
-  return (
-    <div style={{
-      position: "absolute",
-      top: -10,
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: 48,
-      height: 20,
-      background: "rgba(255,240,150,0.55)",
-      borderRadius: 2,
-      zIndex: 2,
-      border: "1px solid rgba(255,220,50,0.3)",
-      ...style,
-    }} />
-  );
-}
-
-function SafetyPin({ style }: { style?: React.CSSProperties }) {
-  return (
-    <svg width="22" height="42" viewBox="0 0 22 42" fill="none" style={{ opacity: 0.5, ...style }}>
-      <path d="M11 2 Q14 8 14 16 L14 38 Q14 41 11 41 Q8 41 8 38 L8 16 Q8 8 11 2Z" fill="none" stroke="#bbb" strokeWidth="1.2"/>
-      <circle cx="11" cy="5" r="3" fill="none" stroke="#bbb" strokeWidth="1.2"/>
-    </svg>
-  );
-}
 
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
@@ -103,7 +78,10 @@ export function ClubsPage() {
             transform: "rotate(4deg)",
             zIndex: 3,
           }}>
-            <Tape />
+            {/* Push pin instead of tape */}
+            <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
+              <PushPin color="pink" size={14} />
+            </div>
             <div style={{
               width: "100%", height: 90,
               background: "linear-gradient(135deg,#d4a5c4 0%,#e8c8b5 100%)",
@@ -130,6 +108,9 @@ export function ClubsPage() {
             <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "white", textAlign: "center", lineHeight: 1.3, padding: "0 8px" }}>you belong here</span>
           </div>
         </div>
+
+        {/* Floating gold star decoration */}
+        <GoldStar size={20} style={{ position: "absolute", bottom: 52, left: 6, transform: "rotate(-14deg)", opacity: 0.85 }} />
 
         {/* Handwritten note + safety pin + CTA */}
         <div style={{ marginTop: 44, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -166,7 +147,9 @@ export function ClubsPage() {
                 backgroundImage: PAPER_TEX,
                 cursor: "pointer",
               }}>
-                <Tape />
+                <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
+                  <PushPin color="pink" size={13} />
+                </div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: DARK, opacity: 0.4, textAlign: "center", marginBottom: 4, letterSpacing: "0.1em" }}>
                   {club.members} members
                 </div>
@@ -192,11 +175,15 @@ export function ClubsPage() {
         <div style={{
           background: "white",
           backgroundImage: PAPER_TEX,
-          padding: "18px 16px 16px",
+          padding: "22px 16px 0",
           boxShadow: "2px 4px 14px rgba(0,0,0,0.08)",
           transform: "rotate(-0.8deg)",
           position: "relative",
         }}>
+          {/* Washi tape label at top */}
+          <div style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%) rotate(-2deg)", zIndex: 5 }}>
+            <WashiTape color="yellow" width={80} height={18} />
+          </div>
           <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38, marginBottom: 14 }}>TODAY&apos;S HAPPENINGS</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
             {HAPPENINGS.map((h, i) => (
@@ -217,11 +204,12 @@ export function ClubsPage() {
             ))}
           </div>
           <button style={{
-            marginTop: 14, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
-            color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0,
+            marginTop: 14, marginBottom: 12, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
+            color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0, display: "block",
           }}>
             SEE FULL CALENDAR →
           </button>
+          <TornEdge color={CREAM} height={16} style={{ marginLeft: -16, marginRight: -16 }} />
         </div>
       </section>
 
@@ -351,7 +339,10 @@ export function ClubsPage() {
 
       {/* ── EXPLORE BY VIBE ── */}
       <section style={{ padding: "0 20px 28px" }}>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38, marginBottom: 14 }}>EXPLORE CLUBS BY VIBE</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38 }}>EXPLORE CLUBS BY VIBE</div>
+          <GoldStar size={14} />
+        </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {VIBES.map(vibe => (
             <button
@@ -396,7 +387,9 @@ export function ClubsPage() {
               position: "relative",
               backgroundImage: PAPER_TEX,
             }}>
-              <Tape />
+              <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
+                <PushPin color={["pink","gold","blue","red","pink"][i % 5] as "pink" | "gold" | "blue" | "red"} size={12} />
+              </div>
               <div style={{ width: "100%", height: 80, background: n.grad, borderRadius: 2 }} />
               <div style={{ marginTop: 8 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: DARK }}>{n.name}</div>
