@@ -9,17 +9,53 @@ interface PlanRoom {
   id: number; name: string; emoji: string; bg: string; accent: string;
   unread: number; members: number; date: string; venue?: string; time?: string; eventId?: number;
 }
-interface PlanMessage {
-  id: number; sender: string; initial: string; color: string;
-  text: string; time: string; isMe?: boolean;
-}
 interface DayContent { text: string; stickers: string[]; photos: string[]; voiceCount: number; }
 type View = "list" | "room";
 type MainTab = "plans" | "calendar";
 type NewPlanStep = "choose" | "room" | "bloomie" | "club";
 type DayEditorTab = "write" | "sticker" | "photo" | "voice";
 
+// ── NIGHT MODE ────────────────────────────────────────────────────────────────
+
+function useNightMode() {
+  const check = () => { const h = new Date().getHours(); return h >= 20 || h < 6; };
+  const [isNight, setIsNight] = useState(check);
+  useEffect(() => {
+    const t = setInterval(() => setIsNight(check()), 60_000);
+    return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return isNight;
+}
+
+const DAY_THEME = {
+  pageBg:      "linear-gradient(160deg, #F2EAE0 0%, #F7EEF6 50%, #EEE9F2 100%)",
+  topBar:      "#FEFCF7",
+  topBarBorder:"rgba(0,0,0,0.07)",
+  cardBg:      "rgba(255,255,255,0.52)",
+  cardBorder:  "rgba(255,255,255,0.72)",
+  heading:     "#1A1A1A",
+  subText:     "#999",
+  label:       "rgba(0,0,0,0.28)",
+  sectionBg:   "rgba(255,255,255,0.7)",
+  inputBg:     "#FFF5F8",
+};
+const NIGHT_THEME = {
+  pageBg:      "linear-gradient(160deg, #120810 0%, #1C0D14 50%, #0E0812 100%)",
+  topBar:      "rgba(18,8,16,0.97)",
+  topBarBorder:"rgba(238,170,195,0.15)",
+  cardBg:      "rgba(74,32,42,0.52)",
+  cardBorder:  "rgba(238,170,195,0.22)",
+  heading:     "#F1DFDD",
+  subText:     "rgba(241,223,221,0.5)",
+  label:       "rgba(238,170,195,0.45)",
+  sectionBg:   "rgba(74,32,42,0.65)",
+  inputBg:     "rgba(74,32,42,0.45)",
+};
+
 // ── DATA ──────────────────────────────────────────────────────────────────────
+
+const PINK = "#FF1F7D";
 
 const PLAN_ROOMS: PlanRoom[] = [
   { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7, members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026"   },
@@ -45,46 +81,54 @@ const CLUBS_LIST = [
   { id: 3, name: "Afrobeats Collective", emoji: "🎵", members: 67 },
 ];
 
-const ROOM_MESSAGES: Record<number, PlanMessage[]> = {
-  4: [
-    { id: 1, sender: "Amara", initial: "A", color: "#FF1F7D", text: "So excited for tonight!! Anyone getting there early to grab a spot near the front?", time: "2:30 PM" },
-    { id: 2, sender: "Sofía", initial: "S", color: "#FF69B4", text: "I'll be there by 6:45. They said the opening talk starts at 7:15", time: "2:34 PM" },
-    { id: 3, sender: "Me",    initial: "Y", color: "#FF1F7D", text: "I'll come with you Sofía! Meeting at the corner of Wyckoff?", time: "2:38 PM", isMe: true },
-    { id: 4, sender: "Nia",   initial: "N", color: "#C0185F", text: "Yes!! The photographer doing the artist talk is incredible. I've been following her work for years", time: "2:42 PM" },
-    { id: 5, sender: "Amara", initial: "A", color: "#FF1F7D", text: "Also — champagne reception is free 🥂🥂 this night is going to be everything", time: "2:45 PM" },
-  ],
-  5: [
-    { id: 1, sender: "Priya", initial: "P", color: "#FF69B4", text: "First time doing wheel throwing. Should I wear old clothes?", time: "10:00 AM" },
-    { id: 2, sender: "Mia",   initial: "M", color: "#FF1F7D", text: "Absolutely. I ruined a white top last time 😅 clay goes everywhere", time: "10:04 AM" },
-    { id: 3, sender: "Me",    initial: "Y", color: "#FF1F7D", text: "Good call. I'm wearing my black overalls", time: "10:06 AM", isMe: true },
-    { id: 4, sender: "Jade",  initial: "J", color: "#FF69B4", text: "The instructor is so good — she'll teach you how to center the clay in the first 10 minutes", time: "10:09 AM" },
-  ],
-  6: [
-    { id: 1, sender: "Imani", initial: "I", color: "#FF1F7D", text: "Golden hour from the rooftop tonight 🌅 who's hyped?", time: "3:00 PM" },
-    { id: 2, sender: "Luna",  initial: "L", color: "#FF69B4", text: "Been waiting for this all week. What's everyone wearing?", time: "3:03 PM" },
-    { id: 3, sender: "Me",    initial: "Y", color: "#FF1F7D", text: "Something gold obviously 😂 see you all at 8!", time: "3:07 PM", isMe: true },
-  ],
+const PLAN_TODOS: Record<number, { id: number; text: string; done: boolean }[]> = {
   1: [
-    { id: 1, sender: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Who's booking flights? We should coordinate — group deals are cheaper", time: "9:12 AM" },
-    { id: 2, sender: "Jade K.",    initial: "J", color: "#FF69B4", text: "Skyscanner has a group booking tool 👀 let me look into it", time: "9:14 AM" },
-    { id: 3, sender: "Nadia S.",   initial: "N", color: "#A855F7", text: "I found a riad that fits 14. The photos are unreal", time: "9:15 AM" },
-    { id: 4, sender: "Me",         initial: "Y", color: "#FF1F7D", text: "Send the riad link!! And yes let's do a group call to sort flights this week", time: "9:17 AM", isMe: true },
-    { id: 5, sender: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Oct 10th works for me. Flying JFK → RAK", time: "9:18 AM" },
-    { id: 6, sender: "Me",         initial: "Y", color: "#FF1F7D", text: "Same ✈️ Let's lock this in before prices go up", time: "9:20 AM", isMe: true },
-    { id: 7, sender: "Jade K.",    initial: "J", color: "#FF69B4", text: "Link dropped in the group thread. 5 rooms, private pool 🌴", time: "9:22 AM" },
+    { id: 1, text: "Book flights JFK → RAK",              done: false },
+    { id: 2, text: "Reserve riad (Nadia's link)",         done: false },
+    { id: 3, text: "Check Morocco visa requirements",     done: true  },
+    { id: 4, text: "Travel insurance",                   done: false },
+    { id: 5, text: "Group flight coordination call",     done: false },
+    { id: 6, text: "Shared packing list",                done: false },
   ],
   2: [
-    { id: 1, sender: "Temi A.", initial: "T", color: "#FF1F7D", text: "SOB's is going OFF this night. Who's dressing up?", time: "3:00 PM" },
-    { id: 2, sender: "Zara F.", initial: "Z", color: "#FF69B4", text: "Always. What's the dress code — chic or full Afrobeats?", time: "3:05 PM" },
-    { id: 3, sender: "Me",      initial: "Y", color: "#FF1F7D", text: "Full send. I'm wearing my Ankara set 🔥", time: "3:08 PM", isMe: true },
-    { id: 4, sender: "Temi A.", initial: "T", color: "#FF1F7D", text: "YESSS. We're getting there by 10 — doors open at 9", time: "3:10 PM" },
-    { id: 5, sender: "Me",      initial: "Y", color: "#FF1F7D", text: "Pregame at mine before? I'm 10 min from SOB's", time: "3:12 PM", isMe: true },
+    { id: 1, text: "Get tickets (3 left!)",              done: false },
+    { id: 2, text: "Pregame at mine — 9PM",              done: true  },
+    { id: 3, text: "Rideshare to SOB's",                 done: false },
+    { id: 4, text: "Outfit check ✔️",                   done: true  },
   ],
   3: [
-    { id: 1, sender: "Sofia W.", initial: "S", color: "#83C5A0", text: "Sunday walk is confirmed! Meet at Grand Army Plaza at 9AM 🌿", time: "Fri · 6pm" },
-    { id: 2, sender: "Naomi B.", initial: "N", color: "#FF69B4", text: "I'll bring matcha for everyone ☕", time: "Fri · 6:15pm" },
-    { id: 3, sender: "Me",       initial: "Y", color: "#FF1F7D", text: "Perfect. See everyone Sunday 🌅", time: "Fri · 7pm", isMe: true },
+    { id: 1, text: "Meet at Grand Army Plaza 9AM",       done: true  },
+    { id: 2, text: "Naomi bringing matcha 🍵",           done: true  },
+    { id: 3, text: "Wear comfy shoes",                   done: false },
   ],
+  4: [
+    { id: 1, text: "Get there by 6:45 (talk at 7:15)",  done: false },
+    { id: 2, text: "Free champagne reception!",          done: false },
+    { id: 3, text: "Meet Sofía at Wyckoff corner",       done: true  },
+  ],
+  5: [
+    { id: 1, text: "Wear old clothes (clay splatter!)",  done: false },
+    { id: 2, text: "Brooklyn Clay, Williamsburg",        done: true  },
+    { id: 3, text: "Session starts 6:30PM sharp",       done: false },
+  ],
+  6: [
+    { id: 1, text: "Wear something gold 🌟",            done: false },
+    { id: 2, text: "Arrive before sunset (8PM)",        done: false },
+    { id: 3, text: "Reserve Westlight rooftop bar",     done: true  },
+  ],
+};
+
+const PLAN_NOTES: Record<number, { id: number; text: string }[]> = {
+  1: [
+    { id: 1, text: "Riad has private pool 🌴 link in group" },
+    { id: 2, text: "Oct 10-17 works for everyone" },
+    { id: 3, text: "Budget ~$2,200 per person all in" },
+  ],
+  2: [{ id: 1, text: "SOB's fills up — arrive by 10 latest" }],
+  3: [{ id: 1, text: "Route: Grand Army → Boathouse → Vale" }],
+  4: [{ id: 1, text: "Artist talk starts 7:15. Don't be late!" }, { id: 2, text: "Champagne reception is FREE 🥂" }],
+  5: [{ id: 1, text: "First-timers: centering clay takes 20 min to learn, be patient!" }],
+  6: [{ id: 1, text: "Sunset is 8:24PM — arrive early for good spots" }],
 };
 
 const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; color: string }[]> = {
@@ -133,10 +177,7 @@ function QRCodeVisual({ seed }: { seed: number }) {
 function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose: () => void; onBack: () => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [sent, setSent] = useState(false);
-
-  function toggle(id: number) {
-    setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  }
+  function toggle(id: number) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
 
   if (sent) return (
     <>
@@ -206,9 +247,7 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
 function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClose: () => void; onOpenRoom: () => void }) {
   const [showInvite, setShowInvite] = useState(false);
   const ticketCode = `BB-${room.id.toString().padStart(2, "0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
-
   if (showInvite) return <InviteBloomieSheet room={room} onClose={onClose} onBack={() => setShowInvite(false)} />;
-
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
@@ -254,7 +293,7 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
   );
 }
 
-// ── DAY EDITOR SHEET ──────────────────────────────────────────────────────────
+// ── DAY EDITOR SHEET (POLAROID CALENDAR STYLE) ────────────────────────────────
 
 function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   dayKey: string; content: DayContent;
@@ -274,14 +313,14 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   const voiceRef = useRef(voiceCount);
 
   const date = new Date(dayKey + "T12:00:00");
+  const dayNum   = date.getDate();
   const dayLabel = DAY_FULL[date.getDay()];
-  const monthDay = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const monthLabel = MONTH_NAMES[date.getMonth()];
   const eventsToday = EVENT_DATES[dayKey] ?? [];
 
   function save(overrides: Partial<DayContent> = {}) {
     onUpdate({ text: textRef.current, stickers: stickersRef.current, photos: photosRef.current, voiceCount: voiceRef.current, ...overrides });
   }
-
   function handleText(s: string) { textRef.current = s; setText(s); save({ text: s }); }
   function addSticker(s: string) { const n = [...stickersRef.current, s]; stickersRef.current = n; setStickers(n); save({ stickers: n }); }
   function removeSticker(i: number) { const n = stickersRef.current.filter((_, j) => j !== i); stickersRef.current = n; setStickers(n); save({ stickers: n }); }
@@ -298,16 +337,11 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
     setRecording(false);
     if (recSecs > 0) { const n = voiceRef.current + 1; voiceRef.current = n; setVoiceCount(n); save({ voiceCount: n }); }
   }
-
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-      if (ev.target?.result) {
-        const n = [...photosRef.current, ev.target.result as string];
-        photosRef.current = n; setPhotos(n); save({ photos: n });
-      }
+      if (ev.target?.result) { const n = [...photosRef.current, ev.target.result as string]; photosRef.current = n; setPhotos(n); save({ photos: n }); }
     };
     reader.readAsDataURL(file);
   }
@@ -316,39 +350,50 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
 
   return (
     <>
-      <div className="fixed inset-0 z-[55]" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed inset-0 z-[55]" style={{ background: "rgba(0,0,0,0.38)", backdropFilter: "blur(4px)" }} onClick={onClose} />
       <div className="fixed bottom-0 left-0 right-0 z-[56] rounded-t-[28px] flex flex-col"
-        style={{ background: "#FEFCF7", maxHeight: "90vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", paddingBottom: "env(safe-area-inset-bottom,20px)" }}>
+        style={{ background: "#FDF8F2", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", paddingBottom: "env(safe-area-inset-bottom,20px)" }}>
 
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
+        <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
+          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
         </div>
 
-        {/* Header */}
+        {/* Header — large circled date + events in handwriting */}
         <div className="px-6 pb-4 flex-shrink-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#FF1F7D", marginBottom: 2 }}>{dayLabel}</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.1 }}>{monthDay}</p>
+          <div className="flex items-start gap-5">
+            {/* Circled date number */}
+            <div style={{ position: "relative", width: 72, height: 72, flexShrink: 0 }}>
+              <svg style={{ position: "absolute", top: 0, left: 0 }} width="72" height="72" viewBox="0 0 72 72">
+                <ellipse cx="36" cy="36" rx="31" ry="31"
+                  fill="none" stroke={PINK} strokeWidth="2"
+                  strokeDasharray="6 2"
+                  transform="rotate(-12 36 36)" />
+              </svg>
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 38, fontWeight: 700, color: "#1A1A1A", lineHeight: 1 }}>{dayNum}</p>
+              </div>
+            </div>
+
+            {/* Day info */}
+            <div style={{ flex: 1, paddingTop: 4 }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, lineHeight: 1 }}>{dayLabel}</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#888", marginBottom: 6 }}>{monthLabel}</p>
+              {eventsToday.length > 0 && eventsToday.map((ev, i) => (
+                <p key={i} style={{ fontFamily: "var(--font-caveat)", fontSize: 18, fontStyle: "italic", color: ev.color, lineHeight: 1.3, marginBottom: 2 }}>
+                  {ev.emoji} {ev.name}
+                  <span style={{ fontSize: 13, color: "#aaa" }}> · {ev.time}</span>
+                </p>
+              ))}
               {stickers.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 8 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
                   {stickers.map((s, i) => (
                     <button key={i} onClick={() => removeSticker(i)} style={{ fontSize: 18, padding: "2px 5px", background: "rgba(255,31,125,0.08)", borderRadius: 8, border: "none", cursor: "pointer" }}>{s}</button>
                   ))}
                 </div>
               )}
-              {eventsToday.length > 0 && (
-                <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-                  {eventsToday.map((ev, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 999, background: `${ev.color}18`, border: `1px solid ${ev.color}44` }}>
-                      <span style={{ fontSize: 11 }}>{ev.emoji}</span>
-                      <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: ev.color }}>{ev.name} · {ev.time}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-            <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 8 }}>
+
+            <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>
           </div>
@@ -356,14 +401,12 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
 
         {/* Panels */}
         <div className="flex-1 overflow-y-auto">
-
           {tab === "write" && (
             <textarea value={text} onChange={e => handleText(e.target.value)}
-              placeholder="Write about your day, your thoughts, your plans..."
+              placeholder="Write about your day, your plans, your thoughts…"
               autoFocus
               style={{
-                width: "100%", minHeight: 200,
-                padding: "12px 24px 16px",
+                width: "100%", minHeight: 200, padding: "12px 24px 16px",
                 fontFamily: "var(--font-caveat)", fontSize: 18, color: "#333",
                 background: "repeating-linear-gradient(transparent, transparent 31px, rgba(0,0,0,0.06) 32px)",
                 backgroundSize: "100% 32px", backgroundPosition: "0 12px",
@@ -374,7 +417,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
 
           {tab === "sticker" && (
             <div style={{ padding: "16px 20px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: "#FF1F7D", marginBottom: 12 }}>TAP TO ADD</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 12 }}>TAP TO ADD</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 8 }}>
                 {STICKER_PALETTE.map((s, i) => (
                   <button key={i} onClick={() => addSticker(s)}
@@ -394,7 +437,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
                 className="active:scale-[0.98] transition-transform"
                 style={{ width: "100%", height: 100, borderRadius: 20, border: "2px dashed rgba(255,31,125,0.3)", background: "#FFF5F8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginBottom: 16 }}>
                 <span style={{ fontSize: 32 }}>📷</span>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#FF1F7D", fontWeight: 700 }}>Add from camera roll</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: PINK, fontWeight: 700 }}>Add from camera roll</p>
               </button>
               {photos.length > 0 && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
@@ -416,44 +459,22 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
             <div style={{ padding: "28px 20px 16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 3, height: 44, marginBottom: 20 }}>
                 {WAVE_HEIGHTS.map((h, i) => (
-                  <div key={i} style={{
-                    width: 3, borderRadius: 99,
-                    height: recording ? undefined : h,
-                    background: recording ? "#FF1F7D" : "rgba(255,31,125,0.22)",
-                    animation: recording ? `waveBar ${0.4 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate` : "none",
-                    minHeight: recording ? 6 : h, maxHeight: recording ? 36 : h,
-                  }} />
+                  <div key={i} style={{ width: 3, borderRadius: 99, height: recording ? undefined : h, background: recording ? PINK : "rgba(255,31,125,0.22)", animation: recording ? `waveBar ${0.4 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate` : "none", minHeight: recording ? 6 : h, maxHeight: recording ? 36 : h }} />
                 ))}
               </div>
-              {recording && (
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 22, color: "#FF1F7D", marginBottom: 16 }}>
-                  {Math.floor(recSecs / 60).toString().padStart(2,"0")}:{(recSecs % 60).toString().padStart(2,"0")}
-                </p>
-              )}
+              {recording && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 22, color: PINK, marginBottom: 16 }}>{Math.floor(recSecs/60).toString().padStart(2,"0")}:{(recSecs%60).toString().padStart(2,"0")}</p>}
               <button onClick={() => recording ? stopRecording() : setRecording(true)}
-                style={{
-                  width: 80, height: 80, borderRadius: "50%",
-                  background: recording ? "#FF1F7D" : "rgba(255,31,125,0.1)",
-                  border: `3px solid ${recording ? "#FF1F7D" : "rgba(255,31,125,0.3)"}`,
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: recording ? "0 0 0 10px rgba(255,31,125,0.1), 0 4px 20px rgba(255,31,125,0.4)" : "none",
-                  transition: "all 0.2s",
-                }}>
-                {recording
-                  ? <div style={{ width: 22, height: 22, borderRadius: 4, background: "white" }} />
-                  : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                }
+                style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? PINK : "rgba(255,31,125,0.1)", border: `3px solid ${recording ? PINK : "rgba(255,31,125,0.3)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: recording ? "0 0 0 10px rgba(255,31,125,0.1), 0 4px 20px rgba(255,31,125,0.4)" : "none", transition: "all 0.2s" }}>
+                {recording ? <div style={{ width: 22, height: 22, borderRadius: 4, background: "white" }} /> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>}
               </button>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>
-                {recording ? "Tap to stop" : "Tap to record a voice note"}
-              </p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>{recording ? "Tap to stop" : "Tap to record a voice note"}</p>
               {voiceCount > 0 && (
                 <div style={{ marginTop: 20, width: "100%" }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#aaa", marginBottom: 8 }}>SAVED</p>
                   {Array.from({ length: voiceCount }, (_, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "white", borderRadius: 14, border: "1px solid rgba(0,0,0,0.06)", marginBottom: 8 }}>
                       <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#333" }}>Voice note {i + 1}</p>
@@ -481,7 +502,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
               { id: "voice" as DayEditorTab, icon: "🎙", label: "Voice" },
             ]).map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                style={{ flex: 1, paddingTop: 7, paddingBottom: 7, borderRadius: 14, background: tab === t.id ? "#FF1F7D" : "transparent", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, transition: "background 0.15s" }}>
+                style={{ flex: 1, paddingTop: 7, paddingBottom: 7, borderRadius: 14, background: tab === t.id ? PINK : "transparent", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, transition: "background 0.15s" }}>
                 <span style={{ fontSize: 18 }}>{t.icon}</span>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, letterSpacing: "0.04em", color: tab === t.id ? "white" : "rgba(0,0,0,0.35)" }}>{t.label.toUpperCase()}</p>
               </button>
@@ -495,58 +516,49 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
 
 // ── PAPER CALENDAR VIEW ───────────────────────────────────────────────────────
 
-function PaperCalendarView({ dayContents, onSelectDay }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void }) {
+function PaperCalendarView({ dayContents, onSelectDay, theme }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; theme: typeof DAY_THEME }) {
   const today = new Date();
   const [year, setYear]   = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-
   const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (number | null)[] = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   while (cells.length % 7 !== 0) cells.push(null);
-
   const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   function dateKey(d: number) { return `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
 
   return (
     <div style={{ padding: "16px 16px 24px" }}>
-      {/* Decorative binding */}
+      {/* Binding holes */}
       <div style={{ display: "flex", justifyContent: "center", gap: 18, marginBottom: 14 }}>
         {Array.from({ length: 8 }, (_, i) => (
           <div key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: "rgba(0,0,0,0.08)", border: "2px solid rgba(0,0,0,0.12)" }} />
         ))}
       </div>
-
       {/* Month nav */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.label} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style={{ textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>{MONTH_NAMES[month]}</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginTop: 2 }}>{year}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1 }}>{MONTH_NAMES[month]}</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: theme.subText, marginTop: 2 }}>{year}</p>
         </div>
-        <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.label} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-
       {/* Day headers */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", marginBottom: 6 }}>
         {DAY_NAMES.map(d => (
-          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.07em", color: "rgba(0,0,0,0.28)", textAlign: "center", paddingBottom: 4 }}>{d}</p>
+          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.07em", color: theme.label, textAlign: "center", paddingBottom: 4 }}>{d}</p>
         ))}
       </div>
-
       {/* Grid */}
-      <div style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", border: "1px solid rgba(0,0,0,0.07)" }}>
+      <div style={{ background: theme.cardBg, backdropFilter: "blur(8px)", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", border: `1px solid ${theme.cardBorder}` }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}>
           {cells.map((day, i) => {
-            if (!day) return (
-              <div key={i} style={{ minHeight: 54, background: "rgba(0,0,0,0.015)", borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none" }} />
-            );
+            if (!day) return <div key={i} style={{ minHeight: 54, background: "rgba(0,0,0,0.015)", borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none" }} />;
             const key = dateKey(day);
             const isToday = key === todayKey;
             const dots = EVENT_DATES[key];
@@ -556,35 +568,24 @@ function PaperCalendarView({ dayContents, onSelectDay }: { dayContents: Record<s
             return (
               <button key={i} onClick={() => onSelectDay(key)}
                 className="active:bg-pink-50 transition-colors"
-                style={{
-                  minHeight: 54, padding: "6px 3px",
-                  borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none",
-                  borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none",
-                  background: isToday ? "rgba(255,31,125,0.04)" : "transparent",
-                  display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer",
-                }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: isToday ? "#FF1F7D" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: isToday ? 700 : 400, color: isToday ? "white" : "rgba(0,0,0,0.7)", lineHeight: 1 }}>{day}</p>
+                style={{ minHeight: 54, padding: "6px 3px", borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none", background: isToday ? "rgba(255,31,125,0.04)" : "transparent", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: isToday ? PINK : "transparent", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: isToday ? 700 : 400, color: isToday ? "white" : theme.heading, lineHeight: 1 }}>{day}</p>
                 </div>
-                {hasSticker
-                  ? <span style={{ fontSize: 11 }}>{dc.stickers[dc.stickers.length-1]}</span>
-                  : dots
-                  ? <div style={{ display: "flex", gap: 2 }}>{dots.slice(0,2).map((ev,j) => <div key={j} style={{ width: 5, height: 5, borderRadius: "50%", background: ev.color }} />)}</div>
-                  : hasNote
-                  ? <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,31,125,0.4)" }} />
-                  : null
-                }
+                {hasSticker ? <span style={{ fontSize: 11 }}>{dc.stickers[dc.stickers.length-1]}</span>
+                  : dots ? <div style={{ display: "flex", gap: 2 }}>{dots.slice(0,2).map((ev,j) => <div key={j} style={{ width: 5, height: 5, borderRadius: "50%", background: ev.color }} />)}</div>
+                  : hasNote ? <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,31,125,0.4)" }} />
+                  : null}
               </button>
             );
           })}
         </div>
       </div>
-
       <div style={{ marginTop: 14, display: "flex", gap: 14 }}>
-        {[{ color: "#FF1F7D", label: "Today" }, { color: "#83C5A0", label: "Plans" }, { color: "rgba(255,31,125,0.4)", label: "Notes" }].map(l => (
+        {[{ color: PINK, label: "Today" }, { color: "#83C5A0", label: "Plans" }, { color: "rgba(255,31,125,0.4)", label: "Notes" }].map(l => (
           <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 7, height: 7, borderRadius: "50%", background: l.color }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#aaa" }}>{l.label}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText }}>{l.label}</p>
           </div>
         ))}
       </div>
@@ -592,108 +593,207 @@ function PaperCalendarView({ dayContents, onSelectDay }: { dayContents: Record<s
   );
 }
 
-// ── DIARY ENTRY CARD ──────────────────────────────────────────────────────────
+// ── PLAN DOOR CARD ────────────────────────────────────────────────────────────
 
-function DiaryEntryCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boolean; onPress: () => void }) {
-  const msgs = ROOM_MESSAGES[room.id] ?? [];
-  const lastMsg = msgs[msgs.length - 1];
+function PlanDoorCard({ room, isRead, onPress, theme }: { room: PlanRoom; isRead: boolean; onPress: () => void; theme: typeof DAY_THEME }) {
   const hasUnread = room.unread > 0 && !isRead;
   return (
-    <button onClick={onPress} className="w-full text-left active:scale-[0.99] transition-transform"
-      style={{ display: "flex", borderRadius: 20, overflow: "hidden", background: "white", boxShadow: hasUnread ? `0 0 0 1.5px ${room.accent}66, 0 4px 16px rgba(0,0,0,0.09)` : "0 2px 12px rgba(0,0,0,0.06)" }}>
-      <div style={{ width: 64, flexShrink: 0, background: `${room.accent}15`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "16px 0", borderRight: `3px solid ${room.accent}33` }}>
-        <span style={{ fontSize: 28, lineHeight: 1 }}>{room.emoji}</span>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: room.accent, fontWeight: 700, textAlign: "center", lineHeight: 1.2, padding: "0 4px" }}>{room.date}</p>
-      </div>
-      <div style={{ flex: 1, padding: "14px 16px 14px 14px", minWidth: 0 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.15, flex: 1, minWidth: 0, paddingRight: 8 }}>{room.name}</p>
-          {hasUnread && (
-            <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#FF1F7D", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
-              <span style={{ fontSize: 10, fontWeight: 800, color: "white", lineHeight: 1 }}>{room.unread}</span>
-            </div>
-          )}
-        </div>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#999", marginBottom: 6 }}>{room.members} women · {room.venue ?? room.time}</p>
-        <div style={{ height: 1, background: "rgba(0,0,0,0.06)", marginBottom: 7 }} />
-        {lastMsg && (
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", fontStyle: "italic", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" as const, lineHeight: 1.4 }}>
-            &ldquo;{lastMsg.text}&rdquo;
-          </p>
+    <button onClick={onPress} className="active:scale-[0.96] transition-transform"
+      style={{
+        width: "100%", aspectRatio: "3/4.2",
+        borderRadius: "14px 14px 8px 8px",
+        position: "relative", overflow: "hidden",
+        background: theme.cardBg,
+        backdropFilter: "blur(18px) saturate(1.5)",
+        WebkitBackdropFilter: "blur(18px) saturate(1.5)",
+        border: `1.5px solid ${theme.cardBorder}`,
+        boxShadow: hasUnread
+          ? `0 8px 32px rgba(0,0,0,0.14), 0 0 0 2px ${room.accent}55, inset 0 1px 0 rgba(255,255,255,0.55)`
+          : `0 8px 28px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.5)`,
+      }}>
+
+      {/* Top color bar — like a door lintel */}
+      <div style={{ height: 5, background: `linear-gradient(90deg, ${room.accent}, ${room.accent}77)` }} />
+
+      {/* Glass reflection shimmer */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 100%)", pointerEvents: "none" }} />
+
+      {/* Inner door content */}
+      <div style={{ padding: "14px 12px 10px", height: "calc(100% - 5px)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+        {/* Door plaque / emoji */}
+        <div style={{
+          width: 52, height: 52, borderRadius: 16,
+          background: `${room.accent}1A`,
+          border: `1.5px solid ${room.accent}44`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 28, marginBottom: 10,
+          boxShadow: `0 2px 12px ${room.accent}22`,
+        }}>{room.emoji}</div>
+
+        {/* Plan name */}
+        <p style={{
+          fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic",
+          color: theme.heading, textAlign: "center", lineHeight: 1.22,
+          marginBottom: 5, padding: "0 4px",
+        }}>{room.name}</p>
+
+        {/* Date */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: room.accent, textAlign: "center", lineHeight: 1.3 }}>{room.time ?? room.date}</p>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Venue small */}
+        {room.venue && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText, textAlign: "center", lineHeight: 1.3, marginBottom: 8, padding: "0 4px", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{room.venue}</p>
         )}
+
+        {/* Stacked member avatars */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginBottom: 2 }}>
+          <div style={{ display: "flex" }}>
+            {BLOOMIES_LIST.slice(0, 3).map((b, i) => (
+              <div key={b.id} style={{ width: 16, height: 16, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, border: "1.5px solid rgba(255,255,255,0.7)", marginLeft: i === 0 ? 0 : -5, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 800, color: "white", zIndex: 3 - i }}>{b.initial}</div>
+            ))}
+          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText }}>{room.members}</p>
+        </div>
       </div>
+
+      {/* Door knob — on right side, vertically centered */}
+      <div style={{ position: "absolute", right: 8, top: "52%", transform: "translateY(-50%)", width: 9, height: 9, borderRadius: "50%", background: `${room.accent}99`, border: `1px solid ${room.accent}`, boxShadow: `0 1px 4px ${room.accent}44` }} />
+
+      {/* Unread badge */}
+      {hasUnread && (
+        <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.55)", animation: "badgeShake 3s ease-in-out 1s infinite" }}>
+          <span style={{ fontSize: 9, fontWeight: 900, color: "white" }}>{room.unread}</span>
+        </div>
+      )}
     </button>
   );
 }
 
-// ── PLAN ROOM THREAD (BRIGHT) ─────────────────────────────────────────────────
+// ── PLAN ROOM BOARD (NOT CHAT) ────────────────────────────────────────────────
 
-function PlanRoomThread({ room, onBack }: { room: PlanRoom; onBack: () => void }) {
-  const [msgs, setMsgs] = useState<PlanMessage[]>(ROOM_MESSAGES[room.id] ?? []);
-  const [draft, setDraft] = useState("");
+function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => void; theme: typeof DAY_THEME }) {
+  const initialTodos = PLAN_TODOS[room.id] ?? [];
+  const [todos, setTodos] = useState(initialTodos);
   const [showTicket, setShowTicket] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const notes = PLAN_NOTES[room.id] ?? [];
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
-
-  function send() {
-    const t = draft.trim(); if (!t) return;
-    setMsgs(p => [...p, { id: p.length + 100, sender: "Me", initial: "Y", color: "#FF1F7D", text: t, time: "now", isMe: true }]);
-    setDraft("");
+  function toggleTodo(id: number) {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
   }
 
+  const done = todos.filter(t => t.done).length;
+  const pct  = todos.length > 0 ? Math.round((done / todos.length) * 100) : 0;
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F8F4EF" }}>
-      {/* Header */}
-      <div style={{ background: "white", borderBottom: "1px solid rgba(0,0,0,0.07)", paddingTop: 54, position: "sticky", top: 0, zIndex: 40 }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: theme.pageBg, paddingBottom: 96 }}>
+
+      {/* Sticky header */}
+      <div style={{ background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, paddingTop: 54, position: "sticky", top: 0, zIndex: 40 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px 12px" }}>
-          <button onClick={onBack} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,0,0,0.05)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <button onClick={onBack} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.subText} strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <div style={{ width: 38, height: 38, borderRadius: 14, background: `${room.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{room.emoji}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.2 }}>{room.name}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#aaa", marginTop: 1 }}>{room.members} women · {room.time}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.2 }}>{room.name}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText, marginTop: 1 }}>{room.members} women · {room.time}</p>
           </div>
-          <button onClick={() => setShowTicket(true)} style={{ padding: "5px 12px", borderRadius: 999, background: `${room.accent}15`, border: `1px solid ${room.accent}44`, cursor: "pointer", flexShrink: 0 }}>
+          <button onClick={() => setShowTicket(true)} style={{ padding: "5px 12px", borderRadius: 999, background: `${room.accent}18`, border: `1px solid ${room.accent}44`, cursor: "pointer", flexShrink: 0 }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: room.accent }}>🎟 Ticket</span>
           </button>
         </div>
       </div>
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px 16px 84px", display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-          <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.3)", background: "rgba(0,0,0,0.05)", padding: "3px 12px", borderRadius: 999 }}>{room.venue}</span>
+      {/* Hero gradient band */}
+      <div style={{ height: 140, background: `linear-gradient(135deg, ${room.bg} 0%, ${room.accent}33 100%)`, display: "flex", alignItems: "flex-end", padding: "0 20px 20px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)", fontSize: 72, opacity: 0.22 }}>{room.emoji}</div>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: `${room.accent}CC`, marginBottom: 4 }}>PLAN ROOM</p>
+          <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px,7vw,30px)", fontWeight: 900, fontStyle: "italic", color: "#FEFCF7", lineHeight: 1.1 }}>{room.name}</h1>
         </div>
-        {msgs.map(msg => (
-          <div key={msg.id} style={{ display: "flex", gap: 10, flexDirection: msg.isMe ? "row-reverse" : "row" }}>
-            {!msg.isMe && (
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: `linear-gradient(135deg,${msg.color},${msg.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-end", fontSize: 11, fontWeight: 800, color: "white" }}>{msg.initial}</div>
-            )}
-            <div style={{ maxWidth: "75%", display: "flex", flexDirection: "column", gap: 3, alignItems: msg.isMe ? "flex-end" : "flex-start" }}>
-              {!msg.isMe && <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.3)", paddingLeft: 4 }}>{msg.sender}</p>}
-              <div style={{ padding: "10px 14px", borderRadius: 18, background: msg.isMe ? "#FF1F7D" : "white", color: msg.isMe ? "white" : "#222", fontFamily: "var(--font-jost)", fontSize: 14, lineHeight: 1.45, boxShadow: msg.isMe ? "0 2px 10px rgba(255,31,125,0.28)" : "0 1px 6px rgba(0,0,0,0.07)", borderBottomRightRadius: msg.isMe ? 4 : 18, borderBottomLeftRadius: msg.isMe ? 18 : 4 }}>{msg.text}</div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.25)", padding: "0 4px" }}>{msg.time}</p>
-            </div>
-          </div>
-        ))}
-        <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "white", borderTop: "1px solid rgba(0,0,0,0.07)", padding: "10px 16px", paddingBottom: "max(10px,env(safe-area-inset-bottom))", display: "flex", gap: 10, alignItems: "center" }}>
-        <div style={{ flex: 1, background: "#F8F4EF", borderRadius: 24, border: "1px solid rgba(0,0,0,0.08)", overflow: "hidden" }}>
-          <input value={draft} onChange={e => setDraft(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder={`Message ${room.name}…`}
-            style={{ width: "100%", padding: "10px 16px", fontSize: 14, fontFamily: "var(--font-jost)", outline: "none", background: "transparent", color: "#333", border: "none" }} />
+      <div style={{ padding: "20px 16px 0" }}>
+
+        {/* Details card */}
+        <div style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 20, padding: "16px 18px", marginBottom: 16, border: `1px solid ${theme.cardBorder}` }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 10 }}>THE PLAN</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {room.time && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>📅</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: theme.heading, fontWeight: 500 }}>{room.time}</p>
+              </div>
+            )}
+            {room.venue && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>📍</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: theme.heading, fontWeight: 500 }}>{room.venue}</p>
+              </div>
+            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>👯‍♀️</span>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: theme.heading, fontWeight: 500 }}>{room.members} women joining</p>
+            </div>
+          </div>
         </div>
-        <button onClick={send} style={{ width: 40, height: 40, borderRadius: "50%", background: draft.trim() ? "#FF1F7D" : "rgba(0,0,0,0.07)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s", boxShadow: draft.trim() ? "0 2px 10px rgba(255,31,125,0.4)" : "none" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={draft.trim() ? "white" : "rgba(0,0,0,0.3)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
+
+        {/* Who's in */}
+        <div style={{ marginBottom: 16 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: theme.label, marginBottom: 10, paddingLeft: 2 }}>WHO'S IN</p>
+          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
+            {BLOOMIES_LIST.map(b => (
+              <div key={b.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white", border: "2.5px solid rgba(255,255,255,0.7)", boxShadow: `0 2px 10px ${b.color}44` }}>
+                  {b.initial}
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Checklist */}
+        <div style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 20, padding: "16px 18px", marginBottom: 16, border: `1px solid ${theme.cardBorder}` }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: PINK }}>CHECKLIST</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 60, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg,${PINK},#FF69B4)`, borderRadius: 99, transition: "width 0.3s" }} />
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {todos.map(t => (
+              <button key={t.id} onClick={() => toggleTodo(t.id)}
+                style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ width: 22, height: 22, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: t.done ? PINK : "transparent", border: t.done ? "none" : "2px solid rgba(0,0,0,0.15)", transition: "all 0.15s" }}>
+                  {t.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: t.done ? theme.subText : theme.heading, fontWeight: t.done ? 400 : 500, textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.text}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Notes / pins */}
+        {notes.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: theme.label, marginBottom: 10, paddingLeft: 2 }}>NOTES</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {notes.map(n => (
+                <div key={n.id} style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 16, padding: "12px 16px", border: `1px solid ${theme.cardBorder}`, borderLeft: `3px solid ${room.accent}` }}>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: theme.heading, lineHeight: 1.45 }}>{n.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {showTicket && <PlanTicketSheet room={room} onClose={() => setShowTicket(false)} onOpenRoom={() => setShowTicket(false)} />}
@@ -701,7 +801,7 @@ function PlanRoomThread({ room, onBack }: { room: PlanRoom; onBack: () => void }
   );
 }
 
-// ── NEW PLAN SHEET (BRIGHT) ───────────────────────────────────────────────────
+// ── NEW PLAN SHEET ────────────────────────────────────────────────────────────
 
 function NewPlanSheet({ onClose }: { onClose: () => void }) {
   const [step, setStep]         = useState<NewPlanStep>("choose");
@@ -711,7 +811,6 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [clubId, setClubId]     = useState<number | null>(null);
   const [done, setDone]         = useState(false);
-
   function toggleBloomie(id: number) { setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
 
   if (done) return (
@@ -737,8 +836,6 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "white", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} /></div>
-
-        {/* Header */}
         <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
           <div className="flex items-center gap-3">
             {step !== "choose" && (
@@ -751,7 +848,7 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
                 {step === "choose" ? "✦ NEW PLAN" : step === "room" ? "✦ PLAN ROOM" : step === "bloomie" ? "✦ INVITE BLOOMIES" : "✦ POST TO CLUB"}
               </p>
               <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>
-                {step === "choose" ? "What kind of plan?" : step === "room" ? "Create a planning thread" : step === "bloomie" ? "Send directly to friends" : "Share with club members"}
+                {step === "choose" ? "What kind of plan?" : step === "room" ? "Create a plan room" : step === "bloomie" ? "Send directly to friends" : "Share with club members"}
               </p>
             </div>
           </div>
@@ -760,11 +857,10 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {/* Choose */}
         {step === "choose" && (
           <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
             {([
-              { s: "room" as NewPlanStep, emoji: "🗓", label: "Plan Room", sub: "Group planning thread for an event or trip" },
+              { s: "room" as NewPlanStep, emoji: "🗓", label: "Plan Room", sub: "Collaborative planning board for an event or trip" },
               { s: "bloomie" as NewPlanStep, emoji: "🌸", label: "Invite Bloomies", sub: "Send a plan directly to specific friends" },
               { s: "club" as NewPlanStep, emoji: "💫", label: "Post to Club", sub: "Open invite — let club members say they're down" },
             ]).map(opt => (
@@ -782,7 +878,6 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {/* Room */}
         {step === "room" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
@@ -800,7 +895,6 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {/* Bloomie */}
         {step === "bloomie" && (
           <>
             <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
@@ -834,7 +928,6 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
           </>
         )}
 
-        {/* Club */}
         {step === "club" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
@@ -876,12 +969,15 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
 
 function PlansPageInner() {
   const searchParams = useSearchParams();
-  const [view, setView]             = useState<View>("list");
-  const [mainTab, setMainTab]       = useState<MainTab>("plans");
-  const [activeRoom, setActiveRoom] = useState<PlanRoom | null>(null);
-  const [ticketRoom, setTicketRoom] = useState<PlanRoom | null>(null);
+  const isNight = useNightMode();
+  const theme = isNight ? NIGHT_THEME : DAY_THEME;
+
+  const [view, setView]               = useState<View>("list");
+  const [mainTab, setMainTab]         = useState<MainTab>("plans");
+  const [activeRoom, setActiveRoom]   = useState<PlanRoom | null>(null);
+  const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
-  const [read, setRead]             = useState<Set<number>>(new Set());
+  const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dayContents, setDayContents] = useState<Record<string, DayContent>>({});
 
@@ -899,13 +995,12 @@ function PlansPageInner() {
     setActiveRoom(room);
     setView("room");
   }
-
   function updateDayContent(key: string, c: DayContent) {
     setDayContents(prev => ({ ...prev, [key]: c }));
   }
 
   if (view === "room" && activeRoom) {
-    return <PlanRoomThread room={activeRoom} onBack={() => { setView("list"); setActiveRoom(null); }} />;
+    return <PlanRoomBoard room={activeRoom} onBack={() => { setView("list"); setActiveRoom(null); }} theme={theme} />;
   }
 
   const totalUnread = PLAN_ROOMS.filter(r => r.unread > 0 && !read.has(r.id)).length;
@@ -913,54 +1008,57 @@ function PlansPageInner() {
   const todayStr = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F6F1EB", paddingBottom: 96 }}>
+    <div style={{ minHeight: "100vh", background: theme.pageBg, paddingBottom: 96, transition: "background 0.8s" }}>
 
       {/* Custom top bar */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: "#FEFCF7", borderBottom: "1px solid rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
-        <span style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: "#FF1F7D" }}>BB✿</span>
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
+        <span style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: PINK }}>BB✿</span>
 
-        <div style={{ display: "flex", background: "rgba(0,0,0,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
+        <div style={{ display: "flex", background: isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
           {(["plans","calendar"] as MainTab[]).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
-              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? "#FF1F7D" : "transparent", color: mainTab === t ? "white" : "rgba(0,0,0,0.4)", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
+              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? PINK : "transparent", color: mainTab === t ? "white" : theme.subText, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
               {t === "plans" ? "PLANS" : "CALENDAR"}
             </button>
           ))}
         </div>
 
-        <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: "#FF1F7D", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
+        <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
       </div>
 
       <div style={{ paddingTop: 54 }}>
 
-        {/* Plans tab */}
+        {/* Plans tab — door grid */}
         {mainTab === "plans" && (
           <div>
             <div style={{ padding: "22px 20px 14px" }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#FF1F7D", marginBottom: 4 }}>{todayStr}</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK, marginBottom: 4 }}>{todayStr}</p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, letterSpacing: "-0.01em" }}>Your Plans</h1>
+                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1, letterSpacing: "-0.01em" }}>Your Plans</h1>
                 {totalUnread > 0 && (
-                  <div style={{ background: "#FF1F7D", color: "white", borderRadius: 999, padding: "3px 10px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800 }}>{totalUnread} new</div>
+                  <div style={{ background: PINK, color: "white", borderRadius: 999, padding: "3px 10px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800 }}>{totalUnread} new</div>
                 )}
               </div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#aaa", marginTop: 4, fontStyle: "italic" }}>{PLAN_ROOMS.length} rooms · tickets &amp; threads</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: theme.subText, marginTop: 4, fontStyle: "italic" }}>{PLAN_ROOMS.length} rooms — tap a door to enter</p>
             </div>
 
             <div style={{ padding: "0 20px 8px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.28)" }}>PLAN ROOMS</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>PLAN ROOMS</p>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 16px 16px" }}>
+            {/* Door grid — 2 columns */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px 20px" }}>
               {PLAN_ROOMS.map(room => (
-                <DiaryEntryCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
+                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} theme={theme} />
               ))}
               <button onClick={() => setShowNewPlan(true)}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "18px", borderRadius: 20, border: "1.5px dashed rgba(255,31,125,0.28)", background: "rgba(255,31,125,0.03)", cursor: "pointer", gap: 8 }}>
-                <span style={{ fontSize: 18, color: "#FF1F7D" }}>+</span>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,31,125,0.65)" }}>Start a new plan room</p>
+                style={{ aspectRatio: "3/4.2", borderRadius: "14px 14px 8px 8px", border: `2px dashed ${PINK}44`, background: `${PINK}06`, backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${PINK}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: `${PINK}99`, textAlign: "center", padding: "0 10px", lineHeight: 1.3 }}>New Plan Room</p>
               </button>
             </div>
 
@@ -968,28 +1066,28 @@ function PlansPageInner() {
             {PLAN_ROOMS.some(r => r.eventId) && (
               <div style={{ padding: "0 0 16px" }}>
                 <div style={{ padding: "0 20px 8px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.28)" }}>MY TICKETS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>MY TICKETS</p>
                 </div>
                 <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "4px 16px 4px", scrollbarWidth: "none" as const }}>
                   {PLAN_ROOMS.filter(r => r.eventId).map(room => {
                     const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
                     return (
-                      <div key={room.id} style={{ flexShrink: 0, width: 200, borderRadius: 16, overflow: "hidden", background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+                      <div key={room.id} style={{ flexShrink: 0, width: 200, borderRadius: 16, overflow: "hidden", background: theme.sectionBg, backdropFilter: "blur(8px)", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
                         <button onClick={() => openRoom(room)} className="w-full flex items-stretch text-left active:scale-[0.99] transition-transform">
                           <div style={{ width: 52, flexShrink: 0, background: room.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
                             <span style={{ fontSize: 22 }}>{room.emoji}</span>
                             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: room.accent, fontWeight: 700 }}>{room.date}</p>
                           </div>
                           <div style={{ flex: 1, padding: "10px 12px" }}>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: "#FF1F7D", marginBottom: 2 }}>PLAN ROOM</p>
-                            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "#111", lineHeight: 1.2, marginBottom: 2 }}>{room.name}</p>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa" }}>{room.time}</p>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 2 }}>PLAN ROOM</p>
+                            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.2, marginBottom: 2 }}>{room.name}</p>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: theme.subText }}>{room.time}</p>
                           </div>
                         </button>
                         <div style={{ borderTop: "1px dashed rgba(0,0,0,0.08)", margin: "0 10px" }} />
                         <div style={{ padding: "6px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "#ccc", letterSpacing: "0.05em" }}>{ticketCode}</p>
-                          <button onClick={() => setTicketRoom(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "#FF1F7D", background: "none", border: "none", cursor: "pointer" }}>View →</button>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: theme.subText, letterSpacing: "0.05em" }}>{ticketCode}</p>
+                          <button onClick={() => setTicketRoom(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>View →</button>
                         </div>
                       </div>
                     );
@@ -1003,14 +1101,13 @@ function PlansPageInner() {
         {/* Calendar tab */}
         {mainTab === "calendar" && (
           <div style={{ padding: "16px 0" }}>
-            <div style={{ background: "#FEFCF7", margin: "0 16px 16px", borderRadius: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.07)", overflow: "hidden" }}>
-              <PaperCalendarView dayContents={dayContents} onSelectDay={setSelectedDay} />
+            <div style={{ margin: "0 16px 16px", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
+              <PaperCalendarView dayContents={dayContents} onSelectDay={setSelectedDay} theme={theme} />
             </div>
           </div>
         )}
       </div>
 
-      {/* Day editor sheet */}
       {selectedDay && (
         <DayEditorSheet
           dayKey={selectedDay}
