@@ -825,11 +825,195 @@ function HorizontalTicketCard({ room, hasUnread, onOpen, onViewTicket }: {
   );
 }
 
+type MainTab = "plans" | "calendar";
+
+// ── Calendar helpers ───────────────────────────────────────────────────────────
+
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES   = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; color: string }[]> = {
+  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",   color: "#83C5A0" }],
+  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",   color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#83C5A0" }],
+  "2026-06-14": [{ emoji: "🎵", name: "Afrobeats Night",     time: "10PM",  color: "#FF69B4" }],
+  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",   color: "#F59E0B" }],
+  "2026-10-10": [{ emoji: "🇲🇦", name: "Morocco October",   time: "10AM",  color: "#FF69B4" }],
+};
+
+function CalendarView({ onOpenRoom }: { onOpenRoom: (room: PlanRoom) => void }) {
+  const today    = new Date();
+  const [year,  setYear]  = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  const firstDay   = new Date(year, month, 1).getDay();
+  const daysInMon  = new Date(year, month + 1, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMon }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  function dateKey(d: number) {
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  }
+
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  const selectedEvents = selectedDay ? (EVENT_DATES[selectedDay] ?? []) : [];
+
+  return (
+    <div style={{ padding: "8px 16px 0" }}>
+      {/* Month nav */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+        <button
+          onClick={() => { if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1); }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", display: "flex" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", fontWeight: 900, fontStyle: "italic", color: "#1A1A1A" }}>
+          {MONTH_NAMES[month]} {year}
+        </p>
+        <button
+          onClick={() => { if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1); }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", display: "flex" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: "6px" }}>
+        {DAY_NAMES.map(d => (
+          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.05em", color: "rgba(0,0,0,0.3)", textAlign: "center", paddingBottom: "4px" }}>
+            {d}
+          </p>
+        ))}
+      </div>
+
+      {/* Calendar grid */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(7, 1fr)",
+        gap: "2px",
+        background: "rgba(0,0,0,0.04)",
+        borderRadius: "16px",
+        padding: "6px",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+      }}>
+        {cells.map((day, i) => {
+          if (!day) return <div key={i} />;
+          const key   = dateKey(day);
+          const isToday   = key === todayKey;
+          const isSelected = key === selectedDay;
+          const hasEvents  = !!EVENT_DATES[key];
+          const events     = EVENT_DATES[key] ?? [];
+
+          return (
+            <button
+              key={i}
+              onClick={() => setSelectedDay(isSelected ? null : key)}
+              style={{
+                aspectRatio: "1",
+                borderRadius: "10px",
+                background: isSelected ? "#FF1F7D" : isToday ? "rgba(255,31,125,0.12)" : "transparent",
+                border: isToday && !isSelected ? "1.5px solid rgba(255,31,125,0.35)" : "1.5px solid transparent",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "2px",
+                cursor: "pointer",
+                transition: "all 0.12s",
+              }}>
+              <p style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: "12px",
+                fontWeight: isToday || hasEvents ? 800 : 500,
+                color: isSelected ? "white" : isToday ? "#FF1F7D" : "rgba(0,0,0,0.65)",
+                lineHeight: 1,
+              }}>{day}</p>
+              {hasEvents && (
+                <div style={{ display: "flex", gap: "2px" }}>
+                  {events.slice(0, 3).map((ev, j) => (
+                    <div key={j} style={{
+                      width: "4px",
+                      height: "4px",
+                      borderRadius: "50%",
+                      background: isSelected ? "rgba(255,255,255,0.8)" : ev.color,
+                    }} />
+                  ))}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected day events */}
+      {selectedDay && (
+        <div style={{ marginTop: "16px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: "10px" }}>
+            {new Date(selectedDay + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
+          </p>
+          {selectedEvents.length === 0 ? (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "rgba(0,0,0,0.3)", textAlign: "center", padding: "16px 0" }}>
+              Nothing planned this day
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {selectedEvents.map((ev, i) => {
+                const room = PLAN_ROOMS.find(r => r.name === ev.name);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => room && onOpenRoom(room)}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "12px 14px",
+                      background: "white",
+                      borderRadius: "14px",
+                      border: "none",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
+                      textAlign: "left",
+                    }}>
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "12px",
+                      background: `${ev.color}22`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}>
+                      {ev.emoji}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 700, color: "#111" }}>{ev.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.4)", marginTop: "2px" }}>{ev.time}</p>
+                    </div>
+                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: ev.color, flexShrink: 0 }} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 function PlansPageInner() {
   const searchParams = useSearchParams();
   const [view, setView]             = useState<View>("list");
+  const [mainTab, setMainTab]       = useState<MainTab>("plans");
   const [activeRoom, setActiveRoom] = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom] = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
@@ -857,17 +1041,17 @@ function PlansPageInner() {
   const totalUnread = PLAN_ROOMS.filter(r => r.unread > 0 && !read.has(r.id)).length;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#F6F1EB" }}>
 
       {/* Header */}
-      <div className="px-5 pt-20 pb-6 md:px-10 md:pt-8 flex items-start justify-between">
+      <div className="px-5 pt-16 pb-4 md:px-10 md:pt-6 flex items-start justify-between">
         <div>
           <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>✦ YOUR PLANS</p>
           <h1 className="font-black leading-none"
-            style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "var(--heading-color, #111)", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,6vw,48px)", color: "#1A1A1A", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
             Plans.
           </h1>
-          <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #999)" }}>
+          <p className="text-sm italic mt-2" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
             {PLAN_ROOMS.length} active rooms · your tickets &amp; threads.
           </p>
         </div>
@@ -880,6 +1064,59 @@ function PlansPageInner() {
           </svg>
         </button>
       </div>
+
+      {/* Tab toggle */}
+      <div className="px-5 pb-4">
+        <div style={{
+          display: "inline-flex",
+          background: "rgba(0,0,0,0.06)",
+          borderRadius: 999,
+          padding: "3px",
+          gap: "2px",
+        }}>
+          {(["plans", "calendar"] as MainTab[]).map(t => {
+            const active = mainTab === t;
+            const label = t === "plans" ? "Plans" : "Calendar";
+            return (
+              <button
+                key={t}
+                onClick={() => setMainTab(t)}
+                style={{
+                  padding: "8px 22px",
+                  borderRadius: 999,
+                  background: active ? "#1A1A1A" : "transparent",
+                  color: active ? "white" : "rgba(0,0,0,0.45)",
+                  fontFamily: "var(--font-jost)",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}>
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Calendar tab */}
+      {mainTab === "calendar" && (
+        <div className="px-5 pb-8">
+          <div style={{
+            background: "#FEFCF7",
+            borderRadius: "20px",
+            padding: "16px 12px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          }}>
+            <CalendarView onOpenRoom={openRoom} />
+          </div>
+        </div>
+      )}
+
+      {/* Plans tab content */}
+      {mainTab === "plans" && (<>
 
       {/* Plan Rooms row */}
       <div className="mb-8">
@@ -932,7 +1169,12 @@ function PlansPageInner() {
         <p className="font-bold mt-2 text-sm" style={{ color: "#bbb" }}>RSVP to events for more tickets.</p>
       </div>
 
-      {/* Ticket sheet */}
+      {/* New plan sheet */}
+      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} />}
+
+      </>)}
+
+      {/* Ticket sheet — rendered outside tab so it can open from calendar too */}
       {ticketRoom && (
         <PlanTicketSheet
           room={ticketRoom}
@@ -940,9 +1182,6 @@ function PlansPageInner() {
           onOpenRoom={() => { setTicketRoom(null); openRoom(ticketRoom); }}
         />
       )}
-
-      {/* New plan sheet */}
-      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} />}
 
       <style>{`
         @keyframes badgeShake {

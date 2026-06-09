@@ -5,487 +5,715 @@ import Link from "next/link";
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
-const DARK  = "#1C1B1C";
+const DARK  = "#1A1A1A";
 const CREAM = "#F6F1EB";
 const PAPER = "#FEFCF7";
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-type Filter = "All" | "Tonight" | "This Weekend" | "Dinners" | "Parties";
+type HapTab = "happenings" | "people" | "city";
 
-const CITY_CARDS = [
-  { id: 1, city: "BROOKLYN",        sub: "14 women out · Tonight",      bg: DARK },
-  { id: 2, city: "LOWER EAST SIDE", sub: "8 events · Tonight",           bg: PINK },
-  { id: 3, city: "WEST VILLAGE",    sub: "6 dinners this weekend",        bg: CREAM },
-  { id: 4, city: "HARLEM",          sub: "4 events · Saturday",           bg: "#2A1040" },
+// ── Data ───────────────────────────────────────────────────────────────────────
+
+const EVENTS = [
+  {
+    id: 1,
+    name: "Sunset Picnic",
+    neighborhood: "PROSPECT PARK",
+    city: "Brooklyn, NY",
+    time: "Tonight · 6PM",
+    badge: "TONIGHT",
+    women: 23,
+    desc: "Blankets, rosé, golden hour. No agenda just good conversation and better company.",
+    tags: ["outdoor", "wine", "friends"],
+    grad: "linear-gradient(135deg, #D4845A 0%, #B05030 100%)",
+  },
+  {
+    id: 2,
+    name: "Gallery Night Out",
+    neighborhood: "CHELSEA",
+    city: "Manhattan, NY",
+    time: "Tonight · 7PM",
+    badge: "TONIGHT",
+    women: 41,
+    desc: "Gallery hop through Chelsea — 3 opening receptions, champagne included at the last stop.",
+    tags: ["art", "culture", "social"],
+    grad: "linear-gradient(135deg, #7A5090 0%, #4A2070 100%)",
+  },
+  {
+    id: 3,
+    name: "Pilates & Prosecco",
+    neighborhood: "SOHO",
+    city: "Manhattan, NY",
+    time: "Sat · 11AM",
+    badge: "THIS WEEKEND",
+    women: 18,
+    desc: "45 min reformer class followed by brunch and bubbles. The best Saturday morning you'll have all year.",
+    tags: ["fitness", "wellness", "brunch"],
+    grad: "linear-gradient(135deg, #E896A0 0%, #C06070 100%)",
+  },
+  {
+    id: 4,
+    name: "Wine Down Wednesday",
+    neighborhood: "WEST VILLAGE",
+    city: "Manhattan, NY",
+    time: "Wed · 8PM",
+    badge: "UPCOMING",
+    women: 12,
+    desc: "Cozy wine bar, natural wines, and the kind of conversation that makes you stay till closing.",
+    tags: ["wine", "intimate", "nightlife"],
+    grad: "linear-gradient(135deg, #5A3A2A 0%, #3A2015 100%)",
+  },
+  {
+    id: 5,
+    name: "Matcha & Mimosas",
+    neighborhood: "WILLIAMSBURG",
+    city: "Brooklyn, NY",
+    time: "Sun · 12PM",
+    badge: "THIS WEEKEND",
+    women: 34,
+    desc: "Brunch club meets. We rotate spots every week — this Sunday it's Diner in Williamsburg.",
+    tags: ["brunch", "foodie", "Sunday"],
+    grad: "linear-gradient(135deg, #3A6A4A 0%, #1A4A2A 100%)",
+  },
+  {
+    id: 6,
+    name: "The Rooftop",
+    neighborhood: "LES",
+    city: "Manhattan, NY",
+    time: "Sat · 7PM",
+    badge: "THIS WEEKEND",
+    women: 67,
+    desc: "The Roof at PUBLIC Hotel. Amazing views, DJ, and the best people watching in the city.",
+    tags: ["rooftop", "nightlife", "views"],
+    grad: "linear-gradient(135deg, #1A2A4A 0%, #0A1A3A 100%)",
+  },
 ];
 
-const AV_COLORS = [PINK, "#FF69B4", "#C084FC", "#F97316", "#06B6D4", "#84CC16"];
+const PEOPLE = [
+  {
+    id: 1,
+    name: "Amara K.",
+    age: 27,
+    location: "Brooklyn, NY",
+    bio: "Just moved to Brooklyn. Love museum mornings, matcha bars, and making new friends. Looking for my NYC crew.",
+    tags: ["museums", "matcha", "walks"],
+    color: "#C4849A",
+    initial: "A",
+  },
+  {
+    id: 2,
+    name: "Sofia R.",
+    age: 29,
+    location: "West Village, NY",
+    bio: "Food writer and weekend chef. Always on the hunt for the best hole-in-wall spots. Let's do brunch.",
+    tags: ["foodie", "cooking", "wine"],
+    color: "#8A7090",
+    initial: "S",
+  },
+  {
+    id: 3,
+    name: "Jade W.",
+    age: 25,
+    location: "Harlem, NY",
+    bio: "Art director. Gallery hopper. I make great playlists and even better recommendations.",
+    tags: ["art", "music", "fashion"],
+    color: "#5A8090",
+    initial: "J",
+  },
+  {
+    id: 4,
+    name: "Naomi B.",
+    age: 31,
+    location: "SoHo, NY",
+    bio: "Startup founder by day, book club host by night. My fave night is a dinner party with people I just met.",
+    tags: ["books", "dinners", "wellness"],
+    color: "#A06040",
+    initial: "N",
+  },
+  {
+    id: 5,
+    name: "Priya S.",
+    age: 26,
+    location: "Astoria, NY",
+    bio: "Yoga teacher and travel addict. Planning Morocco this fall — anyone want in?",
+    tags: ["yoga", "travel", "outdoors"],
+    color: "#907040",
+    initial: "P",
+  },
+];
 
-function AvatarStack({ count, extra, light }: { count: number; extra?: string; light?: boolean }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-      <div style={{ display: "flex" }}>
-        {Array.from({ length: count }).map((_, i) => (
-          <div key={i} style={{
-            width: 24, height: 24, borderRadius: "50%",
-            background: AV_COLORS[i % AV_COLORS.length],
-            border: `2px solid ${light ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.1)"}`,
-            marginLeft: i > 0 ? -8 : 0,
-            flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 9, fontWeight: 900, color: "white",
-          }}>✿</div>
-        ))}
-      </div>
-      {extra && (
-        <span style={{
-          fontSize: 9, fontWeight: 700,
-          color: light ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.4)",
-          fontFamily: "var(--font-jost)",
-        }}>{extra}</span>
-      )}
-    </div>
-  );
-}
+const NEIGHBORHOODS = [
+  { name: "SoHo",          bg: "#D4B5A0", spots: 14 },
+  { name: "West Village",  bg: "#C4A0A8", spots: 18 },
+  { name: "Williamsburg",  bg: "#A8C0B8", spots: 16 },
+  { name: "Brooklyn Hts",  bg: "#B8A8C0", spots: 11 },
+  { name: "Harlem",        bg: "#C0B0A0", spots: 9  },
+];
 
-function Tape({ top, left, right, rotate = 0 }: { top?: number; left?: string; right?: string; rotate?: number }) {
+const CITY_SPOTS = [
+  { id: 1, name: "Bar Pisellino",  area: "SoHo",         type: "Italian · Cocktails",   women: 18, grad: "linear-gradient(135deg,#2d1208,#0d0806)" },
+  { id: 2, name: "Via Carota",     area: "West Village",  type: "Italian · Dinner",      women: 24, grad: "linear-gradient(135deg,#1a2a0a,#0a180a)" },
+  { id: 3, name: "Lola Taverna",   area: "West Village",  type: "Greek · Date Night",    women: 41, grad: "linear-gradient(135deg,#2a1a08,#180a00)" },
+  { id: 4, name: "Sant Ambroeus",  area: "SoHo",          type: "Italian · Brunch",      women: 12, grad: "linear-gradient(135deg,#281820,#180810)" },
+  { id: 5, name: "Rubirosa",       area: "Nolita",        type: "Pizza · Casual",        women: 32, grad: "linear-gradient(135deg,#201010,#100808)" },
+  { id: 6, name: "L'Artusi",       area: "West Village",  type: "Italian · Wine Bar",    women: 19, grad: "linear-gradient(135deg,#102028,#081018)" },
+];
+
+// ── Toggle ─────────────────────────────────────────────────────────────────────
+
+function TabToggle({ tab, setTab }: { tab: HapTab; setTab: (t: HapTab) => void }) {
   return (
     <div style={{
-      position: "absolute",
-      top: top ?? -7,
-      left: left,
-      right: right,
-      width: 52,
-      height: 13,
-      background: "linear-gradient(135deg, rgba(255,245,195,0.55), rgba(255,225,170,0.4))",
-      borderRadius: 4,
-      transform: `rotate(${rotate}deg)`,
-      zIndex: 2,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    }} />
-  );
-}
-
-// ── Card 1: GIRLS NIGHT OUT ───────────────────────────────────────────────────
-function GirlsNightCard() {
-  return (
-    <div style={{
-      background: DARK,
-      backgroundImage: `linear-gradient(155deg, rgba(28,27,28,0.15) 0%, rgba(255,31,125,0.6) 100%), ${PAPER_TEX}`,
-      borderRadius: 22,
-      overflow: "visible",
-      position: "relative",
-      minHeight: 210,
-      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "14px 16px 12px",
+      background: PAPER,
+      backgroundImage: PAPER_TEX,
+      borderBottom: "1px solid rgba(0,0,0,0.06)",
     }}>
-      <Tape top={-7} left="48%" />
-      <div style={{ padding: "30px 22px 22px" }}>
-        <span style={{
-          fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-          letterSpacing: "0.3em", textTransform: "uppercase",
-          color: "rgba(255,255,255,0.5)",
-        }}>LOWER EAST SIDE · TONIGHT · 10PM</span>
-        <h2 style={{
-          fontFamily: "var(--font-playfair)", fontSize: 42, fontWeight: 900,
-          color: "white", lineHeight: 0.88, letterSpacing: "-0.02em",
-          margin: "10px 0 20px", textShadow: "0 2px 20px rgba(0,0,0,0.3)",
-        }}>
-          GIRLS<br />NIGHT<br />OUT
-        </h2>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <AvatarStack count={6} extra="+18" light />
-          <div style={{
-            background: "rgba(255,255,255,0.15)", borderRadius: 20,
-            padding: "6px 14px", backdropFilter: "blur(6px)",
-          }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white" }}>RSVP →</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Card 2: DINNER SOCIETY ────────────────────────────────────────────────────
-function DinnerSocietyCard() {
-  return (
-    <div style={{
-      background: CREAM, backgroundImage: PAPER_TEX,
-      borderRadius: 20, padding: "18px 15px 16px",
-      position: "relative", cursor: "pointer",
-      boxShadow: "0 2px 14px rgba(0,0,0,0.05)",
-    }}>
-      <Tape top={-7} right="14px" rotate={2} />
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(0,0,0,0.38)",
-      }}>Carbone, West Village</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 21, fontWeight: 900,
-        color: DARK, lineHeight: 0.95, margin: "7px 0 5px", letterSpacing: "-0.01em",
-      }}>DINNER<br />SOCIETY</h3>
-      <p style={{
-        fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.48)",
-        marginBottom: 14, fontStyle: "italic",
-      }}>TONIGHT · 9PM</p>
+      {/* Pill group */}
       <div style={{
-        display: "inline-flex", alignItems: "center", gap: 5,
-        background: DARK, borderRadius: 20, padding: "5px 11px",
+        display: "flex",
+        background: "rgba(0,0,0,0.06)",
+        borderRadius: 999,
+        padding: "3px",
+        gap: "2px",
       }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.08em" }}>10 going</span>
+        {(["happenings", "people", "city"] as HapTab[]).map(t => {
+          const active = tab === t;
+          const label = t === "happenings" ? "Happenings" : t === "people" ? "People" : "City";
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                padding: "7px 16px",
+                borderRadius: 999,
+                background: active ? DARK : "transparent",
+                color: active ? "white" : "rgba(0,0,0,0.45)",
+                fontFamily: "var(--font-jost)",
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}>
+              {label}
+            </button>
+          );
+        })}
       </div>
-    </div>
-  );
-}
 
-// ── Card 3: AFRO BEATS ────────────────────────────────────────────────────────
-function AfroBeatsCard() {
-  return (
-    <div style={{
-      background: PINK, backgroundImage: PAPER_TEX,
-      borderRadius: 20, padding: "18px 15px 16px",
-      position: "relative", cursor: "pointer", overflow: "hidden",
-    }}>
-      {[
-        { x: "82%", y: "12%", s: 9 },
-        { x: "12%", y: "10%", s: 6 },
-        { x: "68%", y: "52%", s: 5 },
-        { x: "25%", y: "65%", s: 4 },
-      ].map((d, i) => (
-        <div key={i} style={{
-          position: "absolute", left: d.x, top: d.y, width: d.s, height: d.s,
-          borderRadius: "50%", background: "rgba(255,255,255,0.2)",
-        }} />
-      ))}
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)",
-      }}>SAT · MAY 15</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900,
-        color: "white", lineHeight: 0.92, margin: "7px 0 5px", letterSpacing: "-0.01em",
-      }}>AFRO<br />BEATS<br />IN THE<br />CITY</h3>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.65)", margin: "6px 0 12px" }}>
-        11PM–3AM
-      </p>
-      <span style={{ fontSize: 10, fontWeight: 700, color: "white", fontFamily: "var(--font-jost)" }}>8 going →</span>
-    </div>
-  );
-}
-
-// ── Card 4: Museum Girls ──────────────────────────────────────────────────────
-function MuseumGirlsCard() {
-  return (
-    <div style={{
-      background: PAPER, backgroundImage: PAPER_TEX,
-      borderRadius: 20, padding: "16px 14px",
-      cursor: "pointer", border: "1.5px solid rgba(0,0,0,0.07)",
-    }}>
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(0,0,0,0.32)",
-      }}>The Met · SATURDAY</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 19, fontWeight: 900,
-        color: DARK, lineHeight: 1, margin: "6px 0 2px",
-      }}>Museum<br />Girls</h3>
-      <p style={{
-        fontFamily: "var(--font-jost)", fontSize: 9,
-        color: "rgba(0,0,0,0.35)", marginBottom: 10,
-      }}>12PM</p>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-        <span style={{ fontFamily: "var(--font-playfair)", fontSize: 36, fontWeight: 900, color: PINK, lineHeight: 1 }}>7</span>
-        <span style={{ fontSize: 10, color: "rgba(0,0,0,0.38)", fontFamily: "var(--font-jost)" }}>going</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Card 5: BOOK GIRLS ────────────────────────────────────────────────────────
-function BookGirlsCard() {
-  return (
-    <div style={{
-      background: CREAM, backgroundImage: PAPER_TEX,
-      borderRadius: "20px 20px 6px 20px",
-      padding: "20px 16px 18px",
-      position: "relative", cursor: "pointer",
-    }}>
-      <Tape top={-7} left="20px" rotate={-1} />
-      <div style={{
-        position: "absolute", bottom: 0, left: 0, right: 0, height: 7,
-        background: `repeating-linear-gradient(90deg, ${CREAM} 0px, ${CREAM} 9px, transparent 9px, transparent 15px)`,
-        filter: "blur(0.8px)",
-      }} />
-      <span style={{ position: "absolute", right: 18, top: 18, fontSize: 24, opacity: 0.3 }}>✿</span>
-      <span style={{ position: "absolute", right: 36, bottom: 20, fontSize: 16, opacity: 0.18, transform: "rotate(-12deg)" }}>✦</span>
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(0,0,0,0.38)",
-      }}>WED · MAY 21 · 7PM</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900,
-        color: DARK, lineHeight: 1, margin: "7px 0 14px",
-      }}>BOOK GIRLS</h3>
-      <div style={{
-        display: "inline-flex", alignItems: "center",
-        background: DARK, borderRadius: 20, padding: "5px 12px",
-      }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: PINK, fontFamily: "var(--font-jost)", letterSpacing: "0.05em" }}>
-          5 seats left
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ── Card 6: ROOFTOP GIRLS ─────────────────────────────────────────────────────
-function RooftopGirlsCard() {
-  return (
-    <div style={{
-      background: "white",
-      borderRadius: 20, padding: "16px 14px",
-      cursor: "pointer", border: "1.5px solid rgba(0,0,0,0.07)",
-      boxShadow: "0 3px 14px rgba(0,0,0,0.06)",
-    }}>
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(0,0,0,0.32)",
-      }}>SAT · 9PM · MIDTOWN</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 19, fontWeight: 900,
-        color: DARK, lineHeight: 1, margin: "6px 0 14px",
-      }}>ROOFTOP<br />GIRLS</h3>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(0,0,0,0.45)", fontFamily: "var(--font-jost)" }}>16 going</span>
-        <span style={{ fontSize: 14, color: PINK }}>→</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Card 7: PASTA NIGHT ───────────────────────────────────────────────────────
-function PastaNightCard() {
-  return (
-    <div style={{
-      background: DARK, backgroundImage: PAPER_TEX,
-      borderRadius: 20, padding: "16px 14px", cursor: "pointer",
-    }}>
-      <span style={{
-        fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-        letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)",
-      }}>Little Italy · TONIGHT</span>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 19, fontWeight: 900,
-        color: "white", lineHeight: 1, margin: "6px 0 4px",
-      }}>PASTA<br />NIGHT</h3>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>9PM</p>
-      <span style={{ fontSize: 10, fontWeight: 700, color: PINK, fontFamily: "var(--font-jost)" }}>4 going →</span>
-    </div>
-  );
-}
-
-// ── Card 8: You're Invited ────────────────────────────────────────────────────
-function InvitedCard() {
-  return (
-    <div style={{
-      background: PINK, backgroundImage: PAPER_TEX,
-      borderRadius: 22, padding: "22px 20px 20px",
-      cursor: "pointer", position: "relative", overflow: "hidden",
-    }}>
-      <Tape top={-7} right="30px" rotate={1} />
-      <div style={{
-        position: "absolute", top: -30, right: -30, width: 120, height: 120,
-        borderRadius: "50%", background: "rgba(255,255,255,0.07)",
-      }} />
-      <div style={{
-        position: "absolute", bottom: -20, left: -20, width: 80, height: 80,
-        borderRadius: "50%", background: "rgba(255,255,255,0.06)",
-      }} />
-      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 20, color: "white", marginBottom: 4, opacity: 0.9 }}>
-        You&apos;re Invited ♡
-      </p>
-      <h3 style={{
-        fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900,
-        color: "white", lineHeight: 1, margin: "0 0 8px", letterSpacing: "-0.01em",
-      }}>Wine &amp; Conversations</h3>
-      <p style={{
-        fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.7)",
-        marginBottom: 18, letterSpacing: "0.18em", textTransform: "uppercase",
-      }}>FRI · 7PM · WEST VILLAGE</p>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <AvatarStack count={5} extra="+3" light />
-        <div style={{
-          background: "rgba(255,255,255,0.2)", borderRadius: 20,
-          padding: "6px 14px",
-        }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white" }}>RSVP →</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main export ───────────────────────────────────────────────────────────────
-export function HappeningsPage() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("All");
-  const filters: Filter[] = ["All", "Tonight", "This Weekend", "Dinners", "Parties"];
-
-  return (
-    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 120, paddingTop: 48 }}>
-
-      {/* Top bar */}
-      <div style={{
-        background: DARK,
-        padding: "13px 20px 11px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 48, zIndex: 40,
-      }}>
-        <span style={{
-          fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
-          letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)",
-        }}>BB* · NYC · TONIGHT</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            background: "rgba(255,31,125,0.16)", border: "1px solid rgba(255,31,125,0.35)",
-            borderRadius: 20, padding: "3px 10px",
-          }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>
-              87 women out
-            </span>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+      {/* Icons */}
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <button style={{ background: "none", border: "none", cursor: "pointer", display: "flex", padding: "4px" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+        </button>
+        <button style={{ background: "none", border: "none", cursor: "pointer", display: "flex", padding: "4px" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="2" strokeLinecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="12" y1="18" x2="12" y2="18"/>
           </svg>
-        </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Happenings Tab ─────────────────────────────────────────────────────────────
+
+function HappeningsTab() {
+  return (
+    <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
+      {/* Section label */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>
+          HAPPENING NEAR YOU
+        </p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(0,0,0,0.3)" }}>NYC · Tonight</p>
       </div>
 
-      {/* Filter pills */}
-      <div style={{
-        display: "flex", gap: 8,
-        overflowX: "auto", padding: "14px 20px",
-        scrollbarWidth: "none",
-        background: PAPER,
-        borderBottom: "1px solid rgba(0,0,0,0.05)",
-      }}>
-        {filters.map(f => (
-          <button
-            key={f}
-            onClick={() => setActiveFilter(f)}
-            style={{
-              flexShrink: 0, padding: "7px 17px", borderRadius: 20,
-              border: activeFilter === f ? "none" : "1.5px solid rgba(0,0,0,0.11)",
-              background: activeFilter === f ? DARK : "transparent",
-              color: activeFilter === f ? "white" : "rgba(0,0,0,0.5)",
-              fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
-              letterSpacing: "0.06em", cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >{f}</button>
-        ))}
-      </div>
-
-      {/* Masonry grid */}
-      <div style={{ padding: "18px 16px 0" }}>
-
-        {/* Row 1 — full-width hero */}
-        <div style={{ marginBottom: 12 }}>
-          <GirlsNightCard />
-        </div>
-
-        {/* Row 2 — 2 col */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12, alignItems: "start" }}>
-          <DinnerSocietyCard />
-          <AfroBeatsCard />
-        </div>
-
-        {/* Row 3 — unequal 2 col */}
-        <div style={{ display: "grid", gridTemplateColumns: "4fr 5fr", gap: 12, marginBottom: 12, alignItems: "start" }}>
-          <MuseumGirlsCard />
-          <RooftopGirlsCard />
-        </div>
-
-        {/* Row 4 — full-width torn paper */}
-        <div style={{ marginBottom: 12 }}>
-          <BookGirlsCard />
-        </div>
-
-        {/* Row 5 — 2 col */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12, alignItems: "start" }}>
-          <PastaNightCard />
-          <div style={{
-            background: "#F0E8FF", backgroundImage: PAPER_TEX,
-            borderRadius: 20, padding: "16px 14px", cursor: "pointer",
-            border: "1.5px solid rgba(100,50,150,0.08)",
-          }}>
-            <span style={{
-              fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-              letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(80,40,120,0.38)",
-            }}>SUN · MAY 18 · 3PM</span>
-            <h3 style={{
-              fontFamily: "var(--font-playfair)", fontSize: 19, fontWeight: 900,
-              color: "#3B1F5E", lineHeight: 1, margin: "6px 0 12px",
-            }}>BRUNCH<br />BABES</h3>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#8B5CF6", fontFamily: "var(--font-jost)" }}>12 going →</span>
-          </div>
-        </div>
-
-        {/* Row 6 — full-width invite */}
-        <div style={{ marginBottom: 24 }}>
-          <InvitedCard />
-        </div>
-      </div>
-
-      {/* From your city */}
-      <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 20 }}>
-        <div style={{ padding: "0 20px 12px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-          <div>
-            <p style={{
-              fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700,
-              letterSpacing: "0.3em", textTransform: "uppercase", color: PINK, marginBottom: 2,
-            }}>FROM YOUR CITY</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 11, fontStyle: "italic", color: "rgba(0,0,0,0.38)" }}>
-              What&apos;s moving in NYC
-            </p>
-          </div>
-          <Link href="#" style={{
-            fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700,
-            color: PINK, textDecoration: "none",
-          }}>See all →</Link>
-        </div>
-
-        <div style={{
-          display: "flex", gap: 12,
-          overflowX: "auto", padding: "4px 20px 24px",
-          scrollbarWidth: "none",
+      {EVENTS.map(ev => (
+        <button key={ev.id} style={{
+          width: "100%",
+          background: PAPER,
+          backgroundImage: PAPER_TEX,
+          backgroundSize: "200px 200px",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 3px 16px rgba(0,0,0,0.08)",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+          transition: "transform 0.15s",
         }}>
-          {CITY_CARDS.map(card => (
-            <div key={card.id} style={{
-              flexShrink: 0, width: 140, height: 175,
-              borderRadius: 18,
-              background: card.bg,
-              backgroundImage: `linear-gradient(160deg, transparent 25%, rgba(0,0,0,0.5) 100%), ${PAPER_TEX}`,
-              padding: "14px 12px",
-              display: "flex", flexDirection: "column", justifyContent: "flex-end",
-              cursor: "pointer", position: "relative", overflow: "hidden",
+          {/* Photo area */}
+          <div style={{ height: "100px", background: ev.grad, position: "relative" }}>
+            {/* Badge */}
+            <div style={{
+              position: "absolute",
+              top: "10px",
+              left: "12px",
+              background: ev.badge === "TONIGHT" ? PINK : ev.badge === "THIS WEEKEND" ? DARK : "rgba(0,0,0,0.55)",
+              borderRadius: 999,
+              padding: "4px 10px",
             }}>
-              <p style={{
-                fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900,
-                color: card.bg === CREAM ? DARK : "white",
-                lineHeight: 1.1, marginBottom: 4,
-              }}>{card.city}</p>
-              <p style={{
-                fontFamily: "var(--font-jost)", fontSize: 9,
-                color: card.bg === CREAM ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.55)",
-                letterSpacing: "0.04em",
-              }}>{card.sub}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>
+                {ev.badge}
+              </p>
             </div>
-          ))}
+            {/* Women count */}
+            <div style={{
+              position: "absolute",
+              top: "10px",
+              right: "12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "rgba(0,0,0,0.4)",
+              borderRadius: 999,
+              padding: "4px 10px",
+            }}>
+              <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.9)" }}>✿</span>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>
+                {ev.women} going
+              </p>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: "14px 16px 14px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Location pill */}
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  background: "rgba(0,0,0,0.05)",
+                  borderRadius: 999,
+                  padding: "3px 10px",
+                  marginBottom: "8px",
+                }}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(0,0,0,0.45)" }}>
+                    {ev.neighborhood} · {ev.city.split(",")[0]}
+                  </p>
+                </div>
+
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: "17px", fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.2, marginBottom: "5px" }}>
+                  {ev.name}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: PINK, marginBottom: "6px" }}>
+                  {ev.time}
+                </p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontSize: "12px", fontStyle: "italic", color: "rgba(0,0,0,0.45)", lineHeight: 1.4, marginBottom: "10px" }}>
+                  {ev.desc}
+                </p>
+
+                {/* Tags */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+                  {ev.tags.map(tag => (
+                    <span key={tag} style={{
+                      fontFamily: "var(--font-jost)",
+                      fontSize: "9px",
+                      fontWeight: 600,
+                      color: "rgba(0,0,0,0.4)",
+                      background: "rgba(0,0,0,0.055)",
+                      borderRadius: 999,
+                      padding: "3px 9px",
+                    }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div style={{
+                flexShrink: 0,
+                width: "34px",
+                height: "34px",
+                borderRadius: "50%",
+                background: PINK,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: `0 2px 10px ${PINK}44`,
+                marginTop: "4px",
+              }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </button>
+      ))}
+
+      <div style={{ height: "20px" }} />
+    </div>
+  );
+}
+
+// ── People Tab ─────────────────────────────────────────────────────────────────
+
+function PeopleTab() {
+  const [idx, setIdx] = useState(0);
+  const [waved, setWaved] = useState<Set<number>>(new Set());
+  const person = PEOPLE[idx % PEOPLE.length];
+  const hasWaved = waved.has(person.id);
+
+  function nextPerson() {
+    setIdx(i => (i + 1) % PEOPLE.length);
+  }
+
+  function wavePerson() {
+    setWaved(prev => new Set([...prev, person.id]));
+    setTimeout(nextPerson, 800);
+  }
+
+  return (
+    <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+      {/* Section label */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>
+          WOMEN NEAR YOU
+        </p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(0,0,0,0.3)" }}>NYC · {PEOPLE.length} nearby</p>
+      </div>
+
+      {/* Main profile card */}
+      <div style={{
+        background: PAPER,
+        backgroundImage: PAPER_TEX,
+        backgroundSize: "200px 200px",
+        borderRadius: "24px",
+        overflow: "hidden",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        position: "relative",
+      }}>
+        {/* Photo area */}
+        <div style={{
+          height: "280px",
+          background: `linear-gradient(145deg, ${person.color} 0%, ${person.color}88 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}>
+          {/* Initial */}
+          <p style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: "80px",
+            fontWeight: 900,
+            fontStyle: "italic",
+            color: "rgba(255,255,255,0.35)",
+            lineHeight: 1,
+            userSelect: "none",
+          }}>
+            {person.initial}
+          </p>
+
+          {/* Nav arrows */}
+          <button
+            onClick={() => setIdx(i => (i - 1 + PEOPLE.length) % PEOPLE.length)}
+            style={{
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.22)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button
+            onClick={nextPerson}
+            style={{
+              position: "absolute",
+              right: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.22)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+          {/* Profile dots indicator */}
+          <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "5px" }}>
+            {PEOPLE.map((_, i) => (
+              <div key={i} style={{
+                width: i === idx % PEOPLE.length ? "16px" : "6px",
+                height: "6px",
+                borderRadius: "999px",
+                background: i === idx % PEOPLE.length ? "white" : "rgba(255,255,255,0.4)",
+                transition: "all 0.2s",
+              }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Info */}
+        <div style={{ padding: "16px 18px 18px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 900, fontStyle: "italic", color: DARK }}>
+                  {person.name}
+                </p>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.35)" }}>
+                  {person.age}
+                </span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "3px" }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.4)" }}>{person.location}</p>
+              </div>
+            </div>
+
+            {/* Wave button */}
+            <button
+              onClick={wavePerson}
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "50%",
+                background: hasWaved ? "rgba(255,31,125,0.1)" : PINK,
+                border: hasWaved ? `2px solid ${PINK}` : "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: hasWaved ? "none" : `0 4px 16px ${PINK}44`,
+                transition: "all 0.2s",
+                flexShrink: 0,
+              }}>
+              {hasWaved
+                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                : <span style={{ fontSize: "22px" }}>👋</span>
+              }
+            </button>
+          </div>
+
+          <p style={{ fontFamily: "var(--font-instrument)", fontSize: "13px", fontStyle: "italic", color: "rgba(0,0,0,0.5)", lineHeight: 1.5, marginTop: "12px", marginBottom: "12px" }}>
+            {person.bio}
+          </p>
+
+          {/* Tags */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            {person.tags.map(tag => (
+              <span key={tag} style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: "10px",
+                fontWeight: 600,
+                color: "rgba(0,0,0,0.45)",
+                background: "rgba(0,0,0,0.06)",
+                borderRadius: 999,
+                padding: "5px 12px",
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Browse more */}
+      <div style={{ textAlign: "center", paddingBottom: "8px" }}>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "14px", color: "rgba(0,0,0,0.28)" }}>
+          {idx + 1} of {PEOPLE.length} women near you
+        </p>
+      </div>
+      <div style={{ height: "20px" }} />
+    </div>
+  );
+}
+
+// ── City Tab ───────────────────────────────────────────────────────────────────
+
+function CityTab() {
+  const [activeNeighborhood, setActiveNeighborhood] = useState<string | null>(null);
+
+  const filtered = activeNeighborhood
+    ? CITY_SPOTS.filter(s => s.area === activeNeighborhood || s.area.includes(activeNeighborhood.split(" ")[0]))
+    : CITY_SPOTS;
+
+  return (
+    <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* Section label */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>
+          THE CITY · NYC
+        </p>
+        <Link href="/member/city" style={{ textDecoration: "none" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)" }}>Full guide →</p>
+        </Link>
+      </div>
+
+      {/* Neighborhood pills */}
+      <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" as const }}>
+        <button
+          onClick={() => setActiveNeighborhood(null)}
+          style={{
+            flexShrink: 0,
+            padding: "8px 14px",
+            borderRadius: 999,
+            background: !activeNeighborhood ? DARK : "rgba(0,0,0,0.06)",
+            color: !activeNeighborhood ? "white" : "rgba(0,0,0,0.5)",
+            fontFamily: "var(--font-jost)",
+            fontSize: "10px",
+            fontWeight: 700,
+            border: "none",
+            cursor: "pointer",
+          }}>
+          All
+        </button>
+        {NEIGHBORHOODS.map(n => (
+          <button
+            key={n.name}
+            onClick={() => setActiveNeighborhood(activeNeighborhood === n.name ? null : n.name)}
+            style={{
+              flexShrink: 0,
+              padding: "8px 14px",
+              borderRadius: 999,
+              background: activeNeighborhood === n.name ? DARK : "rgba(0,0,0,0.06)",
+              color: activeNeighborhood === n.name ? "white" : "rgba(0,0,0,0.5)",
+              fontFamily: "var(--font-jost)",
+              fontSize: "10px",
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+            }}>
+            {n.name}
+          </button>
+        ))}
+      </div>
+
+      {/* 2-per-row restaurant grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        {filtered.map(spot => (
+          <Link key={spot.id} href="/member/city" style={{ textDecoration: "none" }}>
+            <div style={{
+              background: PAPER,
+              backgroundImage: PAPER_TEX,
+              backgroundSize: "200px 200px",
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 3px 12px rgba(0,0,0,0.08)",
+            }}>
+              {/* Photo area */}
+              <div style={{ height: "80px", background: spot.grad, position: "relative" }}>
+                {/* Women going */}
+                <div style={{
+                  position: "absolute",
+                  bottom: "6px",
+                  left: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  background: "rgba(0,0,0,0.45)",
+                  borderRadius: 999,
+                  padding: "3px 7px",
+                }}>
+                  <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.8)" }}>✿</span>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>
+                    {spot.women}
+                  </p>
+                </div>
+              </div>
+              {/* Info */}
+              <div style={{ padding: "10px 10px 12px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: DARK, lineHeight: 1.2 }}>
+                  {spot.name}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.4)", marginTop: "3px" }}>
+                  {spot.area}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.3)", marginTop: "2px" }}>
+                  {spot.type}
+                </p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div style={{ height: "20px" }} />
+    </div>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
+
+export function HappeningsPage() {
+  const [tab, setTab] = useState<HapTab>("happenings");
+
+  return (
+    <div style={{
+      backgroundImage: PAPER_TEX,
+      backgroundColor: CREAM,
+      backgroundSize: "200px 200px",
+      minHeight: "100vh",
+      paddingBottom: 96,
+    }}>
+      {/* Page header */}
+      <div style={{
+        padding: "60px 20px 0",
+        backgroundImage: PAPER_TEX,
+        backgroundColor: PAPER,
+        backgroundSize: "200px 200px",
+      }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: "4px" }}>
+          ✦ BLOOMBAY
+        </p>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "34px", fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1, marginBottom: "2px" }}>
+          Discover
+        </h1>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "16px", color: "rgba(0,0,0,0.3)", marginBottom: "0" }}>
+          your city. your people. ♡
+        </p>
+      </div>
+
+      {/* Sticky toggle */}
+      <div style={{ position: "sticky", top: "48px", zIndex: 40 }}>
+        <TabToggle tab={tab} setTab={setTab} />
+      </div>
+
+      {/* Tab content */}
+      {tab === "happenings" && <HappeningsTab />}
+      {tab === "people"     && <PeopleTab />}
+      {tab === "city"       && <CityTab />}
     </div>
   );
 }
