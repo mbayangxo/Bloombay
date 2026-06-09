@@ -129,7 +129,8 @@ export default function CreateClubPage() {
 
       setSubmitted(true);
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Failed to create club. Please try again.");
+      const msg = (err as { message?: string })?.message || "Failed to create club. Please try again.";
+      setCreateError(msg);
     } finally {
       setCreating(false);
     }
