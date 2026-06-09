@@ -8,20 +8,15 @@ import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
 const DARK  = "#1C1B1C";
-
-// Slightly warm paper-white for card surfaces
 const PAPER = "#FEFCF7";
-
-// SVG fractal-noise tile — grayscale grain at 5% opacity, tileable, no PNG needed
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-// Tape configs — RGB string + base opacity
 const TAPES = [
-  { rgb: "255,148,172", a: 0.72 },  // rose
-  { rgb: "255,210,60",  a: 0.62 },  // warm yellow
-  { rgb: "120,185,255", a: 0.68 },  // sky blue
-  { rgb: "120,205,140", a: 0.62 },  // sage
-  { rgb: "195,140,240", a: 0.68 },  // lavender
+  { rgb: "255,148,172", a: 0.72 },
+  { rgb: "255,210,60",  a: 0.62 },
+  { rgb: "120,185,255", a: 0.68 },
+  { rgb: "120,205,140", a: 0.62 },
+  { rgb: "195,140,240", a: 0.68 },
 ];
 
 type Club = {
@@ -41,8 +36,13 @@ const FIRST_MONTH_TASKS = [
   { week: 4, task: "Save 5 places in The City", href: "/member/city"     },
 ];
 
+const TODAY_EVENTS = [
+  { time: "9:00 AM",  label: "NEXT",    name: "Pilates Class",    loc: "Brooklyn Studio · Carroll Gardens", color: "#E8A0B4" },
+  { time: "1:00 PM",  label: "",        name: "Lunch with Sofia", loc: "Café Auguste · East Village",      color: "#A8C4E0" },
+  { time: "7:30 PM",  label: "TONIGHT", name: "Girls Dinner",     loc: "Carbone · West Village",           color: PINK      },
+];
+
 // ─── Tape ─────────────────────────────────────────────────────────────────────
-// Gradient highlight through the centre simulates tape catching light
 
 function Tape({
   index = 0,
@@ -81,57 +81,47 @@ function Tape({
   );
 }
 
-// ─── Club Card ────────────────────────────────────────────────────────────────
+// ─── Club Cover (compact square) ──────────────────────────────────────────────
 
-function ClubCard({ club, index }: { club: Club; index: number }) {
+function ClubCover({ club, index }: { club: Club; index: number }) {
   const abbr  = club.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
   const bg    = club.color || PINK;
-  const angle = index % 2 === 0 ? -1.5 : 1.2;
-  const tapeRotate = index % 2 === 0 ? -3 : 2;
 
   return (
-    <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
-      <div style={{ position: "relative", width: 104, transform: `rotate(${angle}deg)` }}>
-
-        {/* Tape */}
-        <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
-          <Tape index={index} width={32} height={12} rotate={tapeRotate} />
-        </div>
-
-        {/* Polaroid shell — warm paper + noise texture */}
+    <Link href={`/member/clubs`} style={{ textDecoration: "none", flexShrink: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+        {/* Square cover */}
         <div style={{
-          backgroundImage: PAPER_TEX,
-          backgroundColor: PAPER,
-          backgroundSize: "200px 200px",
-          padding: "6px 6px 28px",
-          boxShadow: "0 6px 24px rgba(0,0,0,0.17), 0 1px 4px rgba(0,0,0,0.07)",
+          width: 56,
+          height: 56,
+          borderRadius: "14px",
+          overflow: "hidden",
+          boxShadow: "0 3px 12px rgba(0,0,0,0.14)",
+          position: "relative",
         }}>
-          {/* Photo / crest */}
-          <div style={{ width: "100%", height: 108, overflow: "hidden" }}>
-            {club.cover_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <div style={{
-                width: "100%", height: "100%",
-                background: `linear-gradient(145deg, ${bg} 0%, ${bg}bb 100%)`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>
-                  {abbr}
-                </p>
-              </div>
-            )}
-          </div>
-          <p style={{
-            fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 600, color: "#888",
-            marginTop: 6, textAlign: "center", letterSpacing: "0.04em",
-            overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
-          }}>
-            {club.name}
-          </p>
+          {club.cover_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <div style={{
+              width: "100%", height: "100%",
+              background: `linear-gradient(145deg, ${bg} 0%, ${bg}bb 100%)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>
+                {abbr}
+              </p>
+            </div>
+          )}
         </div>
-
+        {/* Label */}
+        <p style={{
+          fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(0,0,0,0.45)",
+          textAlign: "center", letterSpacing: "0.02em", maxWidth: 60,
+          overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
+        }}>
+          {abbr}
+        </p>
       </div>
     </Link>
   );
@@ -218,15 +208,13 @@ export function HomePage() {
         .from("user_clubs")
         .select("club:clubs(id,name,color,cover_url,member_count)")
         .eq("user_id", user.id)
-        .limit(8);
+        .limit(10);
 
       if (uc) setMyClubs(uc.map((r: Record<string, unknown>) => r.club as Club).filter(Boolean));
       setLoading(false);
     }
     load();
   }, []);
-
-  /* ── derived ─────────────────────────────────────────────── */
 
   const today    = new Date();
   const todayDow = today.getDay();
@@ -247,8 +235,6 @@ export function HomePage() {
   const displayName = firstName || "there";
   const initial     = firstName ? firstName[0].toUpperCase() : "?";
 
-  /* ── render ──────────────────────────────────────────────── */
-
   return (
     <div style={{
       backgroundImage: PAPER_TEX,
@@ -259,68 +245,34 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ══════════════════════════ HEADER ══════════════════════════ */}
-      <div style={{ paddingTop: 52, paddingLeft: 20, paddingRight: 20, paddingBottom: 8 }}>
-
-        {/* Top bar */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26 }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: 22, color: PINK }}>
-            BB*
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-              </svg>
-            </div>
-            <button onClick={() => setShowYande(true)}
-              style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>
-              🌷
-            </button>
-            <Link href="/member/you" style={{ textDecoration: "none" }}>
-              <div style={{
-                width: 38, height: 38, borderRadius: "50%", overflow: "hidden",
-                border: `2.5px solid ${PINK}`, background: PINK, flexShrink: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                {avatarUrl
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>{initial}</p>
-                }
-              </div>
-            </Link>
-          </div>
-        </div>
+      {/* ══════════════════════════ HERO GREETING ══════════════════════════ */}
+      <div style={{ paddingTop: 60, paddingLeft: 20, paddingRight: 20, paddingBottom: 8 }}>
 
         {/* Greeting row */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
 
-          {/* Text */}
+          {/* Text block */}
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>
               GOOD {timeLabel}
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 27, fontWeight: 800, fontStyle: "italic", color: DARK, lineHeight: 1.08 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: DARK, lineHeight: 1.08 }}>
               {greeting},
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 31, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 0.96 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 32, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 0.96 }}>
               {loading ? "…" : `${displayName}. ♡`}
             </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#c8bdb5", marginTop: 10 }}>you belong here</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#d4c9c3", marginTop: 2 }}>soft life, strong mind ♡</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(0,0,0,0.28)", marginTop: 10 }}>you belong here</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.2)", marginTop: 2 }}>soft life, strong mind ♡</p>
           </div>
 
           {/* Polaroid membership card */}
           <div style={{ flexShrink: 0 }}>
-            <Link href="/member/you" style={{ textDecoration: "none" }}>
+            <Link href="/member/lounge" style={{ textDecoration: "none" }}>
               <div style={{ position: "relative" }}>
-                {/* Tape */}
                 <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
                   <Tape index={0} width={34} height={13} rotate={-2.5} />
                 </div>
-                {/* Card — warm paper texture */}
                 <div style={{
                   backgroundImage: PAPER_TEX,
                   backgroundColor: PAPER,
@@ -328,10 +280,9 @@ export function HomePage() {
                   padding: "5px 5px 26px",
                   boxShadow: "0 7px 28px rgba(0,0,0,0.17), 0 1px 4px rgba(0,0,0,0.07)",
                   transform: "rotate(2deg)",
-                  width: 106,
+                  width: 100,
                 }}>
-                  {/* Photo */}
-                  <div style={{ width: "100%", height: 126, overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: 118, overflow: "hidden" }}>
                     {avatarUrl
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -341,14 +292,13 @@ export function HomePage() {
                           background: `linear-gradient(145deg, ${PINK} 0%, #7F0030 100%)`,
                           display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
-                          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 52, color: "rgba(255,255,255,0.45)" }}>
+                          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 48, color: "rgba(255,255,255,0.45)" }}>
                             {initial}
                           </p>
                         </div>
                       )
                     }
                   </div>
-                  {/* Caption */}
                   <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#999", textAlign: "center", marginTop: 6 }}>
                     {loading ? "" : (firstName || "Member")}
                   </p>
@@ -360,20 +310,20 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ══════════════════════════ CALENDAR ══════════════════════════ */}
-      <div style={{ margin: "22px 0 0" }}>
+      {/* ══════════════════════════ CALENDAR STRIP ══════════════════════════ */}
+      <div style={{ margin: "20px 0 0" }}>
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           backgroundImage: PAPER_TEX,
-          backgroundColor: "rgba(255,31,125,0.045)",
+          backgroundColor: "rgba(255,31,125,0.04)",
           backgroundSize: "200px 200px",
-          borderTop: "1px solid rgba(255,31,125,0.09)",
-          borderBottom: "1px solid rgba(255,31,125,0.09)",
+          borderTop: "1px solid rgba(255,31,125,0.08)",
+          borderBottom: "1px solid rgba(255,31,125,0.08)",
           padding: "8px 22px",
         }}>
           {weekDays.map((d, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.06em", color: d.isToday ? PINK : "#ccc" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.06em", color: d.isToday ? PINK : "rgba(0,0,0,0.25)" }}>
                 {d.abbr}
               </span>
               <div style={{
@@ -382,7 +332,7 @@ export function HomePage() {
                 background: d.isToday ? PINK : "transparent",
                 boxShadow: d.isToday ? "0 2px 10px rgba(255,31,125,0.38)" : "none",
               }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: d.isToday ? "white" : "#999" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: d.isToday ? "white" : "rgba(0,0,0,0.45)" }}>
                   {d.date}
                 </span>
               </div>
@@ -391,13 +341,12 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ══════════════════════════ THREE CARDS ══════════════════════════ */}
-      <div style={{ display: "flex", gap: 8, padding: "16px 16px 4px" }}>
+      {/* ══════════════════════════ THREE MINI CARDS ══════════════════════════ */}
+      <div style={{ display: "flex", gap: 8, padding: "14px 16px 4px" }}>
 
-        {/* My First Month — tape on top */}
+        {/* My First Month */}
         <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", paddingTop: 8 }}>
-            {/* Tape */}
             <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
               <Tape index={1} width={40} height={13} rotate={-2} />
             </div>
@@ -407,16 +356,16 @@ export function HomePage() {
               backgroundSize: "200px 200px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.09), inset 0 0 0 0.5px rgba(0,0,0,0.03)",
+              boxShadow: "0 4px 18px rgba(0,0,0,0.09)",
               transform: "rotate(-0.6deg)",
-              minHeight: 152,
+              minHeight: 140,
               display: "flex", flexDirection: "column", justifyContent: "space-between",
             }}>
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 6 }}>
                   MY FIRST MONTH
                 </p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.38 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.4 }}>
                   ⭐ Week {weeksIn}:<br />{task.task}
                 </p>
               </div>
@@ -424,14 +373,14 @@ export function HomePage() {
                 <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,31,125,0.1)", overflow: "hidden" }}>
                   <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
                 </div>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#bbb" }}>{weeksIn}/4</span>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>{weeksIn}/4</span>
               </div>
             </div>
           </div>
         </Link>
 
-        {/* Happenings */}
-        <Link href="/member/discover" style={{ textDecoration: "none", flex: 1 }}>
+        {/* This week events */}
+        <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", paddingTop: 8 }}>
             <div style={{ position: "absolute", top: 0, right: 12, zIndex: 4 }}>
               <Tape index={2} width={36} height={13} rotate={3} />
@@ -442,22 +391,21 @@ export function HomePage() {
               backgroundSize: "200px 200px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(255,31,125,0.09), inset 0 0 0 0.5px rgba(255,31,125,0.06)",
+              boxShadow: "0 4px 18px rgba(255,31,125,0.08)",
               transform: "rotate(0.4deg)",
-              minHeight: 152,
+              minHeight: 140,
             }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 6 }}>
-                HAPPENINGS
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 4 }}>
+                THIS WEEK
               </p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.38 }}>
-                Discover<br />what&apos;s on
-              </p>
-              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 9, fontStyle: "italic", color: "#ddb", marginTop: 6 }}>Find what&apos;s next →</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: DARK }}>2</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 600, color: "rgba(0,0,0,0.35)", marginTop: 1 }}>events near you</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, marginTop: 8 }}>Book Girls NYC<br />Wednesday</p>
             </div>
           </div>
         </Link>
 
-        {/* The City */}
+        {/* City vibes */}
         <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ position: "relative", paddingTop: 8 }}>
             <div style={{ position: "absolute", top: 0, left: 8, zIndex: 4 }}>
@@ -469,47 +417,148 @@ export function HomePage() {
               backgroundSize: "200px 200px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.08), inset 0 0 0 0.5px rgba(0,0,0,0.03)",
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
               transform: "rotate(-0.3deg)",
-              minHeight: 152,
+              minHeight: 140,
             }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 6 }}>
-                THE CITY
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 4 }}>
+                CITY VIBES
               </p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.38 }}>
-                NYC<br />Spots
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.3 }}>
+                Crown Heights
               </p>
-              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 9, fontStyle: "italic", color: "#ccc", marginTop: 6 }}>Explore →</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.35)", marginTop: 3 }}>9 spots</p>
             </div>
           </div>
         </Link>
 
       </div>
 
+      {/* ══════════════════════════ TODAY'S EVENTS ══════════════════════════ */}
+      <div style={{ padding: "22px 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>
+            TODAY · {TODAY_EVENTS.length} EVENTS
+          </p>
+          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)" }}>VIEW FULL SCHEDULE →</span>
+          </Link>
+        </div>
+
+        {/* Event list */}
+        <div style={{
+          backgroundImage: PAPER_TEX,
+          backgroundColor: PAPER,
+          backgroundSize: "200px 200px",
+          borderRadius: 20,
+          overflow: "hidden",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        }}>
+          {TODAY_EVENTS.map((ev, i) => (
+            <div key={i} style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "13px 16px",
+              borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+            }}>
+              {/* Time */}
+              <div style={{ width: 48, flexShrink: 0, textAlign: "right" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.35)", lineHeight: 1 }}>
+                  {ev.time.split(" ")[0]}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(0,0,0,0.22)" }}>
+                  {ev.time.split(" ")[1]}
+                </p>
+              </div>
+
+              {/* Color dot */}
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: ev.color, flexShrink: 0 }} />
+
+              {/* Event info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: DARK, lineHeight: 1.2 }}>
+                  {ev.name}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.38)", marginTop: 1 }}>
+                  {ev.loc}
+                </p>
+              </div>
+
+              {/* Label badge */}
+              {ev.label && (
+                <div style={{
+                  flexShrink: 0,
+                  background: ev.label === "NEXT" ? "rgba(0,0,0,0.06)" : PINK,
+                  borderRadius: 999,
+                  padding: "3px 8px",
+                }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: ev.label === "NEXT" ? "rgba(0,0,0,0.4)" : "white" }}>
+                    {ev.label}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Featured Tonight card */}
+        <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+          <div style={{
+            marginTop: 10,
+            borderRadius: 18,
+            overflow: "hidden",
+            background: "linear-gradient(145deg, #1A0810 0%, #2D0A1A 100%)",
+            padding: "20px 20px",
+            position: "relative",
+            boxShadow: `0 8px 30px rgba(255,31,125,0.2)`,
+          }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 85% 15%, rgba(255,31,125,0.35) 0%, transparent 55%)", pointerEvents: "none" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,31,125,0.85)", position: "relative" }}>
+              7:30 PM · WEST VILLAGE
+            </p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#F8EEF2", lineHeight: 1.1, marginTop: 4, position: "relative" }}>
+              Girls Dinner<br />
+              <span style={{ color: "#FF69B4" }}>Carbone</span>
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.38)", marginTop: 6, position: "relative" }}>
+              4 seats · Individual Pay
+            </p>
+            <div style={{
+              marginTop: 14,
+              display: "inline-flex",
+              background: PINK,
+              borderRadius: 999,
+              padding: "9px 20px",
+              position: "relative",
+              boxShadow: `0 3px 14px ${PINK}55`,
+            }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "0.07em" }}>I&apos;M IN →</span>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       {/* ══════════════════════════ YOUR CLUBS ══════════════════════════ */}
       <div style={{ marginTop: 28 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", paddingLeft: 20, paddingRight: 20, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", paddingLeft: 20, paddingRight: 20, marginBottom: 14 }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>YOUR CLUBS</p>
             {!loading && myClubs.length > 0 && (
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#c8bdb5", marginTop: 1 }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.28)", marginTop: 1 }}>
                 {myClubs.length} joined
               </p>
             )}
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "#c8bdb5" }}>Browse all →</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)" }}>Browse all →</span>
           </Link>
         </div>
 
         {loading ? (
           <div style={{ display: "flex", gap: 16, padding: "4px 20px 12px" }}>
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{
-                width: 104, height: 138,
-                backgroundImage: PAPER_TEX, backgroundColor: "rgba(0,0,0,0.04)",
-                backgroundSize: "200px 200px", flexShrink: 0,
-              }} />
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ width: 56, height: 56, borderRadius: 14, background: "rgba(0,0,0,0.06)", flexShrink: 0 }} />
             ))}
           </div>
         ) : myClubs.length === 0 ? (
@@ -518,13 +567,13 @@ export function HomePage() {
             backgroundImage: PAPER_TEX,
             backgroundColor: PAPER,
             backgroundSize: "200px 200px",
-            borderRadius: 22, padding: "30px 22px", textAlign: "center",
-            boxShadow: "0 4px 18px rgba(0,0,0,0.07), inset 0 0 0 0.5px rgba(0,0,0,0.03)",
+            borderRadius: 22, padding: "28px 22px", textAlign: "center",
+            boxShadow: "0 4px 18px rgba(0,0,0,0.07)",
           }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontStyle: "italic", color: "#bbb", marginBottom: 8 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontStyle: "italic", color: "rgba(0,0,0,0.25)", marginBottom: 8 }}>
               No clubs yet.
             </p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "#ccc", lineHeight: 1.5, marginBottom: 20 }}>
+            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "rgba(0,0,0,0.3)", lineHeight: 1.5, marginBottom: 20 }}>
               Find your people —<br />there&apos;s a club for every side of you.
             </p>
             <Link href="/member/clubs" style={{
@@ -537,86 +586,62 @@ export function HomePage() {
             </Link>
           </div>
         ) : (
-          <div style={{ display: "flex", overflowX: "auto", padding: "8px 20px 24px", gap: 18, scrollbarWidth: "none" as const }}>
+          <div style={{ display: "flex", overflowX: "auto", padding: "4px 20px 16px", gap: 14, scrollbarWidth: "none" as const }}>
             {myClubs.map((club, i) => (
-              <ClubCard key={club.id} club={club} index={i} />
+              <ClubCover key={club.id} club={club} index={i} />
             ))}
           </div>
         )}
       </div>
 
-      {/* ══════════════════════════ DISCOVER CTA ══════════════════════════ */}
-      <div style={{ padding: "8px 20px" }}>
-        <Link href="/member/discover" style={{ textDecoration: "none" }}>
-          <div style={{
-            background: "linear-gradient(145deg, #1C1B1C 0%, #2D0015 100%)",
-            borderRadius: 22, padding: "24px 22px",
-            position: "relative", overflow: "hidden",
-            boxShadow: "0 10px 34px rgba(0,0,0,0.22)",
-          }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 82% 15%, rgba(255,31,125,0.3) 0%, transparent 58%)", pointerEvents: "none" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.85)", marginBottom: 8, position: "relative" }}>
-              HAPPENING NOW
-            </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#F1DFDD", lineHeight: 1.1, marginBottom: 8, position: "relative" }}>
-              Something&apos;s<br />always on.
-            </p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "rgba(255,255,255,0.35)", marginBottom: 20, position: "relative" }}>
-              Find happenings and city spots near you.
-            </p>
-            <div style={{
-              display: "inline-flex", background: PINK, borderRadius: 999,
-              padding: "11px 22px", position: "relative",
-              boxShadow: `0 4px 18px ${PINK}55`,
-            }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: "white", letterSpacing: "0.07em" }}>DISCOVER →</span>
-            </div>
-          </div>
-        </Link>
-      </div>
-
       {/* ══════════════════════════ NEAR YOU ══════════════════════════ */}
-      <div style={{ padding: "22px 20px 8px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 3 }}>NEAR YOU</p>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#c8bdb5", marginBottom: 12 }}>New York City</p>
-        <Link href="/member/city" style={{ textDecoration: "none" }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            {[
-              { name: "SoHo",         color: "#D4B5A0" },
-              { name: "West Village", color: "#C4A0A8" },
-              { name: "Williamsburg", color: "#B8A8C0" },
-            ].map((n, i) => (
-              <div key={i} style={{
-                flex: 1,
+      <div style={{ padding: "16px 20px 8px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>NEAR YOU</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.28)", marginTop: 1 }}>SoHo, NYC</p>
+          </div>
+          <Link href="/member/discover" style={{ textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)" }}>EXPLORE MAP →</span>
+          </Link>
+        </div>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
+          {[
+            { name: "SoHo",         clubs: 12, color: "#D4B5A0" },
+            { name: "West Village", clubs: 18, color: "#C4A0A8" },
+            { name: "Williamsburg", clubs: 16, color: "#B8A8C0" },
+            { name: "Brooklyn Hts", clubs: 11, color: "#A8B8A8" },
+            { name: "Harlem",       clubs: 9,  color: "#C0B0A0" },
+          ].map((n, i) => (
+            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0 }}>
+              <div style={{
+                width: 100,
                 backgroundImage: PAPER_TEX,
                 backgroundColor: PAPER,
                 backgroundSize: "200px 200px",
                 borderRadius: 14, overflow: "hidden",
                 boxShadow: "0 3px 12px rgba(0,0,0,0.07)",
               }}>
-                <div style={{ height: 46, background: n.color, opacity: 0.55 }} />
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, fontWeight: 700, color: "#666", textAlign: "center", padding: "7px 4px" }}>{n.name}</p>
+                <div style={{ height: 56, background: n.color, opacity: 0.65 }} />
+                <div style={{ padding: "7px 8px 9px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: DARK }}>{n.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.35)", marginTop: 1 }}>{n.clubs} clubs</p>
+                </div>
               </div>
-            ))}
-          </div>
-        </Link>
-        <Link href="/member/city" style={{ textDecoration: "none" }}>
-          <div style={{ marginTop: 10, background: PINK, borderRadius: 12, padding: "10px", textAlign: "center", boxShadow: `0 4px 16px ${PINK}44` }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>EXPLORE THE CITY →</p>
-          </div>
-        </Link>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* ══════════════════════════ INSPIRATION ══════════════════════════ */}
-      <div style={{ padding: "20px 20px 36px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 12 }}>INSPIRATION</p>
+      <div style={{ padding: "14px 20px 36px" }}>
         <Link href="/member/discover" style={{ textDecoration: "none" }}>
           <div style={{
             background: "linear-gradient(145deg, #1C1B1C 0%, #3D001A 100%)",
             borderRadius: 20, padding: "26px 22px",
             position: "relative", overflow: "hidden",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-            transform: "rotate(0.5deg)",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+            transform: "rotate(0.4deg)",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 88% 12%, rgba(255,31,125,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, fontStyle: "italic", color: "#F1DFDD", lineHeight: 1.5, position: "relative" }}>
@@ -625,6 +650,9 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 600, color: "rgba(255,255,255,0.22)", marginTop: 12, letterSpacing: "0.1em", position: "relative" }}>
               — bloombay
             </p>
+            <div style={{ marginTop: 16, display: "inline-flex", background: PINK, borderRadius: 999, padding: "9px 18px", position: "relative", boxShadow: `0 3px 14px ${PINK}55` }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.07em" }}>DISCOVER PLACES →</span>
+            </div>
           </div>
         </Link>
       </div>

@@ -90,7 +90,7 @@ export function CityPage() {
     <div style={{ backgroundImage: PAPER_TEX, backgroundColor: CREAM, backgroundSize: "200px 200px", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* ── COVER HEADER ── */}
-      <div style={{ position: "relative", height: 220, background: "#0d0806", overflow: "hidden" }}>
+      <div style={{ position: "relative", height: 268, background: "#0d0806", overflow: "hidden" }}>
         {/* Gradient layers simulating a moody restaurant photo */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 40% 30%, #3d1a0a 0%, #0d0806 70%)" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 60%, #2a0d1a 0%, transparent 60%)" }} />
@@ -100,7 +100,7 @@ export function CityPage() {
         ))}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.75) 100%)" }} />
         {/* Handwritten note */}
-        <div style={{ position: "absolute", top: 54, left: 20, transform: "rotate(-2deg)" }}>
+        <div style={{ position: "absolute", top: 64, left: 20, transform: "rotate(-2deg)" }}>
           <div style={{ background: "rgba(255,255,230,0.9)", padding: "8px 12px", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#333", lineHeight: 1.5 }}>
               The garden is<br />blooming<br />tonight ♡
@@ -120,7 +120,7 @@ export function CityPage() {
           </p>
         </div>
         {/* Icons */}
-        <div style={{ position: "absolute", top: 52, right: 18, display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{ position: "absolute", top: 60, right: 18, display: "flex", gap: 12, alignItems: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </div>

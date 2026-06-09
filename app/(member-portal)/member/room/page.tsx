@@ -568,7 +568,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
       <div className="fixed inset-0 pointer-events-none wall-bg" />
 
       {/* ── HEADER ── */}
-      <div className="relative px-5 pt-12 pb-5 md:px-8 md:pt-8">
+      <div className="relative px-5 pt-16 pb-5 md:px-8 md:pt-4">
         {/* Back */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack}
@@ -941,7 +941,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Back button */}
-      <div className="relative flex items-center px-5 pt-12 pb-0">
+      <div className="relative flex items-center px-5 pt-16 pb-0">
         <button onClick={onBack}
           className="w-9 h-9 rounded-full flex items-center justify-center"
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -1068,7 +1068,7 @@ function GirlBar({ onBack }: { onBack: () => void }) {
 function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBack: () => void }) {
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center gap-4">
+      <div className="px-5 pt-16 pb-4 md:px-8 md:pt-4 flex items-center gap-4">
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
@@ -1106,11 +1106,11 @@ function useEnterRoom(): Room {
 }
 
 const LOBBY_DOORS = [
-  { id: "wall" as Room, n: "01", name: "The Wall", sub: "Community board", hint: "Leave something here", bg: "#FAF5EE", dark: false, accent: "#FF1F7D", available: true },
-  { id: "girlbar" as Room, n: "02", name: "Girl Bar", sub: "Live audio rooms", hint: "🔴 27 women listening", bg: "#1A1008", dark: true, accent: "#FF69B4", available: true },
-  { id: "new-keys" as Room, n: "03", name: "New Keys", sub: "Newcomers & arrivals", hint: "", bg: "#FFF0F7", dark: false, accent: "#FF1F7D", available: false },
-  { id: "vanity" as Room, n: "04", name: "The Vanity", sub: "Beauty & style advice", hint: "", bg: "#FBF3F7", dark: false, accent: "#FF69B4", available: false },
-  { id: "closet" as Room, n: "05", name: "The Closet", sub: "Outfits & what to wear", hint: "", bg: "#F9F5F0", dark: false, accent: "#FF1F7D", available: false },
+  { id: "wall" as Room, n: "01", name: "The Wall", sub: "Community board", hint: "Leave a note", bg: "#FAF5EE", dark: false, accent: "#FF1F7D", available: true, newCount: 4 },
+  { id: "girlbar" as Room, n: "02", name: "Girl Bar", sub: "Live audio rooms", hint: "27 women listening", bg: "#1A1008", dark: true, accent: "#FF69B4", available: true, newCount: 11 },
+  { id: "new-keys" as Room, n: "03", name: "New Keys", sub: "Newcomers & arrivals", hint: "", bg: "#FFF0F7", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
+  { id: "vanity" as Room, n: "04", name: "The Vanity", sub: "Beauty & style advice", hint: "", bg: "#FBF3F7", dark: false, accent: "#FF69B4", available: false, newCount: 0 },
+  { id: "closet" as Room, n: "05", name: "The Closet", sub: "Outfits & what to wear", hint: "", bg: "#F9F5F0", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
 ];
 
 function TheLobbyInner() {
@@ -1123,7 +1123,7 @@ function TheLobbyInner() {
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0C050F" }}>
 
-      <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8">
+      <div className="px-5 pt-16 pb-4 md:px-8 md:pt-4">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "rgba(255,31,125,0.6)" }}>✦ BLOOMBAY</p>
         <h1 className="text-4xl font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,248,240,0.94)" }}>
           The Lobby

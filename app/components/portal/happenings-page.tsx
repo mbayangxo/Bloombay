@@ -331,14 +331,14 @@ export function HappeningsPage() {
   const filters: Filter[] = ["All", "Tonight", "This Weekend", "Dinners", "Parties"];
 
   return (
-    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 120 }}>
+    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 120, paddingTop: 48 }}>
 
       {/* Top bar */}
       <div style={{
         background: DARK,
         padding: "13px 20px 11px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 50,
+        position: "sticky", top: 48, zIndex: 40,
       }}>
         <span style={{
           fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,

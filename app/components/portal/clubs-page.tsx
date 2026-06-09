@@ -43,18 +43,7 @@ export function ClubsPage() {
     <div style={{ background: CREAM, minHeight: "100vh", fontFamily: "var(--font-jost)", backgroundImage: PAPER_TEX }}>
 
       {/* ── HERO ── */}
-      <section style={{ background: CREAM, backgroundImage: PAPER_TEX, padding: "20px 20px 36px", position: "relative", overflow: "hidden" }}>
-
-        {/* Top bar */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 22, color: PINK, letterSpacing: -0.5 }}>BB*</span>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: DARK, letterSpacing: 1 }}>BloomBay*</span>
-          <button style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${DARK}22`, background: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={DARK} strokeWidth="2" strokeLinecap="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </button>
-        </div>
+      <section style={{ background: CREAM, backgroundImage: PAPER_TEX, padding: "60px 20px 36px", position: "relative", overflow: "hidden" }}>
 
         {/* Hero headline + polaroid layout */}
         <div style={{ position: "relative", minHeight: 200 }}>

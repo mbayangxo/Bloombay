@@ -511,7 +511,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           />
 
           {/* Top bar: back button + avatar */}
-          <div className="relative flex items-center justify-between px-5 pt-12 pb-4 md:px-8 md:pt-10">
+          <div className="relative flex items-center justify-between px-5 pt-16 pb-4 md:px-8 md:pt-4">
             {/* Back button */}
             <Link
               href="/member/home"

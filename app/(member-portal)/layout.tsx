@@ -1,8 +1,7 @@
 import { BottomNav } from "../components/portal/bottom-nav";
-import { MemberSidebar } from "../components/portal/member-sidebar";
+import { DesktopTopNav } from "../components/portal/desktop-top-nav";
 import { TimeWrapper } from "../components/portal/time-wrapper";
 import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
-import { PortalIcons } from "../components/portal/portal-icons";
 import { getAuthUser } from "@/lib/auth/get-user";
 
 function roleLabel(role: string): string {
@@ -28,12 +27,9 @@ export default async function MemberPortalLayout({ children }: { children: React
   return (
     <TimeWrapper>
       <SeasonalOverlay />
-      <MemberSidebar user={user} />
-      {/* Global top-right icons — visible on all pages */}
-      <div className="fixed z-50 flex items-center" style={{ top: "14px", right: "20px" }}>
-        <PortalIcons initial={user.initial} />
-      </div>
-      <div className="md:ml-[160px]">
+      <DesktopTopNav initial={user.initial} />
+      {/* md:mt-[60px] offsets the fixed desktop top nav */}
+      <div className="md:mt-[60px]">
         <div className="max-w-[430px] mx-auto md:max-w-none">
           {children}
         </div>
