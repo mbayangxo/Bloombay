@@ -41,28 +41,28 @@ export async function getEvents(): Promise<Event[]> {
   return (data ?? []) as Event[];
 }
 
-export async function joinEvent(eventId: string): Promise<{ error: string | null }> {
+export async function joinEvent(gatheringId: string): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
   const { error } = await supabase
-    .from("event_attendees")
-    .insert({ event_id: eventId, user_id: user.id });
+    .from("gathering_attendance")
+    .insert({ gathering_id: gatheringId, user_id: user.id });
 
   if (error && error.code !== "23505") return { error: error.message };
   return { error: null };
 }
 
-export async function leaveEvent(eventId: string): Promise<{ error: string | null }> {
+export async function leaveEvent(gatheringId: string): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
   const { error } = await supabase
-    .from("event_attendees")
+    .from("gathering_attendance")
     .delete()
-    .eq("event_id", eventId)
+    .eq("gathering_id", gatheringId)
     .eq("user_id", user.id);
 
   return { error: error?.message ?? null };
@@ -74,9 +74,9 @@ export async function getJoinedEventIds(): Promise<string[]> {
   if (!user) return [];
 
   const { data } = await supabase
-    .from("event_attendees")
-    .select("event_id")
+    .from("gathering_attendance")
+    .select("gathering_id")
     .eq("user_id", user.id);
 
-  return (data ?? []).map((r: { event_id: string }) => r.event_id);
+  return (data ?? []).map((r: { gathering_id: string }) => r.gathering_id);
 }
