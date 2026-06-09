@@ -1,21 +1,10 @@
 "use client";
 
 import { useHomeMockupData } from "@/app/hooks/use-home-mockup-data";
-import { HomeMockupDesktop } from "./home-mockup-desktop";
-import { HomeMockupMobile } from "./home-mockup-mobile";
+import { HomeScrapbookCollage } from "./home-scrapbook-collage";
 
-/** Renders separate mobile + desktop scrapbook layouts (not one scaled layout). */
+/** Single overlapping scrapbook canvas — mobile + desktop spreads. */
 export function HomeMockupBoard({ userId }: { firstName?: string; userId?: string | null }) {
   const data = useHomeMockupData(userId);
-
-  return (
-    <>
-      <div className="bb-home-layout bb-home-layout--mobile">
-        <HomeMockupMobile data={data} />
-      </div>
-      <div className="bb-home-layout bb-home-layout--desktop">
-        <HomeMockupDesktop data={data} />
-      </div>
-    </>
-  );
+  return <HomeScrapbookCollage data={data} />;
 }
