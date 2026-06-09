@@ -128,7 +128,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
     { href: "/member/lounge",        label: "Apt",      Icon: AptIcon,     badge: null },
     { href: "/member/messages",      label: "Mailbox",  Icon: MailboxIcon, badge: "3" as string | null },
     { href: "/member/chat",          label: "Chat",     Icon: ChatIcon,    badge: "dot" as string | null },
-    { href: "/member/city",          label: "Pins",     Icon: PinDropIcon, badge: null },
+    { href: "/member/happenings",     label: "Pins",     Icon: PinDropIcon, badge: null },
   ];
 
   return (
