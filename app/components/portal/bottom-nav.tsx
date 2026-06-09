@@ -9,16 +9,16 @@ const PENDING_INVITATIONS = 3;
 
 const PLACES = [
   { href: "/member/home",       baseLabel: "HOME",       n: "01" },
-  { href: "/member/happenings", baseLabel: "HAPPENINGS", n: "02" },
-  { href: "/member/city",       baseLabel: "THE CITY",   n: "03" },
-  { href: "/member/clubs",      baseLabel: "CLUBS",      n: "04" },
-  { href: "/member/room",       baseLabel: "THE LOBBY",  n: "05" },
-  { href: "/member/lounge",     baseLabel: "APT",        n: "06" },
-  { href: "/member/match",      baseLabel: "INTROS",     n: "07" },
+  { href: "/member/discover",   baseLabel: "DISCOVER",   n: "02" },
+  { href: "/member/clubs",      baseLabel: "CLUBS",      n: "03" },
+  { href: "/member/room",       baseLabel: "THE LOBBY",  n: "04" },
+  { href: "/member/lounge",     baseLabel: "APT",        n: "05" },
+  { href: "/member/match",      baseLabel: "INTROS",     n: "06" },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
   "/member/home":          "HOME",
+  "/member/discover":      "DISCOVER",
   "/member/city":          "THE CITY",
   "/member/clubs":         "CLUBS",
   "/member/lounge":        "APT",
