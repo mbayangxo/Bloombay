@@ -345,36 +345,67 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
       <div style={{ paddingTop: 54 }}>
 
-        {/* ── COVER SPREAD ──────────────────────────────────────────────────── */}
-        <div style={{ background: PAPER, padding: "28px 20px 0" }}>
+        {/* ── COVER SPREAD — folder/dossier style ───────────────────────────── */}
+        <div style={{ background: "#EDE4D4", padding: "0 0 0" }}>
 
-          {/* Issue line */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.4)" }}>{issueDate}</p>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.12)" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.4)" }}>MEMBER #{memberNum}</p>
+          {/* Folder top tab */}
+          <div style={{ height: 32, background: "#E0D5C0", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", paddingLeft: 20, gap: 8 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.3)" }}>{issueDate}</p>
+            <div style={{ flex: 1 }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.3)", paddingRight: 20 }}>MEMBER #{memberNum}</p>
           </div>
 
-          {/* Thick pink rule */}
-          <div style={{ height: 3, background: `linear-gradient(90deg,${PINK},rgba(255,105,180,0.35))`, borderRadius: 2, marginBottom: 22 }} />
+          {/* Folder body */}
+          <div style={{ padding: "24px 20px 0", background: "#EDE4D4", position: "relative" }}>
 
-          {/* Avatar + name */}
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 20 }}>
-            <div style={{ width: 80, height: 80, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg,${PINK},#FF69B4)`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 24px rgba(255,31,125,0.35)`, fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "white" }}>
-              {displayInitial}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR EDITORIAL</p>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(34px,9vw,52px)", color: "#1A1A1A", lineHeight: 0.92, letterSpacing: "-0.02em", marginBottom: 8 }}>
-                {displayName.split(" ")[0]}.
-              </h1>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginBottom: 8 }}>{localNbhd} · NYC</p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 999, background: "linear-gradient(135deg,#1A1208,#2D1E08)", border: "1px solid rgba(212,168,83,0.4)" }}>
-                <span style={{ fontSize: 8, color: "#D4A853" }}>✦</span>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#D4A853" }}>FOUNDING MOTHER #{memberNum}</span>
+            {/* Polaroid photo clipped at top-right — avatar as polaroid */}
+            <div style={{ position: "absolute", top: 16, right: 20, zIndex: 2 }}>
+              {/* Paper clip SVG */}
+              <svg width="18" height="36" viewBox="0 0 18 36" style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 3 }}>
+                <path d="M9 2 C5 2 2 5 2 9 L2 28 C2 30 3.5 32 5.5 32 L12.5 32 C14.5 32 16 30 16 28 L16 11 C16 9 14.5 7 12 7 L7 7 C5.5 7 4.5 8 4.5 9.5 L4.5 26 C4.5 27 5.2 27.5 6 27.5 L12 27.5" fill="none" stroke="#9A9A9A" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              {/* Polaroid */}
+              <div style={{ transform: "rotate(4deg)", background: "white", padding: "8px 8px 28px", boxShadow: "0 6px 22px rgba(0,0,0,0.16)", borderRadius: 2, marginTop: 12 }}>
+                <div style={{ width: 80, height: 80, background: `linear-gradient(135deg,${PINK},#FF69B4)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "white" }}>
+                  {displayInitial}
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#777", textAlign: "center" as const, marginTop: 6, lineHeight: 1.2 }}>{displayName.split(" ")[0]}</p>
               </div>
             </div>
+
+            {/* Name section */}
+            <div style={{ paddingRight: 115, marginBottom: 14 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 6 }}>YOUR EDITORIAL</p>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(38px,10vw,54px)", color: "#1A1A1A", lineHeight: 0.92, letterSpacing: "-0.02em", marginBottom: 8 }}>
+                {displayName.split(" ")[0]}.
+              </h1>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#887060", marginBottom: 10 }}>{localNbhd} · NYC</p>
+
+              {/* Info blocks — like the reference file boxes */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                <div style={{ background: "rgba(255,255,255,0.55)", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 6, padding: "6px 10px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(0,0,0,0.4)" }}>MEMBER SINCE</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A" }}>Jan 2026</p>
+                </div>
+                <div style={{ background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 6, padding: "6px 10px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.12em", color: PINK }}>STATUS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>Founding</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Founding mother chip */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 999, background: "linear-gradient(135deg,#1A1208,#2D1E08)", border: "1px solid rgba(212,168,83,0.4)", marginBottom: 18 }}>
+              <span style={{ fontSize: 8, color: "#D4A853" }}>✦</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "#D4A853" }}>FOUNDING MOTHER #{memberNum}</span>
+            </div>
+
+            {/* Pink accent bar */}
+            <div style={{ height: 3, background: `linear-gradient(90deg,${PINK},rgba(255,105,180,0.35))`, borderRadius: 2, marginBottom: 0 }} />
           </div>
+
+          {/* White section below fold */}
+          <div style={{ background: PAPER, padding: "18px 20px 0" }}>
 
           {/* Bio pull-quote */}
           <div style={{ borderLeft: `3px solid ${PINK}`, paddingLeft: 14, marginBottom: 20 }}>
@@ -402,7 +433,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           </div>
 
           <div style={{ height: 1, background: "rgba(255,31,125,0.1)" }} />
-        </div>
+          </div>{/* end white section */}
+        </div>{/* end folder */}
 
         {/* ── FLOWERS ───────────────────────────────────────────────────────── */}
         <SectionDivider label="RECOGNITION" />
