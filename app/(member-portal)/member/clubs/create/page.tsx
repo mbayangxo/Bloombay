@@ -12,11 +12,6 @@ const CLUB_CATEGORIES = [
   "Social & Lifestyle", "Travel & Adventure", "Career & Growth", "Community Service",
 ];
 
-const PRESET_COLORS = [
-  "#FF1F7D", "#FF6B9D", "#C084FC", "#818CF8",
-  "#60A5FA", "#34D399", "#FB923C", "#F59E0B",
-  "#EC4899", "#8B5CF6", "#0EA5E9", "#10B981",
-];
 
 const FREQUENCIES = ["Weekly", "Bi-weekly", "Monthly", "As needed"];
 
@@ -277,41 +272,31 @@ export default function CreateClubPage() {
 
             {/* Color */}
             <div style={{ marginBottom: 8 }}>
-              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.15em", color: "rgba(0,0,0,0.3)", marginBottom: 12 }}>CLUB COLOR</p>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                <button
-                  onClick={() => colorInputRef.current?.click()}
-                  style={{ width: 56, height: 56, borderRadius: 16, background: accentColor, border: "none", cursor: "pointer", flexShrink: 0, boxShadow: `0 4px 16px ${accentColor}55, 0 0 0 3px white, 0 0 0 5px ${accentColor}44` }}
-                />
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>
-                    {accentColor.toUpperCase()}
-                  </p>
-                  <button
-                    onClick={() => colorInputRef.current?.click()}
-                    style={{ fontSize: "10px", fontWeight: 700, color: accentColor, background: `${accentColor}12`, border: `1px solid ${accentColor}25`, padding: "5px 12px", borderRadius: 999, cursor: "pointer" }}
-                  >
-                    Open color picker →
-                  </button>
-                </div>
-              </div>
-
-              {/* Preset chips */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {PRESET_COLORS.map(c => (
-                  <button key={c} onClick={() => setAccentColor(c)}
-                    style={{ width: 30, height: 30, borderRadius: 9, background: c, border: "none", cursor: "pointer", boxShadow: accentColor === c ? `0 0 0 3px white, 0 0 0 5px ${c}` : "none", transition: "box-shadow 0.15s" }}
-                  />
-                ))}
-              </div>
-
+              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.15em", color: "rgba(0,0,0,0.3)", marginBottom: 10 }}>CLUB COLOR</p>
+              <button
+                onClick={() => colorInputRef.current?.click()}
+                style={{
+                  width: "100%", padding: "16px 18px", borderRadius: 18,
+                  border: "none", cursor: "pointer",
+                  background: accentColor,
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  boxShadow: `0 6px 24px ${accentColor}55`,
+                  boxSizing: "border-box",
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 800, color: "white", fontFamily: "monospace", letterSpacing: "0.06em" }}>
+                  {accentColor.toUpperCase()}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.65)" }}>
+                  Tap to change
+                </span>
+              </button>
               <input
                 ref={colorInputRef}
                 type="color"
                 value={accentColor}
                 onChange={e => setAccentColor(e.target.value)}
-                style={{ position: "absolute", opacity: 0, width: 0, height: 0, pointerEvents: "none" }}
+                style={{ display: "none" }}
               />
             </div>
           </div>
