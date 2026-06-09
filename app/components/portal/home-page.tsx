@@ -24,53 +24,65 @@ const FIRST_MONTH_TASKS = [
   { week: 4, task: "Save 5 places in The City", href: "/member/city"       },
 ];
 
-// PNG polaroid frames — cycled across the user's clubs
-const CLUB_FRAMES = [
-  "E67AE5DD-286B-4E45-BA2E-080681D63958.PNG",
-  "6D79FE52-AEB9-4F4C-AD10-B954C218834D.PNG",
-  "D25A1545-F360-4978-93BB-9C19D97BACDA.PNG",
-  "E894643F-2A53-4ABE-A8EF-19792A45CC5E.PNG",
-  "868945DF-0D9E-40F6-A76F-96A187EBC961.PNG",
+// Tape colors cycle across clubs for a scrapbook feel
+const TAPE_COLORS = [
+  "rgba(255,182,193,0.75)",
+  "rgba(255,218,100,0.65)",
+  "rgba(200,220,255,0.75)",
+  "rgba(180,230,180,0.65)",
+  "rgba(255,200,220,0.75)",
 ];
 
 // ─── Club Polaroid ────────────────────────────────────────────────────────────
-// The PNG is a frame with a transparent window. The club's real cover photo
-// (or a color-gradient crest) sits behind that window via z-index layering.
+// CSS-built polaroid — white card + photo + tape decoration.
+// Real club photo (cover_url from Supabase) fills the frame.
+// Falls back to club color gradient + initials when no photo uploaded yet.
 
 function ClubPolaroid({ club, frameIndex = 0, rotate = 0 }: { club: Club; frameIndex?: number; rotate?: number }) {
   const abbr = club.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
   const bg = club.color || PINK;
-  const frame = CLUB_FRAMES[frameIndex % CLUB_FRAMES.length];
+  const tape = TAPE_COLORS[frameIndex % TAPE_COLORS.length];
 
   return (
     <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
       <div style={{ position: "relative", width: 88, transform: `rotate(${rotate}deg)` }}>
-        {/* Real photo slot — sits behind the transparent window of the PNG frame */}
-        <div style={{ position: "absolute", top: "9%", left: "9%", width: "82%", height: "61%", zIndex: 1, overflow: "hidden" }}>
-          {club.cover_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={club.cover_url} alt={club.name}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          ) : (
-            <div style={{
-              width: "100%", height: "100%",
-              background: `linear-gradient(145deg, ${bg} 0%, ${bg}bb 100%)`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>
-                {abbr}
-              </p>
-            </div>
-          )}
+        {/* Tape decoration */}
+        <div style={{
+          position: "absolute", top: -5, left: "50%",
+          transform: "translateX(-50%) rotate(-2deg)",
+          width: 26, height: 10, background: tape, borderRadius: 1, zIndex: 4,
+        }} />
+        {/* Polaroid card */}
+        <div style={{
+          background: "white",
+          padding: "5px 5px 22px",
+          boxShadow: "0 4px 18px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.06)",
+        }}>
+          {/* Photo area — real club cover photo or color crest */}
+          <div style={{ width: "100%", height: 90, overflow: "hidden", position: "relative" }}>
+            {club.cover_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={club.cover_url} alt={club.name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div style={{
+                width: "100%", height: "100%",
+                background: `linear-gradient(145deg, ${bg} 0%, ${bg}bb 100%)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>
+                  {abbr}
+                </p>
+              </div>
+            )}
+          </div>
+          {/* Caption area */}
+          <p style={{
+            fontSize: "7px", fontWeight: 700, color: "#555",
+            marginTop: 5, textAlign: "center", letterSpacing: "0.03em",
+            overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
+          }}>{club.name}</p>
         </div>
-        {/* PNG frame overlays on top — transparent window reveals the photo behind */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/homepage-objects/${frame}`} alt="" style={{ width: "100%", display: "block", position: "relative", zIndex: 2 }} />
-        <p style={{
-          fontSize: "7px", fontWeight: 700, color: "#555",
-          marginTop: 3, textAlign: "center", letterSpacing: "0.03em",
-          overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
-        }}>{club.name}</p>
       </div>
     </Link>
   );
@@ -189,12 +201,14 @@ export function HomePage() {
 
       {/* ═══ HEADER ═══ */}
       <div style={{ position: "relative", background: "#F6F1EB", paddingTop: 44, paddingBottom: 16 }}>
+        {/* Decorative torn-paper texture — sits on cream background so transparency blends in */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "#F6F1EB", zIndex: 0 }} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/homepage-objects/EBACE242-70AB-4C83-B40D-485A01CBB332.PNG" alt=""
-          style={{ position: "absolute", top: 0, left: -6, width: "108%", pointerEvents: "none", zIndex: 0 }} />
+          style={{ position: "absolute", top: 0, left: -6, width: "108%", pointerEvents: "none", zIndex: 1 }} />
 
         {/* Nav bar */}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: 20, paddingRight: 16, marginBottom: 12 }}>
+        <div style={{ position: "relative", zIndex: 3, display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: 20, paddingRight: 16, marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: 22, color: PINK }}>BB*</span>
             <div style={{ position: "relative" }}>
@@ -227,7 +241,7 @@ export function HomePage() {
         </div>
 
         {/* Greeting + membership card */}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "flex-start", paddingLeft: 20, paddingRight: 16 }}>
+        <div style={{ position: "relative", zIndex: 3, display: "flex", alignItems: "flex-start", paddingLeft: 20, paddingRight: 16 }}>
           <div style={{ flex: 1, paddingRight: 12, paddingBottom: 10 }}>
             <p style={{ fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 3 }}>
               GOOD {greetingTime}
@@ -242,32 +256,36 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#bbb", marginTop: 2 }}>soft life, strong mind ♡</p>
           </div>
 
-          {/* Portrait card — PNG polaroid frame with user's real avatar behind the window */}
-          <div style={{ width: 118, flexShrink: 0, marginTop: -8 }}>
+          {/* Portrait card — CSS polaroid, user's real avatar inside */}
+          <div style={{ width: 112, flexShrink: 0, marginTop: -8 }}>
             <Link href="/member/you" style={{ textDecoration: "none" }}>
-              <div style={{ position: "relative", width: 118 }}>
-                {/* User's avatar sits behind the transparent window of the polaroid frame */}
-                <div style={{ position: "absolute", top: "11%", left: "10%", width: "80%", height: "56%", zIndex: 1, overflow: "hidden" }}>
-                  {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ width: "100%", height: "100%", background: "linear-gradient(145deg, #FF1F7D 0%, #7F0030 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 40, color: "rgba(255,255,255,0.6)" }}>
-                        {initial}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                {/* PNG polaroid frame overlaid on top */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/homepage-objects/22BF0D14-A676-4B45-A133-EE13D17845F8.PNG" alt=""
-                  style={{ width: "100%", display: "block", position: "relative", zIndex: 2 }} />
-                {/* Name in the bottom caption area of the polaroid */}
-                <div style={{ position: "absolute", bottom: "10%", left: 0, right: 0, zIndex: 3, textAlign: "center" }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 800, fontSize: 13, color: "#1C1B1C" }}>
-                    {loadingProfile ? "" : (firstName || "")}
+              <div style={{ position: "relative" }}>
+                {/* Tape decoration */}
+                <div style={{ position: "absolute", top: -5, left: "50%", transform: "translateX(-50%) rotate(-3deg)", width: 30, height: 11, background: "rgba(255,182,193,0.75)", borderRadius: 1, zIndex: 4 }} />
+                {/* Polaroid card */}
+                <div style={{
+                  background: "white",
+                  padding: "5px 5px 28px",
+                  boxShadow: "0 6px 24px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.08)",
+                  transform: "rotate(1deg)",
+                }}>
+                  {/* Real avatar photo */}
+                  <div style={{ width: "100%", height: 130, overflow: "hidden", position: "relative" }}>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt=""
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", background: "linear-gradient(145deg, #FF1F7D 0%, #7F0030 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 48, color: "rgba(255,255,255,0.5)" }}>
+                          {initial}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Caption */}
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 12, color: "#444", textAlign: "center", marginTop: 6 }}>
+                    {loadingProfile ? "" : (firstName || "Member")}
                   </p>
                 </div>
               </div>
