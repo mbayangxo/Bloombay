@@ -248,9 +248,8 @@ function GridCard({ ev, idx }: { ev: typeof EVENTS[0]; idx: number }) {
 
 /* ── Main ─────────────────────────────────────────────────────── */
 export function HappeningsPage() {
-  const [tab,          setTab]          = useState<HapTab>("happenings");
-  const [filter,       setFilter]       = useState<Filter>("All");
-  const [filterOpen,   setFilterOpen]   = useState(false);
+  const [tab,    setTab]    = useState<HapTab>("happenings");
+  const [filter, setFilter] = useState<Filter>("All");
 
   const filtered = EVENTS.filter(e => {
     if (filter === "All")          return true;
@@ -312,65 +311,68 @@ export function HappeningsPage() {
           </div>
         </div>
 
-        {/* Right: filter + icons */}
-        <div style={{ width: 64, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, paddingRight: 14 }}>
-          {tab === "happenings" && (
-            <button
-              onClick={() => setFilterOpen(o => !o)}
-              style={{
-                background: filterOpen ? PINK : "none", border: "none", cursor: "pointer",
-                padding: 4, display: "flex", borderRadius: 6,
-                color: filterOpen ? "white" : "rgba(0,0,0,0.35)",
-              }}
-            >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="4" y1="6"  x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
-              </svg>
-            </button>
-          )}
-          <Link href="/member/lounge" style={{ textDecoration: "none" }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%", background: PINK,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "11px", fontWeight: 900, color: "white",
-              fontFamily: "var(--font-playfair)", fontStyle: "italic",
-              boxShadow: "0 2px 8px rgba(255,31,125,0.3)",
-            }}>M</div>
+        {/* Right: mailbox · pin drop · chat · apt */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, paddingRight: 16 }}>
+          {/* Mailbox */}
+          <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: PINK, border: `1.5px solid ${NAV_BG}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
+          </Link>
+          {/* Pin drop */}
+          <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: PINK, border: `1.5px solid ${NAV_BG}` }}/>
+          </Link>
+          {/* Chat */}
+          <Link href="/member/messages" aria-label="Chats" style={{ display: "flex" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+          </Link>
+          {/* Apt */}
+          <Link href="/member/lounge" aria-label="My Apt" style={{ display: "flex" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 22V8l9-6 9 6v14"/>
+              <path d="M9 22V12h6v10"/>
+              <rect x="10" y="14" width="4" height="4" rx="0.5"/>
+            </svg>
           </Link>
         </div>
       </div>
 
-      {/* ── Filter dropdown (collapsible) ── */}
-      {filterOpen && tab === "happenings" && (
-        <div style={{
-          position: "fixed", top: 54, left: 0, right: 0, zIndex: 50,
-          background: NAV_BG,
-          borderBottom: "1px solid rgba(0,0,0,0.08)",
-          padding: "10px 16px 12px",
-          animation: "filterSlide 0.15s ease-out",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.3)", marginBottom: 8 }}>FILTER BY</p>
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+      {/* ── Page content ── */}
+      <div style={{ paddingTop: 54 }}>
+
+        {/* ── Filter pills (always visible at top) ── */}
+        {tab === "happenings" && (
+          <div style={{
+            display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none" as const,
+            padding: "10px 16px 8px",
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            background: "rgba(246,241,235,0.96)",
+            backdropFilter: "blur(6px)",
+          }}>
             {FILTERS.map(f => (
-              <button key={f} onClick={() => { setFilter(f); setFilterOpen(false); }} style={{
-                padding: "6px 14px", borderRadius: 999,
-                border: `1.5px solid ${filter === f ? PINK : "rgba(0,0,0,0.12)"}`,
+              <button key={f} onClick={() => setFilter(f)} style={{
+                flexShrink: 0, padding: "6px 15px", borderRadius: 999,
+                border: `1.5px solid ${filter === f ? PINK : "rgba(0,0,0,0.11)"}`,
                 background: filter === f ? PINK : "white",
                 color: filter === f ? "white" : "rgba(0,0,0,0.5)",
                 fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
                 letterSpacing: "0.04em", cursor: "pointer",
+                boxShadow: filter === f ? `0 2px 8px ${PINK}33` : "none",
               }}>
                 {f}
-                {f !== "All" && filter === f && " ✓"}
               </button>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* ── Page content ── */}
-      <div style={{ paddingTop: 54 }}>
+        )}
 
         {/* ── HAPPENINGS TAB ── */}
         {tab === "happenings" && (

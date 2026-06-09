@@ -64,15 +64,20 @@ const TABS = [
     ),
   },
   {
-    href: "/member/lounge",
-    label: "Profile",
+    href: "/member/plans",
+    label: "Plans",
     icon: (active: boolean) => (
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
         stroke={active ? PINK : "rgba(0,0,0,0.28)"}
         strokeWidth={active ? "2.2" : "1.6"}
         strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <line x1="8" y1="14" x2="8" y2="14"/>
+        <line x1="12" y1="14" x2="12" y2="14"/>
+        <line x1="16" y1="14" x2="16" y2="14"/>
       </svg>
     ),
   },
@@ -113,8 +118,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <span style={{ color: PINK, fontSize: "12px", opacity: 0.6 }}>✿</span>
           </Link>
 
-          {/* Right icons: messages + notifications + avatar */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Right icons: mailbox · pin drop · chat · apt */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
 
             {/* Mailbox with badge */}
             <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
@@ -123,63 +128,41 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
               <div style={{
-                position: "absolute",
-                top: "-4px",
-                right: "-5px",
-                width: "14px",
-                height: "14px",
-                borderRadius: "50%",
-                background: PINK,
-                border: "1.5px solid " + NAV_BG,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "7px",
-                fontWeight: 900,
-                color: "white",
-                lineHeight: 1,
-              }}>
-                3
-              </div>
+                position: "absolute", top: "-4px", right: "-5px",
+                width: "14px", height: "14px", borderRadius: "50%",
+                background: PINK, border: "1.5px solid " + NAV_BG,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1,
+              }}>3</div>
             </Link>
 
-            {/* Notifications */}
+            {/* Pin drop */}
             <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round">
                 <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
                 <circle cx="12" cy="10" r="3"/>
               </svg>
               <span style={{
-                position: "absolute",
-                top: "-1px",
-                right: "-1px",
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background: PINK,
-                border: "1.5px solid " + NAV_BG,
+                position: "absolute", top: "-1px", right: "-1px",
+                width: "7px", height: "7px", borderRadius: "50%",
+                background: PINK, border: "1.5px solid " + NAV_BG,
               }} />
             </Link>
 
-            {/* Avatar */}
-            <Link href="/member/lounge" aria-label="Profile" style={{ textDecoration: "none" }}>
-              <div style={{
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                background: PINK,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "12px",
-                fontWeight: 900,
-                color: "white",
-                fontFamily: "var(--font-playfair)",
-                fontStyle: "italic",
-                boxShadow: "0 2px 8px rgba(255,31,125,0.3)",
-              }}>
-                {user?.initial ?? "M"}
-              </div>
+            {/* Chat */}
+            <Link href="/member/messages" aria-label="Chats" style={{ display: "flex" }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </Link>
+
+            {/* Apt (lounge/profile) */}
+            <Link href="/member/lounge" aria-label="My Apt" style={{ display: "flex" }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 22V8l9-6 9 6v14"/>
+                <path d="M9 22V12h6v10"/>
+                <rect x="10" y="14" width="4" height="4" rx="0.5"/>
+              </svg>
             </Link>
           </div>
         </div>
