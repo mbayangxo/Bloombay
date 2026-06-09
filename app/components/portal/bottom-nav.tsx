@@ -1,83 +1,98 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 
-const PENDING_INVITATIONS = 3;
+interface NavUser { name: string; initial: string; role: string; }
 
-const PLACES = [
-  { href: "/member/home",       baseLabel: "HOME",       n: "01" },
-  { href: "/member/discover",   baseLabel: "DISCOVER",   n: "02" },
-  { href: "/member/clubs",      baseLabel: "CLUBS",      n: "03" },
-  { href: "/member/room",       baseLabel: "THE LOBBY",  n: "04" },
-  { href: "/member/lounge",     baseLabel: "APT",        n: "05" },
+// ─── Tab definitions ──────────────────────────────────────────────────────────
+
+const TABS = [
+  {
+    href: "/member/home",
+    label: "Home",
+    icon: (active: boolean) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
+        strokeWidth={active ? "2" : "1.6"}
+        strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+        <path d="M9 21V12h6v9"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/member/discover",
+    label: "Discover",
+    icon: (active: boolean) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
+        strokeWidth={active ? "2" : "1.6"}
+        strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/member/city",
+    label: "Map",
+    icon: (active: boolean) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
+        strokeWidth={active ? "2" : "1.6"}
+        strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/member/clubs",
+    label: "Clubs",
+    icon: (active: boolean) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke={active ? "#FF1F7D" : "rgba(255,255,255,0.38)"}
+        strokeWidth={active ? "2" : "1.6"}
+        strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+        <path d="M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/member/lounge",
+    label: "Profile",
+    icon: (active: boolean, initial?: string) => (
+      active ? (
+        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+          style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 0 0 2px #FF1F7D" }}>
+          {initial ?? "M"}
+        </div>
+      ) : (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="rgba(255,255,255,0.38)"
+          strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      )
+    ),
+  },
 ];
 
-const PAGE_LABELS: Record<string, string> = {
-  "/member/home":          "HOME",
-  "/member/discover":      "DISCOVER",
-  "/member/city":          "THE CITY",
-  "/member/clubs":         "CLUBS",
-  "/member/lounge":        "APT",
-  "/member/match":         "INTRODUCTIONS",
-  "/member/calendar":      "CALENDAR",
-  "/member/happenings":    "HAPPENINGS",
-  "/member/messages":      "MAILBOX",
-  "/member/chat":          "CHAT",
-  "/member/notifications": "PINGS",
-  "/member/plans":         "PLANS",
-  "/member/room":          "THE WALL",
-};
-
-function getHomeLabel(): string {
-  const h = new Date().getHours();
-  if (h >= 5  && h < 12) return "THIS MORNING";
-  if (h >= 12 && h < 17) return "TODAY";
-  if (h >= 17 && h < 21) return "THIS EVENING";
-  return "TONIGHT";
-}
-
-interface NavUser { name: string; initial: string; role: string; }
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const [homeLabel, setHomeLabel] = useState("TODAY");
-  const [visited, setVisited] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    setHomeLabel(getHomeLabel());
-  }, []);
-
-  useEffect(() => {
-    setVisited(prev => {
-      const next = new Set(prev);
-      if (pathname.startsWith("/member/messages"))      next.add("messages");
-      if (pathname.startsWith("/member/notifications"))  next.add("notifications");
-      if (pathname.startsWith("/member/plans"))          next.add("plans");
-      return next;
-    });
-  }, [pathname]);
-
-  const places = PLACES.map((p, i) => ({
-    ...p,
-    label: i === 0 ? homeLabel : p.baseLabel,
-  }));
-
-  // Derive current page label for the pill
-  function getCurrentLabel(): string {
-    for (const [prefix, label] of Object.entries(PAGE_LABELS)) {
-      if (pathname === prefix || pathname.startsWith(prefix + "/")) {
-        if (prefix === "/member/home") return homeLabel;
-        return label;
-      }
-    }
-    return "NAVIGATE";
+  function isActive(href: string) {
+    return pathname === href || pathname.startsWith(href + "/");
   }
-
-  const currentLabel = getCurrentLabel();
 
   return (
     <>
@@ -85,7 +100,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
       <div
         className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: "rgba(10,8,8,0.9)",
+          background: "rgba(10,8,8,0.92)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
@@ -93,11 +108,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
         }}
       >
         <div className="flex items-center justify-between px-4 h-12">
-
-          {/* Left — BB wordmark */}
-          <Link href="/member/home"
-            className="flex items-center gap-1"
-            aria-label="BloomBay Home">
+          {/* BB wordmark */}
+          <Link href="/member/home" aria-label="BloomBay Home" className="flex items-center gap-1">
             <span className="text-sm font-black tracking-[0.06em]"
               style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               BB
@@ -105,15 +117,13 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <span className="w-1 h-1 rounded-full" style={{ background: "#FF1F7D", opacity: 0.6 }} />
           </Link>
 
-          {/* Right — utility icons + avatar */}
+          {/* Utility icons */}
           <div className="flex items-center gap-2">
             <Link href="/member/messages" aria-label="Mailbox"
               className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/messages") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/messages") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-                boxShadow: pathname.startsWith("/member/messages") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-                animation: !pathname.startsWith("/member/messages") ? "mailboxShake 6s ease-in-out 2s infinite" : undefined,
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/messages") ? "#FF1F7D" : "#FF69B4"}
@@ -121,20 +131,16 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              {!pathname.startsWith("/member/messages") && !visited.has("messages") && (
-                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
-                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)", lineHeight: 1 }}>
-                  {PENDING_INVITATIONS}
-                </div>
-              )}
+              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
+                style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }}>
+                3
+              </div>
             </Link>
             <Link href="/member/notifications" aria-label="Pings"
               className="w-9 h-9 rounded-full flex items-center justify-center relative transition-all active:scale-90"
               style={{
                 background: pathname.startsWith("/member/notifications") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
                 border: pathname.startsWith("/member/notifications") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-                boxShadow: pathname.startsWith("/member/notifications") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-                animation: !pathname.startsWith("/member/notifications") ? "bellShake 5s ease-in-out 3s infinite" : undefined,
               }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke={pathname.startsWith("/member/notifications") ? "#FF1F7D" : "#FF69B4"}
@@ -142,209 +148,55 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              {!pathname.startsWith("/member/notifications") && !visited.has("notifications") && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
-              )}
-            </Link>
-            <Link href="/member/chat" aria-label="Chat"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{
-                background: pathname.startsWith("/member/chat") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
-                border: pathname.startsWith("/member/chat") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-                boxShadow: pathname.startsWith("/member/chat") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/chat") ? "#FF1F7D" : "#FF69B4"}
-                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-            </Link>
-            <Link href="/member/calendar" aria-label="Calendar"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{
-                background: pathname.startsWith("/member/calendar") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
-                border: pathname.startsWith("/member/calendar") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-                boxShadow: pathname.startsWith("/member/calendar") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/calendar") ? "#FF1F7D" : "#FF69B4"}
-                strokeWidth="2" strokeLinecap="round">
-                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </Link>
-            <Link href="/member/plans" aria-label="Plans"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 relative"
-              style={{
-                background: pathname.startsWith("/member/plans") ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.06)",
-                border: pathname.startsWith("/member/plans") ? "1.5px solid rgba(255,31,125,0.6)" : "1.5px solid rgba(255,31,125,0.22)",
-                boxShadow: pathname.startsWith("/member/plans") ? "0 0 0 2px rgba(255,31,125,0.12)" : "none",
-                animation: (!pathname.startsWith("/member/plans") && !visited.has("plans")) ? "plansPulse 2.8s ease-in-out 0.5s infinite" : undefined,
-              }}>
-              {!pathname.startsWith("/member/plans") && !visited.has("plans") && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full"
-                  style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.9)" }} />
-              )}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke={pathname.startsWith("/member/plans") ? "#FF1F7D" : "#FF69B4"}
-                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                <line x1="8" y1="2" x2="8" y2="18"/>
-                <line x1="16" y1="6" x2="16" y2="22"/>
-              </svg>
-            </Link>
-            <Link href="/member/lounge" aria-label="Your apartment" className="active:scale-90 transition-all">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", boxShadow: "0 2px 10px rgba(255,31,125,0.45), 0 0 0 2px rgba(255,31,125,0.2)" }}>
-                {user?.initial ?? "M"}
-              </div>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+                style={{ background: "#FF1F7D", boxShadow: "0 0 0 1.5px rgba(10,8,8,0.92)" }} />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* ── Floating bottom pill ── */}
+      {/* ── Bottom tab bar ── */}
       <div
-        className="fixed z-50 md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
-          left: "50%",
-          transform: "translateX(-50%)",
+          background: "rgba(10,8,8,0.96)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255,255,255,0.07)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-2.5 px-5 py-3 rounded-full transition-all active:scale-95"
-          style={{
-            background: open ? "rgba(255,31,125,0.95)" : "rgba(12,10,10,0.92)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            boxShadow: open
-              ? "0 8px 32px rgba(255,31,125,0.45)"
-              : "0 8px 32px rgba(0,0,0,0.5)",
-            border: open ? "1px solid rgba(255,31,125,0.3)" : "1px solid rgba(255,255,255,0.1)",
-            minWidth: "120px",
-          }}
-        >
-          <span className="text-[11px] font-bold tracking-[0.16em]"
-            style={{ color: open ? "white" : "rgba(255,255,255,0.8)" }}>
-            {currentLabel}
-          </span>
-          <svg
-            width="10" height="10" viewBox="0 0 24 24" fill="none"
-            stroke={open ? "white" : "rgba(255,255,255,0.5)"}
-            strokeWidth="3" strokeLinecap="round"
-            style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
-          >
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
+        <div className="flex items-stretch">
+          {TABS.map(tab => {
+            const active = isActive(tab.href);
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className="relative flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-all active:scale-90"
+              >
+                {active && (
+                  <span
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                    style={{ background: "#FF1F7D" }}
+                  />
+                )}
+                {tab.label === "Profile"
+                  ? tab.icon(active, user?.initial)
+                  : tab.icon(active)}
+                <span
+                  className="text-[9px] font-semibold tracking-wide"
+                  style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.3)" }}
+                >
+                  {tab.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ── Nav sheet ── */}
-      {open && (
-        <>
-          <div
-            className="fixed inset-0 z-40 md:hidden"
-            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
-            onClick={() => setOpen(false)}
-          />
-          <div
-            className="fixed left-0 right-0 z-50 md:hidden rounded-t-3xl overflow-hidden"
-            style={{
-              bottom: 0,
-              background: "#111111",
-              boxShadow: "0 -16px 48px rgba(0,0,0,0.6)",
-              paddingBottom: "env(safe-area-inset-bottom, 20px)",
-              animation: "navSlideUp 0.18s ease-out",
-            }}
-          >
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} />
-            </div>
-
-            {/* Nav links */}
-            <div>
-              {places.map((place, i) => {
-                const active = pathname === place.href || pathname.startsWith(place.href + "/");
-                return (
-                  <Link
-                    key={place.href}
-                    href={place.href}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-4 px-6 py-4 transition-all active:scale-[0.98]"
-                    style={{
-                      borderBottom: i < places.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                    }}
-                  >
-                    <span className="text-[9px] font-mono tabular-nums w-5 flex-shrink-0"
-                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.2)" }}>
-                      {place.n}
-                    </span>
-                    <span className="flex-1 text-[15px] font-bold tracking-[0.12em] uppercase"
-                      style={{ color: active ? "#FF1F7D" : "rgba(255,255,255,0.65)" }}>
-                      {place.label}
-                    </span>
-                    {active && (
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#FF1F7D" }} />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* ── Secondary utility links ── */}
-            <div className="mx-5 mt-4 mb-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-              <div className="flex items-center gap-0 pt-3 pb-1">
-                {[
-                  { href: "/member/messages",       label: "Mailbox"  },
-                  { href: "/member/chat",            label: "Chat"     },
-                  { href: "/member/notifications",   label: "Pings"    },
-                  { href: "/member/calendar",        label: "Calendar" },
-                ].map((item, i, arr) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="flex-1 text-center py-2 transition-all active:scale-95"
-                    style={{ borderRight: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}
-                  >
-                    <span
-                      className="text-[10px] font-semibold tracking-[0.08em]"
-                      style={{
-                        color: pathname.startsWith(item.href) ? "#FF1F7D" : "rgba(255,255,255,0.3)",
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Sign out ── */}
-            <form action={logout} className="mx-5 mb-1">
-              <button
-                type="submit"
-                className="w-full py-3 text-center text-[10px] font-semibold tracking-[0.1em] uppercase transition-all active:scale-95"
-                style={{ color: "rgba(255,31,125,0.45)" }}
-              >
-                Sign out
-              </button>
-            </form>
-          </div>
-        </>
-      )}
-
       <style>{`
-        @keyframes navSlideUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes mailboxShake {
           0%, 80%, 100% { transform: rotate(0deg); }
           83% { transform: rotate(-8deg); }
@@ -352,21 +204,6 @@ export function BottomNav({ user }: { user?: NavUser }) {
           89% { transform: rotate(-5deg); }
           92% { transform: rotate(4deg); }
           95% { transform: rotate(-2deg); }
-          98% { transform: rotate(0deg); }
-        }
-        @keyframes bellShake {
-          0%, 70%, 100% { transform: rotate(0deg); }
-          73% { transform: rotate(-18deg); }
-          77% { transform: rotate(15deg); }
-          81% { transform: rotate(-12deg); }
-          85% { transform: rotate(9deg); }
-          89% { transform: rotate(-5deg); }
-          93% { transform: rotate(3deg); }
-          97% { transform: rotate(0deg); }
-        }
-        @keyframes plansPulse {
-          0%, 100% { box-shadow: none; }
-          50% { box-shadow: 0 0 0 3px rgba(255,31,125,0.2), 0 0 16px rgba(255,31,125,0.35); }
         }
       `}</style>
     </>
