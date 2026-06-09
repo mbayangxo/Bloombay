@@ -254,15 +254,28 @@
   grid-column: 1 / -1;
   padding: 2rem;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 240, 245, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  color: #5a4a48;
   font-size: 1rem;
   text-align: center;
+  box-shadow: 0 4px 22px rgba(80, 40, 50, 0.08);
 }
 
-.bb-home-d__empty-card a {
-  color: #ffb7ce;
-  font-weight: 700;
+.bb-home-d__empty-card a,
+.bb-home-d__create-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-top: 0.65rem;
+  border-radius: 999px;
+  background: #ff1f7d;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
+  text-decoration: none;
 }
 
 /* Middle — three equal columns */

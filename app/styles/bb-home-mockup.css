@@ -5,18 +5,18 @@
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #1a1f22;
+  background-color: #faf4ee;
   background-image:
-    radial-gradient(ellipse 140% 90% at 50% -5%, rgba(255, 183, 206, 0.14), transparent 58%),
-    radial-gradient(ellipse 80% 60% at 12% 88%, rgba(255, 214, 228, 0.1), transparent 65%),
-    radial-gradient(ellipse 70% 55% at 92% 22%, rgba(255, 200, 220, 0.08), transparent 60%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.11'/%3E%3C/svg%3E"),
-    linear-gradient(175deg, #2a3135 0%, #1e2428 42%, #181d20 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 280px 280px, 100% 100%;
+    radial-gradient(ellipse 130% 85% at 50% -8%, rgba(255, 183, 206, 0.42), transparent 58%),
+    radial-gradient(ellipse 85% 65% at 6% 92%, rgba(255, 200, 215, 0.28), transparent 62%),
+    radial-gradient(ellipse 75% 60% at 94% 18%, rgba(255, 214, 228, 0.22), transparent 58%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #fff9f5 0%, #f8efe6 45%, #f3e6da 100%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 240px 240px, 100% 100%;
 }
 
 [data-bb-member-portal]:has(.bb-home-page) {
-  background: #1a1f22;
+  background: #faf4ee;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -133,6 +133,47 @@
 
 .bb-home-page .bb-home-header__icon:active {
   background: rgba(255, 31, 125, 0.1);
+}
+
+.bb-home-page .bb-home-header__icon--active {
+  color: #ff1f7d;
+}
+
+.bb-portal-utility {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.bb-portal-utility__apt-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: #ff1f7d;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bb-portal-fixed-icons__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: #333;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.bb-portal-fixed-icons__btn--active {
+  color: #ff1f7d;
 }
 
 .bb-home-page .bb-home-header__badge {
@@ -271,7 +312,7 @@
   height: auto;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
+  filter: drop-shadow(0 5px 12px rgba(60, 30, 40, 0.14));
 }
 
 .bb-mockup-frame__photo {
@@ -303,7 +344,7 @@
   border: none;
   cursor: pointer;
   overflow: hidden;
-  background-color: #3a3a3a;
+  background-color: #e8ddd2;
 }
 
 .bb-home-m .bb-home-polaroid__photo-hint,
@@ -315,8 +356,8 @@
   justify-content: center;
   font-family: var(--font-caveat), cursive;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(0, 0, 0, 0.25);
+  color: rgba(90, 60, 70, 0.65);
+  background: rgba(255, 255, 255, 0.35);
   pointer-events: none;
 }
 

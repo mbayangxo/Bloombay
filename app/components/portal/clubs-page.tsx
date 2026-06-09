@@ -170,10 +170,11 @@ function OnboardingSoon() {
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
           href="/member/clubs/create"
-          className="px-5 py-3 rounded-full text-sm font-bold text-white"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-2xl font-light text-white leading-none mx-auto"
           style={{ background: "#FF1F7D" }}
+          aria-label="Create a club"
         >
-          Create a club →
+          +
         </Link>
         <Link
           href="/club-owner/dashboard"
@@ -244,10 +245,12 @@ export function ClubsPage() {
           </div>
           <Link
             href="/member/clubs/create"
-            className="flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-bold text-white"
+            className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl font-light text-white leading-none"
             style={{ background: "#FF1F7D", boxShadow: "0 4px 14px rgba(255,31,125,0.35)" }}
+            aria-label="Create a club"
+            title="Create a club"
           >
-            + Create club
+            +
           </Link>
         </div>
 
@@ -310,10 +313,10 @@ export function ClubsPage() {
 
         <div
           className="rounded-2xl px-4 py-3.5 flex items-start gap-3"
-          style={{ background: "#111111" }}
+          style={{ background: "white", border: "1.5px solid #FFE0EE" }}
         >
           <span style={{ color: "#FF1F7D", fontSize: "13px" }}>✦</span>
-          <p className="text-[12px] leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
+          <p className="text-[12px] leading-relaxed" style={{ color: "#666" }}>
             BloomBay only shows clubs that exist — ours, or ones launched by verified Club Mamas.
             No fake listings.
           </p>

@@ -70,7 +70,9 @@ export function HomeMockupMobile({ data }: { data: HomeMockupData }) {
           {featured.length === 0 ? (
             <div className="bb-home-m__empty-card">
               <p>No clubs yet — be the first to launch one.</p>
-              <Link href="/member/clubs/create">Create a club →</Link>
+              <Link href="/member/clubs/create" aria-label="Create a club" className="bb-home-m__create-plus">
+                +
+              </Link>
             </div>
           ) : (
             featured.map((club, i) => {

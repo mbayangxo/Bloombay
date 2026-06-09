@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosterRenderer } from "@/app/components/poster-templates/poster-renderer";
@@ -14,6 +14,7 @@ import {
 import type { PosterTemplateType } from "@/lib/poster-templates/types";
 import { MEDIA_BUCKETS } from "@/lib/media/buckets";
 import { posterTemplateLabel } from "@/lib/poster-templates/types";
+import "@/app/styles/bb-happening-studio.css";
 
 const STEPS = ["Event type", "Poster template", "Photo", "Details", "Publish"];
 
@@ -33,7 +34,10 @@ export function CreateHappeningStudio() {
   const [neighborhood, setNeighborhood] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [capacity, setCapacity] = useState(8);
+  const [priceInput, setPriceInput] = useState("");
   const [priceCents, setPriceCents] = useState(0);
+  const [photoFocusX, setPhotoFocusX] = useState(50);
+  const [photoFocusY, setPhotoFocusY] = useState(50);
   const [description, setDescription] = useState("");
   const [hostName, setHostName] = useState("");
   const [clubSlug, setClubSlug] = useState("");
@@ -159,30 +163,34 @@ export function CreateHappeningStudio() {
         )}
 
         {step === 1 && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold" style={{ color: "#111" }}>
-              {posterTemplateLabel(eventType)} posters — pick one
+              {posterTemplateLabel(eventType)} — swipe to browse
             </p>
-            {variants.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => setVariantId(v.id)}
-                className="rounded-2xl overflow-hidden text-left"
-                style={{
-                  border: variantId === v.id ? `2px solid ${v.accentColor}` : "2px solid #eee",
-                  background: "white",
-                }}
-              >
-                <div className="h-28 bg-cover bg-center" style={{ backgroundImage: `url(${v.previewPng})` }} />
-                <div className="px-3 py-2 flex items-center justify-between">
-                  <span className="text-sm font-bold" style={{ color: "#111" }}>
-                    {v.label}
-                  </span>
-                  <span className="w-5 h-5 rounded-full" style={{ background: v.accentColor }} />
-                </div>
-              </button>
-            ))}
+            <div className="bb-happening-studio__template-rail">
+              {variants.map((v) => {
+                const thumb = {
+                  ...previewPoster,
+                  accentColor: v.accentColor,
+                  imageUrl: v.stockImageUrl,
+                  ctaLabel: undefined,
+                  href: undefined,
+                };
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setVariantId(v.id)}
+                    className={`bb-happening-studio__template-card${variantId === v.id ? " bb-happening-studio__template-card--on" : ""}`}
+                  >
+                    <div className="bb-happening-studio__template-preview">
+                      <PosterRenderer data={thumb} />
+                    </div>
+                    <span className="bb-happening-studio__template-label">{v.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -227,9 +235,36 @@ export function CreateHappeningStudio() {
               </div>
             </button>
             {displayImage ? (
-              <div className="max-w-[220px] mx-auto">
-                <PosterRenderer data={previewPoster} />
-              </div>
+              <>
+                <div
+                  className="bb-happening-studio__photo-stage bb-happening-studio__photo-pos"
+                  style={{ "--bb-photo-pos": `${photoFocusX}% ${photoFocusY}%` } as CSSProperties}
+                >
+                  <PosterRenderer data={{ ...previewPoster, ctaLabel: undefined, href: undefined }} />
+                </div>
+                <div className="bb-happening-studio__photo-tune">
+                  <label>
+                    Horizontal crop
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={photoFocusX}
+                      onChange={(e) => setPhotoFocusX(Number(e.target.value))}
+                    />
+                  </label>
+                  <label>
+                    Vertical crop
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={photoFocusY}
+                      onChange={(e) => setPhotoFocusY(Number(e.target.value))}
+                    />
+                  </label>
+                </div>
+              </>
             ) : null}
           </div>
         )}
@@ -280,11 +315,16 @@ export function CreateHappeningStudio() {
               <label className="text-xs font-bold uppercase" style={{ color: "#bbb" }}>
                 Price ($)
                 <input
-                  type="number"
-                  min={0}
-                  step={1}
-                  value={priceCents / 100}
-                  onChange={(e) => setPriceCents(Math.round(Number(e.target.value) * 100))}
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={priceInput}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v !== "" && !/^\d*\.?\d{0,2}$/.test(v)) return;
+                    setPriceInput(v);
+                    setPriceCents(v === "" ? 0 : Math.round(parseFloat(v) * 100) || 0);
+                  }}
                   className="w-full mt-1 rounded-xl px-3 py-2 text-sm bg-white"
                   style={{ border: "1.5px solid #eee" }}
                 />

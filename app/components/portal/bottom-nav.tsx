@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
-import { PinIcon } from "./pin-icon";
-
-const TABS = [
-  { href: "/member/home", label: "Home", icon: "home" as const },
-  { href: "/member/happenings", label: "Discover", icon: "discover" as const },
-  { href: "/member/city", label: "Map", icon: "map" as const },
-  { href: "/member/clubs", label: "Clubs", icon: "clubs" as const },
-  { href: "/member/lounge", label: "Profile", icon: "profile" as const },
-];
+import { MEMBER_BOTTOM_TABS, shouldHideBottomNav } from "@/lib/member-nav";
 
 interface NavUser {
   name: string;
@@ -19,29 +11,27 @@ interface NavUser {
   role: string;
 }
 
-function TabIcon({ icon, active, initial }: { icon: string; active: boolean; initial?: string }) {
+function TabIcon({ id, active }: { id: string; active: boolean }) {
   const stroke = active ? "#FF1F7D" : "rgba(255,255,255,0.45)";
 
-  if (icon === "home") {
+  if (id === "tonight") {
     return (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
-        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
-        <path d="M9 21V12h6v9" />
+        <path d="M12 3a6 6 0 016 6c0 4.5-6 12-6 12S6 13.5 6 9a6 6 0 016-6z" />
+        <circle cx="12" cy="9" r="2" />
       </svg>
     );
   }
-  if (icon === "discover") {
+  if (id === "city") {
     return (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
-        <circle cx="11" cy="11" r="7" />
-        <line x1="16.5" y1="16.5" x2="21" y2="21" />
+        <path d="M3 21h18" />
+        <path d="M5 21V9l7-4 7 4v12" />
+        <path d="M9 21v-6h6v6" />
       </svg>
     );
   }
-  if (icon === "map") {
-    return <PinIcon size={20} stroke={stroke} />;
-  }
-  if (icon === "clubs") {
+  if (id === "clubs") {
     return (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -51,35 +41,43 @@ function TabIcon({ icon, active, initial }: { icon: string; active: boolean; ini
       </svg>
     );
   }
+  if (id === "plans") {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    );
+  }
   return (
-    <span
-      className="bb-bottom-nav__avatar"
-      style={{
-        background: active ? "#FF1F7D" : "rgba(255,255,255,0.15)",
-        color: "#fff",
-      }}
-    >
-      {initial ?? "M"}
-    </span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <line x1="7" y1="8" x2="17" y2="8" />
+      <line x1="7" y1="12" x2="13" y2="12" />
+    </svg>
   );
 }
 
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
 
+  if (shouldHideBottomNav(pathname)) return null;
+
   return (
     <nav className="bb-bottom-nav lg:hidden" aria-label="Main navigation">
       <div className="bb-bottom-nav__inner">
-        {TABS.map((tab) => {
-          const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+        {MEMBER_BOTTOM_TABS.map((tab) => {
+          const active = tab.match(pathname);
           return (
             <Link
-              key={tab.href}
+              key={tab.id}
               href={tab.href}
               className={`bb-bottom-nav__tab${active ? " bb-bottom-nav__tab--active" : ""}`}
               aria-current={active ? "page" : undefined}
             >
-              <TabIcon icon={tab.icon} active={active} initial={user?.initial} />
+              <TabIcon id={tab.id} active={active} />
               <span className="bb-bottom-nav__label">{tab.label}</span>
             </Link>
           );

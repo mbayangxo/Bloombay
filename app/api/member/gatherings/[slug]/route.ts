@@ -8,14 +8,15 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = await context.params;
+  const { slug: slugOrId } = await context.params;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("gatherings")
-    .select(SELECT)
-    .eq("slug", slug)
-    .maybeSingle();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+
+  let query = supabase.from("gatherings").select(SELECT);
+  query = isUuid ? query.eq("id", slugOrId) : query.eq("slug", slugOrId);
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     if (error.message.includes("does not exist")) {

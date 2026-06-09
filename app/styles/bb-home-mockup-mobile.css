@@ -7,8 +7,9 @@
   --m-type: "Courier New", Courier, monospace;
 
   width: 100%;
-  max-width: 26.875rem; /* 430px design reference */
+  max-width: 28rem;
   margin: 0 auto;
+  padding-inline: 0.35rem;
   padding-bottom: 1.5rem;
   color: #1a1210;
 }
@@ -277,15 +278,28 @@
   flex: 0 0 85%;
   padding: 1.1rem;
   border-radius: 0.65rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 240, 245, 0.9);
+  background: rgba(255, 255, 255, 0.88);
+  color: #5a4a48;
   font-size: 0.78rem;
   text-align: center;
+  box-shadow: 0 4px 18px rgba(80, 40, 50, 0.08);
 }
 
-.bb-home-m__empty-card a {
-  color: #ffb7ce;
-  font-weight: 700;
+.bb-home-m__empty-card a,
+.bb-home-m__create-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: #ff1f7d;
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 300;
+  line-height: 1;
+  text-decoration: none;
 }
 
 /* Middle — always stacked on small phones */

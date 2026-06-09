@@ -9,20 +9,38 @@ import {
   gatheringPriceLabel,
   type DbGathering,
 } from "@/lib/happenings/gathering-to-poster";
+import {
+  gatheringPlanFromDb,
+  getGatheringPlan,
+  saveGatheringPlan,
+  type GatheringCommitment,
+} from "@/lib/member-gathering-plans";
+import { HappeningRsvpConfirmation } from "./happening-rsvp-confirmation";
+
+type RsvpPhase = "choose" | "confirm" | "done";
 
 export function HappeningDetailPage({ slug }: { slug: string }) {
   const router = useRouter();
   const [gathering, setGathering] = useState<DbGathering | null>(null);
   const [loading, setLoading] = useState(true);
   const [rsvpBusy, setRsvpBusy] = useState(false);
-  const [rsvped, setRsvped] = useState(false);
+  const [phase, setPhase] = useState<RsvpPhase>("choose");
+  const [existing, setExisting] = useState<GatheringCommitment | null>(null);
 
   useEffect(() => {
     void (async () => {
       const res = await fetch(`/api/member/gatherings/${encodeURIComponent(slug)}`);
       if (res.ok) {
         const json = await res.json();
-        setGathering(json.gathering ?? null);
+        const g = json.gathering ?? null;
+        setGathering(g);
+        if (g) {
+          const saved = getGatheringPlan(g.id);
+          if (saved) {
+            setExisting(saved.commitment);
+            if (saved.commitment === "going") setPhase("done");
+          }
+        }
       }
       setLoading(false);
     })();
@@ -53,16 +71,43 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
 
   const poster = gatheringToPoster(gathering);
   const price = gatheringPriceLabel(gathering);
+  const savedPlan = getGatheringPlan(gathering.id);
 
-  async function reserveSeat() {
+  async function commitRsvp(commitment: GatheringCommitment) {
     setRsvpBusy(true);
-    const res = await fetch("/api/irl/reserve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gatheringId: gathering!.id }),
-    });
+
+    if (commitment === "going") {
+      const res = await fetch("/api/irl/reserve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gatheringId: gathering!.id }),
+      });
+      setRsvpBusy(false);
+      if (!res.ok) return;
+
+      const plan = gatheringPlanFromDb(gathering!, "going");
+      saveGatheringPlan(plan);
+      setExisting("going");
+      setPhase("confirm");
+      return;
+    }
+
+    const plan = gatheringPlanFromDb(gathering!, "debating");
+    saveGatheringPlan(plan);
+    setExisting("debating");
     setRsvpBusy(false);
-    if (res.ok) setRsvped(true);
+  }
+
+  if (phase === "confirm") {
+    const confirmPlan =
+      getGatheringPlan(gathering.id) ?? gatheringPlanFromDb(gathering, "going");
+    return (
+      <HappeningRsvpConfirmation
+        plan={confirmPlan}
+        poster={poster}
+        onDone={() => setPhase("done")}
+      />
+    );
   }
 
   return (
@@ -104,20 +149,74 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
           ) : null}
         </div>
 
-        {rsvped ? (
-          <div className="w-full py-4 rounded-2xl text-center font-bold" style={{ background: "#FFF9E6", color: "#b45309" }}>
-            You&apos;re in ✓
+        {existing === "going" ? (
+          <div className="flex flex-col gap-2.5">
+            <div
+              className="w-full py-4 rounded-2xl text-center font-bold"
+              style={{ background: "#FFF9E6", color: "#b45309" }}
+            >
+              You&apos;re going ✓ — ticket in Plans
+            </div>
+            <Link
+              href={savedPlan?.planRoomHref ?? `/member/plan/${gathering.slug}`}
+              className="w-full py-4 rounded-2xl font-bold text-white text-center"
+              style={{ background: poster.accentColor ?? "#FF1F7D" }}
+            >
+              Open plan room →
+            </Link>
+            <Link
+              href="/member/plans"
+              className="w-full py-3.5 rounded-2xl font-bold text-center"
+              style={{ background: "rgba(0,0,0,0.06)", color: "#444" }}
+            >
+              View in Plans
+            </Link>
+          </div>
+        ) : existing === "debating" ? (
+          <div className="flex flex-col gap-2.5">
+            <div
+              className="w-full py-4 rounded-2xl text-center font-bold text-sm leading-snug px-4"
+              style={{ background: "#f5f0ff", color: "#6b4c9a" }}
+            >
+              Still debating — we saved your interest. Tap below when you&apos;re ready to go.
+            </div>
+            <button
+              type="button"
+              disabled={rsvpBusy}
+              onClick={() => void commitRsvp("going")}
+              className="w-full py-4 rounded-2xl font-bold text-white disabled:opacity-50"
+              style={{ background: poster.accentColor ?? "#FF1F7D" }}
+            >
+              {rsvpBusy ? "Saving…" : "I would love to go →"}
+            </button>
+            <Link href="/member/plans" className="text-center text-sm font-semibold" style={{ color: "#FF1F7D" }}>
+              View in Plans
+            </Link>
           </div>
         ) : (
-          <button
-            type="button"
-            disabled={rsvpBusy}
-            onClick={() => void reserveSeat()}
-            className="w-full py-4 rounded-2xl font-bold text-white disabled:opacity-50"
-            style={{ background: poster.accentColor ?? "#FF1F7D" }}
-          >
-            {rsvpBusy ? "Saving…" : "I'm in →"}
-          </button>
+          <div className="flex flex-col gap-2.5">
+            <p className="text-xs font-bold tracking-widest uppercase text-center mb-1" style={{ color: "#bbb" }}>
+              How are you feeling?
+            </p>
+            <button
+              type="button"
+              disabled={rsvpBusy}
+              onClick={() => void commitRsvp("going")}
+              className="w-full py-4 rounded-2xl font-bold text-white disabled:opacity-50"
+              style={{ background: poster.accentColor ?? "#FF1F7D" }}
+            >
+              {rsvpBusy ? "Saving…" : "I would love to go"}
+            </button>
+            <button
+              type="button"
+              disabled={rsvpBusy}
+              onClick={() => void commitRsvp("debating")}
+              className="w-full py-4 rounded-2xl font-bold disabled:opacity-50"
+              style={{ background: "white", color: "#444", border: "1.5px solid #E8E8E8" }}
+            >
+              Still debating, but I&apos;d like to go
+            </button>
+          </div>
         )}
       </div>
     </div>

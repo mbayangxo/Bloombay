@@ -1,4 +1,4 @@
-/** Single source of truth for member portal navigation. */
+/** Single source of truth for member portal navigation (V1 launch). */
 
 export type MemberNavItem = {
   id: string;
@@ -8,11 +8,25 @@ export type MemberNavItem = {
   match: (pathname: string) => boolean;
 };
 
+const homeMatch = (p: string) => p === "/member/home" || p === "/member/tonight";
+
 const cityMatch = (p: string) =>
+  p.startsWith("/member/city") ||
   p.startsWith("/member/explore") ||
   p.startsWith("/member/discover") ||
   p.startsWith("/member/maps") ||
   p.startsWith("/member/eats");
+
+const clubsMatch = (p: string) => p.startsWith("/member/clubs");
+
+const plansMatch = (p: string) =>
+  p.startsWith("/member/plans") ||
+  p.startsWith("/member/calendar") ||
+  p.startsWith("/member/plan");
+
+const happeningsMatch = (p: string) =>
+  p.startsWith("/member/happenings") ||
+  p.startsWith("/member/tonight");
 
 const apartmentMatch = (p: string) =>
   p === "/member/lounge" ||
@@ -20,34 +34,14 @@ const apartmentMatch = (p: string) =>
   p.startsWith("/member/bloomies") ||
   p.startsWith("/member/vault") ||
   p.startsWith("/member/girl-code") ||
-  p.startsWith("/member/profile/qr") ||
-  p.startsWith("/member/plans");
+  p.startsWith("/member/profile/qr");
 
-const happeningsMatch = (p: string) =>
-  p.startsWith("/member/happenings") ||
-  p.startsWith("/member/calendar") ||
-  p.startsWith("/member/tonight") ||
-  p.startsWith("/member/plan");
-
-const lobbyMatch = (p: string) =>
-  p === "/member/room" ||
-  p.startsWith("/member/bulletin") ||
-  p.startsWith("/member/mailbox") ||
-  p.startsWith("/member/settings") ||
-  p.startsWith("/member/scan") ||
-  p.startsWith("/member/check-in") ||
-  p.startsWith("/member/safety");
-
-const introsMatch = (p: string) =>
-  p.startsWith("/member/intros") ||
-  p.startsWith("/member/connect") ||
-  p.startsWith("/member/bloom-request");
-
-const homeMatch = (p: string) => p === "/member/home" || p === "/member/tonight";
-
-/** Desktop sidebar — full place list */
+/** Desktop sidebar — five primary places */
 export const MEMBER_SIDEBAR_NAV: MemberNavItem[] = [
-  { id: "home", label: "Home", href: "/member/home", short: "Home", match: homeMatch },
+  { id: "tonight", label: "Tonight", href: "/member/home", short: "Tonight", match: homeMatch },
+  { id: "city", label: "The City", href: "/member/city", short: "City", match: cityMatch },
+  { id: "clubs", label: "Clubs", href: "/member/clubs", short: "Clubs", match: clubsMatch },
+  { id: "plans", label: "Plans", href: "/member/plans", short: "Plans", match: plansMatch },
   {
     id: "happenings",
     label: "Happenings",
@@ -55,29 +49,14 @@ export const MEMBER_SIDEBAR_NAV: MemberNavItem[] = [
     short: "Events",
     match: happeningsMatch,
   },
-  {
-    id: "calendar",
-    label: "Calendar",
-    href: "/member/calendar",
-    short: "Calendar",
-    match: (p) => p.startsWith("/member/calendar"),
-  },
-  { id: "clubs", label: "Clubs", href: "/member/clubs", short: "Clubs", match: (p) => p.startsWith("/member/clubs") },
-  {
-    id: "intros",
-    label: "Introductions",
-    href: "/member/intros",
-    short: "Intros",
-    match: introsMatch,
-  },
-  { id: "city", label: "City", href: "/member/explore", short: "City", match: cityMatch },
-  { id: "apartment", label: "Apartment", href: "/member/lounge", short: "Apartment", match: apartmentMatch },
-  { id: "lobby", label: "Lobby", href: "/member/room", short: "Lobby", match: lobbyMatch },
 ];
 
 /** Mobile bottom bar — five primary places */
 export const MEMBER_BOTTOM_TABS: MemberNavItem[] = [
-  { id: "home", label: "Home", href: "/member/home", short: "Home", match: homeMatch },
+  { id: "tonight", label: "Tonight", href: "/member/home", short: "Tonight", match: homeMatch },
+  { id: "city", label: "The City", href: "/member/city", short: "City", match: cityMatch },
+  { id: "clubs", label: "Clubs", href: "/member/clubs", short: "Clubs", match: clubsMatch },
+  { id: "plans", label: "Plans", href: "/member/plans", short: "Plans", match: plansMatch },
   {
     id: "happenings",
     label: "Happenings",
@@ -85,7 +64,27 @@ export const MEMBER_BOTTOM_TABS: MemberNavItem[] = [
     short: "Happenings",
     match: happeningsMatch,
   },
-  { id: "clubs", label: "Clubs", href: "/member/clubs", short: "Clubs", match: (p) => p.startsWith("/member/clubs") },
-  { id: "city", label: "City", href: "/member/explore", short: "City", match: cityMatch },
-  { id: "intros", label: "Introductions", href: "/member/intros", short: "Intros", match: introsMatch },
 ];
+
+/** Utility rail — upper right icons */
+export const MEMBER_UTILITY_NAV = [
+  { id: "pin-drops", label: "Pin drops", href: "/member/pin-drops" },
+  { id: "mailbox", label: "Mailbox", href: "/member/notifications" },
+  { id: "chats", label: "Chats", href: "/member/messages" },
+  { id: "apartment", label: "My apartment", href: "/member/lounge" },
+] as const;
+
+/** Pages where mobile bottom nav is hidden (studio flows) */
+export const HIDE_BOTTOM_NAV_PREFIXES = [
+  "/member/clubs/create",
+  "/member/happenings/create",
+];
+
+export function shouldHideBottomNav(pathname: string): boolean {
+  return HIDE_BOTTOM_NAV_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+}
+
+/** @deprecated V1 — apartment via utility icons only */
+export { apartmentMatch };

@@ -644,7 +644,7 @@ export function CreateClubStudio() {
             else void launch();
           }}
         >
-          {busy ? "Launching club…" : step === STEPS.length - 1 ? "Launch club →" : "Continue →"}
+          {busy ? "Launching club…" : step === STEPS.length - 1 ? "Launch club →" : "Next"}
         </button>
       </footer>
     </div>
