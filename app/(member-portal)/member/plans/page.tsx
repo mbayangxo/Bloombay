@@ -128,6 +128,7 @@ function PlanRoomRow({
 export default function PlansPage() {
   const [tod, setTod] = useState<TimeOfDay>("morning");
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(MY_PLANS[0]?.id ?? null);
+  const [sheetPlan, setSheetPlan] = useState<Plan | null>(null);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
@@ -182,7 +183,11 @@ export default function PlansPage() {
             </div>
           ) : (
             <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-1" style={{ scrollbarWidth: "none" }}>
-              {MY_PLANS.map(plan => <MiniPoster key={plan.id} plan={plan} />)}
+              {MY_PLANS.map(plan => (
+                <div key={plan.id} onClick={() => setSheetPlan(plan)}>
+                  <MiniPoster plan={plan} />
+                </div>
+              ))}
               {/* View all card */}
               <button className="flex-shrink-0 rounded-2xl flex flex-col items-center justify-center gap-1.5 border-dashed"
                 style={{ width: "80px", height: "155px", borderWidth: "1.5px", borderColor: "rgba(212,21,92,0.2)", background: "transparent" }}>
