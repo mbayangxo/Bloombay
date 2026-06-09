@@ -9,6 +9,32 @@ import { BBLogo } from "./bb-logo";
 export type ClubAccessType = "free" | "one_time" | "subscription";
 export type ClubEntryStyle = "open" | "application" | "approval_paywall";
 
+export interface ClubZone {
+  id: string;
+  name: string;
+  emoji: string;
+  desc: string;
+  memberCount: number;
+  price?: number;
+  priceInterval?: "monthly" | "one_time";
+}
+
+export interface ClubPhoto {
+  grad: string;
+  label: string;
+  date: string;
+  rot?: number;
+}
+
+export interface ClubTestimonial {
+  initial: string;
+  name: string;
+  neighborhood: string;
+  color: string;
+  quote: string;
+  event: string;
+}
+
 export interface ClubLandingData {
   id: string;
   name: string;
@@ -26,13 +52,16 @@ export interface ClubLandingData {
   mamaName: string;
   mamaTitle: string;
   mamaBio: string;
+  mamaVoiceSeconds?: number;
   accessType: ClubAccessType;
   entryStyle: ClubEntryStyle;
   price?: number;
   billingInterval?: "monthly" | "seasonal" | "yearly";
   rules?: string[];
   upcomingSeats: { title: string; date: string; seats: number; price?: string }[];
-  photos?: string[];
+  photos?: ClubPhoto[];
+  testimonials?: ClubTestimonial[];
+  zones?: ClubZone[];
 }
 
 // ─── Mock data ───────────────────────────────────────────────────────────────
@@ -63,6 +92,7 @@ const DEFAULT_CLUB: ClubLandingData = {
   mamaTitle: "Dinner Society Club Mama",
   mamaBio:
     "Former food editor and lifelong table-setter. Amanda started Dinner Society because she believes the best conversations happen over food.",
+  mamaVoiceSeconds: 38,
   accessType: "one_time",
   entryStyle: "application",
   price: 49,
@@ -77,23 +107,55 @@ const DEFAULT_CLUB: ClubLandingData = {
     { title: "Rooftop Wine Hour", date: "Fri, Jun 20 · 8:00 PM", seats: 5, price: "Free" },
     { title: "Private Supper Club", date: "Thu, Jun 26 · 7:00 PM", seats: 2, price: "$65 per seat" },
   ],
+  photos: [
+    { grad: "linear-gradient(135deg,#c9504a 0%,#7a1c2e 100%)", label: "Carbone Girls Night", date: "Jun 7", rot: -2 },
+    { grad: "linear-gradient(135deg,#b07856 0%,#7a3a1a 100%)", label: "Rooftop Wine Hour", date: "May 30", rot: 1.5 },
+    { grad: "linear-gradient(135deg,#4a6c8c 0%,#1a2d4a 100%)", label: "Private Supper Club", date: "May 22", rot: -1 },
+    { grad: "linear-gradient(135deg,#6b4fa0 0%,#2d1a5e 100%)", label: "Food Tour · Harlem", date: "May 10", rot: 2 },
+    { grad: "linear-gradient(135deg,#3e7c6b 0%,#1a3d31 100%)", label: "Chef Workshop", date: "Apr 28", rot: -1.5 },
+  ],
+  testimonials: [
+    {
+      initial: "K", name: "Kelechi O.", neighborhood: "Crown Heights", color: "#FF1F7D",
+      quote: "This club changed how I experience NYC. I've made 3 of my closest friends here. The dinners feel like family.",
+      event: "Jollof Night · May",
+    },
+    {
+      initial: "A", name: "Aminah C.", neighborhood: "Bed-Stuy", color: "#FF69B4",
+      quote: "Every dinner I've been to feels like a tiny miracle. Strangers to sisters in two hours.",
+      event: "Carbone Girls Night · Jun",
+    },
+    {
+      initial: "F", name: "Fatima A.", neighborhood: "Harlem", color: "#C084FC",
+      quote: "Amanda curates the most incredible tables. The food is secondary to the conversations you'll have.",
+      event: "Private Supper Club · May",
+    },
+  ],
+  zones: [
+    {
+      id: "z1", name: "West African Table", emoji: "🍛",
+      desc: "Dinners centered on West African cuisine. Monthly, intimate, deeply cultural.",
+      memberCount: 24,
+    },
+    {
+      id: "z2", name: "Fancy Brunch Crew", emoji: "🥂",
+      desc: "Upscale Sunday brunches, rotating neighborhoods. Dress the part.",
+      memberCount: 18,
+      price: 12, priceInterval: "monthly",
+    },
+    {
+      id: "z3", name: "Wine & Catch Up", emoji: "🍷",
+      desc: "Mid-week wine nights — no agenda, no pressure, just talk.",
+      memberCount: 31,
+    },
+    {
+      id: "z4", name: "Private Table Finders", emoji: "📋",
+      desc: "Hunting NYC's hardest reservations together. Insiders only.",
+      memberCount: 12,
+      price: 8, priceInterval: "monthly",
+    },
+  ],
 };
-
-// ─── Zones Mock Data ─────────────────────────────────────────────────────────
-
-interface ClubZone {
-  name: string;
-  desc: string;
-  members: number;
-  emoji: string;
-}
-
-const CLUB_ZONES: ClubZone[] = [
-  { name: "Jollof Nights",        desc: "Monthly dinners centered on West African cuisine.",     members: 24, emoji: "🍛" },
-  { name: "Fancy Brunch Crew",    desc: "Upscale weekend brunches, rotating neighborhoods.",     members: 18, emoji: "🥂" },
-  { name: "Wine & Catch Up",      desc: "Mid-week wine nights — no agenda, just talk.",          members: 31, emoji: "🍷" },
-  { name: "Private Table Finders",desc: "Hunting NYC's best reservations together.",              members: 12, emoji: "📋" },
-];
 
 // ─── Chat Mock Data ───────────────────────────────────────────────────────────
 
@@ -133,7 +195,7 @@ const CLUB_MEMBERS = [
 
 type ClubTab = "about" | "chat" | "events" | "members";
 
-// ─── Crest seal ───────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function ClubCrest({ name, color, crestBg, size = 72 }: { name: string; color: string; crestBg?: string; size?: number }) {
   const bg = crestBg ?? "#3a0018";
@@ -158,128 +220,6 @@ function ClubCrest({ name, color, crestBg, size = 72 }: { name: string; color: s
     </div>
   );
 }
-
-// ─── Club Chat ────────────────────────────────────────────────────────────────
-
-function ClubChat({ club }: { club: ClubLandingData }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
-  const [input, setInput]       = useState("");
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  function send() {
-    if (!input.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), author: "You", initial: "M", color: "#FF69B4", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true },
-    ]);
-    setInput("");
-  }
-
-  function handleKey(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-  }
-
-  return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 280px)", minHeight: "400px" }}>
-      {/* Online strip */}
-      <div className="flex items-center gap-2 px-5 py-3" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-        <div className="flex -space-x-1.5">
-          {CLUB_MEMBERS.slice(0, 5).map((m) => (
-            <div key={m.name} className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" style={{ background: m.color }}>
-              {m.initial}
-            </div>
-          ))}
-        </div>
-        <span className="text-xs text-gray-400">{CLUB_MEMBERS.length} members · <span style={{ color: club.color }}>5 online</span></span>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-4" style={{ background: "var(--pale-pink-bg)" }}>
-        <div className="flex items-center gap-3 my-1">
-          <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
-          <span className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Today</span>
-          <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
-        </div>
-
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex items-end gap-3 ${msg.mine ? "flex-row-reverse" : "flex-row"}`}>
-            {!msg.mine && (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mb-1" style={{ background: msg.color }}>
-                {msg.initial}
-              </div>
-            )}
-            <div className={`flex flex-col ${msg.mine ? "items-end" : "items-start"} max-w-[75%]`}>
-              {!msg.mine && (
-                <span className="text-[11px] font-bold mb-1 ml-1" style={{ color: msg.color }}>{msg.author}</span>
-              )}
-              <div
-                className="px-4 py-3 text-sm leading-relaxed"
-                style={{
-                  background: msg.mine ? club.color : "white",
-                  color: msg.mine ? "white" : "#111111",
-                  borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
-                  boxShadow: msg.mine ? `0 2px 12px ${club.color}40` : "0 1px 6px rgba(0,0,0,0.06)",
-                }}
-              >
-                {msg.text}
-              </div>
-              {msg.reactions && (
-                <div className="flex items-center gap-1.5 mt-1.5 ml-1">
-                  {msg.reactions.map((r) => (
-                    <button
-                      key={r.emoji}
-                      onClick={() => setLikedIds((p) => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all"
-                      style={likedIds.has(msg.id)
-                        ? { background: "#FFF0F5", color: club.color }
-                        : { background: "rgba(0,0,0,0.05)", color: "#888" }}
-                    >
-                      {r.emoji} {likedIds.has(msg.id) ? r.count + 1 : r.count}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <span className="text-[10px] text-gray-300 mt-1 mx-1">{msg.time}</span>
-            </div>
-          </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
-        <div className="flex-1 flex items-center rounded-full px-4 py-2.5 gap-2" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE" }}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder="Say something..."
-            className="flex-1 bg-transparent text-sm outline-none"
-            style={{ color: "#111111" }}
-          />
-        </div>
-        <button
-          onClick={send}
-          disabled={!input.trim()}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 disabled:opacity-30"
-          style={{ background: club.color }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
-            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Price & Entry badges ─────────────────────────────────────────────────────
 
 function PriceBadge({ type, price, interval }: { type: ClubAccessType; price?: number; interval?: string }) {
   if (type === "free") return (
@@ -317,157 +257,584 @@ function EntryBadge({ style }: { style: ClubEntryStyle }) {
   );
 }
 
-// ─── Girl Zones ───────────────────────────────────────────────────────────────
+// ─── Photo Reel ──────────────────────────────────────────────────────────────
 
-function GirlZonesSection({ club, isMember }: { club: ClubLandingData; isMember: boolean }) {
+function PhotoReel({ photos, color }: { photos: ClubPhoto[]; color: string }) {
+  return (
+    <section>
+      <div className="px-5 flex items-center justify-between mb-4">
+        <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color }}>INSIDE THE CLUB</p>
+        <span className="text-[10px] font-semibold" style={{ color: "rgba(0,0,0,0.35)" }}>past events →</span>
+      </div>
+      <div className="flex gap-4 overflow-x-auto px-5 pb-6" style={{ scrollbarWidth: "none" }}>
+        {photos.map((photo, i) => (
+          <div
+            key={i}
+            style={{
+              flexShrink: 0,
+              width: 148,
+              background: "white",
+              padding: "7px 7px 28px",
+              boxShadow: "3px 5px 20px rgba(0,0,0,0.13)",
+              transform: `rotate(${photo.rot ?? 0}deg)`,
+              position: "relative",
+            }}
+          >
+            {/* Tape */}
+            <div style={{
+              position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)",
+              width: 44, height: 18,
+              background: "rgba(255,240,150,0.55)",
+              borderRadius: 2, zIndex: 2,
+              border: "1px solid rgba(255,220,50,0.3)",
+            }} />
+            <div style={{ width: "100%", height: 108, background: photo.grad, borderRadius: 1 }} />
+            <div style={{ marginTop: 8 }}>
+              <div style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#1C1B1C", lineHeight: 1.3 }}>{photo.label}</div>
+              <div style={{ fontSize: 10, color: "rgba(28,27,28,0.4)", marginTop: 2, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{photo.date}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Voice Note Card ─────────────────────────────────────────────────────────
+
+const WAVEFORM = [18, 28, 22, 36, 42, 30, 48, 38, 52, 40, 34, 46, 28, 44, 36, 26, 40, 32, 48, 22, 36, 42, 28, 38, 30];
+
+function VoiceNoteCard({ mama, seconds, color }: { mama: string; seconds: number; color: string }) {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (playing) {
+      intervalRef.current = setInterval(() => {
+        setProgress(p => {
+          if (p >= 100) { setPlaying(false); return 0; }
+          return p + (100 / (seconds * 10));
+        });
+      }, 100);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [playing, seconds]);
+
+  const played = Math.round((progress / 100) * WAVEFORM.length);
+  const elapsed = Math.round((progress / 100) * seconds);
+  const remaining = seconds - elapsed;
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+  return (
+    <div className="mx-5 rounded-3xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`, boxShadow: `0 8px 32px ${color}44` }}>
+      <div className="px-5 pt-4 pb-2">
+        <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
+          A MESSAGE FROM YOUR CLUB MAMA
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm"
+            style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "1.5px solid rgba(255,255,255,0.3)" }}>
+            {mama[0]}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm text-white">{mama}</p>
+            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.55)" }}>Voice note · {fmt(seconds)}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5 pb-5">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPlaying(p => !p)}
+            className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center transition-all active:scale-90"
+            style={{ background: "white" }}
+          >
+            {playing ? (
+              <svg width="12" height="14" viewBox="0 0 12 14" fill="none">
+                <rect x="0" y="0" width="4" height="14" rx="1.5" fill={color} />
+                <rect x="8" y="0" width="4" height="14" rx="1.5" fill={color} />
+              </svg>
+            ) : (
+              <svg width="12" height="14" viewBox="0 0 12 14" fill="none">
+                <path d="M1 1l10 6-10 6V1z" fill={color} />
+              </svg>
+            )}
+          </button>
+
+          <div className="flex-1 flex items-end gap-[2px] h-10">
+            {WAVEFORM.map((h, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 3,
+                  height: `${h}px`,
+                  borderRadius: 2,
+                  flexShrink: 0,
+                  background: i < played ? "white" : "rgba(255,255,255,0.3)",
+                  transition: "background 0.1s",
+                }}
+              />
+            ))}
+          </div>
+
+          <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: "rgba(255,255,255,0.6)", minWidth: 28 }}>
+            {playing ? fmt(remaining) : fmt(seconds)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Testimonials ─────────────────────────────────────────────────────────────
+
+function TestimonialCard({ t, color }: { t: ClubTestimonial; color: string }) {
+  return (
+    <div className="flex-shrink-0 w-72 bg-white rounded-3xl p-5" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+      <div style={{ color, fontSize: 32, lineHeight: 1, fontFamily: "var(--font-playfair)", marginBottom: 4, opacity: 0.6 }}>&ldquo;</div>
+      <p className="text-sm italic leading-relaxed mb-4" style={{ fontFamily: "var(--font-playfair)", color: "#333" }}>
+        {t.quote}
+      </p>
+      <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+          style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}AA)` }}>
+          {t.initial}
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-xs" style={{ color: "#111" }}>{t.name}</p>
+          <p className="text-[10px]" style={{ color: "#bbb" }}>{t.neighborhood} · {t.event}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Girl Zones Section ───────────────────────────────────────────────────────
+
+// Members must have been in the club at least this many days before suggesting zones.
+const ZONE_REQUEST_MIN_DAYS = 14;
+
+function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandingData; isMember: boolean; daysInClub?: number }) {
+  const canRequestZone = isMember && daysInClub >= ZONE_REQUEST_MIN_DAYS;
   const [joined, setJoined] = useState<Set<string>>(new Set());
+  const [showRequest, setShowRequest] = useState(false);
+  const [zoneName, setZoneName] = useState("");
+  const [zoneDesc, setZoneDesc] = useState("");
+  const [zonePrice, setZonePrice] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const zones = club.zones ?? [];
 
-  function toggle(name: string) {
-    setJoined((prev) => {
+  function toggle(id: string) {
+    setJoined(prev => {
       const next = new Set(prev);
-      next.has(name) ? next.delete(name) : next.add(name);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }
 
+  function submitRequest() {
+    if (!zoneName.trim()) return;
+    setSubmitted(true);
+    setTimeout(() => { setShowRequest(false); setZoneName(""); setZoneDesc(""); setZonePrice(""); setSubmitted(false); }, 1800);
+  }
+
   return (
-    <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-      <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>GIRL ZONES</p>
-          <p className="text-xs text-gray-400 mt-0.5">smaller circles, deeper connections</p>
-        </div>
-        <div
-          className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-          style={{ background: `${club.color}15`, color: club.color }}
-        >
-          {CLUB_ZONES.length} zones
-        </div>
-      </div>
-
-      <div className="flex flex-col divide-y" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-        {CLUB_ZONES.map((zone, i) => {
-          const isBlurred = !isMember && i > 1;
-          const isJoined  = joined.has(zone.name);
-          return (
-            <div
-              key={zone.name}
-              className="px-5 py-4 flex items-center gap-4"
-              style={{
-                filter: isBlurred ? "blur(3px)" : "none",
-                userSelect: isBlurred ? "none" : "auto",
-                pointerEvents: isBlurred ? "none" : "auto",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-lg"
-                style={{ background: `${club.color}12` }}
-              >
-                {zone.emoji}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-tight" style={{ color: "#111111" }}>{zone.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5 leading-snug">{zone.desc}</p>
-                <p className="text-[10px] font-semibold mt-1" style={{ color: club.color }}>{zone.members} members</p>
-              </div>
-              {isMember && (
-                <button
-                  onClick={() => toggle(zone.name)}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
-                  style={isJoined
-                    ? { background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }
-                    : { background: club.color, color: "white" }}
-                >
-                  {isJoined ? "Joined ✓" : "Join"}
-                </button>
-              )}
+    <>
+      <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>GIRL ZONES</p>
+            <p className="text-xs text-gray-400 mt-0.5">smaller circles, deeper connections</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: `${club.color}15`, color: club.color }}>
+              {zones.length} zones
             </div>
-          );
-        })}
+          </div>
+        </div>
+
+        <div className="flex flex-col" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+          {zones.map((zone, i) => {
+            const isBlurred = !isMember && i > 1;
+            const isJoined = joined.has(zone.id);
+            return (
+              <div
+                key={zone.id}
+                className="px-5 py-4 flex items-center gap-4"
+                style={{
+                  borderBottom: i < zones.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none",
+                  filter: isBlurred ? "blur(3px)" : "none",
+                  userSelect: isBlurred ? "none" : "auto",
+                  pointerEvents: isBlurred ? "none" : "auto",
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-lg"
+                  style={{ background: `${club.color}10` }}
+                >
+                  {zone.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-sm leading-tight" style={{ color: "#111111" }}>{zone.name}</p>
+                    {zone.price && (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FFF9E6", color: "#b45309" }}>
+                        ${zone.price}/{zone.priceInterval === "one_time" ? "once" : "mo"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-0.5 leading-snug">{zone.desc}</p>
+                  <p className="text-[10px] font-semibold mt-1" style={{ color: club.color }}>{zone.memberCount} members</p>
+                </div>
+                {isMember && (
+                  <button
+                    onClick={() => toggle(zone.id)}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
+                    style={isJoined
+                      ? { background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }
+                      : { background: club.color, color: "white" }}
+                  >
+                    {isJoined ? "Joined ✓" : zone.price ? `Join · $${zone.price}` : "Join"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Suggest a zone — members only, inside the club */}
+        {isMember && (
+          <div className="px-5 py-4" style={{ borderTop: `1px dashed ${club.color}25`, background: `${club.color}04` }}>
+            {canRequestZone ? (
+              <button
+                onClick={() => setShowRequest(true)}
+                className="flex items-center gap-2 text-xs font-semibold transition-all active:scale-95"
+                style={{ color: club.color }}
+              >
+                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${club.color}15` }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M5 1v8M1 5h8" stroke={club.color} strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                Suggest a new zone
+              </button>
+            ) : (
+              <p className="text-xs" style={{ color: "rgba(0,0,0,0.3)" }}>
+                Zone suggestions unlock after 2 weeks in the club ·{" "}
+                <span style={{ color: club.color }}>
+                  {Math.max(0, ZONE_REQUEST_MIN_DAYS - daysInClub)}d to go
+                </span>
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
-      {!isMember && (
-        <div className="px-5 py-4 text-center" style={{ borderTop: `1px dashed ${club.color}30`, background: `${club.color}08` }}>
-          <p className="text-xs font-bold" style={{ color: club.color }}>Join the club to access all Girl Zones</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Members can join private sub-groups within the club</p>
+      {/* Zone request modal */}
+      {showRequest && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div className="w-full max-w-md rounded-t-3xl p-6 pb-8 bg-white" style={{ boxShadow: "0 -8px 32px rgba(0,0,0,0.15)" }}>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: club.color }}>SUGGEST A ZONE</p>
+                <h3 className="text-lg font-bold" style={{ color: "#111", fontFamily: "var(--font-playfair)" }}>New zone idea</h3>
+              </div>
+              <button onClick={() => setShowRequest(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#F5F5F5" }}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="#888" strokeWidth="1.8" strokeLinecap="round" /></svg>
+              </button>
+            </div>
+
+            {submitted ? (
+              <div className="text-center py-6">
+                <div className="text-4xl mb-3">✦</div>
+                <p className="font-bold text-base" style={{ color: "#111", fontFamily: "var(--font-playfair)" }}>Suggestion sent!</p>
+                <p className="text-sm text-gray-400 mt-1">The Club Mama will review your idea.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-2">ZONE NAME</label>
+                  <input
+                    type="text"
+                    value={zoneName}
+                    onChange={e => setZoneName(e.target.value)}
+                    placeholder="e.g. Coding Girls, Sunday Bakers..."
+                    className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent"
+                    style={{ color: "#111" }}
+                    onFocus={e => (e.target.style.borderColor = club.color)}
+                    onBlur={e => (e.target.style.borderColor = "transparent")}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-2">WHAT WOULD IT BE ABOUT?</label>
+                  <textarea
+                    rows={2}
+                    value={zoneDesc}
+                    onChange={e => setZoneDesc(e.target.value)}
+                    placeholder="Describe the vibe and purpose of this zone..."
+                    className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent resize-none"
+                    style={{ color: "#111" }}
+                    onFocus={e => (e.target.style.borderColor = club.color)}
+                    onBlur={e => (e.target.style.borderColor = "transparent")}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">MONTHLY FEE (optional)</label>
+                  <p className="text-[10px] text-gray-400 mb-2">If you&apos;d like to lead &amp; charge for this zone, add a price. The Club Mama earns a share.</p>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">$</span>
+                    <input
+                      type="number"
+                      value={zonePrice}
+                      onChange={e => setZonePrice(e.target.value)}
+                      placeholder="0"
+                      className="w-full bg-gray-50 rounded-2xl pl-8 pr-4 py-3 text-sm outline-none border-2 border-transparent"
+                      style={{ color: "#111" }}
+                      onFocus={e => (e.target.style.borderColor = club.color)}
+                      onBlur={e => (e.target.style.borderColor = "transparent")}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={submitRequest}
+                  disabled={!zoneName.trim()}
+                  className="w-full py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-40"
+                  style={{ background: club.color }}
+                >
+                  Submit to Club Mama →
+                </button>
+                <p className="text-center text-[10px] text-gray-400 -mt-1">
+                  The Club Mama approves or denies all zone suggestions.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
+    </>
+  );
+}
+
+// ─── Club Chat ────────────────────────────────────────────────────────────────
+
+function ClubChat({ club }: { club: ClubLandingData }) {
+  const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
+  const [input, setInput] = useState("");
+  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  function send() {
+    if (!input.trim()) return;
+    setMessages(prev => [
+      ...prev,
+      { id: Date.now(), author: "You", initial: "M", color: "#FF69B4", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true },
+    ]);
+    setInput("");
+  }
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100vh - 280px)", minHeight: "400px" }}>
+      <div className="flex items-center gap-2 px-5 py-3" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div className="flex -space-x-1.5">
+          {CLUB_MEMBERS.slice(0, 5).map(m => (
+            <div key={m.name} className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" style={{ background: m.color }}>
+              {m.initial}
+            </div>
+          ))}
+        </div>
+        <span className="text-xs text-gray-400">{CLUB_MEMBERS.length} members · <span style={{ color: club.color }}>5 online</span></span>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-4" style={{ background: "var(--pale-pink-bg)" }}>
+        <div className="flex items-center gap-3 my-1">
+          <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
+          <span className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Today</span>
+          <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
+        </div>
+        {messages.map(msg => (
+          <div key={msg.id} className={`flex items-end gap-3 ${msg.mine ? "flex-row-reverse" : "flex-row"}`}>
+            {!msg.mine && (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mb-1" style={{ background: msg.color }}>
+                {msg.initial}
+              </div>
+            )}
+            <div className={`flex flex-col ${msg.mine ? "items-end" : "items-start"} max-w-[75%]`}>
+              {!msg.mine && (
+                <span className="text-[11px] font-bold mb-1 ml-1" style={{ color: msg.color }}>{msg.author}</span>
+              )}
+              <div
+                className="px-4 py-3 text-sm leading-relaxed"
+                style={{
+                  background: msg.mine ? club.color : "white",
+                  color: msg.mine ? "white" : "#111111",
+                  borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
+                  boxShadow: msg.mine ? `0 2px 12px ${club.color}40` : "0 1px 6px rgba(0,0,0,0.06)",
+                }}
+              >
+                {msg.text}
+              </div>
+              {msg.reactions && (
+                <div className="flex items-center gap-1.5 mt-1.5 ml-1">
+                  {msg.reactions.map(r => (
+                    <button
+                      key={r.emoji}
+                      onClick={() => setLikedIds(p => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all"
+                      style={likedIds.has(msg.id)
+                        ? { background: "#FFF0F5", color: club.color }
+                        : { background: "rgba(0,0,0,0.05)", color: "#888" }}
+                    >
+                      {r.emoji} {likedIds.has(msg.id) ? r.count + 1 : r.count}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <span className="text-[10px] text-gray-300 mt-1 mx-1">{msg.time}</span>
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
+        <div className="flex-1 flex items-center rounded-full px-4 py-2.5 gap-2" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE" }}>
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Say something..."
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "#111111" }}
+          />
+        </div>
+        <button
+          onClick={send}
+          disabled={!input.trim()}
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 disabled:opacity-30"
+          style={{ background: club.color }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { club?: ClubLandingData; isMember?: boolean }) {
-  const [applied, setApplied]   = useState(false);
+export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0 }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number }) {
+  const [applied, setApplied] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [clubTab, setClubTab]   = useState<ClubTab>("about");
+  const [clubTab, setClubTab] = useState<ClubTab>("about");
 
   const ctaLabel = club.entryStyle === "open" ? "Join the Club" : "Apply to Join";
 
   return (
-    <div className="min-h-screen pb-20" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-20" style={{ background: "#FDFAF5" }}>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      {/* ── Editorial Hero ─────────────────────────────────────────────────── */}
       <div
         className="relative overflow-hidden"
-        style={{
-          background: club.darkBg ? "#111111" : `linear-gradient(160deg, ${club.color}22 0%, #FFF5F8 60%)`,
-          minHeight: "280px",
-        }}
+        style={{ minHeight: 340 }}
       >
-        {/* Back nav */}
-        <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-12 flex items-center justify-between">
-          <Link href="/member/clubs" className="flex items-center gap-1.5 text-sm font-medium" style={{ color: club.darkBg ? "rgba(255,255,255,0.7)" : "#111111" }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Clubs
-          </Link>
-          <BBLogo size={28} light={club.darkBg} />
-        </div>
-
-        {/* Decorative orb */}
+        {/* Background gradient */}
         <div
-          className="absolute pointer-events-none"
-          style={{
-            width: "300px", height: "300px",
-            background: club.color,
-            borderRadius: "50%",
-            right: "-80px", top: "-80px",
-            opacity: 0.12,
-          }}
+          className="absolute inset-0"
+          style={{ background: `linear-gradient(160deg, ${club.color} 0%, ${club.color}88 40%, #FDFAF5 100%)` }}
         />
 
+        {/* Decorative orbs */}
+        <div className="absolute pointer-events-none" style={{
+          width: 280, height: 280, borderRadius: "50%",
+          background: "rgba(255,255,255,0.08)",
+          right: -60, top: -60,
+        }} />
+        <div className="absolute pointer-events-none" style={{
+          width: 160, height: 160, borderRadius: "50%",
+          background: "rgba(255,255,255,0.06)",
+          right: 40, top: 120,
+        }} />
+
+        {/* Back nav */}
+        <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-12 flex items-center justify-between">
+          <Link href="/member/clubs" className="flex items-center gap-1.5 text-sm font-semibold text-white">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            Clubs
+          </Link>
+          <BBLogo size={28} light />
+        </div>
+
         {/* Club identity */}
-        <div className="relative z-10 px-5 pt-24 pb-8">
-          <div className="flex items-end gap-5">
-            <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={80} />
-            <div className="flex-1 pb-1">
-              <div className="flex flex-wrap gap-2 mb-2">
-                {club.tags.map((t) => (
-                  <span key={t} className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: `${club.color}22`, color: club.color }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
+        <div className="relative z-10 px-5 pt-24 pb-10">
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {club.tags.map(t => (
+              <span key={t} className="text-[9px] font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.18)", color: "white", backdropFilter: "blur(4px)" }}>
+                {t}
+              </span>
+            ))}
+          </div>
+
+          {/* Name + crest */}
+          <div className="flex items-end gap-4 mb-4">
+            <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={72} />
+            <div className="pb-1">
               <h1
-                className="text-2xl font-bold leading-tight"
-                style={{ color: club.darkBg ? "white" : "#111111", fontFamily: "var(--font-playfair)" }}
+                className="font-black leading-none text-white"
+                style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,7vw,40px)" }}
               >
                 {club.name}
               </h1>
-              <p className="text-sm mt-0.5" style={{ color: club.darkBg ? "rgba(255,255,255,0.6)" : "#888" }}>
-                {club.memberCount.toLocaleString()} women · {club.city}
+              <p className="text-sm mt-1.5 font-medium" style={{ color: "rgba(255,255,255,0.72)" }}>
+                {club.memberCount.toLocaleString()} members · {club.city}
               </p>
             </div>
+          </div>
+
+          {/* Tagline */}
+          <p
+            className="text-lg font-bold italic leading-snug"
+            style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.9)", maxWidth: 280 }}
+          >
+            &ldquo;{club.tagline}&rdquo;
+          </p>
+
+          {/* Stats row */}
+          <div className="flex items-center gap-4 mt-5">
+            {[
+              { n: club.memberCount.toLocaleString(), label: "members" },
+              { n: club.upcomingSeats.length.toString(), label: "open seats" },
+              { n: (club.zones?.length ?? 0).toString(), label: "zones" },
+            ].map(stat => (
+              <div key={stat.label}>
+                <p className="font-black text-xl text-white leading-none">{stat.n}</p>
+                <p className="text-[9px] font-semibold mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ── Sticky CTA bar (non-members only) ─────────────────────────────── */}
+      {/* ── Sticky CTA (non-members) ──────────────────────────────────────── */}
       {!isMember && (
         <div
           className="sticky top-0 z-30 px-5 py-3 flex items-center justify-between gap-3"
-          style={{ background: "rgba(255,245,248,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid #F0D0DC" }}
+          style={{ background: "rgba(253,250,245,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}
         >
           <div className="flex flex-wrap gap-2">
             <PriceBadge type={club.accessType} price={club.price} interval={club.billingInterval} />
@@ -489,17 +856,15 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
         </div>
       )}
 
-      {/* ── Member tabs (members only) ─────────────────────────────────────── */}
+      {/* ── Member tabs ──────────────────────────────────────────────────── */}
       {isMember && (
         <div className="flex items-center gap-1 px-5 py-3 overflow-x-auto" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-          {(["about", "chat", "events", "members"] as ClubTab[]).map((t) => (
+          {(["about", "chat", "events", "members"] as ClubTab[]).map(t => (
             <button
               key={t}
               onClick={() => setClubTab(t)}
               className="px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all"
-              style={clubTab === t
-                ? { background: club.color, color: "white" }
-                : { color: "#888", background: "transparent" }}
+              style={clubTab === t ? { background: club.color, color: "white" } : { color: "#888", background: "transparent" }}
             >
               {t === "about" ? "About" : t === "chat" ? "Chat" : t === "events" ? "Events" : "Members"}
             </button>
@@ -507,7 +872,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
         </div>
       )}
 
-      {/* ── Applied waiting state ──────────────────────────────────────────── */}
+      {/* ── Applied state ─────────────────────────────────────────────────── */}
       {!isMember && applied && (
         <div className="mx-5 mt-5 rounded-2xl px-5 py-4 flex items-center gap-4" style={{ background: "#FFF9E6", border: "1px solid #F5C842" }}>
           <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: "#F5C842" }}>
@@ -515,15 +880,15 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
           </div>
           <div>
             <p className="font-bold text-sm" style={{ color: "#111111" }}>Application submitted</p>
-            <p className="text-xs text-gray-500 mt-0.5">{club.mamaName} reviews every application. You'll hear back soon.</p>
+            <p className="text-xs text-gray-500 mt-0.5">{club.mamaName} reviews every application. You&apos;ll hear back soon.</p>
           </div>
         </div>
       )}
 
-      {/* ── Member: Chat Tab ───────────────────────────────────────────────── */}
+      {/* ── Member: Chat ──────────────────────────────────────────────────── */}
       {isMember && clubTab === "chat" && <ClubChat club={club} />}
 
-      {/* ── Member: Events Tab ────────────────────────────────────────────── */}
+      {/* ── Member: Events ────────────────────────────────────────────────── */}
       {isMember && clubTab === "events" && (
         <div className="max-w-xl mx-auto px-5 pt-5 flex flex-col gap-4 pb-20">
           <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>OPEN SEATS</p>
@@ -539,23 +904,21 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                   <p className="text-2xl font-bold" style={{ color: club.color }}>{seat.seats}</p>
                   <p className="text-xs text-gray-400">seats</p>
                 </div>
-                <button className="px-4 py-2 rounded-full text-sm font-bold text-white" style={{ background: club.color }}>
-                  RSVP
-                </button>
+                <button className="px-4 py-2 rounded-full text-sm font-bold text-white" style={{ background: club.color }}>RSVP</button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── Member: Members Tab ───────────────────────────────────────────── */}
+      {/* ── Member: Members ───────────────────────────────────────────────── */}
       {isMember && clubTab === "members" && (
         <div className="max-w-xl mx-auto px-5 pt-5 pb-20">
           <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: club.color }}>
             {club.memberCount.toLocaleString()} MEMBERS
           </p>
           <div className="flex flex-col gap-2">
-            {CLUB_MEMBERS.map((m) => (
+            {CLUB_MEMBERS.map(m => (
               <div key={m.name} className="bg-white rounded-2xl p-4 flex items-center gap-3" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ background: m.color }}>
                   {m.initial}
@@ -575,37 +938,53 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
         </div>
       )}
 
-      {/* ── About content (always visible, or when About tab selected) ────── */}
+      {/* ── About content (non-members always, members when About tab) ────── */}
       {(!isMember || clubTab === "about") && (
-        <div className="max-w-xl mx-auto px-5 pt-6 flex flex-col gap-6">
+        <div className="max-w-xl mx-auto flex flex-col gap-8 pt-8 pb-6">
 
-          {/* Tagline */}
-          <p
-            className="text-xl font-bold leading-snug italic"
-            style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}
-          >
-            &ldquo;{club.tagline}&rdquo;
-          </p>
+          {/* Photo reel */}
+          {club.photos && club.photos.length > 0 && (
+            <PhotoReel photos={club.photos} color={club.color} />
+          )}
+
+          {/* Mama's voice note */}
+          {club.mamaVoiceSeconds && (
+            <VoiceNoteCard mama={club.mamaName} seconds={club.mamaVoiceSeconds} color={club.color} />
+          )}
+
+          {/* Testimonials */}
+          {club.testimonials && club.testimonials.length > 0 && (
+            <section>
+              <p className="px-5 text-[9px] font-bold tracking-[0.22em] uppercase mb-4" style={{ color: club.color }}>
+                WHAT MEMBERS SAY
+              </p>
+              <div className="flex gap-4 overflow-x-auto px-5 pb-2" style={{ scrollbarWidth: "none" }}>
+                {club.testimonials.map((t, i) => (
+                  <TestimonialCard key={i} t={t} color={club.color} />
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* About */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <div className="mx-5 bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: club.color }}>ABOUT THIS CLUB</p>
             <p className="text-sm leading-relaxed text-gray-600">{club.about}</p>
           </div>
 
           {/* Who it's for */}
-          <div className="rounded-3xl p-5" style={{ background: `${club.color}12`, border: `1px solid ${club.color}30` }}>
+          <div className="mx-5 rounded-3xl p-5" style={{ background: `${club.color}10`, border: `1px solid ${club.color}25` }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: club.color }}>WHO IT&apos;S FOR</p>
             <p className="text-sm leading-relaxed font-medium" style={{ color: "#111111" }}>{club.whoItsFor}</p>
           </div>
 
           {/* What members do */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <div className="mx-5 bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: club.color }}>WHAT MEMBERS DO</p>
             <ul className="flex flex-col gap-2.5">
               {club.whatMembersDo.map((item, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
-                  <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: `${club.color}20` }}>
+                  <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: `${club.color}18` }}>
                     <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5L8 1.5" stroke={club.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                   {item}
@@ -615,10 +994,12 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
           </div>
 
           {/* Girl Zones */}
-          <GirlZonesSection club={club} isMember={isMember} />
+          <div className="mx-5">
+            <GirlZonesSection club={club} isMember={!!isMember} daysInClub={daysInClub} />
+          </div>
 
-          {/* Upcoming Seats preview — teaser for non-members */}
-          <div>
+          {/* Open seats preview */}
+          <div className="mx-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>OPEN SEATS</p>
               {isMember && (
@@ -633,8 +1014,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                   style={{
                     background: isMember ? "white" : "rgba(255,255,255,0.6)",
                     boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
-                    filter: isMember ? "none" : i > 0 ? "blur(2px)" : "none",
-                    position: "relative",
+                    filter: !isMember && i > 0 ? "blur(2px)" : "none",
                   }}
                 >
                   <div>
@@ -649,7 +1029,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                 </div>
               ))}
               {!isMember && (
-                <div className="rounded-2xl p-4 text-center" style={{ background: `${club.color}12`, border: `1.5px dashed ${club.color}40` }}>
+                <div className="rounded-2xl p-4 text-center" style={{ background: `${club.color}10`, border: `1.5px dashed ${club.color}35` }}>
                   <p className="text-xs font-bold" style={{ color: club.color }}>Members access all events</p>
                   <p className="text-xs text-gray-400 mt-0.5">Apply to join for full access</p>
                 </div>
@@ -658,10 +1038,11 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
           </div>
 
           {/* Club Mama */}
-          <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+          <div className="mx-5 bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
             <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: club.color }}>CLUB MAMA</p>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white text-lg" style={{ background: `radial-gradient(circle at 35% 35%, ${club.color}, ${club.crestBg ?? "#3a0018"})` }}>
+              <div className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white text-lg"
+                style={{ background: `radial-gradient(circle at 35% 35%, ${club.color}, ${club.crestBg ?? "#3a0018"})` }}>
                 {club.mamaName[0]}
               </div>
               <div>
@@ -674,7 +1055,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
 
           {/* Rules */}
           {club.rules && club.rules.length > 0 && (
-            <div className="rounded-3xl p-5" style={{ background: "#111111" }}>
+            <div className="mx-5 rounded-3xl p-5" style={{ background: "#111111" }}>
               <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>HOUSE RULES</p>
               <ul className="flex flex-col gap-2">
                 {club.rules.map((rule, i) => (
@@ -687,9 +1068,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
             </div>
           )}
 
-          {/* Pricing detail */}
+          {/* Pricing */}
           {club.accessType !== "free" && (
-            <div className="rounded-3xl p-5" style={{ background: `${club.color}10`, border: `1px solid ${club.color}25` }}>
+            <div className="mx-5 rounded-3xl p-5" style={{ background: `${club.color}08`, border: `1px solid ${club.color}20` }}>
               <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: club.color }}>ACCESS</p>
               {club.accessType === "one_time" && (
                 <>
@@ -699,7 +1080,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
               )}
               {club.accessType === "subscription" && (
                 <>
-                  <p className="text-3xl font-bold" style={{ color: "#111111" }}>${club.price}<span className="text-base font-normal text-gray-400">/{club.billingInterval ?? "month"}</span></p>
+                  <p className="text-3xl font-bold" style={{ color: "#111111" }}>
+                    ${club.price}<span className="text-base font-normal text-gray-400">/{club.billingInterval ?? "month"}</span>
+                  </p>
                   <p className="text-sm text-gray-500 mt-1">Recurring subscription · Cancel any time</p>
                 </>
               )}
@@ -707,9 +1090,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
             </div>
           )}
 
-          {/* Bottom CTA (non-members) */}
+          {/* Bottom CTA */}
           {!isMember && (
-            <div className="flex flex-col gap-3 pt-2 pb-6">
+            <div className="mx-5 flex flex-col gap-3 pt-2 pb-6">
               {applied ? (
                 <div className="w-full py-4 rounded-full font-bold text-base text-center" style={{ background: "#FFF9E6", color: "#b45309" }}>
                   Application Submitted ✓
@@ -718,7 +1101,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                 <button
                   onClick={() => setShowForm(true)}
                   className="w-full py-4 rounded-full font-bold text-base text-white transition-all active:scale-[0.98]"
-                  style={{ background: club.color }}
+                  style={{ background: club.color, boxShadow: `0 6px 24px ${club.color}44` }}
                 >
                   {ctaLabel}
                 </button>
@@ -730,16 +1113,14 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
               )}
             </div>
           )}
+
         </div>
       )}
 
-      {/* ── Application Sheet ──────────────────────────────────────────────── */}
+      {/* ── Application Sheet ─────────────────────────────────────────────── */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" style={{ background: "rgba(0,0,0,0.5)" }}>
-          <div
-            className="w-full max-w-md rounded-t-3xl md:rounded-3xl p-6 overflow-y-auto"
-            style={{ background: "white", maxHeight: "90vh" }}
-          >
+          <div className="w-full max-w-md rounded-t-3xl md:rounded-3xl p-6 overflow-y-auto bg-white" style={{ maxHeight: "90vh" }}>
             <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>APPLY</p>
@@ -758,8 +1139,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                   placeholder="Tell the Club Mama what draws you here..."
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent resize-none"
                   style={{ color: "#111111" }}
-                  onFocus={(e) => (e.target.style.borderColor = club.color)}
-                  onBlur={(e) => (e.target.style.borderColor = "transparent")}
+                  onFocus={e => (e.target.style.borderColor = club.color)}
+                  onBlur={e => (e.target.style.borderColor = "transparent")}
                 />
               </div>
               <div>
@@ -769,8 +1150,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                   placeholder="A little about you — work, vibe, what you love..."
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border-2 border-transparent resize-none"
                   style={{ color: "#111111" }}
-                  onFocus={(e) => (e.target.style.borderColor = club.color)}
-                  onBlur={(e) => (e.target.style.borderColor = "transparent")}
+                  onFocus={e => (e.target.style.borderColor = club.color)}
+                  onBlur={e => (e.target.style.borderColor = "transparent")}
                 />
               </div>
               <div>
@@ -780,8 +1161,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
                   placeholder="@handle"
                   className="w-full bg-gray-50 rounded-2xl px-4 py-3.5 text-sm outline-none border-2 border-transparent"
                   style={{ color: "#111111" }}
-                  onFocus={(e) => (e.target.style.borderColor = club.color)}
-                  onBlur={(e) => (e.target.style.borderColor = "transparent")}
+                  onFocus={e => (e.target.style.borderColor = club.color)}
+                  onBlur={e => (e.target.style.borderColor = "transparent")}
                 />
               </div>
               {club.rules && club.rules.length > 0 && (
