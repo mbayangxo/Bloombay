@@ -24,22 +24,29 @@ const FIRST_MONTH_TASKS = [
   { week: 4, task: "Save 5 places in The City", href: "/member/city"       },
 ];
 
-// ─── Club Polaroid ────────────────────────────────────────────────────────────
+// PNG polaroid frames — cycled across the user's clubs
+const CLUB_FRAMES = [
+  "E67AE5DD-286B-4E45-BA2E-080681D63958.PNG",
+  "6D79FE52-AEB9-4F4C-AD10-B954C218834D.PNG",
+  "D25A1545-F360-4978-93BB-9C19D97BACDA.PNG",
+  "E894643F-2A53-4ABE-A8EF-19792A45CC5E.PNG",
+  "868945DF-0D9E-40F6-A76F-96A187EBC961.PNG",
+];
 
-function ClubPolaroid({ club, rotate = 0 }: { club: Club; rotate?: number }) {
+// ─── Club Polaroid ────────────────────────────────────────────────────────────
+// The PNG is a frame with a transparent window. The club's real cover photo
+// (or a color-gradient crest) sits behind that window via z-index layering.
+
+function ClubPolaroid({ club, frameIndex = 0, rotate = 0 }: { club: Club; frameIndex?: number; rotate?: number }) {
   const abbr = club.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
   const bg = club.color || PINK;
+  const frame = CLUB_FRAMES[frameIndex % CLUB_FRAMES.length];
 
   return (
-    <Link href={`/member/clubs`} style={{ textDecoration: "none", flexShrink: 0 }}>
-      <div style={{
-        width: 88,
-        background: "white",
-        padding: "6px 6px 24px",
-        boxShadow: "0 4px 18px rgba(0,0,0,0.18)",
-        transform: `rotate(${rotate}deg)`,
-      }}>
-        <div style={{ width: "100%", height: 96, overflow: "hidden", position: "relative" }}>
+    <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: 88, transform: `rotate(${rotate}deg)` }}>
+        {/* Real photo slot — sits behind the transparent window of the PNG frame */}
+        <div style={{ position: "absolute", top: "9%", left: "9%", width: "82%", height: "61%", zIndex: 1, overflow: "hidden" }}>
           {club.cover_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={club.cover_url} alt={club.name}
@@ -50,17 +57,18 @@ function ClubPolaroid({ club, rotate = 0 }: { club: Club; rotate?: number }) {
               background: `linear-gradient(145deg, ${bg} 0%, ${bg}bb 100%)`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <p style={{
-                fontFamily: "var(--font-playfair)", fontSize: 30,
-                fontWeight: 900, fontStyle: "italic",
-                color: "rgba(255,255,255,0.92)", lineHeight: 1,
-              }}>{abbr}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>
+                {abbr}
+              </p>
             </div>
           )}
         </div>
+        {/* PNG frame overlays on top — transparent window reveals the photo behind */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`/homepage-objects/${frame}`} alt="" style={{ width: "100%", display: "block", position: "relative", zIndex: 2 }} />
         <p style={{
           fontSize: "7px", fontWeight: 700, color: "#555",
-          marginTop: 5, textAlign: "center", letterSpacing: "0.03em",
+          marginTop: 3, textAlign: "center", letterSpacing: "0.03em",
           overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
         }}>{club.name}</p>
       </div>
@@ -234,42 +242,33 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#bbb", marginTop: 2 }}>soft life, strong mind ♡</p>
           </div>
 
-          {/* Membership card — real user photo */}
+          {/* Portrait card — PNG polaroid frame with user's real avatar behind the window */}
           <div style={{ width: 118, flexShrink: 0, marginTop: -8 }}>
             <Link href="/member/you" style={{ textDecoration: "none" }}>
-              <div style={{
-                background: "linear-gradient(145deg, #FF1F7D 0%, #7F0030 100%)",
-                borderRadius: 18, overflow: "hidden",
-                boxShadow: "0 10px 28px rgba(255,31,125,0.38)",
-                position: "relative", minHeight: 158,
-                display: "flex", flexDirection: "column",
-              }}>
-                <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 75% 18%, rgba(255,255,255,0.18) 0%, transparent 50%)", pointerEvents: "none" }} />
-                <div style={{ flex: 1, position: "relative", minHeight: 100 }}>
+              <div style={{ position: "relative", width: 118 }}>
+                {/* User's avatar sits behind the transparent window of the polaroid frame */}
+                <div style={{ position: "absolute", top: "11%", left: "10%", width: "80%", height: "56%", zIndex: 1, overflow: "hidden" }}>
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
-                    <div style={{ width: "100%", height: "100%", minHeight: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "rgba(255,255,255,0.5)" }}>
+                    <div style={{ width: "100%", height: "100%", background: "linear-gradient(145deg, #FF1F7D 0%, #7F0030 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 40, color: "rgba(255,255,255,0.6)" }}>
                         {initial}
                       </p>
                     </div>
                   )}
                 </div>
-                <div style={{ padding: "10px 12px 12px", position: "relative" }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 800, fontSize: 15, color: "white", lineHeight: 0.9, marginBottom: 4 }}>
-                    {loadingProfile ? "..." : (firstName || "Member")}
+                {/* PNG polaroid frame overlaid on top */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/homepage-objects/22BF0D14-A676-4B45-A133-EE13D17845F8.PNG" alt=""
+                  style={{ width: "100%", display: "block", position: "relative", zIndex: 2 }} />
+                {/* Name in the bottom caption area of the polaroid */}
+                <div style={{ position: "absolute", bottom: "10%", left: 0, right: 0, zIndex: 3, textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 800, fontSize: 13, color: "#1C1B1C" }}>
+                    {loadingProfile ? "" : (firstName || "")}
                   </p>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                    <p style={{ fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>MEMBER</p>
-                    <div style={{ display: "flex", gap: "1.5px" }}>
-                      {[2,1,3,1,2,1,2,3].map((w, i) => (
-                        <div key={i} style={{ width: w, height: 8, background: "rgba(255,255,255,0.2)", borderRadius: "0.5px" }} />
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
             </Link>
@@ -395,7 +394,7 @@ export function HomePage() {
         ) : (
           <div style={{ display: "flex", overflowX: "auto", padding: "4px 16px 12px", gap: 12, scrollbarWidth: "none" as const }}>
             {myClubs.map((club, i) => (
-              <ClubPolaroid key={club.id} club={club} rotate={i % 2 === 0 ? -1.5 : 1} />
+              <ClubPolaroid key={club.id} club={club} frameIndex={i} rotate={i % 2 === 0 ? -1.5 : 1} />
             ))}
           </div>
         )}
