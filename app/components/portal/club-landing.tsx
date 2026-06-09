@@ -17,6 +17,7 @@ export interface ClubZone {
   memberCount: number;
   price?: number;
   priceInterval?: "monthly" | "one_time";
+  joinType?: "open" | "request"; // "open" = join instantly, "request" = needs approval
 }
 
 export interface ClubPhoto {
@@ -62,6 +63,7 @@ export interface ClubLandingData {
   photos?: ClubPhoto[];
   testimonials?: ClubTestimonial[];
   zones?: ClubZone[];
+  allowZoneRequests?: boolean; // Club Mama's choice — can members suggest new zones?
 }
 
 // ─── Mock data ───────────────────────────────────────────────────────────────
@@ -135,26 +137,25 @@ const DEFAULT_CLUB: ClubLandingData = {
     {
       id: "z1", name: "West African Table", emoji: "🍛",
       desc: "Dinners centered on West African cuisine. Monthly, intimate, deeply cultural.",
-      memberCount: 24,
+      memberCount: 24, joinType: "open",
     },
     {
       id: "z2", name: "Fancy Brunch Crew", emoji: "🥂",
       desc: "Upscale Sunday brunches, rotating neighborhoods. Dress the part.",
-      memberCount: 18,
-      price: 12, priceInterval: "monthly",
+      memberCount: 18, price: 12, priceInterval: "monthly", joinType: "request",
     },
     {
       id: "z3", name: "Wine & Catch Up", emoji: "🍷",
       desc: "Mid-week wine nights — no agenda, no pressure, just talk.",
-      memberCount: 31,
+      memberCount: 31, joinType: "open",
     },
     {
       id: "z4", name: "Private Table Finders", emoji: "📋",
       desc: "Hunting NYC's hardest reservations together. Insiders only.",
-      memberCount: 12,
-      price: 8, priceInterval: "monthly",
+      memberCount: 12, price: 8, priceInterval: "monthly", joinType: "request",
     },
   ],
+  allowZoneRequests: true,
 };
 
 // ─── Chat Mock Data ───────────────────────────────────────────────────────────
@@ -419,8 +420,9 @@ function TestimonialCard({ t, color }: { t: ClubTestimonial; color: string }) {
 const ZONE_REQUEST_MIN_DAYS = 14;
 
 function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandingData; isMember: boolean; daysInClub?: number }) {
-  const canRequestZone = isMember && daysInClub >= ZONE_REQUEST_MIN_DAYS;
+  const canRequestZone = isMember && daysInClub >= ZONE_REQUEST_MIN_DAYS && !!club.allowZoneRequests;
   const [joined, setJoined] = useState<Set<string>>(new Set());
+  const [requested, setRequested] = useState<Set<string>>(new Set()); // pending request-to-join
   const [showRequest, setShowRequest] = useState(false);
   const [zoneName, setZoneName] = useState("");
   const [zoneDesc, setZoneDesc] = useState("");
@@ -434,6 +436,10 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  }
+
+  function requestJoin(id: string) {
+    setRequested(prev => new Set([...prev, id]));
   }
 
   function submitRequest() {
@@ -490,24 +496,44 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
                   <p className="text-xs text-gray-400 mt-0.5 leading-snug">{zone.desc}</p>
                   <p className="text-[10px] font-semibold mt-1" style={{ color: club.color }}>{zone.memberCount} members</p>
                 </div>
-                {isMember && (
-                  <button
-                    onClick={() => toggle(zone.id)}
-                    className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
-                    style={isJoined
-                      ? { background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }
-                      : { background: club.color, color: "white" }}
-                  >
-                    {isJoined ? "Joined ✓" : zone.price ? `Join · $${zone.price}` : "Join"}
-                  </button>
-                )}
+                {isMember && (() => {
+                  const isReq = zone.joinType === "request";
+                  const hasPending = requested.has(zone.id);
+                  if (isJoined) {
+                    return (
+                      <span className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }}>
+                        Joined ✓
+                      </span>
+                    );
+                  }
+                  if (isReq && hasPending) {
+                    return (
+                      <span className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold"
+                        style={{ background: "#FFF9E6", color: "#b45309" }}>
+                        Requested ·{" "}pending
+                      </span>
+                    );
+                  }
+                  return (
+                    <button
+                      onClick={() => isReq ? requestJoin(zone.id) : toggle(zone.id)}
+                      className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
+                      style={{ background: club.color, color: "white" }}
+                    >
+                      {isReq
+                        ? zone.price ? `Request · $${zone.price}/mo` : "Request to join"
+                        : zone.price ? `Join · $${zone.price}/mo` : "Join"}
+                    </button>
+                  );
+                })()}
               </div>
             );
           })}
         </div>
 
-        {/* Suggest a zone — members only, inside the club */}
-        {isMember && (
+        {/* Suggest a zone — members only, only when Club Mama has enabled it */}
+        {isMember && club.allowZoneRequests && (
           <div className="px-5 py-4" style={{ borderTop: `1px dashed ${club.color}25`, background: `${club.color}04` }}>
             {canRequestZone ? (
               <button
