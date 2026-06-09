@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+/* ── Types ──────────────────────────────────────────────────────── */
 interface Notif {
   id: number;
   type: "seat" | "stamp" | "event" | "celebrate" | "intro" | "message" | "club" | "club_accepted";
@@ -15,6 +16,7 @@ interface Notif {
   witnessId?: string;
 }
 
+/* ── Data ───────────────────────────────────────────────────────── */
 const INITIAL_NOW: Notif[] = [
   {
     id: 0, type: "club_accepted",
@@ -97,197 +99,176 @@ const INITIAL_EARLIER: Notif[] = [
   },
 ];
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
+/* ── Design ─────────────────────────────────────────────────────── */
+const PINK = "#FF1F7D";
 
-function NotifIcon({ type }: { type: Notif["type"] }) {
-  const baseClass = "w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0";
+const CSS = `
+@keyframes pinBob {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  30%       { transform: translateY(-2px) rotate(2.5deg); }
+  70%       { transform: translateY(-1px) rotate(-1.5deg); }
+}
+.pin-bob { animation: pinBob 4s ease-in-out infinite; }
+`;
 
-  if (type === "stamp") {
-    return (
-      <div className={baseClass} style={{ background: "#110508", border: "1px solid rgba(255,31,125,0.2)", boxShadow: "0 2px 10px rgba(255,31,125,0.2)" }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="1.8" strokeLinecap="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-          <circle cx="12" cy="12" r="3" fill="#FF1F7D" stroke="none"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "club_accepted") {
-    return (
-      <div className={baseClass} style={{ background: "#111111", border: "1px solid rgba(255,31,125,0.3)", boxShadow: "0 4px 16px rgba(255,31,125,0.25)" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M20 6L9 17l-5-5"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "seat") {
-    return (
-      <div className={baseClass} style={{ background: "#FFF0F5" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-          <path d="M20 9V7a2 2 0 00-2-2H6a2 2 0 00-2 2v2"/>
-          <path d="M4 9h16v5a2 2 0 01-2 2H6a2 2 0 01-2-2V9z"/>
-          <path d="M8 16v3"/><path d="M16 16v3"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "event") {
-    return (
-      <div className={baseClass} style={{ background: "#FFF5F8" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "celebrate") {
-    return (
-      <div className={baseClass} style={{ background: "#FFF8F0" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" strokeWidth="2" strokeLinecap="round">
-          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "intro") {
-    return (
-      <div className={baseClass} style={{ background: "#FFF0F5" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-          <path d="M16 3.13a4 4 0 010 7.75"/>
-        </svg>
-      </div>
-    );
-  }
-  if (type === "message") {
-    return (
-      <div className={baseClass} style={{ background: "#FFF0F5" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>
-      </div>
-    );
-  }
-  // club
+type NoteTheme = {
+  bg: string; pin: string; ruledColor: string;
+  titleColor: string; bodyColor: string; rot: string;
+};
+
+const NOTE_THEMES: Record<Notif["type"], NoteTheme> = {
+  stamp:         { bg: "#FFFDE7", pin: "#F59E0B", ruledColor: "rgba(200,170,0,0.13)",  titleColor: "#78350F", bodyColor: "#92400E", rot: "-1.5deg" },
+  seat:          { bg: "#FFF0F5", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.08)", titleColor: "#831843", bodyColor: "#9D174D", rot: "1.2deg"  },
+  event:         { bg: "#EEF2FF", pin: "#4F46E5", ruledColor: "rgba(79,70,229,0.1)",   titleColor: "#312E81", bodyColor: "#3730A3", rot: "-0.8deg" },
+  celebrate:     { bg: "#FFF7ED", pin: "#EA580C", ruledColor: "rgba(234,88,12,0.09)",  titleColor: "#7C2D12", bodyColor: "#9A3412", rot: "1.8deg"  },
+  intro:         { bg: "#F0FFF4", pin: "#16A34A", ruledColor: "rgba(22,163,74,0.1)",   titleColor: "#14532D", bodyColor: "#166534", rot: "-1.2deg" },
+  message:       { bg: "#F0F9FF", pin: "#0284C7", ruledColor: "rgba(2,132,199,0.09)",  titleColor: "#0C4A6E", bodyColor: "#075985", rot: "0.7deg"  },
+  club:          { bg: "#FAF5FF", pin: "#7C3AED", ruledColor: "rgba(124,58,237,0.09)", titleColor: "#4C1D95", bodyColor: "#5B21B6", rot: "-0.5deg" },
+  club_accepted: { bg: "#0F0B04", pin: "#D4A853", ruledColor: "rgba(212,168,83,0.12)", titleColor: "#FEF3C7", bodyColor: "#FDE68A", rot: "0.8deg"  },
+};
+
+/* ── Pushpin SVG ─────────────────────────────────────────────────── */
+function PushPin({ color }: { color: string }) {
   return (
-    <div className={baseClass} style={{ background: "#FFF0F5" }}>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-        <path d="M16 3.13a4 4 0 010 7.75"/>
-      </svg>
-    </div>
+    <svg width="14" height="22" viewBox="0 0 14 22" fill="none">
+      <circle cx="7" cy="6.5" r="5.5" fill={color} stroke="rgba(0,0,0,0.18)" strokeWidth="0.8"/>
+      <ellipse cx="5.2" cy="4.8" rx="1.6" ry="1.1" fill="rgba(255,255,255,0.38)"/>
+      <rect x="6.1" y="12" width="1.8" height="8" rx="0.9" fill={color} opacity="0.8"/>
+      <circle cx="7" cy="20.5" r="0.9" fill={color}/>
+    </svg>
   );
 }
 
-// ── Club Accepted hero card ────────────────────────────────────────────────────
-
-function ClubAcceptedPing({ n }: { n: Notif }) {
+/* ── Tape label ──────────────────────────────────────────────────── */
+function TapeLabel({ text, faint }: { text: string; faint?: boolean }) {
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: "#111111", boxShadow: "0 6px 28px rgba(255,31,125,0.2)" }}>
-      <div className="relative px-5 pt-5 pb-4 flex items-center gap-3"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 90% 20%, rgba(255,31,125,0.18) 0%, transparent 60%)" }} />
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 relative z-10"
-          style={{ background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.3)", fontSize: "22px" }}>
-          {n.clubCrest}
-        </div>
-        <div className="flex-1 min-w-0 relative z-10">
-          <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>✓ ACCEPTED</p>
-          <p className="text-sm font-bold leading-snug" style={{ color: "rgba(255,238,220,0.92)" }}>{n.title}</p>
-        </div>
-        <p className="text-[10px] flex-shrink-0 relative z-10" style={{ color: "rgba(255,255,255,0.25)" }}>{n.time}</p>
-      </div>
-      <div className="px-5 py-3">
-        <p className="text-xs leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>{n.body}</p>
-        <div className="flex gap-2">
-          <Link href="/member/messages"
-            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-center transition-all active:scale-95"
-            style={{ background: "#FF1F7D", color: "white" }}>
-            Open Mailbox →
-          </Link>
-          <Link href="/member/clubs"
-            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-center transition-all active:scale-95"
-            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)" }}>
-            View Club
-          </Link>
-        </div>
+    <div style={{ marginBottom: 12 }}>
+      <div style={{
+        display: "inline-block",
+        background: faint ? "rgba(255,252,195,0.65)" : "rgba(255,252,195,0.88)",
+        padding: "3px 14px 4px",
+        transform: faint ? "rotate(0.3deg)" : "rotate(-0.6deg)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+      }}>
+        <p style={{
+          fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700,
+          color: faint ? "#7A5F00" : "#5A3E00", letterSpacing: "0.01em",
+        }}>
+          {text}
+        </p>
       </div>
     </div>
   );
 }
 
-// ── Ping row ──────────────────────────────────────────────────────────────────
-
-function NotifRow({ n }: { n: Notif }) {
-  if (n.type === "club_accepted") return <ClubAcceptedPing n={n} />;
-
-  const isWitness = n.type === "stamp";
+/* ── Note card ───────────────────────────────────────────────────── */
+function NoteCard({ n }: { n: Notif }) {
+  const th = NOTE_THEMES[n.type];
+  const isGold = n.type === "club_accepted";
 
   const inner = (
-    <div className="flex items-start gap-3 p-4 rounded-2xl relative overflow-hidden transition-all active:scale-[0.98]"
-      style={{
-        background: isWitness ? "#0D0508" : "white",
-        boxShadow: n.unread
-          ? isWitness ? "0 4px 20px rgba(255,31,125,0.18)" : "0 3px 16px rgba(255,31,125,0.1)"
-          : "0 1px 8px rgba(0,0,0,0.06)",
-        border: isWitness ? "1px solid rgba(255,31,125,0.18)" : "none",
-        borderLeft: n.unread ? `3px solid ${isWitness ? "#FF1F7D" : "#FF1F7D"}` : "3px solid transparent",
+    <div style={{
+      backgroundColor: th.bg,
+      backgroundImage: `repeating-linear-gradient(transparent, transparent 22px, ${th.ruledColor} 22px, ${th.ruledColor} 23px)`,
+      borderRadius: 2,
+      padding: "24px 13px 14px",
+      position: "relative",
+      transform: `rotate(${th.rot})`,
+      boxShadow: "0 4px 16px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.04)",
+      border: isGold ? "1px solid rgba(212,168,83,0.35)" : "none",
+      minHeight: 110,
+      cursor: "pointer",
+    }}>
+      {/* Pushpin */}
+      <div className="pin-bob" style={{
+        position: "absolute", top: -9, left: "50%",
+        transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none",
       }}>
-      <NotifIcon type={n.type} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm leading-snug"
-          style={{ color: isWitness ? "rgba(255,235,215,0.9)" : "#111111", fontWeight: n.unread ? 700 : 500 }}>
+        <PushPin color={th.pin}/>
+      </div>
+
+      {/* Unread dot */}
+      {n.unread && !isGold && (
+        <div style={{
+          position: "absolute", top: 8, right: 8,
+          width: 7, height: 7, borderRadius: "50%",
+          background: PINK, boxShadow: `0 0 6px ${PINK}88`,
+        }}/>
+      )}
+
+      <div style={{ position: "relative", zIndex: 2 }}>
+        {isGold && n.clubCrest && (
+          <p style={{ fontSize: 20, marginBottom: 5, lineHeight: 1 }}>{n.clubCrest}</p>
+        )}
+
+        <p style={{
+          fontFamily: "var(--font-caveat)",
+          fontSize: 13,
+          fontWeight: 700,
+          color: th.titleColor,
+          lineHeight: 1.45,
+          marginBottom: 4,
+        }}>
           {n.title}
         </p>
-        <p className="text-xs mt-1 leading-relaxed"
-          style={{ color: isWitness ? "#FF69B4" : "#999", fontStyle: isWitness ? "italic" : "normal" }}>
+
+        <p style={{
+          fontFamily: "var(--font-caveat)",
+          fontSize: 11.5,
+          color: th.bodyColor,
+          lineHeight: 1.5,
+          fontStyle: n.type === "stamp" ? "italic" : "normal",
+          marginBottom: 7,
+        }}>
           {n.body}
         </p>
-        {isWitness && (
-          <p className="text-[9px] mt-1.5 font-bold tracking-wide" style={{ color: "rgba(255,31,125,0.5)" }}>
-            Tap to read the full note →
-          </p>
+
+        <p style={{
+          fontFamily: "var(--font-jost)",
+          fontSize: "8px",
+          fontWeight: 700,
+          letterSpacing: "0.06em",
+          color: isGold ? "rgba(212,168,83,0.45)" : "rgba(0,0,0,0.25)",
+        }}>
+          {n.time.toUpperCase()}
+        </p>
+
+        {isGold && (
+          <div style={{ display: "flex", gap: 5, marginTop: 10 }}>
+            <Link href="/member/messages" style={{
+              flex: 1, padding: "7px 0",
+              background: PINK, color: "white",
+              borderRadius: 4, textAlign: "center", textDecoration: "none",
+              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em",
+            }}>
+              MAILBOX →
+            </Link>
+            <Link href="/member/clubs" style={{
+              flex: 1, padding: "7px 0",
+              background: "rgba(212,168,83,0.12)", color: "#D4A853",
+              borderRadius: 4, textAlign: "center", textDecoration: "none",
+              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em",
+              border: "1px solid rgba(212,168,83,0.25)",
+            }}>
+              VIEW CLUB
+            </Link>
+          </div>
         )}
-      </div>
-      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-        <p className="text-[11px]" style={{ color: isWitness ? "rgba(255,255,255,0.2)" : "#ccc" }}>{n.time}</p>
-        {n.unread && <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />}
       </div>
     </div>
   );
 
-  if (isWitness && n.witnessId) {
-    return <Link href={`/member/witness/${n.witnessId}`} style={{ textDecoration: "none" }}>{inner}</Link>;
+  if (n.type === "stamp" && n.witnessId) {
+    return (
+      <Link href={`/member/witness/${n.witnessId}`} style={{ textDecoration: "none", display: "block" }}>
+        {inner}
+      </Link>
+    );
   }
   return inner;
 }
 
-// ── Section header ─────────────────────────────────────────────────────────────
-
-function SectionHeader({ label, faint }: { label: string; faint?: boolean }) {
-  return (
-    <div className="flex items-center gap-3 mb-3">
-      <p className="text-[10px] font-bold tracking-[0.26em] uppercase flex-shrink-0"
-        style={{ color: faint ? "#bbb" : "#111" }}>
-        {label}
-      </p>
-      <div className="flex-1 h-px" style={{ background: faint ? "#E8E8E8" : "rgba(255,31,125,0.35)" }} />
-    </div>
-  );
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-
+/* ── Page ────────────────────────────────────────────────────────── */
 export default function NotificationsPage() {
   const [nowItems, setNowItems]         = useState<Notif[]>(INITIAL_NOW);
   const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
@@ -296,106 +277,111 @@ export default function NotificationsPage() {
   const totalItems  = nowItems.length + earlierItems.length;
 
   function markAllRead() {
-    setNowItems(prev => prev.map(n => ({ ...n, unread: false })));
-    setEarlierItems(prev => prev.map(n => ({ ...n, unread: false })));
+    setNowItems(p => p.map(n => ({ ...n, unread: false })));
+    setEarlierItems(p => p.map(n => ({ ...n, unread: false })));
   }
-
   useEffect(() => { markAllRead(); }, []);
 
-  return (
-    <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
-
-      {/* ── Dark atmospheric header ────────────────────────────────────── */}
-      <div className="relative overflow-hidden" style={{ background: "#0A0508", paddingBottom: "32px" }}>
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 60% 0%, rgba(255,31,125,0.14) 0%, transparent 65%)" }} />
-
-        {/* Top bar */}
-        <div className="relative flex items-center justify-between px-5 pt-14 pb-0 md:pt-10">
-          <Link href="/member/home"
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-            style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.2" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </Link>
-          <p className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "rgba(255,31,125,0.65)" }}>
-            ✦ PINGS
-          </p>
-          {unreadCount > 0 ? (
-            <button onClick={markAllRead}
-              className="text-[10px] font-semibold transition-all active:opacity-60"
-              style={{ color: "rgba(255,31,125,0.7)" }}>
-              Mark read
-            </button>
-          ) : (
-            <div className="w-16" />
-          )}
+  function renderSection(items: Notif[], label: string, faint?: boolean) {
+    if (items.length === 0) return null;
+    return (
+      <div style={{ padding: "0 16px", marginBottom: 6 }}>
+        <TapeLabel text={label} faint={faint}/>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {items.map((n, i) => (
+            <div
+              key={n.id}
+              style={{
+                gridColumn: n.type === "club_accepted" ? "span 2" : undefined,
+                marginTop: n.type !== "club_accepted" && i % 2 !== 0 ? 12 : 0,
+              }}
+            >
+              <NoteCard n={n}/>
+            </div>
+          ))}
         </div>
+      </div>
+    );
+  }
 
-        {/* Big title */}
-        <div className="relative px-5 pt-5 pb-0">
-          <div className="flex items-end gap-3">
-            <h1 className="font-black italic leading-none"
-              style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(52px,13vw,72px)", color: "rgba(255,238,220,0.92)", lineHeight: 0.9 }}>
+  return (
+    <div style={{
+      minHeight: "100vh",
+      paddingBottom: 100,
+      paddingTop: 70,
+      backgroundColor: "#C0975C",
+      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.35'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23A07040' filter='url(%23n)' opacity='0.2'/%3E%3C/svg%3E")`,
+      backgroundSize: "200px 200px",
+    }}>
+      <style>{CSS}</style>
+
+      {/* Board header */}
+      <div style={{ padding: "0 18px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div>
+          <div style={{
+            display: "inline-block",
+            background: "rgba(255,252,200,0.9)",
+            padding: "4px 16px 5px",
+            transform: "rotate(-0.8deg)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          }}>
+            <h1 style={{
+              fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900,
+              fontStyle: "italic", color: "#3A2800", lineHeight: 1,
+            }}>
               Pings.
             </h1>
-            {unreadCount > 0 && (
-              <span className="text-sm font-bold px-3 py-1.5 rounded-full text-white mb-1"
-                style={{ background: "#FF1F7D", boxShadow: "0 3px 12px rgba(255,31,125,0.45)" }}>
-                {unreadCount}
-              </span>
-            )}
           </div>
-          <p className="text-[11px] italic mt-2" style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-instrument)" }}>
-            What's happening in your world.
-          </p>
+          {unreadCount > 0 && (
+            <span style={{
+              display: "inline-block", marginLeft: 10, marginBottom: 3,
+              background: PINK, color: "white", borderRadius: 999,
+              padding: "2px 10px",
+              fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+            }}>
+              {unreadCount} new
+            </span>
+          )}
         </div>
-
-        {/* Fade to content */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-          style={{ background: "linear-gradient(to bottom, transparent, var(--pale-pink-bg))" }} />
-      </div>
-
-      {/* ── Content ────────────────────────────────────────────────────── */}
-      <div className="px-5 pb-28 flex flex-col gap-7 pt-2">
-        {totalItems === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <p style={{ fontSize: "44px", opacity: 0.22 }}>✦</p>
-            <p className="font-black italic text-center"
-              style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.38)", fontSize: "22px" }}>
-              All caught up.
-            </p>
-            <p className="text-xs text-center leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
-              When something happens in your world,<br />it will show up here.
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Right Now */}
-            {nowItems.length > 0 && (
-              <div>
-                <SectionHeader label="RIGHT NOW" />
-                <div className="flex flex-col gap-2.5">
-                  {nowItems.map(n => <NotifRow key={n.id} n={n} />)}
-                </div>
-              </div>
-            )}
-
-            {/* Earlier */}
-            {earlierItems.length > 0 && (
-              <div>
-                <SectionHeader label="EARLIER TODAY" faint />
-                <div className="flex flex-col gap-2.5">
-                  {earlierItems.map(n => <NotifRow key={n.id} n={n} />)}
-                </div>
-              </div>
-            )}
-          </>
+        {unreadCount > 0 && (
+          <button
+            onClick={markAllRead}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+              letterSpacing: "0.08em", color: "rgba(255,255,255,0.65)",
+              paddingBottom: 6,
+            }}
+          >
+            CLEAR ALL
+          </button>
         )}
       </div>
+
+      {/* Notes */}
+      {totalItems > 0 ? (
+        <>
+          {renderSection(nowItems, "✦ right now")}
+          {renderSection(earlierItems, "earlier today", true)}
+        </>
+      ) : (
+        <div style={{ padding: "60px 24px", display: "flex", justifyContent: "center" }}>
+          <div style={{
+            background: "rgba(255,252,200,0.88)",
+            padding: "24px 32px",
+            transform: "rotate(-1deg)",
+            boxShadow: "0 4px 18px rgba(0,0,0,0.22)",
+            textAlign: "center",
+          }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 20, fontWeight: 700, color: "#5A3E00" }}>
+              All caught up ✦
+            </p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#8A6000", marginTop: 4 }}>
+              Nothing new on the board.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

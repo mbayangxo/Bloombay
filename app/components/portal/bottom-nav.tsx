@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
 
 interface NavUser { name: string; initial: string; role: string; }
@@ -85,6 +86,19 @@ const TABS = [
 
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
+  const [navHidden, setNavHidden] = useState(false);
+  const lastYRef = useRef(0);
+
+  useEffect(() => {
+    function onScroll() {
+      const y = window.scrollY;
+      if (y > lastYRef.current + 10) setNavHidden(true);
+      else if (y < lastYRef.current - 10) setNavHidden(false);
+      lastYRef.current = y;
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -136,11 +150,12 @@ export function BottomNav({ user }: { user?: NavUser }) {
               }}>3</div>
             </Link>
 
-            {/* Pin drop */}
+            {/* Pushpin */}
             <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round">
-                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
-                <circle cx="12" cy="10" r="3"/>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="7" r="4"/>
+                <line x1="8" y1="11" x2="16" y2="11"/>
+                <line x1="12" y1="11" x2="12" y2="20"/>
               </svg>
               <span style={{
                 position: "absolute", top: "-1px", right: "-1px",
@@ -176,6 +191,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
           borderTop: "1px solid rgba(0,0,0,0.08)",
           boxShadow: "0 -1px 12px rgba(0,0,0,0.06)",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          transform: navHidden ? "translateY(100%)" : "translateY(0)",
+          transition: "transform 0.3s ease",
         }}
       >
         <div style={{ display: "flex", alignItems: "stretch" }}>

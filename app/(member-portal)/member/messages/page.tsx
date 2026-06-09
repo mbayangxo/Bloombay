@@ -396,7 +396,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: isGold ? "#0A0804" : "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-24" style={{ background: isGold ? "#0A0804" : "#F4EDE3" }}>
       <div className="px-5 pt-14 pb-4 flex items-center gap-3">
         <button onClick={onBack}
           className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
@@ -497,35 +497,50 @@ function MailboxInner() {
   const inviteUnread = MAILBOX_ITEMS.filter(i => i.type === "invitation" && !openedItems.has(i.id)).length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--pale-pink-bg)" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#F4EDE3" }}>
       {/* Header */}
-      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
-        <div className="flex items-center gap-3 mb-4">
-          <Link href="/member/home"
-            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
-            style={{ background: "rgba(0,0,0,0.06)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6"/>
+      <div style={{ padding: "70px 20px 16px" }}>
+        {/* Envelope icon + label */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 10,
+            background: "linear-gradient(135deg, #FF1F7D, #FF69B4)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0, boxShadow: "0 3px 10px rgba(255,31,125,0.3)",
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
             </svg>
-          </Link>
-          <div className="flex-1">
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ MAILBOX</p>
-            <div className="flex items-center gap-2.5">
-              <h1 className="font-black italic leading-none"
-                style={{ color: "var(--heading-color, #111)", fontFamily: "var(--font-playfair)", fontSize: "clamp(36px,9vw,48px)" }}>
-                Mailbox.
-              </h1>
-              {unread > 0 && (
-                <span className="text-[9px] font-bold px-2.5 py-1 rounded-full text-white self-end mb-1.5"
-                  style={{ background: "#FF1F7D", boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>
-                  {unread} new
-                </span>
-              )}
-            </div>
           </div>
+          <p style={{
+            fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
+            letterSpacing: "0.22em", color: "#FF1F7D",
+          }}>YOUR MAILBOX</p>
         </div>
-        <p className="text-[11px] italic" style={{ color: "var(--text-muted, #aaa)", fontFamily: "var(--font-instrument)" }}>
-          Invitations, letters, certificates.
+
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
+          <h1 style={{
+            fontFamily: "var(--font-playfair)", fontSize: "clamp(38px,10vw,52px)",
+            fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 0.9,
+          }}>
+            Mail.
+          </h1>
+          {unread > 0 && (
+            <span style={{
+              fontSize: "9px", fontWeight: 800, color: "white",
+              background: "#FF1F7D", borderRadius: 999, padding: "3px 10px",
+              boxShadow: "0 2px 8px rgba(255,31,125,0.4)", marginBottom: 4,
+            }}>
+              {unread} new
+            </span>
+          )}
+        </div>
+        <p style={{
+          fontFamily: "var(--font-instrument)", fontSize: "12px", fontStyle: "italic",
+          color: "#B0A8A0", marginTop: 6,
+        }}>
+          Invitations, letters & certificates — yours to keep.
         </p>
       </div>
 
@@ -561,8 +576,8 @@ function MailboxInner() {
           <button key={f.value} onClick={() => setFilter(f.value)}
             className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all active:scale-95"
             style={filter === f.value
-              ? { background: "var(--heading-color, #111)", color: "var(--pale-pink-bg, white)", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
-              : { background: "var(--card-bg, white)", color: "var(--text-color, #555)", border: "1.5px solid var(--card-border, #E8E8E8)" }}>
+              ? { background: "#1A1A1A", color: "#F4EDE3", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
+              : { background: "#FFFCF9", color: "#555", border: "1.5px solid #EDE7E0" }}>
             {f.label}
             {f.value === "invitation" && inviteUnread > 0 && (
               <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
@@ -591,7 +606,7 @@ function MailboxInner() {
 
       {/* Items list */}
       <div className="mx-5 md:mx-8 rounded-3xl overflow-hidden"
-        style={{ background: "var(--card-bg, white)", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
+        style={{ background: "#FFFCF9", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #EDE7E0" }}>
         {shown.filter(i => i.type !== "founders-invitation").length === 0 ? (
           <div className="py-16 text-center px-6">
             <p className="text-3xl mb-3">📬</p>
@@ -618,7 +633,7 @@ function MailboxInner() {
       <div className="px-5 mt-4 md:px-8">
         <Link href="/member/chat"
           className="flex items-center justify-between rounded-2xl px-4 py-3.5 transition-all active:scale-[0.98]"
-          style={{ background: "var(--card-bg, white)", boxShadow: "0 1px 8px rgba(0,0,0,0.05)", border: "1px solid var(--card-border, #F5F5F5)" }}>
+          style={{ background: "#FFFCF9", boxShadow: "0 1px 8px rgba(0,0,0,0.05)", border: "1px solid #EDE7E0" }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{ background: "rgba(255,31,125,0.08)" }}>
@@ -627,8 +642,8 @@ function MailboxInner() {
               </svg>
             </div>
             <div>
-              <p className="font-bold text-sm" style={{ color: "var(--heading-color, #111)" }}>Looking for Chats?</p>
-              <p className="text-xs" style={{ color: "var(--text-muted, #bbb)" }}>Morocco October, Maya, clubs & groups</p>
+              <p className="font-bold text-sm" style={{ color: "#1A1A1A" }}>Looking for Chats?</p>
+              <p className="text-xs" style={{ color: "#B0A8A0" }}>Morocco October, Maya, clubs & groups</p>
             </div>
           </div>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round">
@@ -645,7 +660,7 @@ function MailboxInner() {
 export default function MessagesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--pale-pink-bg)" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F4EDE3" }}>
         <p className="text-sm italic" style={{ color: "#bbb" }}>Loading mailbox…</p>
       </div>
     }>
