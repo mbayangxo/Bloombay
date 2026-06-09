@@ -3,439 +3,440 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const PINK = "#FF1F7D";
-const AV_COLORS = ["#FF1F7D","#FF69B4","#C084FC","#F97316","#06B6D4","#84CC16","#FBBF24","#E879F9"];
+const PINK  = "#FF1F7D";
+const CREAM = "#F6F1EB";
+const PAPER = "#FEFCF7";
+const DARK  = "#1C1B1C";
+const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
 type HapTab = "happenings" | "city";
 type Filter = "All" | "Tonight" | "This Weekend" | "Dinners" | "Parties";
 
-// ── Data ───────────────────────────────────────────────────────────────────────
-
 const EVENTS = [
   {
     id: 1,
-    name: "GIRLS\nNIGHT OUT",
+    name: "Girls Night Out",
     loc: "Lower East Side",
-    time: "TONIGHT · 10PM",
+    time: "Tonight · 10PM",
     badge: "TONIGHT",
     women: 18,
     span: "full" as const,
-    height: 220,
-    grad: "linear-gradient(160deg, #3a0a18 0%, #1a0010 55%, #0a0006 100%)",
-    glow: "rgba(255,31,125,0.3)",
+    bg: "#FFF0F5",
+    accent: PINK,
+    emoji: "✦",
     note: "girls night ♡",
-    noteColor: "#FF1F7D",
   },
   {
     id: 2,
-    name: "DINNER\nSOCIETY",
+    name: "Dinner Society",
     loc: "Carbone · West Village",
-    time: "TONIGHT · 9PM",
+    time: "Tonight · 9PM",
     badge: "TONIGHT",
     women: 14,
     span: "half" as const,
-    height: 200,
-    grad: "linear-gradient(145deg, #faf0e4 0%, #e8d5b8 100%)",
-    dark: false,
-    note: "reservation needed ♡",
-    noteColor: "#8A5A3A",
+    bg: "#FAF0E4",
+    accent: "#C47A3A",
+    emoji: "♡",
+    note: "reservation needed",
   },
   {
     id: 3,
-    name: "ROOFTOP\nGIRLS",
+    name: "Rooftop Girls",
     loc: "Westlight · Williamsburg",
-    time: "TONIGHT · 8PM",
+    time: "Tonight · 8PM",
     badge: "TONIGHT",
     women: 16,
     span: "half" as const,
-    height: 200,
-    grad: "linear-gradient(160deg, #0a1828 0%, #0a0e1a 100%)",
-    glow: "rgba(30,80,180,0.3)",
+    bg: "#EFF4FF",
+    accent: "#4A70CC",
+    emoji: "★",
   },
   {
     id: 4,
-    name: "AFROBEATS\nIN THE CITY",
+    name: "Afrobeats in the City",
     loc: "SOB's · Manhattan",
-    time: "SAT · MAY 15 · 11PM",
+    time: "Sat · 11PM",
     badge: "THIS WEEKEND",
-    women: 8,
-    span: "half" as const,
-    height: 230,
-    grad: "linear-gradient(145deg, #FF1F7D 0%, #8B0040 100%)",
-    glow: "rgba(255,31,125,0.4)",
-    note: "11PM – 3AM",
-    noteColor: "rgba(255,255,255,0.7)",
+    women: 33,
+    span: "full" as const,
+    bg: "#F5F0FA",
+    accent: "#8A40CC",
+    emoji: "✿",
+    note: "🔥 hot",
   },
   {
     id: 5,
-    name: "MUSEUM\nGIRLS",
-    loc: "The Met",
-    time: "SATURDAY · 2PM",
-    badge: "THIS WEEKEND",
-    women: 7,
+    name: "Brunch Club",
+    loc: "Via Carota · W. Village",
+    time: "Sun · 12PM",
+    badge: "",
+    women: 9,
     span: "half" as const,
-    height: 230,
-    grad: "linear-gradient(145deg, #F8F0E4 0%, #E8DCC8 100%)",
-    dark: false,
-    note: "come for the art ♡",
-    noteColor: "#8A6A3A",
-    ticket: true,
+    bg: "#FFF8EE",
+    accent: "#E07020",
+    emoji: "◆",
   },
   {
     id: 6,
-    name: "BOOK GIRLS",
-    loc: "McNally Jackson · SoHo",
-    time: "WED · MAY 21 · 7PM",
-    badge: "UPCOMING",
-    women: 5,
+    name: "Gallery Walk",
+    loc: "Chelsea Art District",
+    time: "Sat · 3PM",
+    badge: "",
+    women: 7,
     span: "half" as const,
-    height: 190,
-    grad: "linear-gradient(145deg, #FFF0F5 0%, #FFD8E8 100%)",
-    dark: false,
-    note: "this month's pick →",
-    noteColor: PINK,
+    bg: "#F0FAF4",
+    accent: "#2A9060",
+    emoji: "⬡",
   },
   {
     id: 7,
-    name: "PASTA NIGHT",
-    loc: "Little Ruby · SoHo",
-    time: "TONIGHT · 8PM",
-    badge: "TONIGHT",
-    women: 4,
-    span: "half" as const,
-    height: 190,
-    grad: "linear-gradient(145deg, #1a0e08 0%, #0a0600 100%)",
-    glow: "rgba(200,100,40,0.25)",
-    note: "byo wine ♡",
-    noteColor: "#D4884A",
-  },
-  {
-    id: 8,
-    name: "WINE & CONVERSATIONS",
-    loc: "West Village",
-    time: "FRI · 7PM",
-    badge: "UPCOMING",
-    women: 12,
+    name: "Sunset Picnic",
+    loc: "Prospect Park · Brooklyn",
+    time: "Sun · 6PM",
+    badge: "",
+    women: 22,
     span: "full" as const,
-    height: 140,
-    grad: "linear-gradient(90deg, #2d0a18 0%, #1a0008 100%)",
-    glow: "rgba(255,31,125,0.15)",
-    ticket: true,
-    note: "you're invited ♡",
-    noteColor: "#FF69B4",
+    bg: "#FFFAF0",
+    accent: "#D4A020",
+    emoji: "☀",
+    note: "bring blankets ♡",
   },
 ];
 
-const FROM_CITY = [
-  { id: 1, name: "Sunset Walk",      loc: "Brooklyn Bridge · Sun 1PM",   women: 22, grad: "linear-gradient(135deg,#1a3a5a,#0a1828)" },
-  { id: 2, name: "Natural Wine",     loc: "Williamsburg · Tonight 6PM",  women: 6,  grad: "linear-gradient(135deg,#2a1a0a,#160a00)" },
-  { id: 3, name: "Rooftop",          loc: "Public Hotel · Sat 8PM",      women: 12, grad: "linear-gradient(135deg,#1a0a2a,#0a0418)" },
-  { id: 4, name: "Dance All Night",  loc: "Public Records · Sat 11PM",   women: 10, grad: "linear-gradient(135deg,#1a0a14,#0a0008)" },
-];
+const FILTERS: Filter[] = ["All", "Tonight", "This Weekend", "Dinners", "Parties"];
 
-// ── Attendee Row ───────────────────────────────────────────────────────────────
+const AV = ["#FF1F7D","#FF69B4","#C084FC","#F97316","#06B6D4","#84CC16","#FBBF24"];
 
-function AvatarRow({ count, light = true }: { count: number; light?: boolean }) {
-  const show = Math.min(count, 5);
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <div style={{ display: "flex" }}>
-        {Array.from({ length: show }).map((_, i) => (
-          <div key={i} style={{
-            width: 20, height: 20, borderRadius: "50%",
-            background: AV_COLORS[i % AV_COLORS.length],
-            marginLeft: i > 0 ? -7 : 0,
-            border: `2px solid ${light ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.3)"}`,
-            flexShrink: 0,
-          }}/>
-        ))}
-      </div>
-      {count > 5 && (
-        <span style={{ fontSize: 9, fontWeight: 700, color: light ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.4)", fontFamily: "var(--font-jost)" }}>
-          +{count - 5}
-        </span>
-      )}
-    </div>
-  );
-}
-
-// ── Event Card ─────────────────────────────────────────────────────────────────
-
-function EventCard({ ev }: { ev: typeof EVENTS[number] }) {
-  const isDark = ev.dark === false ? false : true;
+function EventCard({ ev, idx }: { ev: typeof EVENTS[0]; idx: number }) {
+  const isFull = ev.span === "full";
+  const rotate = (idx % 3 === 0) ? "-0.8deg" : (idx % 3 === 1) ? "0.5deg" : "-0.4deg";
 
   return (
-    <button
-      className="relative overflow-hidden active:scale-[0.97] transition-transform text-left"
+    <div
       style={{
-        background: ev.grad,
-        borderRadius: "18px",
-        height: ev.height,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "14px 14px 12px",
-        boxShadow: ev.glow ? `0 0 30px ${ev.glow}, 0 4px 20px rgba(0,0,0,0.3)` : "0 4px 20px rgba(0,0,0,0.1)",
-        border: "none",
-        cursor: "pointer",
-        width: "100%",
-        gridColumn: ev.span === "full" ? "span 2" : undefined,
+        gridColumn: isFull ? "span 2" : undefined,
+        backgroundImage: PAPER_TEX,
+        backgroundColor: ev.bg,
+        backgroundSize: "200px 200px",
+        borderRadius: 20,
+        padding: isFull ? "16px 16px 14px" : "14px 12px 12px",
+        boxShadow: "0 3px 16px rgba(0,0,0,0.09)",
+        transform: `rotate(${rotate})`,
+        position: "relative",
+        overflow: "hidden",
+        minHeight: isFull ? 130 : 140,
+        border: "1px solid rgba(0,0,0,0.04)",
       }}
     >
-      {/* Glow overlay */}
-      {ev.glow && (
-        <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 80% 15%, ${ev.glow} 0%, transparent 55%)`, pointerEvents: "none" }} />
-      )}
+      {/* tape strip */}
+      <div style={{
+        position: "absolute", top: -4, left: isFull ? "50%" : "50%",
+        transform: "translateX(-50%) rotate(-1.5deg)",
+        width: 32, height: 11,
+        background: `linear-gradient(to bottom, ${ev.accent}30, ${ev.accent}55 25%, rgba(255,255,255,0.45) 46%, rgba(255,255,255,0.45) 54%, ${ev.accent}55 75%, ${ev.accent}30)`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+      }} />
 
-      {/* Ticket border for ticket cards */}
-      {ev.ticket && (
-        <div style={{ position: "absolute", inset: "6px", border: `1px dashed ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"}`, borderRadius: "12px", pointerEvents: "none" }} />
-      )}
-
-      {/* Top row: badge + women count */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
+      {/* badge */}
+      {ev.badge && (
         <div style={{
-          background: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.07)",
-          borderRadius: 999, padding: "3px 9px",
+          display: "inline-block",
+          background: ev.accent,
+          color: "white",
+          borderRadius: 999,
+          padding: "2px 8px",
+          fontFamily: "var(--font-jost)",
+          fontSize: "7px",
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          marginBottom: 8,
+          marginTop: 4,
         }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)" }}>
-            {ev.badge}
-          </p>
+          {ev.badge}
         </div>
+      )}
+
+      {/* main layout */}
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: ev.badge ? 0 : 6 }}>
+        {/* emoji accent */}
         <div style={{
-          width: 34, height: 34, borderRadius: "50%",
-          background: PINK,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          boxShadow: `0 2px 8px ${PINK}55`,
+          width: isFull ? 44 : 38,
+          height: isFull ? 44 : 38,
+          borderRadius: 12,
+          background: `${ev.accent}18`,
+          border: `1.5px solid ${ev.accent}30`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: isFull ? 20 : 17,
           flexShrink: 0,
+          color: ev.accent,
         }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, color: "white", lineHeight: 1 }}>{ev.women}</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.8)", lineHeight: 1 }}>going</p>
+          {ev.emoji}
         </div>
-      </div>
 
-      {/* Event name */}
-      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "8px 0" }}>
-        <p style={{
-          fontFamily: "var(--font-playfair)",
-          fontSize: ev.span === "full" ? "26px" : "19px",
-          fontWeight: 900,
-          fontStyle: "italic",
-          color: isDark ? "rgba(255,248,240,0.95)" : "#1A0A0A",
-          lineHeight: 1.1,
-          whiteSpace: "pre-line",
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: isFull ? 17 : 14,
+            fontWeight: 900,
+            fontStyle: "italic",
+            color: DARK,
+            lineHeight: 1.15,
+            marginBottom: 3,
+          }}>
+            {ev.name}
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#888", letterSpacing: "0.05em", marginBottom: 4 }}>
+            {ev.loc}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: ev.accent }}>{ev.time}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {AV.slice(0, Math.min(3, ev.women)).map((c, i) => (
+                <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: c, border: "1.5px solid white", marginLeft: i > 0 ? -5 : 0 }} />
+              ))}
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#aaa", marginLeft: 4 }}>{ev.women} going</span>
+            </div>
+          </div>
+        </div>
+
+        {/* join button */}
+        <button style={{
+          flexShrink: 0,
+          background: ev.accent,
+          color: "white",
+          border: "none",
+          borderRadius: 999,
+          padding: "6px 11px",
+          fontFamily: "var(--font-jost)",
+          fontSize: "8px",
+          fontWeight: 800,
+          letterSpacing: "0.05em",
+          cursor: "pointer",
+          boxShadow: `0 3px 10px ${ev.accent}44`,
+          alignSelf: "center",
         }}>
-          {ev.name}
-        </p>
-        {ev.note && (
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: ev.noteColor, marginTop: "5px" }}>
-            {ev.note}
-          </p>
-        )}
+          JOIN
+        </button>
       </div>
 
-      {/* Bottom row: location + avatars */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", position: "relative" }}>
-        <div>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.1em", color: isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)", marginBottom: "4px" }}>
-            {ev.loc.toUpperCase()}
-          </p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: PINK }}>
-            {ev.time}
-          </p>
-        </div>
-        <AvatarRow count={ev.women} light={isDark} />
-      </div>
-    </button>
-  );
-}
-
-// ── City preview (shown in City tab) ──────────────────────────────────────────
-
-function CityTabPreview() {
-  return (
-    <div style={{ padding: "16px" }}>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: "12px" }}>
-        NYC · THE CITY
-      </p>
-      <Link href="/member/city" style={{ textDecoration: "none", display: "block" }}>
+      {/* handwritten note */}
+      {ev.note && (
         <div style={{
-          background: "#0A0806",
-          borderRadius: "20px",
-          overflow: "hidden",
-          padding: "24px 20px 24px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          marginTop: 10,
+          display: "inline-block",
+          transform: "rotate(-1deg)",
+          background: "rgba(255,255,230,0.9)",
+          padding: "4px 8px",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
         }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: "11px", fontStyle: "italic", color: "rgba(255,255,255,0.4)", marginBottom: "6px" }}>New York City</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, marginBottom: "16px" }}>
-            The City<br />
-            <span style={{ color: PINK }}>awaits.</span>
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "20px" }}>
-            {["EATS", "GO", "SOLO", "BLOOMIES' FAVES", "TRENDING"].map(c => (
-              <span key={c} style={{
-                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em",
-                background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.55)",
-                borderRadius: 999, padding: "4px 10px",
-              }}>{c}</span>
-            ))}
-          </div>
-          <div style={{ display: "inline-flex", background: PINK, borderRadius: 999, padding: "10px 20px", boxShadow: `0 3px 12px ${PINK}44` }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "0.07em" }}>OPEN THE CITY →</span>
-          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#666", lineHeight: 1.3 }}>{ev.note}</p>
         </div>
-      </Link>
+      )}
     </div>
   );
 }
-
-// ── Main Component ─────────────────────────────────────────────────────────────
 
 export function HappeningsPage() {
   const [tab, setTab]       = useState<HapTab>("happenings");
   const [filter, setFilter] = useState<Filter>("All");
 
-  const filters: Filter[] = ["All", "Tonight", "This Weekend", "Dinners", "Parties"];
-
-  const filtered = tab === "happenings"
-    ? (filter === "All" ? EVENTS : EVENTS.filter(e =>
-        filter === "Tonight"      ? e.badge === "TONIGHT"      :
-        filter === "This Weekend" ? e.badge === "THIS WEEKEND" :
-        filter === "Dinners"      ? e.loc.toLowerCase().includes("dinner") || e.name.toLowerCase().includes("dinner") || e.name.toLowerCase().includes("pasta") :
-        filter === "Parties"      ? e.badge === "TONIGHT" && e.time.includes("PM") && parseInt(e.time.split("PM")[0].trim().split("·").pop()?.trim() ?? "0") >= 8 : true
-      ))
-    : [];
+  const filtered = EVENTS.filter(e => {
+    if (filter === "All") return true;
+    if (filter === "Tonight") return e.badge === "TONIGHT";
+    if (filter === "This Weekend") return e.badge === "THIS WEEKEND" || e.badge === "TONIGHT";
+    if (filter === "Dinners") return e.name.toLowerCase().includes("dinner") || e.name.toLowerCase().includes("brunch");
+    if (filter === "Parties") return e.name.toLowerCase().includes("night") || e.name.toLowerCase().includes("beats");
+    return true;
+  });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0806", paddingBottom: 96 }}>
-
-      {/* ── Header + toggle ── */}
+    <div
+      style={{
+        backgroundImage: PAPER_TEX,
+        backgroundColor: CREAM,
+        backgroundSize: "200px 200px",
+        minHeight: "100vh",
+        paddingBottom: 100,
+      }}
+    >
+      {/* ── Sticky header ── */}
       <div style={{
-        paddingTop: "60px",
-        background: "#0A0806",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        position: "sticky",
+        top: 48,
+        zIndex: 40,
+        background: "rgba(246,241,235,0.97)",
+        backdropFilter: "blur(8px)",
+        borderBottom: "1px solid rgba(0,0,0,0.07)",
+        padding: "12px 16px 10px",
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 12px" }}>
-          {/* Left: city/date */}
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.85)" }}>
-              BB+ · NYC · TONIGHT
-            </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(255,255,255,0.3)", marginTop: "1px" }}>
-              87 women out
-            </p>
-          </div>
-
-          {/* Toggle: HAPPENINGS | CITY — big pills */}
-          <div style={{
-            display: "flex",
-            background: "rgba(255,255,255,0.07)",
-            borderRadius: 999,
-            padding: "3px",
-            gap: "2px",
+        {/* Title row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: 22,
+            fontWeight: 900,
+            fontStyle: "italic",
+            color: DARK,
           }}>
-            {(["happenings", "city"] as HapTab[]).map(t => {
-              const active = tab === t;
-              const label  = t === "happenings" ? "Happenings" : "City";
-              return (
-                <button key={t} onClick={() => setTab(t)} style={{
-                  padding: "7px 18px",
-                  borderRadius: 999,
-                  background: active ? PINK : "transparent",
-                  color: active ? "white" : "rgba(255,255,255,0.45)",
-                  fontFamily: "var(--font-jost)",
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  letterSpacing: "0.05em",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: active ? `0 2px 8px ${PINK}55` : "none",
-                  transition: "all 0.15s",
-                }}>
-                  {label}
-                </button>
-              );
-            })}
+            Happenings
+          </p>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button style={{ background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <button style={{ background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+            </button>
           </div>
         </div>
 
-        {/* Filter pills — happenings only */}
+        {/* Tab toggle */}
+        <div style={{
+          display: "inline-flex",
+          background: "rgba(0,0,0,0.06)",
+          borderRadius: 999,
+          padding: 3,
+          marginBottom: 12,
+        }}>
+          {(["happenings", "city"] as HapTab[]).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                padding: "7px 20px",
+                borderRadius: 999,
+                border: "none",
+                background: tab === t ? PINK : "transparent",
+                color: tab === t ? "white" : "rgba(0,0,0,0.45)",
+                fontFamily: "var(--font-jost)",
+                fontSize: "10px",
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+                cursor: "pointer",
+                transition: "all 0.18s",
+                boxShadow: tab === t ? `0 2px 10px ${PINK}44` : "none",
+              }}
+            >
+              {t === "happenings" ? "HAPPENINGS" : "CITY"}
+            </button>
+          ))}
+        </div>
+
+        {/* Filter pills */}
         {tab === "happenings" && (
-          <div style={{ display: "flex", gap: "6px", overflowX: "auto", padding: "0 16px 12px", scrollbarWidth: "none" as const }}>
-            {filters.map(f => {
-              const active = filter === f;
-              return (
-                <button key={f} onClick={() => setFilter(f)} style={{
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" as const }}>
+            {FILTERS.map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                style={{
                   flexShrink: 0,
-                  padding: "6px 14px",
+                  padding: "5px 12px",
                   borderRadius: 999,
-                  background: active ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.05)",
-                  border: active ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(255,255,255,0.07)",
-                  color: active ? "white" : "rgba(255,255,255,0.38)",
+                  border: `1.5px solid ${filter === f ? PINK : "rgba(0,0,0,0.12)"}`,
+                  background: filter === f ? `${PINK}12` : "transparent",
+                  color: filter === f ? PINK : "rgba(0,0,0,0.45)",
                   fontFamily: "var(--font-jost)",
-                  fontSize: "10px",
+                  fontSize: "9px",
                   fontWeight: 700,
+                  letterSpacing: "0.04em",
                   cursor: "pointer",
-                }}>
-                  {f}
-                </button>
-              );
-            })}
+                }}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {/* ── City tab ── */}
-      {tab === "city" && <CityTabPreview />}
-
-      {/* ── Happenings masonry grid ── */}
+      {/* ── Happenings tab ── */}
       {tab === "happenings" && (
-        <div style={{ padding: "12px 12px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-          {filtered.map(ev => (
-            <EventCard key={ev.id} ev={ev} />
-          ))}
-        </div>
-      )}
+        <div style={{ padding: "14px 14px 0" }}>
 
-      {/* ── From your city ── */}
-      {tab === "happenings" && (
-        <div style={{ padding: "22px 12px 0" }}>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "15px", color: "rgba(255,255,255,0.35)", marginBottom: "10px", paddingLeft: "4px" }}>
-            From your city...
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-            {FROM_CITY.map(fc => (
-              <button key={fc.id}
-                className="active:scale-[0.97] transition-transform"
-                style={{
-                  background: fc.grad,
-                  borderRadius: "14px",
-                  padding: "14px 12px",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  boxShadow: "0 3px 12px rgba(0,0,0,0.25)",
-                }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "4px" }}>
-                  {fc.name}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.38)", marginBottom: "10px" }}>
-                  {fc.loc}
-                </p>
-                <div style={{
-                  display: "inline-flex", alignItems: "center", gap: "4px",
-                  background: PINK, borderRadius: 999, padding: "3px 8px",
-                }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white" }}>
-                    {fc.women}
-                  </p>
-                </div>
-              </button>
+          {/* BB+ header note */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <div style={{ height: 1, flex: 1, background: "rgba(0,0,0,0.08)" }} />
+            <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa" }}>this week in NYC ✦</span>
+            <div style={{ height: 1, flex: 1, background: "rgba(0,0,0,0.08)" }} />
+          </div>
+
+          {/* Masonry-style grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {filtered.map((ev, i) => (
+              <EventCard key={ev.id} ev={ev} idx={i} />
             ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{ textAlign: "center", padding: "24px 0 0" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb" }}>more coming soon ✿</p>
           </div>
         </div>
       )}
 
+      {/* ── City tab ── */}
+      {tab === "city" && (
+        <div style={{ padding: "20px 16px 0" }}>
+          <div style={{
+            backgroundImage: PAPER_TEX,
+            backgroundColor: PAPER,
+            backgroundSize: "200px 200px",
+            borderRadius: 22,
+            overflow: "hidden",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.09)",
+            marginBottom: 14,
+          }}>
+            {/* mini city illustration */}
+            <div style={{ height: 120, background: "linear-gradient(to bottom, #1a2a3a 0%, #0d1520 100%)", position: "relative", overflow: "hidden" }}>
+              <svg viewBox="0 0 400 80" style={{ width: "100%", height: "100%", display: "block" }} preserveAspectRatio="xMidYMid slice">
+                <rect x="60"  y="20" width="30" height="60" fill="rgba(255,255,255,0.2)"/>
+                <rect x="100" y="8"  width="22" height="72" fill="rgba(255,255,255,0.28)"/>
+                <rect x="160" y="2"  width="16" height="78" fill="rgba(255,255,255,0.35)"/>
+                <rect x="182" y="14" width="28" height="66" fill="rgba(255,255,255,0.22)"/>
+                <rect x="240" y="10" width="20" height="70" fill="rgba(255,255,255,0.28)"/>
+                <rect x="280" y="24" width="36" height="56" fill="rgba(255,255,255,0.18)"/>
+                <rect x="0"   y="60" width="400" height="20" fill="rgba(255,255,255,0.06)"/>
+                {[[80,22],[110,10],[170,4],[250,12],[290,26]].map(([x,y],i)=>(
+                  <circle key={i} cx={x} cy={y} r="1.5" fill="rgba(255,220,120,0.6)"/>
+                ))}
+              </svg>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.5) 100%)" }} />
+              <div style={{ position: "absolute", bottom: 12, left: 16 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>
+                  Your City
+                </p>
+              </div>
+            </div>
+            <div style={{ padding: "14px 16px 16px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 6 }}>
+                EATS · GO · SOLO · TRENDING
+              </p>
+              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#666", lineHeight: 1.5, marginBottom: 14 }}>
+                Restaurants, bars, rooftops — everything worth doing in NYC, curated for you.
+              </p>
+              <Link href="/member/city" style={{ textDecoration: "none" }}>
+                <div style={{
+                  display: "inline-flex",
+                  background: PINK,
+                  color: "white",
+                  borderRadius: 999,
+                  padding: "9px 20px",
+                  fontFamily: "var(--font-jost)",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  boxShadow: `0 4px 14px ${PINK}55`,
+                }}>
+                  EXPLORE CITY →
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
