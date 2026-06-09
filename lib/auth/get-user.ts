@@ -17,6 +17,7 @@ export interface AuthUser {
   full_name?: string;
   bio?: string;
   avatar_url?: string;
+  phone?: string;
   neighborhood?: string;
   borough?: string;
   city?: string;
@@ -38,7 +39,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 
   const { data: p } = await supabase
     .from("profiles")
-    .select("role, first_name, bio, avatar_url, neighborhood, borough, city, age, interests, goals, era, verification_status, onboarding_completed, bloom_points")
+    .select("role, first_name, bio, avatar_url, phone, neighborhood, borough, city, age, interests, goals, era, verification_status, onboarding_completed, bloom_points")
     .eq("id", user.id)
     .single();
 
@@ -53,6 +54,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     full_name: fullName,
     bio: p?.bio ?? undefined,
     avatar_url: p?.avatar_url ?? undefined,
+    phone: p?.phone ?? undefined,
     neighborhood: p?.neighborhood ?? undefined,
     borough: p?.borough ?? undefined,
     city: p?.city ?? undefined,

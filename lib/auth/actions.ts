@@ -4,6 +4,26 @@ import { redirect } from "next/navigation";
 import { createClient } from "../supabase/server";
 import { getPortalHomeForRole, UserRole } from "./get-user";
 
+export async function updateProfileInfo(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { error: "Not authenticated" };
+
+  const updates: Record<string, string> = {};
+  const firstName = (formData.get("first_name") as string | null)?.trim();
+  const phone     = (formData.get("phone")      as string | null)?.trim();
+
+  if (firstName !== undefined && firstName !== null) updates.first_name = firstName;
+  if (phone     !== undefined && phone     !== null) updates.phone      = phone;
+
+  const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/member/you");
+  revalidatePath("/member/home");
+  return {};
+}
+
 export async function updateProfile(formData: FormData): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
