@@ -37,7 +37,7 @@ const AV_COLORS = ["#FF1F7D","#FF69B4","#C084FC","#F97316","#06B6D4","#84CC16","
 
 function getBadge(ev: Event): string {
   if (ev.badge) return ev.badge;
-  const dt = new Date(ev.date_time);
+  const dt = new Date(ev.starts_at);
   const now = new Date();
   const diffH = (dt.getTime() - now.getTime()) / 36e5;
   if (diffH <= 0 && diffH > -6) return "TONIGHT";
@@ -51,8 +51,8 @@ function matchesFilter(ev: Event, filter: Filter): boolean {
   const badge = getBadge(ev);
   if (filter === "Tonight") return badge === "TONIGHT";
   if (filter === "This Weekend") return badge === "THIS WEEKEND" || badge === "TONIGHT";
-  if (filter === "Dinners") return ev.category === "dinner" || ev.category === "brunch";
-  if (filter === "Parties") return ev.category === "party" || ev.category === "rooftop" || ev.category === "social";
+  if (filter === "Dinners") return ev.event_type === "dinner" || ev.event_type === "brunch";
+  if (filter === "Parties") return ev.event_type === "party" || ev.event_type === "rooftop" || ev.event_type === "social";
   return true;
 }
 
@@ -88,9 +88,9 @@ function HeroCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTogg
       boxShadow: "0 6px 28px rgba(0,0,0,0.18)",
     }}>
       {/* Photo or gradient fallback */}
-      {ev.photo_url ? (
+      {ev.image_url ? (
         <img
-          src={ev.photo_url}
+          src={ev.image_url}
           alt={ev.title}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
@@ -140,10 +140,10 @@ function HeroCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTogg
               ))}
             </div>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
-              {ev.attending_count} going
+              {ev.attending_count ?? 0} going
             </span>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.55)", marginLeft: "auto" }}>
-              {fmtTime(ev.date_time)}
+              {fmtTime(ev.starts_at)}
             </span>
             <button
               onClick={onToggle}
@@ -192,8 +192,8 @@ function GridCard({ ev, idx, joined, onToggle }: { ev: Event; idx: number; joine
       transform: `rotate(${rot})`,
     }}>
       {/* Photo */}
-      {ev.photo_url ? (
-        <img src={ev.photo_url} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+      {ev.image_url ? (
+        <img src={ev.image_url} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       ) : (
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(160deg, ${accent}33 0%, ${accent}88 100%)`, backgroundColor: "#f8f4f0" }}/>
       )}
@@ -237,7 +237,7 @@ function GridCard({ ev, idx, joined, onToggle }: { ev: Event; idx: number; joine
                 <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: c, border: "1.5px solid rgba(255,255,255,0.6)", marginLeft: i > 0 ? -5 : 0 }}/>
               ))}
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.7)", marginLeft: 5 }}>
-                {ev.attending_count}
+                {ev.attending_count ?? 0}
               </span>
             </div>
             <button
@@ -299,7 +299,7 @@ export function HappeningsPage() {
   const gridEvs  = filtered.slice(1);
 
   const tickerItems = events.length > 0
-    ? events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.date_time)}`)
+    ? events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.starts_at)}`)
     : ["LOADING TONIGHT'S EVENTS ✦ STAY CLOSE ✦ BLOOMBAY NYC"];
 
   return (

@@ -4,62 +4,59 @@ import { createClient } from "@/lib/supabase/server";
 
 export interface Event {
   id: string;
+  slug: string | null;
   title: string;
   description: string | null;
   venue: string | null;
   neighborhood: string | null;
+  area: string | null;
   city: string;
-  date_time: string;
-  end_time: string | null;
-  photo_url: string | null;
-  accent_color: string;
+  starts_at: string;
+  event_type: string | null;
+  image_url: string | null;
+  accent_color: string | null;
+  host_name: string | null;
   host_note: string | null;
-  category: string | null;
-  badge: string | null;
   capacity: number | null;
+  spots_left: number | null;
   attending_count: number;
   price_cents: number;
   is_official: boolean;
+  badge: string | null;
 }
 
 export async function getEvents(): Promise<Event[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("events")
+    .from("gatherings")
     .select("*")
-    .eq("is_published", true)
-    .order("date_time", { ascending: true });
+    .order("starts_at", { ascending: true });
 
   if (error) {
     console.error("getEvents error:", error.message);
     return [];
   }
 
-  return data ?? [];
+  return (data ?? []) as Event[];
 }
 
 export async function joinEvent(eventId: string): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) return { error: "Not authenticated" };
 
   const { error } = await supabase
     .from("event_attendees")
     .insert({ event_id: eventId, user_id: user.id });
 
-  if (error && error.code !== "23505") {
-    return { error: error.message };
-  }
-
+  if (error && error.code !== "23505") return { error: error.message };
   return { error: null };
 }
 
 export async function leaveEvent(eventId: string): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) return { error: "Not authenticated" };
 
   const { error } = await supabase
@@ -74,7 +71,6 @@ export async function leaveEvent(eventId: string): Promise<{ error: string | nul
 export async function getJoinedEventIds(): Promise<string[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) return [];
 
   const { data } = await supabase
@@ -82,5 +78,5 @@ export async function getJoinedEventIds(): Promise<string[]> {
     .select("event_id")
     .eq("user_id", user.id);
 
-  return (data ?? []).map(r => r.event_id);
+  return (data ?? []).map((r: { event_id: string }) => r.event_id);
 }
