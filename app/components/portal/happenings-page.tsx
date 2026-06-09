@@ -332,7 +332,7 @@ export function HappeningsPage() {
           <div style={{ display: "inline-flex", background: "rgba(0,0,0,0.07)", borderRadius: 999, padding: "3px" }}>
             {(["happenings","city"] as HapTab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
-                padding: "8px 20px", borderRadius: 999, border: "none",
+                padding: "6px 14px", borderRadius: 999, border: "none",
                 background: tab === t ? PINK : "transparent",
                 color: tab === t ? "white" : "rgba(0,0,0,0.4)",
                 fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800,
