@@ -10,11 +10,11 @@ const CREAM = "#F6F1EB";
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
 const FEATURED = [
-  { id: 1, name: "SUPPER CLUB", members: "1.2K", desc: "Dinner parties that feel like home.", grad: "linear-gradient(135deg,#c9504a 0%,#7a1c2e 100%)", rot: -2 },
-  { id: 2, name: "RUN CLUB", members: "842", desc: "Move together, every Sunday.", grad: "linear-gradient(135deg,#e07b39 0%,#8b3a0f 100%)", rot: 1.5 },
-  { id: 3, name: "MUSEUM GIRLS", members: "1.6K", desc: "Art, exhibitions, slow afternoons.", grad: "linear-gradient(135deg,#6b4fa0 0%,#2d1a5e 100%)", rot: -1 },
-  { id: 4, name: "BOOK GIRLS", members: "1.1K", desc: "Pages, discussions, hot drinks.", grad: "linear-gradient(135deg,#3e7c6b 0%,#1a3d31 100%)", rot: 2 },
-  { id: 5, name: "SOFT LIFE CLUB", members: "723", desc: "Rest as resistance.", grad: "linear-gradient(135deg,#c96b9e 0%,#7a2250 100%)", rot: -1.5 },
+  { id: 1, name: "SUPPER CLUB",    members: "1.2K", desc: "Dinner parties that feel like home.", grad: "linear-gradient(135deg,#c9504a 0%,#7a1c2e 100%)", rot: -2,   href: "/member/clubs/11111111-1111-1111-1111-111111111111" },
+  { id: 2, name: "RUN CLUB",       members: "842",  desc: "Move together, every Sunday.",        grad: "linear-gradient(135deg,#e07b39 0%,#8b3a0f 100%)", rot: 1.5,  href: "/member/clubs/55555555-5555-5555-5555-555555555555" },
+  { id: 3, name: "MUSEUM GIRLS",   members: "1.6K", desc: "Art, exhibitions, slow afternoons.",  grad: "linear-gradient(135deg,#6b4fa0 0%,#2d1a5e 100%)", rot: -1,   href: "/member/clubs/22222222-2222-2222-2222-222222222222" },
+  { id: 4, name: "BOOK GIRLS",     members: "1.1K", desc: "Pages, discussions, hot drinks.",     grad: "linear-gradient(135deg,#3e7c6b 0%,#1a3d31 100%)", rot: 2,    href: "/member/clubs/33333333-3333-3333-3333-333333333333" },
+  { id: 5, name: "SOFT LIFE CLUB", members: "723",  desc: "Rest as resistance.",                 grad: "linear-gradient(135deg,#c96b9e 0%,#7a2250 100%)", rot: -1.5, href: "/member/clubs/44444444-4444-4444-4444-444444444444" },
 ];
 
 const HAPPENINGS = [
@@ -64,16 +64,6 @@ function SafetyPin({ style }: { style?: React.CSSProperties }) {
 
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
-  const [joinedClubs, setJoinedClubs] = useState<Set<number>>(new Set());
-
-  function toggleJoin(id: number) {
-    setJoinedClubs(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }
-
   return (
     <div style={{ background: CREAM, minHeight: "100vh", fontFamily: "var(--font-jost)", backgroundImage: PAPER_TEX }}>
 
@@ -166,35 +156,33 @@ export function ClubsPage() {
 
         <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingLeft: 20, paddingRight: 20, paddingBottom: 28, scrollbarWidth: "none" }}>
           {FEATURED.map((club) => (
-            <div key={club.id} style={{
-              flexShrink: 0, width: 150, background: "white",
-              padding: "8px 8px 20px",
-              boxShadow: "2px 4px 18px rgba(0,0,0,0.1)",
-              transform: `rotate(${club.rot}deg)`,
-              position: "relative",
-              backgroundImage: PAPER_TEX,
-            }}>
-              <Tape />
-              <div style={{ fontSize: 10, fontWeight: 700, color: DARK, opacity: 0.4, textAlign: "center", marginBottom: 4, letterSpacing: "0.1em" }}>
-                {club.members} members
-              </div>
-              <div style={{ width: "100%", height: 110, background: club.grad, borderRadius: 2 }} />
-              <div style={{ marginTop: 10 }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: DARK, letterSpacing: 0.5 }}>{club.name}</div>
-                <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>{club.desc}</div>
-                <button
-                  onClick={() => toggleJoin(club.id)}
-                  style={{
+            <Link key={club.id} href={club.href} style={{ textDecoration: "none" }}>
+              <div style={{
+                flexShrink: 0, width: 150, background: "white",
+                padding: "8px 8px 20px",
+                boxShadow: "2px 4px 18px rgba(0,0,0,0.1)",
+                transform: `rotate(${club.rot}deg)`,
+                position: "relative",
+                backgroundImage: PAPER_TEX,
+                cursor: "pointer",
+              }}>
+                <Tape />
+                <div style={{ fontSize: 10, fontWeight: 700, color: DARK, opacity: 0.4, textAlign: "center", marginBottom: 4, letterSpacing: "0.1em" }}>
+                  {club.members} members
+                </div>
+                <div style={{ width: "100%", height: 110, background: club.grad, borderRadius: 2 }} />
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: DARK, letterSpacing: 0.5 }}>{club.name}</div>
+                  <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>{club.desc}</div>
+                  <div style={{
                     marginTop: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em",
-                    color: joinedClubs.has(club.id) ? PINK : DARK,
-                    border: `1.5px solid ${joinedClubs.has(club.id) ? PINK : DARK}`,
-                    borderRadius: 20, padding: "4px 10px",
-                    background: "transparent", cursor: "pointer",
+                    color: PINK, display: "flex", alignItems: "center", gap: 3,
                   }}>
-                  {joinedClubs.has(club.id) ? "JOINED ✓" : "JOIN →"}
-                </button>
+                    ENTER →
+                  </div>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

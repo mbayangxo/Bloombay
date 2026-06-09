@@ -79,6 +79,22 @@ const DEFAULT_CLUB: ClubLandingData = {
   ],
 };
 
+// ─── Zones Mock Data ─────────────────────────────────────────────────────────
+
+interface ClubZone {
+  name: string;
+  desc: string;
+  members: number;
+  emoji: string;
+}
+
+const CLUB_ZONES: ClubZone[] = [
+  { name: "Jollof Nights",        desc: "Monthly dinners centered on West African cuisine.",     members: 24, emoji: "🍛" },
+  { name: "Fancy Brunch Crew",    desc: "Upscale weekend brunches, rotating neighborhoods.",     members: 18, emoji: "🥂" },
+  { name: "Wine & Catch Up",      desc: "Mid-week wine nights — no agenda, just talk.",          members: 31, emoji: "🍷" },
+  { name: "Private Table Finders",desc: "Hunting NYC's best reservations together.",              members: 12, emoji: "📋" },
+];
+
 // ─── Chat Mock Data ───────────────────────────────────────────────────────────
 
 interface ChatMessage {
@@ -301,6 +317,85 @@ function EntryBadge({ style }: { style: ClubEntryStyle }) {
   );
 }
 
+// ─── Girl Zones ───────────────────────────────────────────────────────────────
+
+function GirlZonesSection({ club, isMember }: { club: ClubLandingData; isMember: boolean }) {
+  const [joined, setJoined] = useState<Set<string>>(new Set());
+
+  function toggle(name: string) {
+    setJoined((prev) => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  }
+
+  return (
+    <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+      <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: club.color }}>GIRL ZONES</p>
+          <p className="text-xs text-gray-400 mt-0.5">smaller circles, deeper connections</p>
+        </div>
+        <div
+          className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+          style={{ background: `${club.color}15`, color: club.color }}
+        >
+          {CLUB_ZONES.length} zones
+        </div>
+      </div>
+
+      <div className="flex flex-col divide-y" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+        {CLUB_ZONES.map((zone, i) => {
+          const isBlurred = !isMember && i > 1;
+          const isJoined  = joined.has(zone.name);
+          return (
+            <div
+              key={zone.name}
+              className="px-5 py-4 flex items-center gap-4"
+              style={{
+                filter: isBlurred ? "blur(3px)" : "none",
+                userSelect: isBlurred ? "none" : "auto",
+                pointerEvents: isBlurred ? "none" : "auto",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-lg"
+                style={{ background: `${club.color}12` }}
+              >
+                {zone.emoji}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm leading-tight" style={{ color: "#111111" }}>{zone.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-snug">{zone.desc}</p>
+                <p className="text-[10px] font-semibold mt-1" style={{ color: club.color }}>{zone.members} members</p>
+              </div>
+              {isMember && (
+                <button
+                  onClick={() => toggle(zone.name)}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90"
+                  style={isJoined
+                    ? { background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }
+                    : { background: club.color, color: "white" }}
+                >
+                  {isJoined ? "Joined ✓" : "Join"}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {!isMember && (
+        <div className="px-5 py-4 text-center" style={{ borderTop: `1px dashed ${club.color}30`, background: `${club.color}08` }}>
+          <p className="text-xs font-bold" style={{ color: club.color }}>Join the club to access all Girl Zones</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">Members can join private sub-groups within the club</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { club?: ClubLandingData; isMember?: boolean }) {
@@ -518,6 +613,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false }: { clu
               ))}
             </ul>
           </div>
+
+          {/* Girl Zones */}
+          <GirlZonesSection club={club} isMember={isMember} />
 
           {/* Upcoming Seats preview — teaser for non-members */}
           <div>
