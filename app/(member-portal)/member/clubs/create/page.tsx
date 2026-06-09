@@ -13,7 +13,7 @@ const CLUB_CATEGORIES = [
 ];
 
 
-const FREQUENCIES = ["Weekly", "Bi-weekly", "Monthly", "As needed"];
+const FREQUENCIES = ["Weekly", "Bi-weekly", "Monthly", "Bi-monthly", "As needed"];
 
 const MEMBERSHIP_TYPES = [
   { id: "open",    label: "Open",         desc: "Any BloomBay member can join",           emoji: "🌐" },
