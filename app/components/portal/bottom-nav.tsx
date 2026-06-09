@@ -146,8 +146,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
             {/* Notifications */}
             <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+                <circle cx="12" cy="10" r="3"/>
               </svg>
               <span style={{
                 position: "absolute",
