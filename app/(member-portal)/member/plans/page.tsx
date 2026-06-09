@@ -922,8 +922,8 @@ function PlansPageInner() {
         <div style={{ display: "flex", background: "rgba(0,0,0,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
           {(["plans","calendar"] as MainTab[]).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
-              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? "#1A1A1A" : "transparent", color: mainTab === t ? "white" : "rgba(0,0,0,0.4)", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.15s" }}>
-              {t === "plans" ? "Plans" : "Calendar"}
+              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? "#FF1F7D" : "transparent", color: mainTab === t ? "white" : "rgba(0,0,0,0.4)", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
+              {t === "plans" ? "PLANS" : "CALENDAR"}
             </button>
           ))}
         </div>
