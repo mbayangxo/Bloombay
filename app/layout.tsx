@@ -12,7 +12,7 @@ const playfair = Playfair_Display({
 const jost = Jost({
   variable: "--font-jost",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 const caveat = Caveat({
