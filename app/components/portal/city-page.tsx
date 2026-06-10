@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 
+// ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
-const DARK  = "#1C1B1C";
+const GOLD  = "#D4A853";
 const CREAM = "#F6F1EB";
 const PAPER = "#FEFCF7";
-const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+const DARK  = "#1C1B1C";
 
-type CityCategory = "landing" | "eats" | "go" | "solo" | "favorites" | "happenings" | "places";
+// ── Textures ──────────────────────────────────────────────────────────────────
+const PAPER_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+const DARK_GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' fill='%23fff' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
+const LINEN_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08 0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='80' height='80' fill='%23000' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`;
 
+// ── CSS animations ────────────────────────────────────────────────────────────
 const CSS = `
 @keyframes trainRoll {
   0%   { transform: translateX(-140px); }
@@ -20,121 +25,137 @@ const CSS = `
   0%   { transform: translateX(calc(100vw + 60px)) scaleX(-1); }
   100% { transform: translateX(-140px) scaleX(-1); }
 }
+@keyframes signSway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50%       { transform: rotate(1.5deg); }
+}
+@keyframes signBob {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-5px); }
+}
+@keyframes signGlow {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+@keyframes flameFlicker {
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+  25%       { transform: scaleX(0.86) scaleY(1.12); opacity: 1; }
+  50%       { transform: scaleX(1.1) scaleY(0.92); opacity: 0.82; }
+  75%       { transform: scaleX(0.92) scaleY(1.07); opacity: 0.97; }
+}
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes hotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(0.97); }
+}
+@keyframes champFloat {
+  0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
+  50%       { transform: translateY(-7px) rotate(1.5deg); }
+}
+@keyframes soloFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gallerySweep {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes poleAppear {
+  from { transform: scaleY(0); transform-origin: top center; }
+  to   { transform: scaleY(1); transform-origin: top center; }
+}
 `;
 
-/* ── Dense Night Skyline ────────────────────────────────────────── */
+// ── Types ─────────────────────────────────────────────────────────────────────
+type CityCategory = "landing" | "eats" | "go" | "solo" | "favorites" | "trending" | "happenings" | "places";
+
+interface Band {
+  id: CityCategory;
+  label: string;
+  sub: string;
+  icon: string;
+  accentColor: string;
+}
+
+const BANDS: Band[] = [
+  { id: "eats",       label: "EAT",           sub: "Restaurants, cafés & bars",             icon: "🍽️", accentColor: "#FF9B70" },
+  { id: "go",         label: "GO",            sub: "Museums, galleries & experiences",      icon: "🎨", accentColor: "#6BB5F5" },
+  { id: "solo",       label: "SOLO",          sub: "Thoughtful things to do by yourself",   icon: "☕", accentColor: "#A8C97A" },
+  { id: "trending",   label: "TRENDING",      sub: "What's hot in the city right now",      icon: "🔥", accentColor: "#FF7744" },
+  { id: "favorites",  label: "BLOOMIES FAVS", sub: "The best, curated by us",              icon: "✦",  accentColor: "#FFD4A0" },
+  { id: "happenings", label: "HAPPENINGS",    sub: "Events & parties in your city",         icon: "🎉", accentColor: "#C8A0FF" },
+];
+
+// ── Night Skyline SVG ─────────────────────────────────────────────────────────
 function NightSkyline({ width = 430, height = 700 }: { width?: number; height?: number }) {
-  // Deterministic LCG — Park-Miller
   function lcg(s: number) { return (s * 16807) % 2147483647; }
-
   const buildings: { x: number; w: number; h: number; idx: number }[] = [];
-  let x = 0;
-  let s = 42;
-  let idx = 0;
+  let x = 0, s = 42, idx = 0;
   while (x < width + 40) {
-    s = lcg(s);
-    const w = 10 + (s % 19);           // 10-28px — very tight
-    s = lcg(s);
-    const hFrac = 0.38 + (s % 1000) / 1000 * 0.52;  // 38-90%
-    const h = Math.floor(height * hFrac);
-    buildings.push({ x, w, h, idx });
-    x += w;
-    idx++;
+    s = lcg(s); const w = 10 + (s % 19);
+    s = lcg(s); const hFrac = 0.38 + (s % 1000) / 1000 * 0.52;
+    buildings.push({ x, w, h: Math.floor(height * hFrac), idx });
+    x += w; idx++;
   }
-
   const bldgColors = ["#1C1520","#18142A","#1A1830","#161424","#1E162C","#141820","#1A1A26","#141020","#1C1822","#161428"];
-
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice"
-      style={{ display: "block", width: "100%", height: "100%" }}>
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" style={{ display: "block", width: "100%", height: "100%" }}>
       <defs>
         <linearGradient id="sg_sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#080612"/>
-          <stop offset="40%"  stopColor="#140A1E"/>
+          <stop offset="0%" stopColor="#080612"/>
+          <stop offset="40%" stopColor="#140A1E"/>
           <stop offset="100%" stopColor="#120E1C"/>
         </linearGradient>
         <radialGradient id="sg_pk" cx="50%" cy="75%" r="55%">
-          <stop offset="0%"   stopColor="rgba(200,30,100,0.16)"/>
+          <stop offset="0%" stopColor="rgba(200,30,100,0.16)"/>
           <stop offset="100%" stopColor="rgba(200,30,100,0)"/>
         </radialGradient>
         <radialGradient id="sg_pu" cx="22%" cy="60%" r="38%">
-          <stop offset="0%"   stopColor="rgba(110,55,210,0.1)"/>
+          <stop offset="0%" stopColor="rgba(110,55,210,0.1)"/>
           <stop offset="100%" stopColor="rgba(110,55,210,0)"/>
-        </radialGradient>
-        <radialGradient id="sg_pk2" cx="78%" cy="55%" r="30%">
-          <stop offset="0%"   stopColor="rgba(255,31,125,0.07)"/>
-          <stop offset="100%" stopColor="rgba(255,31,125,0)"/>
         </radialGradient>
       </defs>
       <rect width={width} height={height} fill="url(#sg_sky)"/>
       <rect width={width} height={height} fill="url(#sg_pk)"/>
       <rect width={width} height={height} fill="url(#sg_pu)"/>
-      <rect width={width} height={height} fill="url(#sg_pk2)"/>
-
-      {/* Stars */}
-      {Array.from({length: 50}, (_, i) => {
-        const sx = (i * 97 + 31) % width;
-        const sy = (i * 61 + 11) % Math.floor(height * 0.36);
-        const sz = i % 5 === 0 ? 0.9 : 0.5;
-        return <circle key={i} cx={sx} cy={sy} r={sz} fill="rgba(255,255,255,0.65)"/>;
-      })}
-
-      {/* Buildings */}
+      {Array.from({length: 50}, (_, i) => (
+        <circle key={i} cx={(i * 97 + 31) % width} cy={(i * 61 + 11) % Math.floor(height * 0.36)}
+          r={i % 5 === 0 ? 0.9 : 0.5} fill="rgba(255,255,255,0.65)"/>
+      ))}
       {buildings.map((b) => {
         const col = bldgColors[b.idx % bldgColors.length];
         const winW = 3, winH = 3, gapX = 4, gapY = 5;
         const cols = Math.max(1, Math.floor((b.w - 2) / (winW + gapX)));
         const rows = Math.max(1, Math.floor((b.h - 8) / (winH + gapY)));
         const hasSetback = b.w >= 16 && b.h >= height * 0.65 && b.idx % 6 === 2;
-        const hasTip     = b.w >= 12 && b.h >= height * 0.72 && b.idx % 5 === 0;
-
         return (
           <g key={b.idx}>
             <rect x={b.x} y={height - b.h} width={b.w} height={b.h} fill={col}/>
-            {/* Art-deco setback */}
             {hasSetback && (
               <>
-                <rect x={b.x + Math.floor(b.w*0.18)} y={height - b.h - Math.floor(b.h*0.22)}
-                  width={Math.floor(b.w*0.64)} height={Math.floor(b.h*0.22)} fill={col}/>
-                <rect x={b.x + Math.floor(b.w*0.38)} y={height - b.h - Math.floor(b.h*0.22) - Math.floor(b.h*0.1)}
-                  width={Math.floor(b.w*0.24)} height={Math.floor(b.h*0.1)} fill={col}/>
-                {/* spire */}
-                <rect x={b.x + Math.floor(b.w/2) - 0.9} y={height - b.h - Math.floor(b.h*0.22) - Math.floor(b.h*0.1) - 14}
-                  width={1.8} height={16} fill="rgba(255,255,255,0.13)"/>
+                <rect x={b.x + Math.floor(b.w*.18)} y={height - b.h - Math.floor(b.h*.22)} width={Math.floor(b.w*.64)} height={Math.floor(b.h*.22)} fill={col}/>
+                <rect x={b.x + Math.floor(b.w/2) - 0.9} y={height - b.h - Math.floor(b.h*.32) - 14} width={1.8} height={16} fill="rgba(255,255,255,0.13)"/>
               </>
             )}
-            {/* Slim antenna */}
-            {hasTip && !hasSetback && (
-              <rect x={b.x + Math.floor(b.w/2) - 0.8} y={height - b.h - 13}
-                width={1.6} height={15} fill="rgba(255,255,255,0.14)"/>
-            )}
-            {/* Windows */}
             {Array.from({length: rows}, (_, row) =>
               Array.from({length: cols}, (_, col_) => {
                 const seed = b.idx * 11 + row * 7 + col_ * 13;
                 if (seed % 5 === 0) return null;
-                const isPink = seed % 9 === 1;
-                const isBlue = seed % 13 === 3;
-                const fill = isPink ? "rgba(255,140,195,0.88)" : isBlue ? "rgba(160,200,255,0.75)" : "rgba(255,218,155,0.78)";
-                return (
-                  <rect key={`${row}-${col_}`}
-                    x={b.x + 1 + col_ * (winW + gapX)}
-                    y={height - b.h + 5 + row * (winH + gapY)}
-                    width={winW} height={winH} rx="0.3" fill={fill}/>
-                );
+                const fill = seed % 9 === 1 ? "rgba(255,140,195,0.88)" : seed % 13 === 3 ? "rgba(160,200,255,0.75)" : "rgba(255,218,155,0.78)";
+                return <rect key={`${row}-${col_}`} x={b.x + 1 + col_ * (winW + gapX)} y={height - b.h + 5 + row * (winH + gapY)} width={winW} height={winH} rx="0.3" fill={fill}/>;
               })
             )}
           </g>
         );
       })}
-
-      {/* Ground ambient glow */}
-      <rect x={0} y={height - 10} width={width} height={10} fill="rgba(255,31,125,0.08)"/>
     </svg>
   );
 }
 
-/* ── Window strip texture (for inside signs) ───────────────────── */
+// ── Window strip (for sign fill texture) ─────────────────────────────────────
 function WindowStrip() {
   const data = Array.from({length: 70}, (_, i) => ({
     x: i * 7 + (i % 4) * 1.5,
@@ -153,42 +174,332 @@ function WindowStrip() {
   );
 }
 
-/* ── Band data ─────────────────────────────────────────────────── */
-interface Band {
-  id: CityCategory;
-  label: string;
-  sub: string;
-  icon: string;
-  accentColor: string;
-  href?: string;
+// ── Back button shared ────────────────────────────────────────────────────────
+function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: string }) {
+  return (
+    <button onClick={onBack} style={{
+      position: "absolute", top: 56, left: 16, zIndex: 20,
+      background: "rgba(0,0,0,0.38)", backdropFilter: "blur(10px)",
+      border: "1px solid rgba(255,255,255,0.14)", borderRadius: 999,
+      padding: "6px 13px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer",
+    }}>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.07em" }}>{label}</span>
+    </button>
+  );
 }
 
-const BANDS: Band[] = [
-  { id: "eats",       label: "EAT",        sub: "Restaurants, cafés & bars",              icon: "🍽️", accentColor: "#FF9B70" },
-  { id: "go",         label: "GO",         sub: "Museums, galleries & more",              icon: "🎨", accentColor: "#87CEEB" },
-  { id: "solo",       label: "SOLO",       sub: "Thoughtful things to do by yourself",    icon: "☕", accentColor: "#FFD98A" },
-  { id: "favorites",  label: "GIRL PICKS", sub: "The best of the city, curated by women", icon: "✦",  accentColor: "#FF80B0" },
-  { id: "happenings", label: "HAPPENINGS", sub: "What's happening in the city",           icon: "🎉", accentColor: "#C8A0FF" },
-  { id: "places",     label: "PLACES",     sub: "Neighborhoods, guides & more",           icon: "📍", accentColor: "#80D4B0", href: "/member/city/places" },
+// ═══════════════════════════════════════════════════════════════════════════════
+// AVENUE SIGNS PANEL  (landing slide 0)
+// ═══════════════════════════════════════════════════════════════════════════════
+function AvenueSignsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
+  const signsData = [
+    { ...BANDS[0], dir: "right" as const, top: "18%",  delay: "0s",    dur: "4.2s" },
+    { ...BANDS[1], dir: "left"  as const, top: "30%",  delay: "0.55s", dur: "3.8s" },
+    { ...BANDS[2], dir: "right" as const, top: "42%",  delay: "0.9s",  dur: "4.6s" },
+    { ...BANDS[3], dir: "left"  as const, top: "54%",  delay: "0.3s",  dur: "4.0s" },
+    { ...BANDS[4], dir: "right" as const, top: "66%",  delay: "1.1s",  dur: "3.6s" },
+    { ...BANDS[5], dir: "left"  as const, top: "78%",  delay: "0.7s",  dur: "4.4s" },
+  ];
+
+  return (
+    <div style={{
+      position: "relative", minHeight: "100vh", overflow: "hidden",
+      backgroundImage: `${DARK_GRAIN}, linear-gradient(180deg, #060410 0%, #0E0820 50%, #080614 100%)`,
+      backgroundSize: "160px 160px, 100% 100%",
+      paddingBottom: 80,
+    }}>
+      <style>{CSS}</style>
+
+      {/* Sky backdrop */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <NightSkyline width={430} height={900}/>
+      </div>
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 50% 85%, rgba(255,31,125,0.13) 0%, transparent 60%)" }}/>
+
+      {/* Header */}
+      <div style={{ position: "relative", zIndex: 2, padding: "76px 22px 16px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.32em", color: GOLD, marginBottom: 6 }}>
+          BB+ · NEW YORK CITY
+        </p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,9vw,46px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95, marginBottom: 8 }}>
+          Your City.
+        </p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontStyle: "italic", color: "rgba(255,200,220,0.5)", letterSpacing: "0.04em" }}>
+          Everything women love about this city.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+          <div style={{ height: 1, width: 44, background: `linear-gradient(to right, ${GOLD}88, transparent)` }}/>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: `${GOLD}88`, letterSpacing: "0.1em" }}>✦</span>
+        </div>
+      </div>
+
+      {/* Sign post area */}
+      <div style={{ position: "relative", zIndex: 2, height: 520 }}>
+
+        {/* Pole */}
+        <div style={{
+          position: "absolute", left: "calc(50% - 3px)", width: 6, top: 0, bottom: 0,
+          background: "linear-gradient(180deg, rgba(60,20,50,0) 0%, #2A1230 8%, #1E0C28 88%, rgba(30,12,40,0) 100%)",
+          animation: "poleAppear 1.2s ease-out both",
+        }}>
+          {/* Rivets */}
+          {[15, 30, 45, 60, 75].map(p => (
+            <div key={p} style={{ position: "absolute", top: `${p}%`, left: "50%", transform: "translate(-50%,-50%)",
+              width: 10, height: 10, borderRadius: "50%",
+              background: "linear-gradient(135deg, #3A1840, #180C22)",
+              border: "1px solid rgba(212,168,83,0.35)",
+              boxShadow: "0 0 6px rgba(212,168,83,0.2)"
+            }}/>
+          ))}
+        </div>
+
+        {signsData.map((sign, i) => {
+          const isRight = sign.dir === "right";
+          return (
+            <button key={sign.id} onClick={() => onSelect(sign.id)} style={{
+              position: "absolute",
+              top: sign.top,
+              ...(isRight ? { left: "calc(50% + 10px)" } : { right: "calc(50% + 10px)" }),
+              width: "43%",
+              height: 54,
+              padding: 0,
+              border: "none",
+              cursor: "pointer",
+              WebkitTapHighlightColor: "transparent",
+              background: "none",
+              animation: `signSway ${sign.dur} ease-in-out infinite ${sign.delay}`,
+              transformOrigin: isRight ? "left center" : "right center",
+            }}>
+              {/* Sign body */}
+              <div style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: isRight ? "2px 10px 10px 2px" : "10px 2px 2px 10px",
+                backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1E0A28 0%, #2A1238 60%, #1A0820 100%)`,
+                backgroundSize: "160px 160px, 100% 100%",
+                border: `1px solid ${sign.accentColor}55`,
+                boxShadow: `0 6px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)`,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                padding: "0 10px",
+                overflow: "hidden",
+                position: "relative",
+              }}>
+                {/* Accent left/right edge */}
+                <div style={{
+                  position: "absolute",
+                  ...(isRight ? { left: 0 } : { right: 0 }),
+                  top: 0, bottom: 0, width: 3,
+                  background: `linear-gradient(180deg, ${sign.accentColor}cc, ${sign.accentColor}44)`,
+                }}/>
+                {/* Window strip inside */}
+                <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 0, opacity: 0.3, overflow: "hidden" }}>
+                  <WindowStrip/>
+                </div>
+                {/* Dark overlay */}
+                <div style={{ position: "absolute", inset: 0,
+                  background: isRight
+                    ? "linear-gradient(to right, rgba(20,6,30,0.92) 0%, rgba(20,6,30,0.75) 60%, rgba(20,6,30,0.88) 100%)"
+                    : "linear-gradient(to left, rgba(20,6,30,0.92) 0%, rgba(20,6,30,0.75) 60%, rgba(20,6,30,0.88) 100%)",
+                }}/>
+                {/* Content */}
+                <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 7 }}>
+                  {!isRight && (
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={sign.accentColor} strokeWidth="3" strokeLinecap="round">
+                      <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                  )}
+                  <span style={{ fontSize: 14 }}>{sign.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic",
+                      color: "white", lineHeight: 1, marginBottom: 3,
+                      textShadow: `0 0 12px ${sign.accentColor}88` }}>
+                      {sign.label}
+                    </p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700,
+                      color: `${sign.accentColor}99`, letterSpacing: "0.06em",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {sign.sub}
+                    </p>
+                  </div>
+                  {isRight && (
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={sign.accentColor} strokeWidth="3" strokeLinecap="round">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Swipe hint */}
+      <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "center", marginTop: -20 }}>
+        <button onClick={onSwipeToMenu} style={{
+          background: "rgba(255,255,255,0.06)", backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999,
+          padding: "7px 18px", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 8,
+        }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,200,220,0.7)", letterSpacing: "0.12em" }}>CITY GUIDE</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CITY MENU PANEL  (landing slide 1)
+// ═══════════════════════════════════════════════════════════════════════════════
+function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) => void; onSwipeBack: () => void }) {
+  const [hovered, setHovered] = useState<CityCategory | null>(null);
+  return (
+    <div style={{
+      background: "#080612", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden",
+    }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <NightSkyline width={430} height={800}/>
+      </div>
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 50% 90%, rgba(255,31,125,0.12) 0%, transparent 65%)" }}/>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Header row */}
+        <div style={{ padding: "72px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 6 }}>BB+ · NEW YORK CITY</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
+          </div>
+          <button onClick={onSwipeBack} style={{
+            marginTop: 6, background: "rgba(255,255,255,0.06)", backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999,
+            padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+          }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>SIGNS</span>
+          </button>
+        </div>
+
+        {/* Band list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "0 14px 24px" }}>
+          {BANDS.map((band) => {
+            const isHov = hovered === band.id;
+            return (
+              <button key={band.id} onClick={() => onSelect(band.id)}
+                onMouseEnter={() => setHovered(band.id)} onMouseLeave={() => setHovered(null)}
+                onTouchStart={() => setHovered(band.id)} onTouchEnd={() => setHovered(null)}
+                style={{ background: "none", border: "none", padding: 0, display: "block", width: "100%", cursor: "pointer" }}>
+                <div style={{
+                  position: "relative", height: 76,
+                  clipPath: "polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%)",
+                  backgroundImage: `${DARK_GRAIN}, linear-gradient(180deg, rgba(42,18,38,0.96) 0%, rgba(26,10,24,0.98) 100%)`,
+                  backgroundSize: "160px 160px, 100% 100%",
+                  borderTop: `1px solid rgba(255,31,125,${isHov ? "0.55" : "0.22"})`,
+                  borderBottom: "1px solid rgba(0,0,0,0.4)",
+                  boxShadow: isHov ? "0 6px 32px rgba(255,31,125,0.22)" : "0 2px 14px rgba(0,0,0,0.35)",
+                  overflow: "hidden", transition: "box-shadow 0.2s",
+                  WebkitTapHighlightColor: "transparent",
+                }}>
+                  <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 44, opacity: isHov ? 0.7 : 0.4, overflow: "hidden", transition: "opacity 0.2s" }}>
+                    <WindowStrip/>
+                  </div>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(26,10,24,0.94) 0%, rgba(26,10,24,0.7) 40%, rgba(26,10,24,0.84) 80%, transparent 100%)", pointerEvents: "none" }}/>
+                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(to bottom, ${band.accentColor}80, ${band.accentColor}30)`, opacity: isHov ? 1 : 0.6, transition: "opacity 0.2s" }}/>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 46px 0 18px", gap: 0 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: `rgba(255,31,125,${isHov ? "0.18" : "0.08"})`, border: `1px solid rgba(255,31,125,${isHov ? "0.5" : "0.18"})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginRight: 12, transition: "all 0.2s" }}>
+                      <span style={{ fontSize: 15 }}>{band.icon}</span>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: band.label.length > 7 ? 18 : 24, fontWeight: 900, fontStyle: "italic", color: isHov ? "#FFF" : "#F2D8E8", lineHeight: 1, flexShrink: 0, minWidth: band.label.length > 7 ? 110 : 70, textShadow: isHov ? `0 0 22px rgba(255,31,125,0.55)` : "none", transition: "all 0.2s" }}>
+                      {band.label}
+                    </p>
+                    <div style={{ width: 1, height: 30, background: "rgba(255,255,255,0.12)", flexShrink: 0, margin: "0 12px" }}/>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: isHov ? "rgba(255,210,230,0.8)" : "rgba(255,180,210,0.45)", lineHeight: 1.45, flex: 1, minWidth: 0, transition: "color 0.2s" }}>
+                      {band.sub}
+                    </p>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={isHov ? PINK : "rgba(255,100,150,0.38)"} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginRight: 16, transition: "stroke 0.2s" }}>
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CITY LANDING  —  two-pane swipeable wrapper
+// ═══════════════════════════════════════════════════════════════════════════════
+function CityLanding({ onSelect }: { onSelect: (c: CityCategory) => void }) {
+  const [slide, setSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (Math.abs(dx) > 50 && Math.abs(dx) > dy) setSlide(dx < 0 ? 1 : 0);
+    touchStartX.current = null; touchStartY.current = null;
+  }
+
+  return (
+    <div style={{ position: "relative", overflow: "hidden", height: "100vh" }}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {/* Panel 0: avenue signs */}
+      <div style={{ position: "absolute", inset: 0, overflowY: "auto",
+        transform: `translateX(${slide === 0 ? "0" : "-100%"})`,
+        transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}>
+        <AvenueSignsPanel onSelect={onSelect} onSwipeToMenu={() => setSlide(1)}/>
+      </div>
+      {/* Panel 1: city menu */}
+      <div style={{ position: "absolute", inset: 0, overflowY: "auto",
+        transform: `translateX(${slide === 1 ? "0" : "100%"})`,
+        transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}>
+        <CityMenuPanel onSelect={onSelect} onSwipeBack={() => setSlide(0)}/>
+      </div>
+      {/* Dots */}
+      <div style={{ position: "absolute", bottom: 100, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 7, zIndex: 30, pointerEvents: "none" }}>
+        {[0, 1].map(i => (
+          <div key={i} style={{ height: 5, borderRadius: 999, transition: "all 0.35s ease",
+            width: i === slide ? 22 : 5,
+            background: i === slide ? PINK : "rgba(255,255,255,0.25)" }}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EATS PAGE  —  candlelit mahogany, warm amber
+// ═══════════════════════════════════════════════════════════════════════════════
+const EATS_FILTERS = ["Tonight","Date Night","Brunch","Cocktails","Italian","Outdoor","Sushi","Wine Bar","Solo"];
+const EATS_FEATURED = [
+  { id: 1, name: "Bar Pisellino",   hood: "WEST VILLAGE", cuisine: "ITALIAN", going: 18, note: "So early for a martini at the bar — Maya",   bg: "#160808" },
+  { id: 2, name: "Lola Taverna",    hood: "WEST VILLAGE", cuisine: "GREEK",   going: 41, badge: "TRENDING", note: "Everything we ordered was perfect — Dani", bg: "#1E1006" },
+  { id: 3, name: "Via Carota",      hood: "WEST VILLAGE", cuisine: "ITALIAN", going: 12, badge: "⚑ RESERVED", bg: PAPER, reservation: { time: "8:15 PM", seats: "2 SEATS" } },
 ];
-
-/* ── Eats sub-page ─────────────────────────────────────────────── */
-
-const FILTERS = ["Tonight","1+","Italian","Cocktails","Date Night","Brunch","Outdoor","Sushi","Wine Bars"];
-
-const FEATURED = [
-  { id: 1, name: "Bar Pisellino", neighborhood: "WEST VILLAGE", cuisine: "ITALIAN", women: 18, note: "So early for a martini at the bar — Maya", bg: "#1a0a0e" },
-  { id: 2, name: "Lola Taverna",  neighborhood: "WEST VILLAGE", cuisine: "GREEK",   women: 41, badge: "TRENDING", note: "Everything we ordered was perfect — Dani", bg: "#2d1a0e" },
-  { id: 3, name: "Via Carota",    neighborhood: "WEST VILLAGE", cuisine: "ITALIAN", women: 12, badge: "⚑ RESERVED", bg: PAPER, reservation: { time: "8:15PM", seats: "2 SEATS" }, light: true },
-];
-
-const GRID_SPOTS = [
-  { id: 4, name: "Sant Ambroeus", neighborhood: "SOHO",         saved: 12, bg: "#FAF0E8" },
-  { id: 5, name: "Cecconi's",     neighborhood: "SOHO",         saved: 8,  bg: "#F0EAF8" },
-  { id: 6, name: "Rubirosa",      neighborhood: "NOLITA",       saved: 12, bg: "#FFF5F8" },
-  { id: 7, name: "Pasta Night",   neighborhood: "LES",          saved: 8,  bg: "#F5F0E8" },
-  { id: 8, name: "Four Horsemen", neighborhood: "WILLIAMSBURG", saved: 11, bg: "#EEEAE0" },
-  { id: 9, name: "Burette",       neighborhood: "WEST VILLAGE", saved: 7,  bg: "#F0EEF8" },
+const EATS_GRID = [
+  { id: 4, name: "Sant Ambroeus", hood: "SOHO",         saved: 12, bg: "#FAF0E8" },
+  { id: 5, name: "Cecconi's",     hood: "SOHO",         saved: 8,  bg: "#F0EAF8" },
+  { id: 6, name: "Rubirosa",      hood: "NOLITA",       saved: 14, bg: "#FFF5F8" },
+  { id: 7, name: "Pasta Night",   hood: "LES",          saved: 9,  bg: "#F5F0E8" },
+  { id: 8, name: "Four Horsemen", hood: "WILLIAMSBURG", saved: 11, bg: "#EEEAE0" },
+  { id: 9, name: "Buvette",       hood: "WEST VILLAGE", saved: 7,  bg: "#F0EEF8" },
 ];
 
 function EatsPage({ onBack }: { onBack: () => void }) {
@@ -197,98 +508,129 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   return (
-    <div style={{ backgroundImage: PAPER_TEX, backgroundColor: CREAM, backgroundSize: "200px 200px", minHeight: "100vh", paddingBottom: 120 }}>
-      <div style={{ position: "relative", height: 200, background: "#0d0806", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 40% 30%, #3d1a0a 0%, #0d0806 70%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
-        <button onClick={onBack} style={{ position: "absolute", top: 56, left: 16, background: "rgba(0,0,0,0.4)", border: "none", borderRadius: 999, padding: "6px 12px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.06em" }}>CITY</span>
-        </button>
-        <div style={{ position: "absolute", bottom: 16, left: 18 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>EATS · NYC</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Tonight&apos;s<br />Table</p>
+    <div style={{
+      backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+      backgroundSize: "200px 200px, 80px 80px",
+      backgroundColor: CREAM, minHeight: "100vh", paddingBottom: 120,
+    }}>
+      {/* Hero */}
+      <div style={{ position: "relative", height: 230, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1A0808 0%, #2A0E0A 55%, #140604 100%)`, backgroundSize: "160px 160px, 100% 100%", backgroundColor: "#160808" }}/>
+        {/* Amber candle glow */}
+        <div style={{ position: "absolute", bottom: 0, left: "35%", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,100,30,0.28) 0%, transparent 70%)", filter: "blur(20px)" }}/>
+        {/* Flame SVG */}
+        <div style={{ position: "absolute", bottom: 40, left: "48%", transform: "translateX(-50%)", animation: "flameFlicker 2.4s ease-in-out infinite" }}>
+          <svg width="18" height="28" viewBox="0 0 18 28">
+            <path d="M9 27 C2 22 0 16 3 10 C5 6 7 8 9 4 C11 8 13 6 15 10 C18 16 16 22 9 27Z" fill="url(#flame_g)"/>
+            <defs>
+              <radialGradient id="flame_g" cx="50%" cy="80%" r="60%">
+                <stop offset="0%" stopColor="#FFF5C0"/>
+                <stop offset="35%" stopColor="#FFB830"/>
+                <stop offset="100%" stopColor="#FF5500" stopOpacity="0.7"/>
+              </radialGradient>
+            </defs>
+          </svg>
         </div>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.55) 100%)" }}/>
+        <BackBtn onBack={onBack}/>
+        <div style={{ position: "absolute", bottom: 18, left: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70", marginBottom: 5 }}>EATS · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 20px rgba(200,80,30,0.6)" }}>Tonight&apos;s<br />Table</p>
+        </div>
+        {/* Ornamental rule */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, #FF9B7088, ${GOLD}66, #FF9B7088, transparent)` }}/>
       </div>
-      <div style={{ background: "#0d0806", paddingBottom: 12 }}>
+
+      {/* Filters */}
+      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#160808", paddingBottom: 12 }}>
         <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 16px 0", scrollbarWidth: "none" as const }}>
-          {FILTERS.map(f => (
-            <button key={f} onClick={() => setActiveFilter(f)} style={{ flexShrink: 0, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${activeFilter === f ? PINK : "rgba(255,255,255,0.15)"}`, background: activeFilter === f ? PINK : "transparent", color: activeFilter === f ? "white" : "rgba(255,255,255,0.55)", fontSize: "10px", fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}>{f}</button>
+          {EATS_FILTERS.map(f => (
+            <button key={f} onClick={() => setActiveFilter(f)} style={{ flexShrink: 0, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${activeFilter === f ? "#FF9B70" : "rgba(255,255,255,0.14)"}`, background: activeFilter === f ? "#FF9B70" : "transparent", color: activeFilter === f ? "white" : "rgba(255,255,255,0.5)", fontSize: "9px", fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}>
+              {f}
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Cards */}
       <div style={{ padding: "14px 14px 0" }}>
+        {/* Featured grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-          <div style={{ gridRow: "span 2", background: FEATURED[0].bg, borderRadius: 18, minHeight: 240, position: "relative", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.22)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(180,30,60,0.5) 0%, transparent 70%)" }} />
-            <div style={{ position: "absolute", top: 18, left: 12 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#ff9eb5", lineHeight: 1.1, textShadow: "0 0 20px rgba(255,31,125,0.6)" }}>Bar<br />Pisellino</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", marginTop: 4 }}>{FEATURED[0].neighborhood} · {FEATURED[0].cuisine}</p>
+          {/* Big card */}
+          <div style={{ gridRow: "span 2", backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: EATS_FEATURED[0].bg, borderRadius: 18, minHeight: 252, position: "relative", overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.35)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(200,60,20,0.45) 0%, transparent 70%)" }}/>
+            <div style={{ position: "absolute", top: 18, left: 13 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 21, fontWeight: 900, fontStyle: "italic", color: "#ffb09e", lineHeight: 1.1, textShadow: "0 0 18px rgba(255,80,30,0.5)" }}>Bar<br />Pisellino</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.38)", letterSpacing: "0.1em", marginTop: 4 }}>WEST VILLAGE · ITALIAN</p>
             </div>
-            <div style={{ position: "absolute", top: 12, right: 10, background: PINK, borderRadius: 999, padding: "3px 8px" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{FEATURED[0].women} going</span>
+            <div style={{ position: "absolute", top: 13, right: 11, background: "#FF9B70", borderRadius: 999, padding: "3px 8px" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{EATS_FEATURED[0].going} going</span>
             </div>
-            <div style={{ position: "absolute", bottom: 14, left: 12, right: 12 }}>
-              <div style={{ transform: "rotate(-1deg)", background: "rgba(255,255,230,0.88)", padding: "7px 9px" }}>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#444", lineHeight: 1.4 }}>{FEATURED[0].note}</p>
+            <div style={{ position: "absolute", bottom: 15, left: 12, right: 14 }}>
+              <div style={{ transform: "rotate(-1.2deg)", backgroundImage: `${PAPER_TEX}`, backgroundColor: "rgba(255,252,230,0.9)", backgroundSize: "200px 200px", padding: "7px 10px", boxShadow: "1px 2px 8px rgba(0,0,0,0.2)" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#3a2010", lineHeight: 1.4 }}>{EATS_FEATURED[0].note}</p>
               </div>
             </div>
           </div>
-          <div style={{ position: "relative", background: FEATURED[1].bg, borderRadius: 18, minHeight: 112, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.18)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 60% 30%, rgba(100,50,20,0.6) 0%, transparent 70%)" }} />
-            {FEATURED[1].badge && <div style={{ position: "absolute", top: 10, left: 10, background: PINK, borderRadius: 999, padding: "2px 8px" }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{FEATURED[1].badge}</span></div>}
+          {/* Top-right */}
+          <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: EATS_FEATURED[1].bg, borderRadius: 18, minHeight: 118, position: "relative", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 60% 30%, rgba(120,60,20,0.6) 0%, transparent 70%)" }}/>
+            {EATS_FEATURED[1].badge && <div style={{ position: "absolute", top: 10, left: 10, background: PINK, borderRadius: 999, padding: "2px 8px" }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{EATS_FEATURED[1].badge}</span></div>}
             <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,230,200,0.92)", lineHeight: 1.1 }}>{FEATURED[1].name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", marginTop: 2 }}>{FEATURED[1].neighborhood}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,230,200,0.92)", lineHeight: 1.1 }}>{EATS_FEATURED[1].name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.38)", letterSpacing: "0.08em", marginTop: 2 }}>{EATS_FEATURED[1].hood}</p>
             </div>
           </div>
-          <div style={{ backgroundImage: PAPER_TEX, backgroundColor: PAPER, backgroundSize: "200px 200px", borderRadius: 18, minHeight: 112, padding: "12px 12px 10px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)", overflow: "hidden" }}>
-            {FEATURED[2].badge && <div style={{ display: "inline-flex", background: "#2d1a0a", borderRadius: 999, padding: "3px 9px", marginBottom: 6 }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#d4a060", letterSpacing: "0.1em" }}>{FEATURED[2].badge}</span></div>}
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.1 }}>{FEATURED[2].name}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#aaa", letterSpacing: "0.08em", marginTop: 2 }}>{FEATURED[2].neighborhood}</p>
-            {FEATURED[2].reservation && (
-              <div style={{ marginTop: 8, background: DARK, borderRadius: 8, padding: "6px 8px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "#d4a060" }}>{FEATURED[2].reservation.time}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>{FEATURED[2].reservation.seats}</p>
-              </div>
-            )}
+          {/* Bottom-right: reserved card */}
+          <div style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: PAPER, borderRadius: 18, minHeight: 118, padding: "12px 13px 10px", boxShadow: "0 4px 16px rgba(0,0,0,0.09)" }}>
+            <div style={{ display: "inline-flex", background: "#1e0e04", borderRadius: 999, padding: "3px 9px", marginBottom: 6 }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: GOLD, letterSpacing: "0.1em" }}>⚑ RESERVED</span></div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.1 }}>Via Carota</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#aaa", letterSpacing: "0.08em", marginTop: 2 }}>WEST VILLAGE</p>
+            <div style={{ marginTop: 8, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: DARK, borderRadius: 8, padding: "7px 9px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: GOLD }}>8:15 PM</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.38)", letterSpacing: "0.08em" }}>2 SEATS</p>
+            </div>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-          {GRID_SPOTS.map(spot => (
-            <div key={spot.id} style={{ backgroundImage: PAPER_TEX, backgroundColor: spot.bg, backgroundSize: "200px 200px", borderRadius: 16, padding: "12px 12px 10px", boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}>
+
+        {/* Spot grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 14 }}>
+          {EATS_GRID.map(spot => (
+            <div key={spot.id} style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: spot.bg, borderRadius: 16, padding: "13px 13px 11px", boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}>
               <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 700, fontStyle: "italic", color: DARK, lineHeight: 1.2, marginBottom: 4 }}>{spot.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#aaa", letterSpacing: "0.06em" }}>{spot.neighborhood}</p>
-              <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#aaa", letterSpacing: "0.06em" }}>{spot.hood}</p>
+              <div style={{ marginTop: 9, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#bbb" }}>{spot.saved} saved</span>
                 <button onClick={() => toggleSave(spot.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill={savedIds.includes(spot.id) ? PINK : "none"} stroke={PINK} strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill={savedIds.includes(spot.id) ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                 </button>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Bottom picks */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-          <div style={{ backgroundImage: PAPER_TEX, backgroundColor: "#FEF3E8", backgroundSize: "200px 200px", borderRadius: 14, padding: "14px 12px", transform: "rotate(-0.5deg)", boxShadow: "2px 4px 14px rgba(0,0,0,0.25)" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 8 }}>GO-TO SPOTS LATELY</p>
+          <div style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: "#FEF3E8", borderRadius: 14, padding: "14px 13px", transform: "rotate(-0.4deg)", boxShadow: "2px 4px 16px rgba(0,0,0,0.18)" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF9B70", marginBottom: 9 }}>GO-TO LATELY</p>
             {["Bar Pisellino","Sushi Noz","Lucien","Café Kitsuné","Buvette"].map((name, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, flexShrink: 0 }}>{i + 1}.</span>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#FF9B70" }}>{i + 1}.</span>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#2a1a10" }}>{name}</span>
               </div>
             ))}
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, marginTop: 6, opacity: 0.7 }}>girls night →</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#FF9B70", marginTop: 6, opacity: 0.75 }}>girls night →</p>
           </div>
-          <div style={{ borderRadius: 14, background: "#0d0806", overflow: "hidden", position: "relative", minHeight: 160, boxShadow: "0 4px 20px rgba(0,0,0,0.45)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 20%, rgba(40,20,10,0.8) 0%, rgba(5,3,2,0.95) 80%)" }}/>
-            <div style={{ position: "absolute", inset: 0, padding: "14px 12px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div style={{ borderRadius: 14, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#0d0806", overflow: "hidden", position: "relative", minHeight: 168, boxShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 20%, rgba(40,20,10,0.8) 0%, rgba(5,3,2,0.96) 80%)" }}/>
+            <div style={{ position: "absolute", inset: 0, padding: "14px 13px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>ROOFTOP · NOMAD</p>
                 <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,245,235,0.92)", lineHeight: 1.2 }}>The Roof at<br/>PUBLIC Hotel</p>
               </div>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.1em", marginBottom: 6 }}>AMAZING VIEWS ✦</p>
-                <div style={{ background: PINK, borderRadius: 999, padding: "5px 12px", display: "inline-flex" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#FF9B70", letterSpacing: "0.1em", marginBottom: 6 }}>AMAZING VIEWS ✦</p>
+                <div style={{ background: "#FF9B70", borderRadius: 999, padding: "5px 12px", display: "inline-flex" }}>
                   <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>18 GOING</span>
                 </div>
               </div>
@@ -300,185 +642,535 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   );
 }
 
-/* ── Coming soon ───────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════════════════════
+// SOLO PAGE  —  morning light, sage & linen, introspective
+// ═══════════════════════════════════════════════════════════════════════════════
+const SOLO_MOODS = ["Quiet", "Creative", "Mindful", "Wandering", "Indulgent"];
+const SOLO_ACTIVITIES = [
+  { id: 1, name: "MoMA Galleries",      type: "ART",        time: "90 min",   note: "Get there at 10am — entire floor to yourself", accent: "#B0CCE8", bg: "#EDF2FA" },
+  { id: 2, name: "The Strand",          type: "BOOKS",      time: "open-ended", note: "Rare books room on the third floor is magic",  accent: "#C9A882", bg: "#FAF2E8" },
+  { id: 3, name: "Central Park Loop",   type: "WALK",       time: "45 min",   note: "Reservoir track at golden hour",                accent: "#9AC98A", bg: "#EDF5EC" },
+  { id: 4, name: "Café Kitsuné",        type: "COFFEE",     time: "∞",        note: "Matcha latte + journal, always a good idea",    accent: "#E8A0B0", bg: "#FAF0F2" },
+  { id: 5, name: "Glossier Flagship",   type: "SELF-CARE",  time: "30 min",   note: "Actually try everything before you commit",     accent: "#F4C0D0", bg: "#FEF4F6" },
+  { id: 6, name: "Jane's Carousel",     type: "DREAMY",     time: "20 min",   note: "Brooklyn Bridge views from the glass pavilion", accent: "#B8C8E8", bg: "#F2F5FD" },
+];
+
+function SoloPage({ onBack }: { onBack: () => void }) {
+  const [mood, setMood] = useState("Quiet");
+
+  return (
+    <div style={{
+      backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+      backgroundSize: "200px 200px, 80px 80px",
+      backgroundColor: "#F8F5EE", minHeight: "100vh", paddingBottom: 120,
+    }}>
+      {/* Hero */}
+      <div style={{ position: "relative", height: 260, overflow: "hidden" }}>
+        {/* Morning gradient */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #E8EEE0 0%, #D8E8D0 30%, #EAD8E0 65%, #F0E8D8 100%)" }}/>
+        {/* Dappled light spots */}
+        <div style={{ position: "absolute", top: 40, left: "15%", width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,230,0.5) 0%, transparent 70%)", filter: "blur(25px)" }}/>
+        <div style={{ position: "absolute", top: 80, right: "10%", width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,230,200,0.4) 0%, transparent 70%)", filter: "blur(18px)" }}/>
+        {/* Botanical decoration SVG */}
+        <svg style={{ position: "absolute", right: 16, top: 50, opacity: 0.25 }} width="80" height="140" viewBox="0 0 80 140">
+          <ellipse cx="40" cy="30" rx="12" ry="22" fill="#6A9A5A" transform="rotate(-20 40 30)"/>
+          <ellipse cx="55" cy="55" rx="14" ry="24" fill="#5A8A4A" transform="rotate(15 55 55)"/>
+          <ellipse cx="25" cy="60" rx="10" ry="20" fill="#7AAA6A" transform="rotate(-30 25 60)"/>
+          <ellipse cx="45" cy="85" rx="12" ry="26" fill="#4A7A3A" transform="rotate(10 45 85)"/>
+          <line x1="40" y1="10" x2="40" y2="120" stroke="#4A6A3A" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(248,245,238,0.85) 100%)" }}/>
+        <BackBtn onBack={onBack} label="CITY"/>
+        <div style={{ position: "absolute", bottom: 20, left: 20 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.26em", color: "#7A9A6C", marginBottom: 5 }}>SOLO · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#2A3A22", lineHeight: 1, marginBottom: 4 }}>A Day<br />For You.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#8A7A6A", opacity: 0.85 }}>thoughtful things to do alone ✦</p>
+        </div>
+      </div>
+
+      <div style={{ padding: "16px 16px 0" }}>
+        {/* Mood chips */}
+        <div style={{ marginBottom: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 8 }}>WHAT MOOD ARE YOU IN?</p>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" as const }}>
+            {SOLO_MOODS.map(m => (
+              <button key={m} onClick={() => setMood(m)} style={{
+                padding: "6px 14px", borderRadius: 999,
+                border: `1.5px solid ${mood === m ? "#7A9A6C" : "rgba(120,90,80,0.2)"}`,
+                background: mood === m ? "#7A9A6C" : "transparent",
+                color: mood === m ? "white" : "#8A6A5A",
+                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                letterSpacing: "0.05em", cursor: "pointer",
+              }}>{m}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Activity cards */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 10 }}>MADE FOR SOLO TIME</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+          {SOLO_ACTIVITIES.map((act, i) => (
+            <div key={act.id} style={{
+              backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+              backgroundSize: "200px 200px, 80px 80px",
+              backgroundColor: act.bg,
+              borderRadius: 18, overflow: "hidden",
+              boxShadow: "0 3px 16px rgba(80,60,40,0.1), inset 0 1px 0 rgba(255,255,255,0.85)",
+              display: "flex", gap: 0,
+              animation: `soloFade 0.5s ease-out both`,
+              animationDelay: `${i * 0.07}s`,
+            }}>
+              {/* Accent bar */}
+              <div style={{ width: 5, flexShrink: 0, background: `linear-gradient(180deg, ${act.accent}, ${act.accent}66)` }}/>
+              <div style={{ flex: 1, padding: "14px 14px 12px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
+                  <div>
+                    <div style={{ display: "inline-flex", background: `${act.accent}44`, borderRadius: 999, padding: "2px 8px", marginBottom: 5 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#4A3A2A", letterSpacing: "0.1em" }}>{act.type}</span>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, fontStyle: "italic", color: "#2A1A10", lineHeight: 1.1 }}>{act.name}</p>
+                  </div>
+                  <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 8, padding: "4px 8px", marginLeft: 8, flexShrink: 0 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#6A5A4A", letterSpacing: "0.04em" }}>{act.time}</p>
+                  </div>
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12.5, color: "#6A5A4A", lineHeight: 1.4, opacity: 0.9 }}>"{act.note}"</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Solo editorial card */}
+        <div style={{
+          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1C2814 0%, #283820 60%, #1A2610 100%)`,
+          backgroundSize: "160px 160px, 100% 100%",
+          borderRadius: 18, padding: "22px 20px", marginBottom: 14,
+          boxShadow: "0 8px 32px rgba(30,40,20,0.35)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#A8C97A", marginBottom: 10 }}>THIS WEEK&apos;S SOLO RITUAL</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, marginBottom: 8 }}>Saturday Morning<br />at the Brooklyn Botanic</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(200,230,180,0.65)", lineHeight: 1.6, marginBottom: 14 }}>
+            Open at 8am for members. Quiet paths, zero crowds, cherry blossoms still holding.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ background: "#A8C97A", borderRadius: 999, padding: "6px 16px" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>34 BLOOMIES GOING</span>
+            </div>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(200,230,180,0.5)" }}>solo ✦ together</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GO PAGE  —  gallery white + cobalt, bold architectural
+// ═══════════════════════════════════════════════════════════════════════════════
+const GO_TYPES = ["All", "Museums", "Outdoors", "Markets", "Theater", "Tours"];
+const GO_EXPERIENCES = [
+  { id: 1, name: "The Metropolitan Museum", hood: "UPPER EAST SIDE", type: "MUSEUM",  tag: "FREE THIS WEEK", big: true,  accent: "#3A5FCD", bg: "#060A18" },
+  { id: 2, name: "The High Line",           hood: "WEST CHELSEA",    type: "OUTDOOR", going: 28,             big: false, accent: "#2A9A60", bg: "#06140C" },
+  { id: 3, name: "Brooklyn Flea",           hood: "DUMBO",           type: "MARKET",  tag: "THIS WEEKEND",   big: false, accent: "#C4802A", bg: "#120C04" },
+  { id: 4, name: "MoMA PS1",               hood: "LONG ISLAND CITY", type: "GALLERY", going: 14,             big: false, accent: "#A04090", bg: "#120614" },
+  { id: 5, name: "Staten Island Ferry",     hood: "LOWER MANHATTAN",  type: "TOUR",   tag: "FREE",           big: false, accent: "#3A5FCD", bg: "#060A18" },
+  { id: 6, name: "The Shed",               hood: "HUDSON YARDS",     type: "THEATER", going: 22,             big: false, accent: "#C43A3A", bg: "#140606" },
+];
+
+function GoPage({ onBack }: { onBack: () => void }) {
+  const [activeType, setActiveType] = useState("All");
+
+  return (
+    <div style={{ background: "#06080F", minHeight: "100vh", paddingBottom: 120 }}>
+      {/* Hero — stark gallery aesthetic */}
+      <div style={{ position: "relative", height: 250, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "#06080F" }}/>
+        {/* Bold cobalt sweep */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, #3A5FCD, #6BB5F5, #3A5FCD)", animation: "gallerySweep 1s ease-out both" }}/>
+        <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, height: 1, background: "rgba(106,181,245,0.15)" }}/>
+        {/* GO. large typographic mark */}
+        <div style={{ position: "absolute", right: 18, bottom: 60, opacity: 0.06 }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 140, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, userSelect: "none" }}>GO.</p>
+        </div>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #06080F 40%, transparent 80%)" }}/>
+        <BackBtn onBack={onBack} label="CITY"/>
+        <div style={{ position: "absolute", bottom: 22, left: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "#6BB5F5", marginBottom: 5 }}>GO · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Get<br />Out There.</p>
+        </div>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, #3A5FCD66, #6BB5F544, transparent)" }}/>
+      </div>
+
+      {/* Type filters */}
+      <div style={{ background: "#08080F", borderBottom: "1px solid rgba(58,95,205,0.12)", paddingBottom: 1 }}>
+        <div style={{ display: "flex", gap: 0, overflowX: "auto", padding: "10px 16px", scrollbarWidth: "none" as const }}>
+          {GO_TYPES.map(t => (
+            <button key={t} onClick={() => setActiveType(t)} style={{
+              flexShrink: 0, padding: "6px 14px", borderRadius: 999, marginRight: 6,
+              border: `1.5px solid ${activeType === t ? "#3A5FCD" : "rgba(106,181,245,0.15)"}`,
+              background: activeType === t ? "#3A5FCD" : "transparent",
+              color: activeType === t ? "white" : "rgba(106,181,245,0.5)",
+              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.06em", cursor: "pointer",
+            }}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Experience cards */}
+      <div style={{ padding: "14px 14px 0" }}>
+        {GO_EXPERIENCES.map((exp, i) => (
+          <div key={exp.id} style={{
+            backgroundImage: `${DARK_GRAIN}`,
+            backgroundSize: "160px 160px",
+            backgroundColor: exp.bg,
+            borderRadius: 18, marginBottom: 10, overflow: "hidden",
+            height: i === 0 ? 170 : 100,
+            position: "relative",
+            boxShadow: `0 4px 24px rgba(0,0,0,0.55), 0 1px 0 ${exp.accent}22 inset`,
+          }}>
+            {/* Left accent bar */}
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(180deg, ${exp.accent}, ${exp.accent}44)` }}/>
+            {/* Glow */}
+            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 30%, ${exp.accent}22 0%, transparent 60%)` }}/>
+            {/* Content */}
+            <div style={{ position: "absolute", inset: 0, padding: i === 0 ? "22px 20px 18px 18px" : "14px 16px 12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <div style={{ background: `${exp.accent}33`, border: `1px solid ${exp.accent}55`, borderRadius: 999, padding: "2px 9px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: exp.accent, letterSpacing: "0.1em" }}>{exp.type}</span>
+                  </div>
+                  {"tag" in exp && exp.tag && (
+                    <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "2px 9px" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>{exp.tag}</span>
+                    </div>
+                  )}
+                </div>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i === 0 ? 22 : 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15, textShadow: `0 0 20px ${exp.accent}44` }}>{exp.name}</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>{exp.hood}</p>
+                {"going" in exp && exp.going && (
+                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}44`, borderRadius: 999, padding: "3px 10px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: exp.accent }}>{exp.going} going</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* This Week editorial */}
+        <div style={{
+          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #08101E 0%, #0A1628 60%, #060C18 100%)`,
+          backgroundSize: "160px 160px, 100% 100%",
+          borderRadius: 18, padding: "20px 18px", marginBottom: 14,
+          border: "1px solid rgba(58,95,205,0.22)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#6BB5F5", marginBottom: 8 }}>THIS WEEK IN NYC ✦</p>
+          {["MOMA: New Acquisitions","Brooklyn Botanic: Cherry Blossoms","Jazz at Lincoln Center: Fri/Sat","Governors Ball: Week 2"].map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, paddingBottom: 9, borderBottom: i < 3 ? "1px solid rgba(58,95,205,0.1)" : "none" }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#3A5FCD", flexShrink: 0 }}/>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(200,220,255,0.78)" }}>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TRENDING PAGE  —  electric pink-orange neon, live energy
+// ═══════════════════════════════════════════════════════════════════════════════
+const TICKER_ITEMS = ["VILLA PIZZA", "DIOR CAFÉ POP-UP", "JAZZ CLUB FRIDAYS", "ROOFTOP THURSDAYS", "PASTA NIGHT LES", "BROOKLYN FLEA", "MATCHA BARS", "HOTEL BARS", "WINE TASTING SOHO"];
+const TREND_LIST = [
+  { rank: 1,  name: "Italian in the West Village",    tag: "DINING",     count: 247, hot: true,  badge: "🔥 ON FIRE" },
+  { rank: 2,  name: "Dior Café Pop-Up on Madison",    tag: "POP-UP",     count: 188, hot: true,  badge: "✦ NEW" },
+  { rank: 3,  name: "Late Night Jazz in Harlem",       tag: "NIGHTLIFE",  count: 156, hot: false, badge: null },
+  { rank: 4,  name: "Rooftop Bars This Season",        tag: "DRINKS",     count: 134, hot: false, badge: null },
+  { rank: 5,  name: "Sunday Brunch: Best Spots",       tag: "BRUNCH",     count: 119, hot: false, badge: null },
+  { rank: 6,  name: "The Quiet Luxury Hotel Bars",     tag: "COCKTAILS",  count: 98,  hot: false, badge: null },
+  { rank: 7,  name: "Gallery Openings This Week",      tag: "ART",        count: 87,  hot: false, badge: null },
+  { rank: 8,  name: "Korean BBQ in Koreatown",         tag: "DINING",     count: 76,  hot: false, badge: null },
+];
+
+function TrendingPage({ onBack }: { onBack: () => void }) {
+  const tickerText = TICKER_ITEMS.join("   ✦   ") + "   ✦   ";
+  const doubled = tickerText + tickerText;
+
+  return (
+    <div style={{
+      backgroundImage: `${DARK_GRAIN}`,
+      backgroundSize: "160px 160px",
+      backgroundColor: "#08010E",
+      minHeight: "100vh", paddingBottom: 120,
+    }}>
+      {/* Hero */}
+      <div style={{ position: "relative", height: 240, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1A0028 0%, #280A0A 40%, #200812 80%, #0E0018 100%)" }}/>
+        {/* Neon glow layers */}
+        <div style={{ position: "absolute", top: "30%", left: "20%", width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.3) 0%, transparent 70%)", filter: "blur(30px)" }}/>
+        <div style={{ position: "absolute", top: "20%", right: "10%", width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,85,0,0.25) 0%, transparent 70%)", filter: "blur(22px)" }}/>
+        {/* TRENDING° neon-style letters */}
+        <div style={{ position: "absolute", top: 80, left: 18, right: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "#FF7744", marginBottom: 8 }}>TRENDING · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 0 30px rgba(255,31,125,0.7), 0 0 60px rgba(255,85,0,0.3)" }}>What&apos;s<br />Hot Right Now.</p>
+        </div>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(8,1,14,0.7) 100%)" }}/>
+        <BackBtn onBack={onBack} label="CITY"/>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${PINK}88, #FF774466, transparent)` }}/>
+      </div>
+
+      {/* Ticker tape */}
+      <div style={{ background: "#FF1F7D", overflow: "hidden", height: 28, display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap", animation: "tickerScroll 18s linear infinite" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.1em", paddingRight: 0 }}>
+            {doubled}
+          </span>
+        </div>
+      </div>
+
+      {/* Trending list */}
+      <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,119,68,0.8)" }}>THIS WEEK&apos;S HOT LIST</p>
+          <div style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "3px 10px" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: PINK, animation: "hotPulse 2s ease-in-out infinite" }}>● LIVE</span>
+          </div>
+        </div>
+
+        {TREND_LIST.map((item, i) => (
+          <div key={item.rank} style={{
+            backgroundImage: `${DARK_GRAIN}`,
+            backgroundSize: "160px 160px",
+            backgroundColor: i < 2 ? "#1A0412" : "#100010",
+            borderRadius: 16, marginBottom: 8, overflow: "hidden",
+            border: i < 2 ? `1px solid rgba(255,31,125,${i === 0 ? "0.45" : "0.25"})` : "1px solid rgba(255,255,255,0.05)",
+            boxShadow: i === 0 ? "0 4px 24px rgba(255,31,125,0.2)" : "none",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "14px 14px", gap: 14 }}>
+              {/* Rank number */}
+              <div style={{ flexShrink: 0, width: 32, textAlign: "center" as const }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i < 2 ? 26 : 20, fontWeight: 900, fontStyle: "italic",
+                  color: i === 0 ? PINK : i === 1 ? "#FF7744" : "rgba(255,255,255,0.2)", lineHeight: 1,
+                  textShadow: i === 0 ? `0 0 20px ${PINK}88` : "none" }}>
+                  {item.rank}
+                </p>
+              </div>
+              {/* Content */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" as const }}>
+                  <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "2px 7px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>{item.tag}</span>
+                  </div>
+                  {item.badge && (
+                    <div style={{ background: i === 0 ? "rgba(255,31,125,0.2)" : "rgba(255,119,68,0.15)", borderRadius: 999, padding: "2px 7px" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: i === 0 ? PINK : "#FF7744" }}>{item.badge}</span>
+                    </div>
+                  )}
+                </div>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 700, fontStyle: "italic", color: "rgba(255,255,255,0.88)", lineHeight: 1.2 }}>{item.name}</p>
+              </div>
+              {/* Count */}
+              <div style={{ flexShrink: 0, textAlign: "right" as const }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800, color: i < 2 ? (i === 0 ? PINK : "#FF7744") : "rgba(255,255,255,0.22)", lineHeight: 1 }}>{item.count}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "0.05em" }}>BLOOMIES</p>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* This Week CTA */}
+        <div style={{
+          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #280010 0%, #1A000A 50%, #200818 100%)`,
+          backgroundSize: "160px 160px, 100% 100%",
+          borderRadius: 18, padding: "22px 20px", marginBottom: 14,
+          border: `1px solid rgba(255,31,125,0.2)`,
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF7744", marginBottom: 10 }}>WHAT BLOOMIES ARE DOING THIS WEEK</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
+            {["🍷 Wine tasting","🎭 Off-Broadway","🛍️ Vintage markets","🌙 Jazz nights","🍜 Ramen crawl"].map(item => (
+              <div key={item} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "6px 13px" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,220,210,0.7)" }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BLOOMIES FAVORITES  —  champagne rose, editorial luxury
+// ═══════════════════════════════════════════════════════════════════════════════
+const BLOOM_PICKS = [
+  { id: 1,  name: "Bar Pisellino",        cat: "DINING",     hood: "WEST VILLAGE",    stars: 5, saves: 312, note: "The martini. The marble bar. The people.",          accent: "#D4A070", bg: "#1A0C08" },
+  { id: 2,  name: "The Standard Spa",     cat: "SELF-CARE",  hood: "MEATPACKING",     stars: 5, saves: 284, note: "Book 3 weeks ahead. Worth every minute.",           accent: "#E8B0C0", bg: "#140A0C" },
+  { id: 3,  name: "Café Kitsuné",         cat: "COFFEE",     hood: "WEST VILLAGE",    stars: 5, saves: 256, note: "Matcha in the garden with a good book.",           accent: "#A8C890", bg: "#0C1408" },
+  { id: 4,  name: "Brooklyn Museum",      cat: "ART",        hood: "CROWN HEIGHTS",   stars: 4, saves: 198, note: "First Saturday of the month is free + a party.",    accent: "#9090D8", bg: "#08080E" },
+  { id: 5,  name: "Russ & Daughters",     cat: "BRUNCH",     hood: "LOWER EAST SIDE", stars: 5, saves: 176, note: "The appetizing plate. Every. Single. Time.",        accent: "#D8A050", bg: "#181008" },
+  { id: 6,  name: "Vessel (Hudson Yards)",cat: "ICONIC",     hood: "HUDSON YARDS",    stars: 4, saves: 154, note: "Go at sunset for the best light.",                  accent: "#C0B090", bg: "#101008" },
+];
+
+function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
+  const [saved, setSaved] = useState<number[]>([]);
+  function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
+
+  return (
+    <div style={{
+      backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+      backgroundSize: "200px 200px, 80px 80px",
+      backgroundColor: "#F9F4EE",
+      minHeight: "100vh", paddingBottom: 120,
+    }}>
+      {/* Hero — rose gold editorial */}
+      <div style={{ position: "relative", height: 270, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, linear-gradient(155deg, #1A0818 0%, #2A1018 40%, #200C14 75%, #160A10 100%)`, backgroundSize: "160px 160px, 100% 100%", backgroundColor: "#1A0810" }}/>
+        {/* Gold/champagne glows */}
+        <div style={{ position: "absolute", top: "20%", left: "25%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,160,112,0.22) 0%, transparent 70%)", filter: "blur(32px)" }}/>
+        <div style={{ position: "absolute", top: "30%", right: "15%", width: 140, height: 140, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,100,140,0.18) 0%, transparent 70%)", filter: "blur(22px)" }}/>
+        {/* Floating card decoration */}
+        <div style={{ position: "absolute", right: 22, top: 70, animation: "champFloat 5s ease-in-out infinite", transform: "rotate(-4deg)" }}>
+          <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "rgba(255,248,240,0.12)", backdropFilter: "blur(8px)", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(212,168,83,0.3)", width: 80 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: GOLD, lineHeight: 1.3, opacity: 0.9 }}>our very faves ✦</p>
+          </div>
+        </div>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 35%, rgba(26,8,16,0.78) 100%)" }}/>
+        <BackBtn onBack={onBack} label="CITY"/>
+        <div style={{ position: "absolute", bottom: 22, left: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: GOLD, marginBottom: 6 }}>BLOOMIES PICKS · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 24px rgba(212,160,112,0.5)" }}>Our City,<br />Curated.</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontStyle: "italic", color: "rgba(255,210,190,0.55)", marginTop: 6, letterSpacing: "0.03em" }}>By the bloomies community, for the bloomies community.</p>
+        </div>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${GOLD}66, rgba(232,100,140,0.4), ${GOLD}66, transparent)` }}/>
+      </div>
+
+      {/* Community stats */}
+      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0810", padding: "14px 18px 12px", display: "flex", gap: 0 }}>
+        {[["1,240+", "saves this month"], ["324", "bloomies contributed"], ["6", "categories"]].map(([val, label], i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <div style={{ width: 1, background: "rgba(212,168,83,0.15)", margin: "0 16px" }}/>}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: GOLD }}>{val}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em", marginTop: 1 }}>{label}</p>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div style={{ padding: "16px 14px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 12 }}>THE BLOOMIES LIST</p>
+
+        {BLOOM_PICKS.map((pick, i) => (
+          <div key={pick.id} style={{
+            backgroundImage: `${DARK_GRAIN}`,
+            backgroundSize: "160px 160px",
+            backgroundColor: pick.bg,
+            borderRadius: 18, marginBottom: 10, overflow: "hidden",
+            boxShadow: "0 4px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+          }}>
+            {/* Top accent */}
+            <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${pick.accent}88, transparent)` }}/>
+            <div style={{ padding: "14px 16px 14px 14px", display: "flex", gap: 12 }}>
+              {/* Rank badge */}
+              <div style={{ flexShrink: 0, width: 34, height: 34, borderRadius: "50%", background: `rgba(212,168,83,0.1)`, border: `1px solid ${pick.accent}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: pick.accent }}>
+                  {i + 1}
+                </span>
+              </div>
+              {/* Content */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 5 }}>
+                  <div>
+                    <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 4 }}>
+                      <div style={{ background: `${pick.accent}22`, border: `1px solid ${pick.accent}44`, borderRadius: 999, padding: "1.5px 8px" }}>
+                        <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: pick.accent, letterSpacing: "0.1em" }}>{pick.cat}</span>
+                      </div>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 700, fontStyle: "italic", color: "rgba(255,245,235,0.9)", lineHeight: 1.1 }}>{pick.name}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.08em", marginTop: 2 }}>{pick.hood}</p>
+                  </div>
+                  <button onClick={() => toggleSave(pick.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill={saved.includes(pick.id) ? GOLD : "none"} stroke={GOLD} strokeWidth="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  </button>
+                </div>
+                {/* Stars */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                  <div style={{ display: "flex", gap: 2 }}>
+                    {Array.from({length: 5}, (_, si) => (
+                      <svg key={si} width="9" height="9" viewBox="0 0 24 24" fill={si < pick.stars ? GOLD : "none"} stroke={GOLD} strokeWidth="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.28)" }}>{pick.saves} saves</span>
+                </div>
+                {/* Note */}
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: `${pick.accent}cc`, lineHeight: 1.4 }}>"{pick.note}"</p>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Community CTA card */}
+        <div style={{
+          backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+          backgroundSize: "200px 200px, 80px 80px",
+          backgroundColor: "#FEF6EE",
+          borderRadius: 18, padding: "20px 18px", marginBottom: 14,
+          boxShadow: "0 4px 20px rgba(180,130,80,0.12), inset 0 1.5px 0 rgba(255,255,255,0.9)",
+          border: "1px solid rgba(212,168,83,0.2)",
+          textAlign: "center" as const,
+        }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#4A2A18", marginBottom: 8 }}>Add Your Faves</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "#8A6A4A", lineHeight: 1.6, marginBottom: 14 }}>
+            Every save shapes this list.<br/>Your favorites become the city&apos;s favorites.
+          </p>
+          <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0C08", display: "inline-flex", borderRadius: 999, padding: "9px 22px" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: GOLD, letterSpacing: "0.1em" }}>✦ SAVE A SPOT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMING SOON  (fallback)
+// ═══════════════════════════════════════════════════════════════════════════════
 function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
   return (
     <div style={{ background: "#0D0814", minHeight: "100vh", paddingBottom: 100 }}>
       <div style={{ position: "relative", height: 230, overflow: "hidden" }}>
         <NightSkyline width={430} height={230}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 25%, rgba(13,8,20,0.88) 100%)" }}/>
-        <button onClick={onBack} style={{ position: "absolute", top: 56, left: 16, background: "rgba(255,255,255,0.08)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999, padding: "6px 12px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.06em" }}>CITY</span>
-        </button>
+        <BackBtn onBack={onBack} label="CITY"/>
         <div style={{ position: "absolute", bottom: 20, left: 20 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: band.accentColor, marginBottom: 6 }}>{band.label}</p>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Coming<br />Soon</p>
         </div>
       </div>
       <div style={{ padding: "28px 24px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,200,220,0.55)", lineHeight: 1.6 }}>We&apos;re curating the best of NYC.<br />Check back soon.</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,200,220,0.55)", lineHeight: 1.6 }}>We&apos;re curating the best of NYC.<br/>Check back soon.</p>
       </div>
     </div>
   );
 }
 
-/* ── City Landing ──────────────────────────────────────────────── */
-function CityLanding({ onSelect }: { onSelect: (c: CityCategory) => void }) {
-  const [hovered, setHovered] = useState<CityCategory | null>(null);
-
-  return (
-    <div style={{ background: "#080612", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden" }}>
-      <style>{CSS}</style>
-
-      {/* Fixed background skyline */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <NightSkyline width={430} height={800}/>
-      </div>
-
-      {/* Pink haze overlay */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 90%, rgba(255,31,125,0.12) 0%, transparent 65%)" }}/>
-
-      {/* Content */}
-      <div style={{ position: "relative", zIndex: 1 }}>
-
-        {/* ── Header ─────────────────────────────────────────────── */}
-        <div style={{ padding: "72px 22px 28px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.32em", color: PINK, marginBottom: 8 }}>
-            BB+ · NEW YORK CITY
-          </p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(38px,10vw,52px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95, marginBottom: 10 }}>
-            Your City.
-          </p>
-          <p style={{ fontFamily: "var(--font-instrument)", fontSize: "13px", fontStyle: "italic", color: "rgba(255,200,220,0.55)", letterSpacing: "0.01em" }}>
-            Everything women love about this city.
-          </p>
-          {/* Decorative pink rule */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 14 }}>
-            <div style={{ height: 1, width: 40, background: `linear-gradient(to right, ${PINK}, transparent)`, opacity: 0.5 }}/>
-            <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK, opacity: 0.6 }}/>
-          </div>
-        </div>
-
-        {/* ── Signs ──────────────────────────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "0 14px 24px" }}>
-          {BANDS.map((band) => {
-            const isHov = hovered === band.id;
-
-            const signInner = (
-              <div style={{
-                position: "relative",
-                height: 78,
-                clipPath: "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%)",
-                background: `linear-gradient(180deg, rgba(42,18,38,0.96) 0%, rgba(26,10,24,0.98) 100%)`,
-                borderTop:    `1px solid rgba(255,31,125,${isHov ? "0.55" : "0.22"})`,
-                borderBottom: "1px solid rgba(0,0,0,0.4)",
-                boxShadow:    isHov ? "0 6px 32px rgba(255,31,125,0.22), 0 2px 8px rgba(0,0,0,0.4)" : "0 2px 14px rgba(0,0,0,0.35)",
-                overflow: "hidden",
-                transition: "box-shadow 0.2s, border-top-color 0.2s",
-                cursor: "pointer",
-                WebkitTapHighlightColor: "transparent",
-              }}>
-                {/* Window strip — centred */}
-                <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 44, opacity: isHov ? 0.75 : 0.45, transition: "opacity 0.2s", overflow: "hidden" }}>
-                  <WindowStrip/>
-                </div>
-
-                {/* Dark overlay for readability */}
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(26,10,24,0.92) 0%, rgba(26,10,24,0.72) 38%, rgba(26,10,24,0.82) 78%, transparent 100%)", pointerEvents: "none" }}/>
-
-                {/* Left pink edge accent */}
-                <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(to bottom, ${band.accentColor}80, ${band.accentColor}30)`, opacity: isHov ? 1 : 0.6, transition: "opacity 0.2s" }}/>
-
-                {/* Content row */}
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 48px 0 18px", gap: 0 }}>
-
-                  {/* Icon circle */}
-                  <div style={{ width: 38, height: 38, borderRadius: "50%", background: `rgba(255,31,125,${isHov ? "0.18" : "0.1"})`, border: `1px solid rgba(255,31,125,${isHov ? "0.5" : "0.22"})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginRight: 14, transition: "background 0.2s, border-color 0.2s" }}>
-                    <span style={{ fontSize: band.icon === "✦" ? 16 : 18, lineHeight: 1 }}>{band.icon}</span>
-                  </div>
-
-                  {/* Category label */}
-                  <p style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontSize: band.label.length > 7 ? 19 : 26,
-                    fontWeight: 900,
-                    fontStyle: "italic",
-                    color: isHov ? "#FFFFFF" : "#F2D8E8",
-                    lineHeight: 1,
-                    letterSpacing: "-0.01em",
-                    flexShrink: 0,
-                    minWidth: band.label.length > 7 ? 110 : 72,
-                    textShadow: isHov ? `0 0 24px rgba(255,31,125,0.55)` : `0 0 0 transparent`,
-                    transition: "color 0.2s, text-shadow 0.2s",
-                  }}>
-                    {band.label}
-                  </p>
-
-                  {/* Divider */}
-                  <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.13)", flexShrink: 0, margin: "0 14px" }}/>
-
-                  {/* Subtitle */}
-                  <p style={{
-                    fontFamily: "var(--font-jost)",
-                    fontSize: "9px",
-                    fontWeight: 700,
-                    letterSpacing: "0.09em",
-                    textTransform: "uppercase",
-                    color: isHov ? "rgba(255,210,230,0.8)" : "rgba(255,180,210,0.48)",
-                    lineHeight: 1.45,
-                    flex: 1,
-                    minWidth: 0,
-                    transition: "color 0.2s",
-                  }}>
-                    {band.sub}
-                  </p>
-
-                  {/* Arrow */}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={isHov ? PINK : "rgba(255,100,150,0.4)"} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginRight: 18, transition: "stroke 0.2s" }}>
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
-                </div>
-              </div>
-            );
-
-            if (band.href) {
-              return (
-                <Link key={band.id} href={band.href} style={{ textDecoration: "none", display: "block" }}
-                  onMouseEnter={() => setHovered(band.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  onTouchStart={() => setHovered(band.id)}
-                  onTouchEnd={() => setHovered(null)}>
-                  {signInner}
-                </Link>
-              );
-            }
-
-            return (
-              <button
-                key={band.id}
-                onClick={() => onSelect(band.id)}
-                onMouseEnter={() => setHovered(band.id)}
-                onMouseLeave={() => setHovered(null)}
-                onTouchStart={() => setHovered(band.id)}
-                onTouchEnd={() => setHovered(null)}
-                style={{ background: "none", border: "none", padding: 0, display: "block", width: "100%", cursor: "pointer" }}>
-                {signInner}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Main export ───────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN EXPORT
+// ═══════════════════════════════════════════════════════════════════════════════
 export function CityPage() {
   const [category, setCategory] = useState<CityCategory>("landing");
 
-  if (category === "landing")   return <CityLanding onSelect={setCategory}/>;
-  if (category === "eats")      return <EatsPage    onBack={() => setCategory("landing")}/>;
+  if (category === "landing")   return <CityLanding            onSelect={setCategory}/>;
+  if (category === "eats")      return <EatsPage               onBack={() => setCategory("landing")}/>;
+  if (category === "solo")      return <SoloPage               onBack={() => setCategory("landing")}/>;
+  if (category === "go")        return <GoPage                 onBack={() => setCategory("landing")}/>;
+  if (category === "trending")  return <TrendingPage           onBack={() => setCategory("landing")}/>;
+  if (category === "favorites") return <BloomiesFavoritesPage  onBack={() => setCategory("landing")}/>;
 
   const band = BANDS.find(b => b.id === category)!;
   return <ComingSoon band={band} onBack={() => setCategory("landing")}/>;
