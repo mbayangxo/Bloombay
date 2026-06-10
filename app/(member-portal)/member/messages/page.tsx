@@ -210,104 +210,77 @@ function FoundersEnvelopeCard({ item, isOpened, onClick }: {
   );
 }
 
-// ── Invitation card (special treatment) ──────────────────────────────────────
+// ── Envelope card (replaces InvitationCard) ───────────────────────────────────
 
-function InvitationCard({ item, isOpened, onClick }: {
+function EnvelopeCard({ item, isOpened, onClick }: {
   item: MailboxItem;
   isOpened: boolean;
   onClick: () => void;
 }) {
-  const isUnopened = !isOpened;
-  const accent = item.color;
+  const isUnread = !isOpened;
 
-  // If it has an inviteId, link directly to the invitation detail page
+  const envColors: Record<MailboxItemType, string> = {
+    invitation:           "#D4849A",
+    letter:               "#C8899C",
+    certificate:          "#B8956A",
+    recognition:          "#B8956A",
+    milestone:            "#E0708A",
+    "founders-invitation":"#8A6A30",
+  };
+  const envColor = envColors[item.type] ?? "#C8899C";
+
+  const cardContent = (
+    <div style={{ padding: "0 0 12px", textAlign: "left" }}>
+      {/* White letter part sticking out */}
+      <div style={{ background: "white", marginBottom: -10, padding: "14px 14px 24px", borderRadius: "16px 16px 0 0", position: "relative", boxShadow: "0 -2px 10px rgba(0,0,0,0.07)", border: "1px solid rgba(0,0,0,0.05)", borderBottom: "none", zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${item.color}, ${item.color}99)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: item.initial.length > 2 ? 9 : 12, fontWeight: 800, color: "white", flexShrink: 0 }}>
+            {item.initial}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: isUnread ? 700 : 500, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
+              {isUnread && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF1F7D", flexShrink: 0, boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />}
+            </div>
+            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "#999", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.preview}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb", marginTop: 4 }}>{item.date}</p>
+          </div>
+        </div>
+      </div>
+      {/* Envelope body */}
+      <div style={{ position: "relative", zIndex: 0 }}>
+        {/* V-flap */}
+        <div style={{ overflow: "hidden", height: 14, display: "flex" }}>
+          <div style={{ width: "50%", height: 14, background: `${envColor}CC`, clipPath: "polygon(0 0, 100% 0, 100% 100%)" }} />
+          <div style={{ width: "50%", height: 14, background: `${envColor}CC`, clipPath: "polygon(0 0, 0 100%, 100% 0)" }} />
+        </div>
+        <div style={{ background: envColor, borderRadius: "0 0 16px 16px", padding: "10px 14px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.9)" }}>From {item.from}</p>
+          {item.type === "invitation" && (
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #F0C0CC, #C07080)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>🌹</div>
+          )}
+          {item.type === "letter" && (
+            <div style={{ fontSize: 16 }}>✉️</div>
+          )}
+          {(item.type === "certificate" || item.type === "recognition") && (
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>✦</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   if (item.inviteId) {
     return (
-      <Link href={`/member/invitations/${item.inviteId}`} style={{ textDecoration: "none" }}>
-        <div className="flex items-center gap-3.5 px-5 py-4 w-full"
-          style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-          <div className="relative flex-shrink-0">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0"
-              style={{
-                background: `linear-gradient(135deg, ${accent} 0%, ${accent}BB 100%)`,
-                color: "white",
-                fontSize: item.initial.length > 2 ? "9px" : item.initial.length > 1 ? "10px" : "16px",
-                boxShadow: isUnopened ? `0 0 0 2px ${accent}, 0 0 0 4px var(--pale-pink-bg, #FDFAF5)` : "none",
-              }}>
-              {item.initial}
-            </div>
-            {isUnopened && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center"
-                style={{ background: "#FF1F7D", boxShadow: "0 1px 6px rgba(255,31,125,0.5)" }}>
-                <span style={{ color: "white", fontSize: "9px", fontWeight: 900 }}>•</span>
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-0.5">
-              <p className="text-sm truncate leading-tight"
-                style={{ color: "var(--heading-color, #111)", fontWeight: isUnopened ? 700 : 500 }}>
-                {item.subject}
-              </p>
-              <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-muted, #bbb)" }}>{item.date}</span>
-            </div>
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: "rgba(255,31,125,0.08)", color: accent }}>
-                🎟 {item.from}
-              </span>
-              <p className="text-[11px] truncate" style={{ color: "var(--text-muted, #bbb)" }}>{item.preview}</p>
-            </div>
-          </div>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
+      <Link href={`/member/invitations/${item.inviteId}`} style={{ display: "block", textDecoration: "none" }}>
+        {cardContent}
       </Link>
     );
   }
 
-  // Otherwise use the regular onClick (letter view)
   return (
-    <button onClick={onClick}
-      className="w-full flex items-center gap-3.5 px-5 py-4 text-left transition-all active:scale-[0.98]"
-      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-      <div className="relative flex-shrink-0">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0"
-          style={{
-            background: `linear-gradient(135deg, ${accent} 0%, ${accent}BB 100%)`,
-            color: "white",
-            fontSize: item.initial.length > 2 ? "9px" : item.initial.length > 1 ? "10px" : "16px",
-            boxShadow: isUnopened ? `0 0 0 2px ${accent}, 0 0 0 4px var(--pale-pink-bg, #FDFAF5)` : "none",
-          }}>
-          {item.initial}
-        </div>
-        {isUnopened && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center"
-            style={{ background: "#FF1F7D", boxShadow: "0 1px 6px rgba(255,31,125,0.5)" }}>
-            <span style={{ color: "white", fontSize: "9px", fontWeight: 900 }}>•</span>
-          </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2 mb-0.5">
-          <p className="text-sm truncate leading-tight"
-            style={{ color: "var(--heading-color, #111)", fontWeight: isUnopened ? 700 : 500 }}>
-            {item.subject}
-          </p>
-          <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-muted, #bbb)" }}>{item.date}</span>
-        </div>
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-            style={{ background: "rgba(255,31,125,0.08)", color: accent }}>
-            {TYPE_ICONS[item.type]} {item.from}
-          </span>
-          <p className="text-[11px] truncate" style={{ color: "var(--text-muted, #bbb)" }}>{item.preview}</p>
-        </div>
-      </div>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,140,140,0.5)" strokeWidth="2.5" strokeLinecap="round" className="flex-shrink-0">
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
+    <button onClick={onClick} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "block" }}>
+      {cardContent}
     </button>
   );
 }
@@ -395,61 +368,110 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
     );
   }
 
+  // Open envelope illustration
+  const isInvitation = item.type === "invitation";
+  const isLetter     = item.type === "letter";
+  const isMilestone  = item.type === "milestone";
+
   return (
-    <div className="min-h-screen pb-24" style={{ background: isGold ? "#0A0804" : "#F4EDE3" }}>
-      <div className="px-5 pt-14 pb-4 flex items-center gap-3">
-        <button onClick={onBack}
-          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
-          style={{ background: isGold ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke={isGold ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)"} strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
+    <div style={{ minHeight: "100vh", paddingBottom: 96, background: "#FBE8EE" }}>
+      {/* Back nav */}
+      <div style={{ padding: "54px 20px 0", display: "flex", alignItems: "center", gap: 10 }}>
+        <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(0,0,0,0.07)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: accentColor }}>✦ MAILBOX</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#D4849A" }}>✉ MAILBOX</p>
       </div>
-      <div className="px-5 md:px-8">
-        <div className="rounded-3xl overflow-hidden relative"
-          style={{
-            background: isGold ? "linear-gradient(145deg, #1A1208 0%, #0A0804 100%)" : "white",
-            boxShadow: isGold ? "0 16px 48px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(212,168,83,0.2)" : "0 8px 32px rgba(255,105,180,0.12)",
-            border: `1px solid ${isGold ? "rgba(212,168,83,0.2)" : "#FFE8F0"}`,
-          }}>
-          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accentColor}66, transparent)` }} />
-          <div className="px-6 pt-6 pb-3">
-            <div className="flex items-start gap-4 mb-5">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background: `${accentColor}22`, border: `1px solid ${accentColor}44` }}>
-                {item.initial}
+
+      {/* Open envelope illustration */}
+      <div style={{ padding: "20px 24px 0", display: "flex", justifyContent: "center" }}>
+        <svg width="260" height="130" viewBox="0 0 260 130">
+          {/* Envelope back */}
+          <rect x="10" y="40" width="240" height="90" rx="8" fill="#D4849A"/>
+          {/* Left flap */}
+          <polygon points="10,40 10,130 130,90" fill="#C07080"/>
+          {/* Right flap */}
+          <polygon points="250,40 250,130 130,90" fill="#C07080"/>
+          {/* Bottom fold */}
+          <polygon points="10,130 250,130 130,90" fill="#E090A0"/>
+          {/* Open top flap (folded back) */}
+          <polygon points="10,40 250,40 130,100" fill="#E8A4B4" transform="rotate(-3 130 40) translate(0,-30)"/>
+          {/* Wax seal on flap */}
+          <circle cx="130" cy="28" r="14" fill="url(#waxGrad)" opacity="0.9"/>
+          <text x="130" y="33" textAnchor="middle" fill="rgba(255,240,220,0.9)" fontSize="12" fontWeight="900">🌹</text>
+          <defs>
+            <radialGradient id="waxGrad" cx="35%" cy="35%">
+              <stop offset="0%" stopColor="#F0C0CC"/>
+              <stop offset="100%" stopColor="#B07080"/>
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* Content card — coming out of envelope */}
+      <div style={{ margin: "-32px 20px 0", position: "relative", zIndex: 2 }}>
+        <div style={{ background: "white", borderRadius: 20, boxShadow: "0 12px 40px rgba(200,80,120,0.18)", overflow: "hidden", border: "1px solid rgba(212,140,160,0.15)" }}>
+
+          {isInvitation && (
+            <div style={{ padding: "24px 22px 28px", position: "relative" }}>
+              {/* Postage stamp top-left */}
+              <div style={{ position: "absolute", top: 16, left: 16, width: 38, height: 46, background: "linear-gradient(135deg, #F5E070, #D4A830)", borderRadius: 3, border: "2px solid rgba(255,255,255,0.6)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "1px 1px 4px rgba(0,0,0,0.15)", padding: "3px" }}>
+                <div style={{ background: "rgba(255,255,255,0.3)", width: "100%", flex: 1, borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: 14 }}>🌸</span>
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 800, color: "rgba(120,80,0,0.8)", marginTop: 2 }}>50</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: `${accentColor}99` }}>
-                  FROM {item.from.toUpperCase()}
-                </p>
-                <h1 className="font-black italic leading-tight"
-                  style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: isGold ? "rgba(212,168,83,0.95)" : "#111", lineHeight: 1.1 }}>
-                  {item.subject}
-                </h1>
-                <p className="text-[10px] mt-1" style={{ color: isGold ? "rgba(255,255,255,0.3)" : "#bbb" }}>{item.date}</p>
+              {/* "She & Girls Only" tag top-right */}
+              <div style={{ position: "absolute", top: 16, right: 16, background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 6, padding: "4px 8px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "#FF1F7D", whiteSpace: "nowrap" }}>She &amp; Girls Only</p>
+              </div>
+
+              {/* Main invite content */}
+              <div style={{ paddingTop: 44, textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, color: "#C07080", marginBottom: 6 }}>You&apos;re Invited to</p>
+                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.15, marginBottom: 12 }}>{item.subject}</h1>
+                {item.body && (
+                  <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#777", lineHeight: 1.65, marginBottom: 18, textAlign: "left" }}>
+                    {item.body}
+                  </p>
+                )}
+                {/* Wax seal */}
+                <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #F0C0CC, #B07080)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 12px rgba(180,80,100,0.35)", border: "2px solid rgba(255,255,255,0.5)" }}>
+                    <span style={{ fontSize: 22 }}>🌹</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="mb-5" style={{ height: "1px", background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
-            <div className="whitespace-pre-wrap text-sm leading-[1.85] mb-6"
-              style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", color: isGold ? "rgba(255,238,220,0.82)" : "#444" }}>
-              {item.body ?? item.preview}
+          )}
+
+          {isLetter && (
+            <div style={{ padding: "22px 22px 28px", backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.05) 28px)", backgroundSize: "100% 28px", backgroundPosition: "0 22px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#C07080", marginBottom: 12 }}>FROM {item.from.toUpperCase()}</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 16 }}>{item.subject}</h2>
+              <div style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#444", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+                {item.body ?? item.preview}
+              </div>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#C07080", marginTop: 20, textAlign: "right" }}>— {item.from} ✦</p>
             </div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-[9px] font-bold px-3 py-1.5 rounded-full"
-                style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}33` }}>
-                {TYPE_ICONS[item.type]} {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-              </span>
+          )}
+
+          {isMilestone && (
+            <div style={{ padding: "28px 22px", textAlign: "center" }}>
+              <div style={{ fontSize: 48, marginBottom: 14 }}>🌸</div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "#C07080", marginBottom: 8 }}>MILESTONE</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 16 }}>{item.subject}</h2>
+              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 14, fontStyle: "italic", color: "#666", lineHeight: 1.65 }}>{item.body ?? item.preview}</p>
             </div>
-          </div>
-          <div style={{ height: "1px", background: `linear-gradient(90deg, transparent, ${accentColor}33, transparent)` }} />
-          <div className="px-6 py-3 flex justify-between items-center">
-            <p className="text-[9px] tracking-[0.2em]" style={{ color: isGold ? "rgba(212,168,83,0.35)" : "#ddd" }}>BloomBay · Permanent</p>
-            <p className="text-[9px] tracking-[0.2em]" style={{ color: isGold ? "rgba(212,168,83,0.35)" : "#ddd" }}>✦</p>
-          </div>
+          )}
+
+          {!isInvitation && !isLetter && !isMilestone && (
+            <div style={{ padding: "22px 22px 28px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#B8956A", marginBottom: 12 }}>FROM {item.from.toUpperCase()}</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 16 }}>{item.subject}</h2>
+              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 14, fontStyle: "italic", color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{item.body ?? item.preview}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -619,7 +641,7 @@ function MailboxInner() {
           </div>
         ) : (
           shown.filter(i => i.type !== "founders-invitation").map(item => (
-            <InvitationCard
+            <EnvelopeCard
               key={item.id}
               item={item}
               isOpened={openedItems.has(item.id)}
