@@ -270,3 +270,119 @@ export function WashiTape({
     />
   );
 }
+
+// ─── Polaroid ────────────────────────────────────────────────────────────────
+// A polaroid-style photo card with optional caption and tape/pin decoration.
+
+export function Polaroid({
+  width = 130,
+  height = 100,
+  caption,
+  bg = "linear-gradient(135deg,#d4a5c4 0%,#e8c8b5 100%)",
+  rot = 0,
+  tape = false,
+  pin = false,
+  pinColor = "pink" as "pink" | "red" | "blue" | "gold",
+  children,
+  style,
+}: {
+  width?: number;
+  height?: number;
+  caption?: string;
+  bg?: string;
+  rot?: number;
+  tape?: boolean;
+  pin?: boolean;
+  pinColor?: "pink" | "red" | "blue" | "gold";
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+
+  return (
+    <div style={{ position: "relative", display: "inline-block", ...style }}>
+      {pin && (
+        <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
+          <PushPin color={pinColor} size={13} />
+        </div>
+      )}
+      {tape && (
+        <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1.5deg)", zIndex: 3 }}>
+          <Tape rot={0} />
+        </div>
+      )}
+      <div style={{
+        width,
+        background: "white",
+        backgroundImage: PAPER_TEX,
+        backgroundSize: "200px 200px",
+        padding: "7px 7px",
+        paddingBottom: caption ? 22 : 7,
+        boxShadow: "2px 4px 18px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.1)",
+        transform: `rotate(${rot}deg)`,
+        position: "relative",
+      }}>
+        <div style={{ width: "100%", height, background: bg, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {children}
+        </div>
+        {caption && (
+          <p style={{
+            fontFamily: "var(--font-caveat)",
+            fontSize: 11,
+            color: "rgba(0,0,0,0.45)",
+            textAlign: "center",
+            marginTop: 6,
+            lineHeight: 1.3,
+            position: "absolute",
+            bottom: 5,
+            left: 7,
+            right: 7,
+          }}>
+            {caption}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Sticky Note ─────────────────────────────────────────────────────────────
+// A small sticky note with optional ruling lines and handwritten-style text.
+
+export function StickyNote({
+  color = "yellow",
+  rot = 0,
+  width = 100,
+  children,
+  style,
+}: {
+  color?: "yellow" | "pink" | "blue" | "mint";
+  rot?: number;
+  width?: number;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  const palettes = {
+    yellow: { bg: "#FFF9C4", ruled: "rgba(200,180,0,0.12)", shadow: "rgba(200,170,0,0.15)" },
+    pink:   { bg: "#FFE4EF", ruled: "rgba(220,80,120,0.1)",  shadow: "rgba(220,80,120,0.12)" },
+    blue:   { bg: "#E3F0FF", ruled: "rgba(40,100,200,0.09)", shadow: "rgba(40,100,200,0.1)"  },
+    mint:   { bg: "#E0FBF0", ruled: "rgba(20,160,100,0.1)",  shadow: "rgba(20,160,100,0.1)"  },
+  };
+  const p = palettes[color];
+
+  return (
+    <div style={{
+      width,
+      background: p.bg,
+      backgroundImage: `repeating-linear-gradient(transparent, transparent 18px, ${p.ruled} 18px, ${p.ruled} 19px)`,
+      padding: "10px 10px 12px",
+      boxShadow: `2px 4px 12px ${p.shadow}, 0 1px 3px rgba(0,0,0,0.1)`,
+      transform: `rotate(${rot}deg)`,
+      ...style,
+    }}>
+      <div style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.7)", lineHeight: 1.5 }}>
+        {children}
+      </div>
+    </div>
+  );
+}

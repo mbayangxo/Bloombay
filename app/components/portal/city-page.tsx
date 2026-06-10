@@ -450,19 +450,21 @@ const BANDS = [
 
 /* ── Eats sub-page ─────────────────────────────────────────────── */
 
-const FILTERS = ["Tonight", "1+", "Italian", "Cocktails", "Date Night", "Brunch", "Outdoor", "Sushi"];
+const FILTERS = ["Tonight", "1+", "Italian", "Cocktails", "Date Night", "Brunch", "Outdoor", "Sushi", "Wine Bars"];
 
 const FEATURED = [
   { id: 1, name: "Bar Pisellino", neighborhood: "WEST VILLAGE", cuisine: "ITALIAN", women: 18, note: "So early for a martini at the bar — Maya", bg: "#1a0a0e" },
-  { id: 2, name: "Lola Taverna",  neighborhood: "WEST VILLAGE", cuisine: "GREEK",   women: 41, badge: "TRENDING", bg: "#2d1a0e" },
+  { id: 2, name: "Lola Taverna",  neighborhood: "WEST VILLAGE", cuisine: "GREEK",   women: 41, badge: "TRENDING", note: "Everything we ordered was perfect — Dani", bg: "#2d1a0e" },
   { id: 3, name: "Via Carota",    neighborhood: "WEST VILLAGE", cuisine: "ITALIAN", women: 12, badge: "⚑ RESERVED", bg: PAPER, reservation: { time: "8:15PM", seats: "2 SEATS" }, light: true },
 ];
 
 const GRID_SPOTS = [
-  { id: 4, name: "Sant Ambroeus", neighborhood: "SOHO",    saved: 12, bg: "#FAF0E8" },
-  { id: 5, name: "Cecconni's",    neighborhood: "SOHO",    saved: 8,  bg: "#F0EAF8" },
-  { id: 6, name: "Rubirosa",      neighborhood: "NOLITA",  saved: 12, bg: "#FFF5F8" },
-  { id: 7, name: "Pasta Night",   neighborhood: "LES",     saved: 8,  bg: "#F5F0E8" },
+  { id: 4, name: "Sant Ambroeus", neighborhood: "SOHO",         saved: 12, bg: "#FAF0E8" },
+  { id: 5, name: "Cecconi's",     neighborhood: "SOHO",         saved: 8,  bg: "#F0EAF8" },
+  { id: 6, name: "Rubirosa",      neighborhood: "NOLITA",       saved: 12, bg: "#FFF5F8" },
+  { id: 7, name: "Pasta Night",   neighborhood: "LES",          saved: 8,  bg: "#F5F0E8" },
+  { id: 8, name: "Four Horsemen", neighborhood: "WILLIAMSBURG", saved: 11, bg: "#EEEAE0" },
+  { id: 9, name: "Burette",       neighborhood: "WEST VILLAGE", saved: 7,  bg: "#F0EEF8" },
 ];
 
 function EatsPage({ onBack }: { onBack: () => void }) {
@@ -526,6 +528,13 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
               <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,230,200,0.92)", lineHeight: 1.1 }}>{FEATURED[1].name}</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", marginTop: 2 }}>{FEATURED[1].neighborhood}</p>
+              {FEATURED[1].note && (
+                <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
+                  <div style={{ transform: "rotate(0.8deg)", background: "rgba(255,255,230,0.88)", padding: "6px 8px" }}>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#444", lineHeight: 1.4 }}>{FEATURED[1].note}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div style={{ backgroundImage: PAPER_TEX, backgroundColor: PAPER, backgroundSize: "200px 200px", borderRadius: 18, minHeight: 112, padding: "12px 12px 10px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)", overflow: "hidden" }}>
@@ -554,6 +563,54 @@ function EatsPage({ onBack }: { onBack: () => void }) {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Go-to spots + Big feature */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+          {/* Go-To list */}
+          <div style={{
+            backgroundImage: PAPER_TEX,
+            backgroundColor: "#FEF3E8",
+            backgroundSize: "200px 200px",
+            borderRadius: 14,
+            padding: "14px 12px",
+            position: "relative",
+            transform: "rotate(-0.5deg)",
+            boxShadow: "2px 4px 14px rgba(0,0,0,0.25)",
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 8 }}>GO-TO SPOTS LATELY</p>
+            {["Bar Pisellino", "Sushi Noz", "Lucien", "Café Kitsuné", "Buvette"].map((name, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, flexShrink: 0 }}>{i + 1}.</span>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#2a1a10" }}>{name}</span>
+              </div>
+            ))}
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, marginTop: 6, opacity: 0.7 }}>girls night →</p>
+          </div>
+
+          {/* The Roof feature */}
+          <div style={{
+            borderRadius: 14,
+            background: "#0d0806",
+            overflow: "hidden",
+            position: "relative",
+            minHeight: 160,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.45)",
+          }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 20%, rgba(40,20,10,0.8) 0%, rgba(5,3,2,0.95) 80%)" }}/>
+            <div style={{ position: "absolute", inset: 0, padding: "14px 12px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>ROOFTOP · NOMAD</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,245,235,0.92)", lineHeight: 1.2 }}>The Roof at<br/>PUBLIC Hotel</p>
+              </div>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.1em", marginBottom: 6 }}>AMAZING VIEWS ✦</p>
+                <div style={{ background: PINK, borderRadius: 999, padding: "5px 12px", display: "inline-flex" }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>18 GOING</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

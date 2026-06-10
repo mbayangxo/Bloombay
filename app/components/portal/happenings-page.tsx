@@ -603,11 +603,12 @@ function CreateFAB() {
 
 /* ── Main ────────────────────────────────────────────────── */
 export function HappeningsPage() {
-  const [tab,     setTab]    = useState<HapTab>("happenings");
-  const [filter,  setFilter] = useState<Filter>("All");
-  const [events,  setEvents] = useState<Event[]>([]);
-  const [joined,  setJoined] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [tab,        setTab]       = useState<HapTab>("happenings");
+  const [filter,     setFilter]    = useState<Filter>("All");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [events,     setEvents]    = useState<Event[]>([]);
+  const [joined,     setJoined]    = useState<Set<string>>(new Set());
+  const [loading,    setLoading]   = useState(true);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
@@ -721,29 +722,46 @@ export function HappeningsPage() {
             {/* Type carousel */}
             <TypeCarousel onSelect={label => setFilter(label as Filter)}/>
 
-            {/* Filter pills */}
-            <div
-              className="filter-scroll"
-              style={{
-                display: "flex", gap: 7, overflowX: "auto",
-                padding: "0 14px 12px",
-                scrollbarWidth: "none",
-              }}
-            >
-              {FILTERS.map(f => (
-                <button key={f} onClick={() => setFilter(f)} style={{
-                  flexShrink: 0, padding: "6px 14px", borderRadius: 999,
-                  border: `1px solid ${filter === f ? PINK : "rgba(255,255,255,0.12)"}`,
-                  background: filter === f ? PINK : "rgba(255,255,255,0.05)",
-                  color: filter === f ? "white" : "rgba(255,255,255,0.4)",
-                  fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                  letterSpacing: "0.04em", cursor: "pointer",
-                  boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
-                }}>
-                  {f}
-                </button>
-              ))}
+            {/* Filter trigger bar + collapsible pills */}
+            <div style={{ padding: "4px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(255,255,255,0.3)" : PINK, letterSpacing: "0.08em" }}>
+                {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
+              </span>
+              <button onClick={() => setFilterOpen(o => !o)} style={{
+                background: filterOpen ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 6, padding: "5px 10px", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 5,
+                fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700,
+                color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em",
+              }}>
+                {filterOpen ? "CLOSE ✕" : "FILTER ≡"}
+              </button>
             </div>
+            {filterOpen && (
+              <div
+                className="filter-scroll"
+                style={{
+                  display: "flex", gap: 7, overflowX: "auto",
+                  padding: "0 14px 12px",
+                  scrollbarWidth: "none",
+                }}
+              >
+                {FILTERS.map(f => (
+                  <button key={f} onClick={() => setFilter(f)} style={{
+                    flexShrink: 0, padding: "6px 14px", borderRadius: 999,
+                    border: `1px solid ${filter === f ? PINK : "rgba(255,255,255,0.12)"}`,
+                    background: filter === f ? PINK : "rgba(255,255,255,0.05)",
+                    color: filter === f ? "white" : "rgba(255,255,255,0.4)",
+                    fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                    letterSpacing: "0.04em", cursor: "pointer",
+                    boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
+                  }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Ticker */}
             <div style={{ overflow: "hidden", borderTop: `1px solid rgba(255,255,255,0.05)`, borderBottom: `1px solid rgba(255,255,255,0.05)`, background: `${PINK}0d`, padding: "7px 0", marginBottom: 12 }}>
@@ -794,6 +812,33 @@ export function HappeningsPage() {
             )}
 
             <div style={{ height: 20 }}/>
+
+            {/* From your city */}
+            {!loading && (
+              <div style={{ padding: "0 0 8px" }}>
+                <div style={{ padding: "8px 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK }}/>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.25)" }}>FROM YOUR CITY</span>
+                </div>
+                <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
+                  {[
+                    { name: "Sunset Walk", sub: "Brooklyn Bridge · SUN 1PM", img: POSTER_IMGS[9], going: 7 },
+                    { name: "Natural Wine", sub: "West Village · TONIGHT", img: POSTER_IMGS[1], going: 6 },
+                    { name: "Rooftop Girls", sub: "SAT 8PM", img: POSTER_IMGS[7], going: 12 },
+                    { name: "Dance All Night", sub: "SAT · 11PM", img: POSTER_IMGS[5], going: 10 },
+                  ].map((item, i) => (
+                    <div key={i} style={{ flexShrink: 0, width: 130, borderRadius: 10, overflow: "hidden", position: "relative", height: 100, boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
+                      <img src={item.img} alt={item.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%)" }}/>
+                      <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
+                        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{item.name}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{item.going} going · {item.sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 
