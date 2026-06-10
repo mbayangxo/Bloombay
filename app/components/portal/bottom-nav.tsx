@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
+import { BBLogo } from "./bb-logo";
 
 const PINK = "#FF1F7D";
 const GOLD = "#D4A853";
@@ -263,13 +264,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
 
-          {/* BB wordmark */}
-          <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 3 }}>
-            <span style={{
-              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-              fontSize: 22, color: PINK, letterSpacing: "-0.02em", lineHeight: 1,
-            }}>BB</span>
-            <span style={{ color: PINK, fontSize: 13, opacity: 0.65 }}>✿</span>
+          {/* BloomBay logo */}
+          <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <BBLogo size={26} pinkColor={PINK} />
           </Link>
 
           {/* ── Top icons: Apt · Pin · Mailbox · Chat ── */}

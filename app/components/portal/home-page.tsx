@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
+import { BBLogo } from "./bb-logo";
 
 const PINK = "#FF0090";
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -187,15 +188,14 @@ export function HomePage() {
                 textShadow: ["0 1px 0 rgba(255,0,144,0.35)", "0 2px 0 rgba(255,0,144,0.18)", "0 4px 14px rgba(255,0,144,0.12)"].join(", "),
               }}>{loading ? "…" : `${displayName}.`}</p>
             </div>
-            {/* BB badge */}
+            {/* BloomBay logo badge */}
             <div style={{
               width: 58, height: 58, borderRadius: "50%", flexShrink: 0, marginTop: 2,
               background: "linear-gradient(145deg, #FF0090 0%, #FF5BAD 100%)",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: ["0 1px 0 rgba(160,0,60,0.9)", "0 3px 0 rgba(140,0,50,0.45)", "0 8px 20px rgba(255,0,128,0.35)", "inset 0 1px 0 rgba(255,255,255,0.38)"].join(", "),
             }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "white", lineHeight: 1, textShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>BB</p>
-              <p style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", lineHeight: 1 }}>✿</p>
+              <BBLogo size={28} light />
             </div>
           </div>
 
