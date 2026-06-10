@@ -128,45 +128,58 @@ export function HomePage() {
 
       {/* ══ MASTHEAD ═════════════════════════════════════════════════════════════ */}
       <div style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 24px)",
-        paddingLeft: 24, paddingRight: 24, paddingBottom: 38,
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 20px)",
+        paddingLeft: 16, paddingRight: 16, paddingBottom: 28,
         position: "relative", overflow: "hidden",
       }}>
-        {/* Decorative orbs */}
-        <div style={{ position: "absolute", top: -50, right: -40, width: 210, height: 210, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 80, left: -60, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
-
         {/* Logo + date row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingLeft: 8, paddingRight: 8 }}>
           <BBLogo size={24} light />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.52)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.55)" }}>
             {dayAbbr} · {dayOfMonth} {monthShort}
           </p>
         </div>
 
-        {/* Greeting */}
-        <p style={{
-          fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 300,
-          fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.2, marginBottom: 5,
-        }}>{greeting},</p>
+        {/* ── BLACK EDITORIAL CARD ── */}
+        <div style={{
+          background: "#000000",
+          borderRadius: 22,
+          padding: "22px 22px 24px",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 12px 40px rgba(0,0,0,0.35), 0 30px 60px rgba(0,0,0,0.18)",
+        }}>
+          {/* Subtle pink glow inside the black card */}
+          <div style={{ position: "absolute", bottom: -30, right: -20, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: -20, left: -20, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        {/* Name — the hero */}
-        <p style={{
-          fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-          fontSize: nameFontSize,
-          color: "white", lineHeight: 0.88, letterSpacing: "-0.025em",
-          textShadow: "0 2px 0 rgba(150,0,55,0.5), 0 8px 32px rgba(0,0,0,0.15)",
-          marginBottom: 16,
-        }}>{loading ? "…" : `${displayName}.`}</p>
+          {/* "GOOD EVENING" eyebrow in hot pink */}
+          <p style={{
+            fontFamily: "var(--font-jost)", fontWeight: 900,
+            fontSize: "9px", letterSpacing: "0.32em",
+            color: PINK, marginBottom: 10, position: "relative",
+          }}>{greeting.toUpperCase()}</p>
 
-        {/* Tagline */}
-        <p style={{
-          fontFamily: "var(--font-caveat)", fontSize: 15,
-          color: "rgba(255,255,255,0.46)", marginBottom: 28, letterSpacing: "0.01em",
-        }}>you belong here ✦ soft life, strong mind</p>
+          {/* Name — white on black, massive */}
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+            fontSize: nameFontSize,
+            color: "white", lineHeight: 0.88, letterSpacing: "-0.025em",
+            position: "relative", marginBottom: 16,
+          }}>{loading ? "…" : `${displayName}.`}</p>
 
-        {/* Action chips */}
-        <div style={{ display: "flex", gap: 9 }}>
+          {/* Pink divider */}
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}, rgba(255,0,144,0.2), transparent)`, marginBottom: 14, position: "relative" }} />
+
+          {/* Tagline */}
+          <p style={{
+            fontFamily: "var(--font-caveat)", fontSize: 14,
+            color: "rgba(255,255,255,0.42)", position: "relative",
+          }}>you belong here ✦ soft life, strong mind</p>
+        </div>
+
+        {/* Action chips — below the black card, on pink */}
+        <div style={{ display: "flex", gap: 9, marginTop: 18, paddingLeft: 4 }}>
           <Link href="/member/happenings" style={{ textDecoration: "none" }}>
             <div style={{
               padding: "10px 22px", borderRadius: 999,
@@ -177,12 +190,12 @@ export function HomePage() {
             </div>
           </Link>
           <Link href="/member/city" style={{ textDecoration: "none" }}>
-            <div style={{ padding: "10px 22px", borderRadius: 999, border: "1.5px solid rgba(255,255,255,0.42)" }}>
+            <div style={{ padding: "10px 22px", borderRadius: 999, background: "#000000", boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.2)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.05em" }}>City</p>
             </div>
           </Link>
           <Link href="/member/plans" style={{ textDecoration: "none" }}>
-            <div style={{ padding: "10px 22px", borderRadius: 999, border: "1.5px solid rgba(255,255,255,0.42)" }}>
+            <div style={{ padding: "10px 22px", borderRadius: 999, background: "#000000", boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.2)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.05em" }}>Plans</p>
             </div>
           </Link>

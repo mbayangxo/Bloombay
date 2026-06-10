@@ -6,8 +6,18 @@ import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
 
-const PINK = "#FF1F7D";
+const PINK = "#FF0090";
 const GOLD = "#D4A853";
+
+// Inject pulse keyframe once
+if (typeof document !== "undefined") {
+  if (!document.getElementById("bb-pulse-style")) {
+    const s = document.createElement("style");
+    s.id = "bb-pulse-style";
+    s.textContent = `@keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.65;transform:scale(0.88)} }`;
+    document.head.appendChild(s);
+  }
+}
 
 interface NavUser { name: string; initial: string; role: string; }
 
@@ -87,29 +97,22 @@ function IconPlans({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Happenings: 4-pointed sparkle star
+// Happenings: city skyline
 function IconHappenings({ c, w = 2 }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
-      <path d="M12 2l2.1 6.4L20 10l-5.9 1.6L12 18l-2.1-6.4L4 10l5.9-1.6L12 2z"/>
-      <circle cx="19" cy="4" r="1" fill={c} stroke="none"/>
-      <circle cx="5" cy="19" r="1" fill={c} stroke="none"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <line x1="1" y1="20" x2="23" y2="20"/>
+      <path d="M3 20V9l5-4 5 4v11"/>
+      <path d="M16 20v-6h5v6"/>
+      <line x1="9" y1="12" x2="11" y2="12"/>
+      <line x1="9" y1="16" x2="11" y2="16"/>
     </svg>
   );
 }
 
-// Clubs: 5-petal cherry blossom
-function IconClubs({ c, w = 2 }: SVGProps) {
-  return (
-    <svg width="22" height="22" viewBox="0 0 26 26" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
-      <circle cx="13" cy="13" r="2.4"/>
-      <ellipse cx="13" cy="6.5" rx="2" ry="3.5"/>
-      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(72 13 13)"/>
-      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(144 13 13)"/>
-      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(216 13 13)"/>
-      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(288 13 13)"/>
-    </svg>
-  );
+// Clubs: uses BBLogo inline (rendered separately in renderTabIcon)
+function IconClubs({ c }: SVGProps) {
+  return <BBLogo size={20} pinkColor={c} darkColor={c} />;
 }
 
 // ── Top bar icon components (bigger, in styled tiles) ─────────────────────────
@@ -128,11 +131,13 @@ function IconApt({ c }: SVGProps) {
   );
 }
 
+// Pin Drop — filled teardrop with inner circle, clearly a dropped pin
 function IconPin({ c }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round">
-      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
-      <circle cx="12" cy="10" r="3"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c} opacity="0.9"/>
+      <circle cx="12" cy="9" r="2.5" fill="white" opacity="0.85"/>
+      <line x1="12" y1="22" x2="12" y2="20" stroke={c} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -167,9 +172,10 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",       key: "home"       },
-  { href: "/member/lobby",      key: "lobby"      },
+  { href: "/member/plans",      key: "plans"      },
   { href: "/member/happenings", key: "happenings" },
   { href: "/member/clubs",      key: "clubs"      },
+  { href: "/member/lobby",      key: "lobby"      },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -200,14 +206,15 @@ export function BottomNav({ user }: { user?: NavUser }) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
     if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
-    if (key === "lobby")      return <IconLobby      c={c} w={w} />;
+    if (key === "plans")      return <IconPlans      c={c} w={w} />;
     if (key === "happenings") return <IconHappenings c={c} w={w} />;
-    if (key === "clubs")      return <IconClubs      c={c} w={w} />;
+    if (key === "clubs")      return <IconClubs      c={c} />;
+    if (key === "lobby")      return <IconLobby      c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
     if (key === "home") return SLAB_LABEL[slab];
-    return { lobby: "Lobby", happenings: "Happenings", clubs: "Clubs" }[key] ?? key;
+    return { plans: "Plans", happenings: "Tonight", clubs: "Clubs", lobby: "Lobby" }[key] ?? key;
   }
 
   // Top bar icon tile
@@ -284,22 +291,24 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
             {/* Apt / Lounge */}
             <TopTile href="/member/lounge" label="My Apt">
-              <IconApt c={pathname.startsWith("/member/lounge") ? PINK : "rgba(0,0,0,0.48)"} />
+              <IconApt c={PINK} />
             </TopTile>
 
             {/* Pin drop / City */}
-            <TopTile href="/member/city" label="City">
-              <IconPin c={pathname.startsWith("/member/city") ? PINK : "rgba(0,0,0,0.48)"} />
+            <TopTile href="/member/city" label="Pin Drop">
+              <IconPin c={PINK} />
             </TopTile>
 
             {/* Mailbox */}
             <TopTile href="/member/messages" label="Mailbox" badge="number">
-              <IconMail c={pathname.startsWith("/member/messages") ? PINK : "rgba(0,0,0,0.48)"} />
+              <IconMail c={PINK} />
             </TopTile>
 
-            {/* Chat */}
+            {/* Chat — pulse when has dot badge */}
             <TopTile href="/member/chat" label="Chat" badge="dot">
-              <IconChatBubble c={pathname.startsWith("/member/chat") ? PINK : "rgba(0,0,0,0.48)"} />
+              <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
+                <IconChatBubble c={PINK} />
+              </span>
             </TopTile>
 
           </div>
