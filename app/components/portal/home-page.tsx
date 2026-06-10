@@ -284,54 +284,55 @@ export function HomePage() {
         </Link>
       </div>
 
-      {/* ══ THREE BENTO CARDS ════════════════════════════════════════════════════ */}
-      <div style={{ padding: "14px 16px 0", display: "flex", gap: 9 }}>
+      {/* ══ TWO BENTO CARDS ═════════════════════════════════════════════════════ */}
+      <div style={{ padding: "14px 16px 0", display: "flex", gap: 10 }}>
 
         {/* MY FIRST MONTH */}
         <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%", position: "relative" }}>
+          <div style={{ ...CARD, padding: "18px 16px 18px", height: "100%", position: "relative" }}>
             <PushPin style={{ top: -7, left: "50%", transform: "translateX(-50%)" }} color="#FF5BAD" />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.16em", color: PINK, marginBottom: 8 }}>MY FIRST<br />MONTH</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 14, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
-            <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 10, overflow: "hidden" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, letterSpacing: "0.14em", color: PINK, marginBottom: 10 }}>MY FIRST<br />MONTH</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
+            <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 14, overflow: "hidden" }}>
               <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
             </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.28)", marginTop: 5 }}>{weeksIn}/4</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.32)", marginTop: 6 }}>{weeksIn} of 4 weeks</p>
           </div>
         </Link>
 
         {/* THIS WEEK */}
         <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.16em", color: PINK, marginBottom: 8 }}>THIS WEEK<br />· 2 EVENTS</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 14, color: "#000", lineHeight: 1.3 }}>Next: Book Girls NYC</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.35)", marginTop: 4 }}>Wednesday</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: PINK, marginTop: 10 }}>› View all</p>
+          <div style={{ ...CARD, padding: "18px 16px 18px", height: "100%" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, letterSpacing: "0.14em", color: PINK, marginBottom: 10 }}>THIS WEEK<br />· 2 EVENTS</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "#000", lineHeight: 1.3 }}>Next: Book Girls NYC</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.38)", marginTop: 6 }}>Wednesday</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: PINK, marginTop: 12 }}>View all →</p>
           </div>
         </Link>
 
-        {/* CITY VIBES — real event photo card */}
-        <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ ...CARD, overflow: "hidden", height: "100%" }}>
-            {/* Real photo area */}
-            <div style={{ height: 64, position: "relative", overflow: "hidden" }}>
+      </div>
+
+      {/* CITY VIBES — full-width photo card */}
+      <div style={{ padding: "10px 16px 0" }}>
+        <Link href="/member/city" style={{ textDecoration: "none" }}>
+          <div style={{ ...CARD, overflow: "hidden" }}>
+            <div style={{ height: 88, position: "relative", overflow: "hidden" }}>
               <Image
                 src="/club gatherings,casual gatherings templates/Event_Sunday_Walk.png"
                 alt="City vibes"
                 fill
                 style={{ objectFit: "cover", objectPosition: "center 30%" }}
-                sizes="120px"
+                sizes="(max-width: 520px) 100vw, 520px"
               />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55))" }} />
-              <p style={{ position: "absolute", bottom: 6, left: 8, fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "7px", letterSpacing: "0.1em", color: "white" }}>CITY VIBES</p>
-            </div>
-            <div style={{ padding: "8px 10px 12px" }}>
-              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 13, color: "#000" }}>Crown Heights</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.38)", marginTop: 3 }}>9 spots saved ♡</p>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }} />
+              <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, padding: "14px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "10px", letterSpacing: "0.16em", color: "rgba(255,255,255,0.65)", marginBottom: 4 }}>CITY VIBES</p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 20, color: "white", lineHeight: 1 }}>Crown Heights</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.5)", marginTop: 4 }}>9 spots saved ♡</p>
+              </div>
             </div>
           </div>
         </Link>
-
       </div>
 
       {/* ══ TODAY'S SCHEDULE — naked on gradient ════════════════════════════════ */}
@@ -351,8 +352,8 @@ export function HomePage() {
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < TODAY_EVENTS.length - 1 ? 18 : 0 }}>
                 {/* Time */}
                 <div style={{ width: 34, flexShrink: 0, textAlign: "right" as const }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.2)" }}>{ev.time.split(" ")[1]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.38)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.22)" }}>{ev.time.split(" ")[1]}</p>
                 </div>
                 {/* Dot + thin line below (except last) */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
@@ -362,11 +363,11 @@ export function HomePage() {
                 {/* Event name + location */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "white", lineHeight: 1.1 }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
                 </div>
                 {ev.label === "NEXT" && (
                   <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "4px 10px", boxShadow: `0 2px 8px ${PINK}55` }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>NEXT</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>NEXT</p>
                   </div>
                 )}
               </div>
@@ -388,11 +389,11 @@ export function HomePage() {
                 />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.88) 100%)" }} />
                 <div style={{ position: "absolute", top: 9, right: 9, background: PINK, borderRadius: 999, padding: "4px 9px", boxShadow: `0 2px 8px ${PINK}88` }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>TONIGHT</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>TONIGHT</p>
                 </div>
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 10px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.52)", letterSpacing: "0.12em", marginBottom: 3 }}>7:30 PM · WEST VILLAGE</p>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.0, marginBottom: 6 }}>Girls Dinner.</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.52)", letterSpacing: "0.1em", marginBottom: 5 }}>7:30 PM · WEST VILLAGE</p>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 17, color: "white", lineHeight: 1.0, marginBottom: 8 }}>Girls Dinner.</p>
                   <div style={{ background: PINK, borderRadius: 999, padding: "6px 0", textAlign: "center" as const, boxShadow: `0 2px 0 rgba(150,0,55,0.8)` }}>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>I&apos;M IN →</span>
                   </div>
@@ -408,7 +409,7 @@ export function HomePage() {
       <div style={{ marginTop: 28 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.8)" }}>YOUR CLUBS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(255,255,255,0.9)" }}>YOUR CLUBS</p>
             {!loading && myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{myClubs.length} joined</p>}
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none" }}>
@@ -483,8 +484,8 @@ export function HomePage() {
       <div style={{ padding: "22px 0 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.8)" }}>SUNDAY STACK</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>5 women matched to your vibe</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(255,255,255,0.9)" }}>SUNDAY STACK</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>5 women matched to your vibe</p>
           </div>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>VIEW ALL →</span>
         </div>
