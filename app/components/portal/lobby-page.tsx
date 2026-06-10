@@ -62,6 +62,22 @@ const DOORS: DoorConfig[] = [
     lightPanel: true,
   },
   {
+    title: "The Reading Room",
+    tagline: "Books. Discuss. Share.",
+    href: "/member/lobby/reading-room",
+    background: "linear-gradient(145deg, #2C1808 0%, #4A2C14 100%)",
+    knobColor: "#D4A853",
+    count: 54,
+  },
+  {
+    title: "The Screening Room",
+    tagline: "Film. Watch. Review.",
+    href: "/member/lobby/screening-room",
+    background: "linear-gradient(145deg, #0A0A1A 0%, #1A1A3A 100%)",
+    knobColor: "#C8A0FF",
+    count: 38,
+  },
+  {
     title: "Magazine",
     tagline: "BloomBay Editorial.",
     href: "/member/lobby/magazine",
