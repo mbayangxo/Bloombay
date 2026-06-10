@@ -123,7 +123,7 @@ function Skeleton({ h, br = 12, dark }: { h: number; br?: number; dark?: boolean
     <div style={{
       height: h, borderRadius: br,
       background: dark
-        ? "linear-gradient(90deg, #1f1f1f 25%, #2a2a2a 50%, #1f1f1f 75%)"
+        ? "linear-gradient(90deg, #fce4f0 25%, #fff0f8 50%, #fce4f0 75%)"
         : "linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%)",
       backgroundSize: "400px 100%",
       animation: "shimmer 1.4s ease-in-out infinite",
@@ -136,100 +136,100 @@ const TYPE_CARDS = [
   {
     label: "Parties",
     emoji: "✦",
-    bg: DARK,
-    color: PINK,
-    border: `1px solid ${PINK}55`,
-    glow: `0 0 20px ${PINK}44`,
+    bg: "#FFF0F8",
+    color: "#FF1F7D",
+    border: "1px solid rgba(255,31,125,0.2)",
+    glow: "0 4px 16px rgba(255,31,125,0.12)",
     font: "var(--font-jost)",
     weight: 900,
     size: 11,
     spacing: "0.14em",
     sub: "Tonight",
-    subColor: `${PINK}99`,
+    subColor: "rgba(255,31,125,0.5)",
   },
   {
     label: "Dinners",
     emoji: "🕯",
-    bg: "#1A0E0A",
-    color: GOLD,
-    border: `1px solid ${GOLD}44`,
-    glow: `0 0 20px ${GOLD}33`,
+    bg: "#FFF8F0",
+    color: "#B85A00",
+    border: "1px solid rgba(184,90,0,0.2)",
+    glow: "0 4px 16px rgba(184,90,0,0.1)",
     font: "var(--font-playfair)",
     weight: 900,
     size: 13,
     spacing: "0.01em",
     sub: "& Brunches",
-    subColor: `${GOLD}77`,
+    subColor: "rgba(184,90,0,0.5)",
   },
   {
     label: "Gatherings",
     emoji: "☀",
-    bg: "#1C0E00",
-    color: "#F59E0B",
-    border: "1px solid rgba(245,158,11,0.3)",
-    glow: "0 0 20px rgba(245,158,11,0.2)",
+    bg: "#FFFFF0",
+    color: "#A07000",
+    border: "1px solid rgba(245,158,11,0.25)",
+    glow: "0 4px 16px rgba(245,158,11,0.1)",
     font: "var(--font-caveat)",
     weight: 700,
     size: 15,
     spacing: "0em",
     sub: "casual & fun",
-    subColor: "rgba(245,158,11,0.6)",
+    subColor: "rgba(160,112,0,0.5)",
   },
   {
     label: "Club Events",
     emoji: "◆",
-    bg: "#0A0A12",
-    color: "#C4B5FD",
-    border: "1px solid rgba(196,181,253,0.25)",
-    glow: "0 0 20px rgba(196,181,253,0.15)",
+    bg: "#F5F0FF",
+    color: "#6B3FBF",
+    border: "1px solid rgba(107,63,191,0.2)",
+    glow: "0 4px 16px rgba(107,63,191,0.1)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.12em",
     sub: "Members only",
-    subColor: "rgba(196,181,253,0.5)",
+    subColor: "rgba(107,63,191,0.5)",
   },
   {
     label: "Invitations",
     emoji: "💌",
-    bg: "#1A0812",
-    color: "#FDA4C7",
-    border: `1px solid ${PINK}33`,
-    glow: `0 0 20px ${PINK}22`,
-    font: "var(--font-instrument)",
+    bg: "#FFF0F8",
+    color: "#CC0066",
+    border: "1px solid rgba(255,31,125,0.2)",
+    glow: "0 4px 16px rgba(255,31,125,0.1)",
+    font: "var(--font-playfair)",
     weight: 400,
     size: 14,
     spacing: "0em",
     sub: "You're invited",
-    subColor: "#FDA4C7AA",
+    subColor: "rgba(204,0,102,0.5)",
   },
   {
     label: "Open Seats",
     emoji: "🪑",
-    bg: "#001820",
-    color: "#38BDF8",
-    border: "1px solid rgba(56,189,248,0.3)",
-    glow: "0 0 20px rgba(56,189,248,0.15)",
+    bg: "#F0F8FF",
+    color: "#007AB8",
+    border: "1px solid rgba(0,122,184,0.2)",
+    glow: "0 4px 16px rgba(0,122,184,0.1)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.1em",
     sub: "Last spots",
-    subColor: "rgba(56,189,248,0.55)",
+    subColor: "rgba(0,122,184,0.5)",
   },
   {
     label: "Events",
     emoji: "🎭",
-    bg: "#100818",
-    color: "#E879F9",
-    border: "1px solid rgba(232,121,249,0.3)",
-    glow: "0 0 20px rgba(232,121,249,0.15)",
+    bg: "#FFF0FF",
+    color: "#9400D3",
+    border: "1px solid rgba(148,0,211,0.2)",
+    glow: "0 4px 16px rgba(148,0,211,0.1)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.1em",
     sub: "Experiences",
-    subColor: "rgba(232,121,249,0.55)",
+    subColor: "rgba(148,0,211,0.5)",
   },
 ];
 
@@ -649,15 +649,15 @@ export function HappeningsPage() {
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: DARK, minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)", minHeight: "100vh", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
       {/* ── Fixed top bar ── */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-        background: DARK,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        boxShadow: "0 2px 20px rgba(0,0,0,0.4)",
+        background: "linear-gradient(135deg, #FF1F7D 0%, #FF5BAD 60%, #FFB3D9 100%)",
+        borderBottom: "1px solid rgba(255,31,125,0.15)",
+        boxShadow: "0 2px 20px rgba(255,31,125,0.2)",
         height: 54,
         paddingTop: "env(safe-area-inset-top, 0px)",
         display: "flex", alignItems: "center",
@@ -665,22 +665,22 @@ export function HappeningsPage() {
         {/* Left: BB logo */}
         <div style={{ width: 64, display: "flex", alignItems: "center", paddingLeft: 18 }}>
           <Link href="/member/home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}>
-            <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "20px", color: PINK, letterSpacing: "-0.02em" }}>BB</span>
-            <span style={{ color: PINK, fontSize: "12px", opacity: 0.6 }}>✿</span>
+            <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "20px", color: "white", letterSpacing: "-0.02em" }}>BB</span>
+            <span style={{ color: "white", fontSize: "12px", opacity: 0.8 }}>✿</span>
           </Link>
         </div>
 
         {/* Center: toggle */}
         <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "3px" }}>
+          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.25)", borderRadius: 999, padding: "3px" }}>
             {(["happenings","city"] as HapTab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "6px 14px", borderRadius: 999, border: "none",
-                background: tab === t ? PINK : "transparent",
-                color: tab === t ? "white" : "rgba(255,255,255,0.35)",
+                background: tab === t ? "white" : "transparent",
+                color: tab === t ? PINK : "rgba(255,255,255,0.85)",
                 fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800,
                 letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
-                boxShadow: tab === t ? `0 2px 10px ${PINK}55` : "none",
+                boxShadow: tab === t ? "0 2px 10px rgba(255,31,125,0.25)" : "none",
               }}>
                 {t === "happenings" ? "HAPPENINGS" : "THE CITY"}
               </button>
@@ -695,7 +695,7 @@ export function HappeningsPage() {
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
-            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: PINK, border: `1.5px solid ${DARK}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
+            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: PINK, lineHeight: 1 }}>3</div>
           </Link>
           <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -703,7 +703,7 @@ export function HappeningsPage() {
               <line x1="8" y1="11" x2="16" y2="11"/>
               <line x1="12" y1="11" x2="12" y2="20"/>
             </svg>
-            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: PINK, border: `1.5px solid ${DARK}` }}/>
+            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.4)" }}/>
           </Link>
           <Link href="/member/chat" aria-label="Chats" style={{ display: "flex" }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -728,20 +728,20 @@ export function HappeningsPage() {
           <>
             {/* Filter bar — icon only, collapsible */}
             <div style={{ padding: "6px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(255,255,255,0.3)" : PINK, letterSpacing: "0.08em" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(0,0,0,0.35)" : PINK, letterSpacing: "0.08em" }}>
                 {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
               </span>
               <button onClick={() => setFilterOpen(o => !o)} style={{
                 width: 34, height: 34, borderRadius: "50%",
-                background: filterOpen ? PINK : "rgba(255,255,255,0.08)",
-                border: filterOpen ? "none" : "1px solid rgba(255,255,255,0.12)",
+                background: filterOpen ? PINK : "rgba(255,31,125,0.08)",
+                border: filterOpen ? "none" : "1px solid rgba(255,31,125,0.18)",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 boxShadow: filterOpen ? `0 3px 14px ${PINK}55` : "none",
                 transition: "all 0.18s",
               }}>
                 {filterOpen
                   ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.55)" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
                 }
               </button>
             </div>
@@ -754,9 +754,9 @@ export function HappeningsPage() {
                   {FILTERS.map(f => (
                     <button key={f} onClick={() => { setFilter(f); setFilterOpen(false); }} style={{
                       flexShrink: 0, padding: "6px 14px", borderRadius: 999,
-                      border: `1px solid ${filter === f ? PINK : "rgba(255,255,255,0.12)"}`,
-                      background: filter === f ? PINK : "rgba(255,255,255,0.05)",
-                      color: filter === f ? "white" : "rgba(255,255,255,0.4)",
+                      border: `1px solid ${filter === f ? PINK : "rgba(255,31,125,0.18)"}`,
+                      background: filter === f ? PINK : "rgba(255,255,255,0.7)",
+                      color: filter === f ? "white" : "rgba(100,40,60,0.6)",
                       fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
                       letterSpacing: "0.04em", cursor: "pointer",
                       boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
@@ -769,7 +769,7 @@ export function HappeningsPage() {
             )}
 
             {/* Ticker */}
-            <div style={{ overflow: "hidden", borderTop: `1px solid rgba(255,255,255,0.05)`, borderBottom: `1px solid rgba(255,255,255,0.05)`, background: `${PINK}0d`, padding: "7px 0", marginBottom: 12 }}>
+            <div style={{ overflow: "hidden", borderTop: `1px solid rgba(255,31,125,0.12)`, borderBottom: `1px solid rgba(255,31,125,0.12)`, background: `${PINK}0d`, padding: "7px 0", marginBottom: 12 }}>
               <div style={{ display: "flex", animation: "ticker 28s linear infinite", width: "max-content" }}>
                 {[...tickerItems, ...tickerItems].map((item, i) => (
                   <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: PINK, whiteSpace: "nowrap", padding: "0 24px" }}>
@@ -782,7 +782,7 @@ export function HappeningsPage() {
             {/* Count label */}
             <div style={{ padding: "0 14px 10px", display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.3)" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(180,60,100,0.55)" }}>
                 {loading ? "LOADING…" : events.length === 0 ? "UPCOMING THIS WEEK" : filter === "All" ? `${events.length} HAPPENINGS` : `${filtered.length} ${filter.toUpperCase()}`}
               </span>
             </div>
@@ -811,8 +811,8 @@ export function HappeningsPage() {
             {/* No match for filter */}
             {!loading && events.length > 0 && filtered.length === 0 && (
               <div style={{ padding: "40px 24px", textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.3)" }}>nothing here yet ✦</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.2)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(180,60,100,0.4)" }}>nothing here yet ✦</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(180,60,100,0.3)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
               </div>
             )}
 
@@ -823,7 +823,7 @@ export function HappeningsPage() {
               <div style={{ padding: "0 0 8px" }}>
                 <div style={{ padding: "8px 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK }}/>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.25)" }}>FROM YOUR CITY</span>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(180,60,100,0.5)" }}>FROM YOUR CITY</span>
                 </div>
                 <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
                   {[

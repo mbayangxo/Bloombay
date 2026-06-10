@@ -89,8 +89,8 @@ const BANDS: Band[] = [
   { id: "happenings", label: "HAPPENINGS",    sub: "Events & parties in your city",         icon: "🎉", accentColor: "#C8A0FF" },
 ];
 
-// ── Night Skyline SVG ─────────────────────────────────────────────────────────
-function NightSkyline({ width = 430, height = 700 }: { width?: number; height?: number }) {
+// ── Day Skyline SVG ───────────────────────────────────────────────────────────
+function DaySkyline({ width = 430, height = 700 }: { width?: number; height?: number }) {
   function lcg(s: number) { return (s * 16807) % 2147483647; }
   const buildings: { x: number; w: number; h: number; idx: number }[] = [];
   let x = 0, s = 42, idx = 0;
@@ -100,31 +100,27 @@ function NightSkyline({ width = 430, height = 700 }: { width?: number; height?: 
     buildings.push({ x, w, h: Math.floor(height * hFrac), idx });
     x += w; idx++;
   }
-  const bldgColors = ["#1C1520","#18142A","#1A1830","#161424","#1E162C","#141820","#1A1A26","#141020","#1C1822","#161428"];
+  const bldgColors = ["#F5E6FF","#FFE0F0","#FFF0E8","#E8F4FF","#FFF5E0","#F0E8FF","#FFE8D6","#E8FFF5","#FFE0EC","#F8E8FF"];
   return (
     <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" style={{ display: "block", width: "100%", height: "100%" }}>
       <defs>
         <linearGradient id="sg_sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#080612"/>
-          <stop offset="40%" stopColor="#140A1E"/>
-          <stop offset="100%" stopColor="#120E1C"/>
+          <stop offset="0%" stopColor="#FFB3D9"/>
+          <stop offset="50%" stopColor="#FF7BAC"/>
+          <stop offset="100%" stopColor="#FFC8A0"/>
         </linearGradient>
-        <radialGradient id="sg_pk" cx="50%" cy="75%" r="55%">
-          <stop offset="0%" stopColor="rgba(200,30,100,0.16)"/>
-          <stop offset="100%" stopColor="rgba(200,30,100,0)"/>
+        <radialGradient id="sg_sun" cx="70%" cy="25%" r="30%">
+          <stop offset="0%" stopColor="rgba(255,240,180,0.55)"/>
+          <stop offset="100%" stopColor="rgba(255,200,100,0)"/>
         </radialGradient>
-        <radialGradient id="sg_pu" cx="22%" cy="60%" r="38%">
-          <stop offset="0%" stopColor="rgba(110,55,210,0.1)"/>
-          <stop offset="100%" stopColor="rgba(110,55,210,0)"/>
+        <radialGradient id="sg_glow" cx="50%" cy="85%" r="55%">
+          <stop offset="0%" stopColor="rgba(255,180,120,0.25)"/>
+          <stop offset="100%" stopColor="rgba(255,180,120,0)"/>
         </radialGradient>
       </defs>
       <rect width={width} height={height} fill="url(#sg_sky)"/>
-      <rect width={width} height={height} fill="url(#sg_pk)"/>
-      <rect width={width} height={height} fill="url(#sg_pu)"/>
-      {Array.from({length: 50}, (_, i) => (
-        <circle key={i} cx={(i * 97 + 31) % width} cy={(i * 61 + 11) % Math.floor(height * 0.36)}
-          r={i % 5 === 0 ? 0.9 : 0.5} fill="rgba(255,255,255,0.65)"/>
-      ))}
+      <rect width={width} height={height} fill="url(#sg_sun)"/>
+      <rect width={width} height={height} fill="url(#sg_glow)"/>
       {buildings.map((b) => {
         const col = bldgColors[b.idx % bldgColors.length];
         const winW = 3, winH = 3, gapX = 4, gapY = 5;
@@ -137,14 +133,14 @@ function NightSkyline({ width = 430, height = 700 }: { width?: number; height?: 
             {hasSetback && (
               <>
                 <rect x={b.x + Math.floor(b.w*.18)} y={height - b.h - Math.floor(b.h*.22)} width={Math.floor(b.w*.64)} height={Math.floor(b.h*.22)} fill={col}/>
-                <rect x={b.x + Math.floor(b.w/2) - 0.9} y={height - b.h - Math.floor(b.h*.32) - 14} width={1.8} height={16} fill="rgba(255,255,255,0.13)"/>
+                <rect x={b.x + Math.floor(b.w/2) - 0.9} y={height - b.h - Math.floor(b.h*.32) - 14} width={1.8} height={16} fill="rgba(200,100,180,0.3)"/>
               </>
             )}
             {Array.from({length: rows}, (_, row) =>
               Array.from({length: cols}, (_, col_) => {
                 const seed = b.idx * 11 + row * 7 + col_ * 13;
                 if (seed % 5 === 0) return null;
-                const fill = seed % 9 === 1 ? "rgba(255,140,195,0.88)" : seed % 13 === 3 ? "rgba(160,200,255,0.75)" : "rgba(255,218,155,0.78)";
+                const fill = seed % 9 === 1 ? "rgba(255,180,80,0.85)" : seed % 13 === 3 ? "rgba(255,120,180,0.75)" : "rgba(255,200,120,0.7)";
                 return <rect key={`${row}-${col_}`} x={b.x + 1 + col_ * (winW + gapX)} y={height - b.h + 5 + row * (winH + gapY)} width={winW} height={winH} rx="0.3" fill={fill}/>;
               })
             )}
@@ -190,163 +186,101 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// AVENUE SIGNS PANEL  (landing slide 0)
+// BUILDING LABELS PANEL  (landing slide 0)
 // ═══════════════════════════════════════════════════════════════════════════════
-function AvenueSignsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
-  const signsData = [
-    { ...BANDS[0], dir: "right" as const, top: "18%",  delay: "0s",    dur: "4.2s" },
-    { ...BANDS[1], dir: "left"  as const, top: "30%",  delay: "0.55s", dur: "3.8s" },
-    { ...BANDS[2], dir: "right" as const, top: "42%",  delay: "0.9s",  dur: "4.6s" },
-    { ...BANDS[3], dir: "left"  as const, top: "54%",  delay: "0.3s",  dur: "4.0s" },
-    { ...BANDS[4], dir: "right" as const, top: "66%",  delay: "1.1s",  dur: "3.6s" },
-    { ...BANDS[5], dir: "left"  as const, top: "78%",  delay: "0.7s",  dur: "4.4s" },
+function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
+  const colors = [
+    "linear-gradient(135deg, #FF1F7D 0%, #FF7BAD 100%)",
+    "linear-gradient(135deg, #FF6B35 0%, #FFAA70 100%)",
+    "linear-gradient(135deg, #6B8FFF 0%, #A0B8FF 100%)",
+    "linear-gradient(135deg, #FF4F9A 0%, #FF88C0 100%)",
+    "linear-gradient(135deg, #FFB347 0%, #FFD4A0 100%)",
+    "linear-gradient(135deg, #B06AFF 0%, #D4A0FF 100%)",
   ];
 
   return (
     <div style={{
-      position: "relative", minHeight: "100vh", overflow: "hidden",
-      backgroundImage: `${DARK_GRAIN}, linear-gradient(180deg, #060410 0%, #0E0820 50%, #080614 100%)`,
-      backgroundSize: "160px 160px, 100% 100%",
-      paddingBottom: 80,
+      position: "absolute", inset: 0, overflow: "hidden",
+      background: "linear-gradient(180deg, #FFB3D9 0%, #FF8FB8 20%, #FFC090 55%, #FFD4A8 80%, #FFDFC8 100%)",
+      display: "flex", flexDirection: "column",
     }}>
       <style>{CSS}</style>
-
-      {/* Sky backdrop */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <NightSkyline width={430} height={900}/>
+      {/* DaySkyline background */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        <DaySkyline />
       </div>
-      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at 50% 85%, rgba(255,31,125,0.13) 0%, transparent 60%)" }}/>
+      {/* Overlay gradient at bottom to blend into city grid */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(255,220,200,0.6), transparent)", pointerEvents: "none" }} />
 
-      {/* Header */}
-      <div style={{ position: "relative", zIndex: 2, padding: "76px 22px 16px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.32em", color: GOLD, marginBottom: 6 }}>
-          BB+ · NEW YORK CITY
-        </p>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(34px,9vw,46px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95, marginBottom: 8 }}>
-          Your City.
-        </p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontStyle: "italic", color: "rgba(255,200,220,0.5)", letterSpacing: "0.04em" }}>
-          Everything women love about this city.
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-          <div style={{ height: 1, width: 44, background: `linear-gradient(to right, ${GOLD}88, transparent)` }}/>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: `${GOLD}88`, letterSpacing: "0.1em" }}>✦</span>
-        </div>
+      {/* City header */}
+      <div style={{ position: "relative", padding: "70px 20px 16px", zIndex: 5 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.8)", marginBottom: 4 }}>THE CITY</p>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 32, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 16px rgba(200,50,100,0.5)", margin: 0 }}>
+          Where do you<br />want to go?
+        </h1>
       </div>
 
-      {/* Sign post area */}
-      <div style={{ position: "relative", zIndex: 2, height: 520 }}>
-
-        {/* Pole */}
-        <div style={{
-          position: "absolute", left: "calc(50% - 3px)", width: 6, top: 0, bottom: 0,
-          background: "linear-gradient(180deg, rgba(60,20,50,0) 0%, #2A1230 8%, #1E0C28 88%, rgba(30,12,40,0) 100%)",
-          animation: "poleAppear 1.2s ease-out both",
-        }}>
-          {/* Rivets */}
-          {[15, 30, 45, 60, 75].map(p => (
-            <div key={p} style={{ position: "absolute", top: `${p}%`, left: "50%", transform: "translate(-50%,-50%)",
-              width: 10, height: 10, borderRadius: "50%",
-              background: "linear-gradient(135deg, #3A1840, #180C22)",
-              border: "1px solid rgba(212,168,83,0.35)",
-              boxShadow: "0 0 6px rgba(212,168,83,0.2)"
-            }}/>
-          ))}
-        </div>
-
-        {signsData.map((sign, i) => {
-          const isRight = sign.dir === "right";
-          return (
-            <button key={sign.id} onClick={() => onSelect(sign.id)} style={{
-              position: "absolute",
-              top: sign.top,
-              ...(isRight ? { left: "calc(50% + 10px)" } : { right: "calc(50% + 10px)" }),
-              width: "43%",
-              height: 54,
-              padding: 0,
+      {/* Building grid */}
+      <div style={{ position: "relative", zIndex: 5, flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px 80px", alignContent: "start" }}>
+        {BANDS.map((band, i) => (
+          <button
+            key={band.id}
+            onClick={() => onSelect(band.id)}
+            style={{
+              background: colors[i % colors.length],
               border: "none",
+              borderRadius: 18,
+              padding: "18px 14px 14px",
               cursor: "pointer",
+              textAlign: "left",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.3)",
+              minHeight: 90,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
               WebkitTapHighlightColor: "transparent",
-              background: "none",
-              animation: `signSway ${sign.dur} ease-in-out infinite ${sign.delay}`,
-              transformOrigin: isRight ? "left center" : "right center",
-            }}>
-              {/* Sign body */}
-              <div style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: isRight ? "2px 10px 10px 2px" : "10px 2px 2px 10px",
-                backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1E0A28 0%, #2A1238 60%, #1A0820 100%)`,
-                backgroundSize: "160px 160px, 100% 100%",
-                border: `1px solid ${sign.accentColor}55`,
-                boxShadow: `0 6px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)`,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                padding: "0 10px",
-                overflow: "hidden",
-                position: "relative",
-              }}>
-                {/* Accent left/right edge */}
-                <div style={{
+            }}
+          >
+            {/* Window pattern background */}
+            <div style={{ position: "absolute", inset: 0, opacity: 0.12 }}>
+              {Array.from({length: 12}, (_, j) => (
+                <div key={j} style={{
                   position: "absolute",
-                  ...(isRight ? { left: 0 } : { right: 0 }),
-                  top: 0, bottom: 0, width: 3,
-                  background: `linear-gradient(180deg, ${sign.accentColor}cc, ${sign.accentColor}44)`,
-                }}/>
-                {/* Window strip inside */}
-                <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 0, opacity: 0.3, overflow: "hidden" }}>
-                  <WindowStrip/>
-                </div>
-                {/* Dark overlay */}
-                <div style={{ position: "absolute", inset: 0,
-                  background: isRight
-                    ? "linear-gradient(to right, rgba(20,6,30,0.92) 0%, rgba(20,6,30,0.75) 60%, rgba(20,6,30,0.88) 100%)"
-                    : "linear-gradient(to left, rgba(20,6,30,0.92) 0%, rgba(20,6,30,0.75) 60%, rgba(20,6,30,0.88) 100%)",
-                }}/>
-                {/* Content */}
-                <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 7 }}>
-                  {!isRight && (
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={sign.accentColor} strokeWidth="3" strokeLinecap="round">
-                      <polyline points="15 18 9 12 15 6"/>
-                    </svg>
-                  )}
-                  <span style={{ fontSize: 14 }}>{sign.icon}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic",
-                      color: "white", lineHeight: 1, marginBottom: 3,
-                      textShadow: `0 0 12px ${sign.accentColor}88` }}>
-                      {sign.label}
-                    </p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700,
-                      color: `${sign.accentColor}99`, letterSpacing: "0.06em",
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {sign.sub}
-                    </p>
-                  </div>
-                  {isRight && (
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={sign.accentColor} strokeWidth="3" strokeLinecap="round">
-                      <polyline points="9 18 15 12 9 6"/>
-                    </svg>
-                  )}
-                </div>
-              </div>
-            </button>
-          );
-        })}
+                  width: 6, height: 8,
+                  borderRadius: 1,
+                  background: "white",
+                  left: 8 + (j % 4) * 18,
+                  top: 10 + Math.floor(j / 4) * 14,
+                }} />
+              ))}
+            </div>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                {band.icon} {String(i + 1).padStart(2, "0")}
+              </p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 1px 8px rgba(0,0,0,0.2)", margin: 0 }}>
+                {band.label}
+              </p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.75)", lineHeight: 1.3, marginTop: 6, margin: 0 }}>
+              {band.sub}
+            </p>
+          </button>
+        ))}
       </div>
 
       {/* Swipe hint */}
-      <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "center", marginTop: -20 }}>
+      <div style={{ position: "absolute", bottom: 28, left: 0, right: 0, zIndex: 10, display: "flex", justifyContent: "center" }}>
         <button onClick={onSwipeToMenu} style={{
-          background: "rgba(255,255,255,0.06)", backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999,
+          background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.4)", borderRadius: 999,
           padding: "7px 18px", cursor: "pointer",
           display: "flex", alignItems: "center", gap: 8,
         }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,200,220,0.7)", letterSpacing: "0.12em" }}>CITY GUIDE</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round">
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.12em" }}>CITY GUIDE</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
@@ -365,7 +299,7 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
       background: "#080612", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <NightSkyline width={430} height={800}/>
+        <DaySkyline width={430} height={800}/>
       </div>
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
         background: "radial-gradient(ellipse at 50% 90%, rgba(255,31,125,0.12) 0%, transparent 65%)" }}/>
@@ -464,7 +398,7 @@ function CityLanding({ onSelect }: { onSelect: (c: CityCategory) => void }) {
       <div style={{ position: "absolute", inset: 0, overflowY: "auto",
         transform: `translateX(${slide === 0 ? "0" : "-100%"})`,
         transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}>
-        <AvenueSignsPanel onSelect={onSelect} onSwipeToMenu={() => setSlide(1)}/>
+        <BuildingLabelsPanel onSelect={onSelect} onSwipeToMenu={() => setSlide(1)}/>
       </div>
       {/* Panel 1: city menu */}
       <div style={{ position: "absolute", inset: 0, overflowY: "auto",
@@ -515,7 +449,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
     }}>
       {/* Hero */}
       <div style={{ position: "relative", height: 230, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1A0808 0%, #2A0E0A 55%, #140604 100%)`, backgroundSize: "160px 160px, 100% 100%", backgroundColor: "#160808" }}/>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #FF9060 0%, #FFB080 55%, #FF8050 100%)`, backgroundSize: "160px 160px, 100% 100%", backgroundColor: "#FFF5F0" }}/>
         {/* Amber candle glow */}
         <div style={{ position: "absolute", bottom: 0, left: "35%", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,100,30,0.28) 0%, transparent 70%)", filter: "blur(20px)" }}/>
         {/* Flame SVG */}
@@ -542,10 +476,10 @@ function EatsPage({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Filters */}
-      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#160808", paddingBottom: 12 }}>
+      <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "#FFF5F0", paddingBottom: 12 }}>
         <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 16px 0", scrollbarWidth: "none" as const }}>
           {EATS_FILTERS.map(f => (
-            <button key={f} onClick={() => setActiveFilter(f)} style={{ flexShrink: 0, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${activeFilter === f ? "#FF9B70" : "rgba(255,255,255,0.14)"}`, background: activeFilter === f ? "#FF9B70" : "transparent", color: activeFilter === f ? "white" : "rgba(255,255,255,0.5)", fontSize: "9px", fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}>
+            <button key={f} onClick={() => setActiveFilter(f)} style={{ flexShrink: 0, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${activeFilter === f ? "#FF9B70" : "rgba(180,100,60,0.25)"}`, background: activeFilter === f ? "#FF9B70" : "rgba(255,255,255,0.6)", color: activeFilter === f ? "white" : "rgba(160,80,40,0.8)", fontSize: "9px", fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}>
               {f}
             </button>
           ))}
@@ -781,10 +715,10 @@ function GoPage({ onBack }: { onBack: () => void }) {
   const [activeType, setActiveType] = useState("All");
 
   return (
-    <div style={{ background: "#06080F", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "#F0F8FF", minHeight: "100vh", paddingBottom: 120 }}>
       {/* Hero — stark gallery aesthetic */}
       <div style={{ position: "relative", height: 250, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "#06080F" }}/>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #3A5FCD 0%, #6BB5F5 55%, #4A80E8 100%)" }}/>
         {/* Bold cobalt sweep */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, #3A5FCD, #6BB5F5, #3A5FCD)", animation: "gallerySweep 1s ease-out both" }}/>
         <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, height: 1, background: "rgba(106,181,245,0.15)" }}/>
@@ -1144,7 +1078,7 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
   return (
     <div style={{ background: "#0D0814", minHeight: "100vh", paddingBottom: 100 }}>
       <div style={{ position: "relative", height: 230, overflow: "hidden" }}>
-        <NightSkyline width={430} height={230}/>
+        <DaySkyline width={430} height={230}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 25%, rgba(13,8,20,0.88) 100%)" }}/>
         <BackBtn onBack={onBack} label="CITY"/>
         <div style={{ position: "absolute", bottom: 20, left: 20 }}>
