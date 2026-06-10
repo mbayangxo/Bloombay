@@ -267,8 +267,122 @@ export function LandingPage() {
         )}
       </nav>
 
-      {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden bg-[#FF1F7D] md:bg-[#FDF8F2]" style={{ minHeight: "92vh" }}>
+      {/* ─── MOBILE HERO ─── */}
+      <section
+        className="flex flex-col md:hidden"
+        style={{
+          minHeight: "100svh",
+          background: "#FF0090",
+          paddingTop: "env(safe-area-inset-top, 0px)",
+        }}
+      >
+        {/* Logo bar */}
+        <div className="flex items-center justify-between px-7 pt-10 pb-2">
+          <div className="flex items-center gap-2">
+            <BBLogo size={22} light />
+            <span className="text-xs font-black tracking-widest" style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.22em" }}>BLOOMBAY</span>
+          </div>
+          <Link
+            href="/portals"
+            className="text-xs font-bold tracking-widest"
+            style={{ color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em" }}
+          >
+            LOG IN
+          </Link>
+        </div>
+
+        {/* Statement */}
+        <div className="flex-1 flex flex-col justify-center px-7 py-6">
+          <p
+            className="font-bold tracking-widest mb-7"
+            style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.24em" }}
+          >
+            EST. 2025 · NEW YORK CITY
+          </p>
+          <h1 style={{ lineHeight: 0.88, margin: 0 }}>
+            <span
+              className="block font-black text-white"
+              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
+            >
+              It&apos;s a
+            </span>
+            <span
+              className="block text-white"
+              style={{
+                fontSize: "clamp(54px,16vw,68px)",
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                letterSpacing: "-0.02em",
+                lineHeight: 0.9,
+              }}
+            >
+              woman&apos;s
+            </span>
+            <span
+              className="block font-black text-white"
+              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
+            >
+              world &amp;
+            </span>
+            <span
+              className="block font-black text-white"
+              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
+            >
+              we&apos;re
+            </span>
+            <span
+              className="block text-white"
+              style={{
+                fontSize: "clamp(54px,16vw,68px)",
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              in it.
+            </span>
+          </h1>
+          <div className="w-8 my-7" style={{ height: "1px", background: "rgba(255,255,255,0.28)" }} />
+          <p
+            className="font-bold tracking-widest"
+            style={{ fontSize: "10px", color: "rgba(255,255,255,0.55)", letterSpacing: "0.22em" }}
+          >
+            WOMEN ARE GATHERING.
+          </p>
+        </div>
+
+        {/* CTAs */}
+        <div className="px-7 pb-16 flex flex-col gap-3">
+          <Link
+            href="/waitlist"
+            className="flex items-center justify-between px-7 py-4 rounded-full font-black tracking-widest"
+            style={{
+              background: "white",
+              color: "#FF0090",
+              fontSize: "11px",
+              letterSpacing: "0.14em",
+              boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
+            }}
+          >
+            JOIN THE WAITLIST
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M7 2l5 5-5 5" stroke="#FF0090" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </Link>
+          <Link
+            href="/portals"
+            className="flex items-center justify-center py-3.5 font-semibold"
+            style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px" }}
+          >
+            Already a member? Log in
+          </Link>
+        </div>
+      </section>
+
+      {/* ─── DESKTOP HERO ─── */}
+      <section className="hidden md:block relative overflow-hidden bg-[#FDF8F2]" style={{ minHeight: "92vh" }}>
         {/* Large pink circle behind hero text on desktop */}
         <div
           className="hidden md:block absolute pointer-events-none"

@@ -201,7 +201,7 @@ export function HomePage() {
 
           {/* — TOP: Greeting — */}
           <div style={{ padding: "24px 22px 20px", position: "relative" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "7px", letterSpacing: "0.32em", color: PINK, marginBottom: 14 }}>{greeting.toUpperCase()}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "11px", letterSpacing: "0.28em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()},</p>
             <p style={{
               fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
               fontSize: nameFontSize,
