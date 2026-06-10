@@ -15,42 +15,19 @@ type MainTab = "plans" | "calendar";
 type NewPlanStep = "choose" | "room" | "bloomie" | "club";
 type DayEditorTab = "write" | "sticker" | "photo" | "voice";
 
-// ── NIGHT MODE ────────────────────────────────────────────────────────────────
+// (night mode removed — always use light pink theme)
 
-function useNightMode() {
-  const check = () => { const h = new Date().getHours(); return h >= 20 || h < 6; };
-  const [isNight, setIsNight] = useState(check);
-  useEffect(() => {
-    const t = setInterval(() => setIsNight(check()), 60_000);
-    return () => clearInterval(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return isNight;
-}
-
-const DAY_THEME = {
-  pageBg:      "linear-gradient(160deg, #F2EAE0 0%, #F7EEF6 50%, #EEE9F2 100%)",
-  topBar:      "#FEFCF7",
-  topBarBorder:"rgba(0,0,0,0.07)",
-  cardBg:      "rgba(255,255,255,0.52)",
-  cardBorder:  "rgba(255,255,255,0.72)",
+const THEME = {
+  pageBg:      "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)",
+  topBar:      "rgba(255,255,255,0.97)",
+  topBarBorder:"rgba(255,31,125,0.1)",
+  cardBg:      "rgba(255,255,255,0.92)",
+  cardBorder:  "rgba(255,31,125,0.12)",
   heading:     "#1A1A1A",
-  subText:     "#999",
-  label:       "rgba(0,0,0,0.28)",
-  sectionBg:   "rgba(255,255,255,0.7)",
+  subText:     "#888",
+  label:       "rgba(0,0,0,0.35)",
+  sectionBg:   "rgba(255,255,255,0.85)",
   inputBg:     "#FFF5F8",
-};
-const NIGHT_THEME = {
-  pageBg:      "linear-gradient(160deg, #120810 0%, #1C0D14 50%, #0E0812 100%)",
-  topBar:      "rgba(18,8,16,0.97)",
-  topBarBorder:"rgba(238,170,195,0.15)",
-  cardBg:      "rgba(74,32,42,0.52)",
-  cardBorder:  "rgba(238,170,195,0.22)",
-  heading:     "#F1DFDD",
-  subText:     "rgba(241,223,221,0.5)",
-  label:       "rgba(238,170,195,0.45)",
-  sectionBg:   "rgba(74,32,42,0.65)",
-  inputBg:     "rgba(74,32,42,0.45)",
 };
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -715,62 +692,105 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
 
 // ── PLAN DOOR CARD ────────────────────────────────────────────────────────────
 
-function PlanDoorCard({ room, isRead, onPress, theme }: { room: PlanRoom; isRead: boolean; onPress: () => void; theme: typeof DAY_THEME }) {
+const DOOR_PAINTS: Record<number, { body: string; bodyLight: string; frame: string; glass: string; knob: string }> = {
+  1: { body: "#B8402A", bodyLight: "#D45038", frame: "#7A2818", glass: "rgba(255,150,80,0.22)",  knob: "#D4A853" },
+  2: { body: "#CC1870", bodyLight: "#E0288A", frame: "#8A0048", glass: "rgba(255,80,180,0.18)",  knob: "#FFD4A0" },
+  3: { body: "#3A7850", bodyLight: "#4A8860", frame: "#1E5830", glass: "rgba(80,200,120,0.18)",  knob: "#D4A853" },
+  4: { body: "#6A1030", bodyLight: "#8A2040", frame: "#440818", glass: "rgba(200,60,100,0.2)",   knob: "#C8A870" },
+  5: { body: "#C8B8A0", bodyLight: "#DECCA8", frame: "#A09070", glass: "rgba(240,220,180,0.3)",  knob: "#D4A853" },
+  6: { body: "#A07018", bodyLight: "#B88028", frame: "#704E08", glass: "rgba(240,190,60,0.2)",   knob: "#FFD060" },
+};
+
+function PlanDoorCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boolean; onPress: () => void }) {
   const hasUnread = room.unread > 0 && !isRead;
-  const W = 78;
-  const archR = W / 2;
+  const paint = DOOR_PAINTS[room.id] ?? DOOR_PAINTS[2];
+  const W = 90, ARCH_R = 45;
+  const BODY_H = 96;
+  const TOTAL_H = ARCH_R + BODY_H;
+
   return (
-    <button onClick={onPress} className="active:scale-[0.94] transition-transform"
-      style={{
-        width: W, height: 130, flexShrink: 0,
-        borderRadius: `${archR}px ${archR}px 4px 4px`,
-        position: "relative", overflow: "hidden",
-        background: `linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)`,
-        backdropFilter: "blur(20px) saturate(1.6)",
-        WebkitBackdropFilter: "blur(20px) saturate(1.6)",
-        border: `1px solid rgba(255,255,255,0.22)`,
-        boxShadow: hasUnread
-          ? `0 6px 24px rgba(0,0,0,0.22), 0 0 0 1.5px ${room.accent}88, inset 0 1px 0 rgba(255,255,255,0.35)`
-          : `0 4px 18px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.28)`,
-        cursor: "pointer",
-        display: "flex", flexDirection: "column", alignItems: "center",
-        padding: "12px 6px 8px",
+    <button
+      onClick={onPress}
+      className="active:scale-[0.95] transition-transform"
+      style={{ width: W + 10, height: TOTAL_H + 20, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative", WebkitTapHighlightColor: "transparent" }}
+    >
+      {/* Floor shadow */}
+      <div style={{ position: "absolute", bottom: 0, left: 8, right: 8, height: 10, borderRadius: "50%", background: `${paint.frame}44`, filter: "blur(5px)" }} />
+
+      {/* Door frame/surround */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, width: W + 10, height: TOTAL_H + 10,
+        borderRadius: `${ARCH_R + 5}px ${ARCH_R + 5}px 8px 8px`,
+        background: `linear-gradient(180deg, ${paint.frame} 0%, ${paint.frame}CC 100%)`,
+        boxShadow: `0 6px 20px ${paint.frame}66`,
+      }} />
+
+      {/* Door face */}
+      <div style={{
+        position: "absolute", top: 4, left: 4, width: W, height: TOTAL_H,
+        borderRadius: `${ARCH_R}px ${ARCH_R}px 4px 4px`,
+        background: `linear-gradient(175deg, ${paint.bodyLight} 0%, ${paint.body} 40%, ${paint.frame}88 100%)`,
+        boxShadow: `inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.2)`,
+        overflow: "hidden",
       }}>
+        {/* Arch glass window */}
+        <div style={{
+          position: "absolute", top: 5, left: 8, right: 8, height: ARCH_R - 4,
+          borderRadius: `${ARCH_R - 8}px ${ARCH_R - 8}px 2px 2px`,
+          background: paint.glass,
+          border: "1.5px solid rgba(255,255,255,0.35)",
+          backdropFilter: "blur(2px)",
+          overflow: "hidden",
+        }}>
+          {/* Glass shine */}
+          <div style={{ position: "absolute", top: 3, left: 5, right: 5, height: "38%", borderRadius: "50% 50% 0 0", background: "linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 100%)" }} />
+          {/* Room emoji inside glass */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: 4 }}>
+            <span style={{ fontSize: 16, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))" }}>{room.emoji}</span>
+          </div>
+        </div>
 
-      {/* Accent radial glow */}
-      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 20%, ${room.accent}22, transparent 65%)`, pointerEvents: "none" }} />
+        {/* Center stile (vertical divider) */}
+        <div style={{ position: "absolute", left: "50%", transform: "translateX(-0.5px)", top: ARCH_R + 2, bottom: 4, width: 1, background: `${paint.frame}88` }} />
 
-      {/* Glass shimmer reflection */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "42%", background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)", pointerEvents: "none" }} />
+        {/* Upper panels */}
+        <div style={{ position: "absolute", top: ARCH_R + 4, left: 6, right: 6, height: Math.floor(BODY_H * 0.42), display: "flex", gap: 3 }}>
+          {[0,1].map(i => (
+            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
+          ))}
+        </div>
 
-      {/* Arch window panels (decorative glass panes) */}
-      <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 36, height: 36, borderRadius: "18px 18px 0 0", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+        {/* Lower panels */}
+        <div style={{ position: "absolute", bottom: 6, left: 6, right: 6, height: Math.floor(BODY_H * 0.45), display: "flex", gap: 3 }}>
+          {[0,1].map(i => (
+            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
+          ))}
+        </div>
 
-      {/* Emoji icon */}
-      <div style={{ fontSize: 20, position: "relative", zIndex: 1, marginTop: 20, marginBottom: 5 }}>{room.emoji}</div>
+        {/* Door knob */}
+        <div style={{
+          position: "absolute", right: 10, top: ARCH_R + Math.floor(BODY_H * 0.55),
+          width: 9, height: 9, borderRadius: "50%",
+          background: `radial-gradient(circle at 38% 35%, ${paint.knob}FF, ${paint.knob}88)`,
+          boxShadow: `0 1px 4px rgba(0,0,0,0.5), 0 0 0 1.5px ${paint.frame}88`,
+        }} />
 
-      {/* Room name */}
-      <p style={{
-        fontFamily: "var(--font-caveat)", fontSize: 10, fontWeight: 700,
-        color: "rgba(255,255,255,0.85)", textAlign: "center", lineHeight: 1.25,
-        position: "relative", zIndex: 1, padding: "0 4px",
-        overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const,
-      }}>{room.name}</p>
+        {/* Name label at bottom */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.45))", padding: "12px 5px 5px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.92)", textAlign: "center", letterSpacing: "0.05em", lineHeight: 1.2 }}>
+            {room.name.split(" ").slice(0,2).join(" ").toUpperCase()}
+          </p>
+        </div>
+      </div>
 
-      <div style={{ flex: 1 }} />
-
-      {/* Date tiny */}
-      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: `${room.accent}CC`, position: "relative", zIndex: 1, textAlign: "center", lineHeight: 1.2, marginBottom: 6 }}>{room.date}</p>
-
-      {/* Door knob */}
-      <div style={{ position: "absolute", right: 9, top: "56%", transform: "translateY(-50%)", width: 7, height: 7, borderRadius: "50%", background: `${room.accent}CC`, border: `1px solid ${room.accent}`, boxShadow: `0 1px 4px ${room.accent}55`, zIndex: 2 }} />
-
-      {/* Door centre seam */}
-      <div style={{ position: "absolute", left: "50%", top: "48%", bottom: 3, width: 1, background: "rgba(255,255,255,0.08)", transform: "translateX(-50%)", pointerEvents: "none" }} />
+      {/* Date chip */}
+      <div style={{ position: "absolute", top: 2, left: "50%", transform: "translateX(-50%)", background: "white", borderRadius: 999, padding: "1.5px 6px", border: `1px solid ${paint.frame}44`, whiteSpace: "nowrap" as const }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: paint.body, letterSpacing: "0.04em" }}>{room.date}</p>
+      </div>
 
       {/* Unread badge */}
       {hasUnread && (
-        <div style={{ position: "absolute", top: 7, right: 7, width: 16, height: 16, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
+        <div style={{ position: "absolute", top: 6, right: 4, width: 17, height: 17, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
           <span style={{ fontSize: 7, fontWeight: 900, color: "white" }}>{room.unread}</span>
         </div>
       )}
@@ -780,7 +800,7 @@ function PlanDoorCard({ room, isRead, onPress, theme }: { room: PlanRoom; isRead
 
 // ── PLAN ROOM BOARD (NOT CHAT) ────────────────────────────────────────────────
 
-function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => void; theme: typeof DAY_THEME }) {
+function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => void; theme: typeof THEME }) {
   const initialTodos = PLAN_TODOS[room.id] ?? [];
   const [todos, setTodos] = useState(initialTodos);
   const [showTicket, setShowTicket] = useState(false);
@@ -1073,79 +1093,103 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
 
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
-function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof DAY_THEME; onOpen: (room: PlanRoom) => void }) {
+const RETIRED_ROOMS: PlanRoom[] = [
+  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#C8A0FF", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
+  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#83C5A0", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
+];
+
+function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof THEME; onOpen: (room: PlanRoom) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [tab, setTab] = useState<"active"|"retired">("active");
   const STACK_OFFSET = 10;
+  const activeRooms = rooms;
+  const retiredRooms = RETIRED_ROOMS;
+  const displayRooms = tab === "active" ? activeRooms : retiredRooms;
 
   return (
     <div style={{ padding: "0 16px 20px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>MY TICKETS</p>
+        {/* Tabs */}
+        <div style={{ display: "flex", background: "rgba(255,31,125,0.07)", borderRadius: 999, padding: 3, gap: 2 }}>
+          {(["active","retired"] as const).map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              padding: "5px 12px", borderRadius: 999,
+              background: tab === t ? PINK : "transparent",
+              color: tab === t ? "white" : "#999",
+              fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800,
+              letterSpacing: "0.08em", textTransform: "uppercase" as const,
+              border: "none", cursor: "pointer", transition: "all 0.15s",
+            }}>
+              {t === "active" ? "🎟 Active" : "📁 Retired"}
+            </button>
+          ))}
+        </div>
         <button onClick={() => setExpanded(e => !e)} style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>{expanded ? "CLOSE ✕" : "VIEW ALL"}</p>
         </button>
       </div>
 
+      {tab === "retired" && (
+        <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(255,31,125,0.05)", borderRadius: 12, border: "1px dashed rgba(255,31,125,0.15)" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#aaa", textAlign: "center" }}>These plans have wrapped up ✦ memories made</p>
+        </div>
+      )}
+
       {!expanded ? (
-        /* Stacked wallet view */
-        <button onClick={() => setExpanded(true)} style={{ background: "none", border: "none", cursor: "pointer", width: "100%", position: "relative", height: 80 + (rooms.length - 1) * STACK_OFFSET }}>
-          {[...rooms].reverse().map((room, i) => {
-            const idx = rooms.length - 1 - i;
+        <button onClick={() => setExpanded(true)} style={{ background: "none", border: "none", cursor: "pointer", width: "100%", position: "relative", height: 80 + (displayRooms.length - 1) * STACK_OFFSET }}>
+          {[...displayRooms].reverse().map((room, i) => {
+            const idx = displayRooms.length - 1 - i;
             return (
               <div key={room.id} style={{
                 position: "absolute",
-                top: (rooms.length - 1 - idx) * STACK_OFFSET,
-                left: idx * 2,
-                right: idx * 2,
-                height: 72,
-                borderRadius: 14,
-                overflow: "hidden",
-                background: theme.sectionBg,
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
-                border: `1px solid ${theme.cardBorder}`,
-                boxShadow: `0 ${2 + idx * 2}px ${8 + idx * 4}px rgba(0,0,0,${0.08 + idx * 0.03})`,
+                top: (displayRooms.length - 1 - idx) * STACK_OFFSET,
+                left: idx * 2, right: idx * 2,
+                height: 72, borderRadius: 14, overflow: "hidden",
+                background: tab === "retired" ? "rgba(240,236,230,0.95)" : "white",
+                border: `1px solid ${tab === "retired" ? "rgba(0,0,0,0.08)" : "rgba(255,31,125,0.12)"}`,
+                boxShadow: `0 ${2 + idx * 2}px ${8 + idx * 4}px rgba(0,0,0,${0.06 + idx * 0.02})`,
                 display: "flex", alignItems: "stretch",
                 zIndex: idx + 1,
+                opacity: tab === "retired" ? 0.85 : 1,
               }}>
-                <div style={{ width: 52, flexShrink: 0, background: `${room.accent}22`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, borderRight: `1px dashed ${room.accent}33` }}>
-                  <span style={{ fontSize: 20 }}>{room.emoji}</span>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 8, color: room.accent, fontWeight: 700, lineHeight: 1 }}>{room.date}</p>
+                <div style={{ width: 52, flexShrink: 0, background: tab === "retired" ? "rgba(0,0,0,0.04)" : `${room.accent}18`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, borderRight: `1px dashed ${tab === "retired" ? "rgba(0,0,0,0.08)" : room.accent + "33"}` }}>
+                  <span style={{ fontSize: 20, filter: tab === "retired" ? "grayscale(0.4)" : "none" }}>{room.emoji}</span>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 8, color: tab === "retired" ? "#bbb" : room.accent, fontWeight: 700, lineHeight: 1 }}>{room.date}</p>
                 </div>
                 <div style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 2 }}>TICKET</p>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.1 }}>{room.name}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: theme.subText, marginTop: 2 }}>{room.time}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 800, letterSpacing: "0.15em", color: tab === "retired" ? "#bbb" : PINK, marginBottom: 2 }}>{tab === "retired" ? "RETIRED" : "TICKET"}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: tab === "retired" ? "#aaa" : "#1A1A1A", lineHeight: 1.1, textDecoration: tab === "retired" ? "line-through" : "none" }}>{room.name}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#bbb", marginTop: 2 }}>{room.time}</p>
                 </div>
                 <div style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", paddingRight: 8 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={theme.subText} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
             );
           })}
         </button>
       ) : (
-        /* Expanded: all tickets visible */
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {rooms.map(room => {
+          {displayRooms.map(room => {
             const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
             return (
-              <div key={room.id} style={{ borderRadius: 16, overflow: "hidden", background: theme.sectionBg, backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: `1px solid ${theme.cardBorder}`, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>
-                <button onClick={() => onOpen(room)} style={{ width: "100%", display: "flex", alignItems: "stretch", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
-                  <div style={{ width: 56, flexShrink: 0, background: `${room.accent}22`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                    <span style={{ fontSize: 22 }}>{room.emoji}</span>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: room.accent, fontWeight: 700 }}>{room.date}</p>
+              <div key={room.id} style={{ borderRadius: 16, overflow: "hidden", background: tab === "retired" ? "rgba(240,236,230,0.95)" : "white", border: `1px solid ${tab === "retired" ? "rgba(0,0,0,0.07)" : "rgba(255,31,125,0.1)"}`, boxShadow: "0 3px 12px rgba(0,0,0,0.07)", opacity: tab === "retired" ? 0.85 : 1 }}>
+                <button onClick={() => tab === "active" && onOpen(room)} style={{ width: "100%", display: "flex", alignItems: "stretch", background: "none", border: "none", cursor: tab === "active" ? "pointer" : "default", textAlign: "left" }}>
+                  <div style={{ width: 56, flexShrink: 0, background: tab === "retired" ? "rgba(0,0,0,0.04)" : `${room.accent}18`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                    <span style={{ fontSize: 22, filter: tab === "retired" ? "grayscale(0.5)" : "none" }}>{room.emoji}</span>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: tab === "retired" ? "#bbb" : room.accent, fontWeight: 700 }}>{room.date}</p>
                   </div>
                   <div style={{ flex: 1, padding: "12px 14px" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 3 }}>PLAN TICKET</p>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.15, marginBottom: 2 }}>{room.name}</p>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText }}>{room.time}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: tab === "retired" ? "#ccc" : PINK, marginBottom: 3 }}>{tab === "retired" ? "RETIRED PLAN" : "PLAN TICKET"}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: tab === "retired" ? "#aaa" : "#1A1A1A", lineHeight: 1.15, marginBottom: 2, textDecoration: tab === "retired" ? "line-through" : "none" }}>{room.name}</p>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb" }}>{room.time}</p>
                   </div>
                 </button>
-                <div style={{ borderTop: `1px dashed ${theme.cardBorder}`, margin: "0 10px" }} />
+                <div style={{ borderTop: `1px dashed rgba(0,0,0,0.07)`, margin: "0 10px" }} />
                 <div style={{ padding: "6px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: theme.subText, letterSpacing: "0.06em" }}>{ticketCode}</p>
-                  <button onClick={() => onOpen(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>🎟 View</button>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "#ccc", letterSpacing: "0.06em" }}>{ticketCode}</p>
+                  {tab === "active" && <button onClick={() => onOpen(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>🎟 View</button>}
+                  {tab === "retired" && <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc" }}>✓ Done</span>}
                 </div>
               </div>
             );
@@ -1160,8 +1204,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
 
 function PlansPageInner() {
   const searchParams = useSearchParams();
-  const isNight = useNightMode();
-  const theme = isNight ? NIGHT_THEME : DAY_THEME;
+  const theme = THEME;
 
   const [view, setView]               = useState<View>("list");
   const [mainTab, setMainTab]         = useState<MainTab>("plans");
@@ -1206,7 +1249,7 @@ function PlansPageInner() {
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
         <span style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: PINK }}>BB✿</span>
 
-        <div style={{ display: "flex", background: isNight ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
+        <div style={{ display: "flex", background: "rgba(255,31,125,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
           {(["plans","calendar"] as MainTab[]).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
               style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? PINK : "transparent", color: mainTab === t ? "white" : theme.subText, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
@@ -1225,53 +1268,95 @@ function PlansPageInner() {
         {/* Plans tab — door grid */}
         {mainTab === "plans" && (
           <div>
-            <div style={{ padding: "22px 20px 14px" }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK, marginBottom: 4 }}>{todayStr}</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1, letterSpacing: "-0.01em" }}>Your Plans</h1>
-                <button onClick={() => setShowNewPlan(true)} style={{ width: 26, height: 26, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.4)", flexShrink: 0 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-                {totalUnread > 0 && (
-                  <div style={{ background: PINK, color: "white", borderRadius: 999, padding: "3px 10px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800 }}>{totalUnread} new</div>
-                )}
+            {/* ── Beautiful Header Card ── */}
+            <div style={{ margin: "16px 16px 0", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 28px rgba(255,31,125,0.12), 0 1px 0 rgba(255,255,255,0.9) inset", position: "relative" }}>
+              {/* Card background */}
+              <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE0F0 40%, #FFF5E8 80%, #FFF0F8 100%)", padding: "20px 18px 18px", position: "relative", overflow: "hidden" }}>
+                {/* Decorative petals */}
+                <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,31,125,0.06)" }} />
+                <div style={{ position: "absolute", bottom: -15, left: 20, width: 60, height: 60, borderRadius: "50%", background: "rgba(255,31,125,0.04)" }} />
+                {/* Ornamental top line */}
+                <div style={{ height: 1.5, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.3), rgba(212,168,83,0.4), rgba(255,31,125,0.3), transparent)", marginBottom: 14 }} />
+                {/* Date */}
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.26em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                  {todayStr.toUpperCase()}
+                </p>
+                {/* Title row */}
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                  <div>
+                    <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 36, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 0.95, letterSpacing: "-0.02em" }}>
+                      Your<br />Plans.
+                    </h1>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(0,0,0,0.35)", letterSpacing: "0.1em", marginTop: 8 }}>
+                      SWIPE TO ENTER A ROOM ✦
+                    </p>
+                  </div>
+                  {/* Large + button on right */}
+                  <button onClick={() => setShowNewPlan(true)} style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #FF1F7D, #FF5BAD)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(255,31,125,0.45), inset 0 1px 0 rgba(255,255,255,0.3)", flexShrink: 0, marginLeft: 12, marginBottom: 2 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                </div>
+                {/* Stats row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK }} />
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.4)" }}>{PLAN_ROOMS.length} rooms</p>
+                  </div>
+                  <div style={{ width: 1, height: 10, background: "rgba(0,0,0,0.1)" }} />
+                  {totalUnread > 0 && (
+                    <div style={{ background: PINK, borderRadius: 999, padding: "2px 8px" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white" }}>{totalUnread} new</p>
+                    </div>
+                  )}
+                  {/* Mini planner button */}
+                  <button onClick={() => setMainTab("calendar")} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 999, padding: "5px 12px", cursor: "pointer" }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>PLANNER</p>
+                  </button>
+                </div>
+                {/* Ornamental bottom line */}
+                <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.2), rgba(212,168,83,0.25), rgba(255,31,125,0.2), transparent)", marginTop: 14 }} />
               </div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: theme.subText, marginTop: 4, fontStyle: "italic" }}>swipe to enter a room ✦</p>
             </div>
 
-            <div style={{ padding: "0 20px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>PLAN ROOMS</p>
-              {/* Planner icon — switches to calendar */}
-              <button onClick={() => setMainTab("calendar")} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.07)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 10px", cursor: "pointer" }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>PLANNER</p>
-              </button>
+            {/* ── PLAN ROOMS label ── */}
+            <div style={{ padding: "16px 18px 4px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>PLAN ROOMS</p>
             </div>
 
             {/* Swipeable door row */}
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "6px 16px 20px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "8px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
               {PLAN_ROOMS.map(room => (
-                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} theme={theme} />
+                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
               ))}
               {/* Add door */}
-              <button onClick={() => setShowNewPlan(true)}
-                style={{ width: 78, height: 130, flexShrink: 0, borderRadius: "39px 39px 4px 4px", border: `1.5px dashed ${PINK}44`, background: `${PINK}07`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={`${PINK}99`} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: `${PINK}88` }}>New</p>
+              <button onClick={() => setShowNewPlan(true)} style={{ width: 90, height: 145, flexShrink: 0, borderRadius: "45px 45px 6px 6px", border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginTop: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.6)", letterSpacing: "0.06em" }}>NEW</p>
               </button>
             </div>
 
+            {/* ── MY TICKETS label ── */}
+            <div style={{ padding: "0 16px 6px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>MY TICKETS</p>
+            </div>
+
             {/* Wallet Tickets */}
-            {PLAN_ROOMS.some(r => r.eventId) && (
-              <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
-            )}
+            <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
           </div>
         )}
 
         {/* Calendar tab */}
         {mainTab === "calendar" && (
           <div style={{ padding: "16px 0" }}>
-            <div style={{ margin: "0 16px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}>
+            <div style={{ padding: "0 16px 14px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.6)", marginBottom: 4 }}>YOUR PLANNER</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#aaa", letterSpacing: "0.06em", marginTop: 5 }}>TAP A DATE TO ADD NOTES OR VIEW PLANS</p>
+            </div>
+            <div style={{ margin: "0 16px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.14), 0 1px 0 rgba(255,255,255,0.9) inset" }}>
               <PaperCalendarView
                 dayContents={dayContents}
                 onSelectDay={key => setSelectedDay(prev => prev === key ? null : key)}
