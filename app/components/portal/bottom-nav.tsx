@@ -7,7 +7,6 @@ import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
 
 const PINK = "#FF0090";
-const GOLD = "#D4A853";
 
 // Inject pulse keyframe once
 if (typeof document !== "undefined") {
@@ -110,34 +109,36 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Clubs: uses BBLogo inline (rendered separately in renderTabIcon)
-function IconClubs({ c }: SVGProps) {
-  return <BBLogo size={20} pinkColor={c} darkColor={c} />;
-}
-
-// ── Top bar icon components (bigger, in styled tiles) ─────────────────────────
-function IconApt({ c }: SVGProps) {
+// Clubs: two women holding hands
+function IconClubs({ c, w = 2 }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2.5"/>
-      <line x1="7" y1="8" x2="9" y2="8"/>
-      <line x1="7" y1="12" x2="9" y2="12"/>
-      <line x1="11" y1="8" x2="13" y2="8"/>
-      <line x1="11" y1="12" x2="13" y2="12"/>
-      <line x1="15" y1="8" x2="17" y2="8"/>
-      <line x1="15" y1="12" x2="17" y2="12"/>
-      <path d="M8 21h8M12 17v4"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="7.5" cy="5" r="2.5"/>
+      <circle cx="16.5" cy="5" r="2.5"/>
+      <path d="M4 21v-2.5a3.5 3.5 0 0 1 3.5-3.5"/>
+      <path d="M20 21v-2.5a3.5 3.5 0 0 0-3.5-3.5"/>
+      <path d="M10 15 Q12 17 14 15"/>
     </svg>
   );
 }
 
-// Pin Drop — filled teardrop with inner circle, clearly a dropped pin
+// ── Top bar icon components (bigger, in styled tiles) ─────────────────────────
+function IconApt({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <line x1="2" y1="21" x2="22" y2="21"/>
+      <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
+      <circle cx="14.5" cy="13" r="0.7" fill={c} stroke="none"/>
+    </svg>
+  );
+}
+
+// Pin Drop — solid filled teardrop map pin
 function IconPin({ c }: SVGProps) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c} opacity="0.9"/>
-      <circle cx="12" cy="9" r="2.5" fill="white" opacity="0.85"/>
-      <line x1="12" y1="22" x2="12" y2="20" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c}/>
+      <circle cx="12" cy="9" r="2.5" fill="white" opacity="0.9"/>
     </svg>
   );
 }
@@ -228,15 +229,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
         <div style={{
           width: 40, height: 40, borderRadius: 13,
           display: "flex", alignItems: "center", justifyContent: "center",
-          background: active
-            ? `linear-gradient(145deg, ${PINK}18, ${PINK}0D)`
-            : "rgba(0,0,0,0.04)",
-          border: active
-            ? `1.5px solid ${PINK}30`
-            : "1.5px solid rgba(0,0,0,0.07)",
-          boxShadow: active
-            ? `0 2px 10px ${PINK}1A, inset 0 1px 0 rgba(255,255,255,0.8)`
-            : "inset 0 1px 0 rgba(255,255,255,0.7)",
+          background: active ? `linear-gradient(145deg, ${PINK}18, ${PINK}0D)` : "transparent",
+          border: active ? `1.5px solid ${PINK}30` : "none",
+          boxShadow: active ? `0 2px 10px ${PINK}1A` : "none",
           transition: "all 0.18s",
         }}>
           {children}
@@ -274,8 +269,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           background: "rgba(253,251,247,0.97)",
           backdropFilter: "blur(22px) saturate(1.7)",
           WebkitBackdropFilter: "blur(22px) saturate(1.7)",
-          borderBottom: "1px solid rgba(255,31,125,0.09)",
-          boxShadow: "0 1px 14px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.7) inset",
+          boxShadow: "0 1px 14px rgba(0,0,0,0.06)",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
@@ -314,8 +308,6 @@ export function BottomNav({ user }: { user?: NavUser }) {
           </div>
         </div>
 
-        {/* Gold + pink ornamental hairline rule */}
-        <div style={{ height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}44, ${GOLD}55, ${PINK}44, transparent)` }} />
       </div>
 
       {/* ══════════ FLOATING PILL BOTTOM NAV ══════════ */}
