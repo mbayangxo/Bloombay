@@ -167,7 +167,7 @@ export function HomePage() {
   const dayAbbr     = WEEK_DAYS[todayDow];
   void tod;
 
-  const nameFontSize = loading ? 60 : Math.max(44, 88 - Math.max(0, (displayName.length - 5) * 4.5));
+  const nameFontSize = loading ? 48 : Math.max(36, 58 - Math.max(0, (displayName.length - 5) * 3));
 
   return (
     <div style={{
@@ -203,7 +203,7 @@ export function HomePage() {
           <div style={{ padding: "24px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
             {/* Left: greeting */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "11px", letterSpacing: "0.28em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()},</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "13px", letterSpacing: "0.24em", color: PINK, marginBottom: 8 }}>{greeting.toUpperCase()},</p>
               <p style={{
                 fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
                 fontSize: nameFontSize,

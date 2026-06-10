@@ -292,91 +292,88 @@ export function LandingPage() {
         </div>
 
         {/* Statement */}
-        <div className="flex-1 flex flex-col justify-center px-7 py-6">
-          <p
-            className="font-bold tracking-widest mb-7"
-            style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.24em" }}
-          >
-            EST. 2025 · NEW YORK CITY
-          </p>
-          <h1 style={{ lineHeight: 0.88, margin: 0 }}>
-            <span
-              className="block font-black text-white"
-              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
-            >
-              It&apos;s a
-            </span>
+        <div className="flex-1 flex flex-col justify-end px-6 pb-6">
+          <h1 style={{ lineHeight: 0.88, margin: 0, fontFamily: "var(--font-jost)" }}>
+            {/* "it's a" — white */}
             <span
               className="block text-white"
-              style={{
-                fontSize: "clamp(54px,16vw,68px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                letterSpacing: "-0.02em",
-                lineHeight: 0.9,
-              }}
+              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 800, letterSpacing: "-0.02em" }}
+            >
+              it&apos;s a
+            </span>
+            {/* "woman's" — dark contrast, like the reference's "girls" in black */}
+            <span
+              className="block"
+              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 900, letterSpacing: "-0.02em", color: "#1A000E" }}
             >
               woman&apos;s
             </span>
+            {/* "world" — white bold */}
             <span
-              className="block font-black text-white"
-              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
+              className="block text-white"
+              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 900, letterSpacing: "-0.02em" }}
             >
-              world &amp;
+              world
             </span>
+            {/* "we're" — outline stroke */}
             <span
-              className="block font-black text-white"
-              style={{ fontSize: "clamp(48px,14vw,60px)", letterSpacing: "-0.015em" }}
+              className="block"
+              style={{
+                fontSize: "clamp(62px, 19vw, 80px)",
+                fontWeight: 900,
+                letterSpacing: "-0.02em",
+                color: "transparent",
+                WebkitTextStroke: "2.5px white",
+              } as React.CSSProperties}
             >
               we&apos;re
             </span>
+            {/* "in it." — outline stroke */}
             <span
-              className="block text-white"
+              className="block"
               style={{
-                fontSize: "clamp(54px,16vw,68px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
+                fontSize: "clamp(62px, 19vw, 80px)",
+                fontWeight: 900,
                 letterSpacing: "-0.02em",
-              }}
+                color: "transparent",
+                WebkitTextStroke: "2.5px white",
+              } as React.CSSProperties}
             >
               in it.
             </span>
           </h1>
-          <div className="w-8 my-7" style={{ height: "1px", background: "rgba(255,255,255,0.28)" }} />
           <p
-            className="font-bold tracking-widest"
-            style={{ fontSize: "10px", color: "rgba(255,255,255,0.55)", letterSpacing: "0.22em" }}
+            className="mt-6"
+            style={{ fontSize: "15px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 400, lineHeight: 1.5, maxWidth: 280 }}
           >
-            WOMEN ARE GATHERING.
+            a space to bloom, feel seen, and build real connections.
           </p>
         </div>
 
         {/* CTAs */}
-        <div className="px-7 pb-16 flex flex-col gap-3">
+        <div className="px-6 pb-14 pt-6 flex flex-col gap-3">
           <Link
             href="/waitlist"
-            className="flex items-center justify-between px-7 py-4 rounded-full font-black tracking-widest"
+            className="flex items-center justify-between px-7 py-5 rounded-full font-black"
             style={{
               background: "white",
               color: "#FF0090",
-              fontSize: "11px",
-              letterSpacing: "0.14em",
-              boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
+              fontSize: "13px",
+              letterSpacing: "0.08em",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
             }}
           >
-            JOIN THE WAITLIST
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7h10M7 2l5 5-5 5" stroke="#FF0090" strokeWidth="2" strokeLinecap="round" />
+            LET&apos;S START
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="#FF0090" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </Link>
           <Link
             href="/portals"
-            className="flex items-center justify-center py-3.5 font-semibold"
-            style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px" }}
+            className="flex items-center justify-center py-3"
+            style={{ color: "rgba(255,255,255,0.55)", fontSize: "13px", fontFamily: "var(--font-jost)" }}
           >
-            Already a member? Log in
+            already a member?&nbsp;<strong style={{ color: "rgba(255,255,255,0.8)" }}>sign in</strong>
           </Link>
         </div>
       </section>
