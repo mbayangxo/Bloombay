@@ -213,7 +213,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   function tabLabel(key: TabKey): string {
     if (key === "home") return SLAB_LABEL[slab];
-    return { plans: "Plans", happenings: "Tonight", clubs: "Clubs", lobby: "Lobby" }[key] ?? key;
+    return { plans: "Plans", happenings: "Happenings", clubs: "Clubs", lobby: "Lobby" }[key] ?? key;
   }
 
   // Top bar icon tile
