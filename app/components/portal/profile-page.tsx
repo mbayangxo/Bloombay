@@ -278,7 +278,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   /* ── render ─────────────────────────────────── */
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* ══════════════════════════ PORTFOLIO HEADER ══════════════════════════ */}
       <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5EC 80%, #FFF0F8 100%)", padding: "20px 18px 24px", position: "relative" }}>

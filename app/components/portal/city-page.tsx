@@ -445,7 +445,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
     <div style={{
       backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
       backgroundSize: "200px 200px, 80px 80px",
-      backgroundColor: CREAM, minHeight: "100vh", paddingBottom: 120,
+      background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120,
     }}>
       {/* Hero */}
       <div style={{ position: "relative", height: 230, overflow: "hidden" }}>

@@ -362,7 +362,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle }: {
       borderRadius: 10,
       overflow: "hidden",
       position: "relative",
-      background: CREAM,
+      background: "rgba(255,255,255,0.85)",
       boxShadow: "0 6px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05)",
       display: "flex",
       flexDirection: "column",
@@ -452,7 +452,7 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
   return (
     <div style={{
       borderRadius: 10,
-      background: "#FFFCF4",
+      background: "rgba(255,255,255,0.85)",
       backgroundImage: "repeating-linear-gradient(transparent, transparent 20px, rgba(0,0,0,0.04) 20px, rgba(0,0,0,0.04) 21px)",
       boxShadow: "0 6px 24px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(0,0,0,0.05)",
       padding: "12px 12px 12px",
@@ -649,7 +649,7 @@ export function HappeningsPage() {
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
       {/* ── Fixed top bar ── */}
