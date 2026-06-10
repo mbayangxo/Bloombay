@@ -519,58 +519,51 @@ function MailboxInner() {
   const inviteUnread = MAILBOX_ITEMS.filter(i => i.type === "invitation" && !openedItems.has(i.id)).length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#F4EDE3" }}>
-      {/* Header */}
-      <div style={{ padding: "70px 20px 16px" }}>
-        {/* Envelope icon + label */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 10,
-            background: "linear-gradient(135deg, #FF1F7D, #FF69B4)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0, boxShadow: "0 3px 10px rgba(255,31,125,0.3)",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </div>
-          <p style={{
-            fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
-            letterSpacing: "0.22em", color: "#FF1F7D",
-          }}>YOUR MAILBOX</p>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-          <h1 style={{
-            fontFamily: "var(--font-playfair)", fontSize: "clamp(38px,10vw,52px)",
-            fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 0.9,
-          }}>
-            Mail.
-          </h1>
+    <div className="min-h-screen pb-28" style={{ background: "#FBE8EE" }}>
+      {/* Mailbox illustration + header */}
+      <div style={{ padding: "58px 20px 0", textAlign: "center" }}>
+        {/* SVG Mailbox */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 4, position: "relative" }}>
+          <svg width="120" height="140" viewBox="0 0 120 140">
+            {/* Post/pole */}
+            <rect x="54" y="110" width="12" height="30" rx="3" fill="#C07080"/>
+            {/* Body: arched pink mailbox */}
+            <path d="M15,65 Q15,20 60,20 Q105,20 105,65 L105,110 Q105,118 97,118 L23,118 Q15,118 15,110 Z" fill="#C8546A"/>
+            {/* Highlight on arch */}
+            <path d="M22,65 Q22,27 60,27 Q98,27 98,65" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4"/>
+            {/* Mail slot */}
+            <rect x="28" y="62" width="64" height="10" rx="3" fill="#1A1A1A"/>
+            {/* Envelope sticking out of slot */}
+            <rect x="36" y="46" width="48" height="20" rx="2" fill="#FEF8EE"/>
+            <polygon points="36,46 60,58 84,46" fill="rgba(200,80,100,0.25)"/>
+            {/* Keyhole */}
+            <circle cx="60" cy="92" r="5" fill="#1A1A1A"/>
+            <rect x="57.5" y="94" width="5" height="8" rx="1.5" fill="#1A1A1A"/>
+            {/* Flag arm */}
+            <rect x="97" y="38" width="3" height="40" rx="1.5" fill="#B04050"/>
+            {/* Flag */}
+            <polygon points="100,38 100,52 114,45" fill="#FF6B6B"/>
+            {/* Bell badge on flag pole */}
+            {unread > 0 && <>
+              <circle cx="100" cy="35" r="9" fill="#FF1F7D"/>
+              <text x="100" y="39" textAnchor="middle" fill="white" fontSize="8" fontWeight="900">🔔</text>
+            </>}
+          </svg>
+          {/* Unread count badge */}
           {unread > 0 && (
-            <span style={{
-              fontSize: "9px", fontWeight: 800, color: "white",
-              background: "#FF1F7D", borderRadius: 999, padding: "3px 10px",
-              boxShadow: "0 2px 8px rgba(255,31,125,0.4)", marginBottom: 4,
-            }}>
-              {unread} new
-            </span>
+            <div style={{ position: "absolute", top: 8, right: "calc(50% - 70px)", background: "#FF1F7D", color: "white", borderRadius: 999, padding: "2px 8px", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>{unread} new</div>
           )}
         </div>
-        <p style={{
-          fontFamily: "var(--font-instrument)", fontSize: "12px", fontStyle: "italic",
-          color: "#B0A8A0", marginTop: 6,
-        }}>
-          Invitations, letters & certificates — yours to keep.
-        </p>
+
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 42, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 6 }}>Mailbox.</h1>
+        <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "#C07080", marginBottom: 20 }}>Invitations, letters &amp; certificates — yours to keep.</p>
       </div>
 
       {/* Invitations spotlight (when showing all or invitations filter) */}
       {(filter === "all" || filter === "invitation") && inviteUnread > 0 && (
         <div className="px-5 mb-4 md:px-8">
           <div className="rounded-2xl px-4 py-3 flex items-center gap-3"
-            style={{ background: "#111111", border: "1px solid rgba(255,31,125,0.2)" }}>
+            style={{ background: "#2A0A10", border: "1px solid rgba(255,31,125,0.2)" }}>
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(255,31,125,0.15)" }}>
               <span style={{ fontSize: "16px" }}>🎟</span>
@@ -598,8 +591,8 @@ function MailboxInner() {
           <button key={f.value} onClick={() => setFilter(f.value)}
             className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all active:scale-95"
             style={filter === f.value
-              ? { background: "#1A1A1A", color: "#F4EDE3", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }
-              : { background: "#FFFCF9", color: "#555", border: "1.5px solid #EDE7E0" }}>
+              ? { background: "#C8546A", color: "white", boxShadow: "0 2px 8px rgba(200,84,106,0.35)" }
+              : { background: "#FFFCF9", color: "#555", border: "1.5px solid #E8C0CC" }}>
             {f.label}
             {f.value === "invitation" && inviteUnread > 0 && (
               <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
@@ -626,28 +619,25 @@ function MailboxInner() {
         );
       })()}
 
-      {/* Items list */}
-      <div className="mx-5 md:mx-8 rounded-3xl overflow-hidden"
-        style={{ background: "#FFFCF9", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #EDE7E0" }}>
+      {/* Envelope cards */}
+      <div style={{ padding: "0 20px" }}>
         {shown.filter(i => i.type !== "founders-invitation").length === 0 ? (
-          <div className="py-16 text-center px-6">
-            <p className="text-3xl mb-3">📬</p>
-            <p className="font-bold italic mb-1" style={{ fontFamily: "var(--font-playfair)", color: "var(--heading-color, #111)", fontSize: "18px" }}>
-              Nothing here yet.
-            </p>
-            <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "var(--text-muted, #bbb)" }}>
-              Your meaningful items will appear here.
-            </p>
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <p style={{ fontSize: 40, marginBottom: 12 }}>📬</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#1A1A1A", marginBottom: 6 }}>Nothing here yet.</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 12, color: "#C07080" }}>Your meaningful items will appear here.</p>
           </div>
         ) : (
-          shown.filter(i => i.type !== "founders-invitation").map(item => (
-            <EnvelopeCard
-              key={item.id}
-              item={item}
-              isOpened={openedItems.has(item.id)}
-              onClick={() => openMailboxItem(item)}
-            />
-          ))
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {shown.filter(i => i.type !== "founders-invitation").map(item => (
+              <EnvelopeCard
+                key={item.id}
+                item={item}
+                isOpened={openedItems.has(item.id)}
+                onClick={() => openMailboxItem(item)}
+              />
+            ))}
+          </div>
         )}
       </div>
 
@@ -682,7 +672,7 @@ function MailboxInner() {
 export default function MessagesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F4EDE3" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#FBE8EE" }}>
         <p className="text-sm italic" style={{ color: "#bbb" }}>Loading mailbox…</p>
       </div>
     }>
