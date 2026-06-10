@@ -5,95 +5,176 @@ import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
 
+const PINK = "#FF1F7D";
+const GOLD = "#D4A853";
+
 interface NavUser { name: string; initial: string; role: string; }
 
-const PINK = "#FF1F7D";
-const NAV_BG = "#FAF7F2";
+// ── Time slab ─────────────────────────────────────────────────────────────────
+type Slab = "morning" | "afternoon" | "evening" | "tonight";
+function getSlab(): Slab {
+  const h = new Date().getHours();
+  if (h >= 5  && h < 12) return "morning";
+  if (h >= 12 && h < 17) return "afternoon";
+  if (h >= 17 && h < 21) return "evening";
+  return "tonight";
+}
+const SLAB_LABEL: Record<Slab, string> = {
+  morning: "Morning", afternoon: "Afternoon", evening: "Evening", tonight: "Tonight",
+};
 
+// ── SVG helpers ───────────────────────────────────────────────────────────────
+type SVGProps = { c: string; w?: number };
+
+// Time-of-day icon
+function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
+  if (slab === "morning") return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="5"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/>
+      <line x1="19" y1="12" x2="22" y2="12"/>
+      <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+      <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+      <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+      <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+    </svg>
+  );
+  if (slab === "afternoon") return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <circle cx="10" cy="10" r="3.5"/>
+      <line x1="10" y1="2" x2="10" y2="5"/>
+      <line x1="2" y1="10" x2="5" y2="10"/>
+      <line x1="4.4" y1="4.4" x2="6.5" y2="6.5"/>
+      <line x1="15.6" y1="4.4" x2="13.5" y2="6.5"/>
+      <path d="M16 16H8a4 4 0 0 0 0 0" strokeWidth={0}/>
+      <path d="M17 17H7a4 4 0 0 1 0-8h.2A6 6 0 0 1 17 13.5a4 4 0 0 1 0 3.5z"/>
+    </svg>
+  );
+  if (slab === "evening") return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <path d="M17 12a5 5 0 1 0-10 0"/>
+      <line x1="12" y1="2" x2="12" y2="4"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="2" y1="12" x2="4" y2="12"/>
+      <line x1="20" y1="12" x2="22" y2="12"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      <line x1="2" y1="17" x2="22" y2="17"/>
+    </svg>
+  );
+  // tonight: crescent moon + star
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      <line x1="19" y1="5" x2="19" y2="5" strokeWidth={3}/>
+      <line x1="22" y1="3" x2="22" y2="3" strokeWidth={2.5}/>
+    </svg>
+  );
+}
+
+// Plans: open notebook with lines
+function IconPlans({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      <line x1="9" y1="8" x2="15" y2="8"/>
+      <line x1="9" y1="12" x2="15" y2="12"/>
+      <line x1="9" y1="16" x2="12" y2="16"/>
+    </svg>
+  );
+}
+
+// Happenings: 4-pointed sparkle star
+function IconHappenings({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <path d="M12 2l2.1 6.4L20 10l-5.9 1.6L12 18l-2.1-6.4L4 10l5.9-1.6L12 2z"/>
+      <circle cx="19" cy="4" r="1" fill={c} stroke="none"/>
+      <circle cx="5" cy="19" r="1" fill={c} stroke="none"/>
+    </svg>
+  );
+}
+
+// Clubs: 5-petal cherry blossom
+function IconClubs({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+      <circle cx="13" cy="13" r="2.4"/>
+      <ellipse cx="13" cy="6.5" rx="2" ry="3.5"/>
+      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(72 13 13)"/>
+      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(144 13 13)"/>
+      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(216 13 13)"/>
+      <ellipse cx="13" cy="6.5" rx="2" ry="3.5" transform="rotate(288 13 13)"/>
+    </svg>
+  );
+}
+
+// ── Top bar icon components (bigger, in styled tiles) ─────────────────────────
+function IconApt({ c }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2.5"/>
+      <line x1="7" y1="8" x2="9" y2="8"/>
+      <line x1="7" y1="12" x2="9" y2="12"/>
+      <line x1="11" y1="8" x2="13" y2="8"/>
+      <line x1="11" y1="12" x2="13" y2="12"/>
+      <line x1="15" y1="8" x2="17" y2="8"/>
+      <line x1="15" y1="12" x2="17" y2="12"/>
+      <path d="M8 21h8M12 17v4"/>
+    </svg>
+  );
+}
+
+function IconPin({ c }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round">
+      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  );
+}
+
+function IconMail({ c }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
+    </svg>
+  );
+}
+
+function IconChatBubble({ c }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  );
+}
+
+// ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
-  {
-    href: "/member/home",
-    label: "Home",
-    icon: (active: boolean) => (
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke={active ? PINK : "rgba(0,0,0,0.28)"}
-        strokeWidth={active ? "2.2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
-        <path d="M9 21V12h6v9"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/happenings",
-    label: "Happenings",
-    icon: (active: boolean) => (
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke={active ? PINK : "rgba(0,0,0,0.28)"}
-        strokeWidth={active ? "2.2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/city",
-    label: "Eats",
-    icon: (active: boolean) => (
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke={active ? PINK : "rgba(0,0,0,0.28)"}
-        strokeWidth={active ? "2.2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/clubs",
-    label: "Clubs",
-    icon: (active: boolean) => (
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke={active ? PINK : "rgba(0,0,0,0.28)"}
-        strokeWidth={active ? "2.2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-        <path d="M16 3.13a4 4 0 010 7.75"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/member/plans",
-    label: "Plans",
-    icon: (active: boolean) => (
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke={active ? PINK : "rgba(0,0,0,0.28)"}
-        strokeWidth={active ? "2.2" : "1.6"}
-        strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-        <line x1="8" y1="14" x2="8" y2="14"/>
-        <line x1="12" y1="14" x2="12" y2="14"/>
-        <line x1="16" y1="14" x2="16" y2="14"/>
-      </svg>
-    ),
-  },
-];
+  { href: "/member/home",       key: "home"       },
+  { href: "/member/plans",      key: "plans"      },
+  { href: "/member/happenings", key: "happenings" },
+  { href: "/member/clubs",      key: "clubs"      },
+] as const;
 
+type TabKey = (typeof TABS)[number]["key"];
+
+// ── Main component ────────────────────────────────────────────────────────────
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
+  const slab     = getSlab();
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
   useEffect(() => {
     function onScroll() {
       const y = window.scrollY;
-      if (y > lastYRef.current + 10) setNavHidden(true);
-      else if (y < lastYRef.current - 10) setNavHidden(false);
+      if (y > lastYRef.current + 14) setNavHidden(true);
+      else if (y < lastYRef.current - 8) setNavHidden(false);
       lastYRef.current = y;
     }
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -104,132 +185,197 @@ export function BottomNav({ user }: { user?: NavUser }) {
     return pathname === href || pathname.startsWith(href + "/");
   }
 
+  function renderTabIcon(key: TabKey, active: boolean) {
+    const c = active ? "white" : "rgba(0,0,0,0.42)";
+    const w = active ? 2.2 : 1.8;
+    if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
+    if (key === "plans")      return <IconPlans      c={c} w={w} />;
+    if (key === "happenings") return <IconHappenings c={c} w={w} />;
+    if (key === "clubs")      return <IconClubs      c={c} w={w} />;
+  }
+
+  function tabLabel(key: TabKey): string {
+    if (key === "home") return SLAB_LABEL[slab];
+    return { plans: "Plans", happenings: "Happenings", clubs: "Clubs" }[key];
+  }
+
+  // Top bar icon tile
+  function TopTile({ href, label, children, badge }: {
+    href: string; label: string; children: React.ReactNode;
+    badge?: "dot" | "number";
+  }) {
+    const active = pathname.startsWith(href);
+    return (
+      <Link href={href} aria-label={label} style={{ textDecoration: "none", position: "relative" }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 13,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: active
+            ? `linear-gradient(145deg, ${PINK}18, ${PINK}0D)`
+            : "rgba(0,0,0,0.04)",
+          border: active
+            ? `1.5px solid ${PINK}30`
+            : "1.5px solid rgba(0,0,0,0.07)",
+          boxShadow: active
+            ? `0 2px 10px ${PINK}1A, inset 0 1px 0 rgba(255,255,255,0.8)`
+            : "inset 0 1px 0 rgba(255,255,255,0.7)",
+          transition: "all 0.18s",
+        }}>
+          {children}
+        </div>
+        {badge === "number" && (
+          <div style={{
+            position: "absolute", top: 1, right: 1,
+            width: 16, height: 16, borderRadius: "50%",
+            background: PINK,
+            border: "2px solid rgba(253,251,247,0.97)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "7.5px", fontWeight: 900, color: "white",
+            fontFamily: "var(--font-jost)", lineHeight: 1,
+          }}>3</div>
+        )}
+        {badge === "dot" && (
+          <span style={{
+            position: "absolute", top: 3, right: 3,
+            width: 8, height: 8, borderRadius: "50%",
+            background: PINK,
+            border: "1.5px solid rgba(253,251,247,0.97)",
+            boxShadow: `0 1px 4px ${PINK}77`,
+          }} />
+        )}
+      </Link>
+    );
+  }
+
   return (
     <>
-      {/* ── Fixed mobile top bar ── */}
+      {/* ══════════ FIXED MOBILE TOP BAR ══════════ */}
       <div
         className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: NAV_BG,
-          borderBottom: "1px solid rgba(0,0,0,0.07)",
-          boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
+          background: "rgba(253,251,247,0.97)",
+          backdropFilter: "blur(22px) saturate(1.7)",
+          WebkitBackdropFilter: "blur(22px) saturate(1.7)",
+          borderBottom: "1px solid rgba(255,31,125,0.09)",
+          boxShadow: "0 1px 14px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.7) inset",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
-        <div className="flex items-center justify-between px-5 h-12">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
+
           {/* BB wordmark */}
-          <Link href="/member/home" aria-label="BloomBay Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}>
+          <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 3 }}>
             <span style={{
-              fontFamily: "var(--font-playfair)",
-              fontStyle: "italic",
-              fontWeight: 900,
-              fontSize: "20px",
-              color: PINK,
-              letterSpacing: "-0.02em",
-            }}>
-              BB
-            </span>
-            <span style={{ color: PINK, fontSize: "12px", opacity: 0.6 }}>✿</span>
+              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+              fontSize: 22, color: PINK, letterSpacing: "-0.02em", lineHeight: 1,
+            }}>BB</span>
+            <span style={{ color: PINK, fontSize: 13, opacity: 0.65 }}>✿</span>
           </Link>
 
-          {/* Right icons: mailbox · pin drop · chat · apt */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* ── Top icons: Apt · Pin · Mailbox · Chat ── */}
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
 
-            {/* Mailbox with badge */}
-            <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-              <div style={{
-                position: "absolute", top: "-4px", right: "-5px",
-                width: "14px", height: "14px", borderRadius: "50%",
-                background: PINK, border: "1.5px solid " + NAV_BG,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1,
-              }}>3</div>
-            </Link>
+            {/* Apt / Lounge */}
+            <TopTile href="/member/lounge" label="My Apt">
+              <IconApt c={pathname.startsWith("/member/lounge") ? PINK : "rgba(0,0,0,0.48)"} />
+            </TopTile>
 
-            {/* Pushpin */}
-            <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="7" r="4"/>
-                <line x1="8" y1="11" x2="16" y2="11"/>
-                <line x1="12" y1="11" x2="12" y2="20"/>
-              </svg>
-              <span style={{
-                position: "absolute", top: "-1px", right: "-1px",
-                width: "7px", height: "7px", borderRadius: "50%",
-                background: PINK, border: "1.5px solid " + NAV_BG,
-              }} />
-            </Link>
+            {/* Pin drop / City */}
+            <TopTile href="/member/city" label="City">
+              <IconPin c={pathname.startsWith("/member/city") ? PINK : "rgba(0,0,0,0.48)"} />
+            </TopTile>
+
+            {/* Mailbox */}
+            <TopTile href="/member/messages" label="Mailbox" badge="number">
+              <IconMail c={pathname.startsWith("/member/messages") ? PINK : "rgba(0,0,0,0.48)"} />
+            </TopTile>
 
             {/* Chat */}
-            <Link href="/member/messages" aria-label="Chats" style={{ display: "flex" }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-            </Link>
+            <TopTile href="/member/chat" label="Chat" badge="dot">
+              <IconChatBubble c={pathname.startsWith("/member/chat") ? PINK : "rgba(0,0,0,0.48)"} />
+            </TopTile>
 
-            {/* Apt (lounge/profile) */}
-            <Link href="/member/lounge" aria-label="My Apt" style={{ display: "flex" }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 22V8l9-6 9 6v14"/>
-                <path d="M9 22V12h6v10"/>
-                <rect x="10" y="14" width="4" height="4" rx="0.5"/>
-              </svg>
-            </Link>
           </div>
         </div>
+
+        {/* Gold + pink ornamental hairline rule */}
+        <div style={{ height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}44, ${GOLD}55, ${PINK}44, transparent)` }} />
       </div>
 
-      {/* ── Bottom tab bar ── */}
+      {/* ══════════ FLOATING PILL BOTTOM NAV ══════════ */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+        className="fixed z-50 md:hidden"
         style={{
-          background: NAV_BG,
-          borderTop: "1px solid rgba(0,0,0,0.08)",
-          boxShadow: "0 -1px 12px rgba(0,0,0,0.06)",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          transform: navHidden ? "translateY(100%)" : "translateY(0)",
-          transition: "transform 0.3s ease",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)",
+          left: "16px",
+          right: "16px",
+          transform: navHidden ? "translateY(calc(100% + 28px))" : "translateY(0)",
+          transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          pointerEvents: navHidden ? "none" : "auto",
         }}
       >
-        <div style={{ display: "flex", alignItems: "stretch" }}>
+        {/* Outer glow ring (decorative) */}
+        <div style={{
+          position: "absolute", inset: -1,
+          borderRadius: 999,
+          background: `linear-gradient(135deg, ${PINK}18, rgba(212,168,83,0.12), ${PINK}18)`,
+          pointerEvents: "none",
+        }} />
+
+        {/* Pill container */}
+        <div style={{
+          position: "relative",
+          background: "rgba(255,252,248,0.95)",
+          backdropFilter: "blur(30px) saturate(2)",
+          WebkitBackdropFilter: "blur(30px) saturate(2)",
+          borderRadius: 999,
+          border: "1.5px solid rgba(255,31,125,0.16)",
+          padding: "5px 7px",
+          boxShadow: [
+            "0 12px 40px rgba(0,0,0,0.13)",
+            "0 4px 14px rgba(255,31,125,0.1)",
+            "inset 0 1.5px 0 rgba(255,255,255,0.95)",
+            "inset 0 -1px 0 rgba(0,0,0,0.03)",
+          ].join(", "),
+          display: "flex",
+          alignItems: "center",
+        }}>
           {TABS.map(tab => {
             const active = isActive(tab.href);
+            const label  = tabLabel(tab.key);
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-all active:scale-90"
-                style={{ textDecoration: "none" }}
+                className="active:scale-90 transition-transform"
+                style={{ flex: 1, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}
               >
-                {active && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "24px",
-                      height: "2px",
-                      borderRadius: "999px",
-                      background: PINK,
-                    }}
-                  />
-                )}
-                {tab.icon(active)}
-                <span
-                  style={{
-                    fontSize: "9px",
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                    fontFamily: "var(--font-jost)",
-                    color: active ? PINK : "rgba(0,0,0,0.3)",
-                  }}
-                >
-                  {tab.label}
+                {/* Icon pill */}
+                <div style={{
+                  width: 54, height: 40, borderRadius: 999,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: active
+                    ? `linear-gradient(145deg, ${PINK}, #FF5BAD)`
+                    : "transparent",
+                  boxShadow: active
+                    ? `0 4px 18px ${PINK}55, inset 0 1px 0 rgba(255,255,255,0.28)`
+                    : "none",
+                  transition: "all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}>
+                  {renderTabIcon(tab.key, active)}
+                </div>
+
+                {/* Label */}
+                <span style={{
+                  fontSize: "7.5px",
+                  fontWeight: active ? 800 : 600,
+                  letterSpacing: active ? "0.05em" : "0.03em",
+                  fontFamily: "var(--font-jost)",
+                  color: active ? PINK : "rgba(0,0,0,0.32)",
+                  transition: "all 0.2s",
+                  lineHeight: 1,
+                }}>
+                  {label.toUpperCase()}
                 </span>
               </Link>
             );
