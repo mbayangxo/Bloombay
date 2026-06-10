@@ -268,35 +268,6 @@ export function HomePage() {
         {/* Top ornamental rule */}
         <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${PINK} 30%, ${GOLD} 50%, ${PINK} 70%, transparent 100%)` }} />
 
-        {/* ── Masthead row ── */}
-        <div style={{ display: "flex", alignItems: "center", padding: "14px 20px 0", position: "relative" }}>
-          {/* BB wordmark */}
-          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 26, color: PINK, lineHeight: 1 }}>BB</p>
-            <span style={{ color: PINK, opacity: 0.55, fontSize: 13 }}>✿</span>
-          </div>
-          {/* Center: date */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.28)", lineHeight: 1 }}>
-              {dayAbbr} · {dayOfMonth} {monthShort}
-            </p>
-            <div style={{ height: 1, width: 32, background: `linear-gradient(90deg, transparent, ${GOLD}55, transparent)` }} />
-          </div>
-          {/* Right: notification + chat */}
-          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", gap: 14, alignItems: "center" }}>
-            <Link href="/member/notifications" style={{ position: "relative", display: "flex" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span style={{ position: "absolute", top: 0, right: 0, width: 6, height: 6, borderRadius: "50%", background: PINK, border: "1px solid #140810" }} />
-            </Link>
-            <Link href="/member/chat" style={{ display: "flex" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </Link>
-          </div>
-        </div>
-
-        {/* ── Divider ── */}
-        <div style={{ margin: "14px 20px 0", height: 1, background: `linear-gradient(90deg, transparent, rgba(255,31,125,0.2), rgba(212,168,83,0.3), rgba(255,31,125,0.2), transparent)` }} />
-
         {/* ── Greeting ── */}
         <div style={{ padding: "20px 22px 0", position: "relative" }}>
           {/* Eyebrow */}
