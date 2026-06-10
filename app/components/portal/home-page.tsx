@@ -167,7 +167,7 @@ export function HomePage() {
   const dayAbbr     = WEEK_DAYS[todayDow];
   void tod;
 
-  const nameFontSize = loading ? 52 : Math.max(38, 68 - Math.max(0, (displayName.length - 5) * 3.5));
+  const nameFontSize = loading ? 60 : Math.max(44, 88 - Math.max(0, (displayName.length - 5) * 4.5));
 
   return (
     <div style={{
@@ -200,12 +200,12 @@ export function HomePage() {
           <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
 
           {/* — TOP: Greeting — */}
-          <div style={{ padding: "20px 20px 16px", position: "relative" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "7px", letterSpacing: "0.32em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()}</p>
+          <div style={{ padding: "24px 22px 20px", position: "relative" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "7px", letterSpacing: "0.32em", color: PINK, marginBottom: 14 }}>{greeting.toUpperCase()}</p>
             <p style={{
               fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
               fontSize: nameFontSize,
-              color: "white", lineHeight: 0.86, letterSpacing: "-0.015em",
+              color: "white", lineHeight: 0.84, letterSpacing: "-0.02em",
             }}>{loading ? "…" : `${displayName}.`}</p>
           </div>
 
@@ -245,19 +245,19 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ══ CALENDAR STRIP ═══════════════════════════════════════════════════════ */}
-      <div style={{ background: "rgba(255,255,255,0.97)", borderTop: "1px solid rgba(255,0,144,0.07)", borderBottom: "1px solid rgba(255,0,144,0.07)" }}>
-        <div style={{ display: "flex", alignItems: "center", padding: "10px 16px" }}>
-          {weekDays.map((d, i) => (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.07em", color: d.isToday ? PINK : "rgba(0,0,0,0.2)" }}>{d.abbr}</span>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: d.isToday ? PINK : "transparent", boxShadow: d.isToday ? `0 2px 10px ${PINK}44` : "none" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: d.isToday ? "white" : "rgba(0,0,0,0.38)" }}>{d.date}</span>
-              </div>
-              {/* Event dot */}
-              <div style={{ width: 4, height: 4, borderRadius: "50%", background: [2, 4, 6].includes(i) ? PINK : "transparent" }} />
-            </div>
-          ))}
+      {/* ══ EDITORIAL DATE ═══════════════════════════════════════════════════════ */}
+      <div style={{ padding: "4px 22px 20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 80, color: "white", lineHeight: 1, opacity: 0.92, letterSpacing: "-0.02em" }}>{dayOfMonth}</p>
+          <div style={{ paddingBottom: 10 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "8px", letterSpacing: "0.28em", color: "rgba(255,255,255,0.55)" }}>{dayAbbr}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "8px", letterSpacing: "0.28em", color: "rgba(255,255,255,0.38)", marginTop: 3 }}>{monthShort}</p>
+          </div>
+        </div>
+        {/* Event count for today */}
+        <div style={{ paddingBottom: 12, textAlign: "right" as const }}>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "rgba(255,255,255,0.7)", lineHeight: 1 }}>{TODAY_EVENTS.length}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "7px", letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginTop: 3 }}>TODAY</p>
         </div>
       </div>
 
@@ -311,36 +311,39 @@ export function HomePage() {
 
       </div>
 
-      {/* ══ TODAY'S SCHEDULE ═════════════════════════════════════════════════════ */}
-      <div style={{ padding: "16px 16px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.75)" }}>TODAY · {TODAY_EVENTS.length} EVENTS</p>
+      {/* ══ TODAY'S SCHEDULE — naked on gradient ════════════════════════════════ */}
+      <div style={{ padding: "0 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)" }}>YOUR DAY</p>
           <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>VIEW FULL SCHEDULE →</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(255,255,255,0.32)" }}>full schedule →</span>
           </Link>
         </div>
 
-        {/* Split: schedule list left + featured tonight poster right */}
-        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
 
-          {/* Event list */}
-          <div style={{ ...CARD, overflow: "hidden", flex: 1, minWidth: 0, position: "relative" }}>
-            {/* Tape corner — today's list is "stuck" here */}
-            <Tape style={{ top: -8, left: 18, transform: "rotate(-3deg)" }} width={42} pink />
+          {/* Event lines — no card, floating on gradient */}
+          <div style={{ flex: 1, minWidth: 0 }}>
             {TODAY_EVENTS.map((ev, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(255,0,144,0.07)" : "none" }}>
-                <div style={{ width: 38, flexShrink: 0, textAlign: "right" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.3)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 600, color: "rgba(0,0,0,0.18)" }}>{ev.time.split(" ")[1]}</p>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < TODAY_EVENTS.length - 1 ? 18 : 0 }}>
+                {/* Time */}
+                <div style={{ width: 34, flexShrink: 0, textAlign: "right" as const }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.2)" }}>{ev.time.split(" ")[1]}</p>
                 </div>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 2.5px rgba(255,0,144,0.12)` }} />
+                {/* Dot + thin line below (except last) */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, boxShadow: `0 0 0 3px rgba(255,0,144,0.18)` }} />
+                  {i < TODAY_EVENTS.length - 1 && <div style={{ width: 1, height: 14, background: "rgba(255,0,144,0.18)", marginTop: 4 }} />}
+                </div>
+                {/* Event name + location */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 13, color: "#000", lineHeight: 1.2 }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 500, color: "rgba(0,0,0,0.32)", marginTop: 1, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "white", lineHeight: 1.1 }}>{ev.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
                 </div>
                 {ev.label === "NEXT" && (
-                  <div style={{ flexShrink: 0, background: "rgba(0,0,0,0.05)", borderRadius: 999, padding: "3px 7px" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.1em", color: "rgba(0,0,0,0.3)" }}>NEXT</p>
+                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "4px 10px", boxShadow: `0 2px 8px ${PINK}55` }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>NEXT</p>
                   </div>
                 )}
               </div>
@@ -421,40 +424,31 @@ export function HomePage() {
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>EXPLORE MAP →</span>
           </Link>
         </div>
-        {/* Polaroid photos row */}
-        <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 14, paddingLeft: 16, paddingRight: 16, scrollbarWidth: "none" as const, alignItems: "flex-end" }}>
+        {/* Polaroid photos — overlapping, pinned-up feel */}
+        <div style={{ display: "flex", overflowX: "auto", paddingBottom: 20, paddingLeft: 18, paddingRight: 18, scrollbarWidth: "none" as const, alignItems: "flex-end" }}>
           {[
-            { name: "SoHo",         happenings: 4, img: "/happenings/posters/08_Rooftop_Sessions.png",        rot: -2.5 },
-            { name: "West Village", happenings: 7, img: "/happenings/posters/04_Italian_Dinner_Society.png",  rot:  1.5 },
-            { name: "Williamsburg", happenings: 5, img: "/happenings/posters/06_Dance_All_Night.png",         rot: -1   },
-            { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2   },
-            { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1.5 },
+            { name: "SoHo",         happenings: 4, img: "/happenings/posters/08_Rooftop_Sessions.png",        rot: -3,   zIdx: 5 },
+            { name: "West Village", happenings: 7, img: "/happenings/posters/04_Italian_Dinner_Society.png",  rot:  1.5, zIdx: 4 },
+            { name: "Williamsburg", happenings: 5, img: "/happenings/posters/06_Dance_All_Night.png",         rot: -1.5, zIdx: 3 },
+            { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2.5, zIdx: 2 },
+            { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1,   zIdx: 1 },
           ].map((n, i) => (
-            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0, marginLeft: i === 0 ? 0 : -22, zIndex: n.zIdx, position: "relative" }}>
               <div style={{
-                width: 106, background: "white",
+                width: 108, background: "white",
                 padding: "6px 6px 0",
-                boxShadow: "0 5px 20px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.10)",
+                boxShadow: "0 6px 22px rgba(0,0,0,0.26), 0 1px 4px rgba(0,0,0,0.10)",
                 transform: `rotate(${n.rot}deg)`,
                 transformOrigin: "bottom center",
                 position: "relative",
               }}>
-                {/* Tape at top of first Polaroid */}
-                {i === 0 && <Tape style={{ top: -9, left: "50%", transform: "translateX(-50%) rotate(0.5deg)" }} width={46} pink />}
-                {/* Photo area */}
-                <div style={{ height: 78, position: "relative", overflow: "hidden" }}>
-                  <Image
-                    src={n.img}
-                    alt={n.name}
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center top" }}
-                    sizes="106px"
-                  />
+                {i === 0 && <Tape style={{ top: -9, left: "50%", transform: "translateX(-50%) rotate(1deg)" }} width={44} pink />}
+                <div style={{ height: 80, position: "relative", overflow: "hidden" }}>
+                  <Image src={n.img} alt={n.name} fill style={{ objectFit: "cover", objectPosition: "center top" }} sizes="108px" />
                 </div>
-                {/* Polaroid caption area */}
-                <div style={{ padding: "8px 4px 9px", textAlign: "center" as const }}>
+                <div style={{ padding: "7px 4px 8px", textAlign: "center" as const }}>
                   <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#1A0010", lineHeight: 1 }}>{n.name}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10.5, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{n.happenings} happenings</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.32)", marginTop: 2 }}>{n.happenings} happenings</p>
                 </div>
               </div>
             </Link>
@@ -471,40 +465,46 @@ export function HomePage() {
           </div>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>VIEW ALL →</span>
         </div>
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingLeft: 16, paddingRight: 16, paddingBottom: 4, scrollbarWidth: "none" as const }}>
-          {SUNDAY_STACK_WOMEN.map((w, i) => (
-            <div key={i} style={{
-              flexShrink: 0, width: 150,
-              background: w.bg,
-              borderRadius: 18,
-              border: "1.5px solid rgba(255,0,144,0.09)",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
-              padding: "14px 12px 12px",
-              position: "relative",
-              overflow: "hidden",
-            }}>
-              {/* Postcard stamp corner */}
-              <div style={{ position: "absolute", top: 9, right: 9, width: 22, height: 28, border: "1.5px solid rgba(255,0,144,0.3)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: PINK }}>✦</span>
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingLeft: 16, paddingRight: 16, paddingBottom: 8, scrollbarWidth: "none" as const, alignItems: "flex-start" }}>
+          {SUNDAY_STACK_WOMEN.map((w, i) => {
+            const rots = [-1.5, 0, 1, -0.5, 1.5];
+            return (
+              <div key={i} style={{
+                flexShrink: 0, width: 148,
+                background: "linear-gradient(160deg, #FFFDF8 0%, #FFF8F2 100%)",
+                borderRadius: 4,
+                boxShadow: "0 4px 18px rgba(0,0,0,0.16), 0 1px 4px rgba(0,0,0,0.08)",
+                padding: "14px 13px 13px",
+                position: "relative",
+                transform: `rotate(${rots[i]}deg)`,
+                transformOrigin: "top center",
+                borderTop: `3px solid ${PINK}`,
+              }}>
+                {/* Stamp corner */}
+                <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 26, border: `1.5px solid ${PINK}55`, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: "8px", color: PINK }}>✦</span>
+                </div>
+                {/* "HELLO," header */}
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.3)", letterSpacing: "0.04em", marginBottom: 8 }}>hello,</p>
+                {/* Avatar circle */}
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 3px 10px rgba(255,0,144,0.28)` }}>
+                  <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 17, fontWeight: 900, fontStyle: "italic", color: "white" }}>{w.initial}</span>
+                </div>
+                {/* Name */}
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 400, fontSize: 17, color: "#1A0010", lineHeight: 1, marginBottom: 8 }}>{w.name}</p>
+                {/* Handwritten vibes */}
+                <div style={{ marginBottom: 13 }}>
+                  {w.vibes.map((v, vi) => (
+                    <p key={vi} style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.52)", lineHeight: 1.5 }}>– {v}</p>
+                  ))}
+                </div>
+                {/* Wave */}
+                <button style={{ width: "100%", background: PINK, border: "none", borderRadius: 999, padding: "8px 0", cursor: "pointer", boxShadow: `0 2px 0 rgba(150,0,55,0.7)` }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>WAVE 👋</span>
+                </button>
               </div>
-              {/* Avatar circle */}
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 4px 12px rgba(255,0,144,0.3)` }}>
-                <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{w.initial}</span>
-              </div>
-              {/* Name */}
-              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "#000", lineHeight: 1.1, marginBottom: 7 }}>{w.name}</p>
-              {/* Vibe tags */}
-              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 4, marginBottom: 12 }}>
-                {w.vibes.map((v, vi) => (
-                  <span key={vi} style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, background: "rgba(255,0,144,0.07)", borderRadius: 999, padding: "2px 7px", border: "1px solid rgba(255,0,144,0.14)" }}>{v}</span>
-                ))}
-              </div>
-              {/* Wave */}
-              <button style={{ width: "100%", background: PINK, border: "none", borderRadius: 999, padding: "8px 0", cursor: "pointer", boxShadow: `0 2px 0 rgba(150,0,55,0.7), 0 4px 12px ${PINK}33` }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>WAVE 👋</span>
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
