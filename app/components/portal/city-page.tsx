@@ -703,12 +703,12 @@ function SoloPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 const GO_TYPES = ["All", "Museums", "Outdoors", "Markets", "Theater", "Tours"];
 const GO_EXPERIENCES = [
-  { id: 1, name: "The Metropolitan Museum", hood: "UPPER EAST SIDE", type: "MUSEUM",  tag: "FREE THIS WEEK", big: true,  accent: "#3A5FCD", bg: "#060A18" },
-  { id: 2, name: "The High Line",           hood: "WEST CHELSEA",    type: "OUTDOOR", going: 28,             big: false, accent: "#2A9A60", bg: "#06140C" },
-  { id: 3, name: "Brooklyn Flea",           hood: "DUMBO",           type: "MARKET",  tag: "THIS WEEKEND",   big: false, accent: "#C4802A", bg: "#120C04" },
-  { id: 4, name: "MoMA PS1",               hood: "LONG ISLAND CITY", type: "GALLERY", going: 14,             big: false, accent: "#A04090", bg: "#120614" },
-  { id: 5, name: "Staten Island Ferry",     hood: "LOWER MANHATTAN",  type: "TOUR",   tag: "FREE",           big: false, accent: "#3A5FCD", bg: "#060A18" },
-  { id: 6, name: "The Shed",               hood: "HUDSON YARDS",     type: "THEATER", going: 22,             big: false, accent: "#C43A3A", bg: "#140606" },
+  { id: 1, name: "The Metropolitan Museum", hood: "UPPER EAST SIDE", type: "MUSEUM",  tag: "FREE THIS WEEK", big: true,  accent: "#3A5FCD", bg: "#E8EEFF" },
+  { id: 2, name: "The High Line",           hood: "WEST CHELSEA",    type: "OUTDOOR", going: 28,             big: false, accent: "#2A9A60", bg: "#E8FFF4" },
+  { id: 3, name: "Brooklyn Flea",           hood: "DUMBO",           type: "MARKET",  tag: "THIS WEEKEND",   big: false, accent: "#C4802A", bg: "#FFF5E8" },
+  { id: 4, name: "MoMA PS1",               hood: "LONG ISLAND CITY", type: "GALLERY", going: 14,             big: false, accent: "#A04090", bg: "#FEF0FF" },
+  { id: 5, name: "Staten Island Ferry",     hood: "LOWER MANHATTAN",  type: "TOUR",   tag: "FREE",           big: false, accent: "#3A5FCD", bg: "#EAF0FF" },
+  { id: 6, name: "The Shed",               hood: "HUDSON YARDS",     type: "THEATER", going: 22,             big: false, accent: "#C43A3A", bg: "#FFF0F0" },
 ];
 
 function GoPage({ onBack }: { onBack: () => void }) {
@@ -754,37 +754,37 @@ function GoPage({ onBack }: { onBack: () => void }) {
       <div style={{ padding: "14px 14px 0" }}>
         {GO_EXPERIENCES.map((exp, i) => (
           <div key={exp.id} style={{
-            backgroundImage: `${DARK_GRAIN}`,
-            backgroundSize: "160px 160px",
+            backgroundImage: `${PAPER_TEX}`,
+            backgroundSize: "200px 200px",
             backgroundColor: exp.bg,
             borderRadius: 18, marginBottom: 10, overflow: "hidden",
             height: i === 0 ? 170 : 100,
             position: "relative",
-            boxShadow: `0 4px 24px rgba(0,0,0,0.55), 0 1px 0 ${exp.accent}22 inset`,
+            boxShadow: `0 4px 16px rgba(0,0,0,0.1), 0 1px 0 ${exp.accent}44 inset`,
           }}>
             {/* Left accent bar */}
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(180deg, ${exp.accent}, ${exp.accent}44)` }}/>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(180deg, ${exp.accent}, ${exp.accent}88)` }}/>
             {/* Glow */}
-            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 30%, ${exp.accent}22 0%, transparent 60%)` }}/>
+            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 30%, ${exp.accent}18 0%, transparent 60%)` }}/>
             {/* Content */}
             <div style={{ position: "absolute", inset: 0, padding: i === 0 ? "22px 20px 18px 18px" : "14px 16px 12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div style={{ background: `${exp.accent}33`, border: `1px solid ${exp.accent}55`, borderRadius: 999, padding: "2px 9px" }}>
+                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}88`, borderRadius: 999, padding: "2px 9px" }}>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: exp.accent, letterSpacing: "0.1em" }}>{exp.type}</span>
                   </div>
                   {"tag" in exp && exp.tag && (
-                    <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "2px 9px" }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>{exp.tag}</span>
+                    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 999, padding: "2px 9px" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(40,60,120,0.7)", letterSpacing: "0.08em" }}>{exp.tag}</span>
                     </div>
                   )}
                 </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i === 0 ? 22 : 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15, textShadow: `0 0 20px ${exp.accent}44` }}>{exp.name}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i === 0 ? 22 : 15, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.15 }}>{exp.name}</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>{exp.hood}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(40,60,100,0.5)", letterSpacing: "0.1em" }}>{exp.hood}</p>
                 {"going" in exp && exp.going && (
-                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}44`, borderRadius: 999, padding: "3px 10px" }}>
+                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}66`, borderRadius: 999, padding: "3px 10px" }}>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: exp.accent }}>{exp.going} going</span>
                   </div>
                 )}
@@ -795,17 +795,18 @@ function GoPage({ onBack }: { onBack: () => void }) {
 
         {/* This Week editorial */}
         <div style={{
-          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #08101E 0%, #0A1628 60%, #060C18 100%)`,
-          backgroundSize: "160px 160px, 100% 100%",
+          backgroundImage: `${PAPER_TEX}`,
+          backgroundSize: "200px 200px",
+          backgroundColor: "#EAF2FF",
           borderRadius: 18, padding: "20px 18px", marginBottom: 14,
-          border: "1px solid rgba(58,95,205,0.22)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(58,95,205,0.18)",
+          boxShadow: "0 4px 16px rgba(58,95,205,0.1)",
         }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#6BB5F5", marginBottom: 8 }}>THIS WEEK IN NYC ✦</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#3A5FCD", marginBottom: 8 }}>THIS WEEK IN NYC ✦</p>
           {["MOMA: New Acquisitions","Brooklyn Botanic: Cherry Blossoms","Jazz at Lincoln Center: Fri/Sat","Governors Ball: Week 2"].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, paddingBottom: 9, borderBottom: i < 3 ? "1px solid rgba(58,95,205,0.1)" : "none" }}>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, paddingBottom: 9, borderBottom: i < 3 ? "1px solid rgba(58,95,205,0.12)" : "none" }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#3A5FCD", flexShrink: 0 }}/>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(200,220,255,0.78)" }}>{item}</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(30,50,120,0.78)" }}>{item}</span>
             </div>
           ))}
         </div>
@@ -835,9 +836,9 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
 
   return (
     <div style={{
-      backgroundImage: `${DARK_GRAIN}`,
-      backgroundSize: "160px 160px",
-      backgroundColor: "#08010E",
+      backgroundImage: `${PAPER_TEX}`,
+      backgroundSize: "200px 200px",
+      backgroundColor: "#FFF0FC",
       minHeight: "100vh", paddingBottom: 120,
     }}>
       {/* Hero */}
