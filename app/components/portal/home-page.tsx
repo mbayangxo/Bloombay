@@ -255,75 +255,72 @@ export function HomePage() {
       {/* ══════════════════════════ HEADER ══════════════════════════ */}
       <div style={{
         position: "relative", overflow: "hidden",
-        backgroundImage: `${DARK_GRAIN}, linear-gradient(160deg, #0E0610 0%, #1C0A18 40%, #220D18 70%, #160A10 100%)`,
-        backgroundSize: "160px 160px, 100% 100%",
-        backgroundColor: "#140810",
+        background: "#000000",
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 44px)",
-        paddingBottom: 28,
+        paddingBottom: 32,
       }}>
-        {/* Atmospheric glows */}
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(255,31,125,0.22) 0%, transparent 55%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 20% 85%, rgba(212,168,83,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
+        {/* Hot pink radial bloom — center-right */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 72% 55%, rgba(255,0,128,0.55) 0%, rgba(255,0,128,0.18) 42%, transparent 70%)", pointerEvents: "none" }} />
+        {/* Softer fill glow — left */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 15% 80%, rgba(255,31,125,0.22) 0%, transparent 52%)", pointerEvents: "none" }} />
 
-        {/* Top ornamental rule */}
-        <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${PINK} 30%, ${GOLD} 50%, ${PINK} 70%, transparent 100%)` }} />
+        {/* Hot pink top rule */}
+        <div style={{ height: 2.5, background: `linear-gradient(90deg, #FF0090, #FF1F7D, #FF0090)` }} />
 
         {/* ── Greeting ── */}
-        <div style={{ padding: "20px 22px 0", position: "relative" }}>
-          {/* Eyebrow */}
+        <div style={{ padding: "22px 22px 0", position: "relative" }}>
+          {/* Eyebrow label */}
           <p style={{
-            fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800,
-            letterSpacing: "0.32em", color: `${PINK}99`, marginBottom: 10,
+            fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900,
+            letterSpacing: "0.38em", color: "#FF0090", marginBottom: 12,
           }}>
             GOOD {timeLabel}
           </p>
 
           {/* Primary greeting line */}
           <p style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400,
-            fontSize: 22, color: "rgba(255,235,245,0.7)", lineHeight: 1, marginBottom: 2,
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 300,
+            fontSize: 24, color: "rgba(255,255,255,0.6)", lineHeight: 1, marginBottom: 4,
           }}>
             {greeting},
           </p>
 
-          {/* Name — hero line */}
+          {/* Name — Barbie pink hero */}
           <p style={{
             fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-            fontSize: loading ? 28 : Math.max(26, 36 - Math.max(0, (displayName.length - 6) * 2)),
-            color: "white", lineHeight: 1.05,
-            textShadow: `0 0 32px rgba(255,31,125,0.55), 0 0 64px rgba(255,31,125,0.2)`,
-            letterSpacing: "-0.01em",
+            fontSize: loading ? 30 : Math.max(28, 42 - Math.max(0, (displayName.length - 6) * 2.5)),
+            color: "#FF0090",
+            lineHeight: 1,
+            letterSpacing: "-0.02em",
+            textShadow: "0 0 40px rgba(255,0,144,0.7), 0 0 80px rgba(255,0,144,0.3)",
           }}>
             {loading ? "…" : `${displayName}.`}
           </p>
 
-          {/* Sub line */}
+          {/* Sub line — white, handwriting */}
           <p style={{
-            fontFamily: "var(--font-caveat)", fontSize: 13,
-            color: "rgba(255,200,220,0.38)", marginTop: 10, letterSpacing: "0.01em",
+            fontFamily: "var(--font-caveat)", fontSize: 14,
+            color: "rgba(255,255,255,0.45)", marginTop: 12, letterSpacing: "0.01em",
           }}>
             you belong here ✦ soft life, strong mind
           </p>
 
-          {/* Quick-nav chips */}
-          <div style={{ display: "flex", gap: 7, marginTop: 16, flexWrap: "wrap" as const }}>
+          {/* Quick-nav chips — black with hot pink border */}
+          <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" as const }}>
             {[
-              { href: "/member/happenings", icon: "🌃", label: "Tonight" },
-              { href: "/member/city",       icon: "📍", label: "City"    },
-              { href: "/member/plans",      icon: "✦",  label: "Plans"   },
+              { href: "/member/happenings", label: "Tonight" },
+              { href: "/member/city",       label: "City"    },
+              { href: "/member/plans",      label: "Plans"   },
             ].map(chip => (
               <Link key={chip.href} href={chip.href} style={{ textDecoration: "none" }}>
                 <div style={{
-                  display: "flex", alignItems: "center", gap: 5,
-                  background: "rgba(255,255,255,0.06)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  display: "flex", alignItems: "center",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1.5px solid #FF0090",
                   borderRadius: 999,
-                  padding: "6px 13px",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                  padding: "7px 16px",
                 }}>
-                  <span style={{ fontSize: 10 }}>{chip.icon}</span>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,220,235,0.7)", letterSpacing: "0.06em" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>
                     {chip.label}
                   </p>
                 </div>
@@ -332,12 +329,8 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* ── Bottom fade to cream ── */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40,
-          background: `linear-gradient(to bottom, transparent, ${CREAM}22)`,
-          pointerEvents: "none" }} />
-        {/* Bottom ornamental rule */}
-        <div style={{ marginTop: 22, height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}44, ${GOLD}66, ${PINK}44, transparent)` }} />
+        {/* Hot pink bottom rule */}
+        <div style={{ marginTop: 26, height: 2.5, background: `linear-gradient(90deg, #FF0090, #FF1F7D, #FF0090)` }} />
       </div>
 
       {/* ══════════════════════════ CALENDAR STRIP ══════════════════════════ */}
