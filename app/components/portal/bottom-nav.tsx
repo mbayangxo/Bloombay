@@ -154,10 +154,20 @@ function IconChatBubble({ c }: SVGProps) {
   );
 }
 
+function IconLobby({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v15"/>
+      <path d="M9 21V12h6v9"/>
+      <circle cx="14.5" cy="16.5" r="0.5" fill={c}/>
+    </svg>
+  );
+}
+
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",       key: "home"       },
-  { href: "/member/plans",      key: "plans"      },
+  { href: "/member/lobby",      key: "lobby"      },
   { href: "/member/happenings", key: "happenings" },
   { href: "/member/clubs",      key: "clubs"      },
 ] as const;
@@ -190,14 +200,14 @@ export function BottomNav({ user }: { user?: NavUser }) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
     if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
-    if (key === "plans")      return <IconPlans      c={c} w={w} />;
+    if (key === "lobby")      return <IconLobby      c={c} w={w} />;
     if (key === "happenings") return <IconHappenings c={c} w={w} />;
     if (key === "clubs")      return <IconClubs      c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
     if (key === "home") return SLAB_LABEL[slab];
-    return { plans: "Plans", happenings: "Happenings", clubs: "Clubs" }[key];
+    return { lobby: "Lobby", happenings: "Happenings", clubs: "Clubs" }[key] ?? key;
   }
 
   // Top bar icon tile
