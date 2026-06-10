@@ -296,7 +296,7 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
   const [hovered, setHovered] = useState<CityCategory | null>(null);
   return (
     <div style={{
-      background: "#080612", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden",
+      background: "linear-gradient(180deg, #FFB3D9 0%, #FF8FB8 20%, #FFC090 55%, #FFDFC8 100%)", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <DaySkyline width={430} height={800}/>
@@ -312,12 +312,12 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
           </div>
           <button onClick={onSwipeBack} style={{
-            marginTop: 6, background: "rgba(255,255,255,0.06)", backdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999,
+            marginTop: 6, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.5)", borderRadius: 999,
             padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
           }}>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>SIGNS</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.08em" }}>SIGNS</span>
           </button>
         </div>
 
@@ -877,40 +877,40 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
 
         {TREND_LIST.map((item, i) => (
           <div key={item.rank} style={{
-            backgroundImage: `${DARK_GRAIN}`,
-            backgroundSize: "160px 160px",
-            backgroundColor: i < 2 ? "#1A0412" : "#100010",
+            backgroundImage: `${PAPER_TEX}`,
+            backgroundSize: "200px 200px",
+            backgroundColor: i < 2 ? "#FFE8F5" : "#FFF5FA",
             borderRadius: 16, marginBottom: 8, overflow: "hidden",
-            border: i < 2 ? `1px solid rgba(255,31,125,${i === 0 ? "0.45" : "0.25"})` : "1px solid rgba(255,255,255,0.05)",
-            boxShadow: i === 0 ? "0 4px 24px rgba(255,31,125,0.2)" : "none",
+            border: i < 2 ? `1px solid rgba(255,31,125,${i === 0 ? "0.35" : "0.18"})` : "1px solid rgba(255,31,125,0.08)",
+            boxShadow: i === 0 ? "0 4px 16px rgba(255,31,125,0.12)" : "none",
           }}>
             <div style={{ display: "flex", alignItems: "center", padding: "14px 14px", gap: 14 }}>
               {/* Rank number */}
               <div style={{ flexShrink: 0, width: 32, textAlign: "center" as const }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontSize: i < 2 ? 26 : 20, fontWeight: 900, fontStyle: "italic",
-                  color: i === 0 ? PINK : i === 1 ? "#FF7744" : "rgba(255,255,255,0.2)", lineHeight: 1,
-                  textShadow: i === 0 ? `0 0 20px ${PINK}88` : "none" }}>
+                  color: i === 0 ? PINK : i === 1 ? "#FF7744" : "rgba(180,80,120,0.3)", lineHeight: 1,
+                  textShadow: i === 0 ? `0 0 20px ${PINK}44` : "none" }}>
                   {item.rank}
                 </p>
               </div>
               {/* Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" as const }}>
-                  <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "2px 7px" }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>{item.tag}</span>
+                  <div style={{ background: "rgba(255,31,125,0.08)", borderRadius: 999, padding: "2px 7px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: "rgba(180,40,80,0.6)", letterSpacing: "0.1em" }}>{item.tag}</span>
                   </div>
                   {item.badge && (
-                    <div style={{ background: i === 0 ? "rgba(255,31,125,0.2)" : "rgba(255,119,68,0.15)", borderRadius: 999, padding: "2px 7px" }}>
+                    <div style={{ background: i === 0 ? "rgba(255,31,125,0.12)" : "rgba(255,119,68,0.12)", borderRadius: 999, padding: "2px 7px" }}>
                       <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: i === 0 ? PINK : "#FF7744" }}>{item.badge}</span>
                     </div>
                   )}
                 </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 700, fontStyle: "italic", color: "rgba(255,255,255,0.88)", lineHeight: 1.2 }}>{item.name}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 700, fontStyle: "italic", color: DARK, lineHeight: 1.2 }}>{item.name}</p>
               </div>
               {/* Count */}
               <div style={{ flexShrink: 0, textAlign: "right" as const }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800, color: i < 2 ? (i === 0 ? PINK : "#FF7744") : "rgba(255,255,255,0.22)", lineHeight: 1 }}>{item.count}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "0.05em" }}>BLOOMIES</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800, color: i < 2 ? (i === 0 ? PINK : "#FF7744") : "rgba(180,80,120,0.3)", lineHeight: 1 }}>{item.count}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(120,60,80,0.4)", letterSpacing: "0.05em" }}>BLOOMIES</p>
               </div>
             </div>
           </div>
@@ -918,16 +918,18 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
 
         {/* This Week CTA */}
         <div style={{
-          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #280010 0%, #1A000A 50%, #200818 100%)`,
-          backgroundSize: "160px 160px, 100% 100%",
+          backgroundImage: `${PAPER_TEX}`,
+          backgroundSize: "200px 200px",
+          backgroundColor: "#FFE8F2",
           borderRadius: 18, padding: "22px 20px", marginBottom: 14,
-          border: `1px solid rgba(255,31,125,0.2)`,
+          border: `1px solid rgba(255,31,125,0.18)`,
+          boxShadow: "0 4px 16px rgba(255,31,125,0.08)",
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF7744", marginBottom: 10 }}>WHAT BLOOMIES ARE DOING THIS WEEK</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
             {["🍷 Wine tasting","🎭 Off-Broadway","🛍️ Vintage markets","🌙 Jazz nights","🍜 Ramen crawl"].map(item => (
-              <div key={item} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "6px 13px" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,220,210,0.7)" }}>{item}</span>
+              <div key={item} style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 999, padding: "6px 13px" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(120,40,60,0.8)" }}>{item}</span>
               </div>
             ))}
           </div>
@@ -1077,7 +1079,7 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
   return (
-    <div style={{ background: "#0D0814", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(180deg, #FFB3D9 0%, #FFC8A0 100%)", minHeight: "100vh", paddingBottom: 100 }}>
       <div style={{ position: "relative", height: 230, overflow: "hidden" }}>
         <DaySkyline width={430} height={230}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 25%, rgba(13,8,20,0.88) 100%)" }}/>
@@ -1088,7 +1090,7 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
         </div>
       </div>
       <div style={{ padding: "28px 24px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,200,220,0.55)", lineHeight: 1.6 }}>We&apos;re curating the best of NYC.<br/>Check back soon.</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(120,40,80,0.7)", lineHeight: 1.6 }}>We&apos;re curating the best of NYC.<br/>Check back soon.</p>
       </div>
     </div>
   );
