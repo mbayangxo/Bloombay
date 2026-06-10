@@ -252,110 +252,121 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ══════════════════════════ EDITORIAL MASTHEAD ══════════════════════════ */}
+      {/* ══════════════════════════ HEADER ══════════════════════════ */}
       <div style={{
         position: "relative", overflow: "hidden",
-        backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #160810 0%, #220D18 55%, #180910 100%)`,
+        backgroundImage: `${DARK_GRAIN}, linear-gradient(160deg, #0E0610 0%, #1C0A18 40%, #220D18 70%, #160A10 100%)`,
         backgroundSize: "160px 160px, 100% 100%",
-        backgroundColor: "#160810",
+        backgroundColor: "#140810",
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 44px)",
+        paddingBottom: 28,
       }}>
-        {/* Atmospheric glow */}
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 72% 50%, rgba(255,31,125,0.28) 0%, transparent 58%)", pointerEvents: "none" }} />
-        {/* Diagonal shimmer */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 14px, rgba(255,31,125,0.02) 14px, rgba(255,31,125,0.02) 15px)", pointerEvents: "none" }} />
-        {/* Top accent rule */}
-        <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${PINK} 28%, ${GOLD} 50%, ${PINK} 72%, transparent 100%)` }} />
+        {/* Atmospheric glows */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(255,31,125,0.22) 0%, transparent 55%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 20% 85%, rgba(212,168,83,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
 
-        {/* Masthead row */}
-        <div style={{ display: "flex", alignItems: "center", padding: "13px 20px 10px", position: "relative" }}>
-          {/* Logo */}
+        {/* Top ornamental rule */}
+        <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${PINK} 30%, ${GOLD} 50%, ${PINK} 70%, transparent 100%)` }} />
+
+        {/* ── Masthead row ── */}
+        <div style={{ display: "flex", alignItems: "center", padding: "14px 20px 0", position: "relative" }}>
+          {/* BB wordmark */}
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: PINK, lineHeight: 1 }}>BB</p>
-            <span style={{ color: PINK, opacity: 0.6, fontSize: 12 }}>✿</span>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 26, color: PINK, lineHeight: 1 }}>BB</p>
+            <span style={{ color: PINK, opacity: 0.55, fontSize: 13 }}>✿</span>
           </div>
-          {/* Center date */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.3)", lineHeight: 1 }}>
+          {/* Center: date */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.28)", lineHeight: 1 }}>
               {dayAbbr} · {dayOfMonth} {monthShort}
             </p>
-            <div style={{ height: 1, width: 36, background: `linear-gradient(90deg, transparent, ${PINK}66, transparent)` }} />
+            <div style={{ height: 1, width: 32, background: `linear-gradient(90deg, transparent, ${GOLD}55, transparent)` }} />
           </div>
-          {/* Right icons */}
-          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", gap: 12, alignItems: "center" }}>
+          {/* Right: notification + chat */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", gap: 14, alignItems: "center" }}>
             <Link href="/member/notifications" style={{ position: "relative", display: "flex" }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span style={{ position: "absolute", top: 0, right: 0, width: 6, height: 6, borderRadius: "50%", background: PINK, border: "1px solid #160810" }} />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span style={{ position: "absolute", top: 0, right: 0, width: 6, height: 6, borderRadius: "50%", background: PINK, border: "1px solid #140810" }} />
             </Link>
             <Link href="/member/chat" style={{ display: "flex" }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </Link>
           </div>
         </div>
-        {/* Bottom ornamental rule */}
-        <div style={{ height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}55, ${GOLD}77, ${PINK}55, transparent)` }} />
-      </div>
 
-      {/* ══════════════════════════ GREETING ══════════════════════════ */}
-      <div style={{ padding: "18px 20px 6px" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
+        {/* ── Divider ── */}
+        <div style={{ margin: "14px 20px 0", height: 1, background: `linear-gradient(90deg, transparent, rgba(255,31,125,0.2), rgba(212,168,83,0.3), rgba(255,31,125,0.2), transparent)` }} />
 
-          {/* Text block */}
-          <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.65)", marginBottom: 5 }}>
-              GOOD {timeLabel}
-            </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.15 }}>
-              {greeting}, <span style={{ color: PINK }}>{loading ? "…" : `${displayName}. ♡`}</span>
-            </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.25)", marginTop: 5 }}>you belong here · soft life, strong mind ♡</p>
-            {/* Vibe chips */}
-            <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>
-              {[{ icon: "🌃", text: "NYC tonight" }, { icon: "✦", text: "soft life mode" }].map((chip, ci) => (
-                <div key={ci} style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,31,125,0.07)", border: "1px solid rgba(255,31,125,0.12)", borderRadius: 999, padding: "3px 9px" }}>
-                  <span style={{ fontSize: 8 }}>{chip.icon}</span>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.38)" }}>{chip.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* ── Greeting ── */}
+        <div style={{ padding: "20px 22px 0", position: "relative" }}>
+          {/* Eyebrow */}
+          <p style={{
+            fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800,
+            letterSpacing: "0.32em", color: `${PINK}99`, marginBottom: 10,
+          }}>
+            GOOD {timeLabel}
+          </p>
 
-          {/* Polaroid membership card */}
-          <div style={{ flexShrink: 0 }}>
-            <Link href="/member/lounge" style={{ textDecoration: "none" }}>
-              <div style={{ position: "relative" }}>
-                <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 4 }}>
-                  <Tape index={0} width={34} height={13} rotate={-2.5} />
-                </div>
+          {/* Primary greeting line */}
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400,
+            fontSize: 22, color: "rgba(255,235,245,0.7)", lineHeight: 1, marginBottom: 2,
+          }}>
+            {greeting},
+          </p>
+
+          {/* Name — hero line */}
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+            fontSize: loading ? 28 : Math.max(26, 36 - Math.max(0, (displayName.length - 6) * 2)),
+            color: "white", lineHeight: 1.05,
+            textShadow: `0 0 32px rgba(255,31,125,0.55), 0 0 64px rgba(255,31,125,0.2)`,
+            letterSpacing: "-0.01em",
+          }}>
+            {loading ? "…" : `${displayName}.`}
+          </p>
+
+          {/* Sub line */}
+          <p style={{
+            fontFamily: "var(--font-caveat)", fontSize: 13,
+            color: "rgba(255,200,220,0.38)", marginTop: 10, letterSpacing: "0.01em",
+          }}>
+            you belong here ✦ soft life, strong mind
+          </p>
+
+          {/* Quick-nav chips */}
+          <div style={{ display: "flex", gap: 7, marginTop: 16, flexWrap: "wrap" as const }}>
+            {[
+              { href: "/member/happenings", icon: "🌃", label: "Tonight" },
+              { href: "/member/city",       icon: "📍", label: "City"    },
+              { href: "/member/plans",      icon: "✦",  label: "Plans"   },
+            ].map(chip => (
+              <Link key={chip.href} href={chip.href} style={{ textDecoration: "none" }}>
                 <div style={{
-                  backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
-                  backgroundSize: "200px 200px, 80px 80px",
-                  backgroundColor: PAPER,
-                  padding: "5px 5px 26px",
-                  boxShadow: "0 7px 28px rgba(0,0,0,0.17), 0 1px 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9)",
-                  transform: "rotate(2deg)",
-                  width: 100,
+                  display: "flex", alignItems: "center", gap: 5,
+                  background: "rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 999,
+                  padding: "6px 13px",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
                 }}>
-                  <div style={{ width: "100%", height: 118, overflow: "hidden" }}>
-                    <div style={{
-                      width: "100%", height: "100%",
-                      backgroundImage: `${DARK_GRAIN}, linear-gradient(145deg, ${PINK} 0%, #C4005A 100%)`,
-                      backgroundSize: "160px 160px, 100% 100%",
-                      backgroundColor: PINK,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 52, color: "rgba(255,255,255,0.55)" }}>?</p>
-                    </div>
-                  </div>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#999", textAlign: "center", marginTop: 6 }}>
-                    Member
+                  <span style={{ fontSize: 10 }}>{chip.icon}</span>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,220,235,0.7)", letterSpacing: "0.06em" }}>
+                    {chip.label}
                   </p>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            ))}
           </div>
-
         </div>
+
+        {/* ── Bottom fade to cream ── */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40,
+          background: `linear-gradient(to bottom, transparent, ${CREAM}22)`,
+          pointerEvents: "none" }} />
+        {/* Bottom ornamental rule */}
+        <div style={{ marginTop: 22, height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}44, ${GOLD}66, ${PINK}44, transparent)` }} />
       </div>
 
       {/* ══════════════════════════ CALENDAR STRIP ══════════════════════════ */}
