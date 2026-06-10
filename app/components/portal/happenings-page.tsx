@@ -301,12 +301,11 @@ function PosterCard({ ev, posterIdx, joined, onToggle }: {
 
   return (
     <div style={{
-      gridColumn: "span 2",
-      borderRadius: 16,
+      borderRadius: 14,
       overflow: "hidden",
       position: "relative",
-      height: 280,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+      height: 162,
+      boxShadow: "0 6px 24px rgba(0,0,0,0.45)",
     }}>
       <img src={poster} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.72) 70%, rgba(0,0,0,0.88) 100%)" }}/>
@@ -327,29 +326,21 @@ function PosterCard({ ev, posterIdx, joined, onToggle }: {
       </div>
 
       {/* Bottom */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "14px 14px 14px" }}>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, marginBottom: 3, textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 10px" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, marginBottom: 2, textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
           {ev.title}
         </p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.65)", letterSpacing: "0.05em", marginBottom: 10 }}>
-          {ev.venue ?? ""}{ev.neighborhood ? ` · ${ev.neighborhood}` : ""}
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ display: "flex" }}>
-            {AV_COLORS.slice(0, 4).map((c, i) => (
-              <div key={i} style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: "2px solid rgba(255,255,255,0.5)", marginLeft: i > 0 ? -6 : 0 }}/>
-            ))}
-          </div>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)" }}>{ev.attending_count ?? 0} going</span>
-          <span style={{ flex: 1 }}/>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.45)" }}>{fmtShort(ev.starts_at)}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", letterSpacing: "0.04em", flex: 1 }}>
+            {ev.venue ?? ""}{ev.neighborhood ? ` · ${ev.neighborhood}` : ""}
+          </span>
           <button onClick={onToggle} style={{
             background: joined ? "rgba(255,255,255,0.15)" : PINK,
             color: "white", border: joined ? "1.5px solid rgba(255,255,255,0.4)" : "none",
-            borderRadius: 999, padding: "8px 18px",
-            fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.07em",
-            cursor: "pointer", backdropFilter: joined ? "blur(6px)" : "none",
-            boxShadow: joined ? "none" : `0 4px 16px ${PINK}55`,
+            borderRadius: 999, padding: "5px 12px",
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em",
+            cursor: "pointer", flexShrink: 0,
+            boxShadow: joined ? "none" : `0 3px 12px ${PINK}55`,
           }}>
             {joined ? "JOINED ✓" : "JOIN →"}
           </button>
@@ -500,21 +491,20 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
 }
 
 /* ── Static poster (no real event) ───────────────────────── */
-function StaticPosterCard({ img, title, sub, wide }: { img: string; title: string; sub: string; wide?: boolean }) {
+function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub: string; wide?: boolean }) {
   return (
     <div style={{
-      gridColumn: wide ? "span 2" : undefined,
-      borderRadius: 16,
+      borderRadius: 14,
       overflow: "hidden",
       position: "relative",
-      height: wide ? 240 : 195,
-      boxShadow: "0 6px 24px rgba(0,0,0,0.45)",
+      height: 160,
+      boxShadow: "0 5px 20px rgba(0,0,0,0.4)",
     }}>
       <img src={img} alt={title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%)" }}/>
-      <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: wide ? 20 : 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{title}</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", marginTop: 3 }}>{sub}</p>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 35%, rgba(0,0,0,0.82) 100%)" }}/>
+      <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{title}</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", marginTop: 2 }}>{sub}</p>
       </div>
     </div>
   );
@@ -558,18 +548,35 @@ function CollageGrid({ events, joined, toggleJoin }: { events: Event[]; joined: 
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px" }}>
-      <StaticPosterCard img={POSTER_IMGS[0]} title="Girls Night Out" sub="This weekend · SoHo" wide/>
-      <StaticPosterCard img={POSTER_IMGS[3]} title="Italian Dinner Society" sub="Fri · Carbone · 7PM"/>
-      <StaticPosterCard img={POSTER_IMGS[6]} title="Sunday Brunch Club" sub="Sun · 11AM · Ladurée"/>
-      <StaticPosterCard img={POSTER_IMGS[2]} title="Vinyl Night & Jazz" sub="Sat · 9PM · Bushwick"/>
-      <StaticPosterCard img={POSTER_IMGS[7]} title="Rooftop Sessions" sub="Fri · 8PM · Williamsburg" wide/>
-      <StaticPosterCard img={POSTER_IMGS[4]} title="Film Club" sub="Sun · 3PM · Lower East Side"/>
-      <StaticPosterCard img={POSTER_IMGS[5]} title="Dance All Night" sub="Sat · Midnight · DUMBO"/>
-      <StaticPosterCard img={POSTER_IMGS[8]} title="Bagels & Books" sub="Sun · 10AM · Prospect Park"/>
-      <StaticPosterCard img={POSTER_IMGS[1]} title="Save the Date: Aperitivo" sub="Next Fri · Harlem" wide/>
-      <StaticPosterCard img={POSTER_IMGS[9]} title="Ladies First Road Trip" sub="Weekend Getaway"/>
-    </div>
+    <>
+      {/* Featured swipe strip */}
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 12px 12px", scrollbarWidth: "none" as const }}>
+        {[
+          { img: POSTER_IMGS[0], title: "Girls Night Out", sub: "This weekend · SoHo" },
+          { img: POSTER_IMGS[7], title: "Rooftop Sessions", sub: "Fri · 8PM · Williamsburg" },
+          { img: POSTER_IMGS[1], title: "Save the Date: Aperitivo", sub: "Next Fri · Harlem" },
+          { img: POSTER_IMGS[5], title: "Dance All Night", sub: "Sat · Midnight · DUMBO" },
+        ].map((item, i) => (
+          <div key={i} style={{ flexShrink: 0, width: 160, height: 200, borderRadius: 14, overflow: "hidden", position: "relative", boxShadow: "0 6px 22px rgba(0,0,0,0.45)" }}>
+            <img src={item.img} alt={item.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%)" }}/>
+            <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{item.title}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", marginTop: 2 }}>{item.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Dense grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px" }}>
+        <StaticPosterCard img={POSTER_IMGS[3]} title="Italian Dinner Society" sub="Fri · Carbone · 7PM"/>
+        <StaticPosterCard img={POSTER_IMGS[6]} title="Sunday Brunch Club" sub="Sun · 11AM · Ladurée"/>
+        <StaticPosterCard img={POSTER_IMGS[2]} title="Vinyl Night & Jazz" sub="Sat · 9PM · Bushwick"/>
+        <StaticPosterCard img={POSTER_IMGS[4]} title="Film Club" sub="Sun · 3PM · Lower East Side"/>
+        <StaticPosterCard img={POSTER_IMGS[8]} title="Bagels & Books" sub="Sun · 10AM · Prospect Park"/>
+        <StaticPosterCard img={POSTER_IMGS[9]} title="Ladies First Road Trip" sub="Weekend Getaway"/>
+      </div>
+    </>
   );
 }
 
@@ -719,48 +726,46 @@ export function HappeningsPage() {
         {/* ── HAPPENINGS TAB ── */}
         {tab === "happenings" && (
           <>
-            {/* Type carousel */}
-            <TypeCarousel onSelect={label => setFilter(label as Filter)}/>
-
-            {/* Filter trigger bar + collapsible pills */}
-            <div style={{ padding: "4px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            {/* Filter bar — icon only, collapsible */}
+            <div style={{ padding: "6px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(255,255,255,0.3)" : PINK, letterSpacing: "0.08em" }}>
                 {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
               </span>
               <button onClick={() => setFilterOpen(o => !o)} style={{
-                background: filterOpen ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 6, padding: "5px 10px", cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 5,
-                fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700,
-                color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em",
+                width: 34, height: 34, borderRadius: "50%",
+                background: filterOpen ? PINK : "rgba(255,255,255,0.08)",
+                border: filterOpen ? "none" : "1px solid rgba(255,255,255,0.12)",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: filterOpen ? `0 3px 14px ${PINK}55` : "none",
+                transition: "all 0.18s",
               }}>
-                {filterOpen ? "CLOSE ✕" : "FILTER ≡"}
+                {filterOpen
+                  ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+                }
               </button>
             </div>
             {filterOpen && (
-              <div
-                className="filter-scroll"
-                style={{
-                  display: "flex", gap: 7, overflowX: "auto",
-                  padding: "0 14px 12px",
-                  scrollbarWidth: "none",
-                }}
-              >
-                {FILTERS.map(f => (
-                  <button key={f} onClick={() => setFilter(f)} style={{
-                    flexShrink: 0, padding: "6px 14px", borderRadius: 999,
-                    border: `1px solid ${filter === f ? PINK : "rgba(255,255,255,0.12)"}`,
-                    background: filter === f ? PINK : "rgba(255,255,255,0.05)",
-                    color: filter === f ? "white" : "rgba(255,255,255,0.4)",
-                    fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                    letterSpacing: "0.04em", cursor: "pointer",
-                    boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
-                  }}>
-                    {f}
-                  </button>
-                ))}
-              </div>
+              <>
+                {/* Type category cards */}
+                <TypeCarousel onSelect={label => { setFilter(label as Filter); setFilterOpen(false); }}/>
+                {/* Filter pills */}
+                <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
+                  {FILTERS.map(f => (
+                    <button key={f} onClick={() => { setFilter(f); setFilterOpen(false); }} style={{
+                      flexShrink: 0, padding: "6px 14px", borderRadius: 999,
+                      border: `1px solid ${filter === f ? PINK : "rgba(255,255,255,0.12)"}`,
+                      background: filter === f ? PINK : "rgba(255,255,255,0.05)",
+                      color: filter === f ? "white" : "rgba(255,255,255,0.4)",
+                      fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                      letterSpacing: "0.04em", cursor: "pointer",
+                      boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
+                    }}>
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
 
             {/* Ticker */}

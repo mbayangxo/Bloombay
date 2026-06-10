@@ -717,75 +717,61 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
 
 function PlanDoorCard({ room, isRead, onPress, theme }: { room: PlanRoom; isRead: boolean; onPress: () => void; theme: typeof DAY_THEME }) {
   const hasUnread = room.unread > 0 && !isRead;
+  const W = 78;
+  const archR = W / 2;
   return (
-    <button onClick={onPress} className="active:scale-[0.96] transition-transform"
+    <button onClick={onPress} className="active:scale-[0.94] transition-transform"
       style={{
-        width: "100%", aspectRatio: "3/4.2",
-        borderRadius: "14px 14px 8px 8px",
+        width: W, height: 130, flexShrink: 0,
+        borderRadius: `${archR}px ${archR}px 4px 4px`,
         position: "relative", overflow: "hidden",
-        background: theme.cardBg,
-        backdropFilter: "blur(18px) saturate(1.5)",
-        WebkitBackdropFilter: "blur(18px) saturate(1.5)",
-        border: `1.5px solid ${theme.cardBorder}`,
+        background: `linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)`,
+        backdropFilter: "blur(20px) saturate(1.6)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+        border: `1px solid rgba(255,255,255,0.22)`,
         boxShadow: hasUnread
-          ? `0 8px 32px rgba(0,0,0,0.14), 0 0 0 2px ${room.accent}55, inset 0 1px 0 rgba(255,255,255,0.55)`
-          : `0 8px 28px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.5)`,
+          ? `0 6px 24px rgba(0,0,0,0.22), 0 0 0 1.5px ${room.accent}88, inset 0 1px 0 rgba(255,255,255,0.35)`
+          : `0 4px 18px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.28)`,
+        cursor: "pointer",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        padding: "12px 6px 8px",
       }}>
 
-      {/* Top color bar — like a door lintel */}
-      <div style={{ height: 5, background: `linear-gradient(90deg, ${room.accent}, ${room.accent}77)` }} />
+      {/* Accent radial glow */}
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 20%, ${room.accent}22, transparent 65%)`, pointerEvents: "none" }} />
 
-      {/* Glass reflection shimmer */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 100%)", pointerEvents: "none" }} />
+      {/* Glass shimmer reflection */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "42%", background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)", pointerEvents: "none" }} />
 
-      {/* Inner door content */}
-      <div style={{ padding: "14px 12px 10px", height: "calc(100% - 5px)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* Arch window panels (decorative glass panes) */}
+      <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 36, height: 36, borderRadius: "18px 18px 0 0", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
 
-        {/* Door plaque / emoji */}
-        <div style={{
-          width: 52, height: 52, borderRadius: 16,
-          background: `${room.accent}1A`,
-          border: `1.5px solid ${room.accent}44`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 28, marginBottom: 10,
-          boxShadow: `0 2px 12px ${room.accent}22`,
-        }}>{room.emoji}</div>
+      {/* Emoji icon */}
+      <div style={{ fontSize: 20, position: "relative", zIndex: 1, marginTop: 20, marginBottom: 5 }}>{room.emoji}</div>
 
-        {/* Plan name */}
-        <p style={{
-          fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic",
-          color: theme.heading, textAlign: "center", lineHeight: 1.22,
-          marginBottom: 5, padding: "0 4px",
-        }}>{room.name}</p>
+      {/* Room name */}
+      <p style={{
+        fontFamily: "var(--font-caveat)", fontSize: 10, fontWeight: 700,
+        color: "rgba(255,255,255,0.85)", textAlign: "center", lineHeight: 1.25,
+        position: "relative", zIndex: 1, padding: "0 4px",
+        overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const,
+      }}>{room.name}</p>
 
-        {/* Date */}
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: room.accent, textAlign: "center", lineHeight: 1.3 }}>{room.time ?? room.date}</p>
+      <div style={{ flex: 1 }} />
 
-        <div style={{ flex: 1 }} />
+      {/* Date tiny */}
+      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: `${room.accent}CC`, position: "relative", zIndex: 1, textAlign: "center", lineHeight: 1.2, marginBottom: 6 }}>{room.date}</p>
 
-        {/* Venue small */}
-        {room.venue && (
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText, textAlign: "center", lineHeight: 1.3, marginBottom: 8, padding: "0 4px", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{room.venue}</p>
-        )}
+      {/* Door knob */}
+      <div style={{ position: "absolute", right: 9, top: "56%", transform: "translateY(-50%)", width: 7, height: 7, borderRadius: "50%", background: `${room.accent}CC`, border: `1px solid ${room.accent}`, boxShadow: `0 1px 4px ${room.accent}55`, zIndex: 2 }} />
 
-        {/* Stacked member avatars */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginBottom: 2 }}>
-          <div style={{ display: "flex" }}>
-            {BLOOMIES_LIST.slice(0, 3).map((b, i) => (
-              <div key={b.id} style={{ width: 16, height: 16, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, border: "1.5px solid rgba(255,255,255,0.7)", marginLeft: i === 0 ? 0 : -5, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 800, color: "white", zIndex: 3 - i }}>{b.initial}</div>
-            ))}
-          </div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText }}>{room.members}</p>
-        </div>
-      </div>
-
-      {/* Door knob — on right side, vertically centered */}
-      <div style={{ position: "absolute", right: 8, top: "52%", transform: "translateY(-50%)", width: 9, height: 9, borderRadius: "50%", background: `${room.accent}99`, border: `1px solid ${room.accent}`, boxShadow: `0 1px 4px ${room.accent}44` }} />
+      {/* Door centre seam */}
+      <div style={{ position: "absolute", left: "50%", top: "48%", bottom: 3, width: 1, background: "rgba(255,255,255,0.08)", transform: "translateX(-50%)", pointerEvents: "none" }} />
 
       {/* Unread badge */}
       {hasUnread && (
-        <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.55)", animation: "badgeShake 3s ease-in-out 1s infinite" }}>
-          <span style={{ fontSize: 9, fontWeight: 900, color: "white" }}>{room.unread}</span>
+        <div style={{ position: "absolute", top: 7, right: 7, width: 16, height: 16, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
+          <span style={{ fontSize: 7, fontWeight: 900, color: "white" }}>{room.unread}</span>
         </div>
       )}
     </button>
@@ -1085,6 +1071,91 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── WALLET TICKETS ────────────────────────────────────────────────────────────
+
+function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof DAY_THEME; onOpen: (room: PlanRoom) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const STACK_OFFSET = 10;
+
+  return (
+    <div style={{ padding: "0 16px 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>MY TICKETS</p>
+        <button onClick={() => setExpanded(e => !e)} style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>{expanded ? "CLOSE ✕" : "VIEW ALL"}</p>
+        </button>
+      </div>
+
+      {!expanded ? (
+        /* Stacked wallet view */
+        <button onClick={() => setExpanded(true)} style={{ background: "none", border: "none", cursor: "pointer", width: "100%", position: "relative", height: 80 + (rooms.length - 1) * STACK_OFFSET }}>
+          {[...rooms].reverse().map((room, i) => {
+            const idx = rooms.length - 1 - i;
+            return (
+              <div key={room.id} style={{
+                position: "absolute",
+                top: (rooms.length - 1 - idx) * STACK_OFFSET,
+                left: idx * 2,
+                right: idx * 2,
+                height: 72,
+                borderRadius: 14,
+                overflow: "hidden",
+                background: theme.sectionBg,
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                border: `1px solid ${theme.cardBorder}`,
+                boxShadow: `0 ${2 + idx * 2}px ${8 + idx * 4}px rgba(0,0,0,${0.08 + idx * 0.03})`,
+                display: "flex", alignItems: "stretch",
+                zIndex: idx + 1,
+              }}>
+                <div style={{ width: 52, flexShrink: 0, background: `${room.accent}22`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, borderRight: `1px dashed ${room.accent}33` }}>
+                  <span style={{ fontSize: 20 }}>{room.emoji}</span>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 8, color: room.accent, fontWeight: 700, lineHeight: 1 }}>{room.date}</p>
+                </div>
+                <div style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 2 }}>TICKET</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.1 }}>{room.name}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: theme.subText, marginTop: 2 }}>{room.time}</p>
+                </div>
+                <div style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", paddingRight: 8 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={theme.subText} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+            );
+          })}
+        </button>
+      ) : (
+        /* Expanded: all tickets visible */
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {rooms.map(room => {
+            const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+            return (
+              <div key={room.id} style={{ borderRadius: 16, overflow: "hidden", background: theme.sectionBg, backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: `1px solid ${theme.cardBorder}`, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>
+                <button onClick={() => onOpen(room)} style={{ width: "100%", display: "flex", alignItems: "stretch", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ width: 56, flexShrink: 0, background: `${room.accent}22`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                    <span style={{ fontSize: 22 }}>{room.emoji}</span>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: room.accent, fontWeight: 700 }}>{room.date}</p>
+                  </div>
+                  <div style={{ flex: 1, padding: "12px 14px" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 3 }}>PLAN TICKET</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.15, marginBottom: 2 }}>{room.name}</p>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText }}>{room.time}</p>
+                  </div>
+                </button>
+                <div style={{ borderTop: `1px dashed ${theme.cardBorder}`, margin: "0 10px" }} />
+                <div style={{ padding: "6px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: theme.subText, letterSpacing: "0.06em" }}>{ticketCode}</p>
+                  <button onClick={() => onOpen(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>🎟 View</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 
 function PlansPageInner() {
@@ -1156,65 +1227,43 @@ function PlansPageInner() {
           <div>
             <div style={{ padding: "22px 20px 14px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK, marginBottom: 4 }}>{todayStr}</p>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1, letterSpacing: "-0.01em" }}>Your Plans</h1>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1, letterSpacing: "-0.01em" }}>Your Plans</h1>
+                <button onClick={() => setShowNewPlan(true)} style={{ width: 26, height: 26, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.4)", flexShrink: 0 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
                 {totalUnread > 0 && (
                   <div style={{ background: PINK, color: "white", borderRadius: 999, padding: "3px 10px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800 }}>{totalUnread} new</div>
                 )}
               </div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: theme.subText, marginTop: 4, fontStyle: "italic" }}>{PLAN_ROOMS.length} rooms — tap a door to enter</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: theme.subText, marginTop: 4, fontStyle: "italic" }}>swipe to enter a room ✦</p>
             </div>
 
-            <div style={{ padding: "0 20px 8px" }}>
+            <div style={{ padding: "0 20px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>PLAN ROOMS</p>
-            </div>
-
-            {/* Door grid — 2 columns */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px 20px" }}>
-              {PLAN_ROOMS.map(room => (
-                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} theme={theme} />
-              ))}
-              <button onClick={() => setShowNewPlan(true)}
-                style={{ aspectRatio: "3/4.2", borderRadius: "14px 14px 8px 8px", border: `2px dashed ${PINK}44`, background: `${PINK}06`, backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${PINK}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: `${PINK}99`, textAlign: "center", padding: "0 10px", lineHeight: 1.3 }}>New Plan Room</p>
+              {/* Planner icon — switches to calendar */}
+              <button onClick={() => setMainTab("calendar")} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.07)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 10px", cursor: "pointer" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>PLANNER</p>
               </button>
             </div>
 
-            {/* Ticket strip */}
+            {/* Swipeable door row */}
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "6px 16px 20px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+              {PLAN_ROOMS.map(room => (
+                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} theme={theme} />
+              ))}
+              {/* Add door */}
+              <button onClick={() => setShowNewPlan(true)}
+                style={{ width: 78, height: 130, flexShrink: 0, borderRadius: "39px 39px 4px 4px", border: `1.5px dashed ${PINK}44`, background: `${PINK}07`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={`${PINK}99`} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: `${PINK}88` }}>New</p>
+              </button>
+            </div>
+
+            {/* Wallet Tickets */}
             {PLAN_ROOMS.some(r => r.eventId) && (
-              <div style={{ padding: "0 0 16px" }}>
-                <div style={{ padding: "0 20px 8px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: theme.label }}>MY TICKETS</p>
-                </div>
-                <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "4px 16px 4px", scrollbarWidth: "none" as const }}>
-                  {PLAN_ROOMS.filter(r => r.eventId).map(room => {
-                    const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
-                    return (
-                      <div key={room.id} style={{ flexShrink: 0, width: 200, borderRadius: 16, overflow: "hidden", background: theme.sectionBg, backdropFilter: "blur(8px)", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
-                        <button onClick={() => openRoom(room)} className="w-full flex items-stretch text-left active:scale-[0.99] transition-transform">
-                          <div style={{ width: 52, flexShrink: 0, background: room.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                            <span style={{ fontSize: 22 }}>{room.emoji}</span>
-                            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: room.accent, fontWeight: 700 }}>{room.date}</p>
-                          </div>
-                          <div style={{ flex: 1, padding: "10px 12px" }}>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginBottom: 2 }}>PLAN ROOM</p>
-                            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.2, marginBottom: 2 }}>{room.name}</p>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: theme.subText }}>{room.time}</p>
-                          </div>
-                        </button>
-                        <div style={{ borderTop: "1px dashed rgba(0,0,0,0.08)", margin: "0 10px" }} />
-                        <div style={{ padding: "6px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: theme.subText, letterSpacing: "0.05em" }}>{ticketCode}</p>
-                          <button onClick={() => setTicketRoom(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>View →</button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
             )}
           </div>
         )}

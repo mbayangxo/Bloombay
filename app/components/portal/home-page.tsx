@@ -256,10 +256,10 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>
               GOOD {timeLabel}
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: DARK, lineHeight: 1.08 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 17, fontWeight: 800, fontStyle: "italic", color: DARK, lineHeight: 1.08 }}>
               {greeting},
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 32, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 0.96 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 1.1 }}>
               {loading ? "…" : `${displayName}. ♡`}
             </p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(0,0,0,0.28)", marginTop: 10 }}>you belong here</p>
@@ -283,24 +283,16 @@ export function HomePage() {
                   width: 100,
                 }}>
                   <div style={{ width: "100%", height: 118, overflow: "hidden" }}>
-                    {avatarUrl
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : (
-                        <div style={{
-                          width: "100%", height: "100%",
-                          background: `linear-gradient(145deg, ${PINK} 0%, #7F0030 100%)`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 48, color: "rgba(255,255,255,0.45)" }}>
-                            {initial}
-                          </p>
-                        </div>
-                      )
-                    }
+                    <div style={{
+                      width: "100%", height: "100%",
+                      background: `linear-gradient(145deg, ${PINK} 0%, #C4005A 100%)`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 52, color: "rgba(255,255,255,0.55)" }}>?</p>
+                    </div>
                   </div>
                   <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#999", textAlign: "center", marginTop: 6 }}>
-                    {loading ? "" : (firstName || "Member")}
+                    Member
                   </p>
                 </div>
               </div>
