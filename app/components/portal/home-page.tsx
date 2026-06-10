@@ -9,7 +9,11 @@ const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
 const DARK  = "#1C1B1C";
 const PAPER = "#FEFCF7";
-const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+const PAPER_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+const DARK_GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' fill='%23fff' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
+const LINEN_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08 0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='80' height='80' fill='%23000' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`;
+const GOLD       = "#D4A853";
+const MONTHS_S   = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 
 const TAPES = [
   { rgb: "255,148,172", a: 0.72 },
@@ -234,6 +238,9 @@ export function HomePage() {
   const task        = FIRST_MONTH_TASKS[Math.min(weeksIn - 1, 3)];
   const displayName = firstName || "there";
   const initial     = firstName ? firstName[0].toUpperCase() : "?";
+  const monthShort  = MONTHS_S[today.getMonth()];
+  const dayOfMonth  = today.getDate();
+  const dayAbbr     = WEEK_DAYS[todayDow];
 
   return (
     <div style={{
@@ -245,25 +252,72 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ══════════════════════════ HERO GREETING ══════════════════════════ */}
-      <div style={{ paddingTop: 60, paddingLeft: 20, paddingRight: 20, paddingBottom: 8 }}>
+      {/* ══════════════════════════ EDITORIAL MASTHEAD ══════════════════════════ */}
+      <div style={{
+        position: "relative", overflow: "hidden",
+        backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #160810 0%, #220D18 55%, #180910 100%)`,
+        backgroundSize: "160px 160px, 100% 100%",
+        backgroundColor: "#160810",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 44px)",
+      }}>
+        {/* Atmospheric glow */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 72% 50%, rgba(255,31,125,0.28) 0%, transparent 58%)", pointerEvents: "none" }} />
+        {/* Diagonal shimmer */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 14px, rgba(255,31,125,0.02) 14px, rgba(255,31,125,0.02) 15px)", pointerEvents: "none" }} />
+        {/* Top accent rule */}
+        <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${PINK} 28%, ${GOLD} 50%, ${PINK} 72%, transparent 100%)` }} />
 
-        {/* Greeting row */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+        {/* Masthead row */}
+        <div style={{ display: "flex", alignItems: "center", padding: "13px 20px 10px", position: "relative" }}>
+          {/* Logo */}
+          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: PINK, lineHeight: 1 }}>BB</p>
+            <span style={{ color: PINK, opacity: 0.6, fontSize: 12 }}>✿</span>
+          </div>
+          {/* Center date */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.3)", lineHeight: 1 }}>
+              {dayAbbr} · {dayOfMonth} {monthShort}
+            </p>
+            <div style={{ height: 1, width: 36, background: `linear-gradient(90deg, transparent, ${PINK}66, transparent)` }} />
+          </div>
+          {/* Right icons */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", gap: 12, alignItems: "center" }}>
+            <Link href="/member/notifications" style={{ position: "relative", display: "flex" }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span style={{ position: "absolute", top: 0, right: 0, width: 6, height: 6, borderRadius: "50%", background: PINK, border: "1px solid #160810" }} />
+            </Link>
+            <Link href="/member/chat" style={{ display: "flex" }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </Link>
+          </div>
+        </div>
+        {/* Bottom ornamental rule */}
+        <div style={{ height: 1.5, background: `linear-gradient(90deg, transparent, ${PINK}55, ${GOLD}77, ${PINK}55, transparent)` }} />
+      </div>
+
+      {/* ══════════════════════════ GREETING ══════════════════════════ */}
+      <div style={{ padding: "18px 20px 6px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
 
           {/* Text block */}
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.65)", marginBottom: 5 }}>
               GOOD {timeLabel}
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 17, fontWeight: 800, fontStyle: "italic", color: DARK, lineHeight: 1.08 }}>
-              {greeting},
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.15 }}>
+              {greeting}, <span style={{ color: PINK }}>{loading ? "…" : `${displayName}. ♡`}</span>
             </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 1.1 }}>
-              {loading ? "…" : `${displayName}. ♡`}
-            </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(0,0,0,0.28)", marginTop: 10 }}>you belong here</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.2)", marginTop: 2 }}>soft life, strong mind ♡</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.25)", marginTop: 5 }}>you belong here · soft life, strong mind ♡</p>
+            {/* Vibe chips */}
+            <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>
+              {[{ icon: "🌃", text: "NYC tonight" }, { icon: "✦", text: "soft life mode" }].map((chip, ci) => (
+                <div key={ci} style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,31,125,0.07)", border: "1px solid rgba(255,31,125,0.12)", borderRadius: 999, padding: "3px 9px" }}>
+                  <span style={{ fontSize: 8 }}>{chip.icon}</span>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.38)" }}>{chip.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Polaroid membership card */}
@@ -274,18 +328,20 @@ export function HomePage() {
                   <Tape index={0} width={34} height={13} rotate={-2.5} />
                 </div>
                 <div style={{
-                  backgroundImage: PAPER_TEX,
+                  backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+                  backgroundSize: "200px 200px, 80px 80px",
                   backgroundColor: PAPER,
-                  backgroundSize: "200px 200px",
                   padding: "5px 5px 26px",
-                  boxShadow: "0 7px 28px rgba(0,0,0,0.17), 0 1px 4px rgba(0,0,0,0.07)",
+                  boxShadow: "0 7px 28px rgba(0,0,0,0.17), 0 1px 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9)",
                   transform: "rotate(2deg)",
                   width: 100,
                 }}>
                   <div style={{ width: "100%", height: 118, overflow: "hidden" }}>
                     <div style={{
                       width: "100%", height: "100%",
-                      background: `linear-gradient(145deg, ${PINK} 0%, #C4005A 100%)`,
+                      backgroundImage: `${DARK_GRAIN}, linear-gradient(145deg, ${PINK} 0%, #C4005A 100%)`,
+                      backgroundSize: "160px 160px, 100% 100%",
+                      backgroundColor: PINK,
                       display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
                       <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 52, color: "rgba(255,255,255,0.55)" }}>?</p>
@@ -306,11 +362,11 @@ export function HomePage() {
       <div style={{ margin: "20px 0 0" }}>
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          backgroundImage: PAPER_TEX,
+          backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
           backgroundColor: "rgba(255,31,125,0.04)",
-          backgroundSize: "200px 200px",
-          borderTop: "1px solid rgba(255,31,125,0.08)",
-          borderBottom: "1px solid rgba(255,31,125,0.08)",
+          backgroundSize: "200px 200px, 80px 80px",
+          borderTop: "1px solid rgba(255,31,125,0.1)",
+          borderBottom: "1px solid rgba(255,31,125,0.1)",
           padding: "8px 22px",
         }}>
           {weekDays.map((d, i) => (
@@ -343,12 +399,12 @@ export function HomePage() {
               <Tape index={1} width={40} height={13} rotate={-2} />
             </div>
             <div style={{
-              backgroundImage: PAPER_TEX,
+              backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
               backgroundColor: PAPER,
-              backgroundSize: "200px 200px",
+              backgroundSize: "200px 200px, 80px 80px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.09)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
               transform: "rotate(-0.6deg)",
               minHeight: 140,
               display: "flex", flexDirection: "column", justifyContent: "space-between",
@@ -378,12 +434,12 @@ export function HomePage() {
               <Tape index={2} width={36} height={13} rotate={3} />
             </div>
             <div style={{
-              backgroundImage: PAPER_TEX,
+              backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
               backgroundColor: "#FEF0F5",
-              backgroundSize: "200px 200px",
+              backgroundSize: "200px 200px, 80px 80px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(255,31,125,0.08)",
+              boxShadow: "0 4px 20px rgba(255,31,125,0.09), inset 0 1px 0 rgba(255,255,255,0.85)",
               transform: "rotate(0.4deg)",
               minHeight: 140,
             }}>
@@ -404,12 +460,12 @@ export function HomePage() {
               <Tape index={3} width={36} height={13} rotate={-1} />
             </div>
             <div style={{
-              backgroundImage: PAPER_TEX,
+              backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
               backgroundColor: PAPER,
-              backgroundSize: "200px 200px",
+              backgroundSize: "200px 200px, 80px 80px",
               borderRadius: 18,
               padding: "18px 12px 12px",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.9)",
               transform: "rotate(-0.3deg)",
               minHeight: 140,
             }}>
@@ -439,12 +495,12 @@ export function HomePage() {
 
         {/* Event list */}
         <div style={{
-          backgroundImage: PAPER_TEX,
+          backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
           backgroundColor: PAPER,
-          backgroundSize: "200px 200px",
+          backgroundSize: "200px 200px, 80px 80px",
           borderRadius: 20,
           overflow: "hidden",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          boxShadow: "0 4px 22px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.9)",
         }}>
           {TODAY_EVENTS.map((ev, i) => (
             <div key={i} style={{
@@ -500,10 +556,12 @@ export function HomePage() {
             marginTop: 10,
             borderRadius: 18,
             overflow: "hidden",
-            background: "linear-gradient(145deg, #1A0810 0%, #2D0A1A 100%)",
+            backgroundImage: `${DARK_GRAIN}, linear-gradient(145deg, #1A0810 0%, #2D0A1A 100%)`,
+            backgroundSize: "160px 160px, 100% 100%",
+            backgroundColor: "#1A0810",
             padding: "20px 20px",
             position: "relative",
-            boxShadow: `0 8px 30px rgba(255,31,125,0.2)`,
+            boxShadow: `0 10px 36px rgba(255,31,125,0.22)`,
           }}>
             <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 85% 15%, rgba(255,31,125,0.35) 0%, transparent 55%)", pointerEvents: "none" }} />
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,31,125,0.85)", position: "relative" }}>
@@ -556,11 +614,11 @@ export function HomePage() {
         ) : myClubs.length === 0 ? (
           <div style={{
             margin: "0 20px",
-            backgroundImage: PAPER_TEX,
+            backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
             backgroundColor: PAPER,
-            backgroundSize: "200px 200px",
+            backgroundSize: "200px 200px, 80px 80px",
             borderRadius: 22, padding: "28px 22px", textAlign: "center",
-            boxShadow: "0 4px 18px rgba(0,0,0,0.07)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
           }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontStyle: "italic", color: "rgba(0,0,0,0.25)", marginBottom: 8 }}>
               No clubs yet.
@@ -608,13 +666,15 @@ export function HomePage() {
             <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0 }}>
               <div style={{
                 width: 100,
-                backgroundImage: PAPER_TEX,
+                backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
                 backgroundColor: PAPER,
-                backgroundSize: "200px 200px",
+                backgroundSize: "200px 200px, 80px 80px",
                 borderRadius: 14, overflow: "hidden",
-                boxShadow: "0 3px 12px rgba(0,0,0,0.07)",
+                boxShadow: "0 3px 14px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.85)",
               }}>
-                <div style={{ height: 56, background: n.color, opacity: 0.65 }} />
+                <div style={{ height: 56, background: `linear-gradient(135deg, ${n.color}, ${n.color}88)`, position: "relative" }}>
+                  <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px" }} />
+                </div>
                 <div style={{ padding: "7px 8px 9px" }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: DARK }}>{n.name}</p>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.35)", marginTop: 1 }}>{n.clubs} clubs</p>
@@ -629,10 +689,12 @@ export function HomePage() {
       <div style={{ padding: "14px 20px 36px" }}>
         <Link href="/member/discover" style={{ textDecoration: "none" }}>
           <div style={{
-            background: "linear-gradient(145deg, #1C1B1C 0%, #3D001A 100%)",
+            backgroundImage: `${DARK_GRAIN}, linear-gradient(145deg, #1C1B1C 0%, #3D001A 100%)`,
+            backgroundSize: "160px 160px, 100% 100%",
+            backgroundColor: "#1C1B1C",
             borderRadius: 20, padding: "26px 22px",
             position: "relative", overflow: "hidden",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+            boxShadow: "0 10px 36px rgba(0,0,0,0.2)",
             transform: "rotate(0.4deg)",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 88% 12%, rgba(255,31,125,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
