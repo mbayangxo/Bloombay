@@ -161,7 +161,7 @@ export function HomePage() {
   });
   const weeksIn    = joinedAt ? Math.min(4, Math.floor((Date.now() - new Date(joinedAt).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1) : 1;
   const task       = FIRST_MONTH_TASKS[Math.min(weeksIn - 1, 3)];
-  const displayName = firstName || "there";
+  const displayName = firstName || "you";
   const monthShort  = MONTHS_S[today.getMonth()];
   const dayOfMonth  = today.getDate();
   const dayAbbr     = WEEK_DAYS[todayDow];
@@ -199,14 +199,23 @@ export function HomePage() {
           {/* Pink glow bottom-right */}
           <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
 
-          {/* — TOP: Greeting — */}
-          <div style={{ padding: "24px 22px 20px", position: "relative" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "11px", letterSpacing: "0.28em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()},</p>
-            <p style={{
-              fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
-              fontSize: nameFontSize,
-              color: "white", lineHeight: 0.84, letterSpacing: "-0.02em",
-            }}>{loading ? "…" : `${displayName}.`}</p>
+          {/* — TOP: Greeting + Date — */}
+          <div style={{ padding: "24px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
+            {/* Left: greeting */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "11px", letterSpacing: "0.28em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()},</p>
+              <p style={{
+                fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
+                fontSize: nameFontSize,
+                color: "white", lineHeight: 0.84, letterSpacing: "-0.02em",
+              }}>{loading ? "…" : `${displayName}.`}</p>
+            </div>
+            {/* Right: date */}
+            <div style={{ textAlign: "right" as const, flexShrink: 0, paddingTop: 2, paddingLeft: 10 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 54, color: "white", lineHeight: 1, letterSpacing: "-0.02em", opacity: 0.88 }}>{dayOfMonth}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "9px", letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginTop: 3 }}>{dayAbbr}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "9px", letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)", marginTop: 2 }}>{monthShort}</p>
+            </div>
           </div>
 
           {/* Pink separator */}
@@ -215,7 +224,7 @@ export function HomePage() {
           {/* — BOTTOM: Tonight — */}
           <Link href="/member/happenings" style={{ textDecoration: "none" }}>
             <div style={{ padding: "14px 20px 18px", position: "relative" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>TONIGHT · 7:30 PM · WEST VILLAGE</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>TONIGHT · 7:30 PM · WEST VILLAGE</p>
               <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
                 <div>
                   <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 26, color: "white", lineHeight: 1.0 }}>Girls Dinner.</p>
@@ -242,22 +251,6 @@ export function HomePage() {
               </div>
             </Link>
           ))}
-        </div>
-      </div>
-
-      {/* ══ EDITORIAL DATE ═══════════════════════════════════════════════════════ */}
-      <div style={{ padding: "4px 22px 20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 80, color: "white", lineHeight: 1, opacity: 0.92, letterSpacing: "-0.02em" }}>{dayOfMonth}</p>
-          <div style={{ paddingBottom: 10 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "8px", letterSpacing: "0.28em", color: "rgba(255,255,255,0.55)" }}>{dayAbbr}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "8px", letterSpacing: "0.28em", color: "rgba(255,255,255,0.38)", marginTop: 3 }}>{monthShort}</p>
-          </div>
-        </div>
-        {/* Event count for today */}
-        <div style={{ paddingBottom: 12, textAlign: "right" as const }}>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "rgba(255,255,255,0.7)", lineHeight: 1 }}>{TODAY_EVENTS.length}</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "7px", letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginTop: 3 }}>TODAY</p>
         </div>
       </div>
 
