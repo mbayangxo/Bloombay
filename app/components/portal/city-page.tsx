@@ -423,8 +423,8 @@ function CityLanding({ onSelect }: { onSelect: (c: CityCategory) => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 const EATS_FILTERS = ["Tonight","Date Night","Brunch","Cocktails","Italian","Outdoor","Sushi","Wine Bar","Solo"];
 const EATS_FEATURED = [
-  { id: 1, name: "Bar Pisellino",   hood: "WEST VILLAGE", cuisine: "ITALIAN", going: 18, note: "So early for a martini at the bar — Maya",   bg: "#160808" },
-  { id: 2, name: "Lola Taverna",    hood: "WEST VILLAGE", cuisine: "GREEK",   going: 41, badge: "TRENDING", note: "Everything we ordered was perfect — Dani", bg: "#1E1006" },
+  { id: 1, name: "Bar Pisellino",   hood: "WEST VILLAGE", cuisine: "ITALIAN", going: 18, note: "So early for a martini at the bar — Maya",   bg: "#FF9060" },
+  { id: 2, name: "Lola Taverna",    hood: "WEST VILLAGE", cuisine: "GREEK",   going: 41, badge: "TRENDING", note: "Everything we ordered was perfect — Dani", bg: "#FFA878" },
   { id: 3, name: "Via Carota",      hood: "WEST VILLAGE", cuisine: "ITALIAN", going: 12, badge: "⚑ RESERVED", bg: PAPER, reservation: { time: "8:15 PM", seats: "2 SEATS" } },
 ];
 const EATS_GRID = [
@@ -491,28 +491,28 @@ function EatsPage({ onBack }: { onBack: () => void }) {
         {/* Featured grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
           {/* Big card */}
-          <div style={{ gridRow: "span 2", backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: EATS_FEATURED[0].bg, borderRadius: 18, minHeight: 252, position: "relative", overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.35)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(200,60,20,0.45) 0%, transparent 70%)" }}/>
+          <div style={{ gridRow: "span 2", backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: EATS_FEATURED[0].bg, borderRadius: 18, minHeight: 252, position: "relative", overflow: "hidden", boxShadow: "0 6px 24px rgba(200,80,30,0.25)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(255,180,100,0.3) 0%, transparent 70%)" }}/>
             <div style={{ position: "absolute", top: 18, left: 13 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 21, fontWeight: 900, fontStyle: "italic", color: "#ffb09e", lineHeight: 1.1, textShadow: "0 0 18px rgba(255,80,30,0.5)" }}>Bar<br />Pisellino</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.38)", letterSpacing: "0.1em", marginTop: 4 }}>WEST VILLAGE · ITALIAN</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 21, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 2px 12px rgba(180,60,20,0.4)" }}>Bar<br />Pisellino</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", marginTop: 4 }}>WEST VILLAGE · ITALIAN</p>
             </div>
-            <div style={{ position: "absolute", top: 13, right: 11, background: "#FF9B70", borderRadius: 999, padding: "3px 8px" }}>
+            <div style={{ position: "absolute", top: 13, right: 11, background: "rgba(255,255,255,0.25)", borderRadius: 999, padding: "3px 8px" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{EATS_FEATURED[0].going} going</span>
             </div>
             <div style={{ position: "absolute", bottom: 15, left: 12, right: 14 }}>
-              <div style={{ transform: "rotate(-1.2deg)", backgroundImage: `${PAPER_TEX}`, backgroundColor: "rgba(255,252,230,0.9)", backgroundSize: "200px 200px", padding: "7px 10px", boxShadow: "1px 2px 8px rgba(0,0,0,0.2)" }}>
+              <div style={{ transform: "rotate(-1.2deg)", backgroundImage: `${PAPER_TEX}`, backgroundColor: "rgba(255,252,230,0.92)", backgroundSize: "200px 200px", padding: "7px 10px", boxShadow: "1px 2px 8px rgba(0,0,0,0.12)" }}>
                 <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#3a2010", lineHeight: 1.4 }}>{EATS_FEATURED[0].note}</p>
               </div>
             </div>
           </div>
           {/* Top-right */}
-          <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: EATS_FEATURED[1].bg, borderRadius: 18, minHeight: 118, position: "relative", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 60% 30%, rgba(120,60,20,0.6) 0%, transparent 70%)" }}/>
+          <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: EATS_FEATURED[1].bg, borderRadius: 18, minHeight: 118, position: "relative", overflow: "hidden", boxShadow: "0 4px 16px rgba(200,80,30,0.18)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 60% 30%, rgba(255,200,100,0.25) 0%, transparent 70%)" }}/>
             {EATS_FEATURED[1].badge && <div style={{ position: "absolute", top: 10, left: 10, background: PINK, borderRadius: 999, padding: "2px 8px" }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{EATS_FEATURED[1].badge}</span></div>}
             <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,230,200,0.92)", lineHeight: 1.1 }}>{EATS_FEATURED[1].name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.38)", letterSpacing: "0.08em", marginTop: 2 }}>{EATS_FEATURED[1].hood}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1 }}>{EATS_FEATURED[1].name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.7)", letterSpacing: "0.08em", marginTop: 2 }}>{EATS_FEATURED[1].hood}</p>
             </div>
           </div>
           {/* Bottom-right: reserved card */}
@@ -555,16 +555,16 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             ))}
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#FF9B70", marginTop: 6, opacity: 0.75 }}>girls night →</p>
           </div>
-          <div style={{ borderRadius: 14, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#0d0806", overflow: "hidden", position: "relative", minHeight: 168, boxShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 20%, rgba(40,20,10,0.8) 0%, rgba(5,3,2,0.96) 80%)" }}/>
+          <div style={{ borderRadius: 14, backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "#FF9060", overflow: "hidden", position: "relative", minHeight: 168, boxShadow: "0 6px 20px rgba(200,80,30,0.22)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 20%, rgba(255,220,160,0.3) 0%, rgba(255,100,40,0.1) 80%)" }}/>
             <div style={{ position: "absolute", inset: 0, padding: "14px 13px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>ROOFTOP · NOMAD</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "rgba(255,245,235,0.92)", lineHeight: 1.2 }}>The Roof at<br/>PUBLIC Hotel</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>ROOFTOP · NOMAD</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2 }}>The Roof at<br/>PUBLIC Hotel</p>
               </div>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#FF9B70", letterSpacing: "0.1em", marginBottom: 6 }}>AMAZING VIEWS ✦</p>
-                <div style={{ background: "#FF9B70", borderRadius: 999, padding: "5px 12px", display: "inline-flex" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em", marginBottom: 6 }}>AMAZING VIEWS ✦</p>
+                <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 999, padding: "5px 12px", display: "inline-flex" }}>
                   <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>18 GOING</span>
                 </div>
               </div>
