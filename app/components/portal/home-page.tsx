@@ -251,110 +251,129 @@ export function HomePage() {
     }}>
 
       {/* ══════════════════════════ HEADER ══════════════════════════ */}
+      {/* Outer shell: bright hot pink background */}
       <div style={{
-        position: "relative", overflow: "hidden",
-        backgroundImage: `${DARK_GRAIN}, linear-gradient(160deg, #000000 0%, #0A0005 35%, #110008 65%, #000000 100%)`,
-        backgroundSize: "160px 160px, 100% 100%",
-        backgroundColor: "#000000",
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 44px)",
-        paddingBottom: 32,
+        position: "relative", overflow: "visible",
+        background: "linear-gradient(160deg, #FF0090 0%, #FF1F7D 40%, #FF5BAD 75%, #FFB3D9 100%)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)",
+        paddingBottom: 36,
+        paddingLeft: 16,
+        paddingRight: 16,
       }}>
-        {/* ── Glows that make it alive ── */}
-        {/* Big bloom — upper right, Barbie pink */}
-        <div style={{ position: "absolute", top: "-10%", right: "-5%", width: "65%", height: "90%", background: "radial-gradient(ellipse, rgba(255,0,144,0.52) 0%, rgba(255,0,144,0.18) 45%, transparent 72%)", pointerEvents: "none" }} />
-        {/* Rim glow — lower left */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, width: "55%", height: "60%", background: "radial-gradient(ellipse at bottom left, rgba(255,0,128,0.28) 0%, transparent 65%)", pointerEvents: "none" }} />
-        {/* Specular hot white spot — top right edge */}
-        <div style={{ position: "absolute", top: "8%", right: "18%", width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+        {/* Sheen overlay — white top highlight for gloss */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "50%", background: "linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, transparent 100%)", pointerEvents: "none" }} />
+        {/* Deep shadow at bottom for depth */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, rgba(200,0,80,0.35) 0%, transparent 100%)", pointerEvents: "none" }} />
 
-        {/* Hot pink top stripe */}
-        <div style={{ height: 3, background: "linear-gradient(90deg, #FF0090 0%, #FF5BAD 50%, #FF0090 100%)" }} />
+        {/* ── Floating white editorial card ── */}
+        <div style={{
+          position: "relative",
+          background: "white",
+          borderRadius: 28,
+          padding: "20px 20px 22px",
+          /* Multi-layer 3D shadow: tight dark, mid spread, far ambient */
+          boxShadow: [
+            "0 1px 0 rgba(200,0,80,0.9)",
+            "0 4px 0 rgba(180,0,70,0.5)",
+            "0 12px 0 rgba(160,0,60,0.2)",
+            "0 24px 48px rgba(140,0,50,0.22)",
+            "0 48px 80px rgba(255,0,128,0.14)",
+            "inset 0 1.5px 0 rgba(255,255,255,1)",
+          ].join(", "),
+          marginTop: 8,
+        }}>
+          {/* Card inner top shine */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 60, borderRadius: "28px 28px 0 0", background: "linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, transparent 100%)", pointerEvents: "none" }} />
 
-        {/* ── Magazine date bar ── */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 22px 0", position: "relative" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.28em", color: "rgba(255,255,255,0.22)" }}>
-            BLOOMBAY
-          </p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.22)" }}>
-            {dayAbbr} · {dayOfMonth} {monthShort}
-          </p>
-        </div>
+          {/* Magazine eyebrow + date row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.3em", color: "#FF0090" }}>
+              GOOD {timeLabel}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(0,0,0,0.25)" }}>
+              {dayAbbr} · {dayOfMonth} {monthShort}
+            </p>
+          </div>
 
-        {/* Hairline divider */}
-        <div style={{ margin: "10px 22px 0", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,0,144,0.6), rgba(255,255,255,0.25), rgba(255,0,144,0.6), transparent)" }} />
+          {/* Thin hot pink rule */}
+          <div style={{ height: 1.5, background: "linear-gradient(90deg, #FF0090, #FF5BAD, #FF0090)", marginBottom: 16, borderRadius: 999 }} />
 
-        {/* ── Greeting ── */}
-        <div style={{ padding: "18px 22px 0", position: "relative" }}>
-          {/* Eyebrow */}
-          <p style={{
-            fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900,
-            letterSpacing: "0.38em", color: "#FF0090", marginBottom: 10,
-          }}>
-            GOOD {timeLabel}
-          </p>
-
-          {/* Row: greeting text + decorative pill */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 10 }}>
+          {/* Greeting row */}
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
             <div style={{ flex: 1 }}>
               {/* "Good morning," */}
               <p style={{
                 fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 300,
-                fontSize: 23, color: "rgba(255,255,255,0.55)", lineHeight: 1.1, marginBottom: 2,
+                fontSize: 22, color: "rgba(0,0,0,0.4)", lineHeight: 1.1, marginBottom: 2,
               }}>
                 {greeting},
               </p>
-
-              {/* Name — Barbie pink hero */}
+              {/* Name — black hero, bold */}
               <p style={{
                 fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-                fontSize: loading ? 32 : Math.max(30, 44 - Math.max(0, (displayName.length - 6) * 2.5)),
-                color: "#FF0090",
-                lineHeight: 0.95,
+                fontSize: loading ? 34 : Math.max(30, 46 - Math.max(0, (displayName.length - 6) * 2.8)),
+                color: "#000000",
+                lineHeight: 0.92,
                 letterSpacing: "-0.02em",
-                textShadow: "0 0 30px rgba(255,0,144,0.8), 0 0 70px rgba(255,0,144,0.35)",
+                /* Layered text shadow for 3D depth */
+                textShadow: [
+                  "0 1px 0 rgba(255,0,144,0.4)",
+                  "0 2px 0 rgba(255,0,144,0.2)",
+                  "0 4px 12px rgba(255,0,144,0.15)",
+                ].join(", "),
               }}>
                 {loading ? "…" : `${displayName}.`}
               </p>
             </div>
 
-            {/* Decorative badge circle — right side */}
+            {/* BB emblem — lifted circle */}
             <div style={{
-              width: 64, height: 64, borderRadius: "50%", flexShrink: 0, marginBottom: 4,
-              border: "2px solid rgba(255,0,144,0.5)",
+              width: 60, height: 60, borderRadius: "50%", flexShrink: 0,
+              background: "linear-gradient(145deg, #FF0090 0%, #FF5BAD 100%)",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              background: "rgba(255,0,144,0.08)",
-              boxShadow: "0 0 24px rgba(255,0,144,0.3), inset 0 0 16px rgba(255,0,144,0.1)",
+              boxShadow: [
+                "0 1px 0 rgba(180,0,70,0.9)",
+                "0 4px 0 rgba(160,0,60,0.4)",
+                "0 10px 24px rgba(255,0,128,0.35)",
+                "inset 0 1px 0 rgba(255,255,255,0.4)",
+              ].join(", "),
+              marginTop: 4,
             }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "#FF0090", lineHeight: 1 }}>BB</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginTop: 2 }}>✿</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white", lineHeight: 1, textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>BB</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.75)", lineHeight: 1 }}>✿</p>
             </div>
           </div>
 
-          {/* Sub line */}
+          {/* Sub tagline */}
           <p style={{
             fontFamily: "var(--font-caveat)", fontSize: 14,
-            color: "rgba(255,255,255,0.4)", marginTop: 12, letterSpacing: "0.01em",
+            color: "rgba(0,0,0,0.35)", marginTop: 14, letterSpacing: "0.01em",
           }}>
             you belong here ✦ soft life, strong mind
           </p>
 
+          {/* Thin bottom rule */}
+          <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,0,144,0.3), transparent)", margin: "14px 0 16px", borderRadius: 999 }} />
+
           {/* Quick-nav chips */}
-          <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" as const }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
             {[
-              { href: "/member/happenings", label: "Tonight" },
-              { href: "/member/city",       label: "City"    },
-              { href: "/member/plans",      label: "Plans"   },
-            ].map((chip, i) => (
+              { href: "/member/happenings", label: "Tonight", primary: true  },
+              { href: "/member/city",       label: "City",    primary: false },
+              { href: "/member/plans",      label: "Plans",   primary: false },
+            ].map(chip => (
               <Link key={chip.href} href={chip.href} style={{ textDecoration: "none" }}>
                 <div style={{
                   display: "flex", alignItems: "center",
-                  background: i === 0 ? "#FF0090" : "rgba(255,255,255,0.05)",
-                  border: i === 0 ? "none" : "1.5px solid rgba(255,0,144,0.5)",
+                  background: chip.primary ? "#FF0090" : "white",
+                  border: chip.primary ? "none" : "2px solid #000000",
                   borderRadius: 999,
-                  padding: "7px 18px",
-                  boxShadow: i === 0 ? "0 4px 18px rgba(255,0,144,0.45)" : "none",
+                  padding: "8px 20px",
+                  boxShadow: chip.primary
+                    ? ["0 2px 0 rgba(180,0,70,0.8)", "0 6px 16px rgba(255,0,128,0.35)"].join(", ")
+                    : ["0 2px 0 rgba(0,0,0,0.7)", "0 4px 12px rgba(0,0,0,0.1)"].join(", "),
                 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: i === 0 ? "white" : "rgba(255,255,255,0.65)", letterSpacing: "0.08em" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: chip.primary ? "white" : "#000000", letterSpacing: "0.08em" }}>
                     {chip.label}
                   </p>
                 </div>
@@ -362,9 +381,6 @@ export function HomePage() {
             ))}
           </div>
         </div>
-
-        {/* Bottom hairline */}
-        <div style={{ marginTop: 24, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,0,144,0.6), rgba(255,255,255,0.2), rgba(255,0,144,0.6), transparent)" }} />
       </div>
 
       {/* ══════════════════════════ CALENDAR STRIP ══════════════════════════ */}
