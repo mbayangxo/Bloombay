@@ -7,7 +7,8 @@ import { useSearchParams } from "next/navigation";
 
 interface PlanRoom {
   id: number; name: string; emoji: string; bg: string; accent: string;
-  unread: number; members: number; date: string; venue?: string; time?: string; eventId?: number;
+  unread: number; members: number; date: string; venue?: string; time?: string;
+  eventId?: number; poster?: string;
 }
 interface DayContent { text: string; stickers: string[]; photos: string[]; voiceCount: number; }
 type View = "list" | "room";
@@ -35,12 +36,12 @@ const THEME = {
 const PINK = "#FF1F7D";
 
 const PLAN_ROOMS: PlanRoom[] = [
-  { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7, members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026"   },
-  { id: 2, name: "Afrobeats Night",     emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3, members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", eventId: 6 },
-  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0, members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   eventId: 4 },
-  { id: 4, name: "Women in Lens",       emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2, members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     eventId: 1 },
-  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#83C5A0", unread: 1, members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  eventId: 2 },
-  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#F59E0B", unread: 0, members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     eventId: 3 },
+  { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7,  members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026",   poster: "/happenings/posters/10_Ladies_First_Road_Trip.png" },
+  { id: 2, name: "Afrobeats Night",     emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3,  members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", poster: "/happenings/posters/06_Dance_All_Night.png",          eventId: 6 },
+  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
+  { id: 4, name: "Women in Lens",       emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2,  members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     poster: "/happenings/posters/05_Film_Club.png",                eventId: 1 },
+  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#83C5A0", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
+  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#F59E0B", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
 ];
 
 const BLOOMIES_LIST = [
@@ -733,21 +734,27 @@ function PlanDoorCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boole
         boxShadow: `inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.2)`,
         overflow: "hidden",
       }}>
-        {/* Arch glass window */}
+        {/* Arch glass window — shows poster or emoji */}
         <div style={{
           position: "absolute", top: 5, left: 8, right: 8, height: ARCH_R - 4,
           borderRadius: `${ARCH_R - 8}px ${ARCH_R - 8}px 2px 2px`,
           background: paint.glass,
           border: "1.5px solid rgba(255,255,255,0.35)",
-          backdropFilter: "blur(2px)",
           overflow: "hidden",
         }}>
+          {room.poster ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={room.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%)" }} />
+            </>
+          ) : (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 16 }}>{room.emoji}</span>
+            </div>
+          )}
           {/* Glass shine */}
-          <div style={{ position: "absolute", top: 3, left: 5, right: 5, height: "38%", borderRadius: "50% 50% 0 0", background: "linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 100%)" }} />
-          {/* Room emoji inside glass */}
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: 4 }}>
-            <span style={{ fontSize: 16, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))" }}>{room.emoji}</span>
-          </div>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%", borderRadius: "50% 50% 0 0", background: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%)", pointerEvents: "none" }} />
         </div>
 
         {/* Center stile (vertical divider) */}
