@@ -504,7 +504,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const ctaLabel = club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN";
 
   return (
-    <div style={{ background: CREAM, minHeight: "100vh", fontFamily: "var(--font-jost)" }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", fontFamily: "var(--font-jost)" }}>
 
       {/* ════════════════════════════════════════════════════════════════════
           NON-MEMBER LANDING
@@ -512,7 +512,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
       {!isMember && (
         <>
           {/* ── HERO ─────────────────────────────────────────────────────── */}
-          <section style={{ background: CREAM, backgroundImage: PAPER_TEX, padding: "52px 20px 40px", position: "relative", overflow: "hidden" }}>
+          <section style={{ background: "#FFF0F8", backgroundImage: PAPER_TEX, padding: "52px 20px 40px", position: "relative", overflow: "hidden" }}>
             {/* Back nav */}
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10 }}>
               <Link href="/member/clubs" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 600, color: DARK, textDecoration: "none", opacity: 0.65 }}>
@@ -744,7 +744,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           </section>
 
           {/* ── FOOTER ───────────────────────────────────────────────────── */}
-          <footer style={{ background: CREAM, backgroundImage: PAPER_TEX, padding: "36px 20px 80px", position: "relative", borderTop: "1px solid rgba(0,0,0,0.07)", overflow: "hidden" }}>
+          <footer style={{ background: "#FFF0F8", backgroundImage: PAPER_TEX, padding: "36px 20px 80px", position: "relative", borderTop: "1px solid rgba(0,0,0,0.07)", overflow: "hidden" }}>
             <PeonyDecor style={{ position: "absolute", bottom: 16, right: -12, transform: "scaleX(-1)" }} />
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 30, color: PINK, marginBottom: 4 }}>bloomBay*</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: DARK, opacity: 0.5, marginBottom: 20 }}>Questions? We&apos;re here.</p>
@@ -760,7 +760,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
       {isMember && (
         <>
           {/* Compact header */}
-          <div style={{ background: CREAM, backgroundImage: PAPER_TEX, padding: "52px 20px 20px", position: "relative", overflow: "hidden" }}>
+          <div style={{ background: "#FFF0F8", backgroundImage: PAPER_TEX, padding: "52px 20px 20px", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Link href="/member/clubs" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 600, color: DARK, textDecoration: "none", opacity: 0.65 }}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11.5L4.5 7 9 2.5" stroke={DARK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>

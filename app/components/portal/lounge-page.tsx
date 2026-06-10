@@ -326,7 +326,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: CREAM, paddingBottom: 96 }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", paddingBottom: 96 }}>
 
       {/* ── FIXED TOP BAR ─────────────────────────────────────────────────── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: PAPER, borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>

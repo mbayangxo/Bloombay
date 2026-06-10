@@ -629,7 +629,7 @@ export function IntroductionsPage() {
   const incomingCount = pendingRequests.length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#FDFAF5" }}>
+    <div className="min-h-screen pb-28" style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)" }}>
       <style>{`
         @keyframes slideUpToast { from { opacity:0; transform:translateX(-50%) translateY(14px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }
         @keyframes fadeSlideIn  { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }

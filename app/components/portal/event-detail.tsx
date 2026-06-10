@@ -464,7 +464,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
 
   if (rsvpState === "confirmed") {
     return (
-      <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FFF5F8" }}>
+      <div className="min-h-screen pb-24 md:pb-10" style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)" }}>
 
         {/* Header */}
         <div className="px-5 pt-12 pb-4 md:px-8 md:pt-8 flex items-center justify-between">
@@ -747,7 +747,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
 
   if (rsvpState === "paying") {
     return (
-      <div className="min-h-screen pb-24" style={{ background: "#FFF5F8" }}>
+      <div className="min-h-screen pb-24" style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)" }}>
         <div className="px-5 pt-12 pb-4 flex items-center gap-3">
           <button onClick={() => setRsvpState("idle")} className="w-9 h-9 rounded-full flex items-center justify-center"
             style={{ background: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
@@ -817,7 +817,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
   // ── DISCOVERY VIEW (idle) ─────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#FDFAF5" }}>
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)" }}>
 
       {/* Header */}
       <div className="px-5 pt-12 pb-3 md:px-8 md:pt-8 flex items-center justify-between">
