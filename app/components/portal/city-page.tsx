@@ -736,14 +736,14 @@ function GoPage({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Type filters */}
-      <div style={{ background: "#08080F", borderBottom: "1px solid rgba(58,95,205,0.12)", paddingBottom: 1 }}>
+      <div style={{ background: "#E8F4FF", borderBottom: "1px solid rgba(58,95,205,0.15)", paddingBottom: 1 }}>
         <div style={{ display: "flex", gap: 0, overflowX: "auto", padding: "10px 16px", scrollbarWidth: "none" as const }}>
           {GO_TYPES.map(t => (
             <button key={t} onClick={() => setActiveType(t)} style={{
               flexShrink: 0, padding: "6px 14px", borderRadius: 999, marginRight: 6,
-              border: `1.5px solid ${activeType === t ? "#3A5FCD" : "rgba(106,181,245,0.15)"}`,
-              background: activeType === t ? "#3A5FCD" : "transparent",
-              color: activeType === t ? "white" : "rgba(106,181,245,0.5)",
+              border: `1.5px solid ${activeType === t ? "#3A5FCD" : "rgba(58,95,205,0.25)"}`,
+              background: activeType === t ? "#3A5FCD" : "rgba(255,255,255,0.7)",
+              color: activeType === t ? "white" : "rgba(40,70,160,0.7)",
               fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.06em", cursor: "pointer",
             }}>{t}</button>
           ))}
