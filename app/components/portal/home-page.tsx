@@ -126,185 +126,130 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ══ MASTHEAD ═════════════════════════════════════════════════════════════ */}
+      {/* ══ HEADER SHELL ═════════════════════════════════════════════════════════ */}
       <div style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 20px)",
-        paddingLeft: 16, paddingRight: 16, paddingBottom: 28,
-        position: "relative", overflow: "hidden",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 16px)",
+        paddingLeft: 16, paddingRight: 16, paddingBottom: 20,
       }}>
-        {/* Logo + date row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingLeft: 8, paddingRight: 8 }}>
-          <BBLogo size={24} light />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.55)" }}>
-            {dayAbbr} · {dayOfMonth} {monthShort}
-          </p>
+        {/* Logo + date */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, paddingLeft: 6, paddingRight: 6 }}>
+          <BBLogo size={22} light />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.52)" }}>{dayAbbr} · {dayOfMonth} {monthShort}</p>
         </div>
 
-        {/* ── BLACK EDITORIAL CARD ── */}
+        {/* ── UNIFIED CARD: greeting top + tonight bottom ── */}
         <div style={{
-          background: "#000000",
+          background: "#000",
           borderRadius: 22,
-          padding: "22px 22px 24px",
-          position: "relative",
           overflow: "hidden",
-          boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 12px 40px rgba(0,0,0,0.35), 0 30px 60px rgba(0,0,0,0.18)",
+          boxShadow: "0 2px 0 rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.4)",
+          position: "relative",
         }}>
-          {/* Subtle pink glow inside the black card */}
-          <div style={{ position: "absolute", bottom: -30, right: -20, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", top: -20, left: -20, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+          {/* Pink glow bottom-right */}
+          <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
 
-          {/* "GOOD EVENING" eyebrow in hot pink */}
-          <p style={{
-            fontFamily: "var(--font-jost)", fontWeight: 900,
-            fontSize: "9px", letterSpacing: "0.32em",
-            color: PINK, marginBottom: 10, position: "relative",
-          }}>{greeting.toUpperCase()}</p>
+          {/* — TOP: Greeting — */}
+          <div style={{ padding: "20px 20px 16px", position: "relative" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "8px", letterSpacing: "0.3em", color: PINK, marginBottom: 8 }}>{greeting.toUpperCase()}</p>
+            <p style={{
+              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+              fontSize: nameFontSize,
+              color: "white", lineHeight: 0.88, letterSpacing: "-0.025em",
+            }}>{loading ? "…" : `${displayName}.`}</p>
+          </div>
 
-          {/* Name — white on black, massive */}
-          <p style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-            fontSize: nameFontSize,
-            color: "white", lineHeight: 0.88, letterSpacing: "-0.025em",
-            position: "relative", marginBottom: 16,
-          }}>{loading ? "…" : `${displayName}.`}</p>
+          {/* Pink separator */}
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}99, rgba(255,0,144,0.15), transparent)`, margin: "0 20px" }} />
 
-          {/* Pink divider */}
-          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}, rgba(255,0,144,0.2), transparent)`, marginBottom: 14, position: "relative" }} />
-
-          {/* Tagline */}
-          <p style={{
-            fontFamily: "var(--font-caveat)", fontSize: 14,
-            color: "rgba(255,255,255,0.42)", position: "relative",
-          }}>you belong here ✦ soft life, strong mind</p>
+          {/* — BOTTOM: Tonight — */}
+          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+            <div style={{ padding: "14px 20px 18px", position: "relative" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>TONIGHT · 7:30 PM · WEST VILLAGE</p>
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "white", lineHeight: 1.0 }}>Girls Dinner.</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 1 }}>Carbone · 4 seats</p>
+                </div>
+                <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "9px 18px", boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 5px 16px ${PINK}55` }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.07em" }}>I&apos;M IN →</span>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
 
-        {/* Action chips — below the black card, on pink */}
-        <div style={{ display: "flex", gap: 9, marginTop: 18, paddingLeft: 4 }}>
-          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <div style={{
-              padding: "10px 22px", borderRadius: 999,
-              background: "white",
-              boxShadow: "0 2px 0 rgba(140,0,50,0.65), 0 6px 20px rgba(0,0,0,0.13)",
-            }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: PINK, letterSpacing: "0.05em" }}>Tonight</p>
-            </div>
-          </Link>
-          <Link href="/member/city" style={{ textDecoration: "none" }}>
-            <div style={{ padding: "10px 22px", borderRadius: 999, background: "#000000", boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.2)" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.05em" }}>City</p>
-            </div>
-          </Link>
-          <Link href="/member/plans" style={{ textDecoration: "none" }}>
-            <div style={{ padding: "10px 22px", borderRadius: 999, background: "#000000", boxShadow: "0 2px 0 rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.2)" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.05em" }}>Plans</p>
-            </div>
-          </Link>
+        {/* Chips row */}
+        <div style={{ display: "flex", gap: 8, marginTop: 14, paddingLeft: 2 }}>
+          {[
+            { href: "/member/happenings", label: "Tonight", bg: "white",    text: PINK       },
+            { href: "/member/city",       label: "City",    bg: "#000000",  text: "white"    },
+            { href: "/member/plans",      label: "Plans",   bg: "#000000",  text: "white"    },
+          ].map(c => (
+            <Link key={c.href} href={c.href} style={{ textDecoration: "none" }}>
+              <div style={{ padding: "9px 20px", borderRadius: 999, background: c.bg, boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.6), 0 5px 16px rgba(0,0,0,0.1)" : "0 2px 0 rgba(0,0,0,0.85), 0 4px 10px rgba(0,0,0,0.18)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: c.text, letterSpacing: "0.04em" }}>{c.label}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* ══ CALENDAR STRIP ═══════════════════════════════════════════════════════ */}
-      <div style={{ background: "rgba(255,255,255,0.97)", borderTop: "1px solid rgba(255,0,144,0.08)", borderBottom: "1px solid rgba(255,0,144,0.08)", padding: "10px 22px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "rgba(255,255,255,0.97)", borderTop: "1px solid rgba(255,0,144,0.07)", borderBottom: "1px solid rgba(255,0,144,0.07)" }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "10px 16px" }}>
           {weekDays.map((d, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.07em", color: d.isToday ? PINK : "rgba(0,0,0,0.2)" }}>{d.abbr}</span>
-              <div style={{ width: 29, height: 29, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: d.isToday ? PINK : "transparent", boxShadow: d.isToday ? `0 2px 10px ${PINK}44` : "none" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: d.isToday ? PINK : "transparent", boxShadow: d.isToday ? `0 2px 10px ${PINK}44` : "none" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: d.isToday ? "white" : "rgba(0,0,0,0.38)" }}>{d.date}</span>
               </div>
+              {/* Event dot */}
+              <div style={{ width: 4, height: 4, borderRadius: "50%", background: [2, 4, 6].includes(i) ? PINK : "transparent" }} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* ══ FEATURED TONIGHT — hero card ═════════════════════════════════════════ */}
-      <div style={{ padding: "20px 16px 0" }}>
-        <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-          <div style={{
-            borderRadius: 24, position: "relative", overflow: "visible",
-            background: "linear-gradient(145deg, #B5004E 0%, #E8006A 35%, #FF0090 70%, #FF5BAD 100%)",
-            padding: "26px 22px 28px",
-            boxShadow: [
-              "0 1px 0 rgba(100,0,40,0.8)",
-              "0 4px 0 rgba(80,0,30,0.35)",
-              "0 14px 40px rgba(180,0,70,0.32)",
-              "inset 0 1px 0 rgba(255,255,255,0.22)",
-            ].join(", "),
-          }}>
-            {/* Gloss */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "42%", borderRadius: "24px 24px 0 0", background: "linear-gradient(to bottom, rgba(255,255,255,0.16) 0%, transparent 100%)", pointerEvents: "none" }} />
+      {/* ══ THREE BENTO CARDS ════════════════════════════════════════════════════ */}
+      <div style={{ padding: "14px 16px 0", display: "flex", gap: 9 }}>
 
-            {/* Badge */}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.18)", borderRadius: 999, padding: "4px 12px 4px 10px", marginBottom: 16, backdropFilter: "blur(6px)" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.85 }} />
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.82)" }}>THIS EVENING</p>
+        {/* MY FIRST MONTH */}
+        <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
+          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.18em", color: PINK, marginBottom: 8 }}>MY FIRST<br />MONTH</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 11, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
+            <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 10, overflow: "hidden" }}>
+              <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
             </div>
-
-            {/* Event name */}
-            <p style={{
-              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-              fontSize: 34, color: "white", lineHeight: 0.95, letterSpacing: "-0.02em",
-              position: "relative", marginBottom: 4,
-            }}>Girls Dinner.</p>
-            <p style={{
-              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400,
-              fontSize: 22, color: "rgba(255,255,255,0.68)", lineHeight: 1.1,
-              position: "relative",
-            }}>Carbone.</p>
-
-            {/* Details */}
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.55)", marginTop: 12, position: "relative" }}>
-              7:30 PM · West Village · 4 seats
-            </p>
-
-            {/* CTA */}
-            <div style={{ marginTop: 20, display: "inline-flex", background: "white", borderRadius: 999, padding: "11px 24px", position: "relative", boxShadow: "0 3px 0 rgba(0,0,0,0.22), 0 6px 16px rgba(0,0,0,0.12)" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: PINK, letterSpacing: "0.07em" }}>I&apos;M IN →</span>
-            </div>
-
-            {/* Sticky note */}
-            <div style={{ position: "absolute", top: 20, right: 18 }}>
-              <StickyNote text={"tonight's the night ✦"} author="bloombay" rotate={3} />
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* ══ BENTO GRID ═══════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "12px 16px 0", display: "flex", gap: 10, alignItems: "stretch" }}>
-
-        {/* THIS WEEK — stat card */}
-        <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1.45 }}>
-          <div style={{ ...CARD, padding: "20px 18px 22px", height: "100%" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 6 }}>THIS WEEK</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 56, color: "#000", lineHeight: 1, letterSpacing: "-0.04em" }}>2</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.3)", marginTop: 6, lineHeight: 1.45 }}>events<br />near you</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginTop: 14 }}>Book Girls NYC →</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.28)", marginTop: 5 }}>{weeksIn}/4</p>
           </div>
         </Link>
 
-        {/* Right — stacked mini cards */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* THIS WEEK */}
+        <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
+          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.18em", color: PINK, marginBottom: 8 }}>THIS WEEK<br />· 2 EVENTS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, color: "#000", lineHeight: 1.3 }}>Next: Book Girls NYC</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)", marginTop: 4 }}>Wednesday</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10 }}>› View all</p>
+          </div>
+        </Link>
 
-          <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
-            <div style={{ ...CARD, padding: "15px 13px", height: "100%", minHeight: 88, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", bottom: -12, right: -12, width: 66, height: 66, borderRadius: "50%", background: "rgba(255,0,144,0.05)", pointerEvents: "none" }} />
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 7 }}>CITY VIBES</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 800, fontSize: 13, color: "#000", lineHeight: 1.2 }}>Crown Heights</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)", marginTop: 5 }}>9 spots saved</p>
+        {/* CITY VIBES — photo card */}
+        <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
+          <div style={{ ...CARD, overflow: "hidden", height: "100%" }}>
+            {/* Photo area */}
+            <div style={{ height: 64, background: `linear-gradient(145deg, ${PINK} 0%, #FF5BAD 100%)`, position: "relative" }}>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.15))" }} />
+              <p style={{ position: "absolute", bottom: 6, left: 8, fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "7px", letterSpacing: "0.1em", color: "white" }}>CITY VIBES</p>
             </div>
-          </Link>
+            <div style={{ padding: "8px 10px 12px" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 12, color: "#000" }}>Crown Heights</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.38)", marginTop: 3 }}>9 spots saved ♡</p>
+            </div>
+          </div>
+        </Link>
 
-          <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
-            <div style={{ ...CARD, padding: "15px 13px", height: "100%", minHeight: 88 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 7 }}>MONTH 1</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, fontWeight: 700, color: "#000", lineHeight: 1.45 }}>Wk {weeksIn}: {task.task}</p>
-              <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 10, overflow: "hidden" }}>
-                <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.26)", marginTop: 5 }}>{weeksIn}/4</p>
-            </div>
-          </Link>
-        </div>
       </div>
 
       {/* ══ TODAY'S SCHEDULE ═════════════════════════════════════════════════════ */}
