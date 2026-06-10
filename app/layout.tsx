@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import { Caveat, Instrument_Serif, Jost, Playfair_Display } from "next/font/google";
+import { Caveat, Fraunces, Instrument_Serif, Jost, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+// Editorial display serif — high contrast, fashion-magazine feel
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "900"],
   style: ["normal", "italic"],
 });
 
@@ -42,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${jost.variable} ${caveat.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${playfair.variable} ${fraunces.variable} ${jost.variable} ${caveat.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full text-bb-black" style={{ background: "#F6F1EB" }}>
         {children}

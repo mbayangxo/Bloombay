@@ -264,10 +264,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
       <div
         className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: "rgba(253,251,247,0.97)",
+          background: "rgba(255,240,248,0.96)",
           backdropFilter: "blur(22px) saturate(1.7)",
           WebkitBackdropFilter: "blur(22px) saturate(1.7)",
-          boxShadow: "0 1px 14px rgba(0,0,0,0.06)",
+          boxShadow: "0 1px 14px rgba(255,0,144,0.08)",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >

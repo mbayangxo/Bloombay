@@ -168,9 +168,9 @@ export function HomePage() {
           <div style={{ padding: "20px 20px 16px", position: "relative" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "7px", letterSpacing: "0.32em", color: PINK, marginBottom: 10 }}>{greeting.toUpperCase()}</p>
             <p style={{
-              fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400,
+              fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
               fontSize: nameFontSize,
-              color: "white", lineHeight: 0.9, letterSpacing: "-0.01em",
+              color: "white", lineHeight: 0.86, letterSpacing: "-0.015em",
             }}>{loading ? "…" : `${displayName}.`}</p>
           </div>
 
@@ -429,13 +429,16 @@ export function HomePage() {
       {/* ══ QUOTE CARD ═══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "20px 16px 40px" }}>
         <Link href="/member/discover" style={{ textDecoration: "none" }}>
-          <div style={{ ...CARD, padding: "28px 24px", position: "relative", overflow: "hidden", borderLeft: `4px solid ${PINK}` }}>
-            <div style={{ position: "absolute", top: -20, right: -10, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,0,144,0.04)", pointerEvents: "none" }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 21, color: "#000", lineHeight: 1.5, position: "relative" }}>
-              &ldquo;Collect moments,<br />not things.&rdquo;
+          <div style={{ background: "#000", borderRadius: 22, padding: "30px 26px 26px", position: "relative", overflow: "hidden", boxShadow: "0 10px 40px rgba(0,0,0,0.3)" }}>
+            {/* Pink glow */}
+            <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
+            {/* Oversized opening quote mark */}
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 64, color: PINK, lineHeight: 0.6, height: 28, position: "relative", marginBottom: 6 }}>&ldquo;</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 30, color: "white", lineHeight: 1.12, letterSpacing: "-0.01em", position: "relative" }}>
+              Collect moments,<br />not things.
             </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, marginTop: 10, letterSpacing: "0.12em", position: "relative" }}>— BLOOMBAY</p>
-            <div style={{ marginTop: 18, display: "inline-flex", background: PINK, borderRadius: 999, padding: "10px 20px", position: "relative", boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 6px 16px ${PINK}44` }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.4)", marginTop: 16, letterSpacing: "0.28em", position: "relative" }}>BLOOMBAY</p>
+            <div style={{ marginTop: 20, display: "inline-flex", background: PINK, borderRadius: 999, padding: "10px 20px", position: "relative", boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 6px 16px ${PINK}55` }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.07em" }}>DISCOVER PLACES →</span>
             </div>
           </div>

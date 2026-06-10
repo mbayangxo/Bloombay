@@ -20,9 +20,9 @@ module.exports = {
   'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap':
     makeFontFace('Playfair Display', [400, 500, 600, 700], ['normal', 'italic']),
 
-  // Jost: wght@300;400;500;600
-  'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap':
-    makeFontFace('Jost', [300, 400, 500, 600], ['normal']),
+  // Jost: wght@300;400;500;600;700;800;900
+  'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&display=swap':
+    makeFontFace('Jost', [300, 400, 500, 600, 700, 800, 900], ['normal']),
 
   // Caveat: wght@400;500;600
   'https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap':
@@ -31,4 +31,8 @@ module.exports = {
   // Instrument Serif: ital,wght@0,400;1,400
   'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&display=swap':
     makeFontFace('Instrument Serif', [400], ['normal', 'italic']),
+
+  // Fraunces: ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300;1,400;1,500;1,600;1,700;1,900
+  'https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300;1,400;1,500;1,600;1,700;1,900&display=swap':
+    makeFontFace('Fraunces', [300, 400, 500, 600, 700, 900], ['normal', 'italic']),
 };
