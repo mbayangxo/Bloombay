@@ -109,15 +109,13 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Clubs: two women holding hands
+// Clubs: heraldic shield / crest
 function IconClubs({ c, w = 2 }: SVGProps) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="7.5" cy="5" r="2.5"/>
-      <circle cx="16.5" cy="5" r="2.5"/>
-      <path d="M4 21v-2.5a3.5 3.5 0 0 1 3.5-3.5"/>
-      <path d="M20 21v-2.5a3.5 3.5 0 0 0-3.5-3.5"/>
-      <path d="M10 15 Q12 17 14 15"/>
+      <path d="M12 2L3 7v5c0 5 4 9.5 9 11 5-1.5 9-6 9-11V7L12 2z"/>
+      <line x1="12" y1="8" x2="12" y2="15" strokeWidth={1.4}/>
+      <line x1="8.5" y1="11" x2="15.5" y2="11" strokeWidth={1.4}/>
     </svg>
   );
 }
@@ -133,12 +131,12 @@ function IconApt({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Pin Drop — solid filled teardrop map pin
-function IconPin({ c }: SVGProps) {
+// Push-pin / clothing pin — circle head + shaft
+function IconPin({ c, w = 2 }: SVGProps) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c}/>
-      <circle cx="12" cy="9" r="2.5" fill="white" opacity="0.9"/>
+      <circle cx="12" cy="7.5" r="5" fill={c}/>
+      <line x1="12" y1="12.5" x2="12" y2="21" stroke={c} strokeWidth={w + 0.5} strokeLinecap="round"/>
     </svg>
   );
 }

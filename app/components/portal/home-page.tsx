@@ -2,9 +2,25 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
+
+// Inject pulse keyframe once
+if (typeof document !== "undefined") {
+  if (!document.getElementById("bb-home-style")) {
+    const s = document.createElement("style");
+    s.id = "bb-home-style";
+    s.textContent = `
+      @keyframes cardPulse {
+        0%,100%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 0 rgba(255,0,144,0); }
+        50%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 10px rgba(255,0,144,0.12); }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+}
 
 const PINK = "#FF0090";
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -142,7 +158,7 @@ export function HomePage() {
           background: "#000",
           borderRadius: 22,
           overflow: "hidden",
-          boxShadow: "0 2px 0 rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.4)",
+          animation: "cardPulse 4s ease-in-out infinite",
           position: "relative",
         }}>
           {/* Pink glow bottom-right */}
@@ -235,12 +251,19 @@ export function HomePage() {
           </div>
         </Link>
 
-        {/* CITY VIBES — photo card */}
+        {/* CITY VIBES — real event photo card */}
         <Link href="/member/city" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ ...CARD, overflow: "hidden", height: "100%" }}>
-            {/* Photo area */}
-            <div style={{ height: 64, background: `linear-gradient(145deg, ${PINK} 0%, #FF5BAD 100%)`, position: "relative" }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.15))" }} />
+            {/* Real photo area */}
+            <div style={{ height: 64, position: "relative", overflow: "hidden" }}>
+              <Image
+                src="/club gatherings,casual gatherings templates/Event_Sunday_Walk.png"
+                alt="City vibes"
+                fill
+                style={{ objectFit: "cover", objectPosition: "center 30%" }}
+                sizes="120px"
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55))" }} />
               <p style={{ position: "absolute", bottom: 6, left: 8, fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "7px", letterSpacing: "0.1em", color: "white" }}>CITY VIBES</p>
             </div>
             <div style={{ padding: "8px 10px 12px" }}>
@@ -257,28 +280,65 @@ export function HomePage() {
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.75)" }}>TODAY · {TODAY_EVENTS.length} EVENTS</p>
           <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>VIEW ALL →</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>VIEW FULL SCHEDULE →</span>
           </Link>
         </div>
-        <div style={{ ...CARD, overflow: "hidden" }}>
-          {TODAY_EVENTS.map((ev, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(255,0,144,0.07)" : "none" }}>
-              <div style={{ width: 44, flexShrink: 0, textAlign: "right" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.3)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(0,0,0,0.18)" }}>{ev.time.split(" ")[1]}</p>
-              </div>
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 3px rgba(255,0,144,0.12)` }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 14, color: "#000", lineHeight: 1.2 }}>{ev.name}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 500, color: "rgba(0,0,0,0.35)", marginTop: 1 }}>{ev.loc}</p>
-              </div>
-              {ev.label && (
-                <div style={{ flexShrink: 0, background: ev.label === "NEXT" ? "rgba(0,0,0,0.05)" : PINK, borderRadius: 999, padding: "4px 10px", boxShadow: ev.label === "TONIGHT" ? `0 2px 8px ${PINK}44` : "none" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.1em", color: ev.label === "NEXT" ? "rgba(0,0,0,0.35)" : "white" }}>{ev.label}</p>
+
+        {/* Split: schedule list left + featured tonight poster right */}
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+
+          {/* Event list */}
+          <div style={{ ...CARD, overflow: "hidden", flex: 1, minWidth: 0 }}>
+            {TODAY_EVENTS.map((ev, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(255,0,144,0.07)" : "none" }}>
+                <div style={{ width: 38, flexShrink: 0, textAlign: "right" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.3)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 600, color: "rgba(0,0,0,0.18)" }}>{ev.time.split(" ")[1]}</p>
                 </div>
-              )}
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 2.5px rgba(255,0,144,0.12)` }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 13, color: "#000", lineHeight: 1.2 }}>{ev.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 500, color: "rgba(0,0,0,0.32)", marginTop: 1, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
+                </div>
+                {ev.label === "NEXT" && (
+                  <div style={{ flexShrink: 0, background: "rgba(0,0,0,0.05)", borderRadius: 999, padding: "3px 7px" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.1em", color: "rgba(0,0,0,0.3)" }}>NEXT</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Featured TONIGHT card with real poster */}
+          <Link href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, width: 120 }}>
+            <div style={{ borderRadius: 18, overflow: "hidden", position: "relative", height: 176, boxShadow: "0 4px 20px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.1) inset" }}>
+              {/* Poster image */}
+              <Image
+                src="/happenings/posters/01_Girls_Night.png"
+                alt="Girls Night"
+                fill
+                style={{ objectFit: "cover", objectPosition: "center top" }}
+                sizes="120px"
+              />
+              {/* Dark gradient overlay */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.85) 100%)" }} />
+
+              {/* TONIGHT badge */}
+              <div style={{ position: "absolute", top: 9, right: 9, background: PINK, borderRadius: 999, padding: "4px 9px", boxShadow: `0 2px 8px ${PINK}66` }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>TONIGHT</p>
+              </div>
+
+              {/* Bottom info */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 10px 12px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.12em", marginBottom: 3 }}>7:30 PM · WEST VILLAGE</p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.0, marginBottom: 6 }}>Girls Dinner.</p>
+                <div style={{ background: PINK, borderRadius: 999, padding: "6px 0", textAlign: "center", boxShadow: `0 2px 0 rgba(150,0,55,0.8)` }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>I&apos;M IN →</span>
+                </div>
+              </div>
             </div>
-          ))}
+          </Link>
+
         </div>
       </div>
 
@@ -335,8 +395,21 @@ export function HomePage() {
           ].map((n, i) => (
             <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0 }}>
               <div style={{ width: 110, ...CARD, overflow: "hidden", position: "relative" }}>
-                <div style={{ height: 64, background: `linear-gradient(135deg, ${PINK} 0%, #FF5BAD 100%)`, position: "relative" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "50%", background: "linear-gradient(to bottom, rgba(255,255,255,0.18), transparent)" }} />
+                <div style={{ height: 64, position: "relative", overflow: "hidden" }}>
+                  <Image
+                    src={[
+                      "/happenings/posters/08_Rooftop_Sessions.png",
+                      "/happenings/posters/04_Italian_Dinner_Society.png",
+                      "/happenings/posters/06_Dance_All_Night.png",
+                      "/happenings/posters/07_Sunday_Brunch_Club.png",
+                      "/happenings/posters/09_Bagels_And_Books.png",
+                    ][i % 5]}
+                    alt={n.name}
+                    fill
+                    style={{ objectFit: "cover", objectPosition: "center top" }}
+                    sizes="110px"
+                  />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.45))" }} />
                   {n.note && (
                     <div style={{ position: "absolute", bottom: -9, right: 9, background: "#FFF0F8", borderRadius: 3, padding: "4px 8px", transform: "rotate(-2deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.1)", border: "1px solid rgba(255,0,144,0.12)" }}>
                       <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: PINK }}>{n.note}</p>

@@ -1091,6 +1091,15 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── TICKET IMAGE MAP ──────────────────────────────────────────────────────────
+
+const TICKET_IMAGES: Record<number, string> = {
+  2: "/tickets templates/Ticket_Girls_Night.png",       // Afrobeats Night → Girls Night ticket
+  4: "/tickets templates/Ticket_Museum_Exhibition.png", // Women in Lens → Museum ticket
+  6: "/tickets templates/Ticket_Dinner_Society.png",    // Golden Hour → Dinner Society ticket
+  1: "/tickets templates/Ticket_NYC_Marrakech.png",     // Morocco → NYC Marrakech ticket
+};
+
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
 const RETIRED_ROOMS: PlanRoom[] = [
@@ -1099,103 +1108,108 @@ const RETIRED_ROOMS: PlanRoom[] = [
 ];
 
 function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof THEME; onOpen: (room: PlanRoom) => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const [tab, setTab] = useState<"active"|"retired">("active");
-  const STACK_OFFSET = 10;
-  const activeRooms = rooms;
+  const [tab, setTab] = useState<"active"|"memories">("active");
+  const activeRooms  = rooms;
   const retiredRooms = RETIRED_ROOMS;
   const displayRooms = tab === "active" ? activeRooms : retiredRooms;
+  void theme;
 
   return (
-    <div style={{ padding: "0 16px 20px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        {/* Tabs */}
-        <div style={{ display: "flex", background: "rgba(255,31,125,0.07)", borderRadius: 999, padding: 3, gap: 2 }}>
-          {(["active","retired"] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{
-              padding: "5px 12px", borderRadius: 999,
-              background: tab === t ? PINK : "transparent",
-              color: tab === t ? "white" : "#999",
-              fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800,
-              letterSpacing: "0.08em", textTransform: "uppercase" as const,
-              border: "none", cursor: "pointer", transition: "all 0.15s",
-            }}>
-              {t === "active" ? "🎟 Active" : "📁 Retired"}
-            </button>
-          ))}
-        </div>
-        <button onClick={() => setExpanded(e => !e)} style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>{expanded ? "CLOSE ✕" : "VIEW ALL"}</p>
-        </button>
+    <div style={{ paddingBottom: 20 }}>
+      {/* Tab bar */}
+      <div style={{ display: "flex", padding: "0 16px 12px", gap: 8 }}>
+        {(["active","memories"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{
+            padding: "7px 18px", borderRadius: 999,
+            background: tab === t ? PINK : "rgba(255,31,125,0.07)",
+            color: tab === t ? "white" : "#aaa",
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900,
+            letterSpacing: "0.1em", textTransform: "uppercase" as const,
+            border: "none", cursor: "pointer", transition: "all 0.15s",
+            boxShadow: tab === t ? `0 2px 0 rgba(150,0,55,0.7), 0 4px 14px ${PINK}44` : "none",
+          }}>
+            {t === "active" ? "🎟 UPCOMING" : "📁 MEMORIES"}
+          </button>
+        ))}
       </div>
 
-      {tab === "retired" && (
-        <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(255,31,125,0.05)", borderRadius: 12, border: "1px dashed rgba(255,31,125,0.15)" }}>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#aaa", textAlign: "center" }}>These plans have wrapped up ✦ memories made</p>
+      {tab === "memories" && displayRooms.length === 0 && (
+        <div style={{ margin: "0 16px", padding: "24px", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>No memories yet.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#ddd", marginTop: 4 }}>Attend events to collect memories ✦</p>
         </div>
       )}
 
-      {!expanded ? (
-        <button onClick={() => setExpanded(true)} style={{ background: "none", border: "none", cursor: "pointer", width: "100%", position: "relative", height: 80 + (displayRooms.length - 1) * STACK_OFFSET }}>
-          {[...displayRooms].reverse().map((room, i) => {
-            const idx = displayRooms.length - 1 - i;
-            return (
-              <div key={room.id} style={{
-                position: "absolute",
-                top: (displayRooms.length - 1 - idx) * STACK_OFFSET,
-                left: idx * 2, right: idx * 2,
-                height: 72, borderRadius: 14, overflow: "hidden",
-                background: tab === "retired" ? "rgba(240,236,230,0.95)" : "white",
-                border: `1px solid ${tab === "retired" ? "rgba(0,0,0,0.08)" : "rgba(255,31,125,0.12)"}`,
-                boxShadow: `0 ${2 + idx * 2}px ${8 + idx * 4}px rgba(0,0,0,${0.06 + idx * 0.02})`,
-                display: "flex", alignItems: "stretch",
-                zIndex: idx + 1,
-                opacity: tab === "retired" ? 0.85 : 1,
-              }}>
-                <div style={{ width: 52, flexShrink: 0, background: tab === "retired" ? "rgba(0,0,0,0.04)" : `${room.accent}18`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, borderRight: `1px dashed ${tab === "retired" ? "rgba(0,0,0,0.08)" : room.accent + "33"}` }}>
-                  <span style={{ fontSize: 20, filter: tab === "retired" ? "grayscale(0.4)" : "none" }}>{room.emoji}</span>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 8, color: tab === "retired" ? "#bbb" : room.accent, fontWeight: 700, lineHeight: 1 }}>{room.date}</p>
+      {/* Horizontal ticket scroll */}
+      <div style={{ display: "flex", overflowX: "auto", gap: 12, padding: "4px 16px 16px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+        {displayRooms.map(room => {
+          const img = TICKET_IMAGES[room.id];
+          const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+          return (
+            <button
+              key={room.id}
+              onClick={() => tab === "active" && onOpen(room)}
+              className="active:scale-[0.97] transition-transform"
+              style={{ flexShrink: 0, background: "none", border: "none", padding: 0, cursor: tab === "active" ? "pointer" : "default", width: 200 }}
+            >
+              {img ? (
+                /* Real ticket PNG — vertical card with image */
+                <div style={{ borderRadius: 18, overflow: "hidden", position: "relative", height: 300, boxShadow: "0 6px 28px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.5)", opacity: tab === "memories" ? 0.7 : 1 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img} alt={room.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  {tab === "memories" && (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "white" }}>Used ✓</p>
+                    </div>
+                  )}
                 </div>
-                <div style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 800, letterSpacing: "0.15em", color: tab === "retired" ? "#bbb" : PINK, marginBottom: 2 }}>{tab === "retired" ? "RETIRED" : "TICKET"}</p>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: tab === "retired" ? "#aaa" : "#1A1A1A", lineHeight: 1.1, textDecoration: tab === "retired" ? "line-through" : "none" }}>{room.name}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#bbb", marginTop: 2 }}>{room.time}</p>
-                </div>
-                <div style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", paddingRight: 8 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
-            );
-          })}
-        </button>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {displayRooms.map(room => {
-            const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
-            return (
-              <div key={room.id} style={{ borderRadius: 16, overflow: "hidden", background: tab === "retired" ? "rgba(240,236,230,0.95)" : "white", border: `1px solid ${tab === "retired" ? "rgba(0,0,0,0.07)" : "rgba(255,31,125,0.1)"}`, boxShadow: "0 3px 12px rgba(0,0,0,0.07)", opacity: tab === "retired" ? 0.85 : 1 }}>
-                <button onClick={() => tab === "active" && onOpen(room)} style={{ width: "100%", display: "flex", alignItems: "stretch", background: "none", border: "none", cursor: tab === "active" ? "pointer" : "default", textAlign: "left" }}>
-                  <div style={{ width: 56, flexShrink: 0, background: tab === "retired" ? "rgba(0,0,0,0.04)" : `${room.accent}18`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                    <span style={{ fontSize: 22, filter: tab === "retired" ? "grayscale(0.5)" : "none" }}>{room.emoji}</span>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 9, color: tab === "retired" ? "#bbb" : room.accent, fontWeight: 700 }}>{room.date}</p>
+              ) : (
+                /* CSS ticket for rooms without a PNG (e.g. Morocco trip) */
+                <div style={{ borderRadius: 18, overflow: "hidden", height: 300, background: room.bg, position: "relative", boxShadow: "0 6px 28px rgba(0,0,0,0.28)" }}>
+                  {/* Header */}
+                  <div style={{ padding: "14px 14px 10px", position: "relative" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.2em", color: `${room.accent}99` }}>BLOOMBAY PRESENTS</p>
+                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 22, color: "white", lineHeight: 1.0, marginTop: 6 }}>{room.name}</p>
                   </div>
-                  <div style={{ flex: 1, padding: "12px 14px" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: tab === "retired" ? "#ccc" : PINK, marginBottom: 3 }}>{tab === "retired" ? "RETIRED PLAN" : "PLAN TICKET"}</p>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: tab === "retired" ? "#aaa" : "#1A1A1A", lineHeight: 1.15, marginBottom: 2, textDecoration: tab === "retired" ? "line-through" : "none" }}>{room.name}</p>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb" }}>{room.time}</p>
+                  {/* Big emoji */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 80, fontSize: 52 }}>{room.emoji}</div>
+                  {/* Dashed separator */}
+                  <div style={{ borderTop: "2px dashed rgba(255,255,255,0.15)", margin: "10px 14px" }} />
+                  {/* Info */}
+                  <div style={{ padding: "8px 14px" }}>
+                    <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 6, padding: "5px 10px", display: "inline-block", marginBottom: 8 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white" }}>{room.time}</p>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{room.venue}</p>
                   </div>
-                </button>
-                <div style={{ borderTop: `1px dashed rgba(0,0,0,0.07)`, margin: "0 10px" }} />
-                <div style={{ padding: "6px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "#ccc", letterSpacing: "0.06em" }}>{ticketCode}</p>
-                  {tab === "active" && <button onClick={() => onOpen(room)} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>🎟 View</button>}
-                  {tab === "retired" && <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc" }}>✓ Done</span>}
+                  {/* Barcode strip */}
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+                    <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.15)", margin: "0 14px" }} />
+                    <div style={{ padding: "8px 14px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em" }}>{ticketCode}</p>
+                      <div style={{ display: "flex", gap: 1 }}>
+                        {[2,1,3,1,2,1,3,1,2,3].map((w, j) => (
+                          <div key={j} style={{ width: w * 1.5, height: 18, background: "rgba(255,255,255,0.35)", borderRadius: 1 }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              )}
+            </button>
+          );
+        })}
+
+        {/* Add ticket CTA */}
+        {tab === "active" && (
+          <div style={{ flexShrink: 0, width: 140, height: 300, borderRadius: 18, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.06em", textAlign: "center" }}>JOIN AN<br />EVENT</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
