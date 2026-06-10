@@ -23,6 +23,7 @@ type Filter = typeof FILTERS[number];
 
 function PlaceCard({ p, saved, onSave }: { p: typeof PLACES[0]; saved: boolean; onSave: () => void }) {
   return (
+    <Link href={`/member/city/places/${p.id}`} style={{ display: "block", textDecoration: "none" }}>
     <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 3px 16px rgba(0,0,0,0.07)" }}>
       <div className="relative flex items-center justify-center" style={{ height: 120, background: `linear-gradient(145deg, ${p.bgColor} 0%, #FFE0EE 100%)` }}>
         <span style={{ fontSize: 44, opacity: 0.6 }}>{p.emoji}</span>
@@ -54,6 +55,7 @@ function PlaceCard({ p, saved, onSave }: { p: typeof PLACES[0]; saved: boolean; 
         </div>
       </div>
     </div>
+    </Link>
   );
 }
 
