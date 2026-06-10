@@ -254,6 +254,41 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* ══ FEATURED TONIGHT ════════════════════════════════════════════════════ */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+          <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 220, boxShadow: "0 14px 44px rgba(0,0,0,0.42)" }}>
+            <Image
+              src="/happenings/posters/04_Italian_Dinner_Society.png"
+              alt="Tonight"
+              fill
+              style={{ objectFit: "cover", objectPosition: "center" }}
+              sizes="(max-width: 520px) 100vw, 520px"
+            />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.92) 100%)" }} />
+            {/* Top tag */}
+            <div style={{ position: "absolute", top: 14, left: 14 }}>
+              <div style={{ background: PINK, borderRadius: 999, padding: "5px 14px", display: "inline-flex", boxShadow: `0 2px 8px ${PINK}66` }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, color: "white", letterSpacing: "0.12em" }}>TONIGHT · 7:30 PM</span>
+              </div>
+            </div>
+            {/* Bottom content */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 18px 18px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", marginBottom: 5 }}>WEST VILLAGE · CARBONE</p>
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>Girls Dinner.</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 4 }}>4 seats remaining</p>
+                </div>
+                <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55` }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       {/* ══ THREE BENTO CARDS ════════════════════════════════════════════════════ */}
       <div style={{ padding: "14px 16px 0", display: "flex", gap: 9 }}>
 
@@ -410,8 +445,8 @@ export function HomePage() {
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.8)" }}>NEAR YOU</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>SoHo, NYC</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.9)" }}>NEAR YOU</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>SoHo, NYC</p>
           </div>
           <Link href="/member/discover" style={{ textDecoration: "none" }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>EXPLORE MAP →</span>
@@ -426,22 +461,22 @@ export function HomePage() {
             { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2.5, zIdx: 2 },
             { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1,   zIdx: 1 },
           ].map((n, i) => (
-            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0, marginLeft: i === 0 ? 0 : -22, zIndex: n.zIdx, position: "relative" }}>
+            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0, marginLeft: i === 0 ? 0 : -32, zIndex: n.zIdx, position: "relative" }}>
               <div style={{
-                width: 108, background: "white",
-                padding: "6px 6px 0",
-                boxShadow: "0 6px 22px rgba(0,0,0,0.26), 0 1px 4px rgba(0,0,0,0.10)",
+                width: 152, background: "white",
+                padding: "8px 8px 0",
+                boxShadow: "0 8px 28px rgba(0,0,0,0.28), 0 2px 6px rgba(0,0,0,0.12)",
                 transform: `rotate(${n.rot}deg)`,
                 transformOrigin: "bottom center",
                 position: "relative",
               }}>
-                {i === 0 && <Tape style={{ top: -9, left: "50%", transform: "translateX(-50%) rotate(1deg)" }} width={44} pink />}
-                <div style={{ height: 80, position: "relative", overflow: "hidden" }}>
-                  <Image src={n.img} alt={n.name} fill style={{ objectFit: "cover", objectPosition: "center top" }} sizes="108px" />
+                {i === 0 && <Tape style={{ top: -10, left: "50%", transform: "translateX(-50%) rotate(1deg)" }} width={56} pink />}
+                <div style={{ height: 120, position: "relative", overflow: "hidden" }}>
+                  <Image src={n.img} alt={n.name} fill style={{ objectFit: "cover", objectPosition: "center top" }} sizes="152px" />
                 </div>
-                <div style={{ padding: "7px 4px 8px", textAlign: "center" as const }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#1A0010", lineHeight: 1 }}>{n.name}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.32)", marginTop: 2 }}>{n.happenings} happenings</p>
+                <div style={{ padding: "9px 6px 10px", textAlign: "center" as const }}>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "#1A0010", lineHeight: 1 }}>{n.name}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.35)", marginTop: 3 }}>{n.happenings} happenings</p>
                 </div>
               </div>
             </Link>
