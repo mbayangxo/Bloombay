@@ -507,13 +507,13 @@ export function HomePage() {
         {/* Polaroid photos — overlapping, pinned-up feel */}
         <div style={{ display: "flex", overflowX: "auto", paddingBottom: 20, paddingLeft: 18, paddingRight: 18, scrollbarWidth: "none" as const, alignItems: "flex-end" }}>
           {[
-            { name: "SoHo",         happenings: 4, img: "/happenings/posters/08_Rooftop_Sessions.png",        rot: -3,   zIdx: 5 },
-            { name: "West Village", happenings: 7, img: "/happenings/posters/04_Italian_Dinner_Society.png",  rot:  1.5, zIdx: 4 },
-            { name: "Williamsburg", happenings: 5, img: "/happenings/posters/06_Dance_All_Night.png",         rot: -1.5, zIdx: 3 },
-            { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2.5, zIdx: 2 },
-            { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1,   zIdx: 1 },
+            { name: "SoHo",         happenings: 4, img: "/happenings/posters/08_Rooftop_Sessions.png",        rot: -3,   zIdx: 5, slug: "soho" },
+            { name: "West Village", happenings: 7, img: "/happenings/posters/04_Italian_Dinner_Society.png",  rot:  1.5, zIdx: 4, slug: "west-village" },
+            { name: "Williamsburg", happenings: 5, img: "/happenings/posters/06_Dance_All_Night.png",         rot: -1.5, zIdx: 3, slug: "williamsburg" },
+            { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2.5, zIdx: 2, slug: "brooklyn-heights" },
+            { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1,   zIdx: 1, slug: "harlem" },
           ].map((n, i) => (
-            <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0, marginLeft: i === 0 ? 0 : -32, zIndex: n.zIdx, position: "relative" }}>
+            <Link key={i} href={`/member/city/neighborhoods/${n.slug}`} style={{ textDecoration: "none", flexShrink: 0, marginLeft: i === 0 ? 0 : -32, zIndex: n.zIdx, position: "relative" }}>
               <div style={{
                 width: 152, background: "white",
                 padding: "8px 8px 0",
