@@ -57,6 +57,33 @@ const CARD: React.CSSProperties = {
   boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
 };
 
+// ── Washi/clear tape strip ─────────────────────────────────────────────────────
+function Tape({ style, rotate = 0, width = 56, pink = false }: { style?: React.CSSProperties; rotate?: number; width?: number; pink?: boolean }) {
+  return (
+    <div style={{
+      position: "absolute",
+      width, height: 18,
+      background: pink ? "rgba(255,180,225,0.62)" : "rgba(255,242,195,0.74)",
+      borderRadius: 2,
+      transform: `rotate(${rotate}deg)`,
+      backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(0,0,0,0.03) 4px, rgba(0,0,0,0.03) 5px)",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.5)",
+      zIndex: 10, pointerEvents: "none",
+      ...style,
+    }} />
+  );
+}
+
+// ── Push pin ───────────────────────────────────────────────────────────────────
+function PushPin({ color = PINK, style }: { color?: string; style?: React.CSSProperties }) {
+  return (
+    <div style={{ position: "absolute", zIndex: 10, pointerEvents: "none", ...style }}>
+      <div style={{ width: 13, height: 13, borderRadius: "50%", background: `radial-gradient(circle at 35% 35%, white 0%, ${color} 40%)`, boxShadow: `0 2px 6px ${color}55, 0 1px 2px rgba(0,0,0,0.22)` }} />
+      <div style={{ width: 2, height: 7, background: "rgba(0,0,0,0.2)", margin: "0 auto", borderRadius: "0 0 1px 1px" }} />
+    </div>
+  );
+}
+
 // ── Pink sticky note ───────────────────────────────────────────────────────────
 function StickyNote({ text, author, rotate = 2 }: { text: string; author?: string; rotate?: number }) {
   return (
@@ -239,7 +266,8 @@ export function HomePage() {
 
         {/* MY FIRST MONTH */}
         <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
-          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%" }}>
+          <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%", position: "relative" }}>
+            <PushPin style={{ top: -7, left: "50%", transform: "translateX(-50%)" }} color="#FF5BAD" />
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 8 }}>MY FIRST<br />MONTH</p>
             <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 12, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
             <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 10, overflow: "hidden" }}>
@@ -296,7 +324,9 @@ export function HomePage() {
         <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
 
           {/* Event list */}
-          <div style={{ ...CARD, overflow: "hidden", flex: 1, minWidth: 0 }}>
+          <div style={{ ...CARD, overflow: "hidden", flex: 1, minWidth: 0, position: "relative" }}>
+            {/* Tape corner — today's list is "stuck" here */}
+            <Tape style={{ top: -8, left: 18, transform: "rotate(-3deg)" }} width={42} pink />
             {TODAY_EVENTS.map((ev, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: i < TODAY_EVENTS.length - 1 ? "1px solid rgba(255,0,144,0.07)" : "none" }}>
                 <div style={{ width: 38, flexShrink: 0, textAlign: "right" }}>
@@ -317,31 +347,29 @@ export function HomePage() {
             ))}
           </div>
 
-          {/* Featured TONIGHT card with real poster */}
-          <Link href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, width: 120 }}>
-            <div style={{ borderRadius: 18, overflow: "hidden", position: "relative", height: 176, boxShadow: "0 4px 20px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.1) inset" }}>
-              {/* Poster image */}
-              <Image
-                src="/happenings/posters/01_Girls_Night.png"
-                alt="Girls Night"
-                fill
-                style={{ objectFit: "cover", objectPosition: "center top" }}
-                sizes="120px"
-              />
-              {/* Dark gradient overlay */}
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.85) 100%)" }} />
-
-              {/* TONIGHT badge */}
-              <div style={{ position: "absolute", top: 9, right: 9, background: PINK, borderRadius: 999, padding: "4px 9px", boxShadow: `0 2px 8px ${PINK}66` }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>TONIGHT</p>
-              </div>
-
-              {/* Bottom info */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 10px 12px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.12em", marginBottom: 3 }}>7:30 PM · WEST VILLAGE</p>
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.0, marginBottom: 6 }}>Girls Dinner.</p>
-                <div style={{ background: PINK, borderRadius: 999, padding: "6px 0", textAlign: "center", boxShadow: `0 2px 0 rgba(150,0,55,0.8)` }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>I&apos;M IN →</span>
+          {/* Featured TONIGHT — taped event flyer */}
+          <Link href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, width: 128, paddingTop: 10 }}>
+            <div style={{ position: "relative", transform: "rotate(2deg)", transformOrigin: "top center" }}>
+              {/* Tape strip across top */}
+              <Tape style={{ top: -9, left: "50%", transform: "translateX(-50%) rotate(-1.5deg)" }} width={60} />
+              <div style={{ borderRadius: 8, overflow: "hidden", position: "relative", height: 184, boxShadow: "0 10px 32px rgba(0,0,0,0.38), -4px 5px 16px rgba(0,0,0,0.14), 0 1px 0 rgba(255,255,255,0.08) inset" }}>
+                <Image
+                  src="/happenings/posters/01_Girls_Night.png"
+                  alt="Girls Night"
+                  fill
+                  style={{ objectFit: "cover", objectPosition: "center top" }}
+                  sizes="128px"
+                />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.88) 100%)" }} />
+                <div style={{ position: "absolute", top: 9, right: 9, background: PINK, borderRadius: 999, padding: "4px 9px", boxShadow: `0 2px 8px ${PINK}88` }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>TONIGHT</p>
+                </div>
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 10px 12px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.52)", letterSpacing: "0.12em", marginBottom: 3 }}>7:30 PM · WEST VILLAGE</p>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.0, marginBottom: 6 }}>Girls Dinner.</p>
+                  <div style={{ background: PINK, borderRadius: 999, padding: "6px 0", textAlign: "center" as const, boxShadow: `0 2px 0 rgba(150,0,55,0.8)` }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>I&apos;M IN →</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -393,40 +421,40 @@ export function HomePage() {
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>EXPLORE MAP →</span>
           </Link>
         </div>
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
+        {/* Polaroid photos row */}
+        <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 14, paddingLeft: 16, paddingRight: 16, scrollbarWidth: "none" as const, alignItems: "flex-end" }}>
           {[
-            { name: "SoHo",         clubs: 12, note: "fave ♡" },
-            { name: "West Village", clubs: 18, note: null     },
-            { name: "Williamsburg", clubs: 16, note: null     },
-            { name: "Brooklyn Hts", clubs: 11, note: null     },
-            { name: "Harlem",       clubs: 9,  note: null     },
+            { name: "SoHo",         happenings: 4, img: "/happenings/posters/08_Rooftop_Sessions.png",        rot: -2.5 },
+            { name: "West Village", happenings: 7, img: "/happenings/posters/04_Italian_Dinner_Society.png",  rot:  1.5 },
+            { name: "Williamsburg", happenings: 5, img: "/happenings/posters/06_Dance_All_Night.png",         rot: -1   },
+            { name: "Brooklyn Hts", happenings: 3, img: "/happenings/posters/07_Sunday_Brunch_Club.png",      rot:  2   },
+            { name: "Harlem",       happenings: 2, img: "/happenings/posters/09_Bagels_And_Books.png",        rot: -1.5 },
           ].map((n, i) => (
             <Link key={i} href="/member/discover" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{ width: 110, ...CARD, overflow: "hidden", position: "relative" }}>
-                <div style={{ height: 64, position: "relative", overflow: "hidden" }}>
+              <div style={{
+                width: 106, background: "white",
+                padding: "6px 6px 0",
+                boxShadow: "0 5px 20px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.10)",
+                transform: `rotate(${n.rot}deg)`,
+                transformOrigin: "bottom center",
+                position: "relative",
+              }}>
+                {/* Tape at top of first Polaroid */}
+                {i === 0 && <Tape style={{ top: -9, left: "50%", transform: "translateX(-50%) rotate(0.5deg)" }} width={46} pink />}
+                {/* Photo area */}
+                <div style={{ height: 78, position: "relative", overflow: "hidden" }}>
                   <Image
-                    src={[
-                      "/happenings/posters/08_Rooftop_Sessions.png",
-                      "/happenings/posters/04_Italian_Dinner_Society.png",
-                      "/happenings/posters/06_Dance_All_Night.png",
-                      "/happenings/posters/07_Sunday_Brunch_Club.png",
-                      "/happenings/posters/09_Bagels_And_Books.png",
-                    ][i % 5]}
+                    src={n.img}
                     alt={n.name}
                     fill
                     style={{ objectFit: "cover", objectPosition: "center top" }}
-                    sizes="110px"
+                    sizes="106px"
                   />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.45))" }} />
-                  {n.note && (
-                    <div style={{ position: "absolute", bottom: -9, right: 9, background: "#FFF0F8", borderRadius: 3, padding: "4px 8px", transform: "rotate(-2deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.1)", border: "1px solid rgba(255,0,144,0.12)" }}>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: PINK }}>{n.note}</p>
-                    </div>
-                  )}
                 </div>
-                <div style={{ padding: "11px 10px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "#000" }}>{n.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.32)", marginTop: 1 }}>{n.clubs} clubs</p>
+                {/* Polaroid caption area */}
+                <div style={{ padding: "8px 4px 9px", textAlign: "center" as const }}>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#1A0010", lineHeight: 1 }}>{n.name}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10.5, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{n.happenings} happenings</p>
                 </div>
               </div>
             </Link>
@@ -480,23 +508,35 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ══ QUOTE CARD ═══════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "20px 16px 40px" }}>
-        <Link href="/member/discover" style={{ textDecoration: "none" }}>
-          <div style={{ background: "#000", borderRadius: 22, padding: "30px 26px 26px", position: "relative", overflow: "hidden", boxShadow: "0 10px 40px rgba(0,0,0,0.3)" }}>
-            {/* Pink glow */}
-            <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
-            {/* Oversized opening quote mark */}
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 64, color: PINK, lineHeight: 0.6, height: 28, position: "relative", marginBottom: 6 }}>&ldquo;</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 30, color: "white", lineHeight: 1.12, letterSpacing: "-0.01em", position: "relative" }}>
+      {/* ══ QUOTE — torn magazine clipping pinned to board ════════════════════════ */}
+      <div style={{ padding: "28px 22px 44px", display: "flex", justifyContent: "center" }}>
+        <div style={{ position: "relative", width: "100%", transform: "rotate(-0.8deg)" }}>
+          {/* Push pin at top center */}
+          <PushPin style={{ top: -7, left: "50%", transform: "translateX(-50%)" }} />
+          {/* Clipping body — aged paper */}
+          <div style={{
+            background: "linear-gradient(160deg, #F5EDD8 0%, #EDE3C8 100%)",
+            padding: "28px 24px 24px",
+            boxShadow: "0 6px 24px rgba(0,0,0,0.22), 2px 3px 10px rgba(0,0,0,0.12)",
+            position: "relative", overflow: "hidden",
+            borderBottom: "2px solid rgba(0,0,0,0.06)",
+          }}>
+            {/* Subtle lined-paper texture */}
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(transparent, transparent 24px, rgba(0,0,0,0.04) 24px, rgba(0,0,0,0.04) 25px)", pointerEvents: "none" }} />
+            {/* Pink margin line on left */}
+            <div style={{ position: "absolute", left: 46, top: 0, bottom: 0, width: 1, background: "rgba(255,0,144,0.18)", pointerEvents: "none" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(0,0,0,0.25)", marginBottom: 14, position: "relative" }}>FROM THE BLOOMBAY JOURNAL</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 32, color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", position: "relative" }}>
               Collect moments,<br />not things.
             </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.4)", marginTop: 16, letterSpacing: "0.28em", position: "relative" }}>BLOOMBAY</p>
-            <div style={{ marginTop: 20, display: "inline-flex", background: PINK, borderRadius: 999, padding: "10px 20px", position: "relative", boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 6px 16px ${PINK}55` }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.07em" }}>DISCOVER PLACES →</span>
+            <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
+              <div style={{ height: 1, flex: 1, background: "rgba(0,0,0,0.1)" }} />
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.35)" }}>BloomBay ✦</p>
             </div>
+            {/* Tape strip at bottom-right corner — holding it down */}
+            <Tape style={{ bottom: -8, right: 24, transform: "rotate(2deg)" }} width={48} />
           </div>
-        </Link>
+        </div>
       </div>
 
     </div>
