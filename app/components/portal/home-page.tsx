@@ -452,6 +452,47 @@ export function HomePage() {
         )}
       </div>
 
+      {/* ══ THE EDIT ════════════════════════════════════════════════════════════ */}
+      <div style={{ padding: "28px 0 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 18 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.16em", color: "rgba(255,255,255,0.95)" }}>THE EDIT</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>This week&apos;s picks</p>
+          </div>
+          <Link href="/member/edit" style={{ textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>SEE ALL →</span>
+          </Link>
+        </div>
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingLeft: 16, paddingRight: 24, paddingBottom: 12, scrollbarWidth: "none" as const, alignItems: "flex-start" }}>
+
+          {/* WATCHING */}
+          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #0E0008 0%, #2A0018 100%)", boxShadow: "0 8px 28px rgba(0,0,0,0.35)", transform: "rotate(-1deg)", padding: "18px 16px 20px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>WATCHING</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "white", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>The White<br />Lotus</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>HBO · Season 3</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.38)", lineHeight: 1.4 }}>&ldquo;Thailand. Drama.<br />You&apos;re already late.&rdquo;</p>
+          </div>
+
+          {/* READING */}
+          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #FFFDF6 0%, #FFF5E8 100%)", boxShadow: "0 8px 28px rgba(0,0,0,0.18)", transform: "rotate(0.8deg)", padding: "18px 16px 20px", position: "relative" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: PINK }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>READING</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "#1A0010", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>Intermezzo</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.42)", marginBottom: 10 }}>Sally Rooney</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>&ldquo;Grief, want,<br />and brothers.&rdquo;</p>
+          </div>
+
+          {/* OBSESSING OVER */}
+          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #FFF0F8 0%, #FFE0EE 100%)", boxShadow: "0 8px 28px rgba(255,0,144,0.14)", transform: "rotate(-0.5deg)", padding: "18px 16px 20px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>OBSESSING</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "#1A0010", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>The Row<br />aesthetic</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.4)", marginBottom: 10 }}>Quiet luxury</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>&ldquo;Rich. Quiet.<br />No logos needed.&rdquo;</p>
+          </div>
+
+        </div>
+      </div>
+
       {/* ══ NEAR YOU ═════════════════════════════════════════════════════════════ */}
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>

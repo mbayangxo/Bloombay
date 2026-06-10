@@ -343,8 +343,22 @@ export function LandingPage() {
             </span>
           </h1>
           <p
-            className="mt-6"
-            style={{ fontSize: "15px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 400, lineHeight: 1.5, maxWidth: 280 }}
+            className="mt-8"
+            style={{
+              fontSize: "clamp(28px, 8vw, 40px)",
+              fontFamily: "var(--font-fraunces)",
+              fontStyle: "italic",
+              fontWeight: 300,
+              color: "rgba(255,255,255,0.72)",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.1,
+            }}
+          >
+            Women are gathering.
+          </p>
+          <p
+            className="mt-5"
+            style={{ fontSize: "14px", color: "rgba(255,255,255,0.48)", fontFamily: "var(--font-jost)", fontWeight: 400, lineHeight: 1.6, maxWidth: 260 }}
           >
             a space to bloom, feel seen, and build real connections.
           </p>
