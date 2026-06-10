@@ -28,6 +28,14 @@ const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
 type Club = { id: string; name: string; color: string | null; cover_url: string | null; member_count: number };
 
+const SUNDAY_STACK_WOMEN = [
+  { name: "Aaliya",  initial: "A", vibes: ["books", "brunch", "jazz"],        bg: "#FFFBF0" },
+  { name: "Mira",    initial: "M", vibes: ["gallery", "ceramics"],             bg: "#F0FFF8" },
+  { name: "Soleil",  initial: "S", vibes: ["pilates", "coffee bars"],          bg: "#FFF0F8" },
+  { name: "Chioma",  initial: "C", vibes: ["fashion", "night out"],            bg: "#F0F4FF" },
+  { name: "Reva",    initial: "R", vibes: ["botanical", "slow mornings"],      bg: "#FFFAF0" },
+];
+
 const FIRST_MONTH_TASKS = [
   { week: 1, task: "Join 3 clubs",             href: "/member/clubs"    },
   { week: 2, task: "Attend 1 gathering",        href: "/member/discover" },
@@ -136,7 +144,7 @@ export function HomePage() {
 
   return (
     <div style={{
-      background: "linear-gradient(175deg, #FF0090 0%, #FF1F7D 28%, #FF5BAD 60%, #FFB3D9 85%, #FFF0F8 100%)",
+      background: "linear-gradient(180deg, #060006 0%, #120010 18%, #3A0026 36%, #FF0090 52%, #FFB3D9 74%, #FFF0F8 100%)",
       minHeight: "100vh",
       paddingBottom: 112,
       overflowX: "hidden",
@@ -422,6 +430,52 @@ export function HomePage() {
                 </div>
               </div>
             </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ SUNDAY STACK ════════════════════════════════════════════════════════ */}
+      <div style={{ padding: "22px 0 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.8)" }}>SUNDAY STACK</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>5 women matched to your vibe</p>
+          </div>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>VIEW ALL →</span>
+        </div>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingLeft: 16, paddingRight: 16, paddingBottom: 4, scrollbarWidth: "none" as const }}>
+          {SUNDAY_STACK_WOMEN.map((w, i) => (
+            <div key={i} style={{
+              flexShrink: 0, width: 150,
+              background: w.bg,
+              borderRadius: 18,
+              border: "1.5px solid rgba(255,0,144,0.09)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
+              padding: "14px 12px 12px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              {/* Postcard stamp corner */}
+              <div style={{ position: "absolute", top: 9, right: 9, width: 22, height: 28, border: "1.5px solid rgba(255,0,144,0.3)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: PINK }}>✦</span>
+              </div>
+              {/* Avatar circle */}
+              <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 4px 12px rgba(255,0,144,0.3)` }}>
+                <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{w.initial}</span>
+              </div>
+              {/* Name */}
+              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "#000", lineHeight: 1.1, marginBottom: 7 }}>{w.name}</p>
+              {/* Vibe tags */}
+              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 4, marginBottom: 12 }}>
+                {w.vibes.map((v, vi) => (
+                  <span key={vi} style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, background: "rgba(255,0,144,0.07)", borderRadius: 999, padding: "2px 7px", border: "1px solid rgba(255,0,144,0.14)" }}>{v}</span>
+                ))}
+              </div>
+              {/* Wave */}
+              <button style={{ width: "100%", background: PINK, border: "none", borderRadius: 999, padding: "8px 0", cursor: "pointer", boxShadow: `0 2px 0 rgba(150,0,55,0.7), 0 4px 12px ${PINK}33` }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>WAVE 👋</span>
+              </button>
+            </div>
           ))}
         </div>
       </div>
