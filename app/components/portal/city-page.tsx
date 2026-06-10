@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const PINK  = "#FF1F7D";
+const PINK  = "#FF0090";
 const GOLD  = "#D4A853";
 const CREAM = "#F6F1EB";
 const PAPER = "#FEFCF7";
@@ -187,15 +187,16 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BUILDING LABELS PANEL  (landing slide 0)
+// Buildings laid flat horizontally — a scrollable city avenue
 // ═══════════════════════════════════════════════════════════════════════════════
 function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
-  const colors = [
-    "linear-gradient(135deg, #FF1F7D 0%, #FF7BAD 100%)",
-    "linear-gradient(135deg, #FF6B35 0%, #FFAA70 100%)",
-    "linear-gradient(135deg, #6B8FFF 0%, #A0B8FF 100%)",
-    "linear-gradient(135deg, #FF4F9A 0%, #FF88C0 100%)",
-    "linear-gradient(135deg, #FFB347 0%, #FFD4A0 100%)",
-    "linear-gradient(135deg, #B06AFF 0%, #D4A0FF 100%)",
+  const buildings: { band: Band; h: number; w: number; bg: string }[] = [
+    { band: BANDS[0], h: 268, w: 120, bg: "linear-gradient(180deg, #FF8CBB 0%, #FF1F7D 100%)" },
+    { band: BANDS[1], h: 208, w: 108, bg: "linear-gradient(180deg, #FFBA88 0%, #FF7744 100%)" },
+    { band: BANDS[2], h: 298, w: 116, bg: "linear-gradient(180deg, #85B8FF 0%, #3A60E8 100%)" },
+    { band: BANDS[3], h: 244, w: 130, bg: "linear-gradient(180deg, #FF9DC8 0%, #FF4090 100%)" },
+    { band: BANDS[4], h: 190, w: 112, bg: "linear-gradient(180deg, #FFE0A0 0%, #FFC060 100%)" },
+    { band: BANDS[5], h: 278, w: 120, bg: "linear-gradient(180deg, #D09EFF 0%, #9050D8 100%)" },
   ];
 
   return (
@@ -205,85 +206,123 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
       display: "flex", flexDirection: "column",
     }}>
       <style>{CSS}</style>
-      {/* DaySkyline background */}
+      {/* Sky backdrop */}
       <div style={{ position: "absolute", inset: 0 }}>
         <DaySkyline />
       </div>
-      {/* Overlay gradient at bottom to blend into city grid */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(255,220,200,0.6), transparent)", pointerEvents: "none" }} />
+      {/* Haze at ground level */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(to top, rgba(255,210,170,0.45), transparent)", pointerEvents: "none" }} />
 
-      {/* City header */}
-      <div style={{ position: "relative", padding: "70px 20px 16px", zIndex: 5 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.8)", marginBottom: 4 }}>THE CITY</p>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 32, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 16px rgba(200,50,100,0.5)", margin: 0 }}>
-          Where do you<br />want to go?
-        </h1>
-      </div>
-
-      {/* Building grid */}
-      <div style={{ position: "relative", zIndex: 5, flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px 80px", alignContent: "start" }}>
-        {BANDS.map((band, i) => (
-          <button
-            key={band.id}
-            onClick={() => onSelect(band.id)}
-            style={{
-              background: colors[i % colors.length],
-              border: "none",
-              borderRadius: 18,
-              padding: "18px 14px 14px",
-              cursor: "pointer",
-              textAlign: "left",
-              position: "relative",
-              overflow: "hidden",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.3)",
-              minHeight: 90,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              WebkitTapHighlightColor: "transparent",
-            }}
-          >
-            {/* Window pattern background */}
-            <div style={{ position: "absolute", inset: 0, opacity: 0.12 }}>
-              {Array.from({length: 12}, (_, j) => (
-                <div key={j} style={{
-                  position: "absolute",
-                  width: 6, height: 8,
-                  borderRadius: 1,
-                  background: "white",
-                  left: 8 + (j % 4) * 18,
-                  top: 10 + Math.floor(j / 4) * 14,
-                }} />
-              ))}
-            </div>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
-                {band.icon} {String(i + 1).padStart(2, "0")}
-              </p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 1px 8px rgba(0,0,0,0.2)", margin: 0 }}>
-                {band.label}
-              </p>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.75)", lineHeight: 1.3, marginTop: 6, margin: 0 }}>
-              {band.sub}
-            </p>
-          </button>
-        ))}
-      </div>
-
-      {/* Swipe hint */}
-      <div style={{ position: "absolute", bottom: 28, left: 0, right: 0, zIndex: 10, display: "flex", justifyContent: "center" }}>
+      {/* City header — title and CITY GUIDE button on the same row */}
+      <div style={{
+        position: "relative", zIndex: 5,
+        padding: "68px 20px 0",
+        display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12,
+      }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.85)", marginBottom: 5 }}>THE CITY</p>
+          <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 31, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 16px rgba(200,50,100,0.5)", margin: 0 }}>
+            Your<br />Avenue.
+          </h1>
+        </div>
         <button onClick={onSwipeToMenu} style={{
-          background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.4)", borderRadius: 999,
-          padding: "7px 18px", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 8,
+          flexShrink: 0, marginBottom: 4,
+          background: "rgba(255,255,255,0.28)", backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.45)", borderRadius: 999,
+          padding: "9px 15px", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 7,
+          WebkitTapHighlightColor: "transparent",
         }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.12em" }}>CITY GUIDE</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.1em" }}>CITY GUIDE</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
+      </div>
+
+      {/* Sidewalk line */}
+      <div style={{ position: "absolute", bottom: 97, left: 0, right: 0, height: 3, background: "rgba(0,0,0,0.13)", zIndex: 4 }} />
+
+      {/* Avenue — buildings as horizontal flat facades */}
+      <div style={{
+        position: "absolute", bottom: 100, left: 0, right: 0, zIndex: 5,
+        overflowX: "auto", overflowY: "hidden",
+        scrollbarWidth: "none" as const,
+        display: "flex", alignItems: "flex-end", gap: 3,
+        paddingLeft: 14, paddingRight: 14,
+      }}>
+        {buildings.map(({ band, h, w, bg }) => {
+          const winCols = Math.max(2, Math.floor((w - 14) / 20));
+          const winRows = Math.max(3, Math.floor((h - 60) / 26));
+          return (
+            <button
+              key={band.id}
+              onClick={() => onSelect(band.id)}
+              style={{
+                flexShrink: 0, width: w, height: h,
+                background: bg,
+                border: "none", borderRadius: "3px 3px 0 0",
+                cursor: "pointer", position: "relative", overflow: "hidden",
+                boxShadow: "4px 0 20px rgba(0,0,0,0.18), inset -3px 0 0 rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.22)",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              {/* Window grid */}
+              <div style={{ position: "absolute", inset: 0, opacity: 0.44 }}>
+                {Array.from({ length: winRows }, (_, r) =>
+                  Array.from({ length: winCols }, (_, c) => {
+                    const seed = (r * 7 + c * 11) % 13;
+                    if (seed === 5) return null;
+                    return (
+                      <div key={`${r}-${c}`} style={{
+                        position: "absolute",
+                        left: 7 + c * 20, top: 10 + r * 26,
+                        width: 11, height: 15,
+                        borderRadius: "1px 1px 0 0",
+                        background: seed % 4 === 1
+                          ? "rgba(255,240,170,0.95)"
+                          : seed < 9 ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.15)",
+                      }} />
+                    );
+                  })
+                )}
+              </div>
+              {/* Right-edge shadow — gives depth to the facade facing right */}
+              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 10, background: "rgba(0,0,0,0.18)", pointerEvents: "none" }} />
+              {/* Roofline accent */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "rgba(255,255,255,0.2)" }} />
+              {/* Centered name plate */}
+              <div style={{
+                position: "absolute", inset: 0,
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                padding: "0 7px",
+              }}>
+                <div style={{
+                  background: "rgba(0,0,0,0.38)", backdropFilter: "blur(8px)",
+                  borderRadius: 8, padding: "9px 9px 7px",
+                  textAlign: "center", border: "1px solid rgba(255,255,255,0.16)",
+                }}>
+                  <p style={{
+                    fontFamily: "var(--font-fraunces)",
+                    fontSize: band.label.length > 7 ? 12 : 15,
+                    fontWeight: 900, fontStyle: "italic",
+                    color: "white", lineHeight: 1.1, margin: 0,
+                    textShadow: "0 1px 6px rgba(0,0,0,0.5)",
+                  }}>
+                    {band.label}
+                  </p>
+                  <p style={{
+                    fontFamily: "var(--font-jost)", fontSize: "8px",
+                    color: "rgba(255,255,255,0.75)", marginTop: 5, lineHeight: 1,
+                  }}>
+                    {band.icon}
+                  </p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+        <div style={{ flexShrink: 0, width: 14 }} />
       </div>
     </div>
   );
@@ -309,7 +348,7 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
         <div style={{ padding: "72px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 6 }}>BB+ · NEW YORK CITY</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
           </div>
           <button onClick={onSwipeBack} style={{
             marginTop: 6, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(8px)",
