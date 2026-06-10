@@ -179,14 +179,9 @@ export function HomePage() {
 
       {/* ══ HEADER SHELL ═════════════════════════════════════════════════════════ */}
       <div style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 16px)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
         paddingLeft: 16, paddingRight: 16, paddingBottom: 20,
       }}>
-        {/* Logo + date */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, paddingLeft: 6, paddingRight: 6 }}>
-          <BBLogo size={22} light />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.52)" }}>{dayAbbr} · {dayOfMonth} {monthShort}</p>
-        </div>
 
         {/* ── UNIFIED CARD: greeting top + tonight bottom ── */}
         <div style={{
@@ -246,8 +241,8 @@ export function HomePage() {
             { href: "/member/plans",      label: "Plans",   bg: "#000000",  text: "white"    },
           ].map(c => (
             <Link key={c.href} href={c.href} style={{ textDecoration: "none" }}>
-              <div style={{ padding: "9px 20px", borderRadius: 999, background: c.bg, boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.6), 0 5px 16px rgba(0,0,0,0.1)" : "0 2px 0 rgba(0,0,0,0.85), 0 4px 10px rgba(0,0,0,0.18)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: c.text, letterSpacing: "0.04em" }}>{c.label}</p>
+              <div style={{ padding: "11px 24px", borderRadius: 999, background: c.bg, boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.6), 0 5px 16px rgba(0,0,0,0.1)" : "0 2px 0 rgba(0,0,0,0.85), 0 4px 10px rgba(0,0,0,0.18)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: c.text, letterSpacing: "0.04em" }}>{c.label}</p>
               </div>
             </Link>
           ))}
@@ -296,8 +291,8 @@ export function HomePage() {
         <Link href={task.href} style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%", position: "relative" }}>
             <PushPin style={{ top: -7, left: "50%", transform: "translateX(-50%)" }} color="#FF5BAD" />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 8 }}>MY FIRST<br />MONTH</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 12, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.16em", color: PINK, marginBottom: 8 }}>MY FIRST<br />MONTH</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 14, color: "#000", lineHeight: 1.4 }}>Week {weeksIn}:<br />{task.task}</p>
             <div style={{ height: 3, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 10, overflow: "hidden" }}>
               <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
             </div>
@@ -308,10 +303,10 @@ export function HomePage() {
         {/* THIS WEEK */}
         <Link href="/member/happenings" style={{ textDecoration: "none", flex: 1 }}>
           <div style={{ ...CARD, padding: "14px 12px 16px", height: "100%" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, letterSpacing: "0.18em", color: PINK, marginBottom: 8 }}>THIS WEEK<br />· 2 EVENTS</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 13, color: "#000", lineHeight: 1.3 }}>Next: Book Girls NYC</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)", marginTop: 4 }}>Wednesday</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10 }}>› View all</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.16em", color: PINK, marginBottom: 8 }}>THIS WEEK<br />· 2 EVENTS</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 14, color: "#000", lineHeight: 1.3 }}>Next: Book Girls NYC</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.35)", marginTop: 4 }}>Wednesday</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: PINK, marginTop: 10 }}>› View all</p>
           </div>
         </Link>
 
@@ -340,11 +335,11 @@ export function HomePage() {
       </div>
 
       {/* ══ TODAY'S SCHEDULE — naked on gradient ════════════════════════════════ */}
-      <div style={{ padding: "0 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)" }}>YOUR DAY</p>
+      <div style={{ padding: "24px 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.7)" }}>YOUR DAY</p>
           <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(255,255,255,0.32)" }}>full schedule →</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>full schedule →</span>
           </Link>
         </div>
 

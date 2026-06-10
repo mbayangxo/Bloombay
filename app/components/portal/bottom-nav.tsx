@@ -264,9 +264,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
       <div
         className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: "transparent",
-          backdropFilter: "blur(0px)",
-          WebkitBackdropFilter: "blur(0px)",
+          background: "rgba(0,0,0,0.28)",
+          backdropFilter: "blur(16px) saturate(1.4)",
+          WebkitBackdropFilter: "blur(16px) saturate(1.4)",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
