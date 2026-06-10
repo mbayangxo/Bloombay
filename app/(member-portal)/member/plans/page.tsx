@@ -514,9 +514,9 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   );
 }
 
-// ── PAPER CALENDAR VIEW ───────────────────────────────────────────────────────
+// ── PAPER CALENDAR VIEW (BLUE NOTEBOOK) ──────────────────────────────────────
 
-function PaperCalendarView({ dayContents, onSelectDay, theme }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; theme: typeof DAY_THEME }) {
+function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; selectedDay: string | null; }) {
   const today = new Date();
   const [year, setYear]   = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -527,68 +527,188 @@ function PaperCalendarView({ dayContents, onSelectDay, theme }: { dayContents: R
   const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   function dateKey(d: number) { return `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
 
+  const NB_BLUE = "#8A9DC0";
+  const NB_DARK = "#6878A0";
+  const NB_TEX  = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.06'/></svg>")`;
+  const CREAM   = "#FEF8EE";
+
   return (
-    <div style={{ padding: "16px 16px 24px" }}>
-      {/* Binding holes */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 18, marginBottom: 14 }}>
-        {Array.from({ length: 8 }, (_, i) => (
-          <div key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: "rgba(0,0,0,0.08)", border: "2px solid rgba(0,0,0,0.12)" }} />
+    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", background: `linear-gradient(160deg, #7B8DB8 0%, ${NB_BLUE} 55%, #7585B2 100%)`, backgroundImage: NB_TEX }}>
+
+      {/* Spiral binding */}
+      <div style={{ background: NB_DARK, padding: "10px 16px 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+        {Array.from({ length: 13 }, (_, i) => (
+          <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: "#1A1C26", border: "2px solid #3A3D50", boxShadow: "inset 0 1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.5)" }} />
         ))}
       </div>
-      {/* Month nav */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.label} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+
+      {/* Month nav + title */}
+      <div style={{ padding: "14px 18px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }}
+          style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={CREAM} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style={{ textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1 }}>{MONTH_NAMES[month]}</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: theme.subText, marginTop: 2 }}>{year}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: CREAM, lineHeight: 1 }}>{MONTH_NAMES[month]} Planner</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(254,248,238,0.5)", marginTop: 2 }}>{year}</p>
         </div>
-        <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.label} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }}
+          style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={CREAM} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
+
       {/* Day headers */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", marginBottom: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", padding: "0 10px 4px" }}>
         {DAY_NAMES.map(d => (
-          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.07em", color: theme.label, textAlign: "center", paddingBottom: 4 }}>{d}</p>
+          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", color: "rgba(254,248,238,0.5)", textAlign: "center", paddingBottom: 4 }}>{d}</p>
         ))}
       </div>
-      {/* Grid */}
-      <div style={{ background: theme.cardBg, backdropFilter: "blur(8px)", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", border: `1px solid ${theme.cardBorder}` }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}>
+
+      {/* Calendar grid */}
+      <div style={{ padding: "0 10px 10px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, overflow: "hidden" }}>
           {cells.map((day, i) => {
-            if (!day) return <div key={i} style={{ minHeight: 54, background: "rgba(0,0,0,0.015)", borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none" }} />;
+            if (!day) return (
+              <div key={i} style={{ minHeight: 52, background: "rgba(0,0,0,0.08)", borderRight: i%7!==6 ? "1px solid rgba(255,255,255,0.1)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(255,255,255,0.1)" : "none" }} />
+            );
             const key = dateKey(day);
             const isToday = key === todayKey;
+            const isSel = key === selectedDay;
             const dots = EVENT_DATES[key];
             const dc = dayContents[key];
             const hasSticker = dc?.stickers?.length > 0;
             const hasNote = dc && (dc.text || dc.photos.length > 0 || dc.voiceCount > 0);
             return (
               <button key={i} onClick={() => onSelectDay(key)}
-                className="active:bg-pink-50 transition-colors"
-                style={{ minHeight: 54, padding: "6px 3px", borderRight: i%7!==6 ? "1px solid rgba(0,0,0,0.05)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(0,0,0,0.05)" : "none", background: isToday ? "rgba(255,31,125,0.04)" : "transparent", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: isToday ? PINK : "transparent", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: isToday ? 700 : 400, color: isToday ? "white" : theme.heading, lineHeight: 1 }}>{day}</p>
-                </div>
-                {hasSticker ? <span style={{ fontSize: 11 }}>{dc.stickers[dc.stickers.length-1]}</span>
-                  : dots ? <div style={{ display: "flex", gap: 2 }}>{dots.slice(0,2).map((ev,j) => <div key={j} style={{ width: 5, height: 5, borderRadius: "50%", background: ev.color }} />)}</div>
-                  : hasNote ? <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,31,125,0.4)" }} />
+                style={{ minHeight: 52, padding: "5px 2px", borderRight: i%7!==6 ? "1px solid rgba(255,255,255,0.1)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(255,255,255,0.1)" : "none", background: isSel ? "rgba(255,255,255,0.25)" : isToday ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "background 0.15s" }}>
+                {isToday ? (
+                  <div style={{ position: "relative", width: 26, height: 26, marginBottom: 2 }}>
+                    <svg style={{ position: "absolute", top: 0, left: 0 }} width="26" height="26" viewBox="0 0 26 26">
+                      <ellipse cx="13" cy="13" rx="11" ry="11" fill="none" stroke="#FF1F7D" strokeWidth="1.5" strokeDasharray="4 1.5" transform="rotate(-10 13 13)" />
+                    </svg>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#FF1F7D", lineHeight: 1 }}>{day}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: isSel ? CREAM : "rgba(254,248,238,0.82)", fontWeight: isSel ? 700 : 400, lineHeight: 1, marginBottom: 2, paddingTop: 2 }}>{day}</p>
+                )}
+                {hasSticker ? <span style={{ fontSize: 10 }}>{dc.stickers[dc.stickers.length-1]}</span>
+                  : dots ? <div style={{ display: "flex", gap: 1.5 }}>{dots.slice(0,2).map((ev,j) => <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: ev.color }} />)}</div>
+                  : hasNote ? <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,248,220,0.5)" }} />
                   : null}
               </button>
             );
           })}
         </div>
       </div>
-      <div style={{ marginTop: 14, display: "flex", gap: 14 }}>
-        {[{ color: PINK, label: "Today" }, { color: "#83C5A0", label: "Plans" }, { color: "rgba(255,31,125,0.4)", label: "Notes" }].map(l => (
+
+      {/* Legend */}
+      <div style={{ padding: "0 14px 12px", display: "flex", gap: 12 }}>
+        {[{ color: "#FF1F7D", label: "Today" }, { color: "#83C5A0", label: "Plans" }, { color: "rgba(255,248,220,0.5)", label: "Notes" }].map(l => (
           <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: l.color }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText }}>{l.label}</p>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: l.color }} />
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(254,248,238,0.5)" }}>{l.label}</p>
           </div>
         ))}
       </div>
+
+      {/* Floating gold stars */}
+      <div style={{ position: "absolute", bottom: 16, right: 14, display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-end" }}>
+        <div style={{ display: "flex", gap: 3 }}>{"★★".split("").map((s,i) => <span key={i} style={{ fontSize: 9, color: "#D4A853", opacity: 0.75 }}>{s}</span>)}</div>
+        <div style={{ display: "flex", gap: 3 }}>{"★★★".split("").map((s,i) => <span key={i} style={{ fontSize: 10, color: "#D4A853", opacity: 0.9 }}>{s}</span>)}</div>
+      </div>
+
+      {/* Heart doodle */}
+      <svg style={{ position: "absolute", top: 80, right: 16, opacity: 0.3 }} width="26" height="24" viewBox="0 0 26 24">
+        <path d="M13 22 C13 22 1 14 1 7 C1 3.5 4 1 7 1 C9.5 1 11.5 2.5 13 4.5 C14.5 2.5 16.5 1 19 1 C22 1 25 3.5 25 7 C25 14 13 22 13 22Z" fill="none" stroke="#FEF8EE" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
+
+// ── DAY SCHEDULE VIEW ─────────────────────────────────────────────────────────
+
+function DayScheduleView({ dayKey, dayContent, onEdit }: {
+  dayKey: string;
+  dayContent: DayContent | undefined;
+  onEdit: () => void;
+}) {
+  const date       = new Date(dayKey + "T12:00:00");
+  const dayNum     = date.getDate();
+  const dayLabel   = DAY_FULL[date.getDay()];
+  const monthLabel = MONTH_NAMES[date.getMonth()];
+  const events     = EVENT_DATES[dayKey] ?? [];
+
+  const CARD_PALETTES = [
+    { bg: "#FFE4EF", border: "#FF69B4", check: "#FF1F7D" },
+    { bg: "#FFF3D0", border: "#F59E0B", check: "#D97706" },
+    { bg: "#D8F0E4", border: "#83C5A0", check: "#22C55E" },
+    { bg: "#EDE8FC", border: "#A855F7", check: "#9333EA" },
+  ];
+
+  const hasContent = dayContent && (dayContent.text || dayContent.photos.length > 0 || dayContent.voiceCount > 0 || dayContent.stickers.length > 0);
+
+  return (
+    <div style={{ margin: "0 8px 12px", background: "#FAF6F0", borderRadius: 20, padding: "14px 14px 16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.7)" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#FF1F7D", lineHeight: 1 }}>{dayLabel}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.1 }}>{dayNum} {monthLabel}</p>
+        </div>
+        <button onClick={onEdit}
+          style={{ padding: "6px 14px", borderRadius: 999, background: "#FFF0F7", border: "1.5px solid rgba(255,31,125,0.2)", cursor: "pointer", flexShrink: 0 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "#FF1F7D", letterSpacing: "0.05em" }}>+ NOTES</p>
+        </button>
+      </div>
+
+      {/* Events as pastel cards */}
+      {events.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: hasContent ? 12 : 0 }}>
+          {events.map((ev, i) => {
+            const pal = CARD_PALETTES[i % CARD_PALETTES.length];
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: pal.bg, borderRadius: 12, borderLeft: `3.5px solid ${pal.border}`, padding: "10px 12px" }}>
+                <span style={{ fontSize: 20 }}>{ev.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>{ev.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginTop: 2 }}>🕐 {ev.time}</p>
+                </div>
+                <div style={{ width: 22, height: 22, borderRadius: 8, background: pal.check, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Day notes preview */}
+      {hasContent && (
+        <div style={{ background: "#FFFCF5", borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(0,0,0,0.06)" }}>
+          {dayContent!.text && (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#555", lineHeight: 1.5, marginBottom: dayContent!.stickers.length > 0 ? 6 : 0 }}>
+              {dayContent!.text.slice(0, 80)}{dayContent!.text.length > 80 ? "…" : ""}
+            </p>
+          )}
+          {dayContent!.stickers.length > 0 && (
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              {dayContent!.stickers.map((s, i) => <span key={i} style={{ fontSize: 18 }}>{s}</span>)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {events.length === 0 && !hasContent && (
+        <div style={{ textAlign: "center", padding: "12px 0 4px" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#C0B8B0" }}>Nothing planned yet ✨</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#CCC5BC", marginTop: 4 }}>Tap + NOTES to write, add stickers or photos</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -979,6 +1099,7 @@ function PlansPageInner() {
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [editorDay, setEditorDay]     = useState<string | null>(null);
   const [dayContents, setDayContents] = useState<Record<string, DayContent>>({});
 
   useEffect(() => {
@@ -1101,19 +1222,30 @@ function PlansPageInner() {
         {/* Calendar tab */}
         {mainTab === "calendar" && (
           <div style={{ padding: "16px 0" }}>
-            <div style={{ margin: "0 16px 16px", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
-              <PaperCalendarView dayContents={dayContents} onSelectDay={setSelectedDay} theme={theme} />
+            <div style={{ margin: "0 16px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}>
+              <PaperCalendarView
+                dayContents={dayContents}
+                onSelectDay={key => setSelectedDay(prev => prev === key ? null : key)}
+                selectedDay={selectedDay}
+              />
             </div>
+            {selectedDay && (
+              <DayScheduleView
+                dayKey={selectedDay}
+                dayContent={dayContents[selectedDay]}
+                onEdit={() => setEditorDay(selectedDay)}
+              />
+            )}
           </div>
         )}
       </div>
 
-      {selectedDay && (
+      {editorDay && (
         <DayEditorSheet
-          dayKey={selectedDay}
-          content={dayContents[selectedDay] ?? { text: "", stickers: [], photos: [], voiceCount: 0 }}
-          onUpdate={c => updateDayContent(selectedDay, c)}
-          onClose={() => setSelectedDay(null)}
+          dayKey={editorDay}
+          content={dayContents[editorDay] ?? { text: "", stickers: [], photos: [], voiceCount: 0 }}
+          onUpdate={c => updateDayContent(editorDay, c)}
+          onClose={() => setEditorDay(null)}
         />
       )}
 
