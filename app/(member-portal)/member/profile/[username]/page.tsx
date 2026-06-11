@@ -12,7 +12,7 @@ const PAPER_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 interface SocialLink { platform: string; handle: string; url: string; color: string }
 interface Business { name: string; role: string; tagline: string; accent: string }
 interface MoodItem {
-  type: "photo" | "quote" | "voice";
+  type: "photo" | "quote" | "voice" | "invitation";
   bg?: string;
   span?: "wide" | "tall" | "normal";
   quote?: string;
@@ -20,6 +20,11 @@ interface MoodItem {
   duration?: string;
   label?: string;
   emoji?: string;
+  // invitation fields
+  invEvent?: string;
+  invFrom?: string;
+  invDate?: string;
+  invColor?: string;
 }
 interface Moment { location: string; neighborhood: string; caption: string; flowers: number; timeAgo: string; emoji: string; bgColor: string }
 interface BloomNote { place: string; neighborhood: string; note: string; rating: number; timeAgo: string; category: "restaurant" | "bar" | "café" | "shop" | "park" | "bookshop" | "gallery" }
@@ -41,6 +46,13 @@ interface ProfileData {
   moodBoard: MoodItem[];
   moments: Moment[];
   bloomNotes: BloomNote[];
+  // personal fields
+  age?: number;
+  likes?: string[];
+  dislikes?: string[];
+  favoriteMovies?: string[];
+  favoriteTVShows?: string[];
+  hobbies?: string[];
 }
 
 const PROFILES: Record<string, ProfileData> = {
@@ -67,14 +79,20 @@ const PROFILES: Record<string, ProfileData> = {
       tagline: "Branding for women-led businesses. Campaigns, identity, editorial.",
       accent: "#FF0090",
     },
+    age: 28,
+    likes: ["Late dinners", "Serif fonts", "Espresso martinis", "Bookshop browsing", "Sunday markets"],
+    dislikes: ["Being late", "Loud restaurants", "Wasted potential", "Small talk"],
+    favoriteMovies: ["Portrait of a Lady on Fire", "Amélie", "Lost in Translation", "Licorice Pizza"],
+    favoriteTVShows: ["The White Lotus", "The Sopranos", "Girls", "Industry"],
+    hobbies: ["Film photography", "Ceramics", "Long walks", "Cooking for friends", "Reading in cafés"],
     moodBoard: [
       { type: "photo", bg: "linear-gradient(135deg, #FFB3D9 0%, #FF7BAC 100%)", span: "wide" },
       { type: "quote", quote: "The world is yours if you just sit still long enough to want it.", span: "normal" },
-      { type: "photo", bg: "linear-gradient(135deg, #FFF0F8 0%, #FFE0EE 100%)", span: "normal" },
+      { type: "invitation", invEvent: "Girls Dinner · Carbone", invFrom: "Aminah M.", invDate: "Tonight · 7:30 PM", invColor: "#FF69B4", span: "normal" },
       { type: "voice", duration: "0:42", label: "On finding your people in a big city", span: "wide" },
       { type: "photo", bg: "linear-gradient(160deg, #2A0818 0%, #FF0090 100%)", span: "tall" },
       { type: "quote", quote: "She wasn't looking for a knight. She was looking for a sword.", span: "normal" },
-      { type: "photo", bg: "linear-gradient(135deg, #FFE8A0 0%, #FFB830 100%)", span: "normal" },
+      { type: "invitation", invEvent: "MoMA + Froyo After", invFrom: "Girl Creatives Club", invDate: "Saturday · 2:00 PM", invColor: "#EC4899", span: "normal" },
       { type: "photo", bg: "linear-gradient(135deg, #C0E8FF 0%, #6BB5F5 100%)", span: "normal" },
     ],
     moments: [
@@ -115,12 +133,18 @@ const PROFILES: Record<string, ProfileData> = {
       tagline: "Honest NYC restaurant reviews. No paid placements. Just real food opinions.",
       accent: "#A8C97A",
     },
+    age: 31,
+    likes: ["Food", "Film", "Natural wine", "Vintage markets", "Running at dawn"],
+    dislikes: ["Overpriced mediocre food", "Networking events", "Meal kits"],
+    favoriteMovies: ["Babette's Feast", "Julie & Julia", "Chef", "Tampopo"],
+    favoriteTVShows: ["The Bear", "Ugly Delicious", "Chef's Table", "Seinfeld"],
+    hobbies: ["Restaurant reviewing", "Film photography", "Running", "Vintage thrifting"],
     moodBoard: [
       { type: "photo", bg: "linear-gradient(135deg, #E8FFF0 0%, #A8D898 100%)", span: "wide" },
       { type: "quote", quote: "Eat the expensive pasta. Drink the natural wine. Life is short.", span: "normal" },
       { type: "photo", bg: "linear-gradient(135deg, #FFF5E8 0%, #FFB830 100%)", span: "normal" },
       { type: "voice", duration: "1:04", label: "My top 5 restaurants you've never heard of", span: "wide" },
-      { type: "photo", bg: "linear-gradient(160deg, #1A2A10 0%, #A8C97A 100%)", span: "normal" },
+      { type: "invitation", invEvent: "Pilates + Matcha Morning", invFrom: "Sofia K.", invDate: "Sunday · 9:00 AM", invColor: "#FF1F7D", span: "normal" },
       { type: "quote", quote: "The best meals are the ones you didn't plan.", span: "normal" },
     ],
     moments: [
@@ -205,6 +229,36 @@ function MoodItem({ item }: { item: MoodItem }) {
       }}>
         <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "#1A0010", lineHeight: 1.5 }}>"{item.quote}"</span>
         {item.author && <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.3)", letterSpacing: "0.08em", marginTop: 8 }}>— {item.author}</span>}
+      </div>
+    );
+  }
+  if (item.type === "invitation") {
+    const c = item.invColor ?? PINK;
+    return (
+      <div style={{
+        gridColumn: item.span === "wide" ? "span 2" : "span 1",
+        borderRadius: 16,
+        backgroundColor: "#FFFFFF",
+        padding: "14px 14px 12px",
+        boxShadow: `0 4px 20px ${c}22, 0 1px 4px rgba(0,0,0,0.08)`,
+        border: `1px solid ${c}20`,
+        display: "flex", flexDirection: "column", gap: 8,
+        position: "relative", overflow: "hidden",
+      }}>
+        {/* Top ribbon */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${c}CC, ${c}, ${c}CC)` }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+          {/* Wax seal mini */}
+          <div style={{ width: 22, height: 22, borderRadius: "50%", background: `radial-gradient(circle at 38% 32%, ${c}, ${c}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700, fontSize: 7, color: "white", letterSpacing: -0.5 }}>BB</span>
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: `${c}BB`, textTransform: "uppercase" as const }}>INVITATION</p>
+        </div>
+        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 13, color: "#1A0010", lineHeight: 1.2 }}>{item.invEvent}</p>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.38)" }}>{item.invDate}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: c }}>from {item.invFrom}</p>
+        </div>
       </div>
     );
   }
@@ -425,6 +479,97 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                       <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK }}>{v}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Personal details */}
+            {(profile.age || profile.likes || profile.dislikes || profile.hobbies || profile.favoriteMovies || profile.favoriteTVShows) && (
+              <div style={{ marginTop: 18 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER WORLD</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  {/* Age */}
+                  {profile.age && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 6 }}>AGE</p>
+                      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 22, color: "white" }}>{profile.age}</p>
+                    </div>
+                  )}
+
+                  {/* Likes */}
+                  {profile.likes && profile.likes.length > 0 && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>SHE LOVES</p>
+                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
+                        {profile.likes.map(l => (
+                          <div key={l} style={{ background: "rgba(255,0,144,0.1)", border: "1px solid rgba(255,0,144,0.22)", borderRadius: 999, padding: "5px 12px" }}>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: PINK }}>✦ {l}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dislikes */}
+                  {profile.dislikes && profile.dislikes.length > 0 && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>NOT HER THING</p>
+                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
+                        {profile.dislikes.map(d => (
+                          <div key={d} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "5px 12px" }}>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>— {d}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hobbies */}
+                  {profile.hobbies && profile.hobbies.length > 0 && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>HOBBIES</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                        {profile.hobbies.map((h, i) => (
+                          <div key={h} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,0,144,0.5)", minWidth: 12, textAlign: "right" as const }}>{String(i + 1).padStart(2, "0")}</span>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{h}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Favorite movies */}
+                  {profile.favoriteMovies && profile.favoriteMovies.length > 0 && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>FAVORITE FILMS</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                        {profile.favoriteMovies.map(m => (
+                          <div key={m} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ color: "rgba(255,255,255,0.18)", fontSize: 10 }}>🎬</span>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{m}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Favorite TV shows */}
+                  {profile.favoriteTVShows && profile.favoriteTVShows.length > 0 && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>WATCHING</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                        {profile.favoriteTVShows.map(s => (
+                          <div key={s} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ color: "rgba(255,255,255,0.18)", fontSize: 10 }}>📺</span>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{s}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
             )}

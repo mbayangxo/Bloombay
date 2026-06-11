@@ -43,11 +43,38 @@ const FIRST_MONTH_TASKS = [
   { week: 4, task: "Save 5 places in The City", href: "/member/city"     },
 ];
 
-const TODAY_EVENTS = [
-  { time: "9:00 AM",  label: "NEXT",    name: "Pilates Class",    loc: "Brooklyn Studio · Carroll Gardens" },
-  { time: "1:00 PM",  label: "",        name: "Lunch with Sofia", loc: "Café Auguste · East Village"      },
-  { time: "7:30 PM",  label: "TONIGHT", name: "Girls Dinner",     loc: "Carbone · West Village"           },
-];
+const DAILY_EVENTS: Record<number, { time: string; label: string; name: string; loc: string }[]> = {
+  0: [ // Sunday
+    { time: "10:00 AM", label: "NEXT",    name: "Sunday Walk",          loc: "Brooklyn Bridge Park · DUMBO"    },
+    { time: "1:00 PM",  label: "",        name: "Brunch at Diner",       loc: "Diner · Williamsburg"            },
+  ],
+  1: [ // Monday
+    { time: "7:00 AM",  label: "NEXT",    name: "Morning Run",           loc: "Prospect Park · Brooklyn"        },
+    { time: "7:30 PM",  label: "TONIGHT", name: "Book Club",             loc: "McNally Jackson · Nolita"        },
+  ],
+  2: [ // Tuesday
+    { time: "12:00 PM", label: "NEXT",    name: "Museum Girls",          loc: "MoMA · Midtown"                  },
+  ],
+  3: [ // Wednesday
+    { time: "9:00 AM",  label: "NEXT",    name: "Pilates Class",         loc: "Brooklyn Studio · Carroll Gardens" },
+    { time: "1:00 PM",  label: "",        name: "Lunch with Sofia",      loc: "Café Auguste · East Village"     },
+    { time: "7:30 PM",  label: "TONIGHT", name: "Girls Dinner",          loc: "Carbone · West Village"          },
+  ],
+  4: [ // Thursday
+    { time: "6:00 PM",  label: "NEXT",    name: "Gallery Opening",       loc: "Gagosian · Chelsea"              },
+    { time: "9:00 PM",  label: "",        name: "Rooftop Sessions",      loc: "Hotel Rooftop · SoHo"            },
+  ],
+  5: [ // Friday
+    { time: "12:30 PM", label: "NEXT",    name: "Lunch Run",             loc: "Sweetgreen · West Village"       },
+    { time: "7:00 PM",  label: "TONIGHT", name: "Jazz Night",            loc: "Smalls · West Village"           },
+    { time: "10:00 PM", label: "",        name: "Dance Night",           loc: "Elsewhere · Bushwick"            },
+  ],
+  6: [ // Saturday
+    { time: "9:00 AM",  label: "NEXT",    name: "Pilates + Matcha",      loc: "Studio Bloom · Williamsburg"     },
+    { time: "2:00 PM",  label: "",        name: "MoMA + Froyo",          loc: "MoMA · Midtown"                  },
+    { time: "7:30 PM",  label: "TONIGHT", name: "Italian Dinner",        loc: "Lilia · Williamsburg"            },
+  ],
+};
 
 const TONIGHT_CARDS = [
   {
@@ -160,6 +187,7 @@ export function HomePage() {
   const [joinedAt,   setJoinedAt]  = useState<string | null>(null);
   const [loading,    setLoading]   = useState(true);
   const [tonightIdx, setTonightIdx] = useState(0);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -194,6 +222,9 @@ export function HomePage() {
   const dayOfMonth  = today.getDate();
   const dayAbbr     = WEEK_DAYS[todayDow];
   void tod;
+
+  const activeDayIdx   = selectedDay ?? todayDow;
+  const activeDayEvents = DAILY_EVENTS[activeDayIdx] ?? [];
 
   const nameFontSize = loading ? 48 : Math.max(36, 58 - Math.max(0, (displayName.length - 5) * 3));
 
@@ -234,7 +265,9 @@ export function HomePage() {
               }}>{loading ? "…" : `${displayName}.`}</p>
               {!loading && (
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.38)", marginTop: 12, letterSpacing: "0.02em" }}>
-                  {TODAY_EVENTS.length} things on your calendar today.
+                  {activeDayEvents.length > 0
+                    ? `${activeDayEvents.length} thing${activeDayEvents.length > 1 ? "s" : ""} on your calendar${activeDayIdx === todayDow ? " today" : ` on ${WEEK_DAYS[activeDayIdx]}`}.`
+                    : `Nothing planned${activeDayIdx === todayDow ? " today" : ` on ${WEEK_DAYS[activeDayIdx]}`}.`}
                 </p>
               )}
             </div>
@@ -254,15 +287,20 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>YOUR WEEK</p>
             <div style={{ display: "flex", gap: 4 }}>
               {weekDays.map((d, i) => {
-                const hasEvent = [1, 3, 5].includes(i);
+                const hasEvent = (DAILY_EVENTS[i] ?? []).length > 0;
+                const isSelected = i === activeDayIdx;
                 return (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: d.isToday ? PINK : "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}>{d.abbr}</p>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: d.isToday ? PINK : "rgba(255,255,255,0.07)", border: d.isToday ? "none" : "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: d.isToday ? 800 : 600, color: d.isToday ? "white" : "rgba(255,255,255,0.5)" }}>{d.date}</p>
+                  <button
+                    key={i}
+                    onClick={() => setSelectedDay(i)}
+                    style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+                  >
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: isSelected ? PINK : "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}>{d.abbr}</p>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: isSelected ? PINK : "rgba(255,255,255,0.07)", border: isSelected ? "none" : "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: isSelected ? 800 : 600, color: isSelected ? "white" : "rgba(255,255,255,0.5)" }}>{d.date}</p>
                     </div>
                     <div style={{ width: 4, height: 4, borderRadius: "50%", background: hasEvent ? PINK : "transparent" }} />
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -271,20 +309,24 @@ export function HomePage() {
           {/* — YOUR DAY timeline — */}
           <div style={{ padding: "10px 20px 18px" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)" }}>YOUR DAY</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)" }}>
+                {activeDayIdx === todayDow ? "YOUR DAY" : WEEK_DAYS[activeDayIdx]}
+              </p>
               <Link href="/member/plans" style={{ textDecoration: "none" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.22)" }}>full schedule →</span>
               </Link>
             </div>
-            {TODAY_EVENTS.map((ev, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < TODAY_EVENTS.length - 1 ? 14 : 0 }}>
+            {activeDayEvents.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 14, color: "rgba(255,255,255,0.28)" }}>Nothing planned. Enjoy the day. ✦</p>
+            ) : activeDayEvents.map((ev, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < activeDayEvents.length - 1 ? 14 : 0 }}>
                 <div style={{ width: 36, flexShrink: 0, textAlign: "right" as const }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.2)" }}>{ev.time.split(" ")[1]}</p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: ev.label === "TONIGHT" ? PINK : "rgba(255,255,255,0.3)", boxShadow: ev.label === "TONIGHT" ? `0 0 0 3px rgba(255,0,144,0.18)` : "none" }} />
-                  {i < TODAY_EVENTS.length - 1 && <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.08)", marginTop: 3 }} />}
+                  {i < activeDayEvents.length - 1 && <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.08)", marginTop: 3 }} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.name}</p>
