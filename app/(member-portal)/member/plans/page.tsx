@@ -1529,71 +1529,89 @@ function PlansPageInner() {
 
       <div style={{ paddingTop: 54 }}>
 
-        {/* Plans tab — door grid */}
+        {/* Plans tab */}
         {mainTab === "plans" && (
           <div>
-            {/* ── Beautiful Header Card ── */}
-            <div style={{ margin: "16px 16px 0", borderRadius: 24, overflow: "hidden", boxShadow: "0 4px 28px rgba(255,31,125,0.12), 0 1px 0 rgba(255,255,255,0.9) inset", position: "relative" }}>
-              {/* Card background */}
-              <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE0F0 40%, #FFF5E8 80%, #FFF0F8 100%)", padding: "20px 18px 18px", position: "relative", overflow: "hidden" }}>
-                {/* Decorative petals */}
-                <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,31,125,0.06)" }} />
-                <div style={{ position: "absolute", bottom: -15, left: 20, width: 60, height: 60, borderRadius: "50%", background: "rgba(255,31,125,0.04)" }} />
-                {/* Ornamental top line */}
-                <div style={{ height: 1.5, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.3), rgba(212,168,83,0.4), rgba(255,31,125,0.3), transparent)", marginBottom: 14 }} />
-                {/* Date */}
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.26em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
-                  {todayStr.toUpperCase()}
-                </p>
-                {/* Title row */}
-                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-                  <div>
-                    <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 36, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 0.95, letterSpacing: "-0.02em" }}>
-                      Your<br />Plans.
-                    </h1>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(0,0,0,0.35)", letterSpacing: "0.1em", marginTop: 8 }}>
-                      SWIPE TO ENTER A ROOM ✦
-                    </p>
-                  </div>
-                  {/* Large + button on right */}
-                  <button onClick={() => setShowNewPlan(true)} style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #FF1F7D, #FF5BAD)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(255,31,125,0.45), inset 0 1px 0 rgba(255,255,255,0.3)", flexShrink: 0, marginLeft: 12, marginBottom: 2 }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+
+            {/* ── EDITORIAL HEADER — full-bleed, no card border ── */}
+            <div style={{ position: "relative", overflow: "hidden", paddingBottom: 28 }}>
+              {/* Pink gradient that fades into page bg */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(185deg, #FF1F7D 0%, #E8006A 28%, #FF4FA0 55%, rgba(255,240,248,0) 100%)" }} />
+              {/* Ghost BLOOM watermark */}
+              <div style={{ position: "absolute", bottom: 10, right: -12, fontFamily: "var(--font-playfair)", fontSize: 90, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.07)", lineHeight: 1, userSelect: "none", pointerEvents: "none", letterSpacing: "-0.02em" }}>BLOOM</div>
+
+              <div style={{ position: "relative", zIndex: 1, padding: "14px 18px 0" }}>
+                {/* Date kicker */}
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.65)", marginBottom: 12 }}>✦ {todayStr.toUpperCase()}</p>
+
+                {/* Title + new button */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
+                  <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(46px,14vw,58px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.88, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.12)" }}>
+                    Your<br/>Plans.
+                  </h1>
+                  <button onClick={() => setShowNewPlan(true)} style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flexShrink: 0, marginTop: 4 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
                 </div>
+
                 {/* Stats row */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK }} />
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.4)" }}>{PLAN_ROOMS.length} rooms</p>
-                  </div>
-                  <div style={{ width: 1, height: 10, background: "rgba(0,0,0,0.1)" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>{PLAN_ROOMS.length} ROOMS</p>
                   {totalUnread > 0 && (
-                    <div style={{ background: PINK, borderRadius: 999, padding: "2px 8px" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white" }}>{totalUnread} new</p>
-                    </div>
+                    <>
+                      <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.35)" }} />
+                      <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.3)" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{totalUnread} NEW</p>
+                      </div>
+                    </>
                   )}
-                  {/* Mini planner button */}
-                  <button onClick={() => setMainTab("calendar")} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 999, padding: "5px 12px", cursor: "pointer" }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>PLANNER</p>
+                  <button onClick={() => setMainTab("calendar")} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 999, padding: "5px 11px", cursor: "pointer" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.08em" }}>PLANNER</p>
                   </button>
                 </div>
-                {/* Ornamental bottom line */}
-                <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.2), rgba(212,168,83,0.25), rgba(255,31,125,0.2), transparent)", marginTop: 14 }} />
+
+                {/* Week strip — embedded in header on dark pink bg */}
+                {(() => {
+                  const dow = today.getDay();
+                  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+                  const monday = new Date(today);
+                  monday.setDate(monday.getDate() + mondayOffset);
+                  const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+                  const weekDays = Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date(monday);
+                    d.setDate(monday.getDate() + i);
+                    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                    return { date: d.getDate(), events: EVENT_DATES[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
+                  });
+                  return (
+                    <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: 16, padding: "10px 10px 8px", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
+                        {weekDays.map(day => (
+                          <div key={day.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.04em", color: day.isToday ? "white" : "rgba(255,255,255,0.42)" }}>{day.label}</p>
+                            <div style={{ width: 26, height: 26, borderRadius: "50%", background: day.isToday ? "white" : day.events.length > 0 ? "rgba(255,255,255,0.14)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", border: day.isToday ? "none" : `1.5px solid rgba(255,255,255,${day.events.length > 0 ? "0.3" : "0.15"})` }}>
+                              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: day.isToday ? 800 : 400, color: day.isToday ? PINK : "rgba(255,255,255,0.8)", lineHeight: 1 }}>{day.date}</p>
+                            </div>
+                            <div style={{ display: "flex", gap: 1.5, justifyContent: "center", minHeight: 5 }}>
+                              {day.events.slice(0, 2).map((_, j) => (
+                                <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.7)" }} />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* ── PLAN ROOMS label ── */}
-            <div style={{ padding: "16px 18px 4px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>PLAN ROOMS</p>
-            </div>
-
-            {/* Swipeable door row */}
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "8px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+            {/* Swipeable door row — no label, flows from header */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
               {PLAN_ROOMS.map(room => (
                 <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
               ))}
-              {/* Add door */}
               <button onClick={() => setShowNewPlan(true)} style={{ width: 90, height: 145, flexShrink: 0, borderRadius: "45px 45px 6px 6px", border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginTop: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1602,58 +1620,14 @@ function PlansPageInner() {
               </button>
             </div>
 
-            {/* ── COMPACT WEEK CALENDAR STRIP ── */}
-            {(() => {
-              const dow = today.getDay();
-              const mondayOffset = dow === 0 ? -6 : 1 - dow;
-              const monday = new Date(today);
-              monday.setDate(monday.getDate() + mondayOffset);
-              const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-              const weekDays = Array.from({ length: 7 }, (_, i) => {
-                const d = new Date(monday);
-                d.setDate(monday.getDate() + i);
-                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-                return { date: d.getDate(), key, events: EVENT_DATES[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
-              });
-              const weekHasEvents = weekDays.some(d => d.events.length > 0);
-              return (
-                <div style={{ margin: "0 16px 16px", padding: "12px 14px 10px", borderRadius: 16, background: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,31,125,0.1)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)" }}>THIS WEEK</p>
-                      {weekHasEvents && <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />}
-                    </div>
-                    <button onClick={() => setMainTab("calendar")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>VIEW PLANNER</p>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
-                    {weekDays.map(day => (
-                      <div key={day.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.04em", color: day.isToday ? PINK : "rgba(0,0,0,0.28)" }}>{day.label}</p>
-                        <div style={{ width: 26, height: 26, borderRadius: "50%", background: day.isToday ? PINK : day.events.length > 0 ? "rgba(255,31,125,0.08)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", border: day.isToday ? "none" : day.events.length > 0 ? `1.5px solid rgba(255,31,125,0.2)` : "1.5px solid rgba(0,0,0,0.07)" }}>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: day.isToday ? 800 : 400, color: day.isToday ? "white" : "rgba(0,0,0,0.6)", lineHeight: 1 }}>{day.date}</p>
-                        </div>
-                        <div style={{ display: "flex", gap: 1.5, justifyContent: "center", minHeight: 5 }}>
-                          {day.events.slice(0, 2).map((ev, i) => (
-                            <div key={i} style={{ width: 4, height: 4, borderRadius: "50%", background: ev.color }} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* ── MY TICKETS label ── */}
-            <div style={{ padding: "0 16px 6px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>MY TICKETS</p>
+            {/* Ornamental divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
+              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
             </div>
 
-            {/* Wallet Tickets */}
+            {/* Wallet Tickets — no label */}
             <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
           </div>
         )}
