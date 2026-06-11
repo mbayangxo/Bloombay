@@ -1114,130 +1114,241 @@ const RETIRED_ROOMS: PlanRoom[] = [
   { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#83C5A0", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
 ];
 
+const EXPIRED_ROOMS: PlanRoom[] = [
+  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#D4A853", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
+  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#83C5A0", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
+];
+
+// ── Ticket card (shared render) ───────────────────────────────────────────────
+
+function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active" | "used" | "expired"; onOpen: () => void }) {
+  const img = TICKET_IMAGES[room.id];
+  const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+  const TH = 148;
+  const isClickable = status === "active";
+  const overlay = status === "used" ? "USED ✓" : status === "expired" ? "MISSED" : null;
+  const PAGE_BG = "#F5F0EA";
+
+  return (
+    <button
+      onClick={() => isClickable && onOpen()}
+      className="active:scale-[0.98] transition-transform"
+      style={{ background: "none", border: "none", padding: 0, cursor: isClickable ? "pointer" : "default", width: "100%", textAlign: "left" as const }}
+    >
+      <div style={{
+        width: "100%", height: TH, borderRadius: 16,
+        background: room.bg,
+        boxShadow: "0 6px 28px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.5)",
+        display: "flex", overflow: "hidden", position: "relative",
+        opacity: status !== "active" ? 0.68 : 1,
+      }}>
+        {/* Dimming overlay for used/expired */}
+        {status !== "active" && (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)", zIndex: 5, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 8, padding: "5px 14px", transform: "rotate(-8deg)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "rgba(255,255,255,0.85)", letterSpacing: "0.18em" }}>{overlay}</p>
+            </div>
+          </div>
+        )}
+        {/* LEFT: poster */}
+        <div style={{ width: "38%", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+          {img ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={img} alt={room.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
+            </>
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${room.accent}44, ${room.accent}18)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>
+              {room.emoji}
+            </div>
+          )}
+          <div style={{ position: "absolute", top: 10, bottom: 10, right: -1, borderRight: "2px dashed rgba(255,255,255,0.22)" }} />
+          <div style={{ position: "absolute", top: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: PAGE_BG }} />
+          <div style={{ position: "absolute", bottom: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: PAGE_BG }} />
+        </div>
+        {/* RIGHT: info */}
+        <div style={{ flex: 1, padding: "12px 14px 10px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+              <div>
+                <div style={{ display: "inline-flex", background: `${room.accent}22`, border: `1px solid ${room.accent}44`, borderRadius: 6, padding: "3px 8px", marginBottom: 6 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: room.accent, letterSpacing: "0.04em" }}>{room.time}</p>
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: "rgba(255,255,255,0.22)", letterSpacing: "0.06em" }}>{ticketCode}</p>
+              </div>
+              <div style={{ display: "flex", gap: 1, alignItems: "flex-end", flexShrink: 0 }}>
+                {[2,1,3,1,2,1,3,2,1,2,1,3,1,2].map((w, j) => (
+                  <div key={j} style={{ width: w, height: j % 3 === 0 ? 28 : 20, background: "rgba(255,255,255,0.28)", borderRadius: 1 }} />
+                ))}
+              </div>
+            </div>
+            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ width: 4, height: 4, borderRadius: "50%", background: room.accent }} />
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.32)" }}>{room.members} women · show at door</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// ── Wallet ─────────────────────────────────────────────────────────────────────
+
 function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof THEME; onOpen: (room: PlanRoom) => void }) {
-  const [tab, setTab] = useState<"active"|"memories">("active");
-  const activeRooms  = rooms;
-  const retiredRooms = RETIRED_ROOMS;
-  const displayRooms = tab === "active" ? activeRooms : retiredRooms;
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [filter, setFilter] = useState<"active" | "used" | "expired">("active");
   void theme;
 
-  const TW = 300, TH = 148; // landscape ticket dimensions
+  const activeRooms  = rooms;
+  const usedRooms    = RETIRED_ROOMS;
+  const expiredRooms = EXPIRED_ROOMS;
+  const displayRooms = filter === "active" ? activeRooms : filter === "used" ? usedRooms : expiredRooms;
+  const allActive    = rooms; // for the stack visual
+
+  // Stack transforms — back to front
+  const STACK = [
+    { rot: -5.5, x:  16, y: 24, z: 1, op: 0.55 },
+    { rot:  3.5, x: -10, y: 14, z: 2, op: 0.70 },
+    { rot: -2.0, x:   8, y:  6, z: 3, op: 0.83 },
+    { rot:  1.5, x:  -4, y:  0, z: 4, op: 1.00 },
+  ];
+  const stackItems = allActive.slice(0, 4);
+  const TH = 148;
 
   return (
     <div style={{ paddingBottom: 20 }}>
-      {/* Tab bar */}
-      <div style={{ display: "flex", padding: "0 16px 12px", gap: 8 }}>
-        {(["active","memories"] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{
-            padding: "7px 18px", borderRadius: 999,
-            background: tab === t ? PINK : "rgba(255,31,125,0.07)",
-            color: tab === t ? "white" : "#aaa",
-            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900,
-            letterSpacing: "0.1em", textTransform: "uppercase" as const,
-            border: "none", cursor: "pointer", transition: "all 0.15s",
-            boxShadow: tab === t ? `0 2px 0 rgba(150,0,55,0.7), 0 4px 14px ${PINK}44` : "none",
-          }}>
-            {t === "active" ? "🎟 UPCOMING" : "📁 MEMORIES"}
-          </button>
-        ))}
-      </div>
 
-      {tab === "memories" && displayRooms.length === 0 && (
-        <div style={{ margin: "0 16px", padding: "24px", textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>No memories yet.</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#ddd", marginTop: 4 }}>Attend events to collect memories ✦</p>
-        </div>
-      )}
-
-      {/* Horizontal landscape ticket scroll */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "4px 16px 16px", overflowY: "visible" }}>
-        {displayRooms.map(room => {
-          const img = TICKET_IMAGES[room.id];
-          const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
-          const isUsed = tab === "memories";
-          return (
-            <button
-              key={room.id}
-              onClick={() => !isUsed && onOpen(room)}
-              className="active:scale-[0.98] transition-transform"
-              style={{ flexShrink: 0, background: "none", border: "none", padding: 0, cursor: isUsed ? "default" : "pointer", width: "100%", textAlign: "left" as const, opacity: isUsed ? 0.72 : 1 }}
-            >
-              {/* Landscape ticket shell */}
-              <div style={{
-                width: "100%", height: TH, borderRadius: 16,
-                background: room.bg,
-                boxShadow: "0 6px 28px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.5)",
-                display: "flex", overflow: "hidden", position: "relative",
-              }}>
-                {/* LEFT: poster / gradient block */}
-                <div style={{ width: TW * 0.38, flexShrink: 0, position: "relative", overflow: "hidden" }}>
-                  {img ? (
+      {!walletOpen ? (
+        /* ── WALLET CLOSED — jumbled stack ── */
+        <button
+          onClick={() => setWalletOpen(true)}
+          style={{ width: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer" }}
+        >
+          {/* Stacked tickets */}
+          <div style={{ position: "relative", height: TH + 32, marginBottom: 10 }}>
+            {stackItems.map((room, i) => {
+              const s = STACK[Math.min(i, STACK.length - 1)];
+              const img = TICKET_IMAGES[room.id];
+              return (
+                <div key={room.id} style={{
+                  position: "absolute", width: "100%", height: TH,
+                  borderRadius: 16, background: room.bg,
+                  transform: `rotate(${s.rot}deg) translateX(${s.x}px)`,
+                  top: s.y, zIndex: s.z, opacity: s.op,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 2px 0 rgba(0,0,0,0.5)",
+                  overflow: "hidden",
+                }}>
+                  {img && (
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt={room.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
+                      <img src={img} alt={room.name} style={{ width: "38%", height: "100%", objectFit: "cover", position: "absolute", left: 0 }} />
+                      <div style={{ position: "absolute", left: 0, top: 0, width: "38%", height: "100%", background: "linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.5) 100%)" }} />
                     </>
-                  ) : (
-                    <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${room.accent}44, ${room.accent}18)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>
-                      {room.emoji}
+                  )}
+                  {/* Right info strip visible on front ticket only */}
+                  {i === stackItems.length - 1 && (
+                    <div style={{ position: "absolute", left: "38%", right: 0, top: 0, bottom: 0, padding: "14px 16px 12px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                      <div>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · TICKET</p>
+                        <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05 }}>{room.name}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
+                      </div>
+                      <div style={{ display: "inline-flex", background: `${room.accent}22`, border: `1px solid ${room.accent}44`, borderRadius: 6, padding: "3px 8px", alignSelf: "flex-start" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: room.accent }}>{room.time}</p>
+                      </div>
                     </div>
                   )}
-                  {/* Vertical dashed tear line */}
-                  <div style={{ position: "absolute", top: 10, bottom: 10, right: -1, borderRight: "2px dashed rgba(255,255,255,0.22)" }} />
-                  {/* Notch top */}
-                  <div style={{ position: "absolute", top: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: "#F5F0EA" }} />
-                  {/* Notch bottom */}
-                  <div style={{ position: "absolute", bottom: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: "#F5F0EA" }} />
+                  {/* Emoji watermark for back tickets */}
+                  {i < stackItems.length - 1 && (
+                    <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", fontSize: 28, opacity: 0.3 }}>{room.emoji}</div>
+                  )}
                 </div>
-
-                {/* RIGHT: info */}
-                <div style={{ flex: 1, padding: "12px 14px 10px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
-                  {/* Top section */}
-                  <div>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
-                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
-                  </div>
-
-                  {/* Bottom: time chip + barcode + code */}
-                  <div>
-                    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
-                      <div>
-                        <div style={{ display: "inline-flex", background: `${room.accent}22`, border: `1px solid ${room.accent}44`, borderRadius: 6, padding: "3px 8px", marginBottom: 6 }}>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: `${room.accent}`, letterSpacing: "0.04em" }}>{room.time}</p>
-                        </div>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: "rgba(255,255,255,0.22)", letterSpacing: "0.06em" }}>{ticketCode}</p>
-                      </div>
-                      {/* Mini barcode */}
-                      <div style={{ display: "flex", gap: 1, alignItems: "flex-end", flexShrink: 0 }}>
-                        {[2,1,3,1,2,1,3,2,1,2,1,3,1,2].map((w, j) => (
-                          <div key={j} style={{ width: w, height: j % 3 === 0 ? 28 : 20, background: "rgba(255,255,255,0.28)", borderRadius: 1 }} />
-                        ))}
-                      </div>
-                    </div>
-                    {/* Members pill */}
-                    <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: room.accent }} />
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.32)" }}>{room.members} women · show at door</p>
-                      {isUsed && <div style={{ marginLeft: "auto", background: "rgba(255,255,255,0.15)", borderRadius: 999, padding: "2px 8px" }}><p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em" }}>USED ✓</p></div>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </button>
-          );
-        })}
-
-        {/* Add ticket CTA */}
-        {tab === "active" && (
-          <div style={{ width: "100%", height: 72, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.08em" }}>JOIN AN EVENT TO GET A TICKET</p>
+              );
+            })}
           </div>
-        )}
-      </div>
+
+          {/* Tap hint */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 14 }}>🎟</span>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.4)" }}>
+                {allActive.length} TICKET{allActive.length !== 1 ? "S" : ""} IN WALLET
+              </p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700, letterSpacing: "0.06em" }}>OPEN WALLET →</p>
+          </div>
+        </button>
+
+      ) : (
+        /* ── WALLET OPEN — full ticket list ── */
+        <div>
+          {/* Header row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 12px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.4)" }}>🎟 WALLET</p>
+            <button onClick={() => setWalletOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.35)" }}>CLOSE</p>
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            </button>
+          </div>
+
+          {/* 3-tab filter */}
+          <div style={{ display: "flex", padding: "0 16px 14px", gap: 6 }}>
+            {([
+              { key: "active",  label: "ACTIVE",  count: activeRooms.length  },
+              { key: "used",    label: "USED",    count: usedRooms.length    },
+              { key: "expired", label: "EXPIRED", count: expiredRooms.length },
+            ] as const).map(t => (
+              <button key={t.key} onClick={() => setFilter(t.key)} style={{
+                flex: 1, padding: "8px 0", borderRadius: 12,
+                background: filter === t.key ? PINK : "rgba(255,31,125,0.07)",
+                border: "none", cursor: "pointer", transition: "all 0.15s",
+                boxShadow: filter === t.key ? `0 2px 0 rgba(150,0,55,0.7), 0 4px 12px ${PINK}44` : "none",
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.1em", color: filter === t.key ? "white" : "#bbb" }}>
+                  {t.label}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === t.key ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.25)", marginTop: 1 }}>
+                  {t.count}
+                </p>
+              </button>
+            ))}
+          </div>
+
+          {/* Ticket list */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 16px 16px" }}>
+            {displayRooms.length === 0 ? (
+              <div style={{ padding: "28px 0", textAlign: "center" as const }}>
+                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>
+                  {filter === "active" ? "No upcoming tickets." : filter === "used" ? "No used tickets yet." : "No expired tickets."}
+                </p>
+              </div>
+            ) : displayRooms.map(room => (
+              <TicketCard
+                key={room.id}
+                room={room}
+                status={filter}
+                onOpen={() => onOpen(room)}
+              />
+            ))}
+
+            {filter === "active" && (
+              <div style={{ width: "100%", height: 64, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.08em" }}>JOIN AN EVENT TO GET A TICKET</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1379,6 +1490,52 @@ function PlansPageInner() {
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.6)", letterSpacing: "0.06em" }}>NEW</p>
               </button>
             </div>
+
+            {/* ── COMPACT WEEK CALENDAR STRIP ── */}
+            {(() => {
+              const dow = today.getDay();
+              const mondayOffset = dow === 0 ? -6 : 1 - dow;
+              const monday = new Date(today);
+              monday.setDate(monday.getDate() + mondayOffset);
+              const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+              const weekDays = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                return { date: d.getDate(), key, events: EVENT_DATES[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
+              });
+              const weekHasEvents = weekDays.some(d => d.events.length > 0);
+              return (
+                <div style={{ margin: "0 16px 16px", padding: "12px 14px 10px", borderRadius: 16, background: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,31,125,0.1)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)" }}>THIS WEEK</p>
+                      {weekHasEvents && <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />}
+                    </div>
+                    <button onClick={() => setMainTab("calendar")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>VIEW PLANNER</p>
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
+                    {weekDays.map(day => (
+                      <div key={day.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.04em", color: day.isToday ? PINK : "rgba(0,0,0,0.28)" }}>{day.label}</p>
+                        <div style={{ width: 26, height: 26, borderRadius: "50%", background: day.isToday ? PINK : day.events.length > 0 ? "rgba(255,31,125,0.08)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", border: day.isToday ? "none" : day.events.length > 0 ? `1.5px solid rgba(255,31,125,0.2)` : "1.5px solid rgba(0,0,0,0.07)" }}>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: day.isToday ? 800 : 400, color: day.isToday ? "white" : "rgba(0,0,0,0.6)", lineHeight: 1 }}>{day.date}</p>
+                        </div>
+                        <div style={{ display: "flex", gap: 1.5, justifyContent: "center", minHeight: 5 }}>
+                          {day.events.slice(0, 2).map((ev, i) => (
+                            <div key={i} style={{ width: 4, height: 4, borderRadius: "50%", background: ev.color }} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* ── MY TICKETS label ── */}
             <div style={{ padding: "0 16px 6px" }}>
