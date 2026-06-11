@@ -1107,6 +1107,127 @@ const TICKET_IMAGES: Record<number, string> = {
   1: "/tickets templates/Ticket_NYC_Marrakech.png",     // Morocco → NYC Marrakech ticket
 };
 
+// ── MEMORY EVENTS ─────────────────────────────────────────────────────────────
+
+const MEMORY_EVENTS = [
+  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#C8A0FF" },
+  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#83C5A0" },
+  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#D4A853" },
+  { id: 21, name: "Rooftop Pilates",  date: "May 15", poster: "/happenings/posters/08_Rooftop_Sessions.png",        note: "girls that slay",  color: "#FF69B4" },
+  { id: 22, name: "Film Club Night",  date: "Apr 5",  poster: "/happenings/posters/06_Dance_All_Night.png",         note: "loved this 💕",    color: "#FF1F7D" },
+  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#83C5A0" },
+];
+
+const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
+
+// ── EVENT CONFIRMATION CARD ───────────────────────────────────────────────────
+
+function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoom: () => void }) {
+  return (
+    <div style={{ margin: "0 16px 6px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>YOUR CONFIRMATION</p>
+        <button onClick={onViewRoom} style={{ background: "none", border: "none", cursor: "pointer" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>OPEN ROOM →</p>
+        </button>
+      </div>
+
+      <div style={{ background: "#FAF5EE", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.09)" }}>
+
+        {/* Top: event info + tilted ticket */}
+        <div style={{ padding: "16px 14px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+
+          {/* Left: event text */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.32)", marginBottom: 6 }}>SEAT DETAIL ❋</p>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(17px,5vw,21px)", color: "#1A1A1A", lineHeight: 1.05, marginBottom: 6 }}>{room.name}</h2>
+            {room.venue && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 500, color: PINK, marginBottom: 2 }}>📍 {room.venue}</p>}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 600, color: PINK, marginBottom: 10 }}>{room.time}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+              see you there,<br/>gorgeous ♡
+            </p>
+          </div>
+
+          {/* Right: tilted pink ticket stub */}
+          <div style={{
+            width: 128, flexShrink: 0,
+            background: "linear-gradient(150deg, #FF1F7D 0%, #E0006A 100%)",
+            borderRadius: 11,
+            padding: "10px 11px 12px",
+            transform: "rotate(4.5deg) translateY(-4px)",
+            boxShadow: "0 10px 30px rgba(255,31,125,0.42), 0 2px 0 rgba(120,0,45,0.5)",
+            position: "relative", overflow: "hidden",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>BLOOMBAY ❋</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.72)", marginBottom: 5 }}>ADMITS ONE</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.05, marginBottom: 8 }}>{room.name}</p>
+            <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+              {[{ l: "DATE", v: room.date }, { l: "TIME", v: room.time?.split("·")[1]?.trim() ?? "8PM" }].map(({ l, v }) => (
+                <div key={l}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 700, color: "rgba(255,255,255,0.48)", letterSpacing: "0.15em" }}>{l}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "white" }}>{v}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.28)", paddingTop: 7 }}>
+              <div style={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
+                {[2,1,3,1,2,1,3,2,1,2,1,3,1,2,3,1,2].map((w, j) => (
+                  <div key={j} style={{ width: w, height: j % 3 === 0 ? 17 : 11, background: "rgba(255,255,255,0.72)", borderRadius: 0.5 }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle: dark confirmed bar */}
+        <div style={{ background: "#111", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(212,168,83,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>
+              {room.members} women
+            </p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "#666", marginBottom: 5 }}>RSVP STATUS</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1.5px solid ${PINK}`, borderRadius: 999, padding: "4px 10px", marginBottom: 3 }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.06em" }}>Confirmed ✓</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "#666", letterSpacing: "0.08em" }}>Paid in full ❋</p>
+          </div>
+        </div>
+
+        {/* Bottom: who you'll be with */}
+        <div style={{ padding: "12px 14px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.28)", marginBottom: 8 }}>WHO YOU&apos;LL BE WITH</p>
+              <div style={{ display: "flex" }}>
+                {BLOOMIES_LIST.slice(0, 5).map((b, i) => (
+                  <div key={b.id} style={{ width: 32, height: 32, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, border: "2px solid #FAF5EE", marginLeft: i > 0 ? -9 : 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800, color: "white", flexShrink: 0, position: "relative", zIndex: 5 - i, boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
+                    {b.initial}
+                  </div>
+                ))}
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#F0E8E0", border: "2px solid #FAF5EE", marginLeft: -9, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#888" }}>+{room.members > 5 ? room.members - 5 : 1}</p>
+                </div>
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 2 }}>CHEMISTRY</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>94%</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#888", marginTop: 1 }}>Great energy ❋</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
 const RETIRED_ROOMS: PlanRoom[] = [
@@ -1222,9 +1343,9 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   ];
 
   // Wallet geometry
-  const WALLET_H   = 200;  // total wallet body height
-  const PEEK       = 62;   // ticket top visible above wallet opening
-  const SLOT_DEPTH = 24;   // how deep ticket sits inside the slot
+  const WALLET_H   = 158;  // total wallet body height
+  const PEEK       = 50;   // ticket top visible above wallet opening
+  const SLOT_DEPTH = 18;   // how deep ticket sits inside the slot
   const TOTAL_H    = WALLET_H + PEEK;
 
   // Leather SVG grain
@@ -1248,8 +1369,8 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               position: "absolute",
               top: PEEK, left: 0, right: 0, height: WALLET_H,
               borderRadius: 22,
-              background: "linear-gradient(150deg, #40200F 0%, #1C0C05 50%, #2E1608 100%)",
-              boxShadow: "0 24px 70px rgba(0,0,0,0.65), 0 6px 0 #0B0401, inset 0 1px 0 rgba(255,200,100,0.07)",
+              background: "linear-gradient(148deg, #FFD0E6 0%, #FFAED4 30%, #FFD4E8 70%, #FFE8F2 100%)",
+              boxShadow: "0 24px 70px rgba(255,31,125,0.22), 0 6px 0 rgba(200,0,80,0.18), inset 0 1px 0 rgba(255,255,255,0.6)",
               zIndex: 1,
             }} />
 
@@ -1308,7 +1429,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               top: PEEK - 8,
               left: 8, right: 8,
               height: 22,
-              background: "linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)",
+              background: "linear-gradient(180deg, rgba(180,0,70,0.32) 0%, rgba(255,31,125,0.12) 55%, transparent 100%)",
               zIndex: 9,
               borderRadius: "0 0 4px 4px",
               pointerEvents: "none",
@@ -1321,7 +1442,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               left: 0, right: 0,
               height: WALLET_H - SLOT_DEPTH,
               borderRadius: "0 0 22px 22px",
-              background: "linear-gradient(165deg, #3C1E0D 0%, #1E0D06 48%, #301809 82%, #1A0B04 100%)",
+              background: "linear-gradient(165deg, #FFE0EE 0%, #FFAED4 48%, #FFD0E6 82%, #FFE8F2 100%)",
               backgroundImage: GRAIN,
               zIndex: 8,
               overflow: "hidden",
@@ -1332,7 +1453,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                 position: "absolute",
                 top: 10, left: 8, right: 8, bottom: 8,
                 borderRadius: "0 0 16px 16px",
-                border: "1.5px dashed rgba(212,168,83,0.25)",
+                border: "1.5px dashed rgba(255,31,125,0.28)",
                 borderTop: "none",
                 pointerEvents: "none",
               }} />
@@ -1340,7 +1461,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               {/* Horizontal card-slot separator line */}
               <div style={{
                 position: "absolute", top: 52, left: 14, right: 14, height: 1,
-                background: "linear-gradient(90deg, transparent, rgba(212,168,83,0.28), rgba(212,168,83,0.4), rgba(212,168,83,0.28), transparent)",
+                background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.2), rgba(255,31,125,0.3), rgba(255,31,125,0.2), transparent)",
               }} />
 
               {/* BB monogram — embossed / ghost */}
@@ -1349,27 +1470,27 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                 transform: "translate(-50%, -42%)",
                 pointerEvents: "none", userSelect: "none",
               }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 68, fontWeight: 900, fontStyle: "italic", color: "rgba(212,168,83,0.07)", lineHeight: 1 }}>BB</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 68, fontWeight: 900, fontStyle: "italic", color: "rgba(255,31,125,0.1)", lineHeight: 1 }}>BB</p>
               </div>
 
               {/* Right edge decorative stitching dots */}
               <div style={{ position: "absolute", right: 20, top: 18, display: "flex", flexDirection: "column", gap: 5 }}>
                 {Array.from({ length: 5 }, (_, i) => (
-                  <div key={i} style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(212,168,83,0.18)" }} />
+                  <div key={i} style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,31,125,0.22)" }} />
                 ))}
               </div>
 
               {/* Bottom info */}
               <div style={{ position: "absolute", bottom: 22, left: 20, right: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                 <div>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(212,168,83,0.45)", marginBottom: 4 }}>BLOOMBAY</p>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 21, color: "rgba(255,255,255,0.8)", lineHeight: 1 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.55)", marginBottom: 4 }}>BLOOMBAY</p>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 21, color: "rgba(120,0,50,0.75)", lineHeight: 1 }}>
                     {allActive.length} {allActive.length === 1 ? "ticket" : "tickets"}
                   </p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <span style={{ fontSize: 22, opacity: 0.6 }}>🎟</span>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(212,168,83,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <span style={{ fontSize: 22, opacity: 0.7 }}>🎀</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
 
@@ -1380,7 +1501,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                 display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 7,
                 pointerEvents: "none",
               }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(212,168,83,0.52)" }}>OPEN WALLET</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.48)" }}>OPEN WALLET</p>
               </div>
             </div>
 
@@ -1397,24 +1518,24 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
             margin: "0 16px 12px",
             padding: "13px 16px 14px",
             borderRadius: 18,
-            background: "linear-gradient(135deg, #3C1E0D 0%, #1E0D06 60%, #2C1508 100%)",
+            background: "linear-gradient(135deg, #FFD0E6 0%, #FFAED4 60%, #FFB8D8 100%)",
             backgroundImage: GRAIN,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,200,100,0.07)",
+            boxShadow: "0 4px 24px rgba(255,31,125,0.18), inset 0 1px 0 rgba(255,255,255,0.5)",
             display: "flex", alignItems: "center", justifyContent: "space-between",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(212,168,83,0.12)", border: "1px solid rgba(212,168,83,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 16 }}>🎟</span>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 16 }}>🎀</span>
               </div>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(212,168,83,0.5)", marginBottom: 2 }}>BLOOMBAY</p>
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 17, color: "rgba(255,255,255,0.85)", lineHeight: 1 }}>My Wallet</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.55)", marginBottom: 2 }}>BLOOMBAY</p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 17, color: "rgba(120,0,50,0.8)", lineHeight: 1 }}>My Wallet</p>
               </div>
             </div>
             <button onClick={() => setWalletOpen(false)}
-              style={{ padding: "6px 12px", borderRadius: 10, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em" }}>CLOSE</p>
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              style={{ padding: "6px 12px", borderRadius: 10, background: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,31,125,0.2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(120,0,50,0.6)", letterSpacing: "0.06em" }}>CLOSE</p>
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(180,0,70,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>
           </div>
 
@@ -1546,8 +1667,8 @@ function PlansPageInner() {
 
                 {/* Title + new button */}
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
-                  <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(46px,14vw,58px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.88, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.12)" }}>
-                    Your<br/>Plans.
+                  <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,8vw,34px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.12)" }}>
+                    Your Plans.
                   </h1>
                   <button onClick={() => setShowNewPlan(true)} style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flexShrink: 0, marginTop: 4 }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1620,6 +1741,19 @@ function PlansPageInner() {
               </button>
             </div>
 
+            {/* Confirmation card — most recent upcoming event */}
+            <EventConfirmationCard room={PLAN_ROOMS[1]} onViewRoom={() => openRoom(PLAN_ROOMS[1])} />
+
+            {/* Ornamental divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18, marginTop: 18 }}>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
+              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
+            </div>
+
+            {/* Wallet Tickets — pink blush */}
+            <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
+
             {/* Ornamental divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
@@ -1627,8 +1761,31 @@ function PlansPageInner() {
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
             </div>
 
-            {/* Wallet Tickets — no label */}
-            <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
+            {/* Memories section — polaroid grid */}
+            <div style={{ padding: "0 16px 40px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
+                  <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                {MEMORY_EVENTS.map((ev, i) => (
+                  <div key={ev.id} style={{ transform: `rotate(${POLAROID_ROTS[i]}deg)`, transformOrigin: "center bottom", transition: "transform 0.2s" }}>
+                    <div style={{ background: "white", borderRadius: 4, padding: "5px 5px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.12), 0 1px 0 rgba(0,0,0,0.06)" }}>
+                      <div style={{ width: "100%", aspectRatio: "1", borderRadius: 2, overflow: "hidden", background: "#F0E8E0", position: "relative" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 50%, ${ev.color}44 100%)` }} />
+                      </div>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
