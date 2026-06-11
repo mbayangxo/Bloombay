@@ -5,10 +5,9 @@ import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
 
 const PINK   = "#FF1F7D";
-const DARK   = "#0F0E0F";
-const CREAM  = "#FAF6F0";
-const GOLD   = "#D4A853";
-const NAV_BG = "#FAF7F2";
+const DARK   = "#1C1B1C";
+const CREAM  = "#F6F1EB";
+const NAV_BG = "#F6F1EB";
 
 const POSTER_IMGS = [
   "/happenings/posters/01_Girls_Night.png",
@@ -37,7 +36,7 @@ const CLUB_IMGS = [
   "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png",
 ];
 
-const AV_COLORS = ["#FF1F7D","#FF69B4","#C084FC","#F97316","#06B6D4","#84CC16","#FBBF24"];
+const AV_COLORS = ["#FF1F7D","#FF5BAD","#E8006A","#C80060","#A8004C","#FF85C0","#FF3D94"];
 
 const CSS = `
 @keyframes ticker {
@@ -145,98 +144,98 @@ const TYPE_CARDS = [
     emoji: "✦",
     bg: "#FFF0F8",
     color: "#FF1F7D",
-    border: "1px solid rgba(255,31,125,0.2)",
-    glow: "0 4px 16px rgba(255,31,125,0.12)",
+    border: "1px solid rgba(255,31,125,0.18)",
+    glow: "0 4px 16px rgba(255,31,125,0.1)",
     font: "var(--font-jost)",
     weight: 900,
     size: 11,
     spacing: "0.14em",
     sub: "Tonight",
-    subColor: "rgba(255,31,125,0.5)",
+    subColor: "rgba(255,31,125,0.45)",
   },
   {
     label: "Dinners",
     emoji: "🕯",
-    bg: "#FFF8F0",
-    color: "#B85A00",
-    border: "1px solid rgba(184,90,0,0.2)",
-    glow: "0 4px 16px rgba(184,90,0,0.1)",
+    bg: "#FFF5F8",
+    color: "#C80060",
+    border: "1px solid rgba(200,0,96,0.15)",
+    glow: "0 4px 16px rgba(200,0,96,0.08)",
     font: "var(--font-playfair)",
     weight: 900,
     size: 13,
     spacing: "0.01em",
     sub: "& Brunches",
-    subColor: "rgba(184,90,0,0.5)",
+    subColor: "rgba(200,0,96,0.45)",
   },
   {
     label: "Gatherings",
     emoji: "☀",
-    bg: "#FFFFF0",
-    color: "#A07000",
-    border: "1px solid rgba(245,158,11,0.25)",
-    glow: "0 4px 16px rgba(245,158,11,0.1)",
+    bg: "#FFF0F5",
+    color: "#E8006A",
+    border: "1px solid rgba(232,0,106,0.15)",
+    glow: "0 4px 16px rgba(232,0,106,0.08)",
     font: "var(--font-caveat)",
     weight: 700,
     size: 15,
     spacing: "0em",
     sub: "casual & fun",
-    subColor: "rgba(160,112,0,0.5)",
+    subColor: "rgba(232,0,106,0.45)",
   },
   {
     label: "Club Events",
     emoji: "◆",
-    bg: "#F5F0FF",
-    color: "#6B3FBF",
-    border: "1px solid rgba(107,63,191,0.2)",
-    glow: "0 4px 16px rgba(107,63,191,0.1)",
+    bg: "#FFECF4",
+    color: "#B8005A",
+    border: "1px solid rgba(184,0,90,0.15)",
+    glow: "0 4px 16px rgba(184,0,90,0.08)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.12em",
     sub: "Members only",
-    subColor: "rgba(107,63,191,0.5)",
+    subColor: "rgba(184,0,90,0.45)",
   },
   {
     label: "Invitations",
     emoji: "💌",
     bg: "#FFF0F8",
-    color: "#CC0066",
-    border: "1px solid rgba(255,31,125,0.2)",
+    color: "#FF1F7D",
+    border: "1px solid rgba(255,31,125,0.18)",
     glow: "0 4px 16px rgba(255,31,125,0.1)",
     font: "var(--font-playfair)",
     weight: 400,
     size: 14,
     spacing: "0em",
     sub: "You're invited",
-    subColor: "rgba(204,0,102,0.5)",
+    subColor: "rgba(255,31,125,0.45)",
   },
   {
     label: "Open Seats",
     emoji: "🪑",
-    bg: "#F0F8FF",
-    color: "#007AB8",
-    border: "1px solid rgba(0,122,184,0.2)",
-    glow: "0 4px 16px rgba(0,122,184,0.1)",
+    bg: "#FFF5FA",
+    color: "#CC0058",
+    border: "1px solid rgba(204,0,88,0.15)",
+    glow: "0 4px 16px rgba(204,0,88,0.08)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.1em",
     sub: "Last spots",
-    subColor: "rgba(0,122,184,0.5)",
+    subColor: "rgba(204,0,88,0.45)",
   },
   {
     label: "Events",
     emoji: "🎭",
-    bg: "#FFF0FF",
-    color: "#9400D3",
-    border: "1px solid rgba(148,0,211,0.2)",
-    glow: "0 4px 16px rgba(148,0,211,0.1)",
+    bg: "#FFEEF6",
+    color: "#A8004C",
+    border: "1px solid rgba(168,0,76,0.15)",
+    glow: "0 4px 16px rgba(168,0,76,0.08)",
     font: "var(--font-jost)",
     weight: 800,
     size: 10,
     spacing: "0.1em",
     sub: "Experiences",
-    subColor: "rgba(148,0,211,0.5)",
+    subColor: "rgba(168,0,76,0.45)",
   },
 ];
 
@@ -427,23 +426,25 @@ function ClubCard({ ev, clubIdx, joined, onToggle }: {
       <img src={img} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }}/>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.8) 100%)" }}/>
 
-      {/* Gold corner accent */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, ${GOLD}, transparent)` }}/>
+      {/* Pink corner accent */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, ${PINK}, transparent)` }}/>
 
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px" }}>
         {badge && (
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: GOLD, marginBottom: 4 }}>{badge} ◆</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>{badge} ✦</p>
         )}
         <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, marginBottom: 6 }}>{ev.title}</p>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.45)", letterSpacing: "0.04em" }}>{ev.neighborhood ?? ev.city}</span>
           <button onClick={onToggle} style={{
-            background: "transparent", border: `1px solid ${GOLD}77`,
-            color: GOLD, borderRadius: 6, padding: "5px 12px",
+            background: joined ? "rgba(255,255,255,0.12)" : PINK,
+            border: joined ? `1px solid rgba(255,255,255,0.3)` : "none",
+            color: "white", borderRadius: 999, padding: "5px 12px",
             fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
+            boxShadow: joined ? "none" : `0 2px 10px ${PINK}55`,
           }}>
-            {joined ? "JOINED" : "JOIN ◆"}
+            {joined ? "JOINED ✓" : "JOIN →"}
           </button>
         </div>
       </div>

@@ -271,7 +271,7 @@ export function HomePage() {
 
   return (
     <div style={{
-      background: "linear-gradient(180deg, #060006 0%, #120010 18%, #3A0026 36%, #FF1F7D 52%, #FFB3D9 74%, #FFF0F8 100%)",
+      background: "linear-gradient(180deg, #1C0018 0%, #380028 18%, #6A003C 34%, #CC1060 46%, #FF1F7D 54%, #FFB3D9 74%, #FFF0F8 100%)",
       minHeight: "100vh",
       paddingBottom: 112,
       overflowX: "hidden",
