@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -79,6 +79,25 @@ interface Band {
   icon: string;
   accentColor: string;
 }
+
+// ── Neighborhood search index ─────────────────────────────────────────────────
+const HOOD_INDEX = [
+  { name: "West Village",      slug: "west-village",      borough: "Manhattan",   tags: ["wine bars","date night","italian","cobblestones"] },
+  { name: "SoHo",              slug: "soho",               borough: "Manhattan",   tags: ["shopping","brunch","galleries","cast iron"] },
+  { name: "Nolita",            slug: "nolita",             borough: "Manhattan",   tags: ["cafés","boutiques","strolling","cool"] },
+  { name: "Williamsburg",      slug: "williamsburg",       borough: "Brooklyn",    tags: ["brunch","vintage","rooftops","music"] },
+  { name: "DUMBO",             slug: "dumbo",              borough: "Brooklyn",    tags: ["waterfront","galleries","views","arch"] },
+  { name: "Brooklyn Heights",  slug: "brooklyn-heights",   borough: "Brooklyn",    tags: ["promenade","brownstones","quiet","views"] },
+  { name: "Park Slope",        slug: "park-slope",         borough: "Brooklyn",    tags: ["families","brunch","bookshops","chill"] },
+  { name: "Lower East Side",   slug: "lower-east-side",    borough: "Manhattan",   tags: ["bars","live music","vintage","edgy"] },
+  { name: "Chelsea",           slug: "chelsea",            borough: "Manhattan",   tags: ["galleries","high line","art","west side"] },
+  { name: "Harlem",            slug: "harlem",             borough: "Manhattan",   tags: ["culture","music","soul food","history"] },
+  { name: "Astoria",           slug: "astoria",            borough: "Queens",      tags: ["greek food","chill","coffee","affordable"] },
+  { name: "Crown Heights",     slug: "crown-heights",      borough: "Brooklyn",    tags: ["culture","caribbean","arts","nightlife"] },
+  { name: "Upper East Side",   slug: "upper-east-side",    borough: "Manhattan",   tags: ["museums","elegant","brunch","classic nyc"] },
+  { name: "Bushwick",          slug: "bushwick",           borough: "Brooklyn",    tags: ["murals","nightlife","art","studios"] },
+  { name: "Flushing",          slug: "flushing",           borough: "Queens",      tags: ["dim sum","asian food","markets","culture"] },
+];
 
 const BANDS: Band[] = [
   { id: "eats",       label: "EAT",           sub: "Restaurants, cafés & bars",             icon: "🍽️", accentColor: "#FF9B70" },
@@ -190,6 +209,35 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
 // Buildings laid flat horizontally — a scrollable city avenue
 // ═══════════════════════════════════════════════════════════════════════════════
 function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const trimmed = query.trim().toLowerCase();
+  const results = trimmed.length > 0
+    ? HOOD_INDEX.filter(h =>
+        h.name.toLowerCase().includes(trimmed) ||
+        h.borough.toLowerCase().includes(trimmed) ||
+        h.tags.some(t => t.includes(trimmed))
+      ).slice(0, 5)
+    : [];
+
+  const showDropdown = focused && (results.length > 0 || trimmed.length > 0);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current && !inputRef.current.contains(e.target as Node)
+      ) {
+        setFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   const buildings: { band: Band; h: number; w: number; bg: string }[] = [
     { band: BANDS[0], h: 268, w: 120, bg: "linear-gradient(180deg, #FF8CBB 0%, #FF1F7D 100%)" },
     { band: BANDS[1], h: 208, w: 108, bg: "linear-gradient(180deg, #FFBA88 0%, #FF7744 100%)" },
@@ -238,6 +286,78 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
+      </div>
+
+      {/* ── Neighborhood search ── */}
+      <div style={{ position: "relative", zIndex: 20, padding: "14px 20px 0" }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 9,
+          background: "rgba(255,255,255,0.22)", backdropFilter: "blur(14px) saturate(1.3)",
+          WebkitBackdropFilter: "blur(14px) saturate(1.3)",
+          border: `1.5px solid ${focused ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.35)"}`,
+          borderRadius: 999, padding: "10px 16px",
+          transition: "border-color 0.2s",
+        }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onFocus={() => setFocused(true)}
+            placeholder="Search a neighborhood…"
+            style={{
+              flex: 1, background: "none", border: "none", outline: "none",
+              fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 500,
+              color: "white", letterSpacing: "0.01em",
+            }}
+          />
+          {query.length > 0 && (
+            <button onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round">
+                <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Dropdown results */}
+        {showDropdown && (
+          <div ref={dropdownRef} style={{
+            position: "absolute", top: "calc(100% - 4px)", left: 20, right: 20,
+            background: "rgba(20,4,16,0.96)", backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 18, overflow: "hidden",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+            zIndex: 30,
+          }}>
+            {results.length > 0 ? results.map((hood, i) => (
+              <Link key={hood.slug} href={`/member/city/neighborhoods/${hood.slug}`} style={{ textDecoration: "none", display: "block" }}
+                onClick={() => { setQuery(""); setFocused(false); }}>
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "13px 16px",
+                  borderBottom: i < results.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
+                    <div>
+                      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "white", lineHeight: 1 }}>{hood.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginTop: 2 }}>{hood.borough.toUpperCase()}</p>
+                    </div>
+                  </div>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </Link>
+            )) : (
+              <div style={{ padding: "18px 16px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>No neighborhoods found for "{trimmed}"</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Sidewalk line */}
