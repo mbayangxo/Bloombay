@@ -6,7 +6,6 @@ import { HappeningsPage } from "./happenings-page";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
-const GOLD  = "#D4A853";
 const CREAM = "#F6F1EB";
 const PAPER = "#FEFCF7";
 const DARK  = "#1C1B1C";
@@ -71,7 +70,7 @@ const CSS = `
 `;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type CityCategory = "landing" | "eats" | "go" | "solo" | "favorites" | "trending" | "happenings" | "places";
+type CityCategory = "landing" | "places" | "people" | "culture" | "activity";
 
 interface Band {
   id: CityCategory;
@@ -101,12 +100,10 @@ const HOOD_INDEX = [
 ];
 
 const BANDS: Band[] = [
-  { id: "eats",       label: "EAT",           sub: "Restaurants, cafés & bars",             icon: "🍽️", accentColor: "#FF9B70" },
-  { id: "go",         label: "GO",            sub: "Museums, galleries & experiences",      icon: "🎨", accentColor: "#6BB5F5" },
-  { id: "solo",       label: "SOLO",          sub: "Thoughtful things to do by yourself",   icon: "☕", accentColor: "#A8C97A" },
-  { id: "trending",   label: "TRENDING",      sub: "What's hot in the city right now",      icon: "🔥", accentColor: "#FF7744" },
-  { id: "favorites",  label: "BLOOMIES FAVS", sub: "The best, curated by us",              icon: "✦",  accentColor: "#FFD4A0" },
-  { id: "happenings", label: "HAPPENINGS",    sub: "Events & parties in your city",         icon: "🎉", accentColor: "#C8A0FF" },
+  { id: "places",   label: "PLACES",   sub: "Restaurants · Cafés · Museums",          icon: "🍽️", accentColor: "#FF1F7D" },
+  { id: "people",   label: "PEOPLE",   sub: "Clubs · Open Seats · Gatherings",        icon: "👭", accentColor: "#E8006A" },
+  { id: "culture",  label: "CULTURE",  sub: "What girls love · Hidden gems · Trends", icon: "✦",  accentColor: "#FF5BAD" },
+  { id: "activity", label: "ACTIVITY", sub: "Events · Happenings · Things to do",     icon: "🌃", accentColor: "#C80060" },
 ];
 
 // ── Day Skyline SVG ───────────────────────────────────────────────────────────
@@ -239,13 +236,11 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const buildings: { band: Band; h: number; w: number; bg: string }[] = [
-    { band: BANDS[0], h: 268, w: 120, bg: "linear-gradient(180deg, #FF8CBB 0%, #FF1F7D 100%)" },
-    { band: BANDS[1], h: 208, w: 108, bg: "linear-gradient(180deg, #FFBA88 0%, #FF7744 100%)" },
-    { band: BANDS[2], h: 298, w: 116, bg: "linear-gradient(180deg, #85B8FF 0%, #3A60E8 100%)" },
-    { band: BANDS[3], h: 244, w: 130, bg: "linear-gradient(180deg, #FF9DC8 0%, #FF4090 100%)" },
-    { band: BANDS[4], h: 190, w: 112, bg: "linear-gradient(180deg, #FFE0A0 0%, #FFC060 100%)" },
-    { band: BANDS[5], h: 278, w: 120, bg: "linear-gradient(180deg, #D09EFF 0%, #9050D8 100%)" },
+  const strips: { band: Band; solidBg: string; lightBg: string }[] = [
+    { band: BANDS[0], solidBg: "#C80060", lightBg: "#FF1F7D" },
+    { band: BANDS[1], solidBg: "#A8004C", lightBg: "#E8006A" },
+    { band: BANDS[2], solidBg: "#E8006A", lightBg: "#FF5BAD" },
+    { band: BANDS[3], solidBg: "#FF1F7D", lightBg: "#C80060" },
   ];
 
   return (
@@ -361,89 +356,68 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
         )}
       </div>
 
-      {/* Sidewalk line */}
-      <div style={{ position: "absolute", bottom: 97, left: 0, right: 0, height: 3, background: "rgba(0,0,0,0.13)", zIndex: 4 }} />
-
-      {/* Avenue — buildings as horizontal flat facades */}
-      <div style={{
-        position: "absolute", bottom: 100, left: 0, right: 0, zIndex: 5,
-        overflowX: "auto", overflowY: "hidden",
-        scrollbarWidth: "none" as const,
-        display: "flex", alignItems: "flex-end", gap: 3,
-        paddingLeft: 14, paddingRight: 14,
-      }}>
-        {buildings.map(({ band, h, w, bg }) => {
-          const winCols = Math.max(2, Math.floor((w - 14) / 20));
-          const winRows = Math.max(3, Math.floor((h - 60) / 26));
-          return (
-            <button
-              key={band.id}
-              onClick={() => onSelect(band.id)}
-              style={{
-                flexShrink: 0, width: w, height: h,
-                background: bg,
-                border: "none", borderRadius: "3px 3px 0 0",
-                cursor: "pointer", position: "relative", overflow: "hidden",
-                boxShadow: "4px 0 20px rgba(0,0,0,0.18), inset -3px 0 0 rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.22)",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
-              {/* Window grid */}
-              <div style={{ position: "absolute", inset: 0, opacity: 0.44 }}>
-                {Array.from({ length: winRows }, (_, r) =>
-                  Array.from({ length: winCols }, (_, c) => {
-                    const seed = (r * 7 + c * 11) % 13;
-                    if (seed === 5) return null;
-                    return (
-                      <div key={`${r}-${c}`} style={{
-                        position: "absolute",
-                        left: 7 + c * 20, top: 10 + r * 26,
-                        width: 11, height: 15,
-                        borderRadius: "1px 1px 0 0",
-                        background: seed % 4 === 1
-                          ? "rgba(255,240,170,0.95)"
-                          : seed < 9 ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.15)",
-                      }} />
-                    );
-                  })
-                )}
-              </div>
-              {/* Right-edge shadow — gives depth to the facade facing right */}
-              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 10, background: "rgba(0,0,0,0.18)", pointerEvents: "none" }} />
-              {/* Roofline accent */}
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "rgba(255,255,255,0.2)" }} />
-              {/* Centered name plate */}
-              <div style={{
-                position: "absolute", inset: 0,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                padding: "0 7px",
+      {/* ── Avenue: horizontal strips stacked vertically ── */}
+      <div style={{ position: "relative", zIndex: 5, flex: 1, overflowY: "auto", scrollbarWidth: "none" as const }}>
+        {strips.map(({ band, solidBg, lightBg }, idx) => (
+          <button
+            key={band.id}
+            onClick={() => onSelect(band.id)}
+            style={{
+              width: "100%", height: 78,
+              display: "flex", flexDirection: "row",
+              background: "none", border: "none",
+              borderBottom: idx < strips.length - 1 ? "1px solid rgba(255,255,255,0.12)" : "none",
+              cursor: "pointer", position: "relative", overflow: "hidden",
+              WebkitTapHighlightColor: "transparent",
+              padding: 0,
+            }}
+          >
+            {/* Left solid block with rotated label */}
+            <div style={{
+              width: 76, height: "100%", flexShrink: 0,
+              background: solidBg,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <span style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: band.label.length > 7 ? 8 : 11,
+                fontWeight: 900, color: "white",
+                letterSpacing: "0.18em",
+                writingMode: "vertical-rl" as const,
+                transform: "rotate(180deg)",
               }}>
-                <div style={{
-                  background: "rgba(0,0,0,0.38)", backdropFilter: "blur(8px)",
-                  borderRadius: 8, padding: "9px 9px 7px",
-                  textAlign: "center", border: "1px solid rgba(255,255,255,0.16)",
-                }}>
-                  <p style={{
-                    fontFamily: "var(--font-fraunces)",
-                    fontSize: band.label.length > 7 ? 12 : 15,
-                    fontWeight: 900, fontStyle: "italic",
-                    color: "white", lineHeight: 1.1, margin: 0,
-                    textShadow: "0 1px 6px rgba(0,0,0,0.5)",
-                  }}>
-                    {band.label}
-                  </p>
-                  <p style={{
-                    fontFamily: "var(--font-jost)", fontSize: "8px",
-                    color: "rgba(255,255,255,0.75)", marginTop: 5, lineHeight: 1,
-                  }}>
-                    {band.icon}
-                  </p>
-                </div>
-              </div>
-            </button>
-          );
-        })}
-        <div style={{ flexShrink: 0, width: 14 }} />
+                {band.label}
+              </span>
+            </div>
+            {/* Right: lighter with dot texture + icon + sub */}
+            <div style={{
+              flex: 1, height: "100%",
+              background: lightBg,
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
+              backgroundSize: "14px 14px",
+              display: "flex", alignItems: "center",
+              padding: "0 18px",
+              gap: 14,
+            }}>
+              <span style={{ fontSize: 28, lineHeight: 1, flexShrink: 0 }}>{band.icon}</span>
+              <p style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: "11px", fontWeight: 500,
+                color: "rgba(255,255,255,0.82)",
+                letterSpacing: "0.02em",
+                lineHeight: 1.3,
+              }}>
+                {band.sub}
+              </p>
+            </div>
+            {/* Arrow */}
+            <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -701,7 +675,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 20px rgba(200,80,30,0.6)" }}>Tonight&apos;s<br />Table</p>
         </div>
         {/* Ornamental rule */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, #FF9B7088, ${GOLD}66, #FF9B7088, transparent)` }}/>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, #FF9B7088, ${PINK}66, #FF9B7088, transparent)` }}/>
       </div>
 
       {/* Filters */}
@@ -746,11 +720,11 @@ function EatsPage({ onBack }: { onBack: () => void }) {
           </div>
           {/* Bottom-right: reserved card */}
           <div style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: PAPER, borderRadius: 18, minHeight: 118, padding: "12px 13px 10px", boxShadow: "0 4px 16px rgba(0,0,0,0.09)" }}>
-            <div style={{ display: "inline-flex", background: "#1e0e04", borderRadius: 999, padding: "3px 9px", marginBottom: 6 }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: GOLD, letterSpacing: "0.1em" }}>⚑ RESERVED</span></div>
+            <div style={{ display: "inline-flex", background: "#1e0e04", borderRadius: 999, padding: "3px 9px", marginBottom: 6 }}><span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>⚑ RESERVED</span></div>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.1 }}>Via Carota</p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#aaa", letterSpacing: "0.08em", marginTop: 2 }}>WEST VILLAGE</p>
             <div style={{ marginTop: 8, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: DARK, borderRadius: 8, padding: "7px 9px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: GOLD }}>8:15 PM</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK }}>8:15 PM</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.38)", letterSpacing: "0.08em" }}>2 SEATS</p>
             </div>
           </div>
@@ -1200,17 +1174,17 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
         {/* Floating card decoration */}
         <div style={{ position: "absolute", right: 22, top: 70, animation: "champFloat 5s ease-in-out infinite", transform: "rotate(-4deg)" }}>
           <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "rgba(255,248,240,0.12)", backdropFilter: "blur(8px)", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(212,168,83,0.3)", width: 80 }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: GOLD, lineHeight: 1.3, opacity: 0.9 }}>our very faves ✦</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, lineHeight: 1.3, opacity: 0.9 }}>our very faves ✦</p>
           </div>
         </div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 35%, rgba(26,8,16,0.78) 100%)" }}/>
         <BackBtn onBack={onBack} label="CITY"/>
         <div style={{ position: "absolute", bottom: 22, left: 18 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: GOLD, marginBottom: 6 }}>BLOOMIES PICKS · NYC</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 6 }}>BLOOMIES PICKS · NYC</p>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 24px rgba(212,160,112,0.5)" }}>Our City,<br />Curated.</p>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontStyle: "italic", color: "rgba(255,210,190,0.55)", marginTop: 6, letterSpacing: "0.03em" }}>By the bloomies community, for the bloomies community.</p>
         </div>
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${GOLD}66, rgba(232,100,140,0.4), ${GOLD}66, transparent)` }}/>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${PINK}66, rgba(232,100,140,0.4), ${PINK}66, transparent)` }}/>
       </div>
 
       {/* Community stats */}
@@ -1219,7 +1193,7 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
           <React.Fragment key={i}>
             {i > 0 && <div style={{ width: 1, background: "rgba(212,168,83,0.15)", margin: "0 16px" }}/>}
             <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: GOLD }}>{val}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK }}>{val}</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em", marginTop: 1 }}>{label}</p>
             </div>
           </React.Fragment>
@@ -1259,14 +1233,14 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.08em", marginTop: 2 }}>{pick.hood}</p>
                   </div>
                   <button onClick={() => toggleSave(pick.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill={saved.includes(pick.id) ? GOLD : "none"} stroke={GOLD} strokeWidth="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill={saved.includes(pick.id) ? PINK : "none"} stroke={PINK} strokeWidth="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                 </div>
                 {/* Stars */}
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                   <div style={{ display: "flex", gap: 2 }}>
                     {Array.from({length: 5}, (_, si) => (
-                      <svg key={si} width="9" height="9" viewBox="0 0 24 24" fill={si < pick.stars ? GOLD : "none"} stroke={GOLD} strokeWidth="2">
+                      <svg key={si} width="9" height="9" viewBox="0 0 24 24" fill={si < pick.stars ? PINK : "none"} stroke={PINK} strokeWidth="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                       </svg>
                     ))}
@@ -1295,7 +1269,7 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
             Every save shapes this list.<br/>Your favorites become the city&apos;s favorites.
           </p>
           <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0C08", display: "inline-flex", borderRadius: 999, padding: "9px 22px" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: GOLD, letterSpacing: "0.1em" }}>✦ SAVE A SPOT</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>✦ SAVE A SPOT</span>
           </div>
         </div>
       </div>
@@ -1331,14 +1305,10 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
 function CityGuide() {
   const [category, setCategory] = useState<CityCategory>("landing");
 
-  if (category === "landing")   return <CityLanding            onSelect={setCategory}/>;
-  if (category === "eats")      return <EatsPage               onBack={() => setCategory("landing")}/>;
-  if (category === "solo")      return <SoloPage               onBack={() => setCategory("landing")}/>;
-  if (category === "go")        return <GoPage                 onBack={() => setCategory("landing")}/>;
-  if (category === "trending")  return <TrendingPage           onBack={() => setCategory("landing")}/>;
-  if (category === "favorites") return <BloomiesFavoritesPage  onBack={() => setCategory("landing")}/>;
+  if (category === "landing") return <CityLanding onSelect={setCategory}/>;
 
-  const band = BANDS.find(b => b.id === category)!;
+  const band = BANDS.find(b => b.id === category);
+  if (!band) return <CityLanding onSelect={setCategory}/>;
   return <ComingSoon band={band} onBack={() => setCategory("landing")}/>;
 }
 

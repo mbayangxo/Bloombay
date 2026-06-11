@@ -170,10 +170,10 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",  key: "home"  },
-  { href: "/member/city",  key: "city"  },
-  { href: "/member/clubs", key: "clubs" },
-  { href: "/member/plans", key: "plans" },
+  { href: "/member/home",   key: "apartment" },
+  { href: "/member/lounge", key: "avenue"    },
+  { href: "/member/clubs",  key: "clubs"     },
+  { href: "/member/city",   key: "city"      },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -182,7 +182,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
-  const isDarkPage = pathname.startsWith("/member/home");
+  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lounge");
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
@@ -198,22 +198,22 @@ export function BottomNav({ user }: { user?: NavUser }) {
   }, []);
 
   function isActive(href: string) {
-    if (href === "/member/city") return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
+    if (href === "/member/city")   return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
+    if (href === "/member/lounge") return pathname.startsWith("/member/lounge") || pathname.startsWith("/member/chat");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   function renderTabIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
-    if (key === "home")  return <IconTime       c={c} w={w} slab={slab} />;
-    if (key === "city")  return <IconHappenings c={c} w={w} />;
-    if (key === "clubs") return <IconClubs      c={c} />;
-    if (key === "plans") return <IconPlans      c={c} w={w} />;
+    if (key === "apartment") return <IconTime       c={c} w={w} slab={slab} />;
+    if (key === "avenue")    return <IconLobby      c={c} w={w} />;
+    if (key === "clubs")     return <IconClubs      c={c} />;
+    if (key === "city")      return <IconHappenings c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    if (key === "home") return SLAB_LABEL[slab];
-    return { city: "City", clubs: "Clubs", plans: "Plans" }[key] ?? key;
+    return { apartment: "Apt", avenue: "Avenue", clubs: "Clubs", city: "City" }[key] ?? key;
   }
 
   // Top bar icon tile
