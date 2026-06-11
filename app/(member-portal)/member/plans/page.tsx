@@ -1121,6 +1121,8 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   const displayRooms = tab === "active" ? activeRooms : retiredRooms;
   void theme;
 
+  const TW = 300, TH = 148; // landscape ticket dimensions
+
   return (
     <div style={{ paddingBottom: 20 }}>
       {/* Tab bar */}
@@ -1147,73 +1149,92 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
         </div>
       )}
 
-      {/* Horizontal ticket scroll */}
-      <div style={{ display: "flex", overflowX: "auto", gap: 12, padding: "4px 16px 16px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+      {/* Horizontal landscape ticket scroll */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "4px 16px 16px", overflowY: "visible" }}>
         {displayRooms.map(room => {
           const img = TICKET_IMAGES[room.id];
           const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+          const isUsed = tab === "memories";
           return (
             <button
               key={room.id}
-              onClick={() => tab === "active" && onOpen(room)}
-              className="active:scale-[0.97] transition-transform"
-              style={{ flexShrink: 0, background: "none", border: "none", padding: 0, cursor: tab === "active" ? "pointer" : "default", width: 200 }}
+              onClick={() => !isUsed && onOpen(room)}
+              className="active:scale-[0.98] transition-transform"
+              style={{ flexShrink: 0, background: "none", border: "none", padding: 0, cursor: isUsed ? "default" : "pointer", width: "100%", textAlign: "left" as const, opacity: isUsed ? 0.72 : 1 }}
             >
-              {img ? (
-                /* Real ticket PNG — vertical card with image */
-                <div style={{ borderRadius: 18, overflow: "hidden", position: "relative", height: 300, boxShadow: "0 6px 28px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.5)", opacity: tab === "memories" ? 0.7 : 1 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt={room.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  {tab === "memories" && (
-                    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "white" }}>Used ✓</p>
+              {/* Landscape ticket shell */}
+              <div style={{
+                width: "100%", height: TH, borderRadius: 16,
+                background: room.bg,
+                boxShadow: "0 6px 28px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.5)",
+                display: "flex", overflow: "hidden", position: "relative",
+              }}>
+                {/* LEFT: poster / gradient block */}
+                <div style={{ width: TW * 0.38, flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                  {img ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={room.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
+                    </>
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${room.accent}44, ${room.accent}18)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>
+                      {room.emoji}
                     </div>
                   )}
+                  {/* Vertical dashed tear line */}
+                  <div style={{ position: "absolute", top: 10, bottom: 10, right: -1, borderRight: "2px dashed rgba(255,255,255,0.22)" }} />
+                  {/* Notch top */}
+                  <div style={{ position: "absolute", top: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: "#F5F0EA" }} />
+                  {/* Notch bottom */}
+                  <div style={{ position: "absolute", bottom: -9, right: -9, width: 18, height: 18, borderRadius: "50%", background: "#F5F0EA" }} />
                 </div>
-              ) : (
-                /* CSS ticket for rooms without a PNG (e.g. Morocco trip) */
-                <div style={{ borderRadius: 18, overflow: "hidden", height: 300, background: room.bg, position: "relative", boxShadow: "0 6px 28px rgba(0,0,0,0.28)" }}>
-                  {/* Header */}
-                  <div style={{ padding: "14px 14px 10px", position: "relative" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.2em", color: `${room.accent}99` }}>BLOOMBAY PRESENTS</p>
-                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 22, color: "white", lineHeight: 1.0, marginTop: 6 }}>{room.name}</p>
+
+                {/* RIGHT: info */}
+                <div style={{ flex: 1, padding: "12px 14px 10px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
+                  {/* Top section */}
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
+                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
                   </div>
-                  {/* Big emoji */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 80, fontSize: 52 }}>{room.emoji}</div>
-                  {/* Dashed separator */}
-                  <div style={{ borderTop: "2px dashed rgba(255,255,255,0.15)", margin: "10px 14px" }} />
-                  {/* Info */}
-                  <div style={{ padding: "8px 14px" }}>
-                    <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 6, padding: "5px 10px", display: "inline-block", marginBottom: 8 }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white" }}>{room.time}</p>
-                    </div>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{room.venue}</p>
-                  </div>
-                  {/* Barcode strip */}
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
-                    <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.15)", margin: "0 14px" }} />
-                    <div style={{ padding: "8px 14px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em" }}>{ticketCode}</p>
-                      <div style={{ display: "flex", gap: 1 }}>
-                        {[2,1,3,1,2,1,3,1,2,3].map((w, j) => (
-                          <div key={j} style={{ width: w * 1.5, height: 18, background: "rgba(255,255,255,0.35)", borderRadius: 1 }} />
+
+                  {/* Bottom: time chip + barcode + code */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+                      <div>
+                        <div style={{ display: "inline-flex", background: `${room.accent}22`, border: `1px solid ${room.accent}44`, borderRadius: 6, padding: "3px 8px", marginBottom: 6 }}>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: `${room.accent}`, letterSpacing: "0.04em" }}>{room.time}</p>
+                        </div>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: "rgba(255,255,255,0.22)", letterSpacing: "0.06em" }}>{ticketCode}</p>
+                      </div>
+                      {/* Mini barcode */}
+                      <div style={{ display: "flex", gap: 1, alignItems: "flex-end", flexShrink: 0 }}>
+                        {[2,1,3,1,2,1,3,2,1,2,1,3,1,2].map((w, j) => (
+                          <div key={j} style={{ width: w, height: j % 3 === 0 ? 28 : 20, background: "rgba(255,255,255,0.28)", borderRadius: 1 }} />
                         ))}
                       </div>
                     </div>
+                    {/* Members pill */}
+                    <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: room.accent }} />
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.32)" }}>{room.members} women · show at door</p>
+                      {isUsed && <div style={{ marginLeft: "auto", background: "rgba(255,255,255,0.15)", borderRadius: 999, padding: "2px 8px" }}><p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em" }}>USED ✓</p></div>}
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
             </button>
           );
         })}
 
         {/* Add ticket CTA */}
         {tab === "active" && (
-          <div style={{ flexShrink: 0, width: 140, height: 300, borderRadius: 18, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div style={{ width: "100%", height: 72, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.06em", textAlign: "center" }}>JOIN AN<br />EVENT</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.08em" }}>JOIN AN EVENT TO GET A TICKET</p>
           </div>
         )}
       </div>

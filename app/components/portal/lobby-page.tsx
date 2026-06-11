@@ -7,6 +7,7 @@ const PINK = "#FF0090";
 
 // ── Door data ──────────────────────────────────────────────────────────────────
 interface DoorConfig {
+  street: string;
   title: string;
   tagline: string;
   href: string;
@@ -19,6 +20,7 @@ interface DoorConfig {
 
 const DOORS: DoorConfig[] = [
   {
+    street: "Wall St.",
     title: "The Wall",
     tagline: "Post. Share. Vibe.",
     href: "/member/lobby/wall",
@@ -27,6 +29,7 @@ const DOORS: DoorConfig[] = [
     count: 247,
   },
   {
+    street: "Fashion Ave.",
     title: "The Closet",
     tagline: "Fits. Advice. Swap.",
     href: "/member/lobby/closet",
@@ -36,6 +39,7 @@ const DOORS: DoorConfig[] = [
     darkText: true,
   },
   {
+    street: "Match Lane",
     title: "Girl Mate",
     tagline: "Find your people.",
     href: "/member/lobby/girl-mate",
@@ -44,6 +48,7 @@ const DOORS: DoorConfig[] = [
     count: 89,
   },
   {
+    street: "Market Row",
     title: "The Shop",
     tagline: "Her brand. Her world.",
     href: "/member/lobby/shop",
@@ -52,6 +57,7 @@ const DOORS: DoorConfig[] = [
     count: 134,
   },
   {
+    street: "Bloom Blvd.",
     title: "The Vanity",
     tagline: "Beauty. Glow. You.",
     href: "/member/lobby/vanity",
@@ -62,6 +68,7 @@ const DOORS: DoorConfig[] = [
     lightPanel: true,
   },
   {
+    street: "Library Lane",
     title: "The Reading Room",
     tagline: "Books. Discuss. Share.",
     href: "/member/lobby/reading-room",
@@ -70,6 +77,7 @@ const DOORS: DoorConfig[] = [
     count: 54,
   },
   {
+    street: "Cinema Row",
     title: "The Screening Room",
     tagline: "Film. Watch. Review.",
     href: "/member/lobby/screening-room",
@@ -78,6 +86,7 @@ const DOORS: DoorConfig[] = [
     count: 38,
   },
   {
+    street: "Press Row",
     title: "Magazine",
     tagline: "BloomBay Editorial.",
     href: "/member/lobby/magazine",
@@ -135,87 +144,95 @@ function LobbyDoor({ door }: { door: DoorConfig }) {
 
   return (
     <Link href={door.href} style={{ textDecoration: "none" }}>
-      <div style={{ position: "relative", width: "100%", aspectRatio: "3 / 5" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
 
-        {/* The door shape */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: door.background,
-          borderRadius: "50% 50% 8px 8px / 18% 18% 8px 8px",
-          boxShadow: [
-            "0 1px 0 rgba(0,0,0,0.45)",
-            "0 3px 0 rgba(0,0,0,0.22)",
-            "0 10px 28px rgba(0,0,0,0.22)",
-            "inset 0 1px 0 rgba(255,255,255,0.45)",
-            "inset 0 -2px 0 rgba(0,0,0,0.12)",
-          ].join(", "),
-          overflow: "hidden",
-        }}>
-          {/* Gloss overlay */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, height: "44%",
-            background: "linear-gradient(to bottom, rgba(255,255,255,0.38) 0%, transparent 100%)",
-            pointerEvents: "none", zIndex: 2,
-          }} />
+        {/* Street sign */}
+        <div style={{ background: "rgba(0,0,0,0.28)", borderRadius: 4, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.18)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "rgba(255,255,255,0.75)", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>{door.street.toUpperCase()}</p>
+        </div>
 
-          {/* Inset decorative panel — carries the room name */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "3 / 5" }}>
+
+          {/* The door shape */}
           <div style={{
             position: "absolute",
-            top: "14%", left: "11%", right: "11%", bottom: "22%",
-            borderRadius: "38% 38% 5px 5px / 14% 14% 5px 5px",
-            background: panelBg,
-            border: "1.5px solid rgba(255,255,255,0.2)",
-            boxShadow: "inset 0 2px 8px rgba(0,0,0,0.18)",
-            zIndex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "6px 5px 10px",
-            gap: 3,
+            inset: 0,
+            background: door.background,
+            borderRadius: "50% 50% 8px 8px / 18% 18% 8px 8px",
+            boxShadow: [
+              "0 1px 0 rgba(0,0,0,0.45)",
+              "0 3px 0 rgba(0,0,0,0.22)",
+              "0 10px 28px rgba(0,0,0,0.22)",
+              "inset 0 1px 0 rgba(255,255,255,0.45)",
+              "inset 0 -2px 0 rgba(0,0,0,0.12)",
+            ].join(", "),
+            overflow: "hidden",
           }}>
-            <p style={{
-              fontFamily: "var(--font-instrument)",
-              fontStyle: "italic",
-              fontWeight: 400,
-              fontSize: 11,
-              color: textColor,
-              textAlign: "center",
-              lineHeight: 1.15,
-            }}>{door.title}</p>
-            <p style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: 6,
-              fontWeight: 700,
-              color: labelColor,
-              textAlign: "center",
-              letterSpacing: "0.04em",
-              lineHeight: 1.3,
-            }}>{door.tagline}</p>
-          </div>
-
-          {/* Knob / handle */}
-          <div style={{
-            position: "absolute", bottom: "24%", right: "17%",
-            width: 9, height: 9, borderRadius: "50%",
-            background: door.knobColor,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
-            zIndex: 3,
-          }} />
-
-          {/* Activity count badge */}
-          {door.count !== null && (
+            {/* Gloss overlay */}
             <div style={{
-              position: "absolute", top: 8, right: 8,
-              background: PINK, borderRadius: 999,
-              height: 18, minWidth: 18, paddingLeft: 9, paddingRight: 9,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              zIndex: 4,
+              position: "absolute", top: 0, left: 0, right: 0, height: "44%",
+              background: "linear-gradient(to bottom, rgba(255,255,255,0.38) 0%, transparent 100%)",
+              pointerEvents: "none", zIndex: 2,
+            }} />
+
+            {/* Inset decorative panel — carries the room name */}
+            <div style={{
+              position: "absolute",
+              top: "14%", left: "11%", right: "11%", bottom: "22%",
+              borderRadius: "38% 38% 5px 5px / 14% 14% 5px 5px",
+              background: panelBg,
+              border: "1.5px solid rgba(255,255,255,0.2)",
+              boxShadow: "inset 0 2px 8px rgba(0,0,0,0.18)",
+              zIndex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "6px 5px 10px",
+              gap: 3,
             }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: "white", lineHeight: 1 }}>{door.count}</span>
+              <p style={{
+                fontFamily: "var(--font-instrument)",
+                fontStyle: "italic",
+                fontWeight: 400,
+                fontSize: 11,
+                color: textColor,
+                textAlign: "center",
+                lineHeight: 1.15,
+              }}>{door.title}</p>
+              <p style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: 6,
+                fontWeight: 700,
+                color: labelColor,
+                textAlign: "center",
+                letterSpacing: "0.04em",
+                lineHeight: 1.3,
+              }}>{door.tagline}</p>
             </div>
-          )}
+
+            {/* Knob / handle */}
+            <div style={{
+              position: "absolute", bottom: "24%", right: "17%",
+              width: 9, height: 9, borderRadius: "50%",
+              background: door.knobColor,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
+              zIndex: 3,
+            }} />
+
+            {/* Activity count badge */}
+            {door.count !== null && (
+              <div style={{
+                position: "absolute", top: 8, right: 8,
+                background: PINK, borderRadius: 999,
+                height: 18, minWidth: 18, paddingLeft: 9, paddingRight: 9,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                zIndex: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: "white", lineHeight: 1 }}>{door.count}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Link>
@@ -282,52 +299,54 @@ export function LobbyPage() {
       {/* ══ HEADER ═══════════════════════════════════════════════════════════════ */}
       <div style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 24px)",
-        paddingLeft: 24, paddingRight: 24, paddingBottom: 32,
+        paddingLeft: 24, paddingRight: 24, paddingBottom: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <BBLogo size={22} light />
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em" }}>WHERE WOMEN CONNECT</p>
         </div>
-        <div style={{ marginTop: 20 }}>
-          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>Lobby.</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
+        {/* Title row + TOP POSTS label side by side */}
+        <div style={{ marginTop: 20, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
+          </div>
+          {/* TOP POSTS — compact vertical stack on right */}
+          <div style={{ flexShrink: 0, paddingTop: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, gap: 12 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(255,255,255,0.7)", letterSpacing: "0.18em" }}>TOP POSTS</p>
+              <Link href="/member/lobby/wall" style={{ textDecoration: "none" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.38)" }}>all →</span>
+              </Link>
+            </div>
+            {/* Mini post cards stack */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {TOP_POSTS.slice(0, 3).map((post, i) => (
+                <Link key={i} href={post.roomHref} style={{ textDecoration: "none" }}>
+                  <div style={{ width: 148, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", borderRadius: 10, padding: "8px 10px", border: "1px solid rgba(255,255,255,0.16)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
+                      <div style={{ width: 16, height: 16, borderRadius: "50%", background: post.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "white" }}>{post.initial}</p>
+                      </div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{post.room.toUpperCase()}</p>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.35, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{post.text}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>🌸 {post.blooms}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* ══ THE DOORS ════════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "0 16px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 14 }}>THE DOORS</p>
+      <div style={{ padding: "28px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 14 }}>THE AVENUE</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {DOORS.map((door) => (
             <LobbyDoor key={door.href} door={door} />
           ))}
-        </div>
-      </div>
-
-      {/* ══ TOP POSTS ════════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "32px 16px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em" }}>TOP POSTS</p>
-          <Link href="/member/lobby/wall" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>VIEW ALL →</span>
-          </Link>
-        </div>
-        <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 20, color: "white", lineHeight: 1.2, marginBottom: 16 }}>What the girls are saying.</p>
-
-        {/* Horizontal scroll */}
-        <div style={{ display: "flex", overflowX: "auto", gap: 12, paddingBottom: 8, scrollbarWidth: "none" as const }}>
-          {TOP_POSTS.map((post, i) => (
-            <TopPostCard key={i} post={post} />
-          ))}
-          {/* See more CTA */}
-          <Link href="/member/lobby/wall" style={{ textDecoration: "none", flexShrink: 0, display: "flex", alignItems: "center" }}>
-            <div style={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, paddingLeft: 8 }}>
-              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 18, color: "white" }}>→</p>
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.06em", textAlign: "center" }}>ALL POSTS</p>
-            </div>
-          </Link>
         </div>
       </div>
 

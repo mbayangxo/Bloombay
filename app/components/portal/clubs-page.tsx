@@ -52,35 +52,48 @@ export function ClubsPage() {
       {/* ── COMPACT HERO HEADER CARD ── */}
       <section style={{ padding: "68px 18px 20px" }}>
         <div style={{
-          background: "linear-gradient(135deg, #FF1F7D 0%, #FF5BAD 50%, #FFB3D9 100%)",
-          borderRadius: 16,
-          padding: "20px 20px 18px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          boxShadow: "0 4px 24px rgba(255,31,125,0.25)",
-          minHeight: 100,
+          background: "linear-gradient(135deg, #1A0010 0%, #3A0026 40%, #CC006B 80%, #FF1F7D 100%)",
+          borderRadius: 20,
+          padding: "22px 20px 20px",
+          boxShadow: "0 8px 36px rgba(255,31,125,0.4), 0 2px 0 rgba(0,0,0,0.5)",
+          position: "relative",
+          overflow: "hidden",
         }}>
-          <div>
-            <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 30, color: "white", lineHeight: 1.1 }}>
-              Clubs
-            </div>
-            <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
-              find your girls. clubs for every side of you.
-            </div>
+          {/* Decorative circles */}
+          <div style={{ position: "absolute", top: -30, right: -30, width: 110, height: 110, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -20, left: 60, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          {/* Stats row */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
+            {[["500+", "clubs"], ["12K+", "members"], ["48", "cities"]].map(([n, l]) => (
+              <div key={l}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, fontWeight: 900, color: "white", lineHeight: 1 }}>{n}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em" }}>{l.toUpperCase()}</p>
+              </div>
+            ))}
           </div>
-          <Link href="/member/clubs" style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
-            color: "white",
-            background: "rgba(255,255,255,0.2)",
-            border: "1.5px solid rgba(255,255,255,0.4)",
-            borderRadius: 20,
-            padding: "7px 14px",
-            textDecoration: "none",
-            flexShrink: 0,
-          }}>
-            browse all →
-          </Link>
+          <div style={{ height: 1, background: "rgba(255,255,255,0.12)", marginBottom: 14 }} />
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 32, color: "white", lineHeight: 1.0 }}>
+                Clubs.
+              </div>
+              <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+                find your girls. clubs for every side of you.
+              </div>
+            </div>
+            <Link href="/member/clubs" style={{
+              fontSize: 11, fontWeight: 800, letterSpacing: "0.08em",
+              color: "#1A0010",
+              background: "white",
+              borderRadius: 20,
+              padding: "9px 16px",
+              textDecoration: "none",
+              flexShrink: 0,
+              boxShadow: "0 2px 0 rgba(0,0,0,0.3)",
+            }}>
+              browse all →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -174,7 +187,7 @@ export function ClubsPage() {
           transform: "rotate(1.2deg)",
           position: "relative",
         }}>
-          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>NEW HERE?</div>
+          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>NEW HERE?</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {[
               { n: "1.", text: "join 3 clubs ☆" },
@@ -237,7 +250,7 @@ export function ClubsPage() {
       {/* ── EXPLORE BY VIBE ── */}
       <section style={{ padding: "0 18px 32px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)" }}>EXPLORE CLUBS BY VIBE</div>
+          <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>EXPLORE CLUBS BY VIBE</div>
           <GoldStar size={14} />
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -266,7 +279,7 @@ export function ClubsPage() {
       {/* ── NEAR YOU ── */}
       <section style={{ padding: "0 0 48px" }}>
         <div style={{ padding: "0 18px", display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)" }}>NEAR YOU</span>
+          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>NEAR YOU</span>
           <span style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK }}>📍 SoHo, NYC</span>
         </div>
         <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 16, scrollbarWidth: "none" as const }}>
