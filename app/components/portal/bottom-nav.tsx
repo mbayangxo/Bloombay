@@ -109,13 +109,18 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Clubs: heraldic shield / crest
-function IconClubs({ c, w = 2 }: SVGProps) {
+// Clubs: two B's facing each other (BloomBay mark)
+function IconClubs({ c }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L3 7v5c0 5 4 9.5 9 11 5-1.5 9-6 9-11V7L12 2z"/>
-      <line x1="12" y1="8" x2="12" y2="15" strokeWidth={1.4}/>
-      <line x1="8.5" y1="11" x2="15.5" y2="11" strokeWidth={1.4}/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Left B — spine left, bumps right */}
+      <line x1="3.5" y1="3" x2="3.5" y2="21" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M3.5 3 Q11 3 11 7.5 Q11 12 3.5 12" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M3.5 12 Q12 12 12 16.5 Q12 21 3.5 21" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Right B — spine right, bumps left (mirrored) */}
+      <line x1="20.5" y1="3" x2="20.5" y2="21" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M20.5 3 Q13 3 13 7.5 Q13 12 20.5 12" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M20.5 12 Q12 12 12 16.5 Q12 21 20.5 21" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
     </svg>
   );
 }

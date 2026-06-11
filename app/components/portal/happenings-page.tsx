@@ -299,8 +299,8 @@ function TypeCarousel({ onSelect }: { onSelect: (label: string) => void }) {
 }
 
 /* ── Poster Card (full-width, tall, image-forward) ────────── */
-function PosterCard({ ev, posterIdx, joined, onToggle }: {
-  ev: Event; posterIdx: number; joined: boolean; onToggle: () => void;
+function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false }: {
+  ev: Event; posterIdx: number; joined: boolean; onToggle: () => void; fullWidth?: boolean;
 }) {
   const badge  = getBadge(ev);
   const poster = ev.image_url ?? POSTER_IMGS[posterIdx % POSTER_IMGS.length];
@@ -310,16 +310,17 @@ function PosterCard({ ev, posterIdx, joined, onToggle }: {
       borderRadius: 14,
       overflow: "hidden",
       position: "relative",
-      height: 162,
-      boxShadow: "0 6px 24px rgba(0,0,0,0.45)",
+      height: fullWidth ? 230 : 168,
+      boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
     }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={poster} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.72) 70%, rgba(0,0,0,0.88) 100%)" }}/>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0.75) 65%, rgba(0,0,0,0.92) 100%)" }}/>
 
       {/* Top badges */}
       <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 6 }}>
         {badge && (
-          <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.55)", borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(8px)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.6)", borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(8px)" }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.1em" }}>{badge}</span>
           </div>
@@ -331,22 +332,29 @@ function PosterCard({ ev, posterIdx, joined, onToggle }: {
         )}
       </div>
 
+      {/* Going count badge */}
+      {ev.going_count && ev.going_count > 0 && (
+        <div style={{ position: "absolute", top: 12, right: 12, background: "rgba(0,0,0,0.6)", borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(8px)" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{ev.going_count} going</span>
+        </div>
+      )}
+
       {/* Bottom */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 10px" }}>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, marginBottom: 2, textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 12px" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: fullWidth ? 22 : 16, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.05, marginBottom: 4, textShadow: "0 2px 12px rgba(0,0,0,0.7)", letterSpacing: "-0.01em" }}>
           {ev.title}
         </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", letterSpacing: "0.04em", flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em", flex: 1 }}>
             {ev.venue ?? ""}{ev.neighborhood ? ` · ${ev.neighborhood}` : ""}
           </span>
           <button onClick={onToggle} style={{
-            background: joined ? "rgba(255,255,255,0.15)" : PINK,
-            color: "white", border: joined ? "1.5px solid rgba(255,255,255,0.4)" : "none",
-            borderRadius: 999, padding: "5px 12px",
+            background: joined ? "rgba(255,255,255,0.12)" : PINK,
+            color: "white", border: joined ? "1.5px solid rgba(255,255,255,0.35)" : "none",
+            borderRadius: 999, padding: "5px 14px",
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em",
             cursor: "pointer", flexShrink: 0,
-            boxShadow: joined ? "none" : `0 3px 12px ${PINK}55`,
+            boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
           }}>
             {joined ? "JOINED ✓" : "JOIN →"}
           </button>
@@ -527,26 +535,24 @@ function CollageGrid({ events, joined, toggleJoin }: { events: Event[]; joined: 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px" }}>
       {events.map((ev, i) => {
-        const mod = i % 7;
-        if (mod === 0) {
+        const mod = i % 5;
+        const isFullWidth = mod === 0;
+
+        if (isFullWidth) {
           const pi = posterCount++;
           return (
-            <PosterCard key={ev.id} ev={ev} posterIdx={pi} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>
+            <div key={ev.id} style={{ gridColumn: "span 2" }}>
+              <PosterCard ev={ev} posterIdx={pi} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)} fullWidth/>
+            </div>
           );
-        } else if (mod === 1 || mod === 4) {
+        } else if (mod === 1 || mod === 3) {
           const ti = ticketCount++;
-          return (
-            <TicketCard key={ev.id} ev={ev} ticketIdx={ti} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>
-          );
-        } else if (mod === 2 || mod === 5) {
-          return (
-            <PaperCard key={ev.id} ev={ev} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>
-          );
+          return <TicketCard key={ev.id} ev={ev} ticketIdx={ti} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
+        } else if (mod === 2) {
+          return <PaperCard key={ev.id} ev={ev} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
         } else {
           const ci = clubCount++;
-          return (
-            <ClubCard key={ev.id} ev={ev} clubIdx={ci} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>
-          );
+          return <ClubCard key={ev.id} ev={ev} clubIdx={ci} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
         }
       })}
     </div>
@@ -658,49 +664,40 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
+    <div style={{ background: "#0A0A0A", minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
       {/* ── Fixed top bar (standalone only) ── */}
       {standalone && <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-        background: "linear-gradient(135deg, #FF1F7D 0%, #E8006A 100%)",
-        borderBottom: "1px solid rgba(255,31,125,0.15)",
-        boxShadow: "0 2px 20px rgba(255,31,125,0.2)",
+        background: "#0A0A0A",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
         height: 54,
         paddingTop: "env(safe-area-inset-top, 0px)",
         display: "flex", alignItems: "center",
       }}>
-        {/* Left: map toggle */}
-        <div style={{ width: 64, display: "flex", alignItems: "center", paddingLeft: 18 }}>
-          <button onClick={() => setShowMap(m => !m)} style={{
-            width: 34, height: 34, borderRadius: "50%",
-            background: showMap ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.18)",
-            border: "none", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.18s",
-            boxShadow: showMap ? "0 2px 10px rgba(0,0,0,0.15)" : "none",
-          }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                    fill={showMap ? PINK : "white"}/>
-            </svg>
-          </button>
+        {/* Left: BB+ · city · slab */}
+        <div style={{ flex: 1, paddingLeft: 18, display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: PINK }}>BB+</span>
+          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
+          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>TONIGHT</span>
         </div>
 
         {/* Center: toggle */}
-        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.25)", borderRadius: 999, padding: "3px" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
             {(["happenings","city"] as HapTab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
-                padding: "6px 14px", borderRadius: 999, border: "none",
-                background: tab === t ? "white" : "transparent",
-                color: tab === t ? PINK : "rgba(255,255,255,0.85)",
-                fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800,
+                padding: "5px 12px", borderRadius: 999, border: "none",
+                background: tab === t ? PINK : "transparent",
+                color: "white",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
                 letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
-                boxShadow: tab === t ? "0 2px 10px rgba(255,31,125,0.25)" : "none",
+                boxShadow: tab === t ? `0 2px 10px ${PINK}55` : "none",
               }}>
-                {t === "happenings" ? "HAPPENINGS" : "THE CITY"}
+                {t === "happenings" ? "HAPPENINGS" : "CITY"}
               </button>
             ))}
           </div>
@@ -709,22 +706,21 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         {/* Right icons */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, paddingRight: 16 }}>
           <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
-            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: PINK, lineHeight: 1 }}>3</div>
+            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
           </Link>
           <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="7" r="4"/>
-              <line x1="8" y1="11" x2="16" y2="11"/>
-              <line x1="12" y1="11" x2="12" y2="20"/>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.4)" }}/>
+            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: PINK }}/>
           </Link>
           <Link href="/member/chat" aria-label="Chats" style={{ display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
           </Link>
@@ -743,56 +739,30 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
           <>
-            {/* Filter bar — icon only, collapsible */}
-            <div style={{ padding: "6px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(0,0,0,0.65)" : PINK, letterSpacing: "0.08em" }}>
-                {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button onClick={() => setFilterOpen(o => !o)} style={{
-                  width: 34, height: 34, borderRadius: "50%",
-                  background: filterOpen ? PINK : "rgba(255,31,125,0.08)",
-                  border: filterOpen ? "none" : "1.5px solid rgba(255,31,125,0.38)",
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: filterOpen ? `0 3px 14px ${PINK}55` : "none",
-                  transition: "all 0.18s",
+            {/* Filter chips — always visible horizontal scroll */}
+            <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 10px", scrollbarWidth: "none" as const }}>
+              {FILTERS.map(f => (
+                <button key={f} onClick={() => setFilter(f)} style={{
+                  flexShrink: 0, padding: "6px 16px", borderRadius: 999,
+                  border: "none",
+                  background: filter === f ? PINK : "rgba(255,255,255,0.1)",
+                  color: filter === f ? "white" : "rgba(255,255,255,0.6)",
+                  fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
+                  letterSpacing: "0.04em", cursor: "pointer",
+                  boxShadow: filter === f ? `0 2px 12px ${PINK}55` : "none",
+                  transition: "all 0.15s",
                 }}>
-                  {filterOpen
-                    ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
-                  }
+                  {f}
                 </button>
-              </div>
+              ))}
             </div>
-            {filterOpen && (
-              <>
-                {/* Type category cards */}
-                <TypeCarousel onSelect={label => { setFilter(label as Filter); setFilterOpen(false); }}/>
-                {/* Filter pills */}
-                <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
-                  {FILTERS.map(f => (
-                    <button key={f} onClick={() => { setFilter(f); setFilterOpen(false); }} style={{
-                      flexShrink: 0, padding: "6px 14px", borderRadius: 999,
-                      border: `1px solid ${filter === f ? PINK : "rgba(255,31,125,0.18)"}`,
-                      background: filter === f ? PINK : "rgba(255,255,255,0.7)",
-                      color: filter === f ? "white" : "rgba(100,40,60,0.6)",
-                      fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                      letterSpacing: "0.04em", cursor: "pointer",
-                      boxShadow: filter === f ? `0 2px 10px ${PINK}44` : "none",
-                    }}>
-                      {f}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
 
             {/* Ticker */}
-            <div style={{ overflow: "hidden", borderTop: `1px solid rgba(255,31,125,0.12)`, borderBottom: `1px solid rgba(255,31,125,0.12)`, background: `${PINK}0d`, padding: "7px 0", marginBottom: 12 }}>
+            <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,31,125,0.07)", padding: "7px 0", marginBottom: 12 }}>
               <div style={{ display: "flex", animation: "ticker 28s linear infinite", width: "max-content" }}>
                 {[...tickerItems, ...tickerItems].map((item, i) => (
-                  <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: PINK, whiteSpace: "nowrap", padding: "0 24px" }}>
-                    {item} ✦
+                  <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", padding: "0 24px" }}>
+                    {item} <span style={{ color: PINK }}>✦</span>
                   </span>
                 ))}
               </div>
@@ -801,7 +771,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             {/* Count label */}
             <div style={{ padding: "0 14px 10px", display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(180,60,100,0.55)" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)" }}>
                 {loading ? "LOADING…" : events.length === 0 ? "UPCOMING THIS WEEK" : filter === "All" ? `${events.length} HAPPENINGS` : `${filtered.length} ${filter.toUpperCase()}`}
               </span>
             </div>
@@ -830,8 +800,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             {/* No match for filter */}
             {!loading && events.length > 0 && filtered.length === 0 && (
               <div style={{ padding: "40px 24px", textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(180,60,100,0.4)" }}>nothing here yet ✦</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(180,60,100,0.3)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.3)" }}>nothing here yet ✦</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.2)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
               </div>
             )}
 
@@ -842,21 +812,26 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               <div style={{ padding: "0 0 8px" }}>
                 <div style={{ padding: "8px 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK }}/>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(180,60,100,0.5)" }}>FROM YOUR CITY</span>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)" }}>FROM YOUR CITY</span>
                 </div>
                 <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
                   {[
-                    { name: "Sunset Walk", sub: "Brooklyn Bridge · SUN 1PM", img: POSTER_IMGS[9], going: 7 },
-                    { name: "Natural Wine", sub: "West Village · TONIGHT", img: POSTER_IMGS[1], going: 6 },
-                    { name: "Rooftop Girls", sub: "SAT 8PM", img: POSTER_IMGS[7], going: 12 },
-                    { name: "Dance All Night", sub: "SAT · 11PM", img: POSTER_IMGS[5], going: 10 },
+                    { name: "Sunset Walk",  sub: "Brooklyn Bridge · SUN 1PM", img: POSTER_IMGS[9], going: 7  },
+                    { name: "Natural Wine", sub: "West Village · TONIGHT",    img: POSTER_IMGS[1], going: 6  },
+                    { name: "Rooftop Girls",sub: "SAT 8PM",                   img: POSTER_IMGS[7], going: 12 },
+                    { name: "Dance All Night",sub: "SAT · 11PM",              img: POSTER_IMGS[5], going: 10 },
                   ].map((item, i) => (
-                    <div key={i} style={{ flexShrink: 0, width: 130, borderRadius: 10, overflow: "hidden", position: "relative", height: 100, boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
+                    <div key={i} style={{ flexShrink: 0, width: 140, borderRadius: 12, overflow: "hidden", position: "relative", height: 108, boxShadow: "0 4px 20px rgba(0,0,0,0.6)" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.img} alt={item.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%)" }}/>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 25%, rgba(0,0,0,0.88) 100%)" }}/>
+                      {/* Going badge */}
+                      <div style={{ position: "absolute", top: 8, right: 8, background: PINK, borderRadius: 999, padding: "2px 7px" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white" }}>{item.going} going</p>
+                      </div>
                       <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
-                        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{item.name}</p>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{item.going} going · {item.sub}</p>
+                        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1 }}>{item.name}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{item.sub}</p>
                       </div>
                     </div>
                   ))}
@@ -868,11 +843,11 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
         {/* ── CITY TAB (standalone only — embedded in CityPage when not standalone) ── */}
         {standalone && tab === "city" && (
-          <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)", background: "linear-gradient(180deg, #D6E8F5 0%, #EAF2F9 35%, #F0EBE4 100%)" }}>
+          <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)", background: "#0A0A0A" }}>
             <div style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", marginTop: 4 }}>tap a neighborhood to explore</p>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>tap a neighborhood to explore</p>
             </div>
 
             <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 0 30px", minHeight: 520 }}>
