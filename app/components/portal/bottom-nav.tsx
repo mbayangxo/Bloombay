@@ -170,10 +170,10 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",   key: "apartment" },
-  { href: "/member/lounge", key: "avenue"    },
-  { href: "/member/clubs",  key: "clubs"     },
-  { href: "/member/city",   key: "city"      },
+  { href: "/member/home",   key: "home"   },
+  { href: "/member/lounge", key: "avenue" },
+  { href: "/member/clubs",  key: "clubs"  },
+  { href: "/member/city",   key: "city"   },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -206,14 +206,18 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function renderTabIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
-    if (key === "apartment") return <IconTime       c={c} w={w} slab={slab} />;
+    if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
     if (key === "avenue")    return <IconLobby      c={c} w={w} />;
     if (key === "clubs")     return <IconClubs      c={c} />;
     if (key === "city")      return <IconHappenings c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    return { apartment: "Apt", avenue: "Avenue", clubs: "Clubs", city: "City" }[key] ?? key;
+    if (key === "home")   return SLAB_LABEL[slab];
+    if (key === "avenue") return "Avenue";
+    if (key === "clubs")  return "Clubs";
+    if (key === "city")   return "City";
+    return key;
   }
 
   // Top bar icon tile
