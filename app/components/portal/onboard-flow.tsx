@@ -312,128 +312,197 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
   const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "#FF1F7D" }}>
-      {/* Fine grain texture overlay */}
+    <div className="fixed inset-0 flex flex-col overflow-hidden"
+      style={{ background: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 58%, #FF4D8A 100%)" }}>
+
+      {/* ── BACKGROUND COMPOSITION ── */}
+
+      {/* Film grain */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E\")",
-        opacity: 0.6,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`,
+        opacity: 0.65,
       }} />
 
-      {/* Large background typographic ghost */}
-      <div className="absolute pointer-events-none select-none" style={{
-        bottom: "22%", left: "-8px", right: 0, overflow: "hidden",
-      }}>
+      {/* Concentric halo rings centred on the hero */}
+      {[90, 70, 52].map((vw, i) => (
+        <div key={i} className="absolute pointer-events-none" style={{
+          left: "50%", top: "42%",
+          width: `${vw}vw`, height: `${vw}vw`,
+          transform: "translate(-50%,-50%)",
+          borderRadius: "50%",
+          border: `1px solid rgba(255,255,255,${[0.09, 0.06, 0.04][i]})`,
+        }} />
+      ))}
+
+      {/* Upper-left abstract petal */}
+      <div className="absolute pointer-events-none" style={{
+        left: "-44px", top: "20%",
+        width: "118px", height: "168px",
+        borderRadius: "55% 45% 65% 35% / 45% 55% 45% 55%",
+        background: "rgba(255,255,255,0.045)",
+        transform: "rotate(-30deg)",
+      }} />
+
+      {/* Lower-right accent petal */}
+      <div className="absolute pointer-events-none" style={{
+        right: "-28px", bottom: "34%",
+        width: "100px", height: "142px",
+        borderRadius: "40% 60% 35% 65% / 65% 35% 65% 35%",
+        background: "rgba(255,255,255,0.032)",
+        transform: "rotate(16deg)",
+      }} />
+
+      {/* Ghost BLOOM — large typographic watermark */}
+      <div className="absolute pointer-events-none select-none" style={{ bottom: "19%", left: "-8px", right: 0, overflow: "hidden", zIndex: 0 }}>
         <p style={{
           fontFamily: "var(--font-playfair)", fontWeight: 900,
-          fontSize: "clamp(88px,28vw,160px)", lineHeight: 0.82,
-          color: "rgba(255,255,255,0.06)",
+          fontSize: "clamp(112px,37vw,215px)", lineHeight: 0.78,
+          color: "rgba(255,255,255,0.078)",
           letterSpacing: "-0.04em", whiteSpace: "nowrap",
         }}>BLOOM</p>
       </div>
 
-      {/* Top nav */}
-      <div className="relative flex items-center justify-between px-6 pt-14 pb-2">
+      {/* Vertical editorial sidebar text */}
+      <div className="absolute pointer-events-none select-none" style={{
+        right: 16, top: "50%",
+        transform: "translateY(-50%) rotate(90deg)",
+        transformOrigin: "center center",
+        fontFamily: "var(--font-jost)",
+        fontSize: "6.5px", fontWeight: 800,
+        letterSpacing: "0.38em",
+        color: "rgba(255,255,255,0.17)",
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+        zIndex: 1,
+      }}>BLOOMBAY · NEW YORK CITY · 2026</div>
+
+      {/* ── TOP NAV ── */}
+      <div className="relative flex items-center justify-between px-6 pt-14 pb-2" style={{ zIndex: 2 }}>
         <div className="flex items-center gap-2">
           <BBLogo size={26} />
-          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.88)" }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.92)" }}>
             BloomBay
           </p>
         </div>
-        <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.3em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase" }}>
-          NYC
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.42)" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.3em", color: "rgba(255,255,255,0.46)", textTransform: "uppercase" }}>NYC</p>
+        </div>
       </div>
 
-      {/* ── HERO ───────────────────────────────────────── */}
-      <div className="relative flex-1 flex flex-col justify-center px-6" style={{ paddingBottom: "8px" }}>
+      {/* ── HERO ── */}
+      <div className="relative flex-1 flex flex-col justify-center px-6" style={{ paddingBottom: "4px", zIndex: 2 }}>
 
-        {/* Kicker line */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
-          <div style={{ width: "22px", height: "1px", background: "rgba(255,255,255,0.5)" }} />
-          <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.34em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
-            a space to bloom
+        {/* Centered kicker with extending ornamental lines */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28))" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.58)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            ✦ a space to bloom ✦
           </p>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,255,255,0.28), transparent)" }} />
         </div>
 
-        {/* Primary headline: Women are gathering. */}
-        <div style={{ marginBottom: "20px" }}>
+        {/* Primary: Women are / gathering. */}
+        <div style={{ marginBottom: 22 }}>
           <p style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400,
-            fontSize: "clamp(38px,11vw,52px)", color: "white",
-            lineHeight: 1.0, letterSpacing: "-0.02em",
-            margin: 0,
-          }}>
-            Women are
-          </p>
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 300,
+            fontSize: "clamp(30px,9vw,44px)",
+            color: "rgba(255,255,255,0.78)",
+            lineHeight: 1.05, letterSpacing: "-0.01em", margin: 0,
+          }}>Women are</p>
           <h1 style={{
             fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic",
-            fontSize: "clamp(58px,17vw,80px)", color: "white",
-            lineHeight: 0.88, letterSpacing: "-0.04em",
+            fontSize: "clamp(64px,19vw,92px)",
+            color: "white",
+            lineHeight: 0.84, letterSpacing: "-0.04em",
             margin: 0,
-          }}>
-            gathering.
-          </h1>
+            textShadow: "0 4px 32px rgba(0,0,0,0.16)",
+          }}>gathering.</h1>
         </div>
 
-        {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-          <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.22)" }} />
-          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}>✦</span>
-          <div style={{ width: "28px", height: "1px", background: "rgba(255,255,255,0.22)" }} />
+        {/* Ornamental divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.18)" }} />
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>✦</span>
+          <div style={{ width: 28, height: 1, background: "rgba(255,255,255,0.18)" }} />
         </div>
 
-        {/* Secondary: it's a woman's world, we're in it. */}
-        <div>
-          <p style={{
-            fontWeight: 400, fontSize: "clamp(16px,4.5vw,22px)",
-            color: "rgba(255,255,255,0.72)", lineHeight: 1.2,
-            margin: "0 0 2px",
-          }}>
-            it&apos;s a
-          </p>
+        {/* Secondary: it's a woman's world. we're in it. */}
+        <div style={{ marginBottom: 26 }}>
+          <p style={{ fontWeight: 300, fontSize: "clamp(14px,4vw,19px)", color: "rgba(255,255,255,0.62)", lineHeight: 1.2, margin: "0 0 2px" }}>it&apos;s a</p>
           <p style={{
             fontFamily: "var(--font-playfair)", fontWeight: 900,
-            fontSize: "clamp(28px,8vw,38px)", lineHeight: 0.92,
-            letterSpacing: "-0.025em",
-            WebkitTextStroke: "2px rgba(255,255,255,0.75)",
+            fontSize: "clamp(28px,8vw,38px)", lineHeight: 0.9,
+            letterSpacing: "-0.02em",
+            WebkitTextStroke: "1.5px rgba(255,255,255,0.78)",
             WebkitTextFillColor: "transparent",
             color: "transparent",
-            margin: "0 0 4px",
-          }}>
-            woman&apos;s world.
-          </p>
+            margin: "0 0 6px",
+          }}>woman&apos;s world.</p>
           <p style={{
             fontFamily: "var(--font-instrument)", fontStyle: "italic",
-            fontSize: "clamp(14px,4vw,18px)", color: "rgba(255,255,255,0.58)",
-            margin: 0, letterSpacing: "0.01em",
-          }}>
-            we&apos;re in it.
+            fontSize: "clamp(14px,3.8vw,18px)",
+            color: "rgba(255,255,255,0.5)", margin: 0, letterSpacing: "0.01em",
+          }}>we&apos;re in it.</p>
+        </div>
+
+        {/* Social proof — avatar stack */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex" }}>
+            {(["#FF69B4","#A855F7","#0EA5E9","#D4A853"] as const).map((c, i) => (
+              <div key={i} style={{
+                width: 26, height: 26, borderRadius: "50%",
+                background: `linear-gradient(135deg,${c},${c}BB)`,
+                border: "2px solid rgba(255,255,255,0.38)",
+                marginLeft: i > 0 ? -9 : 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "9px", fontWeight: 800, color: "white",
+                flexShrink: 0, position: "relative", zIndex: 4 - i,
+              }}>
+                {["A","Z","T","J"][i]}
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.58)", letterSpacing: "0.03em" }}>
+            2,400+ women in NYC
           </p>
         </div>
       </div>
 
-      {/* Bottom strip */}
-      <div className="relative rounded-t-3xl px-6 pt-5"
-        style={{ background: "rgba(0,0,0,0.28)", paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)" }}>
-        <div className="flex flex-col gap-2.5 mb-5">
+      {/* ── BOTTOM STRIP — glassmorphism CTA ── */}
+      <div className="relative px-6 pt-5 rounded-t-[28px]"
+        style={{
+          background: "rgba(0,0,0,0.36)",
+          backdropFilter: "blur(22px)",
+          WebkitBackdropFilter: "blur(22px)",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)",
+          zIndex: 2,
+        }}>
+
+        {/* 2×2 checkbox grid — compact, not a legal wall */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
           {[
-            { key: "terms",   label: "I agree to the Terms of Service",     val: agreeTerms,   set: setAgreeTerms },
-            { key: "privacy", label: "I agree to the Privacy Policy",        val: agreePrivacy, set: setAgreePrivacy },
-            { key: "rules",   label: "I agree to the Community Guidelines",  val: agreeRules,   set: setAgreeRules },
-            { key: "age",     label: "I confirm I am 18 or older",           val: agreeAge,     set: setAgreeAge },
+            { key: "terms",   label: "Terms of Service",    val: agreeTerms,   set: setAgreeTerms },
+            { key: "privacy", label: "Privacy Policy",       val: agreePrivacy, set: setAgreePrivacy },
+            { key: "rules",   label: "Community Guidelines", val: agreeRules,   set: setAgreeRules },
+            { key: "age",     label: "18 or older",          val: agreeAge,     set: setAgreeAge },
           ].map(item => (
             <button key={item.key} onClick={() => item.set(!item.val)}
-              className="flex items-center gap-3 text-left">
-              <div className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center"
-                style={{ background: item.val ? "white" : "rgba(255,255,255,0.12)",
-                  border: `2px solid ${item.val ? "white" : "rgba(255,255,255,0.3)"}` }}>
+              className="flex items-center gap-2.5 text-left py-0.5">
+              <div className="flex-shrink-0 flex items-center justify-center"
+                style={{
+                  width: 18, height: 18, borderRadius: 5,
+                  background: item.val ? "white" : "rgba(255,255,255,0.12)",
+                  border: `1.5px solid ${item.val ? "white" : "rgba(255,255,255,0.28)"}`,
+                }}>
                 {item.val && (
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                    <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
               </div>
-              <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>{item.label}</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -441,18 +510,20 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
         <button
           onClick={onStart}
           disabled={!allAgreed}
-          className="w-full py-4 rounded-full font-bold text-sm tracking-widest uppercase transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-full font-bold text-sm uppercase transition-all active:scale-[0.98]"
           style={{
-            background: allAgreed ? "white" : "rgba(255,255,255,0.2)",
-            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.4)",
-            letterSpacing: allAgreed ? "0.12em" : "0.06em",
+            fontFamily: "var(--font-jost)",
+            background: allAgreed ? "white" : "rgba(255,255,255,0.16)",
+            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.35)",
+            letterSpacing: allAgreed ? "0.14em" : "0.06em",
+            boxShadow: allAgreed ? "0 8px 40px rgba(0,0,0,0.28)" : "none",
           }}>
           {allAgreed ? "LET'S START →" : "Agree to all to continue"}
         </button>
 
-        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.38)" }}>
+        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.34)" }}>
           Already a member?{" "}
-          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.7)" }}>
+          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
             Sign in
           </Link>
         </p>
