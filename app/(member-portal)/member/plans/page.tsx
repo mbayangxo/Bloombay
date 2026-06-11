@@ -117,12 +117,32 @@ const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; c
   "2026-10-10": [{ emoji: "🇲🇦", name: "Morocco October",   time: "10AM",   color: "#FF69B4" }],
 };
 
-const STICKER_PALETTE = [
-  "🌸","🌼","💐","🌿","🍃","🌺","🌻","🌷","🌹","🪷",
-  "💕","💖","💗","💝","❤️","🩷","💞","💌","💘","🫶",
-  "✨","⭐","🌟","💫","🌙","☀️","🌈","🎀","🎊","🎉",
-  "🗽","🌆","🚕","🏙","🌉","🚇","🍕","🥯","☕","🌃",
-  "📔","✏️","📸","🎵","🦋","🍯","🫧","🌾","🍂","🎗",
+type StickerPackId = "bloom" | "hearts" | "glam" | "stars" | "nyc";
+const STICKER_PACKS: Record<StickerPackId, string[]> = {
+  bloom:  ["🌸","🌺","🌷","🌹","💐","🪷","🌼","🌻","🌿","🍃","🌱","🪴","🫧","🪻","🌾","❀","✿","🎋"],
+  hearts: ["💕","💖","💗","💝","❤️","🩷","💞","💌","💘","🫶","💓","♥️","❣️","🎀","🩰","💟","🫦","🌹"],
+  glam:   ["💎","👑","🎀","💄","👠","💍","🪞","🛁","🫧","💅","🪭","🧴","🥂","🍾","🌟","✨","💫","🪩"],
+  stars:  ["✨","⭐","🌟","💫","🌙","☀️","🌈","🌠","🎇","🎆","🌌","🔮","⚡","🎑","🌛","🌜","★","☆"],
+  nyc:    ["🗽","🌆","🚕","🏙","🌉","🚇","🍕","🥯","☕","🌃","🛗","🌁","🎭","🎪","🍎","📸","🎶","🏟"],
+};
+
+// Module-level store so user stickers persist across day-editor open/close
+const USER_STICKERS_STORE: string[] = [];
+
+// ── PER-MONTH CALENDAR THEMES ─────────────────────────────────────────────────
+const MONTH_THEMES = [
+  /* 0 Jan */ { headerGrad:"linear-gradient(160deg,#F0EDE8 0%,#E8E4DF 100%)", binding:"#A8A0A8", accent:"#8A9DC0", textColor:"#3A3228", deco:"❄️", decoExtra:["✦","❄","✦"], watermark:"WINTER", gridBg:"#FDFAF7", todayRing:"#8A9DC0" },
+  /* 1 Feb */ { headerGrad:"linear-gradient(160deg,#FCE0E8 0%,#F8C8D4 100%)", binding:"#D4607A", accent:"#CC3355", textColor:"#7A1530", deco:"💕", decoExtra:["♡","♥","♡"], watermark:"LOVE",   gridBg:"#FFF5F8", todayRing:"#CC3355" },
+  /* 2 Mar */ { headerGrad:"linear-gradient(160deg,#EDF5EC 0%,#D8EED5 100%)", binding:"#6A9E68", accent:"#4A8A48", textColor:"#1A3818", deco:"🌸", decoExtra:["✿","❀","✿"], watermark:"BLOOM",  gridBg:"#F6FCF5", todayRing:"#4A8A48" },
+  /* 3 Apr */ { headerGrad:"linear-gradient(160deg,#EDE8F8 0%,#DDD5F5 100%)", binding:"#8A70C8", accent:"#6A50B8", textColor:"#2A1860", deco:"🦋", decoExtra:["✦","✿","✦"], watermark:"SPRING", gridBg:"#F7F4FD", todayRing:"#6A50B8" },
+  /* 4 May */ { headerGrad:"linear-gradient(160deg,#FEFAE0 0%,#FBF0C0 100%)", binding:"#C8A820", accent:"#A88808", textColor:"#4A3800", deco:"🌼", decoExtra:["☀","✦","☀"], watermark:"GOLDEN", gridBg:"#FFFDF0", todayRing:"#C8A820" },
+  /* 5 Jun */ { headerGrad:"linear-gradient(160deg,#FFD0E8 0%,#FFB0D4 100%)", binding:"#FF1F7D", accent:"#FF1F7D", textColor:"#7A0038", deco:"🌺", decoExtra:["✦","❋","✦"], watermark:"BLOOM",  gridBg:"#FFF0F8", todayRing:"#FF1F7D" },
+  /* 6 Jul */ { headerGrad:"linear-gradient(160deg,#FFE8D8 0%,#FFD0B8 100%)", binding:"#E07040", accent:"#C05028", textColor:"#5A1808", deco:"🐚", decoExtra:["〰","≈","〰"], watermark:"SUMMER", gridBg:"#FFF8F5", todayRing:"#E07040" },
+  /* 7 Aug */ { headerGrad:"linear-gradient(160deg,#D8EEF8 0%,#C0E0F5 100%)", binding:"#3888C8", accent:"#1870B0", textColor:"#083858", deco:"🌊", decoExtra:["≈","〰","≈"], watermark:"WAVES",  gridBg:"#F5FAFE", todayRing:"#3888C8" },
+  /* 8 Sep */ { headerGrad:"linear-gradient(160deg,#F8ECD8 0%,#F5DFC0 100%)", binding:"#C88040", accent:"#A86020", textColor:"#4A2808", deco:"🍂", decoExtra:["✦","❋","✦"], watermark:"GOLDEN", gridBg:"#FFFBF5", todayRing:"#C88040" },
+  /* 9 Oct */ { headerGrad:"linear-gradient(160deg,#ECD8F5 0%,#DCC0F0 100%)", binding:"#8840C8", accent:"#6820A8", textColor:"#280848", deco:"🌙", decoExtra:["✦","★","✦"], watermark:"MAGIC",  gridBg:"#FAF5FF", todayRing:"#8840C8" },
+  /* 10 Nov*/ { headerGrad:"linear-gradient(160deg,#F0E8DC 0%,#E8D8C4 100%)", binding:"#987060", accent:"#785040", textColor:"#381808", deco:"🍁", decoExtra:["✦","❋","✦"], watermark:"COZY",   gridBg:"#FBF7F3", todayRing:"#987060" },
+  /* 11 Dec*/ { headerGrad:"linear-gradient(160deg,#F8E8F0 0%,#F0D0E4 100%)", binding:"#A82058", accent:"#881040", textColor:"#480820", deco:"⭐", decoExtra:["❄","✦","❄"], watermark:"JOY",    gridBg:"#FDF5F8", todayRing:"#A82058" },
 ];
 
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -271,6 +291,100 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
   );
 }
 
+// ── STICKER KEYBOARD ──────────────────────────────────────────────────────────
+
+function StickerKeyboard({ onAdd }: { onAdd: (s: string) => void }) {
+  const [activePack, setActivePack] = useState<StickerPackId | "yours">("bloom");
+  const [userStickers, setUserStickers] = useState<string[]>([...USER_STICKERS_STORE]);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const PACK_TABS: { id: StickerPackId | "yours"; emoji: string; name: string }[] = [
+    { id: "bloom",  emoji: "🌸", name: "BLOOM"  },
+    { id: "hearts", emoji: "💕", name: "LOVE"   },
+    { id: "glam",   emoji: "💎", name: "GLAM"   },
+    { id: "stars",  emoji: "⭐", name: "MAGIC"  },
+    { id: "nyc",    emoji: "🗽", name: "NYC"    },
+    { id: "yours",  emoji: "📸", name: "YOURS"  },
+  ];
+
+  const stickers: string[] = activePack === "yours" ? userStickers : STICKER_PACKS[activePack as StickerPackId];
+
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (ev.target?.result) {
+        const url = ev.target.result as string;
+        USER_STICKERS_STORE.push(url);
+        setUserStickers([...USER_STICKERS_STORE]);
+        setActivePack("yours");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div style={{ background: "white" }}>
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} style={{ display: "none" }} />
+
+      {/* Pack tabs */}
+      <div style={{ display: "flex", borderBottom: "1px solid rgba(0,0,0,0.07)", padding: "0 6px" }}>
+        {PACK_TABS.map(p => (
+          <button key={p.id} onClick={() => setActivePack(p.id)}
+            style={{ flex: 1, paddingTop: 8, paddingBottom: 8, background: "none", border: "none", borderBottom: activePack === p.id ? `2.5px solid ${PINK}` : "2.5px solid transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, transition: "border-color 0.15s" }}>
+            <span style={{ fontSize: 20 }}>{p.emoji}</span>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.1em", color: activePack === p.id ? PINK : "#ccc" }}>{p.name}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* YOURS — empty upload state */}
+      {activePack === "yours" && userStickers.length === 0 && (
+        <div style={{ padding: "28px 20px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(255,31,125,0.08)", border: "2px dashed rgba(255,31,125,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 4 }}>Your Sticker Pack</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#aaa", lineHeight: 1.4 }}>Upload PNG images to use as custom stickers on your planner</p>
+          </div>
+          <button onClick={() => fileRef.current?.click()} style={{ padding: "10px 24px", borderRadius: 999, background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "white", letterSpacing: "0.06em" }}>UPLOAD STICKER →</p>
+          </button>
+        </div>
+      )}
+
+      {/* Sticker grid */}
+      {(activePack !== "yours" || userStickers.length > 0) && (
+        <div style={{ padding: "10px 10px 6px" }}>
+          {activePack === "yours" && (
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+              <button onClick={() => fileRef.current?.click()} style={{ padding: "5px 14px", borderRadius: 999, background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)", cursor: "pointer" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK }}>+ Upload more</p>
+              </button>
+            </div>
+          )}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 7 }}>
+            {stickers.map((s, i) => (
+              <button key={i} onClick={() => onAdd(s)}
+                className="active:scale-90 transition-transform"
+                style={{ aspectRatio: "1", borderRadius: 14, background: "rgba(255,31,125,0.04)", border: "1px solid rgba(255,31,125,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }}>
+                {s.startsWith("data:") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s} alt="" style={{ width: "75%", height: "75%", objectFit: "contain" }} />
+                ) : (
+                  <span style={{ fontSize: 26 }}>{s}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── DAY EDITOR SHEET (POLAROID CALENDAR STYLE) ────────────────────────────────
 
 function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
@@ -394,18 +508,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
           )}
 
           {tab === "sticker" && (
-            <div style={{ padding: "16px 20px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 12 }}>TAP TO ADD</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 8 }}>
-                {STICKER_PALETTE.map((s, i) => (
-                  <button key={i} onClick={() => addSticker(s)}
-                    className="active:scale-90 transition-transform"
-                    style={{ fontSize: 26, padding: "8px 0", borderRadius: 14, background: "white", border: "1px solid rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <StickerKeyboard onAdd={addSticker} />
           )}
 
           {tab === "photo" && (
@@ -492,12 +595,13 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   );
 }
 
-// ── PAPER CALENDAR VIEW (BLUE NOTEBOOK) ──────────────────────────────────────
+// ── PAPER CALENDAR VIEW — EDITORIAL, PER-MONTH THEMED ────────────────────────
 
 function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; selectedDay: string | null; }) {
   const today = new Date();
   const [year, setYear]   = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  const T = MONTH_THEMES[month];
   const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (number | null)[] = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
@@ -505,108 +609,138 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
   const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   function dateKey(d: number) { return `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
 
-  const NB_BLUE = "#8A9DC0";
-  const NB_DARK = "#6878A0";
-  const NB_TEX  = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.06'/></svg>")`;
-  const CREAM   = "#FEF8EE";
-
   return (
-    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", background: `linear-gradient(160deg, #7B8DB8 0%, ${NB_BLUE} 55%, #7585B2 100%)`, backgroundImage: NB_TEX }}>
+    <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 10px 48px rgba(0,0,0,0.16)" }}>
 
-      {/* Spiral binding */}
-      <div style={{ background: NB_DARK, padding: "10px 16px 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-        {Array.from({ length: 13 }, (_, i) => (
-          <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: "#1A1C26", border: "2px solid #3A3D50", boxShadow: "inset 0 1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.5)" }} />
+      {/* ── SPIRAL BINDING ── */}
+      <div style={{ background: T.binding, padding: "8px 0 7px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        {Array.from({ length: 15 }, (_, i) => (
+          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: "#181820", border: "2.5px solid rgba(255,255,255,0.18)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08)" }} />
         ))}
       </div>
 
-      {/* Month nav + title */}
-      <div style={{ padding: "14px 18px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }}
-          style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={CREAM} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div style={{ textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: CREAM, lineHeight: 1 }}>{MONTH_NAMES[month]} Planner</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(254,248,238,0.5)", marginTop: 2 }}>{year}</p>
+      {/* ── EDITORIAL HEADER ── */}
+      <div style={{ position: "relative", background: T.headerGrad, padding: "20px 20px 16px", overflow: "hidden" }}>
+        {/* Ghost watermark */}
+        <div style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", fontFamily: "var(--font-playfair)", fontSize: 78, fontWeight: 900, fontStyle: "italic", color: "rgba(0,0,0,0.045)", whiteSpace: "nowrap" as const, pointerEvents: "none", userSelect: "none", lineHeight: 1 }}>{T.watermark}</div>
+
+        {/* Large deco emoji — illustrated focal point */}
+        <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", fontSize: 68, lineHeight: 1, filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.16))", pointerEvents: "none" }}>{T.deco}</div>
+
+        {/* Small floating decos */}
+        <div style={{ position: "absolute", right: 90, top: 10 }}><span style={{ fontSize: 11, color: T.accent, opacity: 0.55 }}>{T.decoExtra[0]}</span></div>
+        <div style={{ position: "absolute", right: 76, bottom: 10 }}><span style={{ fontSize: 9, color: T.accent, opacity: 0.4 }}>{T.decoExtra[2]}</span></div>
+
+        {/* Vertical spine label */}
+        <div style={{ position: "absolute", left: 5, top: 0, bottom: 0, display: "flex", alignItems: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.22em", color: T.accent, opacity: 0.4, writingMode: "vertical-rl", transform: "rotate(180deg)" }}>BLOOMBAY · {year}</p>
         </div>
-        <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }}
-          style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={CREAM} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+
+        {/* Nav arrows */}
+        <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4, zIndex: 2 }}>
+          <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }}
+            style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(0,0,0,0.09)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.textColor} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }}
+            style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(0,0,0,0.09)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.textColor} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        {/* Deco kicker strip */}
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 8 }}>
+          {T.decoExtra.map((d, i) => <span key={i} style={{ fontSize: 9, color: T.accent, opacity: 0.55 }}>{d}</span>)}
+        </div>
+
+        {/* Month name */}
+        <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(30px,9vw,40px)", fontWeight: 900, fontStyle: "italic", color: T.textColor, lineHeight: 0.95, marginBottom: 4 }}>{MONTH_NAMES[month]}</h2>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: T.textColor, opacity: 0.5, lineHeight: 1 }}>Planner {year}</p>
       </div>
 
-      {/* Day headers */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", padding: "0 10px 4px" }}>
+      {/* ── WEEKDAY HEADERS ── */}
+      <div style={{ background: T.accent, display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}>
         {DAY_NAMES.map(d => (
-          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", color: "rgba(254,248,238,0.5)", textAlign: "center", paddingBottom: 4 }}>{d}</p>
+          <p key={d} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em", color: "rgba(255,255,255,0.92)", textAlign: "center", padding: "7px 0 6px" }}>{d}</p>
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div style={{ padding: "0 10px 10px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, overflow: "hidden" }}>
+      {/* ── DATE GRID ── */}
+      <div style={{ background: T.gridBg, padding: "3px 3px 2px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", border: `1px solid ${T.accent}22`, borderRadius: 10, overflow: "hidden" }}>
           {cells.map((day, i) => {
             if (!day) return (
-              <div key={i} style={{ minHeight: 52, background: "rgba(0,0,0,0.08)", borderRight: i%7!==6 ? "1px solid rgba(255,255,255,0.1)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(255,255,255,0.1)" : "none" }} />
+              <div key={i} style={{ minHeight: 58, background: `${T.accent}07`, borderRight: i%7!==6 ? `1px solid ${T.accent}15` : "none", borderBottom: i<cells.length-7 ? `1px solid ${T.accent}15` : "none" }} />
             );
             const key = dateKey(day);
             const isToday = key === todayKey;
-            const isSel = key === selectedDay;
-            const dots = EVENT_DATES[key];
-            const dc = dayContents[key];
+            const isSel   = key === selectedDay;
+            const dots    = EVENT_DATES[key];
+            const dc      = dayContents[key];
             const hasSticker = dc?.stickers?.length > 0;
-            const hasNote = dc && (dc.text || dc.photos.length > 0 || dc.voiceCount > 0);
+            const hasNote    = dc && (dc.text || dc.photos.length > 0 || dc.voiceCount > 0);
+            const isFullDay  = dots && dots.length >= 2;
             return (
               <button key={i} onClick={() => onSelectDay(key)}
-                style={{ minHeight: 52, padding: "5px 2px", borderRight: i%7!==6 ? "1px solid rgba(255,255,255,0.1)" : "none", borderBottom: i<cells.length-7 ? "1px solid rgba(255,255,255,0.1)" : "none", background: isSel ? "rgba(255,255,255,0.25)" : isToday ? "rgba(255,31,125,0.18)" : "rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "background 0.15s" }}>
+                style={{ minHeight: 58, padding: "5px 3px 4px", borderRight: i%7!==6 ? `1px solid ${T.accent}15` : "none", borderBottom: i<cells.length-7 ? `1px solid ${T.accent}15` : "none", background: isSel ? `${T.accent}20` : isToday ? `${T.accent}0E` : "white", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "background 0.15s", position: "relative", gap: 2 }}>
+
+                {/* Date number */}
                 {isToday ? (
-                  <div style={{ position: "relative", width: 26, height: 26, marginBottom: 2 }}>
-                    <svg style={{ position: "absolute", top: 0, left: 0 }} width="26" height="26" viewBox="0 0 26 26">
-                      <ellipse cx="13" cy="13" rx="11" ry="11" fill="none" stroke="#FF1F7D" strokeWidth="1.5" strokeDasharray="4 1.5" transform="rotate(-10 13 13)" />
+                  <div style={{ position: "relative", width: 28, height: 28, flexShrink: 0 }}>
+                    <svg style={{ position: "absolute", top: 0, left: 0 }} width="28" height="28" viewBox="0 0 28 28">
+                      <ellipse cx="14" cy="14" rx="12" ry="11.5" fill="none" stroke={T.todayRing} strokeWidth="1.8" strokeDasharray="4 1.5" transform="rotate(-12 14 14)" />
                     </svg>
                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#FF1F7D", lineHeight: 1 }}>{day}</p>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: T.todayRing, lineHeight: 1 }}>{day}</p>
                     </div>
                   </div>
                 ) : (
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: isSel ? CREAM : "rgba(254,248,238,0.82)", fontWeight: isSel ? 700 : 400, lineHeight: 1, marginBottom: 2, paddingTop: 2 }}>{day}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: isSel ? T.accent : "#444", fontWeight: isSel ? 700 : 400, lineHeight: 1 }}>{day}</p>
                 )}
-                {hasSticker ? <span style={{ fontSize: 10 }}>{dc.stickers[dc.stickers.length-1]}</span>
-                  : dots ? <div style={{ display: "flex", gap: 1.5 }}>{dots.slice(0,2).map((ev,j) => <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: ev.color }} />)}</div>
-                  : hasNote ? <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,248,220,0.5)" }} />
-                  : null}
+
+                {/* Indicators */}
+                {hasSticker ? (
+                  <span style={{ fontSize: 13 }}>{dc.stickers[dc.stickers.length-1]}</span>
+                ) : isFullDay ? (
+                  <div style={{ background: T.accent, borderRadius: 999, padding: "1.5px 5px" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>FULL</p>
+                  </div>
+                ) : dots ? (
+                  <div style={{ display: "flex", gap: 2, justifyContent: "center" }}>
+                    {dots.slice(0,3).map((ev, j) => <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: ev.color }} />)}
+                  </div>
+                ) : hasNote ? (
+                  <div style={{ width: 14, height: 10, borderRadius: 2, background: `${T.accent}20`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 7, height: 1.5, borderRadius: 1, background: T.accent, opacity: 0.5 }} />
+                  </div>
+                ) : null}
+
+                {/* Selection border glow */}
+                {isSel && <div style={{ position: "absolute", inset: 0, border: `2px solid ${T.accent}50`, pointerEvents: "none" }} />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Legend */}
-      <div style={{ padding: "0 14px 12px", display: "flex", gap: 12 }}>
-        {[{ color: "#FF1F7D", label: "Today" }, { color: "#83C5A0", label: "Plans" }, { color: "rgba(255,248,220,0.5)", label: "Notes" }].map(l => (
-          <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: l.color }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(254,248,238,0.5)" }}>{l.label}</p>
+      {/* ── FOOTER LEGEND ── */}
+      <div style={{ background: T.headerGrad, padding: "10px 16px 12px", display: "flex", alignItems: "center", gap: 12 }}>
+        {[{ color: T.todayRing, label: "Today" }, { color: T.accent, label: "Plans" }, { color: "#999", label: "Notes" }].map(l => (
+          <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: l.color, opacity: 0.8 }} />
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: T.textColor, opacity: 0.6 }}>{l.label}</p>
           </div>
         ))}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 12 }}>{T.deco}</span>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.14em", color: T.accent, opacity: 0.55 }}>BLOOMBAY</p>
+        </div>
       </div>
-
-      {/* Floating gold stars */}
-      <div style={{ position: "absolute", bottom: 16, right: 14, display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-end" }}>
-        <div style={{ display: "flex", gap: 3 }}>{"★★".split("").map((s,i) => <span key={i} style={{ fontSize: 9, color: "#D4A853", opacity: 0.75 }}>{s}</span>)}</div>
-        <div style={{ display: "flex", gap: 3 }}>{"★★★".split("").map((s,i) => <span key={i} style={{ fontSize: 10, color: "#D4A853", opacity: 0.9 }}>{s}</span>)}</div>
-      </div>
-
-      {/* Heart doodle */}
-      <svg style={{ position: "absolute", top: 80, right: 16, opacity: 0.3 }} width="26" height="24" viewBox="0 0 26 24">
-        <path d="M13 22 C13 22 1 14 1 7 C1 3.5 4 1 7 1 C9.5 1 11.5 2.5 13 4.5 C14.5 2.5 16.5 1 19 1 C22 1 25 3.5 25 7 C25 14 13 22 13 22Z" fill="none" stroke="#FEF8EE" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
     </div>
   );
 }
 
-// ── DAY SCHEDULE VIEW ─────────────────────────────────────────────────────────
+// ── DAY SCHEDULE VIEW — TIME-SLOTTED AGENDA ───────────────────────────────────
 
 function DayScheduleView({ dayKey, dayContent, onEdit }: {
   dayKey: string;
@@ -614,77 +748,100 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
   onEdit: () => void;
 }) {
   const date       = new Date(dayKey + "T12:00:00");
+  const T          = MONTH_THEMES[date.getMonth()];
   const dayNum     = date.getDate();
   const dayLabel   = DAY_FULL[date.getDay()];
   const monthLabel = MONTH_NAMES[date.getMonth()];
   const events     = EVENT_DATES[dayKey] ?? [];
 
-  const CARD_PALETTES = [
-    { bg: "#FFE4EF", border: "#FF69B4", check: "#FF1F7D" },
-    { bg: "#FFF3D0", border: "#F59E0B", check: "#D97706" },
-    { bg: "#D8F0E4", border: "#83C5A0", check: "#22C55E" },
-    { bg: "#EDE8FC", border: "#A855F7", check: "#9333EA" },
-  ];
+  function parseHour(t: string): number {
+    const m = t.match(/(\d+)(?::\d+)?\s*(AM|PM)/i);
+    if (!m) return 12;
+    let h = parseInt(m[1]);
+    if (m[2].toUpperCase() === "PM" && h !== 12) h += 12;
+    if (m[2].toUpperCase() === "AM" && h === 12) h = 0;
+    return h;
+  }
 
+  const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 7AM–9PM
   const hasContent = dayContent && (dayContent.text || dayContent.photos.length > 0 || dayContent.voiceCount > 0 || dayContent.stickers.length > 0);
 
   return (
-    <div style={{ margin: "0 8px 12px", background: "#FAF6F0", borderRadius: 20, padding: "14px 14px 16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.7)" }}>
+    <div style={{ margin: "0 8px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.1)", border: `1px solid ${T.accent}18` }}>
 
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+      {/* ── Day header ── */}
+      <div style={{ background: T.headerGrad, padding: "14px 16px 12px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#FF1F7D", lineHeight: 1 }}>{dayLabel}</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.1 }}>{dayNum} {monthLabel}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.25em", color: T.accent, marginBottom: 4 }}>{dayLabel.toUpperCase()} {T.deco}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: T.textColor, lineHeight: 1 }}>{dayNum} {monthLabel}</p>
+          {events.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: T.accent, opacity: 0.7, marginTop: 3 }}>{events.length} plan{events.length !== 1 ? "s" : ""} today</p>}
         </div>
-        <button onClick={onEdit}
-          style={{ padding: "6px 14px", borderRadius: 999, background: "#FFF0F7", border: "1.5px solid rgba(255,31,125,0.2)", cursor: "pointer", flexShrink: 0 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "#FF1F7D", letterSpacing: "0.05em" }}>+ NOTES</p>
+        <button onClick={onEdit} style={{ padding: "8px 16px", borderRadius: 999, background: T.accent, border: "none", cursor: "pointer", flexShrink: 0 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.05em" }}>+ NOTES</p>
         </button>
       </div>
 
-      {/* Events as pastel cards */}
-      {events.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: hasContent ? 12 : 0 }}>
-          {events.map((ev, i) => {
-            const pal = CARD_PALETTES[i % CARD_PALETTES.length];
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: pal.bg, borderRadius: 12, borderLeft: `3.5px solid ${pal.border}`, padding: "10px 12px" }}>
-                <span style={{ fontSize: 20 }}>{ev.emoji}</span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginTop: 2 }}>🕐 {ev.time}</p>
-                </div>
-                <div style={{ width: 22, height: 22, borderRadius: 8, background: pal.check, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </div>
-              </div>
-            );
-          })}
+      {/* Stickers bar */}
+      {dayContent?.stickers && dayContent.stickers.length > 0 && (
+        <div style={{ background: `${T.accent}0A`, padding: "6px 14px", display: "flex", gap: 6, flexWrap: "wrap" as const, borderBottom: `1px solid ${T.accent}15` }}>
+          {dayContent.stickers.map((s, i) => (
+            s.startsWith("data:") ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={i} src={s} alt="" style={{ width: 26, height: 26, objectFit: "contain" }} />
+            ) : <span key={i} style={{ fontSize: 22 }}>{s}</span>
+          ))}
         </div>
       )}
 
-      {/* Day notes preview */}
-      {hasContent && (
-        <div style={{ background: "#FFFCF5", borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(0,0,0,0.06)" }}>
-          {dayContent!.text && (
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#555", lineHeight: 1.5, marginBottom: dayContent!.stickers.length > 0 ? 6 : 0 }}>
-              {dayContent!.text.slice(0, 80)}{dayContent!.text.length > 80 ? "…" : ""}
-            </p>
-          )}
-          {dayContent!.stickers.length > 0 && (
-            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-              {dayContent!.stickers.map((s, i) => <span key={i} style={{ fontSize: 18 }}>{s}</span>)}
+      {/* ── Time slots ── */}
+      <div style={{ background: "white" }}>
+        {HOURS.map((h) => {
+          const timeLabel = h < 12 ? `${h}AM` : h === 12 ? "12PM" : `${h-12}PM`;
+          const eventsAtHour = events.filter(ev => parseHour(ev.time) === h);
+          return (
+            <div key={h} style={{ display: "flex", alignItems: "stretch", borderBottom: `1px solid rgba(0,0,0,0.04)`, minHeight: eventsAtHour.length > 0 ? "auto" : 40 }}>
+              {/* Time label */}
+              <div style={{ width: 46, flexShrink: 0, borderRight: `1px solid rgba(0,0,0,0.05)`, padding: "10px 6px 10px 10px", display: "flex", alignItems: "flex-start" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 600, color: "#C0B8B8", lineHeight: 1, whiteSpace: "nowrap" as const }}>{timeLabel}</p>
+              </div>
+              {/* Slot content */}
+              <div style={{ flex: 1, padding: eventsAtHour.length > 0 ? "7px 10px" : "0", display: "flex", flexDirection: "column", gap: 6 }}>
+                {eventsAtHour.map((ev, ei) => (
+                  <div key={ei} style={{ background: `${ev.color}14`, borderLeft: `3.5px solid ${ev.color}`, borderRadius: "0 12px 12px 0", padding: "9px 10px 9px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, position: "relative", overflow: "hidden" }}>
+                    {/* Colour wash */}
+                    <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "40%", background: `linear-gradient(90deg, transparent, ${ev.color}10)`, pointerEvents: "none" }} />
+                    <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
+                        <span style={{ fontSize: 14, flexShrink: 0 }}>{ev.emoji}</span>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{ev.name}</p>
+                      </div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "#aaa" }}>🕐 {ev.time}</p>
+                    </div>
+                    {/* Mini polaroid thumbnail */}
+                    <div style={{ flexShrink: 0, width: 38, background: "white", padding: "3px 3px 9px", borderRadius: 3, boxShadow: "0 3px 10px rgba(0,0,0,0.14)", transform: "rotate(2.5deg)", zIndex: 1 }}>
+                      <div style={{ width: 32, height: 28, borderRadius: 2, background: `linear-gradient(135deg, ${ev.color}55, ${ev.color}22)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{ev.emoji}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          );
+        })}
+      </div>
+
+      {/* Notes */}
+      {dayContent?.text && (
+        <div style={{ background: `${T.accent}07`, padding: "12px 16px 14px", borderTop: `1px solid ${T.accent}12` }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.2em", color: T.accent, opacity: 0.6, marginBottom: 6 }}>✍️ MY NOTES</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#555", lineHeight: 1.55 }}>{dayContent.text}</p>
         </div>
       )}
 
       {/* Empty state */}
       {events.length === 0 && !hasContent && (
-        <div style={{ textAlign: "center", padding: "12px 0 4px" }}>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#C0B8B0" }}>Nothing planned yet ✨</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#CCC5BC", marginTop: 4 }}>Tap + NOTES to write, add stickers or photos</p>
+        <div style={{ padding: "22px 16px 24px", textAlign: "center" as const, background: "white" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#D4CCC8" }}>Nothing planned yet {T.deco}</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#DDD", marginTop: 4 }}>Tap + NOTES to journal, add stickers, photos or voice notes</p>
         </div>
       )}
     </div>
