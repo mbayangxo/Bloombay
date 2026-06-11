@@ -199,39 +199,15 @@ function parseDatePill(dateStr: string): { month: string; day: string } {
 
 function ClubCrest({ color, crestBg, size = 72 }: { name?: string; color: string; crestBg?: string; size?: number }) {
   const bg = crestBg ?? "#3a0018";
-  const s = size * 0.52; // bee pair SVG size relative to circle
+  const fs = Math.round(size * 0.3);
   return (
     <div style={{ width: size, height: size, borderRadius: "50%", background: `radial-gradient(circle at 35% 35%, ${color}, ${bg})`, boxShadow: `0 4px 24px ${color}55`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative" }}>
       <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.22)", transform: "scale(0.86)" }} />
-      {/* Two bees facing each other */}
-      <svg width={s} height={s * 0.7} viewBox="0 0 52 36" fill="none" style={{ position: "relative", zIndex: 1 }}>
-        {/* Left bee (facing right) */}
-        <g transform="translate(2,4)">
-          <ellipse cx="10" cy="14" rx="7" ry="4.5" fill="#F59E0B" />
-          <rect x="6" y="12" width="3" height="5" rx="1" fill="#1C1B1C" opacity="0.7" />
-          <rect x="10" y="12" width="3" height="5" rx="1" fill="#1C1B1C" opacity="0.7" />
-          <ellipse cx="10" cy="10" rx="4" ry="3" fill="#FEF3C7" opacity="0.9" />
-          <ellipse cx="7" cy="7" rx="3.5" ry="2" fill="rgba(255,255,255,0.55)" transform="rotate(-25 7 7)" />
-          <ellipse cx="13" cy="7" rx="3.5" ry="2" fill="rgba(255,255,255,0.55)" transform="rotate(25 13 7)" />
-          <ellipse cx="10" cy="10" rx="2" ry="1.5" fill="#1C1B1C" opacity="0.35" />
-          <circle cx="8.5" cy="9.2" r="0.7" fill="#1C1B1C" opacity="0.8" />
-          <circle cx="11.5" cy="9.2" r="0.7" fill="#1C1B1C" opacity="0.8" />
-        </g>
-        {/* Right bee (facing left, mirrored) */}
-        <g transform="translate(38,4) scale(-1,1)">
-          <ellipse cx="10" cy="14" rx="7" ry="4.5" fill="#F59E0B" />
-          <rect x="6" y="12" width="3" height="5" rx="1" fill="#1C1B1C" opacity="0.7" />
-          <rect x="10" y="12" width="3" height="5" rx="1" fill="#1C1B1C" opacity="0.7" />
-          <ellipse cx="10" cy="10" rx="4" ry="3" fill="#FEF3C7" opacity="0.9" />
-          <ellipse cx="7" cy="7" rx="3.5" ry="2" fill="rgba(255,255,255,0.55)" transform="rotate(-25 7 7)" />
-          <ellipse cx="13" cy="7" rx="3.5" ry="2" fill="rgba(255,255,255,0.55)" transform="rotate(25 13 7)" />
-          <ellipse cx="10" cy="10" rx="2" ry="1.5" fill="#1C1B1C" opacity="0.35" />
-          <circle cx="8.5" cy="9.2" r="0.7" fill="#1C1B1C" opacity="0.8" />
-          <circle cx="11.5" cy="9.2" r="0.7" fill="#1C1B1C" opacity="0.8" />
-        </g>
-        {/* Small BB between bees */}
-        <text x="26" y="22" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontWeight="700" fontSize="7" fill="rgba(255,255,255,0.7)" letterSpacing="0.5">BB</text>
-      </svg>
+      {/* Two B's facing each other */}
+      <div style={{ display: "flex", alignItems: "center", gap: 2, position: "relative", zIndex: 1 }}>
+        <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: fs, color: "white", lineHeight: 1, letterSpacing: 0 }}>B</span>
+        <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: fs, color: "white", lineHeight: 1, letterSpacing: 0, display: "inline-block", transform: "scaleX(-1)" }}>B</span>
+      </div>
     </div>
   );
 }
