@@ -6,7 +6,7 @@ import Link from "next/link";
 /* ── Types ──────────────────────────────────────────────────────── */
 interface Notif {
   id: number;
-  type: "seat" | "stamp" | "event" | "celebrate" | "intro" | "message" | "club" | "club_accepted";
+  type: "seat" | "flower" | "event" | "celebrate" | "intro" | "message" | "club" | "club_accepted";
   title: string;
   body: string;
   time: string;
@@ -26,8 +26,8 @@ const INITIAL_NOW: Notif[] = [
     clubName: "Lens & Light", clubCrest: "📸",
   },
   {
-    id: 1, type: "stamp",
-    title: "Kezia A. witnessed you",
+    id: 1, type: "flower",
+    title: "Kezia A. gave you a flower 🌸",
     body: '"She makes every table feel full."',
     time: "4m ago", unread: true,
     witnessId: "kezia",
@@ -39,8 +39,8 @@ const INITIAL_NOW: Notif[] = [
     time: "12m ago", unread: true,
   },
   {
-    id: 3, type: "stamp",
-    title: "Sofia K. witnessed you",
+    id: 3, type: "flower",
+    title: "Sofia K. gave you a flower 🌸",
     body: '"You made the whole table feel like home."',
     time: "28m ago", unread: true,
     witnessId: "sofia",
@@ -67,8 +67,8 @@ const INITIAL_EARLIER: Notif[] = [
     time: "4h ago", unread: false,
   },
   {
-    id: 7, type: "stamp",
-    title: "Priya R. witnessed you",
+    id: 7, type: "flower",
+    title: "Priya R. gave you a flower 🌸",
     body: '"You made everyone feel welcome. That\'s a rare thing."',
     time: "5h ago", unread: false,
     witnessId: "priya",
@@ -117,7 +117,7 @@ type NoteTheme = {
 };
 
 const NOTE_THEMES: Record<Notif["type"], NoteTheme> = {
-  stamp:         { bg: "#FFFDE7", pin: "#F59E0B", ruledColor: "rgba(200,170,0,0.13)",  titleColor: "#78350F", bodyColor: "#92400E", rot: "-1.5deg" },
+  flower:        { bg: "#FFF0F8", pin: "#FF0090", ruledColor: "rgba(255,0,144,0.08)", titleColor: "#7A0040", bodyColor: "#9D174D", rot: "-1.5deg" },
   seat:          { bg: "#FFF0F5", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.08)", titleColor: "#831843", bodyColor: "#9D174D", rot: "1.2deg"  },
   event:         { bg: "#EEF2FF", pin: "#4F46E5", ruledColor: "rgba(79,70,229,0.1)",   titleColor: "#312E81", bodyColor: "#3730A3", rot: "-0.8deg" },
   celebrate:     { bg: "#FFF7ED", pin: "#EA580C", ruledColor: "rgba(234,88,12,0.09)",  titleColor: "#7C2D12", bodyColor: "#9A3412", rot: "1.8deg"  },
@@ -217,7 +217,7 @@ function NoteCard({ n }: { n: Notif }) {
           fontSize: 11.5,
           color: th.bodyColor,
           lineHeight: 1.5,
-          fontStyle: n.type === "stamp" ? "italic" : "normal",
+          fontStyle: n.type === "flower" ? "italic" : "normal",
           marginBottom: 7,
         }}>
           {n.body}
@@ -258,7 +258,7 @@ function NoteCard({ n }: { n: Notif }) {
     </div>
   );
 
-  if (n.type === "stamp" && n.witnessId) {
+  if (n.type === "flower" && n.witnessId) {
     return (
       <Link href={`/member/witness/${n.witnessId}`} style={{ textDecoration: "none", display: "block" }}>
         {inner}

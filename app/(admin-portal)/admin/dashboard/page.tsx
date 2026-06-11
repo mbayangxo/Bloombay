@@ -1456,7 +1456,7 @@ interface AdminPlace {
   name: string;
   neighborhood: string;
   submittedBy: string;
-  stamps: number;
+  flowers: number;
   featured: boolean;
 }
 
@@ -1475,12 +1475,12 @@ const ADMIN_POPUPS: AdminPopup[] = [
 ];
 
 const ADMIN_PLACES: AdminPlace[] = [
-  { id: 1, type: "place", name: "The High Line",            neighborhood: "Chelsea",         submittedBy: "Sofia K.",   stamps: 127, featured: false },
-  { id: 2, type: "place", name: "Brooklyn Bridge Park",     neighborhood: "DUMBO",           submittedBy: "Priya R.",   stamps: 203, featured: false },
-  { id: 3, type: "eat",   name: "Sadelle's",                neighborhood: "SoHo",            submittedBy: "Aaliyah M.", stamps: 89,  featured: true  },
-  { id: 4, type: "eat",   name: "Bangkok Supper Club",      neighborhood: "Lower East Side", submittedBy: "Jade O.",    stamps: 64,  featured: false },
-  { id: 5, type: "gem",   name: "McNally Jackson Café",     neighborhood: "Nolita",          submittedBy: "Rachel M.",  stamps: 71,  featured: false },
-  { id: 6, type: "gem",   name: "Russ & Daughters Café",    neighborhood: "Lower East Side", submittedBy: "Deja W.",    stamps: 55,  featured: false },
+  { id: 1, type: "place", name: "The High Line",            neighborhood: "Chelsea",         submittedBy: "Sofia K.",   flowers: 127, featured: false },
+  { id: 2, type: "place", name: "Brooklyn Bridge Park",     neighborhood: "DUMBO",           submittedBy: "Priya R.",   flowers: 203, featured: false },
+  { id: 3, type: "eat",   name: "Sadelle's",                neighborhood: "SoHo",            submittedBy: "Aaliyah M.", flowers: 89,  featured: true  },
+  { id: 4, type: "eat",   name: "Bangkok Supper Club",      neighborhood: "Lower East Side", submittedBy: "Jade O.",    flowers: 64,  featured: false },
+  { id: 5, type: "gem",   name: "McNally Jackson Café",     neighborhood: "Nolita",          submittedBy: "Rachel M.",  flowers: 71,  featured: false },
+  { id: 6, type: "gem",   name: "Russ & Daughters Café",    neighborhood: "Lower East Side", submittedBy: "Deja W.",    flowers: 55,  featured: false },
 ];
 
 const ADMIN_TYPE_LABELS: Record<HappeningAdminType, string> = {
@@ -1767,7 +1767,7 @@ function HappeningsSection() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="#FF1F7D">
                   <path d="M12 2C9.795 2 8 3.795 8 6c0 1.856 1.297 3.41 3.055 3.875.28 1.16 1.31 2.025 2.555 2.075C15.385 12 17 10.432 17 8.5c0-1.036-.43-1.97-1.121-2.637C15.866 3.8 14.08 2 12 2z" />
                 </svg>
-                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>{p.stamps} stamps</span>
+                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>🌸 {p.flowers}</span>
               </div>
               {p.featured && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"

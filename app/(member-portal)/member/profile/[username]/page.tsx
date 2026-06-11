@@ -22,7 +22,7 @@ interface MoodItem {
   emoji?: string;
 }
 interface Moment { location: string; neighborhood: string; caption: string; flowers: number; timeAgo: string; emoji: string; bgColor: string }
-interface BloomNote { place: string; neighborhood: string; note: string; rating: number; timeAgo: string }
+interface BloomNote { place: string; neighborhood: string; note: string; rating: number; timeAgo: string; category: "restaurant" | "bar" | "café" | "shop" | "park" | "bookshop" | "gallery" }
 
 interface ProfileData {
   name: string;
@@ -85,11 +85,12 @@ const PROFILES: Record<string, ProfileData> = {
       { location: "Lilia",            neighborhood: "Williamsburg", caption: "The mafaldini. Every time.",               flowers: 112, timeAgo: "1w", emoji: "🍝", bgColor: "#FFF0F5" },
     ],
     bloomNotes: [
-      { place: "Bar Pisellino",  neighborhood: "West Village",    note: "The marble bar, the negroni, the energy. Nothing comes close.", rating: 5, timeAgo: "2w" },
-      { place: "Via Carota",     neighborhood: "West Village",    note: "Insalata verde is worth the 45 min wait. No reservations needed.", rating: 5, timeAgo: "1mo" },
-      { place: "Café Kitsuné",   neighborhood: "West Village",    note: "Sit in the garden with a journal. That's it.", rating: 5, timeAgo: "1mo" },
-      { place: "Estela",         neighborhood: "Nolita",          note: "Burrata with salsa verde changed my life. Not joking.", rating: 5, timeAgo: "2mo" },
-      { place: "The Strand",     neighborhood: "Flatiron",        note: "Third floor rare books room. Go alone. Take your time.", rating: 4, timeAgo: "3mo" },
+      { place: "Bar Pisellino",  neighborhood: "West Village",    note: "The marble bar, the negroni, the energy. Nothing comes close.", rating: 5, timeAgo: "2w",  category: "bar" },
+      { place: "Via Carota",     neighborhood: "West Village",    note: "Insalata verde is worth the 45 min wait. No reservations needed.", rating: 5, timeAgo: "1mo", category: "restaurant" },
+      { place: "Café Kitsuné",   neighborhood: "West Village",    note: "Sit in the garden with a journal. That's it.", rating: 5, timeAgo: "1mo", category: "café" },
+      { place: "Estela",         neighborhood: "Nolita",          note: "Burrata with salsa verde changed my life. Not joking.", rating: 5, timeAgo: "2mo", category: "restaurant" },
+      { place: "The Strand",     neighborhood: "Flatiron",        note: "Third floor rare books room. Go alone. Take your time.", rating: 4, timeAgo: "3mo", category: "bookshop" },
+      { place: "Bemelmans Bar",  neighborhood: "Upper East Side", note: "Live piano, murals, and old New York in a glass. Unmissable.", rating: 5, timeAgo: "4mo", category: "bar" },
     ],
   },
   "maya": {
@@ -128,9 +129,11 @@ const PROFILES: Record<string, ProfileData> = {
       { location: "Russ & Daughters",neighborhood:"Lower East Side","caption":"The appetizing plate. Every. Time.", flowers: 78, timeAgo: "5d",  emoji: "🥯", bgColor: "#FFF5E8" },
     ],
     bloomNotes: [
-      { place: "Lilia",          neighborhood: "Williamsburg",   note: "Mafaldini with pink peppercorns is the best pasta in NYC.", rating: 5, timeAgo: "1w" },
-      { place: "Marlow & Sons",  neighborhood: "Williamsburg",   note: "Sunday oysters at the bar. The vibe is perfect.",            rating: 5, timeAgo: "2w" },
-      { place: "Bonnie's",       neighborhood: "Williamsburg",   note: "Cantonese-American fusion done right. Get everything.",       rating: 4, timeAgo: "1mo" },
+      { place: "Lilia",          neighborhood: "Williamsburg",   note: "Mafaldini with pink peppercorns is the best pasta in NYC.", rating: 5, timeAgo: "1w",  category: "restaurant" },
+      { place: "Marlow & Sons",  neighborhood: "Williamsburg",   note: "Sunday oysters at the bar. The vibe is perfect.",            rating: 5, timeAgo: "2w",  category: "restaurant" },
+      { place: "Bonnie's",       neighborhood: "Williamsburg",   note: "Cantonese-American fusion done right. Get everything.",       rating: 4, timeAgo: "1mo", category: "restaurant" },
+      { place: "Extra Fancy",    neighborhood: "Williamsburg",   note: "Best oyster happy hour in Brooklyn. $1 oysters until 6.",    rating: 5, timeAgo: "1mo", category: "bar" },
+      { place: "Threes Brewing", neighborhood: "Gowanus",        note: "Outdoor space is perfect for a slow afternoon.",             rating: 4, timeAgo: "2mo", category: "bar" },
     ],
   },
 };
@@ -392,7 +395,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
               letterSpacing: "0.1em", textTransform: "uppercase" as const,
               color: tab === t ? PINK : "rgba(255,255,255,0.25)",
             }}>
-              {t === "about" ? "About" : t === "moodboard" ? "Mood Board" : t === "moments" ? "Moments" : "Reviews"}
+              {t === "about" ? "About" : t === "moodboard" ? "Mood Board" : t === "moments" ? "Moments" : "Bloom Notes"}
             </span>
           </button>
         ))}
@@ -527,34 +530,52 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         {/* ── BLOOM NOTES TAB ─────────────────────────────────────────────────── */}
         {tab === "reviews" && (
           <>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1, marginBottom: 6 }}>Bloom Notes.</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.3)", marginBottom: 20 }}>Places she's reviewed across the city</p>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1 }}>Bloom Notes.</p>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.25)" }}>{profile.bloomNotes.length} places</span>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.28)", marginBottom: 20 }}>Eateries &amp; places she&apos;s left notes for</p>
             {profile.bloomNotes.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {profile.bloomNotes.map((note, i) => (
-                  <div key={i} style={{
-                    backgroundImage: DARK_GRAIN,
-                    backgroundSize: "160px 160px",
-                    backgroundColor: "#130810",
-                    borderRadius: 18,
-                    padding: "16px 16px 14px",
-                    border: "1px solid rgba(255,255,255,0.05)",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
-                      <div>
-                        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 18, color: "white", lineHeight: 1.1 }}>{note.place}</p>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.28)", marginTop: 3 }}>{note.neighborhood.toUpperCase()}</p>
+                {profile.bloomNotes.map((note, i) => {
+                  const categoryIcon: Record<string, string> = {
+                    restaurant: "🍽", bar: "🍷", café: "☕", shop: "🛍",
+                    park: "🌿", bookshop: "📚", gallery: "🖼",
+                  };
+                  const icon = categoryIcon[note.category] ?? "📍";
+                  return (
+                    <div key={i} style={{
+                      backgroundImage: DARK_GRAIN,
+                      backgroundSize: "160px 160px",
+                      backgroundColor: "#130810",
+                      borderRadius: 18,
+                      padding: "16px 16px 14px",
+                      border: "1px solid rgba(255,255,255,0.05)",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
+                            <span style={{ fontSize: 13 }}>{icon}</span>
+                            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 18, color: "white", lineHeight: 1.1 }}>{note.place}</p>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.28)" }}>{note.neighborhood.toUpperCase()}</p>
+                            <div style={{ background: "rgba(255,0,144,0.12)", borderRadius: 999, padding: "2px 7px" }}>
+                              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.08em", color: PINK }}>{note.category.toUpperCase()}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <Stars n={note.rating} />
                       </div>
-                      <Stars n={note.rating} />
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginTop: 10 }}>&ldquo;{note.note}&rdquo;</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.18)", marginTop: 10 }}>{note.timeAgo} ago</p>
                     </div>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>"{note.note}"</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.2)", marginTop: 10 }}>{note.timeAgo} ago</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "48px 0" }}>No reviews yet.</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "48px 0" }}>No bloom notes yet.</p>
             )}
           </>
         )}
