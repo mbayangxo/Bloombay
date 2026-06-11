@@ -49,6 +49,33 @@ const TODAY_EVENTS = [
   { time: "7:30 PM",  label: "TONIGHT", name: "Girls Dinner",     loc: "Carbone · West Village"           },
 ];
 
+const TONIGHT_CARDS = [
+  {
+    image: "/happenings/posters/04_Italian_Dinner_Society.png",
+    time: "TONIGHT · 7:30 PM",
+    venue: "WEST VILLAGE · CARBONE",
+    title: "Girls Dinner.",
+    sub: "4 seats remaining",
+    href: "/member/happenings",
+  },
+  {
+    image: "/happenings/posters/01_Pilates_Pop_Up.png",
+    time: "TONIGHT · 6:00 PM",
+    venue: "SOHO · MOVEMENT STUDIO",
+    title: "Pilates Pop‑Up.",
+    sub: "8 spots left",
+    href: "/member/happenings",
+  },
+  {
+    image: "/happenings/posters/03_Jazz_Night.png",
+    time: "TONIGHT · 9:00 PM",
+    venue: "WEST VILLAGE · SMALLS",
+    title: "Jazz Night.",
+    sub: "Open doors · free entry",
+    href: "/member/happenings",
+  },
+];
+
 // ── White card base ────────────────────────────────────────────────────────────
 const CARD: React.CSSProperties = {
   background: "#FFFFFF",
@@ -126,12 +153,13 @@ function ClubCover({ club }: { club: Club }) {
 
 // ── HomePage ───────────────────────────────────────────────────────────────────
 export function HomePage() {
-  const [tod,       setTod]       = useState<TimeOfDay>("afternoon");
-  const [greeting,  setGreeting]  = useState("Good afternoon");
-  const [firstName, setFirstName] = useState("");
-  const [myClubs,   setMyClubs]   = useState<Club[]>([]);
-  const [joinedAt,  setJoinedAt]  = useState<string | null>(null);
-  const [loading,   setLoading]   = useState(true);
+  const [tod,        setTod]       = useState<TimeOfDay>("afternoon");
+  const [greeting,   setGreeting]  = useState("Good afternoon");
+  const [firstName,  setFirstName] = useState("");
+  const [myClubs,    setMyClubs]   = useState<Club[]>([]);
+  const [joinedAt,   setJoinedAt]  = useState<string | null>(null);
+  const [loading,    setLoading]   = useState(true);
+  const [tonightIdx, setTonightIdx] = useState(0);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -161,7 +189,7 @@ export function HomePage() {
   });
   const weeksIn    = joinedAt ? Math.min(4, Math.floor((Date.now() - new Date(joinedAt).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1) : 1;
   const task       = FIRST_MONTH_TASKS[Math.min(weeksIn - 1, 3)];
-  const displayName = firstName || "you";
+  const displayName = firstName || (loading ? "…" : "you");
   const monthShort  = MONTHS_S[today.getMonth()];
   const dayOfMonth  = today.getDate();
   const dayAbbr     = WEEK_DAYS[todayDow];
@@ -221,21 +249,55 @@ export function HomePage() {
           {/* Pink separator */}
           <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}99, rgba(255,0,144,0.15), transparent)`, margin: "0 20px" }} />
 
-          {/* — BOTTOM: Tonight — */}
-          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <div style={{ padding: "14px 20px 18px", position: "relative" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>TONIGHT · 7:30 PM · WEST VILLAGE</p>
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-                <div>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 26, color: "white", lineHeight: 1.0 }}>Girls Dinner.</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontWeight: 500, fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: 4 }}>Carbone · 4 seats</p>
-                </div>
-                <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "9px 18px", boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 5px 16px ${PINK}55` }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.07em" }}>I&apos;M IN →</span>
-                </div>
-              </div>
+          {/* — BOTTOM: YOUR WEEK mini calendar — */}
+          <div style={{ padding: "14px 20px 6px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>YOUR WEEK</p>
+            <div style={{ display: "flex", gap: 4 }}>
+              {weekDays.map((d, i) => {
+                const hasEvent = [1, 3, 5].includes(i);
+                return (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: d.isToday ? PINK : "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}>{d.abbr}</p>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: d.isToday ? PINK : "rgba(255,255,255,0.07)", border: d.isToday ? "none" : "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: d.isToday ? 800 : 600, color: d.isToday ? "white" : "rgba(255,255,255,0.5)" }}>{d.date}</p>
+                    </div>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: hasEvent ? PINK : "transparent" }} />
+                  </div>
+                );
+              })}
             </div>
-          </Link>
+          </div>
+
+          {/* — YOUR DAY timeline — */}
+          <div style={{ padding: "10px 20px 18px" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)" }}>YOUR DAY</p>
+              <Link href="/member/plans" style={{ textDecoration: "none" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.22)" }}>full schedule →</span>
+              </Link>
+            </div>
+            {TODAY_EVENTS.map((ev, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < TODAY_EVENTS.length - 1 ? 14 : 0 }}>
+                <div style={{ width: 36, flexShrink: 0, textAlign: "right" as const }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.2)" }}>{ev.time.split(" ")[1]}</p>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: ev.label === "TONIGHT" ? PINK : "rgba(255,255,255,0.3)", boxShadow: ev.label === "TONIGHT" ? `0 0 0 3px rgba(255,0,144,0.18)` : "none" }} />
+                  {i < TODAY_EVENTS.length - 1 && <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.08)", marginTop: 3 }} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.28)", marginTop: 1, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
+                </div>
+                {ev.label === "NEXT" && (
+                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "3px 8px" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.1em" }}>NEXT</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Chips row */}
@@ -275,10 +337,10 @@ export function HomePage() {
       {/* ══ LIVE PULSE ══════════════════════════════════════════════════════════ */}
       <div style={{ display: "flex", overflowX: "auto", gap: 8, padding: "16px 16px 0", scrollbarWidth: "none" as const }}>
         {[
-          { text: "Sofia joined Dinner Society", time: "2m" },
-          { text: "Girls Night → 2 seats left",  time: "now" },
-          { text: "14 happenings near SoHo",     time: "" },
-          { text: "Book Club starts Wednesday",  time: "3d" },
+          { text: "Girls Night → 2 seats left",     time: "now" },
+          { text: "Italian Dinner Society · tonight", time: "" },
+          { text: "14 happenings near SoHo",          time: "" },
+          { text: "Book Club starts Wednesday",       time: "3d" },
         ].map((p, i) => (
           <div key={i} style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 999, padding: "8px 15px" }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 2px rgba(255,0,144,0.22)` }} />
@@ -290,37 +352,63 @@ export function HomePage() {
 
       {/* ══ FEATURED TONIGHT ════════════════════════════════════════════════════ */}
       <div style={{ padding: "20px 16px 0" }}>
-        <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-          <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 220, boxShadow: "0 14px 44px rgba(0,0,0,0.42)" }}>
-            <Image
-              src="/happenings/posters/04_Italian_Dinner_Society.png"
-              alt="Tonight"
-              fill
-              style={{ objectFit: "cover", objectPosition: "center" }}
-              sizes="(max-width: 520px) 100vw, 520px"
-            />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.92) 100%)" }} />
-            {/* Top tag */}
-            <div style={{ position: "absolute", top: 14, left: 14 }}>
-              <div style={{ background: PINK, borderRadius: 999, padding: "5px 14px", display: "inline-flex", boxShadow: `0 2px 8px ${PINK}66` }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, color: "white", letterSpacing: "0.12em" }}>TONIGHT · 7:30 PM</span>
+        {/* Carousel track */}
+        <div
+          style={{ position: "relative", touchAction: "pan-y" }}
+          onTouchStart={(e) => {
+            const t = e.touches[0];
+            (e.currentTarget as HTMLElement).dataset.touchX = String(t.clientX);
+          }}
+          onTouchEnd={(e) => {
+            const startX = Number((e.currentTarget as HTMLElement).dataset.touchX ?? 0);
+            const dx = e.changedTouches[0].clientX - startX;
+            if (Math.abs(dx) > 40) {
+              setTonightIdx(prev =>
+                dx < 0
+                  ? Math.min(prev + 1, TONIGHT_CARDS.length - 1)
+                  : Math.max(prev - 1, 0)
+              );
+            }
+          }}
+        >
+          <Link href={TONIGHT_CARDS[tonightIdx].href} style={{ textDecoration: "none" }}>
+            <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 220, boxShadow: "0 14px 44px rgba(0,0,0,0.42)" }}>
+              <Image
+                src={TONIGHT_CARDS[tonightIdx].image}
+                alt="Tonight"
+                fill
+                style={{ objectFit: "cover", objectPosition: "center" }}
+                sizes="(max-width: 520px) 100vw, 520px"
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.92) 100%)" }} />
+              {/* Top tag */}
+              <div style={{ position: "absolute", top: 14, left: 14 }}>
+                <div style={{ background: PINK, borderRadius: 999, padding: "5px 14px", display: "inline-flex", boxShadow: `0 2px 8px ${PINK}66` }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, color: "white", letterSpacing: "0.12em" }}>{TONIGHT_CARDS[tonightIdx].time}</span>
+                </div>
+              </div>
+              {/* Dots */}
+              <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 5 }}>
+                {TONIGHT_CARDS.map((_, i) => (
+                  <div key={i} style={{ width: i === tonightIdx ? 16 : 5, height: 5, borderRadius: 999, background: i === tonightIdx ? "white" : "rgba(255,255,255,0.4)", transition: "width 0.2s" }} />
+                ))}
+              </div>
+              {/* Bottom content */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 18px 18px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", marginBottom: 5 }}>{TONIGHT_CARDS[tonightIdx].venue}</p>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+                  <div>
+                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 4 }}>{TONIGHT_CARDS[tonightIdx].sub}</p>
+                  </div>
+                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55` }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
+                  </div>
+                </div>
               </div>
             </div>
-            {/* Bottom content */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 18px 18px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", marginBottom: 5 }}>WEST VILLAGE · CARBONE</p>
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-                <div>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>Girls Dinner.</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 4 }}>4 seats remaining</p>
-                </div>
-                <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55` }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
       </div>
 
       {/* ══ THREE STAT TILES ════════════════════════════════════════════════════ */}
@@ -367,48 +455,6 @@ export function HomePage() {
           </div>
         </Link>
 
-      </div>
-
-      {/* ══ TODAY'S SCHEDULE — naked on gradient ════════════════════════════════ */}
-      <div style={{ padding: "24px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 18 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.7)" }}>YOUR DAY</p>
-          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>full schedule →</span>
-          </Link>
-        </div>
-
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-
-          {/* Event lines — full-width, floating on gradient */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {TODAY_EVENTS.map((ev, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < TODAY_EVENTS.length - 1 ? 18 : 0 }}>
-                {/* Time */}
-                <div style={{ width: 34, flexShrink: 0, textAlign: "right" as const }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.38)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.22)" }}>{ev.time.split(" ")[1]}</p>
-                </div>
-                {/* Dot + thin line below (except last) */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, boxShadow: `0 0 0 3px rgba(255,0,144,0.18)` }} />
-                  {i < TODAY_EVENTS.length - 1 && <div style={{ width: 1, height: 14, background: "rgba(255,0,144,0.18)", marginTop: 4 }} />}
-                </div>
-                {/* Event name + location */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "white", lineHeight: 1.1 }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
-                </div>
-                {ev.label === "NEXT" && (
-                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "4px 10px", boxShadow: `0 2px 8px ${PINK}55` }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>NEXT</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-        </div>
       </div>
 
       {/* ══ VISUAL BREAK ════════════════════════════════════════════════════════ */}

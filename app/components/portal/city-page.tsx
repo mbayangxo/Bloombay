@@ -468,7 +468,10 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
         <div style={{ padding: "72px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 6 }}>BB+ · NEW YORK CITY</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(32px,8vw,44px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95 }}>City Guide.</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>restaurants, bars &amp; more</p>
+            </div>
           </div>
           <button onClick={onSwipeBack} style={{
             marginTop: 6, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(8px)",

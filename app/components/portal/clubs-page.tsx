@@ -69,7 +69,7 @@ export function ClubsPage() {
               find your girls. clubs for every side of you.
             </div>
           </div>
-          <Link href="/clubs/all" style={{
+          <Link href="/member/clubs" style={{
             fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
             color: "white",
             background: "rgba(255,255,255,0.2)",
@@ -87,7 +87,7 @@ export function ClubsPage() {
       {/* ── FEATURED CLUBS ── */}
       <section style={{ padding: "8px 0 0" }}>
         <div style={{ padding: "0 18px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(0,0,0,0.35)" }}>FEATURED CLUBS</div>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", color: PINK }}>FEATURED CLUBS</div>
           <span style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK }}>tap to peek inside →</span>
         </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
+import { BBLogo } from "./bb-logo";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#0F0E0F";
@@ -664,9 +665,8 @@ export function HappeningsPage() {
       }}>
         {/* Left: BB logo */}
         <div style={{ width: 64, display: "flex", alignItems: "center", paddingLeft: 18 }}>
-          <Link href="/member/home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}>
-            <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "20px", color: "white", letterSpacing: "-0.02em" }}>BB</span>
-            <span style={{ color: "white", fontSize: "12px", opacity: 0.8 }}>✿</span>
+          <Link href="/member/home" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <BBLogo size={22} light />
           </Link>
         </div>
 
@@ -691,14 +691,14 @@ export function HappeningsPage() {
         {/* Right icons */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, paddingRight: 16 }}>
           <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
             <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: PINK, lineHeight: 1 }}>3</div>
           </Link>
           <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="7" r="4"/>
               <line x1="8" y1="11" x2="16" y2="11"/>
               <line x1="12" y1="11" x2="12" y2="20"/>
@@ -706,15 +706,14 @@ export function HappeningsPage() {
             <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: "white", border: "1.5px solid rgba(255,31,125,0.4)" }}/>
           </Link>
           <Link href="/member/chat" aria-label="Chats" style={{ display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
           </Link>
-          <Link href="/member/lounge" aria-label="My Apt" style={{ display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 22V8l9-6 9 6v14"/>
-              <path d="M9 22V12h6v10"/>
-              <rect x="10" y="14" width="4" height="4" rx="0.5"/>
+          <Link href="/member/lounge" aria-label="The Lobby" style={{ display: "flex" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="2" width="18" height="20" rx="1"/>
+              <path d="M9 12h.01"/>
             </svg>
           </Link>
         </div>
