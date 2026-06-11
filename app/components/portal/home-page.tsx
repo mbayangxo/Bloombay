@@ -17,6 +17,7 @@ if (typeof document !== "undefined") {
         0%,100%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 0 rgba(255,0,144,0); }
         50%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 10px rgba(255,0,144,0.12); }
       }
+      @keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
     `;
     document.head.appendChild(s);
   }
@@ -376,15 +377,23 @@ export function HomePage() {
         </div>
 
         {/* Chips row */}
-        <div style={{ display: "flex", gap: 8, marginTop: 14, paddingLeft: 2 }}>
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           {[
-            { href: "/member/happenings", label: "Tonight · 3", bg: "white",   text: PINK    },
-            { href: "/member/city",       label: "City · 12",  bg: "#000000", text: "white" },
-            { href: "/member/plans",      label: "Plans · 2",  bg: "#000000", text: "white" },
+            { href: "/member/happenings", label: "Tonight",  count: "3",  accent: PINK,          bg: "white"              },
+            { href: "/member/city",       label: "City",     count: "12", accent: "white",        bg: "rgba(255,255,255,0.10)" },
+            { href: "/member/plans",      label: "Plans",    count: "2",  accent: "rgba(255,255,255,0.7)", bg: "rgba(255,255,255,0.10)" },
           ].map(c => (
-            <Link key={c.href} href={c.href} style={{ textDecoration: "none" }}>
-              <div style={{ padding: "11px 24px", borderRadius: 999, background: c.bg, boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.6), 0 5px 16px rgba(0,0,0,0.1)" : "0 2px 0 rgba(0,0,0,0.85), 0 4px 10px rgba(0,0,0,0.18)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: c.text, letterSpacing: "0.04em" }}>{c.label}</p>
+            <Link key={c.href} href={c.href} style={{ textDecoration: "none", flex: 1 }}>
+              <div style={{
+                padding: "11px 12px",
+                borderRadius: 14,
+                background: c.bg,
+                border: c.bg === "white" ? "none" : "1px solid rgba(255,255,255,0.13)",
+                boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.55), 0 4px 14px rgba(0,0,0,0.1)" : "none",
+                display: "flex", alignItems: "baseline", justifyContent: "space-between",
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: c.bg === "white" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.55)", letterSpacing: "0.06em" }}>{c.label.toUpperCase()}</p>
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, fontWeight: 300, color: c.accent, lineHeight: 1, letterSpacing: "-0.01em" }}>{c.count}</p>
               </div>
             </Link>
           ))}
@@ -412,7 +421,14 @@ export function HomePage() {
       <ClubActivityRow />
 
       {/* ══ LIVE PULSE ══════════════════════════════════════════════════════════ */}
-      <div style={{ display: "flex", overflowX: "auto", gap: 8, padding: "16px 16px 0", scrollbarWidth: "none" as const }}>
+      <div style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,0,144,0.12)", border: "1px solid rgba(255,0,144,0.22)", borderRadius: 999, padding: "5px 12px 5px 8px" }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, animation: "pinkPulse 1.6s ease-in-out infinite" }} />
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.16em", color: PINK }}>LIVE</span>
+        </div>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)" }}>What&apos;s happening now</p>
+      </div>
+      <div style={{ display: "flex", overflowX: "auto", gap: 8, padding: "10px 16px 0", scrollbarWidth: "none" as const }}>
         {[
           { text: "Girls Night → 2 seats left",     time: "now" },
           { text: "Italian Dinner Society · tonight", time: "" },
@@ -428,7 +444,13 @@ export function HomePage() {
       </div>
 
       {/* ══ FEATURED TONIGHT ════════════════════════════════════════════════════ */}
-      <div style={{ padding: "20px 16px 0" }}>
+      <div style={{ padding: "22px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.16em", color: "rgba(255,255,255,0.95)" }}>FEATURED TONIGHT</p>
+          <Link href="/member/happenings" style={{ textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>SEE ALL →</span>
+          </Link>
+        </div>
         {/* Carousel track */}
         <div
           style={{ position: "relative", touchAction: "pan-y" }}
@@ -449,7 +471,7 @@ export function HomePage() {
           }}
         >
           <Link href={TONIGHT_CARDS[tonightIdx].href} style={{ textDecoration: "none" }}>
-            <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 220, boxShadow: "0 14px 44px rgba(0,0,0,0.42)" }}>
+            <div style={{ borderRadius: 20, overflow: "hidden", position: "relative", height: 268, boxShadow: "0 14px 44px rgba(0,0,0,0.42)" }}>
               <Image
                 src={TONIGHT_CARDS[tonightIdx].image}
                 alt="Tonight"

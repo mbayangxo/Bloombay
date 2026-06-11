@@ -171,10 +171,9 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",       key: "home"       },
-  { href: "/member/plans",      key: "plans"      },
   { href: "/member/happenings", key: "happenings" },
   { href: "/member/clubs",      key: "clubs"      },
-  { href: "/member/lobby",      key: "lobby"      },
+  { href: "/member/plans",      key: "plans"      },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -183,7 +182,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
-  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby");
+  const isDarkPage = pathname.startsWith("/member/home");
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
@@ -206,15 +205,14 @@ export function BottomNav({ user }: { user?: NavUser }) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
     if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
-    if (key === "plans")      return <IconPlans      c={c} w={w} />;
     if (key === "happenings") return <IconHappenings c={c} w={w} />;
     if (key === "clubs")      return <IconClubs      c={c} />;
-    if (key === "lobby")      return <IconLobby      c={c} w={w} />;
+    if (key === "plans")      return <IconPlans      c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
     if (key === "home") return SLAB_LABEL[slab];
-    return { plans: "Plans", happenings: "Happenings", clubs: "Clubs", lobby: "Lobby" }[key] ?? key;
+    return { happenings: "Happenings", clubs: "Clubs", plans: "Plans" }[key] ?? key;
   }
 
   // Top bar icon tile
@@ -356,7 +354,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               >
                 {/* Icon pill */}
                 <div style={{
-                  width: 54, height: 40, borderRadius: 999,
+                  width: 62, height: 42, borderRadius: 999,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   background: active
                     ? `linear-gradient(145deg, ${PINK}, #FF5BAD)`
