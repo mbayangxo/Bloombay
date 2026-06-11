@@ -1210,91 +1210,211 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   const usedRooms    = RETIRED_ROOMS;
   const expiredRooms = EXPIRED_ROOMS;
   const displayRooms = filter === "active" ? activeRooms : filter === "used" ? usedRooms : expiredRooms;
-  const allActive    = rooms; // for the stack visual
+  const allActive    = rooms;
+  const stackItems   = allActive.slice(0, 4);
 
-  // Stack transforms — back to front
+  // Subtle fan angles — like tickets slid into a card slot
   const STACK = [
-    { rot: -5.5, x:  16, y: 24, z: 1, op: 0.55 },
-    { rot:  3.5, x: -10, y: 14, z: 2, op: 0.70 },
-    { rot: -2.0, x:   8, y:  6, z: 3, op: 0.83 },
-    { rot:  1.5, x:  -4, y:  0, z: 4, op: 1.00 },
+    { rot: -3.8, x: -10, z: 1 },
+    { rot:  2.2, x:   9, z: 2 },
+    { rot: -1.5, x:  -4, z: 3 },
+    { rot:  0.6, x:   3, z: 4 },
   ];
-  const stackItems = allActive.slice(0, 4);
-  const TH = 148;
+
+  // Wallet geometry
+  const WALLET_H   = 200;  // total wallet body height
+  const PEEK       = 62;   // ticket top visible above wallet opening
+  const SLOT_DEPTH = 24;   // how deep ticket sits inside the slot
+  const TOTAL_H    = WALLET_H + PEEK;
+
+  // Leather SVG grain
+  const GRAIN = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='turbulence' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.07'/></svg>") repeat`;
 
   return (
     <div style={{ paddingBottom: 20 }}>
 
       {!walletOpen ? (
-        /* ── WALLET CLOSED — jumbled stack ── */
+
+        /* ── WALLET CLOSED — real leather wallet with tickets tucked inside ── */
         <button
           onClick={() => setWalletOpen(true)}
-          style={{ width: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer" }}
+          className="active:scale-[0.985] transition-transform"
+          style={{ width: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
         >
-          {/* Stacked tickets */}
-          <div style={{ position: "relative", height: TH + 32, marginBottom: 10 }}>
+          <div style={{ position: "relative", height: TOTAL_H }}>
+
+            {/* ══ LAYER 1 — wallet back shell (full shape, gives bottom shadow) ══ */}
+            <div style={{
+              position: "absolute",
+              top: PEEK, left: 0, right: 0, height: WALLET_H,
+              borderRadius: 22,
+              background: "linear-gradient(150deg, #40200F 0%, #1C0C05 50%, #2E1608 100%)",
+              boxShadow: "0 24px 70px rgba(0,0,0,0.65), 0 6px 0 #0B0401, inset 0 1px 0 rgba(255,200,100,0.07)",
+              zIndex: 1,
+            }} />
+
+            {/* ══ LAYER 2 — tickets peeking from slot, back-to-front ══ */}
             {stackItems.map((room, i) => {
               const s = STACK[Math.min(i, STACK.length - 1)];
               const img = TICKET_IMAGES[room.id];
+              const isFront = i === stackItems.length - 1;
               return (
                 <div key={room.id} style={{
-                  position: "absolute", width: "100%", height: TH,
-                  borderRadius: 16, background: room.bg,
+                  position: "absolute",
+                  top: 0, left: 0, right: 0,
+                  height: PEEK + SLOT_DEPTH,  // visible + buried in slot
+                  borderRadius: "13px 13px 0 0",
+                  background: room.bg,
                   transform: `rotate(${s.rot}deg) translateX(${s.x}px)`,
-                  top: s.y, zIndex: s.z, opacity: s.op,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 2px 0 rgba(0,0,0,0.5)",
+                  zIndex: 2 + i,
                   overflow: "hidden",
+                  boxShadow: "0 -5px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)",
                 }}>
+                  {/* Accent colour stripe along very top */}
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${room.accent}, ${room.accent}BB)` }} />
+
+                  {/* Poster strip on left */}
                   {img && (
-                    <>
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "36%", height: "100%", overflow: "hidden" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt={room.name} style={{ width: "38%", height: "100%", objectFit: "cover", position: "absolute", left: 0 }} />
-                      <div style={{ position: "absolute", left: 0, top: 0, width: "38%", height: "100%", background: "linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.5) 100%)" }} />
-                    </>
-                  )}
-                  {/* Right info strip visible on front ticket only */}
-                  {i === stackItems.length - 1 && (
-                    <div style={{ position: "absolute", left: "38%", right: 0, top: 0, bottom: 0, padding: "14px 16px 12px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                      <div>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · TICKET</p>
-                        <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05 }}>{room.name}</p>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
-                      </div>
-                      <div style={{ display: "inline-flex", background: `${room.accent}22`, border: `1px solid ${room.accent}44`, borderRadius: 6, padding: "3px 8px", alignSelf: "flex-start" }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: room.accent }}>{room.time}</p>
-                      </div>
+                      <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.55) 100%)" }} />
                     </div>
                   )}
-                  {/* Emoji watermark for back tickets */}
-                  {i < stackItems.length - 1 && (
-                    <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", fontSize: 28, opacity: 0.3 }}>{room.emoji}</div>
+
+                  {/* Front ticket info */}
+                  {isFront && (
+                    <div style={{ position: "absolute", left: img ? "40%" : 12, right: 10, top: 10, display: "flex", flexDirection: "column", gap: 2 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}CC` }}>BLOOMBAY · TICKET</p>
+                      <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.05, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.38)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.time}</p>
+                    </div>
                   )}
+
+                  {/* Back-ticket emoji mark */}
+                  {!isFront && (
+                    <div style={{ position: "absolute", right: 14, top: "45%", transform: "translateY(-50%)", fontSize: 20, opacity: 0.3 }}>{room.emoji}</div>
+                  )}
+
+                  {/* Dashed perforation at base — where ticket disappears into wallet */}
+                  <div style={{ position: "absolute", bottom: 0, left: 10, right: 10, borderBottom: "1.5px dashed rgba(255,255,255,0.14)" }} />
                 </div>
               );
             })}
-          </div>
 
-          {/* Tap hint */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 14 }}>🎟</span>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.4)" }}>
-                {allActive.length} TICKET{allActive.length !== 1 ? "S" : ""} IN WALLET
-              </p>
+            {/* ══ LAYER 3 — slot shadow (dark overhang, creates pocket depth) ══ */}
+            <div style={{
+              position: "absolute",
+              top: PEEK - 8,
+              left: 8, right: 8,
+              height: 22,
+              background: "linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)",
+              zIndex: 9,
+              borderRadius: "0 0 4px 4px",
+              pointerEvents: "none",
+            }} />
+
+            {/* ══ LAYER 4 — wallet front face (covers ticket bottoms = "inside pocket") ══ */}
+            <div style={{
+              position: "absolute",
+              top: PEEK + SLOT_DEPTH,
+              left: 0, right: 0,
+              height: WALLET_H - SLOT_DEPTH,
+              borderRadius: "0 0 22px 22px",
+              background: "linear-gradient(165deg, #3C1E0D 0%, #1E0D06 48%, #301809 82%, #1A0B04 100%)",
+              backgroundImage: GRAIN,
+              zIndex: 8,
+              overflow: "hidden",
+            }}>
+
+              {/* Stitching — gold dashed border inset from edges */}
+              <div style={{
+                position: "absolute",
+                top: 10, left: 8, right: 8, bottom: 8,
+                borderRadius: "0 0 16px 16px",
+                border: "1.5px dashed rgba(212,168,83,0.25)",
+                borderTop: "none",
+                pointerEvents: "none",
+              }} />
+
+              {/* Horizontal card-slot separator line */}
+              <div style={{
+                position: "absolute", top: 52, left: 14, right: 14, height: 1,
+                background: "linear-gradient(90deg, transparent, rgba(212,168,83,0.28), rgba(212,168,83,0.4), rgba(212,168,83,0.28), transparent)",
+              }} />
+
+              {/* BB monogram — embossed / ghost */}
+              <div style={{
+                position: "absolute", top: "50%", left: "50%",
+                transform: "translate(-50%, -42%)",
+                pointerEvents: "none", userSelect: "none",
+              }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 68, fontWeight: 900, fontStyle: "italic", color: "rgba(212,168,83,0.07)", lineHeight: 1 }}>BB</p>
+              </div>
+
+              {/* Right edge decorative stitching dots */}
+              <div style={{ position: "absolute", right: 20, top: 18, display: "flex", flexDirection: "column", gap: 5 }}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(212,168,83,0.18)" }} />
+                ))}
+              </div>
+
+              {/* Bottom info */}
+              <div style={{ position: "absolute", bottom: 22, left: 20, right: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(212,168,83,0.45)", marginBottom: 4 }}>BLOOMBAY</p>
+                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 21, color: "rgba(255,255,255,0.8)", lineHeight: 1 }}>
+                    {allActive.length} {allActive.length === 1 ? "ticket" : "tickets"}
+                  </p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ fontSize: 22, opacity: 0.6 }}>🎟</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(212,168,83,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              {/* Bottom "open" hint gradient */}
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 32,
+                background: "linear-gradient(0deg, rgba(0,0,0,0.42) 0%, transparent 100%)",
+                display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 7,
+                pointerEvents: "none",
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(212,168,83,0.52)" }}>OPEN WALLET</p>
+              </div>
             </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700, letterSpacing: "0.06em" }}>OPEN WALLET →</p>
+
           </div>
         </button>
 
       ) : (
-        /* ── WALLET OPEN — full ticket list ── */
+
+        /* ── WALLET OPEN — leather header + filter tabs + ticket list ── */
         <div>
-          {/* Header row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 12px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.4)" }}>🎟 WALLET</p>
-            <button onClick={() => setWalletOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.35)" }}>CLOSE</p>
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+
+          {/* Leather wallet header */}
+          <div style={{
+            margin: "0 16px 12px",
+            padding: "13px 16px 14px",
+            borderRadius: 18,
+            background: "linear-gradient(135deg, #3C1E0D 0%, #1E0D06 60%, #2C1508 100%)",
+            backgroundImage: GRAIN,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,200,100,0.07)",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(212,168,83,0.12)", border: "1px solid rgba(212,168,83,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 16 }}>🎟</span>
+              </div>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(212,168,83,0.5)", marginBottom: 2 }}>BLOOMBAY</p>
+                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 17, color: "rgba(255,255,255,0.85)", lineHeight: 1 }}>My Wallet</p>
+              </div>
+            </div>
+            <button onClick={() => setWalletOpen(false)}
+              style={{ padding: "6px 12px", borderRadius: 10, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em" }}>CLOSE</p>
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>
           </div>
 
@@ -1311,12 +1431,8 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                 border: "none", cursor: "pointer", transition: "all 0.15s",
                 boxShadow: filter === t.key ? `0 2px 0 rgba(150,0,55,0.7), 0 4px 12px ${PINK}44` : "none",
               }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.1em", color: filter === t.key ? "white" : "#bbb" }}>
-                  {t.label}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === t.key ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.25)", marginTop: 1 }}>
-                  {t.count}
-                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.1em", color: filter === t.key ? "white" : "#bbb" }}>{t.label}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === t.key ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.25)", marginTop: 1 }}>{t.count}</p>
               </button>
             ))}
           </div>
@@ -1330,12 +1446,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                 </p>
               </div>
             ) : displayRooms.map(room => (
-              <TicketCard
-                key={room.id}
-                room={room}
-                status={filter}
-                onOpen={() => onOpen(room)}
-              />
+              <TicketCard key={room.id} room={room} status={filter} onOpen={() => onOpen(room)} />
             ))}
 
             {filter === "active" && (
