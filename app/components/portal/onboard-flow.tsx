@@ -313,69 +313,108 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "#FF1F7D" }}>
-      {/* Decorative circles */}
-      <div className="absolute pointer-events-none" style={{
-        width: "320px", height: "320px", borderRadius: "50%",
-        background: "rgba(255,255,255,0.07)",
-        top: "-80px", right: "-60px",
-      }} />
-      <div className="absolute pointer-events-none" style={{
-        width: "200px", height: "200px", borderRadius: "50%",
-        background: "rgba(255,255,255,0.05)",
-        top: "40px", left: "-50px",
-      }} />
-      <div className="absolute pointer-events-none" style={{
-        width: "280px", height: "280px", borderRadius: "50%",
-        background: "rgba(255,255,255,0.04)",
-        bottom: "180px", right: "20px",
+      {/* Fine grain texture overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E\")",
+        opacity: 0.6,
       }} />
 
-      {/* Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ overflow: "hidden" }}>
-        <p className="font-black tracking-[0.15em] uppercase"
-          style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(52px,16vw,88px)",
-            color: "rgba(255,255,255,0.08)", whiteSpace: "nowrap" }}>
-          BLOOMBAY
-        </p>
-      </div>
-
-      {/* Top: Logo */}
-      <div className="relative flex items-center gap-2 px-6 pt-14">
-        <BBLogo size={28} />
-        <p className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", color: "rgba(255,255,255,0.9)" }}>
-          BloomBay
-        </p>
-      </div>
-
-      {/* Main text */}
-      <div className="relative flex-1 flex flex-col justify-center px-6 pb-4">
-        <p style={{ fontWeight: 500, fontSize: "28px", color: "white", lineHeight: 1.1, margin: "0 0 4px" }}>
-          it&apos;s a
-        </p>
-        <h1 className="font-black leading-none"
-          style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(52px,14vw,72px)",
-            color: "#111", lineHeight: 0.88, letterSpacing: "-0.03em" }}>
-          girls<br />world,
-        </h1>
+      {/* Large background typographic ghost */}
+      <div className="absolute pointer-events-none select-none" style={{
+        bottom: "22%", left: "-8px", right: 0, overflow: "hidden",
+      }}>
         <p style={{
           fontFamily: "var(--font-playfair)", fontWeight: 900,
-          fontSize: "clamp(44px,12vw,62px)", lineHeight: 0.95, margin: "4px 0 20px",
-          WebkitTextStroke: "3px white",
-          WebkitTextFillColor: "transparent",
-          color: "transparent",
-        }}>
-          wear it.
+          fontSize: "clamp(88px,28vw,160px)", lineHeight: 0.82,
+          color: "rgba(255,255,255,0.06)",
+          letterSpacing: "-0.04em", whiteSpace: "nowrap",
+        }}>BLOOM</p>
+      </div>
+
+      {/* Top nav */}
+      <div className="relative flex items-center justify-between px-6 pt-14 pb-2">
+        <div className="flex items-center gap-2">
+          <BBLogo size={26} />
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.88)" }}>
+            BloomBay
+          </p>
+        </div>
+        <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.3em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase" }}>
+          NYC
         </p>
-        <div style={{ width: "40px", height: "3px", background: "rgba(255,255,255,0.4)", borderRadius: "2px", marginBottom: "16px" }} />
-        <p className="italic leading-relaxed"
-          style={{ fontFamily: "var(--font-playfair)", fontSize: "20px", color: "rgba(255,255,255,0.82)" }}>
-          women<br />are gathering.
-        </p>
+      </div>
+
+      {/* ── HERO ───────────────────────────────────────── */}
+      <div className="relative flex-1 flex flex-col justify-center px-6" style={{ paddingBottom: "8px" }}>
+
+        {/* Kicker line */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+          <div style={{ width: "22px", height: "1px", background: "rgba(255,255,255,0.5)" }} />
+          <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.34em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
+            a space to bloom
+          </p>
+        </div>
+
+        {/* Primary headline: Women are gathering. */}
+        <div style={{ marginBottom: "20px" }}>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400,
+            fontSize: "clamp(38px,11vw,52px)", color: "white",
+            lineHeight: 1.0, letterSpacing: "-0.02em",
+            margin: 0,
+          }}>
+            Women are
+          </p>
+          <h1 style={{
+            fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic",
+            fontSize: "clamp(58px,17vw,80px)", color: "white",
+            lineHeight: 0.88, letterSpacing: "-0.04em",
+            margin: 0,
+          }}>
+            gathering.
+          </h1>
+        </div>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+          <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.22)" }} />
+          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}>✦</span>
+          <div style={{ width: "28px", height: "1px", background: "rgba(255,255,255,0.22)" }} />
+        </div>
+
+        {/* Secondary: it's a woman's world, we're in it. */}
+        <div>
+          <p style={{
+            fontWeight: 400, fontSize: "clamp(16px,4.5vw,22px)",
+            color: "rgba(255,255,255,0.72)", lineHeight: 1.2,
+            margin: "0 0 2px",
+          }}>
+            it&apos;s a
+          </p>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontWeight: 900,
+            fontSize: "clamp(28px,8vw,38px)", lineHeight: 0.92,
+            letterSpacing: "-0.025em",
+            WebkitTextStroke: "2px rgba(255,255,255,0.75)",
+            WebkitTextFillColor: "transparent",
+            color: "transparent",
+            margin: "0 0 4px",
+          }}>
+            woman&apos;s world.
+          </p>
+          <p style={{
+            fontFamily: "var(--font-instrument)", fontStyle: "italic",
+            fontSize: "clamp(14px,4vw,18px)", color: "rgba(255,255,255,0.58)",
+            margin: 0, letterSpacing: "0.01em",
+          }}>
+            we&apos;re in it.
+          </p>
+        </div>
       </div>
 
       {/* Bottom strip */}
-      <div className="relative rounded-t-3xl px-6 pt-5 pb-6"
-        style={{ background: "rgba(0,0,0,0.22)", paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)" }}>
+      <div className="relative rounded-t-3xl px-6 pt-5"
+        style={{ background: "rgba(0,0,0,0.28)", paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)" }}>
         <div className="flex flex-col gap-2.5 mb-5">
           {[
             { key: "terms",   label: "I agree to the Terms of Service",     val: agreeTerms,   set: setAgreeTerms },
@@ -386,15 +425,15 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
             <button key={item.key} onClick={() => item.set(!item.val)}
               className="flex items-center gap-3 text-left">
               <div className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center"
-                style={{ background: item.val ? "white" : "rgba(255,255,255,0.15)",
-                  border: `2px solid ${item.val ? "white" : "rgba(255,255,255,0.35)"}` }}>
+                style={{ background: item.val ? "white" : "rgba(255,255,255,0.12)",
+                  border: `2px solid ${item.val ? "white" : "rgba(255,255,255,0.3)"}` }}>
                 {item.val && (
                   <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                     <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
               </div>
-              <span className="text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>{item.label}</span>
+              <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -402,17 +441,18 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
         <button
           onClick={onStart}
           disabled={!allAgreed}
-          className="w-full py-4 rounded-full font-bold text-base transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-full font-bold text-sm tracking-widest uppercase transition-all active:scale-[0.98]"
           style={{
-            background: allAgreed ? "white" : "rgba(255,255,255,0.28)",
-            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.5)",
+            background: allAgreed ? "white" : "rgba(255,255,255,0.2)",
+            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.4)",
+            letterSpacing: allAgreed ? "0.12em" : "0.06em",
           }}>
           {allAgreed ? "LET'S START →" : "Agree to all to continue"}
         </button>
 
-        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.38)" }}>
           Already a member?{" "}
-          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.75)" }}>
+          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.7)" }}>
             Sign in
           </Link>
         </p>

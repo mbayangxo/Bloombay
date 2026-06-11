@@ -614,6 +614,7 @@ export function HappeningsPage() {
   const [tab,        setTab]       = useState<HapTab>("happenings");
   const [filter,     setFilter]    = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showMap,    setShowMap]   = useState(false);
   const [events,     setEvents]    = useState<Event[]>([]);
   const [joined,     setJoined]    = useState<Set<string>>(new Set());
   const [loading,    setLoading]   = useState(true);
@@ -656,7 +657,7 @@ export function HappeningsPage() {
       {/* ── Fixed top bar ── */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-        background: "linear-gradient(135deg, #FF1F7D 0%, #FF5BAD 60%, #FFB3D9 100%)",
+        background: "linear-gradient(135deg, #FF1F7D 0%, #E8006A 100%)",
         borderBottom: "1px solid rgba(255,31,125,0.15)",
         boxShadow: "0 2px 20px rgba(255,31,125,0.2)",
         height: 54,
@@ -727,23 +728,49 @@ export function HappeningsPage() {
           <>
             {/* Filter bar — icon only, collapsible */}
             <div style={{ padding: "6px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(0,0,0,0.35)" : PINK, letterSpacing: "0.08em" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === "All" ? "rgba(0,0,0,0.65)" : PINK, letterSpacing: "0.08em" }}>
                 {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
               </span>
-              <button onClick={() => setFilterOpen(o => !o)} style={{
-                width: 34, height: 34, borderRadius: "50%",
-                background: filterOpen ? PINK : "rgba(255,31,125,0.08)",
-                border: filterOpen ? "none" : "1px solid rgba(255,31,125,0.18)",
-                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: filterOpen ? `0 3px 14px ${PINK}55` : "none",
-                transition: "all 0.18s",
-              }}>
-                {filterOpen
-                  ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.55)" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
-                }
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button onClick={() => setShowMap(m => !m)} style={{
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: showMap ? PINK : "rgba(255,31,125,0.08)",
+                  border: showMap ? "none" : "1.5px solid rgba(255,31,125,0.38)",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: showMap ? `0 3px 14px ${PINK}55` : "none",
+                  transition: "all 0.18s",
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill={showMap ? "white" : PINK} fillOpacity={showMap ? 1 : 0.8}/></svg>
+                </button>
+                <button onClick={() => setFilterOpen(o => !o)} style={{
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: filterOpen ? PINK : "rgba(255,31,125,0.08)",
+                  border: filterOpen ? "none" : "1.5px solid rgba(255,31,125,0.38)",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: filterOpen ? `0 3px 14px ${PINK}55` : "none",
+                  transition: "all 0.18s",
+                }}>
+                  {filterOpen
+                    ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="11" y2="18"/></svg>
+                  }
+                </button>
+              </div>
             </div>
+            {showMap && (
+              <div style={{ margin: "0 14px 12px", borderRadius: 20, overflow: "hidden", height: 220, background: "linear-gradient(135deg, #FFE8F4 0%, #FFF0F8 100%)", border: "1.5px solid rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8, position: "relative" }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill={PINK} fillOpacity="0.15"/></svg>
+                <p style={{ fontSize: 13, fontWeight: 700, color: PINK, fontFamily: "var(--font-jost)" }}>Map View</p>
+                <p style={{ fontSize: 11, color: "rgba(0,0,0,0.38)", fontFamily: "var(--font-jost)" }}>Coming soon · showing events near you</p>
+                {/* Mock event pins */}
+                {[{x:"20%",y:"35%",label:"Carbone"},{x:"55%",y:"25%",label:"MoMA"},{x:"72%",y:"55%",label:"Whitney"},{x:"35%",y:"65%",label:"Brooklyn"},{x:"80%",y:"32%",label:"Jazz Club"}].map((p,i) => (
+                  <div key={i} style={{ position: "absolute", left: p.x, top: p.y, transform: "translate(-50%,-100%)" }}>
+                    <div style={{ background: PINK, borderRadius: 20, padding: "2px 7px", fontSize: 8, fontWeight: 700, color: "white", whiteSpace: "nowrap", boxShadow: `0 2px 8px ${PINK}44` }}>{p.label}</div>
+                    <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `6px solid ${PINK}`, margin: "0 auto" }} />
+                  </div>
+                ))}
+              </div>
+            )}
             {filterOpen && (
               <>
                 {/* Type category cards */}

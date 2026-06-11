@@ -448,6 +448,23 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
   );
 }
 
+// ── Girl Gems + Girl Favorites data ──────────────────────────────────────────
+const GIRL_GEMS = [
+  { name: "Caffe Reggio", neighborhood: "Greenwich Village", type: "café", note: "Oldest espresso machine in NYC. Order the cappuccino.", emoji: "☕", color: "#8B4513" },
+  { name: "Corner Bar", neighborhood: "NoHo", type: "bar", note: "No sign outside. Tiny, perfect, intimate.", emoji: "🍷", color: "#722F37" },
+  { name: "Bluestockings", neighborhood: "LES", type: "bookshop", note: "Radical feminist bookshop. Buy something.", emoji: "📚", color: "#1A4A1A" },
+  { name: "Lucien", neighborhood: "East Village", type: "restaurant", note: "Always full but worth the wait. Order the steak frites.", emoji: "🥩", color: "#8B1A1A" },
+  { name: "Housing Works", neighborhood: "SoHo", type: "shop", note: "The best thrift store in NYC. Everything is $5–$40.", emoji: "🛍", color: "#2A4A7F" },
+];
+
+const GIRL_FAVS = [
+  { name: "Cha Cha Matcha", neighborhood: "Multiple locations", saves: 847, emoji: "🍵" },
+  { name: "Bar Pisellino", neighborhood: "West Village", saves: 623, emoji: "🍸" },
+  { name: "The Strand", neighborhood: "Flatiron", saves: 541, emoji: "📚" },
+  { name: "Café Kitsuné", neighborhood: "West Village", saves: 488, emoji: "☕" },
+  { name: "Russ & Daughters", neighborhood: "LES", saves: 412, emoji: "🥯" },
+];
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CITY MENU PANEL  (landing slide 1)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -482,6 +499,55 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.08em" }}>SIGNS</span>
           </button>
         </div>
+
+        {/* ── GIRL GEMS ── */}
+        <section style={{ padding: "20px 20px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>GIRL GEMS</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>spots only we know ♡</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {GIRL_GEMS.map((gem, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 18, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: gem.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{gem.emoji}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{gem.name}</p>
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>{gem.type}</span>
+                    </div>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{gem.neighborhood}</p>
+                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, lineHeight: 1.5 }}>{gem.note}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── GIRL FAVORITES ── */}
+        <section style={{ padding: "24px 20px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>GIRL FAVORITES</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>most saved this month ♡</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {GIRL_FAVS.map((fav, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.25)", minWidth: 20 }}>0{i+1}</span>
+                <span style={{ fontSize: 18 }}>{fav.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "white" }}>{fav.name}</p>
+                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.38)" }}>{fav.neighborhood}</p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{fav.saves.toLocaleString()}</p>
+                  <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>saves</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Band list */}
         <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "0 14px 24px" }}>
