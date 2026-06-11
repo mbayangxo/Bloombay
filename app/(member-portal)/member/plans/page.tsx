@@ -1887,15 +1887,15 @@ function PlansPageInner() {
 
             {/* Swipeable door row — no label, flows from header */}
             <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
-              {PLAN_ROOMS.map(room => (
-                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
-              ))}
               <button onClick={() => setShowNewPlan(true)} style={{ width: 90, height: 145, flexShrink: 0, borderRadius: "45px 45px 6px 6px", border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginTop: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.6)", letterSpacing: "0.06em" }}>NEW</p>
               </button>
+              {PLAN_ROOMS.map(room => (
+                <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
+              ))}
             </div>
 
             {/* Confirmation card — most recent upcoming event */}
