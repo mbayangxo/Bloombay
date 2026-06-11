@@ -616,7 +616,7 @@ function CreateFAB() {
 }
 
 /* ── Main ────────────────────────────────────────────────── */
-export function HappeningsPage() {
+export function HappeningsPage({ standalone = true }: { standalone?: boolean }) {
   const [tab,        setTab]       = useState<HapTab>("happenings");
   const [filter,     setFilter]    = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -657,11 +657,11 @@ export function HappeningsPage() {
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
-      {/* ── Fixed top bar ── */}
-      <div style={{
+      {/* ── Fixed top bar (standalone only) ── */}
+      {standalone && <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         background: "linear-gradient(135deg, #FF1F7D 0%, #E8006A 100%)",
         borderBottom: "1px solid rgba(255,31,125,0.15)",
@@ -734,13 +734,13 @@ export function HappeningsPage() {
             </svg>
           </Link>
         </div>
-      </div>
+      </div>}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: 54 }}>
+      <div style={{ paddingTop: standalone ? 54 : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
-        {tab === "happenings" && (
+        {(standalone ? tab === "happenings" : true) && (
           <>
             {/* Filter bar — icon only, collapsible */}
             <div style={{ padding: "6px 14px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -865,8 +865,8 @@ export function HappeningsPage() {
           </>
         )}
 
-        {/* ── CITY TAB ── */}
-        {tab === "city" && (
+        {/* ── CITY TAB (standalone only — embedded in CityPage when not standalone) ── */}
+        {standalone && tab === "city" && (
           <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)", background: "linear-gradient(180deg, #D6E8F5 0%, #EAF2F9 35%, #F0EBE4 100%)" }}>
             <div style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
