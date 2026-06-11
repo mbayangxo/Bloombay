@@ -158,6 +158,39 @@ function StickyNote({ text, author, rotate = 2 }: { text: string; author?: strin
   );
 }
 
+// ── Club Activity Row ─────────────────────────────────────────────────────────
+
+const CLUB_ACTIVITY_ITEMS = [
+  { abbr: "MG", name: "Museum Girls",  msg: "Amara posted in the chat",       unread: 3, color: "#FF1F7D"  },
+  { abbr: "BC", name: "Book Club",     msg: "5 new messages",                 unread: 5, color: "#EC4899"  },
+  { abbr: "AG", name: "African Girls", msg: "Temi dropped a new playlist 🎵", unread: 2, color: "#F97316"  },
+];
+
+function ClubActivityRow() {
+  return (
+    <div style={{ padding: "20px 16px 4px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>CLUB ACTIVITY</p>
+        <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.28)" }}>see all →</Link>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {CLUB_ACTIVITY_ITEMS.map((c, i) => (
+          <Link key={i} href="/member/clubs" style={{ textDecoration: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.06)", borderRadius: 14, padding: "11px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: c.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", flexShrink: 0 }}>{c.abbr}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.88)", marginBottom: 2 }}>{c.name}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.36)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{c.msg}</p>
+              </div>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", flexShrink: 0, boxShadow: `0 2px 8px ${PINK}66` }}>{c.unread}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Club cover ─────────────────────────────────────────────────────────────────
 function ClubCover({ club }: { club: Club }) {
   const abbr = club.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
@@ -375,6 +408,8 @@ export function HomePage() {
           </div>
         </Link>
       </div>
+
+      <ClubActivityRow />
 
       {/* ══ LIVE PULSE ══════════════════════════════════════════════════════════ */}
       <div style={{ display: "flex", overflowX: "auto", gap: 8, padding: "16px 16px 0", scrollbarWidth: "none" as const }}>
