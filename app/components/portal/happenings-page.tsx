@@ -3,7 +3,6 @@
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
-import { BBLogo } from "./bb-logo";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#0F0E0F";
@@ -664,11 +663,21 @@ export function HappeningsPage() {
         paddingTop: "env(safe-area-inset-top, 0px)",
         display: "flex", alignItems: "center",
       }}>
-        {/* Left: BB logo */}
+        {/* Left: map toggle */}
         <div style={{ width: 64, display: "flex", alignItems: "center", paddingLeft: 18 }}>
-          <Link href="/member/home" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-            <BBLogo size={22} light />
-          </Link>
+          <button onClick={() => setShowMap(m => !m)} style={{
+            width: 34, height: 34, borderRadius: "50%",
+            background: showMap ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.18)",
+            border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.18s",
+            boxShadow: showMap ? "0 2px 10px rgba(0,0,0,0.15)" : "none",
+          }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                    fill={showMap ? PINK : "white"}/>
+            </svg>
+          </button>
         </div>
 
         {/* Center: toggle */}
@@ -732,16 +741,6 @@ export function HappeningsPage() {
                 {filter === "All" ? "ALL HAPPENINGS" : filter.toUpperCase()} {filter !== "All" && "✦"}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button onClick={() => setShowMap(m => !m)} style={{
-                  width: 34, height: 34, borderRadius: "50%",
-                  background: showMap ? PINK : "rgba(255,31,125,0.08)",
-                  border: showMap ? "none" : "1.5px solid rgba(255,31,125,0.38)",
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: showMap ? `0 3px 14px ${PINK}55` : "none",
-                  transition: "all 0.18s",
-                }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill={showMap ? "white" : PINK} fillOpacity={showMap ? 1 : 0.8}/></svg>
-                </button>
                 <button onClick={() => setFilterOpen(o => !o)} style={{
                   width: 34, height: 34, borderRadius: "50%",
                   background: filterOpen ? PINK : "rgba(255,31,125,0.08)",
@@ -757,20 +756,6 @@ export function HappeningsPage() {
                 </button>
               </div>
             </div>
-            {showMap && (
-              <div style={{ margin: "0 14px 12px", borderRadius: 20, overflow: "hidden", height: 220, background: "linear-gradient(135deg, #FFE8F4 0%, #FFF0F8 100%)", border: "1.5px solid rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8, position: "relative" }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill={PINK} fillOpacity="0.15"/></svg>
-                <p style={{ fontSize: 13, fontWeight: 700, color: PINK, fontFamily: "var(--font-jost)" }}>Map View</p>
-                <p style={{ fontSize: 11, color: "rgba(0,0,0,0.38)", fontFamily: "var(--font-jost)" }}>Coming soon · showing events near you</p>
-                {/* Mock event pins */}
-                {[{x:"20%",y:"35%",label:"Carbone"},{x:"55%",y:"25%",label:"MoMA"},{x:"72%",y:"55%",label:"Whitney"},{x:"35%",y:"65%",label:"Brooklyn"},{x:"80%",y:"32%",label:"Jazz Club"}].map((p,i) => (
-                  <div key={i} style={{ position: "absolute", left: p.x, top: p.y, transform: "translate(-50%,-100%)" }}>
-                    <div style={{ background: PINK, borderRadius: 20, padding: "2px 7px", fontSize: 8, fontWeight: 700, color: "white", whiteSpace: "nowrap", boxShadow: `0 2px 8px ${PINK}44` }}>{p.label}</div>
-                    <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `6px solid ${PINK}`, margin: "0 auto" }} />
-                  </div>
-                ))}
-              </div>
-            )}
             {filterOpen && (
               <>
                 {/* Type category cards */}
@@ -976,8 +961,121 @@ export function HappeningsPage() {
         )}
       </div>
 
+      {/* ══ FULL-PAGE MAP OVERLAY ══════════════════════════════════════════════ */}
+      {showMap && (
+        <div style={{
+          position: "fixed", top: 54, left: 0, right: 0, bottom: 0,
+          zIndex: 49,
+          display: "flex", flexDirection: "column",
+          overflow: "hidden",
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: "16px 18px 14px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(16px)",
+            borderBottom: "1px solid rgba(255,31,125,0.1)",
+            flexShrink: 0,
+          }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>happening near you</p>
+            </div>
+            <button onClick={() => setShowMap(false)} style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: PINK, border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: `0 3px 12px ${PINK}55`,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Map body */}
+          <div style={{ flex: 1, margin: "14px 16px 0", borderRadius: 24, overflow: "hidden", position: "relative" }}>
+            {/* Base map gradient */}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
+            {/* Street grid */}
+            {[10, 25, 40, 55, 70, 85].map(pct => (
+              <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+            ))}
+            {[15, 30, 45, 60, 75, 90].map(pct => (
+              <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+            ))}
+            {/* Park blob */}
+            <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
+            {/* Water edge */}
+            <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
+
+            {/* Event pins */}
+            {[
+              {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
+              {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
+              {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
+              {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
+              {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
+              {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
+              {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
+            ].map((pin, i) => (
+              <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
+                <div style={{
+                  background: pin.color, borderRadius: 20,
+                  padding: "4px 10px 4px 8px",
+                  display: "flex", alignItems: "center", gap: 5,
+                  boxShadow: `0 3px 12px ${pin.color}66`,
+                  whiteSpace: "nowrap" as const,
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
+                  <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
+                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
+                </div>
+                <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
+              </div>
+            ))}
+
+            {/* Coming soon notice */}
+            <div style={{
+              position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4,
+              background: "rgba(255,255,255,0.82)",
+              backdropFilter: "blur(12px)",
+              borderRadius: 14,
+              padding: "12px 16px",
+              border: "1px solid rgba(255,31,125,0.12)",
+            }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP · COMING SOON</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
+            </div>
+          </div>
+
+          {/* Event chips scroll */}
+          <div style={{ padding: "12px 16px 20px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const, flexShrink: 0, background: "rgba(255,255,255,0.55)", backdropFilter: "blur(12px)" }}>
+            {[
+              { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
+              { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
+              { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
+              { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
+              { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
+              { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
+            ].map((chip, i) => (
+              <div key={i} style={{
+                flexShrink: 0, background: "white", borderRadius: 999,
+                padding: "8px 14px",
+                border: `1.5px solid ${chip.color}33`,
+                boxShadow: `0 2px 10px ${chip.color}22`,
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: chip.color }}>{chip.label}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.4)", marginTop: 1 }}>{chip.time}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* FAB */}
-      {tab === "happenings" && <CreateFAB/>}
+      {tab === "happenings" && !showMap && <CreateFAB/>}
     </div>
   );
 }

@@ -295,57 +295,48 @@ export function LobbyPage() {
       paddingBottom: 104,
       overflowX: "hidden",
     }}>
+      <style>{`
+        .lscroll::-webkit-scrollbar { display: none; }
+      `}</style>
 
       {/* ══ HEADER ═══════════════════════════════════════════════════════════════ */}
       <div style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 24px)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
         paddingLeft: 24, paddingRight: 24, paddingBottom: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <BBLogo size={22} light />
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em" }}>WHERE WOMEN CONNECT</p>
         </div>
-        {/* Title row + TOP POSTS label side by side */}
-        <div style={{ marginTop: 20, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
-          </div>
-          {/* TOP POSTS — compact vertical stack on right */}
-          <div style={{ flexShrink: 0, paddingTop: 6 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, gap: 12 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(255,255,255,0.7)", letterSpacing: "0.18em" }}>TOP POSTS</p>
-              <Link href="/member/lobby/wall" style={{ textDecoration: "none" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.38)" }}>all →</span>
-              </Link>
-            </div>
-            {/* Mini post cards stack */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {TOP_POSTS.slice(0, 3).map((post, i) => (
-                <Link key={i} href={post.roomHref} style={{ textDecoration: "none" }}>
-                  <div style={{ width: 148, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", borderRadius: 10, padding: "8px 10px", border: "1px solid rgba(255,255,255,0.16)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", background: post.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "white" }}>{post.initial}</p>
-                      </div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{post.room.toUpperCase()}</p>
-                    </div>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.35, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{post.text}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>🌸 {post.blooms}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+        <div style={{ marginTop: 20 }}>
+          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
         </div>
       </div>
 
-      {/* ══ THE DOORS ════════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "28px 16px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 14 }}>THE AVENUE</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      {/* ══ TOP POSTS — full-width horizontal scroll ═════════════════════════ */}
+      <div style={{ marginTop: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(255,255,255,0.7)", letterSpacing: "0.18em" }}>TOP POSTS</p>
+          <Link href="/member/lobby/wall" style={{ textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.38)" }}>all →</span>
+          </Link>
+        </div>
+        <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
+          {TOP_POSTS.map((post, i) => (
+            <TopPostCard key={i} post={post} />
+          ))}
+        </div>
+      </div>
+
+      {/* ══ THE DOORS — horizontal scroll ═══════════════════════════════════ */}
+      <div style={{ marginTop: 32 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 14, padding: "0 24px" }}>THE AVENUE</p>
+        <div className="lscroll" style={{ display: "flex", gap: 14, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
           {DOORS.map((door) => (
-            <LobbyDoor key={door.href} door={door} />
+            <div key={door.href} style={{ flexShrink: 0, width: 130 }}>
+              <LobbyDoor door={door} />
+            </div>
           ))}
         </div>
       </div>

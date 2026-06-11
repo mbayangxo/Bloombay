@@ -183,6 +183,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
+  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby");
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
@@ -264,9 +265,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
       <div
         className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: "rgba(0,0,0,0.28)",
-          backdropFilter: "blur(16px) saturate(1.4)",
-          WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+          background: "transparent",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
@@ -282,23 +281,23 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
             {/* Apt / Lounge */}
             <TopTile href="/member/lounge" label="My Apt">
-              <IconApt c={PINK} />
+              <IconApt c={isDarkPage ? "white" : PINK} />
             </TopTile>
 
             {/* Pin drop / City */}
             <TopTile href="/member/city" label="Pin Drop">
-              <IconPin c={PINK} />
+              <IconPin c={isDarkPage ? "white" : PINK} />
             </TopTile>
 
             {/* Mailbox */}
             <TopTile href="/member/messages" label="Mailbox" badge="number">
-              <IconMail c={PINK} />
+              <IconMail c={isDarkPage ? "white" : PINK} />
             </TopTile>
 
             {/* Chat — pulse when has dot badge */}
             <TopTile href="/member/chat" label="Chat" badge="dot">
               <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
-                <IconChatBubble c={PINK} />
+                <IconChatBubble c={isDarkPage ? "white" : PINK} />
               </span>
             </TopTile>
 
