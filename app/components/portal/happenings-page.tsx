@@ -73,6 +73,13 @@ const CSS = `
 @keyframes swayS7 { 0%,100% { transform: rotate(-1deg); } 50% { transform: rotate(-3deg) translateY(1px); } }
 .type-scroll::-webkit-scrollbar { display: none; }
 .filter-scroll::-webkit-scrollbar { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 `;
 
 type HapTab = "happenings" | "city";
@@ -272,7 +279,7 @@ function TypeCarousel({ onSelect }: { onSelect: (label: string) => void }) {
               letterSpacing: tc.spacing,
               color: tc.color,
               lineHeight: 1.1,
-              fontStyle: tc.font === "var(--font-instrument)" ? "italic" : "normal",
+              fontStyle: tc.font === "var(--font-playfair)" ? "italic" : "normal",
             }}>
               {tc.label}
             </p>
@@ -947,7 +954,7 @@ export function HappeningsPage() {
             <div style={{ padding: "0 20px" }}>
               <div style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "16px 18px", border: "1px solid rgba(255,31,125,0.15)" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 6 }}>FULL CITY GUIDE</p>
-                <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#666", lineHeight: 1.5, marginBottom: 12 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontStyle: "italic", color: "#666", lineHeight: 1.5, marginBottom: 12 }}>
                   Restaurants, bars, rooftops — curated by Bloomies for Bloomies.
                 </p>
                 <Link href="/member/city" style={{ textDecoration: "none" }}>

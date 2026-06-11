@@ -181,7 +181,7 @@ function FoundersEnvelopeCard({ item, isOpened, onClick }: {
                 {item.subject}
               </h3>
               <p className="text-[11px] italic leading-snug"
-                style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-instrument)", maxWidth: "240px" }}>
+                style={{ color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-playfair)", maxWidth: "240px" }}>
                 {item.preview}
               </p>
             </div>
@@ -242,7 +242,7 @@ function EnvelopeCard({ item, isOpened, onClick }: {
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: isUnread ? 700 : 500, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
               {isUnread && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF1F7D", flexShrink: 0, boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />}
             </div>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "#999", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.preview}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontStyle: "italic", color: "#999", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.preview}</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb", marginTop: 4 }}>{item.date}</p>
           </div>
         </div>
@@ -431,7 +431,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                 <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, color: "#C07080", marginBottom: 6 }}>You&apos;re Invited to</p>
                 <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.15, marginBottom: 12 }}>{item.subject}</h1>
                 {item.body && (
-                  <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#777", lineHeight: 1.65, marginBottom: 18, textAlign: "left" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontStyle: "italic", color: "#777", lineHeight: 1.65, marginBottom: 18, textAlign: "left" }}>
                     {item.body}
                   </p>
                 )}
@@ -461,7 +461,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
               <div style={{ fontSize: 48, marginBottom: 14 }}>🌸</div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "#C07080", marginBottom: 8 }}>MILESTONE</p>
               <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 16 }}>{item.subject}</h2>
-              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 14, fontStyle: "italic", color: "#666", lineHeight: 1.65 }}>{item.body ?? item.preview}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", color: "#666", lineHeight: 1.65 }}>{item.body ?? item.preview}</p>
             </div>
           )}
 
@@ -469,7 +469,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
             <div style={{ padding: "22px 22px 28px" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#B8956A", marginBottom: 12 }}>FROM {item.from.toUpperCase()}</p>
               <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 16 }}>{item.subject}</h2>
-              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 14, fontStyle: "italic", color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{item.body ?? item.preview}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{item.body ?? item.preview}</p>
             </div>
           )}
         </div>
@@ -556,7 +556,7 @@ function MailboxInner() {
         </div>
 
         <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 42, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 6 }}>Mailbox.</h1>
-        <p style={{ fontFamily: "var(--font-instrument)", fontSize: 12, fontStyle: "italic", color: "#C07080", marginBottom: 20 }}>Invitations, letters &amp; certificates — yours to keep.</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontStyle: "italic", color: "#C07080", marginBottom: 20 }}>Invitations, letters &amp; certificates — yours to keep.</p>
       </div>
 
       {/* Invitations spotlight (when showing all or invitations filter) */}
@@ -572,7 +572,7 @@ function MailboxInner() {
               <p className="text-xs font-bold" style={{ color: "rgba(255,238,220,0.9)" }}>
                 {inviteUnread} invitation{inviteUnread !== 1 ? "s" : ""} waiting
               </p>
-              <p className="text-[10px] mt-0.5 italic" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)" }}>
+              <p className="text-[10px] mt-0.5 italic" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-playfair)" }}>
                 Someone saved you a seat.
               </p>
             </div>
@@ -625,7 +625,7 @@ function MailboxInner() {
           <div style={{ textAlign: "center", padding: "48px 0" }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>📬</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#1A1A1A", marginBottom: 6 }}>Nothing here yet.</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 12, color: "#C07080" }}>Your meaningful items will appear here.</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "#C07080" }}>Your meaningful items will appear here.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

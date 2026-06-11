@@ -272,7 +272,7 @@ export function LandingPage() {
         className="flex flex-col md:hidden"
         style={{
           minHeight: "100svh",
-          background: "#FF0090",
+          background: "#FF1F7D",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
@@ -371,7 +371,7 @@ export function LandingPage() {
             className="flex items-center justify-between px-7 py-5 rounded-full font-black"
             style={{
               background: "white",
-              color: "#FF0090",
+              color: "#FF1F7D",
               fontSize: "13px",
               letterSpacing: "0.08em",
               boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
@@ -379,7 +379,7 @@ export function LandingPage() {
           >
             LET&apos;S START
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8h10M8 3l5 5-5 5" stroke="#FF0090" strokeWidth="2.2" strokeLinecap="round" />
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </Link>
           <Link

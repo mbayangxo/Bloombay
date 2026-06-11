@@ -4,7 +4,7 @@ import React, { useState, use } from "react";
 import Link from "next/link";
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
-const PINK = "#FF0090";
+const PINK = "#FF1F7D";
 const DARK_GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' fill='%23fff' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
 const PAPER_TEX  = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
@@ -62,9 +62,9 @@ const PROFILES: Record<string, ProfileData> = {
     bio: "Lover of late dinners, long books, and spontaneous weekends. West Village is my whole personality.",
     location: "New York City",
     neighborhood: "West Village",
-    coverGradient: "linear-gradient(155deg, #2A0818 0%, #3A1020 50%, #FF0090 100%)",
+    coverGradient: "linear-gradient(155deg, #2A0818 0%, #3A1020 50%, #FF1F7D 100%)",
     avatarInitials: "S",
-    avatarGradient: "linear-gradient(135deg, #FF69B4, #FF0090)",
+    avatarGradient: "linear-gradient(135deg, #FF69B4, #FF1F7D)",
     isFounder: true,
     vibes: ["Late dinners", "Books", "Art galleries", "Natural wine"],
     stats: { moments: 34, notes: 12, saves: 87 },
@@ -77,7 +77,7 @@ const PROFILES: Record<string, ProfileData> = {
       name: "Studio Sofia",
       role: "Creative Director & Photographer",
       tagline: "Branding for women-led businesses. Campaigns, identity, editorial.",
-      accent: "#FF0090",
+      accent: "#FF1F7D",
     },
     age: 28,
     likes: ["Late dinners", "Serif fonts", "Espresso martinis", "Bookshop browsing", "Sunday markets"],
@@ -90,7 +90,7 @@ const PROFILES: Record<string, ProfileData> = {
       { type: "quote", quote: "The world is yours if you just sit still long enough to want it.", span: "normal" },
       { type: "invitation", invEvent: "Girls Dinner · Carbone", invFrom: "Aminah M.", invDate: "Tonight · 7:30 PM", invColor: "#FF69B4", span: "normal" },
       { type: "voice", duration: "0:42", label: "On finding your people in a big city", span: "wide" },
-      { type: "photo", bg: "linear-gradient(160deg, #2A0818 0%, #FF0090 100%)", span: "tall" },
+      { type: "photo", bg: "linear-gradient(160deg, #2A0818 0%, #FF1F7D 100%)", span: "tall" },
       { type: "quote", quote: "She wasn't looking for a knight. She was looking for a sword.", span: "normal" },
       { type: "invitation", invEvent: "MoMA + Froyo After", invFrom: "Girl Creatives Club", invDate: "Saturday · 2:00 PM", invColor: "#EC4899", span: "normal" },
       { type: "photo", bg: "linear-gradient(135deg, #C0E8FF 0%, #6BB5F5 100%)", span: "normal" },
@@ -170,7 +170,7 @@ const DEFAULT_PROFILE: ProfileData = {
   neighborhood: "NYC",
   coverGradient: "linear-gradient(155deg, #1A0018 0%, #3A0026 100%)",
   avatarInitials: "B",
-  avatarGradient: "linear-gradient(135deg, #FF69B4, #FF0090)",
+  avatarGradient: "linear-gradient(135deg, #FF69B4, #FF1F7D)",
   isFounder: false,
   vibes: [],
   stats: { moments: 0, notes: 0, saves: 0 },

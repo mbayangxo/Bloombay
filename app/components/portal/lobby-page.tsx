@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
-const PINK = "#FF0090";
+const PINK = "#FF1F7D";
 
 // ── Door data ──────────────────────────────────────────────────────────────────
 interface DoorConfig {
@@ -24,7 +24,7 @@ const DOORS: DoorConfig[] = [
     title: "The Wall",
     tagline: "Post. Share. Vibe.",
     href: "/member/lobby/wall",
-    background: "linear-gradient(145deg, #FF0090 0%, #E8007A 100%)",
+    background: "linear-gradient(145deg, #FF1F7D 0%, #E8007A 100%)",
     knobColor: "#FFD6EE",
     count: 247,
   },
@@ -34,7 +34,7 @@ const DOORS: DoorConfig[] = [
     tagline: "Fits. Advice. Swap.",
     href: "/member/lobby/closet",
     background: "linear-gradient(145deg, #FFB3D9 0%, #FF8EC7 100%)",
-    knobColor: "#FF0090",
+    knobColor: "#FF1F7D",
     count: 183,
     darkText: true,
   },
@@ -62,7 +62,7 @@ const DOORS: DoorConfig[] = [
     tagline: "Beauty. Glow. You.",
     href: "/member/lobby/vanity",
     background: "linear-gradient(145deg, #FFF0F5 0%, #FFE0EC 100%)",
-    knobColor: "#FF0090",
+    knobColor: "#FF1F7D",
     count: 76,
     darkText: true,
     lightPanel: true,
@@ -91,7 +91,7 @@ const DOORS: DoorConfig[] = [
     tagline: "BloomBay Editorial.",
     href: "/member/lobby/magazine",
     background: "linear-gradient(145deg, #1A0010 0%, #2D0018 100%)",
-    knobColor: "#FF0090",
+    knobColor: "#FF1F7D",
     count: null,
   },
 ];
@@ -103,7 +103,7 @@ const TOP_POSTS = [
     roomHref: "/member/lobby/wall",
     user: "Aaliyah M.",
     initial: "A",
-    color: "#FF0090",
+    color: "#FF1F7D",
     text: "Looking for a study partner in Brooklyn 📚 Anyone free this week?",
     blooms: 47,
   },
@@ -192,7 +192,7 @@ function LobbyDoor({ door }: { door: DoorConfig }) {
               gap: 3,
             }}>
               <p style={{
-                fontFamily: "var(--font-instrument)",
+                fontFamily: "var(--font-playfair)",
                 fontStyle: "italic",
                 fontWeight: 400,
                 fontSize: 11,
@@ -290,7 +290,7 @@ function TopPostCard({ post }: { post: typeof TOP_POSTS[number] }) {
 export function LobbyPage() {
   return (
     <div style={{
-      background: "linear-gradient(160deg, #FF0090 0%, #FF1F7D 45%, #FF5BAD 80%, #FFB3D9 100%)",
+      background: "linear-gradient(160deg, #FF1F7D 0%, #FF1F7D 45%, #FF5BAD 80%, #FFB3D9 100%)",
       minHeight: "100vh",
       paddingBottom: 104,
       overflowX: "hidden",
@@ -309,7 +309,7 @@ export function LobbyPage() {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em" }}>WHERE WOMEN CONNECT</p>
         </div>
         <div style={{ marginTop: 20 }}>
-          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
         </div>
       </div>

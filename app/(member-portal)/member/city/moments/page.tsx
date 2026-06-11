@@ -168,7 +168,7 @@ export default function MomentsPage() {
       </div>
 
       <div className="px-5 pb-2">
-        <p className="text-xs italic" style={{ color: "#aaa", fontFamily: "var(--font-instrument)" }}>
+        <p className="text-xs italic" style={{ color: "#aaa", fontFamily: "var(--font-playfair)" }}>
           {sharedCount} moments shared this week
         </p>
       </div>

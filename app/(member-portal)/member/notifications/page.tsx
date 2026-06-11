@@ -117,7 +117,7 @@ type NoteTheme = {
 };
 
 const NOTE_THEMES: Record<Notif["type"], NoteTheme> = {
-  flower:        { bg: "#FFF0F8", pin: "#FF0090", ruledColor: "rgba(255,0,144,0.08)", titleColor: "#7A0040", bodyColor: "#9D174D", rot: "-1.5deg" },
+  flower:        { bg: "#FFF0F8", pin: "#FF1F7D", ruledColor: "rgba(255,0,144,0.08)", titleColor: "#7A0040", bodyColor: "#9D174D", rot: "-1.5deg" },
   seat:          { bg: "#FFF0F5", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.08)", titleColor: "#831843", bodyColor: "#9D174D", rot: "1.2deg"  },
   event:         { bg: "#EEF2FF", pin: "#4F46E5", ruledColor: "rgba(79,70,229,0.1)",   titleColor: "#312E81", bodyColor: "#3730A3", rot: "-0.8deg" },
   celebrate:     { bg: "#FFF7ED", pin: "#EA580C", ruledColor: "rgba(234,88,12,0.09)",  titleColor: "#7C2D12", bodyColor: "#9A3412", rot: "1.8deg"  },

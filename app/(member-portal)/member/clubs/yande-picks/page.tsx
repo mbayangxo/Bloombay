@@ -85,7 +85,7 @@ export default function YandePicksPage() {
               style={{ background: "rgba(255,31,125,0.2)", border: "1px solid rgba(255,31,125,0.3)" }}>
               <span style={{ color: "#FF1F7D", fontSize: "12px" }}>✦</span>
             </div>
-            <p className="text-xs font-semibold italic" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-instrument)" }}>
+            <p className="text-xs font-semibold italic" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-playfair)" }}>
               Yande curated these for your energy.
             </p>
           </div>
@@ -93,7 +93,7 @@ export default function YandePicksPage() {
             style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(42px,11vw,60px)", color: "rgba(255,238,220,0.92)", lineHeight: 0.9 }}>
             3 for you.
           </h1>
-          <p className="text-[11px] italic mt-2" style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-instrument)" }}>
+          <p className="text-[11px] italic mt-2" style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-playfair)" }}>
             Based on your events, energy, and taste.
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function YandePicksPage() {
               <div className="rounded-2xl px-4 py-3 mb-4"
                 style={{ background: "#FFF5F8", border: "1px solid #FFE0EE" }}>
                 <p className="text-[9px] font-bold tracking-[0.18em] uppercase mb-1" style={{ color: "#FF1F7D" }}>Why Yande picked this</p>
-                <p className="text-xs leading-relaxed italic" style={{ fontFamily: "var(--font-instrument)", color: "#555" }}>
+                <p className="text-xs leading-relaxed italic" style={{ fontFamily: "var(--font-playfair)", color: "#555" }}>
                   {club.why}
                 </p>
               </div>
@@ -148,7 +148,7 @@ export default function YandePicksPage() {
                   </span>
                 ))}
                 <span className="text-[11px] italic px-2 py-1"
-                  style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>{club.vibe}</span>
+                  style={{ fontFamily: "var(--font-playfair)", color: "#bbb" }}>{club.vibe}</span>
               </div>
 
               {/* CTA */}

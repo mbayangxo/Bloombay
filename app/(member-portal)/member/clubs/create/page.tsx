@@ -157,7 +157,7 @@ export default function CreateClubPage() {
           <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "#111", lineHeight: 1.2, marginBottom: 10 }}>
             {clubName} is live.
           </h2>
-          <p style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 28, fontStyle: "italic", fontFamily: "var(--font-instrument)" }}>
+          <p style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 28, fontStyle: "italic", fontFamily: "var(--font-playfair)" }}>
             Your club is now visible to BloomBay members. Start inviting women and hosting gatherings.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -191,7 +191,7 @@ export default function CreateClubPage() {
           <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px, 6vw, 28px)", fontWeight: 900, fontStyle: "italic", color: clubName ? "white" : "rgba(255,255,255,0.35)", lineHeight: 1.1, transition: "color 0.2s" }}>
             {clubName || "Name your club"}
           </h1>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-instrument)", fontStyle: "italic", marginTop: 6 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-playfair)", fontStyle: "italic", marginTop: 6 }}>
             {step === 1 && "Name it. Brand it. Make it yours."}
             {step === 2 && "Tell women what to expect."}
             {step === 3 && "Set how women join, then launch."}
@@ -444,7 +444,7 @@ export default function CreateClubPage() {
                     </div>
                   </div>
                   {description && (
-                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, marginBottom: 12, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, marginBottom: 12, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                       &ldquo;{description.slice(0, 100)}{description.length > 100 ? "…" : ""}&rdquo;
                     </p>
                   )}

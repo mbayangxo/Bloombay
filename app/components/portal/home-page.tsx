@@ -14,16 +14,23 @@ if (typeof document !== "undefined") {
     s.id = "bb-home-style";
     s.textContent = `
       @keyframes cardPulse {
-        0%,100%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 0 rgba(255,0,144,0); }
-        50%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 10px rgba(255,0,144,0.12); }
+        0%,100%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 0 rgba(255,31,125,0); }
+        50%{ box-shadow:0 2px 0 rgba(0,0,0,0.9),0 10px 40px rgba(0,0,0,0.4),0 0 0 10px rgba(255,31,125,0.12); }
       }
       @keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     `;
     document.head.appendChild(s);
   }
 }
 
-const PINK = "#FF0090";
+const PINK = "#FF1F7D";
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
@@ -108,7 +115,7 @@ const TONIGHT_CARDS = [
 const CARD: React.CSSProperties = {
   background: "#FFFFFF",
   borderRadius: 20,
-  border: "1.5px solid rgba(255,0,144,0.09)",
+  border: "1.5px solid rgba(255,31,125,0.09)",
   boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
 };
 
@@ -147,12 +154,12 @@ function StickyNote({ text, author, rotate = 2 }: { text: string; author?: strin
       padding: "9px 11px 10px",
       borderRadius: 4,
       transform: `rotate(${rotate}deg)`,
-      boxShadow: "0 2px 10px rgba(255,0,144,0.15), 0 1px 4px rgba(0,0,0,0.08)",
+      boxShadow: "0 2px 10px rgba(255,31,125,0.15), 0 1px 4px rgba(0,0,0,0.08)",
       maxWidth: 118,
-      border: "1px solid rgba(255,0,144,0.13)",
+      border: "1px solid rgba(255,31,125,0.13)",
       position: "relative",
     }}>
-      <div style={{ position: "absolute", top: -5, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: "50%", background: PINK, boxShadow: "0 1px 5px rgba(255,0,144,0.55)" }} />
+      <div style={{ position: "absolute", top: -5, left: "50%", transform: "translateX(-50%)", width: 9, height: 9, borderRadius: "50%", background: PINK, boxShadow: "0 1px 5px rgba(255,31,125,0.55)" }} />
       <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#1A0010", lineHeight: 1.45 }}>{text}</p>
       {author && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(200,0,100,0.5)", marginTop: 4 }}>— {author}</p>}
     </div>
@@ -198,7 +205,7 @@ function ClubCover({ club }: { club: Club }) {
   return (
     <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7 }}>
-        <div style={{ width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,0,144,0.2)" }}>
+        <div style={{ width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.2)" }}>
           {club.cover_url
             ? <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -264,7 +271,7 @@ export function HomePage() {
 
   return (
     <div style={{
-      background: "linear-gradient(180deg, #060006 0%, #120010 18%, #3A0026 36%, #FF0090 52%, #FFB3D9 74%, #FFF0F8 100%)",
+      background: "linear-gradient(180deg, #060006 0%, #120010 18%, #3A0026 36%, #FF1F7D 52%, #FFB3D9 74%, #FFF0F8 100%)",
       minHeight: "100vh",
       paddingBottom: 112,
       overflowX: "hidden",
@@ -285,7 +292,7 @@ export function HomePage() {
           position: "relative",
         }}>
           {/* Pink glow bottom-right */}
-          <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,0,144,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
 
           {/* — TOP: Greeting + Date — */}
           <div style={{ padding: "24px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
@@ -314,11 +321,11 @@ export function HomePage() {
           </div>
 
           {/* Pink separator */}
-          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}99, rgba(255,0,144,0.15), transparent)`, margin: "0 20px" }} />
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}99, rgba(255,31,125,0.15), transparent)`, margin: "0 20px" }} />
 
           {/* — BOTTOM: YOUR WEEK mini calendar — */}
           <div style={{ padding: "14px 20px 6px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>YOUR WEEK</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>YOUR WEEK</p>
             <div style={{ display: "flex", gap: 4 }}>
               {weekDays.map((d, i) => {
                 const hasEvent = (DAILY_EVENTS[i] ?? []).length > 0;
@@ -343,28 +350,28 @@ export function HomePage() {
           {/* — YOUR DAY timeline — */}
           <div style={{ padding: "10px 20px 18px" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)" }}>
                 {activeDayIdx === todayDow ? "YOUR DAY" : WEEK_DAYS[activeDayIdx]}
               </p>
               <Link href="/member/plans" style={{ textDecoration: "none" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.22)" }}>full schedule →</span>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.42)" }}>full schedule →</span>
               </Link>
             </div>
             {activeDayEvents.length === 0 ? (
-              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 14, color: "rgba(255,255,255,0.28)" }}>Nothing planned. Enjoy the day. ✦</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Nothing planned. Enjoy the day. ✦</p>
             ) : activeDayEvents.map((ev, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < activeDayEvents.length - 1 ? 14 : 0 }}>
-                <div style={{ width: 36, flexShrink: 0, textAlign: "right" as const }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.32)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.2)" }}>{ev.time.split(" ")[1]}</p>
+                <div style={{ width: 40, flexShrink: 0, textAlign: "right" as const }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.52)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.36)" }}>{ev.time.split(" ")[1]}</p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: ev.label === "TONIGHT" ? PINK : "rgba(255,255,255,0.3)", boxShadow: ev.label === "TONIGHT" ? `0 0 0 3px rgba(255,0,144,0.18)` : "none" }} />
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: ev.label === "TONIGHT" ? PINK : "rgba(255,255,255,0.3)", boxShadow: ev.label === "TONIGHT" ? `0 0 0 3px rgba(255,31,125,0.18)` : "none" }} />
                   {i < activeDayEvents.length - 1 && <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.08)", marginTop: 3 }} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.28)", marginTop: 1, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.48)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
                 </div>
                 {ev.label === "NEXT" && (
                   <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "3px 8px" }}>
@@ -379,21 +386,21 @@ export function HomePage() {
         {/* Chips row */}
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           {[
-            { href: "/member/happenings", label: "Tonight",  count: "3",  accent: PINK,          bg: "white"              },
-            { href: "/member/city",       label: "City",     count: "12", accent: "white",        bg: "rgba(255,255,255,0.10)" },
-            { href: "/member/plans",      label: "Plans",    count: "2",  accent: "rgba(255,255,255,0.7)", bg: "rgba(255,255,255,0.10)" },
+            { href: "/member/happenings", label: "Tonight",    icon: "✦", bg: "white"                   },
+            { href: "/member/city",       label: "City Guide",  icon: "◎", bg: "rgba(255,255,255,0.10)"  },
+            { href: "/member/plans",      label: "My Plans",    icon: "◫", bg: "rgba(255,255,255,0.10)"  },
           ].map(c => (
             <Link key={c.href} href={c.href} style={{ textDecoration: "none", flex: 1 }}>
               <div style={{
-                padding: "11px 12px",
+                padding: "12px 10px",
                 borderRadius: 14,
                 background: c.bg,
                 border: c.bg === "white" ? "none" : "1px solid rgba(255,255,255,0.13)",
                 boxShadow: c.bg === "white" ? "0 2px 0 rgba(140,0,50,0.55), 0 4px 14px rgba(0,0,0,0.1)" : "none",
-                display: "flex", alignItems: "baseline", justifyContent: "space-between",
+                display: "flex", flexDirection: "column", gap: 5,
               }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: c.bg === "white" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.55)", letterSpacing: "0.06em" }}>{c.label.toUpperCase()}</p>
-                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, fontWeight: 300, color: c.accent, lineHeight: 1, letterSpacing: "-0.01em" }}>{c.count}</p>
+                <span style={{ fontSize: 14, lineHeight: 1, color: c.bg === "white" ? PINK : "rgba(255,255,255,0.5)" }}>{c.icon}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: c.bg === "white" ? "#111" : "rgba(255,255,255,0.72)", letterSpacing: "0.04em", lineHeight: 1 }}>{c.label}</p>
               </div>
             </Link>
           ))}
@@ -422,7 +429,7 @@ export function HomePage() {
 
       {/* ══ LIVE PULSE ══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,0,144,0.12)", border: "1px solid rgba(255,0,144,0.22)", borderRadius: 999, padding: "5px 12px 5px 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.22)", borderRadius: 999, padding: "5px 12px 5px 8px" }}>
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, animation: "pinkPulse 1.6s ease-in-out infinite" }} />
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.16em", color: PINK }}>LIVE</span>
         </div>
@@ -430,13 +437,13 @@ export function HomePage() {
       </div>
       <div style={{ display: "flex", overflowX: "auto", gap: 8, padding: "10px 16px 0", scrollbarWidth: "none" as const }}>
         {[
-          { text: "Girls Night → 2 seats left",     time: "now" },
-          { text: "Italian Dinner Society · tonight", time: "" },
-          { text: "14 happenings near SoHo",          time: "" },
-          { text: "Book Club starts Wednesday",       time: "3d" },
+          { text: "New happenings added near you",     time: "" },
+          { text: "Your clubs have been active",        time: "" },
+          { text: "3 events this weekend in SoHo",     time: "" },
+          { text: "Invitations waiting for you",        time: "" },
         ].map((p, i) => (
           <div key={i} style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 999, padding: "8px 15px" }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 2px rgba(255,0,144,0.22)` }} />
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 0 2px rgba(255,31,125,0.22)` }} />
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap" as const }}>{p.text}</span>
             {p.time && <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.24)", marginLeft: 1 }}>{p.time}</span>}
           </div>
@@ -494,11 +501,11 @@ export function HomePage() {
               </div>
               {/* Bottom content */}
               <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 18px 18px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", marginBottom: 5 }}>{TONIGHT_CARDS[tonightIdx].venue}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.62)", letterSpacing: "0.1em", marginBottom: 5 }}>{TONIGHT_CARDS[tonightIdx].venue}</p>
                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
                   <div>
-                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 4 }}>{TONIGHT_CARDS[tonightIdx].sub}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.58)", marginTop: 4 }}>{TONIGHT_CARDS[tonightIdx].sub}</p>
                   </div>
                   <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55` }}>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
@@ -519,7 +526,7 @@ export function HomePage() {
             <PushPin style={{ top: -7, left: "50%", transform: "translateX(-50%)" }} color="#FF5BAD" />
             <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 44, color: "#000", lineHeight: 1, letterSpacing: "-0.02em" }}>W{weeksIn}</p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 900, letterSpacing: "0.1em", color: PINK, marginTop: 6 }}>FIRST<br />MONTH</p>
-            <div style={{ height: 2, borderRadius: 999, background: "rgba(255,0,144,0.1)", marginTop: 8, overflow: "hidden" }}>
+            <div style={{ height: 2, borderRadius: 999, background: "rgba(255,31,125,0.1)", marginTop: 8, overflow: "hidden" }}>
               <div style={{ width: `${(weeksIn / 4) * 100}%`, height: "100%", background: PINK, borderRadius: 999 }} />
             </div>
           </div>
@@ -586,7 +593,7 @@ export function HomePage() {
             <div style={{ position: "absolute", top: 16, right: 16 }}>
               <StickyNote text={"find your people ✦"} rotate={-2} />
             </div>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 22, fontStyle: "italic", fontWeight: 400, color: "#000", marginBottom: 6 }}>No clubs yet.</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontStyle: "italic", fontWeight: 400, color: "#000", marginBottom: 6 }}>No clubs yet.</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.38)", lineHeight: 1.5, marginBottom: 22 }}>There&apos;s a club for every<br />side of you.</p>
             <Link href="/member/clubs" style={{ display: "inline-block", background: PINK, color: "white", padding: "12px 32px", borderRadius: 999, fontSize: 11, fontWeight: 700, textDecoration: "none", fontFamily: "var(--font-jost)", boxShadow: `0 3px 0 rgba(150,0,55,0.8), 0 6px 18px ${PINK}44` }}>Browse Clubs →</Link>
           </div>
@@ -608,33 +615,24 @@ export function HomePage() {
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>SEE ALL →</span>
           </Link>
         </div>
-        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingLeft: 16, paddingRight: 24, paddingBottom: 12, scrollbarWidth: "none" as const, alignItems: "flex-start" }}>
-
-          {/* WATCHING */}
-          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #0E0008 0%, #2A0018 100%)", boxShadow: "0 8px 28px rgba(0,0,0,0.35)", transform: "rotate(-1deg)", padding: "18px 16px 20px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>WATCHING</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "white", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>The White<br />Lotus</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>HBO · Season 3</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.38)", lineHeight: 1.4 }}>&ldquo;Thailand. Drama.<br />You&apos;re already late.&rdquo;</p>
-          </div>
-
-          {/* READING */}
-          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #FFFDF6 0%, #FFF5E8 100%)", boxShadow: "0 8px 28px rgba(0,0,0,0.18)", transform: "rotate(0.8deg)", padding: "18px 16px 20px", position: "relative" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: PINK }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>READING</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "#1A0010", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>Intermezzo</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.42)", marginBottom: 10 }}>Sally Rooney</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>&ldquo;Grief, want,<br />and brothers.&rdquo;</p>
-          </div>
-
-          {/* OBSESSING OVER */}
-          <div style={{ flexShrink: 0, width: 168, borderRadius: 16, overflow: "hidden", background: "linear-gradient(160deg, #FFF0F8 0%, #FFE0EE 100%)", boxShadow: "0 8px 28px rgba(255,0,144,0.14)", transform: "rotate(-0.5deg)", padding: "18px 16px 20px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 14 }}>OBSESSING</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "#1A0010", lineHeight: 0.92, letterSpacing: "-0.01em", marginBottom: 8 }}>The Row<br />aesthetic</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.4)", marginBottom: 10 }}>Quiet luxury</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>&ldquo;Rich. Quiet.<br />No logos needed.&rdquo;</p>
-          </div>
-
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingLeft: 16, paddingRight: 16, paddingBottom: 12, scrollbarWidth: "none" as const }}>
+          {[
+            { cat: "WATCHING",  title: "The White Lotus",  sub: "HBO · Season 3",   note: "Thailand. Drama. You're already late." },
+            { cat: "READING",   title: "Intermezzo",        sub: "Sally Rooney",      note: "Grief, want, and brothers."            },
+            { cat: "OBSESSING", title: "The Row aesthetic", sub: "Quiet luxury",      note: "Rich. Quiet. No logos needed."         },
+          ].map((item, i) => (
+            <div key={i} style={{
+              flexShrink: 0, width: 172, borderRadius: 16,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              padding: "18px 16px 20px",
+            }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 12 }}>{item.cat}</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "rgba(255,255,255,0.88)", lineHeight: 1, letterSpacing: "-0.01em", marginBottom: 8 }}>{item.title}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.42)", marginBottom: 10 }}>{item.sub}</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.32)", lineHeight: 1.4 }}>&ldquo;{item.note}&rdquo;</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -697,7 +695,7 @@ export function HomePage() {
             {/* Subtle lined-paper texture */}
             <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(transparent, transparent 24px, rgba(0,0,0,0.04) 24px, rgba(0,0,0,0.04) 25px)", pointerEvents: "none" }} />
             {/* Pink margin line on left */}
-            <div style={{ position: "absolute", left: 46, top: 0, bottom: 0, width: 1, background: "rgba(255,0,144,0.18)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", left: 46, top: 0, bottom: 0, width: 1, background: "rgba(255,31,125,0.18)", pointerEvents: "none" }} />
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.24em", color: "rgba(0,0,0,0.28)", marginBottom: 14, position: "relative" }}>FROM THE BLOOMBAY JOURNAL</p>
             <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 32, color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", position: "relative" }}>
               Collect moments,<br />not things.

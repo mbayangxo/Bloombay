@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const PINK  = "#FF0090";
+const PINK  = "#FF1F7D";
 const GOLD  = "#D4A853";
 const CREAM = "#F6F1EB";
 const PAPER = "#FEFCF7";
@@ -517,7 +517,7 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
                       <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>{gem.type}</span>
                     </div>
                     <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{gem.neighborhood}</p>
-                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, lineHeight: 1.5 }}>{gem.note}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, lineHeight: 1.5 }}>{gem.note}</p>
                   </div>
                 </div>
               </div>

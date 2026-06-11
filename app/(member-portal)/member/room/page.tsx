@@ -169,7 +169,7 @@ function WallNoteCard({
         {/* Main text */}
         <p
           style={{
-            fontFamily: "var(--font-instrument)",
+            fontFamily: "var(--font-playfair)",
             fontSize: "13.5px",
             color: zone.textColor,
             lineHeight: "1.68",
@@ -324,7 +324,7 @@ function ComposeSheet({
               className="flex-1 resize-none outline-none"
               style={{
                 background: "transparent",
-                fontFamily: "var(--font-instrument)",
+                fontFamily: "var(--font-playfair)",
                 fontSize: "15px",
                 color: "#2A1820",
                 lineHeight: "1.7",
@@ -415,7 +415,7 @@ function ExpandedNoteSheet({
           </div>
           <p
             className="text-[15px] leading-relaxed mb-4"
-            style={{ fontFamily: "var(--font-instrument)", color: "#2A1820", lineHeight: "1.72" }}
+            style={{ fontFamily: "var(--font-playfair)", color: "#2A1820", lineHeight: "1.72" }}
           >
             {post.text}
           </p>
@@ -444,7 +444,7 @@ function ExpandedNoteSheet({
                   <p className="text-xs font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{r.author}</p>
                   <p className="text-[9px]" style={{ color: "#ccc" }}>{r.time}</p>
                 </div>
-                <p className="text-[13px] leading-relaxed pl-8" style={{ fontFamily: "var(--font-instrument)", color: "#444", lineHeight: "1.65" }}>
+                <p className="text-[13px] leading-relaxed pl-8" style={{ fontFamily: "var(--font-playfair)", color: "#444", lineHeight: "1.65" }}>
                   {r.text}
                 </p>
               </div>
@@ -468,7 +468,7 @@ function ExpandedNoteSheet({
               className="w-full outline-none text-[14px] pb-2"
               style={{
                 background: "transparent",
-                fontFamily: "var(--font-instrument)",
+                fontFamily: "var(--font-playfair)",
                 color: "#2A1820",
                 borderBottom: "1.5px dashed #E8D8DE",
               }}
@@ -589,7 +589,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
               The<br />
               <span style={{ color: "rgba(255,255,255,0.75)" }}>Wall.</span>
             </h1>
-            <p className="text-sm italic mt-2.5" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.6)" }}>
+            <p className="text-sm italic mt-2.5" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.6)" }}>
               A community board. Leave something.
             </p>
           </div>
@@ -801,7 +801,7 @@ function GirlBarRoomEntry({ room, onLeave }: { room: GBRoom; onLeave: () => void
         <h1 className="font-black italic leading-none mb-3" style={{ fontFamily:"var(--font-playfair)", fontSize:"clamp(36px,10vw,52px)", color:"white", letterSpacing:"-0.02em" }}>
           {room.name}
         </h1>
-        <p className="text-sm leading-relaxed" style={{ color:"rgba(255,255,255,0.38)", fontFamily:"var(--font-instrument)" }}>{room.desc}</p>
+        <p className="text-sm leading-relaxed" style={{ color:"rgba(255,255,255,0.38)", fontFamily:"var(--font-playfair)" }}>{room.desc}</p>
       </div>
 
       {/* Live waveform */}
@@ -1084,7 +1084,7 @@ function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBa
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6" style={{ background: "#FFE0EC" }}>
           <span className="text-2xl">✦</span>
         </div>
-        <p className="text-base font-bold italic mb-2" style={{ fontFamily: "var(--font-instrument)", color: "#111111" }}>
+        <p className="text-base font-bold italic mb-2" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
           {name} is being prepared.
         </p>
         <p className="text-sm leading-relaxed mb-1" style={{ color: "#aaa" }}>{sub}</p>
@@ -1128,7 +1128,7 @@ function TheLobbyInner() {
         <h1 className="text-4xl font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,248,240,0.94)" }}>
           The Lobby
         </h1>
-        <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.28)" }}>
+        <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.28)" }}>
           Step inside. Choose your room.
         </p>
       </div>
@@ -1205,7 +1205,7 @@ function TheLobbyInner() {
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <div className="flex flex-col flex-1 min-w-0">
             <p className="text-xs font-bold" style={{ color: "rgba(255,31,125,0.65)" }}>More rooms on the way</p>
-            <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               New Keys · The Vanity · The Closet
             </p>
           </div>

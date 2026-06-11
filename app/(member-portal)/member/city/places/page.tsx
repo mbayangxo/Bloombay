@@ -44,7 +44,7 @@ function PlaceCard({ p, saved, onSave }: { p: typeof PLACES[0]; saved: boolean; 
       <div className="px-3.5 py-3">
         <h3 className="font-black text-sm" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h3>
         <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{p.neighborhood} · {p.price}</p>
-        <p className="text-[11px] mt-1.5 leading-snug" style={{ color: "#666", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{p.blurb}</p>
+        <p className="text-[11px] mt-1.5 leading-snug" style={{ color: "#666", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{p.blurb}</p>
         <div className="flex items-center gap-1.5 mt-2">
           <span style={{ color: "#FF1F7D", fontSize: 10 }}>✿</span>
           <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>{(p.womenLoved / 1000).toFixed(1)}k women</span>

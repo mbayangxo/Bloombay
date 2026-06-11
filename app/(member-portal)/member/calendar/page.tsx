@@ -487,7 +487,7 @@ export default function CalendarPage() {
             <p className="text-sm font-bold" style={{ color: "#111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               Plan with other women.
             </p>
-            <p className="text-[11px] mt-0.5" style={{ color: "rgba(0,0,0,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            <p className="text-[11px] mt-0.5" style={{ color: "rgba(0,0,0,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               Share your calendar or coordinate an outing.
             </p>
           </div>

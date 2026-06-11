@@ -550,7 +550,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 <div style={{ width: 44, height: 3, background: club.color, borderRadius: 2, marginBottom: 10 }} />
 
                 {/* Tagline */}
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.62, marginBottom: 14, lineHeight: 1.5 }}>{club.tagline}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.62, marginBottom: 14, lineHeight: 1.5 }}>{club.tagline}</p>
 
                 {/* About blurb */}
                 <p style={{ fontSize: 11, lineHeight: 1.65, color: DARK, opacity: 0.52, marginBottom: 20 }}>
@@ -622,7 +622,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   <div key={f.title}>
                     <span style={{ fontSize: 22, display: "block", marginBottom: 5 }}>{f.emoji}</span>
                     <p style={{ fontWeight: 700, fontSize: 11, color: DARK, marginBottom: 3 }}>{f.title}</p>
-                    <p style={{ fontSize: 10, color: DARK, opacity: 0.48, lineHeight: 1.55, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{f.desc}</p>
+                    <p style={{ fontSize: 10, color: DARK, opacity: 0.48, lineHeight: 1.55, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{f.desc}</p>
                   </div>
                 ))}
               </div>
@@ -666,7 +666,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           <section style={{ padding: "0 20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, alignItems: "start" }}>
             <div>
               <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38, marginBottom: 10 }}>ABOUT US</p>
-              <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 12, color: DARK, opacity: 0.68, lineHeight: 1.7 }}>{club.about}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: DARK, opacity: 0.68, lineHeight: 1.7 }}>{club.about}</p>
             </div>
             <div style={{ background: "rgba(255,248,210,0.85)", backgroundImage: PAPER_TEX, padding: "18px 14px 14px", transform: "rotate(-1.6deg)", boxShadow: "2px 4px 14px rgba(0,0,0,0.08)", position: "relative", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 120 }}>
               <Tape />
@@ -732,12 +732,12 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 {(club.testimonials ?? []).map((t, i) => (
                   <div key={i}>
                     <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 36, color: t.color, lineHeight: 1, marginBottom: 2, opacity: 0.65 }}>&ldquo;</p>
-                    <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 14, color: DARK, lineHeight: 1.65, marginBottom: 12 }}>{t.quote}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: DARK, lineHeight: 1.65, marginBottom: 12 }}>{t.quote}</p>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{ width: 30, height: 30, borderRadius: "50%", background: `radial-gradient(circle at 35% 35%, ${t.color}, ${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "white", flexShrink: 0 }}>{t.initial}</div>
                       <div>
                         <p style={{ fontSize: 11, fontWeight: 700, color: DARK }}>{t.name}</p>
-                        <p style={{ fontSize: 10, color: DARK, opacity: 0.38, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{t.event}</p>
+                        <p style={{ fontSize: 10, color: DARK, opacity: 0.38, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{t.event}</p>
                       </div>
                     </div>
                   </div>
@@ -968,7 +968,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                         {zone.weeklyPrompt && (
                           <div style={{ background: "#FFFBEB", borderRadius: 12, padding: "9px 12px", marginBottom: 10 }}>
                             <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#B45309", marginBottom: 4 }}>THIS WEEK</p>
-                            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 12, color: "#111", lineHeight: 1.5 }}>
+                            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "#111", lineHeight: 1.5 }}>
                               &ldquo;{zone.weeklyPrompt.length > 70 ? zone.weeklyPrompt.slice(0, 68) + "…" : zone.weeklyPrompt}&rdquo;
                             </p>
                           </div>

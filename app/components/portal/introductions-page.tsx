@@ -147,7 +147,7 @@ function SectionHeader({ eyebrow, title, note }: { eyebrow: string; title: strin
     <div className="mb-4">
       <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>✦ {eyebrow}</p>
       <p className="font-black italic text-lg leading-tight mt-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{title}</p>
-      {note && <p className="text-xs italic mt-0.5" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>{note}</p>}
+      {note && <p className="text-xs italic mt-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#aaa" }}>{note}</p>}
     </div>
   );
 }
@@ -272,7 +272,7 @@ function BloomRequestLetterPage({ req, onAccept, onDecline, onBack }: {
             )}
             <div className="mt-4 pt-4" style={{ borderTop: "1px dashed rgba(255,31,125,0.18)" }}>
               <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>YANDE SAYS:</p>
-              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#999" }}>
                 The right connections don&apos;t just happen, they&apos;re chosen. You bring the intention, we bring the women.
               </p>
             </div>
@@ -394,7 +394,7 @@ function BothBloomiesOverlay({ req, onDone }: {
           style={{ fontFamily: "var(--font-playfair)", fontSize: "42px", lineHeight: 0.95 }}>
           Bloomies<br/>now.
         </p>
-        <p className="italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.7)", fontSize: "15px" }}>
+        <p className="italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.7)", fontSize: "15px" }}>
           You and {req.name.split(" ")[0]} are now connected.<br/>Say hello.
         </p>
       </div>
@@ -557,7 +557,7 @@ function ClusterSheet({ cluster, onClose, connected, shaking, onConnect }: {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm" style={{ color: "#111" }}>{p.name}</p>
                 <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{p.neighborhood}</p>
-                <p className="text-[10px] mt-1 italic" style={{ color: "#bbb", fontFamily: "var(--font-instrument)" }}>{p.vibe}</p>
+                <p className="text-[10px] mt-1 italic" style={{ color: "#bbb", fontFamily: "var(--font-playfair)" }}>{p.vibe}</p>
               </div>
               <button
                 onClick={() => !connected.has(p.id) && onConnect(p.id, p.name)}
@@ -651,7 +651,7 @@ export function IntroductionsPage() {
         <h1 className="font-black italic leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,6vw,40px)", color: "#111" }}>
           Women who may belong<br/>in your story.
         </h1>
-        <p className="text-xs italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+        <p className="text-xs italic" style={{ fontFamily: "var(--font-playfair)", color: "#bbb" }}>
           Not dating. Not swiping. Relationship-building.
         </p>
       </div>
@@ -815,7 +815,7 @@ export function IntroductionsPage() {
                 <p className="text-sm leading-relaxed mb-1" style={{ color: "rgba(255,255,255,0.45)" }}>
                   Housing compatibility. Lifestyle compatibility.
                 </p>
-                <p className="text-xs italic mb-5" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.25)" }}>
+                <p className="text-xs italic mb-5" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.25)" }}>
                   For when you want to share more than a city.
                 </p>
                 <button

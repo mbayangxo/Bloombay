@@ -351,7 +351,7 @@ function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void
                   <p className="text-[8px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "rgba(255,31,125,0.7)" }}>
                     BLOOMBAY ✿ · PERSONAL INVITATION
                   </p>
-                  <p className="text-[10px] italic mb-1" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-[10px] italic mb-1" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.4)" }}>
                     You are cordially invited to join
                   </p>
                   <p className="font-black leading-none mb-3"
@@ -369,7 +369,7 @@ function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void
                     </div>
                   </div>
                   <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                    <p className="text-[10px] italic" style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,31,125,0.55)" }}>
+                    <p className="text-[10px] italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,31,125,0.55)" }}>
                       Sent from a Bloomie. Will you join her? ♡
                     </p>
                   </div>
@@ -426,7 +426,7 @@ function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void
                 style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
                 Invitation sent.
               </h3>
-              <p className="text-sm italic mb-6" style={{ fontFamily: "var(--font-instrument)", color: "#999" }}>
+              <p className="text-sm italic mb-6" style={{ fontFamily: "var(--font-playfair)", color: "#999" }}>
                 She&apos;ll receive a beautiful card in her mailbox.<br />It&apos;s her call now. ♡
               </p>
               <button onClick={onClose}
@@ -585,7 +585,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
           <div className="px-5 md:px-8 flex items-center justify-between mb-3">
             <div>
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>WHO YOU&apos;LL BE WITH</p>
-              <p className="text-xs italic mt-0.5" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+              <p className="text-xs italic mt-0.5" style={{ fontFamily: "var(--font-playfair)", color: "#bbb" }}>
                 {ext.attendees.length} women going · avg {Math.round(ext.attendees.reduce((s, a) => s + a.compatibility, 0) / ext.attendees.length)}% match
               </p>
             </div>
@@ -920,7 +920,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
           <div className="mb-5">
             <div className="px-5 md:px-0 flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>WHO&apos;S COMING</p>
-              <p className="text-[10px] font-semibold italic" style={{ fontFamily: "var(--font-instrument)", color: "#bbb" }}>
+              <p className="text-[10px] font-semibold italic" style={{ fontFamily: "var(--font-playfair)", color: "#bbb" }}>
                 {ext.attendees.length} women · avg {Math.round(ext.attendees.reduce((s, a) => s + a.compatibility, 0) / ext.attendees.length)}% match
               </p>
             </div>
@@ -952,7 +952,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             <div className="flex items-start gap-5">
               <div>
                 <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "44px", color: "#FF1F7D" }}>{ext.chemistry}%</p>
-                <p className="text-xs mt-1 italic" style={{ fontFamily: "var(--font-instrument)", color: "#aaa" }}>Amazing Match Energy ✿</p>
+                <p className="text-xs mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "#aaa" }}>Amazing Match Energy ✿</p>
               </div>
               <div className="flex-1">
                 <ChemistryBars chemistry={ext.chemistry} />

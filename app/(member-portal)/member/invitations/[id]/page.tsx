@@ -253,7 +253,7 @@ export default function InvitationDetailPage() {
               </div>
 
               <p style={{
-                fontFamily: "var(--font-instrument)",
+                fontFamily: "var(--font-playfair)",
                 fontStyle: "italic",
                 fontSize: 15,
                 color: "rgba(0,0,0,0.35)",
@@ -310,7 +310,7 @@ export default function InvitationDetailPage() {
                   borderRadius: 16, padding: "16px 18px", marginBottom: 24,
                 }}>
                   <p style={{
-                    fontFamily: "var(--font-instrument)", fontStyle: "italic",
+                    fontFamily: "var(--font-playfair)", fontStyle: "italic",
                     fontSize: 13, color: "rgba(0,0,0,0.5)", lineHeight: 1.65,
                   }}>
                     &ldquo;{invite.note.substring(0, 60)}…&rdquo;
@@ -339,7 +339,7 @@ export default function InvitationDetailPage() {
 
                 <p style={{
                   fontSize: 9, color: "rgba(0,0,0,0.22)", marginTop: 12,
-                  fontFamily: "var(--font-instrument)", fontStyle: "italic",
+                  fontFamily: "var(--font-playfair)", fontStyle: "italic",
                 }}>
                   Sent {invite.sentAt}
                 </p>
@@ -371,7 +371,7 @@ export default function InvitationDetailPage() {
                   </h2>
                   <p style={{
                     fontSize: 11, color: "rgba(0,0,0,0.4)",
-                    fontFamily: "var(--font-instrument)", fontStyle: "italic", marginBottom: 20,
+                    fontFamily: "var(--font-playfair)", fontStyle: "italic", marginBottom: 20,
                   }}>
                     {invite.venue}
                   </p>
@@ -456,7 +456,7 @@ export default function InvitationDetailPage() {
                       </div>
                     </div>
                     <p style={{
-                      fontFamily: "var(--font-instrument)", fontStyle: "italic",
+                      fontFamily: "var(--font-playfair)", fontStyle: "italic",
                       fontSize: 12, color: "rgba(0,0,0,0.55)", lineHeight: 1.65,
                     }}>
                       &ldquo;{invite.note}&rdquo;
@@ -518,7 +518,7 @@ export default function InvitationDetailPage() {
                       }}>You&apos;re going.</p>
                       <p style={{
                         fontSize: 11, color: "rgba(0,0,0,0.38)",
-                        fontFamily: "var(--font-instrument)", fontStyle: "italic", marginBottom: 14,
+                        fontFamily: "var(--font-playfair)", fontStyle: "italic", marginBottom: 14,
                       }}>
                         Saved to your calendar · {invite.time}
                       </p>
@@ -539,7 +539,7 @@ export default function InvitationDetailPage() {
                       }}>Another time.</p>
                       <p style={{
                         fontSize: 11, color: "rgba(0,0,0,0.3)",
-                        fontFamily: "var(--font-instrument)", fontStyle: "italic",
+                        fontFamily: "var(--font-playfair)", fontStyle: "italic",
                       }}>
                         You can always reach out when you&apos;re ready.
                       </p>

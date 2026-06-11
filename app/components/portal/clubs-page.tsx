@@ -77,7 +77,7 @@ export function ClubsPage() {
               <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 32, color: "white", lineHeight: 1.0 }}>
                 Clubs.
               </div>
-              <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
                 find your girls. clubs for every side of you.
               </div>
             </div>
@@ -126,7 +126,7 @@ export function ClubsPage() {
                 <div style={{ width: "100%", height: 110, background: club.grad, borderRadius: 2 }} />
                 <div style={{ marginTop: 10 }}>
                   <div style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: DARK }}>{club.name}</div>
-                  <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.55, marginTop: 4, lineHeight: 1.4 }}>{club.desc}</div>
+                  <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.55, marginTop: 4, lineHeight: 1.4 }}>{club.desc}</div>
                   <div style={{ marginTop: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: PINK }}>JOIN →</div>
                 </div>
               </div>
@@ -163,7 +163,7 @@ export function ClubsPage() {
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 11, color: DARK, lineHeight: 1.2 }}>{h.name}</div>
-                    <div style={{ fontSize: 9, color: DARK, opacity: 0.45, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{h.loc} · {h.time}</div>
+                    <div style={{ fontSize: 9, color: DARK, opacity: 0.45, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{h.loc} · {h.time}</div>
                   </div>
                 </div>
               ))}
@@ -197,7 +197,7 @@ export function ClubsPage() {
             ].map((step, i) => (
               <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
                 <span style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK, flexShrink: 0, lineHeight: 1.3 }}>{step.n}</span>
-                <span style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.7, lineHeight: 1.4 }}>{step.text}</span>
+                <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.7, lineHeight: 1.4 }}>{step.text}</span>
               </div>
             ))}
           </div>

@@ -79,7 +79,7 @@ export default function ApplyClubMamaPage() {
             You&apos;re in the running.
           </h2>
           <p className="text-sm leading-relaxed mb-8"
-            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
             BloomBay reviews every application personally. If you&apos;re selected, you&apos;ll hear from us within 2 weeks.
           </p>
           <Link href="/member/lounge"
@@ -155,7 +155,7 @@ export default function ApplyClubMamaPage() {
               <h2 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.9)" }}>
                 Your Club Identity
               </h2>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 What is this club, in its essence?
               </p>
             </div>
@@ -259,7 +259,7 @@ export default function ApplyClubMamaPage() {
               <h2 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.9)" }}>
                 The Structure
               </h2>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 How will this club run, day to day?
               </p>
             </div>
@@ -367,7 +367,7 @@ export default function ApplyClubMamaPage() {
               <h2 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.9)" }}>
                 About You
               </h2>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 We choose Club Mamas who are already natural connectors.
               </p>
             </div>
@@ -377,7 +377,7 @@ export default function ApplyClubMamaPage() {
               <p className="text-[9px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>
                 WHY DO YOU WANT TO RUN THIS CLUB? *
               </p>
-              <p className="text-[10px] italic mb-2" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-instrument)" }}>
+              <p className="text-[10px] italic mb-2" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-playfair)" }}>
                 What gap does it fill? What&apos;s the feeling you want to create?
               </p>
               <textarea
@@ -405,7 +405,7 @@ export default function ApplyClubMamaPage() {
               <p className="text-[9px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>
                 HAVE YOU BUILT COMMUNITY BEFORE? *
               </p>
-              <p className="text-[10px] italic mb-2" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-instrument)" }}>
+              <p className="text-[10px] italic mb-2" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-playfair)" }}>
                 Hosting events, running groups, organizing anything — big or small.
               </p>
               <textarea
@@ -458,7 +458,7 @@ export default function ApplyClubMamaPage() {
               <h2 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,238,220,0.9)" }}>
                 The Commitment
               </h2>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 Club Mamas are held to a standard. This is what we ask.
               </p>
             </div>

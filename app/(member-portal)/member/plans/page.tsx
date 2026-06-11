@@ -186,7 +186,7 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Invitations sent!</p>
-          <p className="text-sm" style={{ color: "#999", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
+          <p className="text-sm" style={{ color: "#999", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
           <button onClick={onClose} className="mt-6 px-8 py-3.5 rounded-full text-sm font-bold" style={{ background: "#FF1F7D", color: "white" }}>Done</button>
         </div>
       </div>
@@ -1112,7 +1112,7 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Done!</p>
-          <p className="text-sm italic" style={{ color: "#999", fontFamily: "var(--font-instrument)" }}>
+          <p className="text-sm italic" style={{ color: "#999", fontFamily: "var(--font-playfair)" }}>
             {step === "room" ? `"${name}" created` : step === "bloomie" ? `Plan sent to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""}` : `Posted to ${CLUBS_LIST.find(c => c.id === clubId)?.name ?? "club"}`}
           </p>
           <button onClick={onClose} className="mt-6 px-8 py-3.5 rounded-full text-sm font-bold" style={{ background: "#FF1F7D", color: "white" }}>Done</button>
@@ -1449,7 +1449,7 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
         <div style={{ flex: 1, padding: "12px 14px 10px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
           </div>
           <div>
@@ -1564,7 +1564,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
                   {isFront && (
                     <div style={{ position: "absolute", left: img ? "40%" : 12, right: 10, top: 10, display: "flex", flexDirection: "column", gap: 2 }}>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}CC` }}>BLOOMBAY · TICKET</p>
-                      <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.05, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.name}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.05, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.name}</p>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.38)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.time}</p>
                     </div>
                   )}
@@ -1641,7 +1641,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               <div style={{ position: "absolute", bottom: 22, left: 20, right: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                 <div>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.55)", marginBottom: 4 }}>BLOOMBAY</p>
-                  <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 21, color: "rgba(120,0,50,0.75)", lineHeight: 1 }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 21, color: "rgba(120,0,50,0.75)", lineHeight: 1 }}>
                     {allActive.length} {allActive.length === 1 ? "ticket" : "tickets"}
                   </p>
                 </div>
@@ -1686,7 +1686,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
               </div>
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.55)", marginBottom: 2 }}>BLOOMBAY</p>
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 17, color: "rgba(120,0,50,0.8)", lineHeight: 1 }}>My Wallet</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: "rgba(120,0,50,0.8)", lineHeight: 1 }}>My Wallet</p>
               </div>
             </div>
             <button onClick={() => setWalletOpen(false)}
@@ -1719,7 +1719,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
           <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 16px 16px" }}>
             {displayRooms.length === 0 ? (
               <div style={{ padding: "28px 0", textAlign: "center" as const }}>
-                <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>
                   {filter === "active" ? "No upcoming tickets." : filter === "used" ? "No used tickets yet." : "No expired tickets."}
                 </p>
               </div>

@@ -256,7 +256,7 @@ export default function VenuePage() {
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: BLUE, marginBottom: 8 }}>◉ ABOUT {VENUE.name.toUpperCase()}</p>
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: 14, fontStyle: "italic", color: "#555", lineHeight: 1.65 }}>{VENUE.about}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", color: "#555", lineHeight: 1.65 }}>{VENUE.about}</p>
           </div>
           {/* Building illustration placeholder */}
           <div style={{ width: 64, height: 80, flexShrink: 0, background: `${BLUE}0D`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -328,7 +328,7 @@ export default function VenuePage() {
                   <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb", marginTop: 1 }}>{rev.ago}</p>
                 </div>
               </div>
-              <p style={{ fontFamily: "var(--font-instrument)", fontSize: 13, fontStyle: "italic", color: "#555", lineHeight: 1.55 }}>{rev.text}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontStyle: "italic", color: "#555", lineHeight: 1.55 }}>{rev.text}</p>
             </div>
           ))}
         </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { use } from "react";
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
-const PINK  = "#FF0090";
+const PINK  = "#FF1F7D";
 const GOLD  = "#D4A853";
 const DARK  = "#1C1B1C";
 

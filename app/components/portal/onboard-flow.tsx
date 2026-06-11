@@ -440,7 +440,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
             margin: "0 0 6px",
           }}>woman&apos;s world.</p>
           <p style={{
-            fontFamily: "var(--font-instrument)", fontStyle: "italic",
+            fontFamily: "var(--font-playfair)", fontStyle: "italic",
             fontSize: "clamp(14px,3.8vw,18px)",
             color: "rgba(255,255,255,0.5)", margin: 0, letterSpacing: "0.01em",
           }}>we&apos;re in it.</p>

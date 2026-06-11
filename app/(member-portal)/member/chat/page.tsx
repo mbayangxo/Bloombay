@@ -354,7 +354,7 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
             <p style={{ fontSize: "11px", color: convo.online ? "#22C55E" : "#AAA", marginBottom: 8 }}>{convo.online ? "● Active now" : "○ Last seen recently"}</p>
           )}
           {convo.bio && (
-            <p style={{ fontFamily: "var(--font-instrument)", fontSize: "13px", fontStyle: "italic", color: "#888", maxWidth: 240, lineHeight: 1.6, marginBottom: 18 }}>{convo.bio}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: "13px", fontStyle: "italic", color: "#888", maxWidth: 240, lineHeight: 1.6, marginBottom: 18 }}>{convo.bio}</p>
           )}
           {/* Action icons */}
           <div style={{ display: "flex", gap: 22 }}>
@@ -448,7 +448,7 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
               </div>
               <span style={{ fontSize: "11px", color: "#AAA", flexShrink: 0 }}>0:24</span>
             </div>
-            <p style={{ fontSize: "11px", color: "#CCC", marginTop: 8, fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>Saved from last Tuesday ✨</p>
+            <p style={{ fontSize: "11px", color: "#CCC", marginTop: 8, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Saved from last Tuesday ✨</p>
           </div>
         </div>
         <div style={{ height: 24 }}/>

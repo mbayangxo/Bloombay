@@ -122,7 +122,7 @@ export default function WitnessedNotePage() {
               {/* Context */}
               {witness.context && (
                 <p className="text-[9px] text-center mt-5 tracking-wide"
-                  style={{ color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+                  style={{ color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                   {witness.context}
                 </p>
               )}
@@ -146,7 +146,7 @@ export default function WitnessedNotePage() {
 
           {/* "This lives on your profile" note below card */}
           <p className="text-[10px] text-center mt-5 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-instrument)", fontStyle: "italic" }}>
+            style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
             This observation lives on your profile.<br/>
             <Link href="/member/lounge" style={{ color: "rgba(255,31,125,0.55)", textDecoration: "underline" }}>
               See your full Witness Stack →

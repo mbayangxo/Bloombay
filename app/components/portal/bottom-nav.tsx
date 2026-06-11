@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
 
-const PINK = "#FF0090";
+const PINK = "#FF1F7D";
 
 // Inject pulse keyframe once
 if (typeof document !== "undefined") {

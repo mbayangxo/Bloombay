@@ -52,7 +52,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
         {/* Body copy */}
         <p
           className="text-sm leading-relaxed italic"
-          style={{ fontFamily: "var(--font-instrument)", color: "rgba(255,255,255,0.35)", maxWidth: 280 }}
+          style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.35)", maxWidth: 280 }}
         >
           Intros opens when the community reaches its first milestone. We&apos;re building something
           intentional — the right women, the right moment.
