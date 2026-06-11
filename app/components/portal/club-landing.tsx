@@ -25,6 +25,11 @@ export interface ClubZone {
   price?: number;
   priceInterval?: "monthly" | "one_time";
   joinType?: "open" | "request";
+  zoneColor?: string;
+  activeThisWeek?: number;
+  weeklyPrompt?: string;
+  lastMessage?: string;
+  lastMessageAuthor?: string;
 }
 
 export interface ClubPhoto {
@@ -149,10 +154,10 @@ const DEFAULT_CLUB: ClubLandingData = {
     },
   ],
   zones: [
-    { id: "z1", name: "Slow Art Sundays",    emoji: "🎨", desc: "Unhurried Sunday gallery visits. No agenda, just looking.",                     memberCount: 48, joinType: "open" },
-    { id: "z2", name: "After Dark Openings", emoji: "🌙", desc: "Evening preview openings and gallery events. Members-only access.",             memberCount: 22, price: 15, priceInterval: "monthly", joinType: "request" },
-    { id: "z3", name: "Museum + Lunch",      emoji: "🥗", desc: "Art followed by a long lunch. Culture + food, always together.",                memberCount: 35, joinType: "open" },
-    { id: "z4", name: "Collectors Corner",   emoji: "🖼️", desc: "For the girls seriously exploring art collecting and acquisition.",            memberCount: 11, price: 20, priceInterval: "monthly", joinType: "request" },
+    { id: "z1", name: "Slow Art Sundays",    emoji: "🎨", desc: "Unhurried Sunday gallery visits. No agenda, just looking.",                     memberCount: 48, joinType: "open",    zoneColor: "#7C3AED", activeThisWeek: 22, weeklyPrompt: "What's one artwork you couldn't stop thinking about this week?", lastMessage: "The Degas pastels at the Met — I never realized how textured they are in person.", lastMessageAuthor: "Aminah" },
+    { id: "z2", name: "After Dark Openings", emoji: "🌙", desc: "Evening preview openings and gallery events. Members-only access.",             memberCount: 22, price: 15, priceInterval: "monthly", joinType: "request", zoneColor: "#0EA5E9", activeThisWeek: 15, weeklyPrompt: "Which gallery opening this month surprised you most?", lastMessage: "Pace Gallery has a members-only preview Thursday — who's joining me?", lastMessageAuthor: "Fatima" },
+    { id: "z3", name: "Museum + Lunch",      emoji: "🥗", desc: "Art followed by a long lunch. Culture + food, always together.",                memberCount: 35, joinType: "open",    zoneColor: "#16A34A", activeThisWeek: 18, weeklyPrompt: "Best post-museum restaurant you've been to lately?", lastMessage: "After the Hockney show we went to Cafe Sabarsky downstairs — I'm not over it.", lastMessageAuthor: "Olivia" },
+    { id: "z4", name: "Collectors Corner",   emoji: "🖼️", desc: "For the girls seriously exploring art collecting and acquisition.",            memberCount: 11, price: 20, priceInterval: "monthly", joinType: "request", zoneColor: "#B45309", activeThisWeek: 9,  weeklyPrompt: "If you had $5K to spend on your first piece, where would you start?", lastMessage: "Started working with a private dealer last month — the access is completely different.", lastMessageAuthor: "Chidera" },
   ],
   allowZoneRequests: true,
 };
@@ -188,7 +193,7 @@ const CLUB_MEMBERS = [
   { initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member" },
 ];
 
-type ClubTab = "about" | "chat" | "events" | "members";
+type ClubTab = "about" | "chat" | "zones" | "events" | "members";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -565,6 +570,23 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: DARK, opacity: 0.42, marginTop: 10 }}>
                   powered by Club Mama ♡
                 </p>
+
+                {/* Member faces + live pulse */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
+                  <div style={{ display: "flex" }}>
+                    {(["A","K","F","T","O"] as string[]).map((init, i) => (
+                      <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid #FFF0F8", marginLeft: i > 0 ? -7 : 0, background: [PINK,"#FF69B4","#6b4fa0","#3e7c6b","#b07856"][i], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "white", flexShrink: 0 }}>{init}</div>
+                    ))}
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid #FFF0F8", marginLeft: -7, background: "rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 700, color: "rgba(0,0,0,0.4)", flexShrink: 0 }}>+{club.memberCount - 5}</div>
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", flexShrink: 0 }} />
+                      <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.55)" }}>47 active this week</p>
+                    </div>
+                    <p style={{ fontSize: 10, color: "rgba(0,0,0,0.36)", marginTop: 1 }}>{club.memberCount.toLocaleString()} girls total</p>
+                  </div>
+                </div>
               </div>
 
               {/* Right: stacked polaroids */}
@@ -724,8 +746,63 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
             </section>
           )}
 
+          {/* ── INSIDE THE ZONES TEASER ──────────────────────────────────── */}
+          <section style={{ padding: "0 20px 28px" }}>
+            <div style={{ background: DARK, borderRadius: 24, overflow: "hidden", position: "relative" }}>
+              {/* Top accent bar */}
+              <div style={{ height: 3, background: `linear-gradient(90deg, ${club.color}, #FF69B4, #7C3AED)` }} />
+              <div style={{ padding: "20px 18px 18px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <div>
+                    <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 4 }}>HAPPENING IN THE ZONES</p>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.55)" }}>right now, inside ♡</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "#22C55E" }}>live</span>
+                  </div>
+                </div>
+
+                {/* Weekly prompt visible (read, to create FOMO) */}
+                <div style={{ background: "rgba(255,248,210,0.10)", border: "1px solid rgba(255,248,210,0.18)", borderRadius: 16, padding: "12px 14px", marginBottom: 12 }}>
+                  <div style={{ display: "inline-flex", background: `${club.color}`, borderRadius: 8, padding: "2px 8px", marginBottom: 8 }}>
+                    <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.14em", color: "white" }}>THIS WEEK&apos;S PROMPT</span>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: 8 }}>
+                    &ldquo;{(club.zones ?? [])[0]?.weeklyPrompt ?? "What inspired you most this week?"}&rdquo;
+                  </p>
+                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.32)" }}>
+                    14 zone members responded · <span style={{ color: club.color }}>join to read them</span>
+                  </p>
+                </div>
+
+                {/* Blurred activity previews */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, filter: "blur(3px)", userSelect: "none", pointerEvents: "none" }}>
+                  {[
+                    { init: "A", col: PINK, lines: ["The Degas pastels at the Met — I never realized", "how textured they are in person. I stood there for", "20 minutes and it changed something in me."], len: [180, 168, 152] },
+                    { init: "K", col: "#FF69B4", lines: ["I finally did a 30-minute sit with one painting at the", "Frick. Slow looking genuinely changes how you see."], len: [200, 175] },
+                  ].map((item, idx) => (
+                    <div key={idx} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 14, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: "50%", background: item.col, flexShrink: 0 }} />
+                        <div style={{ height: 8, width: 72, background: "rgba(255,255,255,0.25)", borderRadius: 4 }} />
+                      </div>
+                      {item.lines.map((_, li) => (
+                        <div key={li} style={{ height: 8, width: item.len[li], maxWidth: "100%", background: "rgba(255,255,255,0.16)", borderRadius: 4, marginBottom: li < item.lines.length - 1 ? 5 : 0 }} />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: 14, textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.38)" }}>join to see what&apos;s inside ♡</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* ── GIRL ZONES TEASER ────────────────────────────────────────── */}
-          <section style={{ padding: "28px 20px" }}>
+          <section style={{ padding: "0 20px 28px" }}>
             <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38, marginBottom: 14 }}>GIRL ZONES</p>
             <GirlZonesSection club={club} isMember={false} daysInClub={0} />
           </section>
@@ -786,10 +863,10 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           </div>
 
           {/* Tab bar */}
-          <div style={{ display: "flex", borderBottom: "1px solid rgba(0,0,0,0.07)", background: "white", overflowX: "auto" }}>
-            {(["about", "chat", "events", "members"] as ClubTab[]).map(t => (
-              <button key={t} onClick={() => setClubTab(t)} style={{ flex: 1, padding: "13px 16px", fontSize: 13, fontWeight: 600, border: "none", background: "none", cursor: "pointer", borderBottom: clubTab === t ? `2px solid ${club.color}` : "2px solid transparent", color: clubTab === t ? club.color : "rgba(0,0,0,0.35)", whiteSpace: "nowrap", minWidth: 72 }}>
-                {t === "about" ? "About" : t === "chat" ? "Chat" : t === "events" ? "Events" : "Members"}
+          <div style={{ display: "flex", borderBottom: "1px solid rgba(0,0,0,0.07)", background: "white", overflowX: "auto", scrollbarWidth: "none" }}>
+            {(["about", "chat", "zones", "events", "members"] as ClubTab[]).map(t => (
+              <button key={t} onClick={() => setClubTab(t)} style={{ flex: 1, padding: "13px 12px", fontSize: 12, fontWeight: 600, border: "none", background: "none", cursor: "pointer", borderBottom: clubTab === t ? `2.5px solid ${club.color}` : "2.5px solid transparent", color: clubTab === t ? club.color : "rgba(0,0,0,0.35)", whiteSpace: "nowrap", minWidth: 64 }}>
+                {t === "about" ? "About" : t === "chat" ? "Chat" : t === "zones" ? "Zones" : t === "events" ? "Events" : "Members"}
               </button>
             ))}
           </div>
@@ -842,6 +919,87 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Zones tab ── */}
+          {clubTab === "zones" && (
+            <div style={{ padding: "20px 20px 90px", display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ marginBottom: 4 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: club.color }}>GIRL ZONES</p>
+                <p style={{ fontSize: 11, color: "rgba(0,0,0,0.4)", marginTop: 3 }}>smaller circles, deeper connections</p>
+              </div>
+
+              {(club.zones ?? []).map(zone => {
+                const zc = zone.zoneColor ?? club.color;
+                return (
+                  <Link key={zone.id} href={`/member/clubs/${club.id}/zones/${zone.id}`} style={{ textDecoration: "none" }}>
+                    <div style={{ background: "white", borderRadius: 22, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer" }}>
+                      {/* Zone color strip */}
+                      <div style={{ height: 4, background: `linear-gradient(90deg, ${zc}, ${zc}99)` }} />
+                      <div style={{ padding: "16px 18px 14px" }}>
+                        {/* Header row */}
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 14, background: `${zc}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{zone.emoji}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>{zone.name}</p>
+                              {zone.price && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "#FFF9E6", color: "#b45309" }}>${zone.price}/mo</span>}
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: 11, color: "rgba(0,0,0,0.4)" }}>{zone.memberCount} members</span>
+                              {zone.activeThisWeek && (
+                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#22C55E" }} />
+                                  <span style={{ fontSize: 11, color: "#22C55E", fontWeight: 600 }}>{zone.activeThisWeek} active</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 4, color: zc, flexShrink: 0, paddingTop: 2 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700 }}>Enter</span>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7M6.5 3l3 3-3 3" stroke={zc} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </div>
+                        </div>
+
+                        {/* Weekly prompt */}
+                        {zone.weeklyPrompt && (
+                          <div style={{ background: "#FFFBEB", borderRadius: 12, padding: "9px 12px", marginBottom: 10 }}>
+                            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#B45309", marginBottom: 4 }}>THIS WEEK</p>
+                            <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 12, color: "#111", lineHeight: 1.5 }}>
+                              &ldquo;{zone.weeklyPrompt.length > 70 ? zone.weeklyPrompt.slice(0, 68) + "…" : zone.weeklyPrompt}&rdquo;
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Last message */}
+                        {zone.lastMessage && (
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: zc, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "white", flexShrink: 0, marginTop: 1 }}>
+                              {zone.lastMessageAuthor?.[0] ?? "?"}
+                            </div>
+                            <p style={{ fontSize: 11, color: "rgba(0,0,0,0.48)", lineHeight: 1.5, flex: 1, minWidth: 0 }}>
+                              <span style={{ fontWeight: 700, color: "rgba(0,0,0,0.6)" }}>{zone.lastMessageAuthor}: </span>
+                              {zone.lastMessage.length > 80 ? zone.lastMessage.slice(0, 78) + "…" : zone.lastMessage}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+
+              {/* Suggest a zone CTA */}
+              {club.allowZoneRequests && (
+                <div style={{ background: `${club.color}08`, border: `1.5px dashed ${club.color}30`, borderRadius: 22, padding: "20px 18px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: DARK, marginBottom: 6 }}>Have an idea for a zone?</p>
+                  <p style={{ fontSize: 12, color: "rgba(0,0,0,0.45)", marginBottom: 14, lineHeight: 1.5 }}>Zone suggestions open after 2 weeks. Your ideas shape this club.</p>
+                  <button onClick={() => setClubTab("about")} style={{ padding: "8px 20px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: club.color, color: "white", border: "none", cursor: "pointer" }}>
+                    Suggest a zone →
+                  </button>
                 </div>
               )}
             </div>
