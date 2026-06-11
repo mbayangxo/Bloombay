@@ -291,103 +291,143 @@ export function LandingPage() {
           </Link>
         </div>
 
-        {/* Statement */}
-        <div className="flex-1 flex flex-col justify-end px-6 pb-6">
-          <h1 style={{ lineHeight: 0.88, margin: 0, fontFamily: "var(--font-jost)" }}>
-            {/* "it's a" — white */}
-            <span
-              className="block text-white"
-              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 800, letterSpacing: "-0.02em" }}
-            >
-              it&apos;s a
-            </span>
-            {/* "woman's" — dark contrast, like the reference's "girls" in black */}
-            <span
-              className="block"
-              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 900, letterSpacing: "-0.02em", color: "#1A000E" }}
-            >
-              woman&apos;s
-            </span>
-            {/* "world" — white bold */}
-            <span
-              className="block text-white"
-              style={{ fontSize: "clamp(62px, 19vw, 80px)", fontWeight: 900, letterSpacing: "-0.02em" }}
-            >
-              world
-            </span>
-            {/* "we're" — outline stroke */}
+        {/* Hero statement — Women are gathering. first */}
+        <div className="flex-1 flex flex-col justify-end px-6 pb-5">
+          <h1 style={{ lineHeight: 0.9, margin: 0 }}>
             <span
               className="block"
               style={{
-                fontSize: "clamp(62px, 19vw, 80px)",
-                fontWeight: 900,
+                fontSize: "clamp(64px, 19vw, 84px)",
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                color: "white",
                 letterSpacing: "-0.02em",
-                color: "transparent",
-                WebkitTextStroke: "2.5px white",
-              } as React.CSSProperties}
+              }}
             >
-              we&apos;re
+              Women
             </span>
-            {/* "in it." — outline stroke */}
             <span
               className="block"
               style={{
-                fontSize: "clamp(62px, 19vw, 80px)",
-                fontWeight: 900,
+                fontSize: "clamp(64px, 19vw, 84px)",
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                color: "white",
                 letterSpacing: "-0.02em",
-                color: "transparent",
-                WebkitTextStroke: "2.5px white",
-              } as React.CSSProperties}
+              }}
             >
-              in it.
+              are
+            </span>
+            <span
+              className="block"
+              style={{
+                fontSize: "clamp(64px, 19vw, 84px)",
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                color: "white",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              gathering.
             </span>
           </h1>
           <p
-            className="mt-8"
+            className="mt-6"
             style={{
-              fontSize: "clamp(28px, 8vw, 40px)",
-              fontFamily: "var(--font-fraunces)",
-              fontStyle: "italic",
-              fontWeight: 300,
-              color: "rgba(255,255,255,0.72)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.1,
+              fontSize: "13px",
+              color: "rgba(255,255,255,0.46)",
+              fontFamily: "var(--font-jost)",
+              fontWeight: 400,
+              lineHeight: 1.6,
+              maxWidth: 260,
             }}
           >
-            Women are gathering.
-          </p>
-          <p
-            className="mt-5"
-            style={{ fontSize: "14px", color: "rgba(255,255,255,0.48)", fontFamily: "var(--font-jost)", fontWeight: 400, lineHeight: 1.6, maxWidth: 260 }}
-          >
-            a space to bloom, feel seen, and build real connections.
+            A private world for women — clubs, gatherings, and real connections.
           </p>
         </div>
 
-        {/* CTAs */}
-        <div className="px-6 pb-14 pt-6 flex flex-col gap-3">
+        {/* CTAs — invitation card style */}
+        <div className="px-5 pb-14 pt-5 flex flex-col gap-3">
+          {/* Luxury invitation card CTA */}
           <Link
             href="/waitlist"
-            className="flex items-center justify-between px-7 py-5 rounded-full font-black"
             style={{
-              background: "white",
-              color: "#FF1F7D",
-              fontSize: "13px",
-              letterSpacing: "0.08em",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+              display: "block",
+              background: "#FDF8F2",
+              borderRadius: 12,
+              padding: "20px 22px",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.95)",
+              border: "1px solid rgba(26,0,14,0.07)",
+              textDecoration: "none",
             }}
           >
-            LET&apos;S START
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8h10M8 3l5 5-5 5" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" />
-            </svg>
+            <p
+              style={{
+                fontSize: "7.5px",
+                fontWeight: 900,
+                letterSpacing: "0.28em",
+                color: "#bbb",
+                fontFamily: "var(--font-jost)",
+                marginBottom: 10,
+              }}
+            >
+              YOU ARE CORDIALLY INVITED
+            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: "22px",
+                    color: "#1A000E",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  Request your invitation.
+                </p>
+                <p style={{ fontSize: "11px", color: "#aaa", marginTop: 5, fontFamily: "var(--font-jost)" }}>
+                  Join the waitlist →
+                </p>
+              </div>
+              {/* Wax seal */}
+              <div
+                style={{
+                  width: 46, height: 46, borderRadius: "50%", flexShrink: 0,
+                  background: "linear-gradient(135deg,#FF1F7D,#c4005a)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 4px 14px rgba(255,31,125,0.5)",
+                }}
+              >
+                <span style={{ color: "white", fontWeight: 900, fontSize: "11px", fontFamily: "var(--font-jost)", letterSpacing: "0.05em" }}>BB</span>
+              </div>
+            </div>
           </Link>
+
+          {/* Founding Mother option */}
+          <Link
+            href="/waitlist"
+            className="flex items-center justify-center gap-2 py-2"
+            style={{ textDecoration: "none" }}
+          >
+            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", fontFamily: "var(--font-jost)" }}>
+              Apply as a
+            </span>
+            <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)" }}>
+              Founding Mother 👑
+            </span>
+          </Link>
+
           <Link
             href="/portals"
-            className="flex items-center justify-center py-3"
-            style={{ color: "rgba(255,255,255,0.55)", fontSize: "13px", fontFamily: "var(--font-jost)" }}
+            className="flex items-center justify-center py-2"
+            style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontFamily: "var(--font-jost)" }}
           >
-            already a member?&nbsp;<strong style={{ color: "rgba(255,255,255,0.8)" }}>sign in</strong>
+            already a member?&nbsp;<strong style={{ color: "rgba(255,255,255,0.68)" }}>sign in</strong>
           </Link>
         </div>
       </section>

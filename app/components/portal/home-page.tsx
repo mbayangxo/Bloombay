@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
 
@@ -219,16 +220,87 @@ function ClubCover({ club }: { club: Club }) {
   );
 }
 
+// ── Edit Profile Sheet ────────────────────────────────────────────────────────
+function EditProfileSheet({
+  name, neighborhood, bio, onClose, onSave,
+}: {
+  name: string; neighborhood: string; bio: string;
+  onClose: () => void; onSave: (n: string, nb: string, b: string) => void;
+}) {
+  const [editName, setEditName] = useState(name);
+  const [editNbhd, setEditNbhd] = useState(neighborhood);
+  const [editBio,  setEditBio]  = useState(bio);
+  const [pending,  setPending]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
+
+  async function handleSave() {
+    setPending(true); setError(null);
+    const fd = new FormData();
+    fd.set("first_name", editName.trim());
+    fd.set("neighborhood", editNbhd.trim());
+    fd.set("bio", editBio.trim());
+    const result = await updateProfile(fd);
+    setPending(false);
+    if (result.error) setError(result.error);
+    else { onSave(editName.trim(), editNbhd.trim(), editBio.trim()); onClose(); }
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[200]" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl" style={{ background: "#FEFCF7", maxHeight: "88vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
+        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
+        <div className="px-6 pb-2 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>EDIT PROFILE</p>
+            <p className="text-lg font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Your details.</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.07)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
+        </div>
+        <div className="px-6 pb-10 flex flex-col gap-4 mt-4">
+          {[
+            { label: "NAME",         value: editName, set: setEditName, placeholder: "Your first name"   },
+            { label: "NEIGHBORHOOD", value: editNbhd, set: setEditNbhd, placeholder: "Your neighborhood" },
+          ].map(f => (
+            <div key={f.label}>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>{f.label}</p>
+              <input value={f.value} onChange={e => f.set(e.target.value)} placeholder={f.placeholder}
+                className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
+            </div>
+          ))}
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
+            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111", lineHeight: 1.6 }} />
+          </div>
+          {error && <p className="text-xs" style={{ color: "#e53e3e" }}>{error}</p>}
+          <button onClick={handleSave} disabled={pending} className="w-full py-4 rounded-2xl font-bold text-sm"
+            style={{ background: pending ? "#FFB6D0" : PINK, color: "white" }}>
+            {pending ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── HomePage ───────────────────────────────────────────────────────────────────
 export function HomePage() {
   const [tod,        setTod]       = useState<TimeOfDay>("afternoon");
   const [greeting,   setGreeting]  = useState("Good afternoon");
   const [firstName,  setFirstName] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [bio,        setBio]       = useState("");
   const [myClubs,    setMyClubs]   = useState<Club[]>([]);
   const [joinedAt,   setJoinedAt]  = useState<string | null>(null);
   const [loading,    setLoading]   = useState(true);
   const [tonightIdx, setTonightIdx] = useState(0);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -241,8 +313,13 @@ export function HomePage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
-      const { data: profile } = await supabase.from("profiles").select("first_name, avatar_url, created_at").eq("id", user.id).single();
-      if (profile) { setFirstName(profile.first_name || ""); setJoinedAt(profile.created_at || null); }
+      const { data: profile } = await supabase.from("profiles").select("first_name, avatar_url, created_at, neighborhood, bio").eq("id", user.id).single();
+      if (profile) {
+        setFirstName(profile.first_name || "");
+        setNeighborhood(profile.neighborhood || "");
+        setBio(profile.bio || "");
+        setJoinedAt(profile.created_at || null);
+      }
       const { data: uc } = await supabase.from("user_clubs").select("club:clubs(id,name,color,cover_url,member_count)").eq("user_id", user.id).limit(10);
       if (uc) setMyClubs(uc.map((r: Record<string, unknown>) => r.club as Club).filter(Boolean));
       setLoading(false);
@@ -258,10 +335,11 @@ export function HomePage() {
   });
   const weeksIn    = joinedAt ? Math.min(4, Math.floor((Date.now() - new Date(joinedAt).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1) : 1;
   const task       = FIRST_MONTH_TASKS[Math.min(weeksIn - 1, 3)];
-  const displayName = firstName || (loading ? "…" : "you");
-  const monthShort  = MONTHS_S[today.getMonth()];
-  const dayOfMonth  = today.getDate();
-  const dayAbbr     = WEEK_DAYS[todayDow];
+  const displayName    = firstName || (loading ? "…" : "you");
+  const displayInitial = firstName[0]?.toUpperCase() ?? "✦";
+  const monthShort     = MONTHS_S[today.getMonth()];
+  const dayOfMonth     = today.getDate();
+  const dayAbbr        = WEEK_DAYS[todayDow];
   void tod;
 
   const activeDayIdx   = selectedDay ?? todayDow;
@@ -276,6 +354,46 @@ export function HomePage() {
       paddingBottom: 112,
       overflowX: "hidden",
     }}>
+
+      {/* ── FIXED TOP BAR ── */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        height: "calc(env(safe-area-inset-top, 0px) + 58px)",
+        display: "flex", alignItems: "flex-end", justifyContent: "space-between",
+        paddingLeft: 20, paddingRight: 20, paddingBottom: 12,
+        background: "linear-gradient(180deg, rgba(28,0,24,0.9) 0%, transparent 100%)",
+        pointerEvents: "none",
+      }}>
+        <div style={{ pointerEvents: "auto" }}>
+          <BBLogo size={22} light />
+        </div>
+        <button
+          onClick={() => setShowEditProfile(true)}
+          style={{
+            pointerEvents: "auto", cursor: "pointer",
+            width: 36, height: 36, borderRadius: "50%",
+            background: loading ? "rgba(255,255,255,0.18)" : PINK,
+            border: "2px solid rgba(255,255,255,0.28)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: `0 2px 10px rgba(255,31,125,0.5)`,
+          }}
+        >
+          <span style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "14px", color: "white" }}>
+            {loading ? "…" : displayInitial}
+          </span>
+        </button>
+      </div>
+
+      {/* ── EDIT PROFILE SHEET ── */}
+      {showEditProfile && (
+        <EditProfileSheet
+          name={firstName}
+          neighborhood={neighborhood}
+          bio={bio}
+          onClose={() => setShowEditProfile(false)}
+          onSave={(n, nb, b) => { setFirstName(n); setNeighborhood(nb); setBio(b); }}
+        />
+      )}
 
       {/* ══ HEADER SHELL ═════════════════════════════════════════════════════════ */}
       <div style={{
