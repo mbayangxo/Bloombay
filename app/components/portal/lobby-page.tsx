@@ -89,6 +89,15 @@ const AVENUES: AvenueConfig[] = [
     accent: "#FF1F7D",
     count: null,
   },
+  {
+    signLine1: "WELLNESS ROW",
+    signLine2: "HEALTH BAR AVE.",
+    title: "The Health Bar",
+    tagline: "Recipes. Rituals. Glow.",
+    href: "/member/lobby/health",
+    accent: "#4A7C59",
+    count: 156,
+  },
 ];
 
 // ── Top Posts data ─────────────────────────────────────────────────────────────
