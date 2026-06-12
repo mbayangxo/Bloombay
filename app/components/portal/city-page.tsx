@@ -1292,7 +1292,11 @@ function StarRow({ color = "#E8336E", size = 9 }: { color?: string; size?: numbe
   );
 }
 
-function PartnerStorefront({ partner: p, onBack }: { partner: EatsPartner; onBack: () => void }) {
+function toSlug(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: EatsPartner; onBack: () => void; isOwner?: boolean }) {
   const [savedToWorld, setSavedToWorld] = useState(false);
 
   // Brand palette derived from the partner
@@ -1323,6 +1327,19 @@ function PartnerStorefront({ partner: p, onBack }: { partner: EatsPartner; onBac
       <div style={{ position: "fixed", top: "10%", left: "20%", width: 300, height: 300, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND}40 0%, transparent 70%)`, filter: "blur(60px)", pointerEvents: "none" }}/>
 
       <BackBtn onBack={onBack} label="EATS"/>
+
+      {/* Edit page button — for partner owners */}
+      {isOwner && (
+        <Link href={`/member/city/partners/${toSlug(p.name)}/edit`} style={{
+          position: "fixed", top: "calc(env(safe-area-inset-top,0px) + 58px)", right: 14, zIndex: 50,
+          background: "rgba(255,31,125,0.9)", color: "white", borderRadius: 999,
+          padding: "6px 14px", fontFamily: "var(--font-jost)", fontSize: "8px",
+          fontWeight: 800, letterSpacing: "0.14em", textDecoration: "none",
+          backdropFilter: "blur(10px)", boxShadow: "0 4px 14px rgba(255,31,125,0.5)",
+        }}>
+          EDIT PAGE ✏
+        </Link>
+      )}
 
       <div style={{ position: "relative", padding: "calc(env(safe-area-inset-top,0px) + 100px) 14px 0", maxWidth: 480, margin: "0 auto" }}>
 
