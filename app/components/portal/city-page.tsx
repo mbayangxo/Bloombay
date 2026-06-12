@@ -1366,51 +1366,322 @@ function NeighborhoodMap() {
   );
 }
 
-// ── Root city page with 3-mode top bar ────────────────────────────────────────
-type CityRootMode = "tonight" | "guide";
+// ── Neighborhood search bar (hub) ────────────────────────────────────────────
+function NeighborhoodSearch() {
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-export function CityPage() {
-  const [mode, setMode] = useState<CityRootMode>("tonight");
+  const trimmed = query.trim().toLowerCase();
+  const results = trimmed.length > 0
+    ? HOOD_INDEX.filter(h =>
+        h.name.toLowerCase().includes(trimmed) ||
+        h.borough.toLowerCase().includes(trimmed) ||
+        h.tags.some(t => t.includes(trimmed))
+      ).slice(0, 6)
+    : [];
 
-  const MODES: { id: CityRootMode; label: string }[] = [
-    { id: "tonight", label: "OUT TONIGHT" },
-    { id: "guide",   label: "THE CITY" },
-  ];
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current && !inputRef.current.contains(e.target as Node)
+      ) setFocused(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
-    <div style={{ minHeight: "100vh" }}>
-      {/* Fixed top bar — overrides bottom-nav top bar */}
+    <div style={{ position: "relative" }}>
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-        background: "linear-gradient(135deg, #FF1F7D 0%, #E8006A 100%)",
-        boxShadow: "0 2px 20px rgba(255,31,125,0.25)",
-        paddingTop: "env(safe-area-inset-top, 0px)",
+        display: "flex", alignItems: "center", gap: 10,
+        background: "rgba(255,255,255,0.15)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        border: `1.5px solid ${focused ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)"}`,
+        borderRadius: 16, padding: "13px 16px",
+        transition: "border-color 0.2s",
       }}>
-        <div style={{ height: 54, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
-          <div style={{ display: "inline-flex", background: "rgba(0,0,0,0.18)", borderRadius: 999, padding: "3px", gap: 0 }}>
-            {MODES.map(m => (
-              <button key={m.id} onClick={() => setMode(m.id)} style={{
-                padding: "6px 13px", borderRadius: 999, border: "none",
-                background: mode === m.id ? "white" : "transparent",
-                color: mode === m.id ? PINK : "rgba(255,255,255,0.88)",
-                fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800,
-                letterSpacing: "0.07em", cursor: "pointer",
-                transition: "background 0.18s, color 0.18s",
-                boxShadow: mode === m.id ? "0 2px 10px rgba(255,31,125,0.28)" : "none",
-                whiteSpace: "nowrap" as const,
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          ref={inputRef}
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+          placeholder="Search a neighborhood…"
+          style={{
+            flex: 1, background: "none", border: "none", outline: "none",
+            fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 500,
+            color: "white", letterSpacing: "0.01em",
+          }}
+        />
+        {query.length > 0 && (
+          <button onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {focused && (results.length > 0 || trimmed.length > 0) && (
+        <div ref={dropdownRef} style={{
+          position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, zIndex: 40,
+          background: "rgba(14,8,18,0.97)", backdropFilter: "blur(20px)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 18, overflow: "hidden",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+        }}>
+          {results.length > 0 ? results.map((hood, i) => (
+            <Link key={hood.slug} href={`/member/city/neighborhoods/${hood.slug}`}
+              style={{ textDecoration: "none", display: "block" }}
+              onClick={() => { setQuery(""); setFocused(false); }}>
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "14px 18px",
+                borderBottom: i < results.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
               }}>
-                {m.label}
-              </button>
-            ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 17, color: "white", lineHeight: 1 }}>{hood.name}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.32)", letterSpacing: "0.1em", marginTop: 3 }}>{hood.borough.toUpperCase()} · {hood.tags.slice(0,2).join(" · ").toUpperCase()}</p>
+                  </div>
+                </div>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </Link>
+          )) : (
+            <div style={{ padding: "20px 18px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>No neighborhoods found for &ldquo;{trimmed}&rdquo;</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── City hub nav card ─────────────────────────────────────────────────────────
+function CityNavCard({ onClick, icon, label, sub, accent, preview }: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  accent: string;
+  preview?: string;
+}) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onTouchStart={() => setPressed(true)}
+      onTouchEnd={() => setPressed(false)}
+      style={{
+        width: "100%", background: "none", border: "none", padding: 0,
+        cursor: "pointer", textAlign: "left" as const,
+        WebkitTapHighlightColor: "transparent",
+        transform: pressed ? "scale(0.975)" : "scale(1)",
+        transition: "transform 0.12s",
+      }}
+    >
+      <div style={{
+        background: "white",
+        borderRadius: 22,
+        overflow: "hidden",
+        boxShadow: pressed
+          ? "0 2px 12px rgba(0,0,0,0.1)"
+          : "0 6px 28px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05)",
+        border: "1.5px solid rgba(0,0,0,0.06)",
+        transition: "box-shadow 0.12s",
+      }}>
+        {/* Colored top band */}
+        <div style={{ height: 6, background: accent }} />
+
+        <div style={{ padding: "18px 20px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Icon tile */}
+          <div style={{
+            width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+            background: `linear-gradient(145deg, ${accent}22, ${accent}0D)`,
+            border: `1.5px solid ${accent}30`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {icon}
+          </div>
+
+          {/* Text */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontFamily: "var(--font-playfair)",
+              fontStyle: "italic",
+              fontWeight: 900,
+              fontSize: 22,
+              color: DARK,
+              lineHeight: 1,
+              marginBottom: 5,
+            }}>{label}</p>
+            <p style={{
+              fontFamily: "var(--font-jost)",
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "rgba(0,0,0,0.38)",
+              letterSpacing: "0.04em",
+              lineHeight: 1.4,
+            }}>{sub}</p>
+            {preview && (
+              <p style={{
+                fontFamily: "var(--font-caveat)",
+                fontSize: 12,
+                color: accent,
+                marginTop: 6,
+                lineHeight: 1,
+              }}>{preview}</p>
+            )}
+          </div>
+
+          {/* Arrow */}
+          <div style={{
+            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+            background: accent,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: `0 4px 14px ${accent}44`,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
           </div>
         </div>
       </div>
+    </button>
+  );
+}
 
-      {/* Content */}
-      <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
-        {mode === "tonight" && <HappeningsPage standalone={false} />}
-        {mode === "guide"   && <CityGuide />}
+// ── City hub (landing) ────────────────────────────────────────────────────────
+function CityHub({ onSelect }: { onSelect: (m: "tonight" | "guide") => void }) {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(160deg, #FF1F7D 0%, #E8006A 45%, #C80060 100%)",
+      paddingBottom: 110,
+    }}>
+      {/* Header */}
+      <div style={{
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
+        padding: "calc(env(safe-area-inset-top, 0px) + 70px) 20px 0",
+      }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.55)", marginBottom: 8 }}>NEW YORK CITY</p>
+        <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 42, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95, margin: "0 0 6px" }}>The City.</h1>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.55)", marginBottom: 24 }}>what&apos;s happening in your world</p>
+
+        {/* Neighborhood search */}
+        <NeighborhoodSearch />
+      </div>
+
+      {/* Nav cards */}
+      <div style={{ padding: "28px 16px 0", display: "flex", flexDirection: "column", gap: 14 }}>
+        <CityNavCard
+          onClick={() => onSelect("tonight")}
+          label="Out Tonight"
+          sub="Gatherings · Open Seats · What's On"
+          accent={PINK}
+          preview="tap to see what's happening →"
+          icon={
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          }
+        />
+        <CityNavCard
+          onClick={() => onSelect("guide")}
+          label="The City Guide"
+          sub="Restaurants · Bars · Hidden Gems"
+          accent="#C80060"
+          preview="tap to explore the city →"
+          icon={
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C80060" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          }
+        />
       </div>
     </div>
   );
+}
+
+// ── Root city page ────────────────────────────────────────────────────────────
+type CityRootMode = "hub" | "tonight" | "guide";
+
+export function CityPage() {
+  const [mode, setMode] = useState<CityRootMode>("hub");
+
+  if (mode === "tonight") {
+    return (
+      <div style={{ minHeight: "100vh" }}>
+        {/* Back button */}
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
+          paddingTop: "env(safe-area-inset-top, 0px)",
+          background: "rgba(255,252,248,0.96)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,31,125,0.1)",
+        }}>
+          <div style={{ height: 54, display: "flex", alignItems: "center", padding: "0 16px", gap: 12 }}>
+            <button onClick={() => setMode("hub")} style={{
+              background: "none", border: "none", cursor: "pointer", padding: 0,
+              display: "flex", alignItems: "center", gap: 7,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>CITY</span>
+            </button>
+            <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.1)" }} />
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: DARK }}>Out Tonight</p>
+          </div>
+        </div>
+        <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
+          <HappeningsPage standalone={false} />
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "guide") {
+    return (
+      <div style={{ minHeight: "100vh" }}>
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
+          paddingTop: "env(safe-area-inset-top, 0px)",
+          background: "rgba(255,252,248,0.96)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,31,125,0.1)",
+        }}>
+          <div style={{ height: 54, display: "flex", alignItems: "center", padding: "0 16px", gap: 12 }}>
+            <button onClick={() => setMode("hub")} style={{
+              background: "none", border: "none", cursor: "pointer", padding: 0,
+              display: "flex", alignItems: "center", gap: 7,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>CITY</span>
+            </button>
+            <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.1)" }} />
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: DARK }}>City Guide</p>
+          </div>
+        </div>
+        <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
+          <CityGuide />
+        </div>
+      </div>
+    );
+  }
+
+  return <CityHub onSelect={setMode} />;
 }
