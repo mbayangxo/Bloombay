@@ -838,15 +838,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             )}
 
-            {user.interests && user.interests.length > 0 && (
+            {false && (
               <div style={cardStyle}>
                 <p style={sectionLabel}>INTERESTS</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-                  {user.interests.map(tag => (
-                    <span key={tag} style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, padding: "5px 12px", borderRadius: 999, background: "rgba(255,31,125,0.08)", color: PINK }}>
-                      {tag}
-                    </span>
-                  ))}
                 </div>
               </div>
             )}

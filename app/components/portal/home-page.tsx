@@ -35,7 +35,8 @@ const PINK = "#FF1F7D";
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
-type Club = { id: string; name: string; color: string | null; cover_url: string | null; member_count: number };
+type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null };
+type Gathering = { id: string; title: string; starts_at: string; venue: string | null; neighborhood: string | null };
 
 const SUNDAY_STACK_WOMEN = [
   { name: "Aaliya",  initial: "A", vibes: ["books", "brunch", "jazz"],        bg: "#FFFBF0" },
@@ -209,7 +210,7 @@ function ClubCover({ club }: { club: Club }) {
         <div style={{ width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.2)" }}>
           {club.cover_url
             ? <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${club.primary_color ?? PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{abbr}</p>
               </div>
           }
@@ -296,6 +297,7 @@ export function HomePage() {
   const [neighborhood, setNeighborhood] = useState("");
   const [bio,        setBio]       = useState("");
   const [myClubs,    setMyClubs]   = useState<Club[]>([]);
+  const [weekGatherings, setWeekGatherings] = useState<Gathering[]>([]);
   const [joinedAt,   setJoinedAt]  = useState<string | null>(null);
   const [loading,    setLoading]   = useState(true);
   const [tonightIdx, setTonightIdx] = useState(0);
@@ -313,15 +315,33 @@ export function HomePage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
-      const { data: profile } = await supabase.from("profiles").select("first_name, avatar_url, created_at, neighborhood, bio").eq("id", user.id).single();
+      const { data: profile } = await supabase.from("profiles").select("full_name, first_name, avatar_url, created_at, neighborhood, bio").eq("id", user.id).single();
       if (profile) {
-        setFirstName(profile.first_name || "");
+        setFirstName((profile.full_name || profile.first_name) ?? "");
         setNeighborhood(profile.neighborhood || "");
         setBio(profile.bio || "");
         setJoinedAt(profile.created_at || null);
       }
-      const { data: uc } = await supabase.from("user_clubs").select("club:clubs(id,name,color,cover_url,member_count)").eq("user_id", user.id).limit(10);
-      if (uc) setMyClubs(uc.map((r: Record<string, unknown>) => r.club as Club).filter(Boolean));
+      const { data: uc } = await supabase.from("club_memberships").select("club_slug").eq("user_id", user.id).limit(10);
+      if (uc && uc.length > 0) {
+        const slugs = uc.map((r: { club_slug: string }) => r.club_slug);
+        const { data: clubRows } = await supabase.from("clubs").select("id, name, primary_color, cover_url").in("slug", slugs);
+        if (clubRows) setMyClubs(clubRows as Club[]);
+      }
+
+      // Fetch this week's gatherings for the calendar
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 7);
+      const { data: gRows } = await supabase
+        .from("gatherings")
+        .select("id, title, starts_at, venue, neighborhood")
+        .gte("starts_at", weekStart.toISOString())
+        .lt("starts_at", weekEnd.toISOString())
+        .order("starts_at", { ascending: true });
+      if (gRows) setWeekGatherings(gRows as Gathering[]);
       setLoading(false);
     }
     load();
@@ -343,7 +363,19 @@ export function HomePage() {
   void tod;
 
   const activeDayIdx   = selectedDay ?? todayDow;
-  const activeDayEvents = DAILY_EVENTS[activeDayIdx] ?? [];
+  const activeDayEvents = weekGatherings
+    .filter(g => new Date(g.starts_at).getDay() === activeDayIdx)
+    .map(g => {
+      const d = new Date(g.starts_at);
+      const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      const isTonight = activeDayIdx === todayDow && d.getHours() >= 17;
+      return {
+        time: timeStr,
+        label: isTonight ? "TONIGHT" : "",
+        name: g.title,
+        loc: [g.venue, g.neighborhood].filter(Boolean).join(" · ") || "New York City",
+      };
+    });
 
   const nameFontSize = loading ? 48 : Math.max(36, 58 - Math.max(0, (displayName.length - 5) * 3));
 

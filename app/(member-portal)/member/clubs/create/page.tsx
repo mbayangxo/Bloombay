@@ -104,14 +104,13 @@ export default function CreateClubPage() {
         .insert({
           name: clubName,
           description,
-          color: accentColor,
+          primary_color: accentColor,
           category,
           neighborhood,
           frequency,
-          capacity,
+          member_limit: capacity === "50+" ? null : parseInt(capacity, 10),
           membership_type: membershipType,
           owner_id: user.id,
-          is_active: true,
         })
         .select("id")
         .single();

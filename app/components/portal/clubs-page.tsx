@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape, Polaroid } from "./scrapbook";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -12,20 +13,16 @@ const PAPER = "#FEFDF8";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-const FEATURED = [
-  { id: 1, name: "SUPPER CLUB",    members: "1.2K", desc: "long dinners, new friends, good wine.", grad: "linear-gradient(145deg,#3D0020 0%,#8B0040 60%,#C80060 100%)", rot: -2,   href: "/member/clubs/11111111-1111-1111-1111-111111111111" },
-  { id: 2, name: "RUN CLUB",       members: "842",  desc: "saturday runs, coffee, girl talk.",     grad: "linear-gradient(145deg,#1A0010 0%,#5A0030 60%,#A8004C 100%)", rot: 1.5,  href: "/member/clubs/55555555-5555-5555-5555-555555555555" },
-  { id: 3, name: "MUSEUM GIRLS",   members: "1.6K", desc: "art, culture & pretty exhibits.",       grad: "linear-gradient(145deg,#2A0018 0%,#780040 60%,#E8006A 100%)", rot: -1,   href: "/member/clubs/22222222-2222-2222-2222-222222222222" },
-  { id: 4, name: "BOOK GIRLS",     members: "1.1K", desc: "pages, pastries & deep conversations.", grad: "linear-gradient(145deg,#1C0012 0%,#600035 60%,#B0005A 100%)", rot: 2,    href: "/member/clubs/33333333-3333-3333-3333-333333333333" },
-  { id: 5, name: "SOFT LIFE CLUB", members: "723",  desc: "romance, rituals & soft girl energy.",  grad: "linear-gradient(145deg,#380020 0%,#980050 60%,#FF1F7D 100%)", rot: -1.5, href: "/member/clubs/44444444-4444-4444-4444-444444444444" },
-];
+type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null };
+type RealGathering = { id: string; title: string; starts_at: string; venue: string | null; neighborhood: string | null };
 
-const HAPPENINGS = [
-  { avatar: "S", color: "#FF1F7D", name: "Sunset Picnic",      loc: "Prospect Park",  time: "6PM"  },
-  { avatar: "G", color: "#E8006A", name: "Gallery Night Out",  loc: "Chelsea",        time: "7PM"  },
-  { avatar: "P", color: "#C80060", name: "Pilates & Prosecco", loc: "SoHo",           time: "11AM" },
-  { avatar: "W", color: "#FF5BAD", name: "Wine Down Wednesday",loc: "West Village",   time: "8PM"  },
-  { avatar: "M", color: "#A8004C", name: "Matcha & Mimosas",   loc: "Williamsburg",   time: "12PM" },
+const ROTS = [-2, 1.5, -1, 2, -1.5, 0.5, -0.8];
+const GRADS = [
+  "linear-gradient(145deg,#3D0020 0%,#8B0040 60%,#C80060 100%)",
+  "linear-gradient(145deg,#1A0010 0%,#5A0030 60%,#A8004C 100%)",
+  "linear-gradient(145deg,#2A0018 0%,#780040 60%,#E8006A 100%)",
+  "linear-gradient(145deg,#1C0012 0%,#600035 60%,#B0005A 100%)",
+  "linear-gradient(145deg,#380020 0%,#980050 60%,#FF1F7D 100%)",
 ];
 
 const VIBES = ["creative", "wellness", "adventure", "career", "night out", "faith", "fashion", "foodie"];
@@ -40,6 +37,27 @@ const NEAR_YOU = [
 
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
+  const [clubs, setClubs] = useState<RealClub[]>([]);
+  const [happenings, setHappenings] = useState<RealGathering[]>([]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("clubs")
+      .select("id, name, description, primary_color, cover_url, slug")
+      .order("created_at", { ascending: false })
+      .limit(8)
+      .then(({ data }) => { if (data) setClubs(data as RealClub[]); });
+
+    const now = new Date().toISOString();
+    supabase
+      .from("gatherings")
+      .select("id, title, starts_at, venue, neighborhood")
+      .gte("starts_at", now)
+      .order("starts_at", { ascending: true })
+      .limit(5)
+      .then(({ data }) => { if (data) setHappenings(data as RealGathering[]); });
+  }, []);
 
   return (
     <div style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 100 }}>
@@ -173,49 +191,54 @@ export function ClubsPage() {
         </div>
 
         <div style={{ display: "flex", gap: 18, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 36, scrollbarWidth: "none" as const }}>
-          {FEATURED.map((club) => (
-            <Link key={club.id} href={club.href} style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
-              {/* Tape / pin on each card */}
-              {club.id % 2 === 0 ? (
-                <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1deg)", zIndex: 5 }}>
-                  <WashiTape color={club.id === 2 ? "pink" : "yellow"} width={54} height={16} />
-                </div>
-              ) : (
-                <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 5 }}>
-                  <PushPin color="pink" size={13} />
-                </div>
-              )}
-
-              <div style={{
-                width: 140,
-                background: "white",
-                backgroundImage: PAPER_TEX,
-                backgroundSize: "200px 200px",
-                padding: "8px 8px 16px",
-                boxShadow: "3px 6px 22px rgba(0,0,0,0.55)",
-                transform: `rotate(${club.rot}deg)`,
-                position: "relative",
-                marginTop: Math.abs(club.rot) > 1.5 ? 8 : 4,
-              }}>
-                {/* Member count */}
-                <p style={{ fontSize: 8, fontWeight: 700, color: DARK, opacity: 0.35, textAlign: "center", marginBottom: 5, letterSpacing: "0.1em" }}>
-                  {club.members}
-                </p>
-                {/* Photo area */}
-                <div style={{ width: "100%", height: 108, background: club.grad, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px" }}>
-                  <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "2px 8px" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.1em" }}>{club.members} members</p>
+          {clubs.length === 0 && (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0" }}>Clubs loading…</p>
+          )}
+          {clubs.map((club, idx) => {
+            const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
+            const rot = ROTS[idx % ROTS.length];
+            const grad = club.primary_color
+              ? `linear-gradient(145deg, ${club.primary_color}44 0%, ${club.primary_color} 100%)`
+              : GRADS[idx % GRADS.length];
+            return (
+              <Link key={club.id} href={href} style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
+                {idx % 2 === 0 ? (
+                  <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1deg)", zIndex: 5 }}>
+                    <WashiTape color={idx === 1 ? "pink" : "yellow"} width={54} height={16} />
+                  </div>
+                ) : (
+                  <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", zIndex: 5 }}>
+                    <PushPin color="pink" size={13} />
+                  </div>
+                )}
+                <div style={{
+                  width: 140,
+                  background: "white",
+                  backgroundImage: PAPER_TEX,
+                  backgroundSize: "200px 200px",
+                  padding: "8px 8px 16px",
+                  boxShadow: "3px 6px 22px rgba(0,0,0,0.55)",
+                  transform: `rotate(${rot}deg)`,
+                  position: "relative",
+                  marginTop: Math.abs(rot) > 1.5 ? 8 : 4,
+                }}>
+                  <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px", overflow: "hidden", position: "relative" }}>
+                    {club.cover_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={club.cover_url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                    )}
+                  </div>
+                  <div style={{ marginTop: 10 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 12, color: DARK, lineHeight: 1.2 }}>{club.name.toUpperCase()}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: DARK, opacity: 0.5, marginTop: 4, lineHeight: 1.4 }}>
+                      {club.description ? club.description.slice(0, 60) + (club.description.length > 60 ? "…" : "") : ""}
+                    </p>
+                    <p style={{ marginTop: 10, fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: PINK }}>JOIN →</p>
                   </div>
                 </div>
-                {/* Text */}
-                <div style={{ marginTop: 10 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 12, color: DARK, lineHeight: 1.2 }}>{club.name}</p>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: DARK, opacity: 0.5, marginTop: 4, lineHeight: 1.4 }}>{club.desc}</p>
-                  <p style={{ marginTop: 10, fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: PINK }}>JOIN →</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -237,19 +260,30 @@ export function ClubsPage() {
             position: "relative",
             overflow: "hidden",
           }}>
-            <p style={{ fontSize: 7, fontWeight: 800, letterSpacing: "0.22em", color: DARK, opacity: 0.35, marginBottom: 12 }}>TODAY&apos;S HAPPENINGS</p>
+            <p style={{ fontSize: 7, fontWeight: 800, letterSpacing: "0.22em", color: DARK, opacity: 0.35, marginBottom: 12 }}>UPCOMING</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {HAPPENINGS.map((h, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: h.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 10, flexShrink: 0 }}>
-                    {h.avatar}
+              {happenings.length === 0 && (
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: DARK, opacity: 0.4 }}>Check back soon.</p>
+              )}
+              {happenings.map((h, i) => {
+                const d = new Date(h.starts_at);
+                const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+                const initial = h.title[0]?.toUpperCase() ?? "✦";
+                const avatarColor = [PINK, "#E8006A", "#C80060", "#FF5BAD", "#A8004C"][i % 5];
+                return (
+                  <div key={h.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: avatarColor, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 10, flexShrink: 0 }}>
+                      {initial}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 10, color: DARK, lineHeight: 1.2 }}>{h.title}</p>
+                      <p style={{ fontSize: 9, color: DARK, opacity: 0.45, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                        {[h.venue || h.neighborhood, timeStr].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ fontWeight: 700, fontSize: 10, color: DARK, lineHeight: 1.2 }}>{h.name}</p>
-                    <p style={{ fontSize: 9, color: DARK, opacity: 0.45, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{h.loc} · {h.time}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <button style={{ marginTop: 12, marginBottom: 10, fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
               SEE FULL CALENDAR →

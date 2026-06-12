@@ -333,9 +333,9 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false }: {
       </div>
 
       {/* Going count badge */}
-      {ev.going_count && ev.going_count > 0 && (
+      {(ev as { going_count?: number }).going_count && (ev as { going_count?: number }).going_count! > 0 && (
         <div style={{ position: "absolute", top: 12, right: 12, background: "rgba(0,0,0,0.6)", borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(8px)" }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{ev.going_count} going</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{(ev as { going_count?: number }).going_count} going</span>
         </div>
       )}
 
