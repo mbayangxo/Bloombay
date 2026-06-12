@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // ── Logged-in user (replace with real auth context when backend is ready) ─────
 
@@ -594,7 +595,6 @@ export function IntroductionsPage() {
   const [clusterShaking, setClusterShaking] = useState<Set<number>>(new Set());
   const [activeCluster, setActiveCluster] = useState<typeof INTEREST_CLUSTERS[0] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [notifyGirlmates, setNotifyGirlmates] = useState(false);
   const [openLetter, setOpenLetter] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
   const [bloomiesOf, setBloomiesOf] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
 
@@ -799,35 +799,56 @@ export function IntroductionsPage() {
           </div>
         </section>
 
+        {/* ── GirlMates ─────────────────────────────────────────────────────── */}
         <section className="px-5">
           <SectionHeader eyebrow="GIRLMATES" title="Roommate matching." />
-          <div className="rounded-3xl overflow-hidden" style={{ background: "#111", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
-            <div className="p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF1F7D, transparent 70%)", opacity: 0.13, transform: "translate(30%,-30%)" }} />
-              <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF69B4, transparent 70%)", opacity: 0.1, transform: "translate(-30%,30%)" }} />
-              <div className="relative">
-                <span className="inline-block text-[9px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full mb-4" style={{ background: "rgba(255,105,180,0.15)", color: "#FF69B4" }}>
-                  COMING SOON
-                </span>
-                <h3 className="font-black italic text-2xl leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)", color: "white" }}>
-                  GirlMates.
-                </h3>
-                <p className="text-sm leading-relaxed mb-1" style={{ color: "rgba(255,255,255,0.45)" }}>
-                  Housing compatibility. Lifestyle compatibility.
-                </p>
-                <p className="text-xs italic mb-5" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.25)" }}>
-                  For when you want to share more than a city.
-                </p>
-                <button
-                  onClick={() => { setNotifyGirlmates(true); showToast("We'll let you know when GirlMates launches ✦"); }}
-                  className="px-5 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                  style={notifyGirlmates
-                    ? { background: "rgba(255,105,180,0.15)", color: "#FF69B4" }
-                    : { background: "rgba(255,105,180,0.15)", color: "#FF69B4", border: "1px solid rgba(255,105,180,0.25)" }}>
-                  {notifyGirlmates ? "You're on the list ✦" : "Notify me when it's ready →"}
-                </button>
+          <Link href="/member/girlmate" style={{ textDecoration: "none", display: "block" }}>
+            <div className="rounded-3xl overflow-hidden" style={{ background: "#111", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+              <div className="p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF1F7D, transparent 70%)", opacity: 0.13, transform: "translate(30%,-30%)" }} />
+                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF69B4, transparent 70%)", opacity: 0.1, transform: "translate(-30%,30%)" }} />
+                <div className="relative">
+                  <span className="inline-block text-[9px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full mb-4" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>
+                    NEW ✦
+                  </span>
+                  <h3 className="font-black italic text-2xl leading-tight mb-2" style={{ fontFamily: "var(--font-playfair)", color: "white" }}>
+                    GirlMates.
+                  </h3>
+                  <p className="text-sm leading-relaxed mb-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Housing compatibility. Lifestyle compatibility.
+                  </p>
+                  <p className="text-xs italic mb-5" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.25)" }}>
+                    For when you want to share more than a city.
+                  </p>
+                  <span className="inline-block px-5 py-2.5 rounded-full text-xs font-bold" style={{ background: "#FF1F7D", color: "#fff" }}>
+                    Find your GirlMate →
+                  </span>
+                </div>
               </div>
             </div>
+          </Link>
+        </section>
+
+        {/* ── Coming soon: Hanger · Book · Bloom Trip ───────────────────────── */}
+        <section className="px-5">
+          <SectionHeader eyebrow="COMING SOON" title="More for you." note="Built for Bloombay women. Dropping soon." />
+          <div className="flex flex-col gap-3">
+            {[
+              { href: "/member/hanger", label: "The Hanger", sub: "Sell & swap fashion with women in the city.", accent: "#C084FC" },
+              { href: "/member/book",   label: "The Book",   sub: "Book women-owned services. Hair. Nails. Art. More.", accent: "#34D399" },
+              { href: "/member/bloom-trip", label: "Bloom Trip", sub: "Organize travel with women who get it.", accent: "#F59E0B" },
+            ].map(({ href, label, sub, accent }) => (
+              <Link key={href} href={href} style={{ textDecoration: "none" }}>
+                <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: `${accent}22` }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold leading-tight" style={{ fontFamily: "var(--font-jost)", color: "white" }}>{label}</p>
+                    <p className="text-xs mt-0.5 leading-snug" style={{ color: "rgba(255,255,255,0.4)" }}>{sub}</p>
+                  </div>
+                  <span className="text-xs font-bold flex-shrink-0" style={{ color: accent }}>→</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
