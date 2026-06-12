@@ -1159,11 +1159,14 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
             {/* ── Host streak badge ── */}
             {!loading && hostedCount >= 2 && (
-              <div style={{ margin: "8px 14px 4px", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.06)", borderRadius: 999, padding: "7px 14px", width: "fit-content" }}>
-                <span style={{ fontSize: 14 }}>🔥</span>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>
-                  {hostedCount} events hosted
-                </p>
+              <div style={{ margin: "8px 14px 4px", display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,31,125,0.12)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,31,125,0.25)" }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 3px 10px ${PINK}55` }}>
+                  <span style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: "white" }}>{hostedCount}</span>
+                </div>
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.9)" }}>HOST STREAK ✦</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>the city knows you ♡</p>
+                </div>
               </div>
             )}
 
