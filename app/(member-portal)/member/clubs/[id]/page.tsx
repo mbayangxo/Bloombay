@@ -10,37 +10,53 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
 
   const supabase = await createClient();
 
-  // Fetch club — only columns that definitely exist in the base schema
-  const { data: club, error: clubError } = await supabase
+  // Support both UUID-format IDs (legacy seed clubs) and slug-format IDs (Cursor clubs)
+  const isUuid = /^[0-9a-f-]{36}$/i.test(params.id);
+  const query = supabase
     .from("clubs")
-    .select("id, name, description, color, dark_bg, member_count, owner_id, neighborhood, emoji, category, membership_type")
-    .eq("id", params.id)
-    .single();
+    .select("id, slug, name, description, tagline, primary_color, accent_color, color, dark_bg, member_count, owner_id, category, membership_type, cover_url, crest_symbol, crest_accent, layout_key, welcome_line");
+
+  const { data: club, error: clubError } = await (
+    isUuid
+      ? query.eq("id", params.id).single()
+      : query.eq("slug", params.id).single()
+  );
 
   if (clubError || !club) notFound();
 
-  // Fetch owner profile
+  // Fetch owner profile — check both full_name (Cursor) and first_name (schema.sql)
   const { data: owner } = await supabase
     .from("profiles")
-    .select("first_name, bio, avatar_url")
+    .select("full_name, first_name, bio, avatar_url")
     .eq("id", club.owner_id)
     .single();
 
-  // Check if current user is a member
-  const { data: membership } = await supabase
-    .from("user_clubs")
-    .select("joined_at")
-    .eq("user_id", user.id)
-    .eq("club_id", params.id)
-    .maybeSingle();
+  // Check membership via Cursor's club_memberships (slug-based) or legacy user_clubs (id-based)
+  const clubSlug = (club.slug as string | null) ?? params.id;
+  const [{ data: membershipBySlug }, { data: membershipById }] = await Promise.all([
+    supabase
+      .from("club_memberships")
+      .select("joined_at")
+      .eq("user_id", user.id)
+      .eq("club_slug", clubSlug)
+      .maybeSingle(),
+    supabase
+      .from("user_clubs")
+      .select("joined_at")
+      .eq("user_id", user.id)
+      .eq("club_id", club.id)
+      .maybeSingle(),
+  ]);
 
-  // Fetch traditions (table may not exist yet — fail silently)
+  const membership = membershipBySlug ?? membershipById;
+
+  // Traditions
   let traditions: ClubTradition[] = [];
   try {
     const { data: rows } = await supabase
       .from("club_traditions")
       .select("id, name, description, frequency, emoji, since_year")
-      .eq("club_id", params.id)
+      .eq("club_id", club.id)
       .order("sort_order", { ascending: true });
     traditions = (rows ?? []).map(r => ({
       id: r.id,
@@ -57,33 +73,34 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     ? Math.floor((Date.now() - new Date(membership.joined_at).getTime()) / 86400000)
     : 0;
 
-  // Map DB row to ClubLandingData
-  const mamaName = owner?.first_name ? `${owner.first_name}.` : "Club Mama";
-  const accessType =
-    club.membership_type === "subscription" ? "subscription" as const
-    : club.membership_type === "paid" ? "one_time" as const
-    : "free" as const;
+  // Resolve column names across both schemas
+  const clubColor = (club.primary_color as string | null) ?? (club.color as string | null) ?? "#FF1F7D";
+  const accentColor = (club.accent_color as string | null) ?? "#3a0018";
+  const clubTagline = (club.tagline as string | null) ?? extractTagline(club.description as string | null);
+  const mamaName = (owner?.full_name as string | null) ?? (owner?.first_name as string | null) ?? "Club Mama";
 
   const clubData: ClubLandingData = {
     id: club.id,
     name: club.name,
-    tagline: extractTagline(club.description),
-    about: club.description ?? "",
-    whoItsFor: club.description ?? "",
+    tagline: clubTagline,
+    about: (club.description as string | null) ?? "",
+    whoItsFor: (club.description as string | null) ?? "",
     whatMembersDo: [],
-    tags: ([club.category, club.neighborhood] as (string | null)[]).filter(Boolean) as string[],
+    tags: ([club.category] as (string | null)[]).filter(Boolean) as string[],
     city: "New York",
-    neighborhood: (club.neighborhood as string | null) ?? "",
+    neighborhood: "",
     memberCount: (club.member_count as number | null) ?? 0,
-    color: (club.color as string | null) ?? "#FF1F7D",
+    color: clubColor,
+    crestBg: accentColor,
     darkBg: !!(club.dark_bg as boolean | null),
     mamaName,
     mamaTitle: `${club.name} Club Mama`,
-    mamaBio: owner?.bio ?? "",
-    accessType,
+    mamaBio: (owner?.bio as string | null) ?? "",
+    accessType: resolveAccessType(club.membership_type as string | null),
     entryStyle: "open",
     upcomingSeats: [],
     traditions,
+    aboutNote: (club.welcome_line as string | null) ?? undefined,
   };
 
   return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} />;
@@ -93,4 +110,10 @@ function extractTagline(description: string | null): string {
   if (!description) return "";
   const first = description.split(/[.!?]/)[0].trim();
   return first.length > 80 ? first.slice(0, 78) + "…" : first;
+}
+
+function resolveAccessType(membershipType: string | null): "free" | "one_time" | "subscription" {
+  if (membershipType === "subscription") return "subscription";
+  if (membershipType === "paid" || membershipType === "one_time") return "one_time";
+  return "free";
 }

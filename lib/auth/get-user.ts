@@ -39,12 +39,15 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 
   const { data: p } = await supabase
     .from("profiles")
-    .select("role, first_name, bio, avatar_url, phone, neighborhood, borough, city, age, interests, goals, era, verification_status, onboarding_completed, bloom_points")
+    .select("role, first_name, full_name, bio, avatar_url, phone, neighborhood, borough, city, age, interests, goals, era, verification_status, onboarding_completed, bloom_points")
     .eq("id", user.id)
     .single();
 
-  const firstName = p?.first_name ?? "";
-  const fullName = firstName || (user.email?.split("@")[0] ?? "there");
+  // Support both Cursor's full_name and schema.sql's first_name
+  const firstName = (p as Record<string, unknown> | null)?.first_name as string ?? "";
+  const fullName = ((p as Record<string, unknown> | null)?.full_name as string | null)
+    || firstName
+    || (user.email?.split("@")[0] ?? "there");
 
   return {
     id: user.id,

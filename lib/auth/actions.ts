@@ -34,7 +34,10 @@ export async function updateProfile(formData: FormData): Promise<{ error?: strin
   const neighborhood = (formData.get("neighborhood") as string | null)?.trim();
   const bio = (formData.get("bio") as string | null)?.trim();
 
-  if (firstName !== undefined) updates.first_name = firstName ?? "";
+  if (firstName !== undefined) {
+    updates.first_name = firstName ?? "";
+    updates.full_name = firstName ?? "";  // keep Cursor's full_name in sync
+  }
   if (neighborhood !== undefined) updates.neighborhood = neighborhood ?? "";
   if (bio !== undefined) updates.bio = bio ?? "";
 
