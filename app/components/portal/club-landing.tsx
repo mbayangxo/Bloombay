@@ -48,6 +48,15 @@ export interface ClubTestimonial {
   event: string;
 }
 
+export interface ClubTradition {
+  id: string;
+  name: string;
+  description?: string;
+  frequency: string;
+  emoji: string;
+  sinceYear?: number | null;
+}
+
 export interface ClubLandingData {
   id: string;
   name: string;
@@ -78,6 +87,7 @@ export interface ClubLandingData {
   testimonials?: ClubTestimonial[];
   zones?: ClubZone[];
   allowZoneRequests?: boolean;
+  traditions?: ClubTradition[];
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -160,6 +170,12 @@ const DEFAULT_CLUB: ClubLandingData = {
     { id: "z4", name: "Collectors Corner",   emoji: "🖼️", desc: "For the girls seriously exploring art collecting and acquisition.",            memberCount: 11, price: 20, priceInterval: "monthly", joinType: "request", zoneColor: "#B45309", activeThisWeek: 9,  weeklyPrompt: "If you had $5K to spend on your first piece, where would you start?", lastMessage: "Started working with a private dealer last month — the access is completely different.", lastMessageAuthor: "Chidera" },
   ],
   allowZoneRequests: true,
+  traditions: [
+    { id: "t1", name: "The Long Friday Dinner", description: "Three courses, no phones, all conversation.", frequency: "Every third Friday", emoji: "🕯️", sinceYear: 2022 },
+    { id: "t2", name: "Sunday Morning Walk",    description: "Coffee, city air, and good company.",         frequency: "Every Sunday · 9 AM", emoji: "🌸", sinceYear: 2023 },
+    { id: "t3", name: "The Annual Evening",     description: "Our biggest night of the year.",              frequency: "Every December",       emoji: "✨", sinceYear: 2022 },
+    { id: "t4", name: "First Wednesday Welcome",description: "New members celebrated over cake.",           frequency: "First Wed / month",    emoji: "🎀", sinceYear: 2023 },
+  ],
 };
 
 // ─── Chat mock ────────────────────────────────────────────────────────────────
@@ -303,6 +319,45 @@ function VoiceNoteCard({ mama, seconds, color }: { mama: string; seconds: number
           </div>
           <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", flexShrink: 0, minWidth: 28 }}>{playing ? fmt(remaining) : fmt(seconds)}</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Traditions ──────────────────────────────────────────────────────────────
+
+function TraditionCard({ tradition, color }: { tradition: ClubTradition; color: string }) {
+  return (
+    <div style={{ flexShrink: 0, width: 128, background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${color}66)` }} />
+      <div style={{ padding: "16px 12px 18px", textAlign: "center" }}>
+        <div style={{ fontSize: 28, marginBottom: 10, lineHeight: 1 }}>{tradition.emoji}</div>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 12, color: DARK, lineHeight: 1.35, marginBottom: 6 }}>{tradition.name}</p>
+        <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: color, textTransform: "uppercase" }}>{tradition.frequency}</p>
+        {tradition.sinceYear && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: DARK, opacity: 0.38, marginTop: 4 }}>since {tradition.sinceYear}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TraditionsSection({ club }: { club: ClubLandingData }) {
+  const traditions = club.traditions ?? [];
+  if (traditions.length === 0) return null;
+  return (
+    <div>
+      <div style={{ padding: "0 20px 12px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: club.color }}>OUR TRADITIONS</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>the rituals that make us, us ♡</p>
+        </div>
+        <span style={{ fontSize: 9, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: `${club.color}12`, color: club.color, flexShrink: 0 }}>
+          {traditions.length} traditions
+        </span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingLeft: 20, paddingRight: 20, paddingBottom: 4, scrollbarWidth: "none" }}>
+        {traditions.map(t => <TraditionCard key={t.id} tradition={t} color={club.color} />)}
       </div>
     </div>
   );
@@ -676,6 +731,13 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
             </div>
           </section>
 
+          {/* ── TRADITIONS ───────────────────────────────────────────────── */}
+          {(club.traditions ?? []).length > 0 && (
+            <section style={{ paddingBottom: 28 }}>
+              <TraditionsSection club={club} />
+            </section>
+          )}
+
           {/* ── PAST EVENTS ──────────────────────────────────────────────── */}
           {(club.photos ?? []).length > 0 && (
             <section style={{ padding: "0 20px 24px" }}>
@@ -874,6 +936,13 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           {/* ── About tab ── */}
           {clubTab === "about" && (
             <div style={{ padding: "24px 20px 80px", display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* ── Traditions ── */}
+              {(club.traditions ?? []).length > 0 && (
+                <div style={{ background: "white", borderRadius: 24, overflow: "hidden", boxShadow: "0 1px 8px rgba(0,0,0,0.05)", paddingTop: 18 }}>
+                  <TraditionsSection club={club} />
+                  <div style={{ height: 4 }} />
+                </div>
+              )}
               <div style={{ background: "white", borderRadius: 24, padding: "18px 20px", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: club.color, marginBottom: 10 }}>ABOUT THIS CLUB</p>
                 <p style={{ fontSize: 13, lineHeight: 1.65, color: "rgba(0,0,0,0.6)" }}>{club.about}</p>
