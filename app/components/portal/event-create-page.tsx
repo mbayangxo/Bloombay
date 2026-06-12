@@ -64,12 +64,25 @@ function Stepper({ step, total }: { step: number; total: number }) {
   );
 }
 
+// Presets from the "Host Something" chooser → starting photo + event type
+const KIND_PRESETS: Record<string, { photoId?: string; eventType?: EventType }> = {
+  dinner:      { photoId: "dinner" },
+  brunch:      { photoId: "brunch" },
+  coffee:      { photoId: "brunch" },
+  walk:        { photoId: "walk" },
+  museum:      { photoId: "museum" },
+  picnic:      { photoId: "walk" },
+  "open-seat": { photoId: "dinner" },
+  party:       { photoId: "party", eventType: "party" },
+};
+
 // ── Main component ────────────────────────────────────────────────────────────
-export function EventCreatePage() {
+export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: string; initialTitle?: string } = {}) {
+  const preset = initialKind ? KIND_PRESETS[initialKind] : undefined;
   const router = useRouter();
   const [step, setStep]             = useState(1);
-  const [eventType, setEventType]   = useState<EventType>("gathering");
-  const [title, setTitle]           = useState("");
+  const [eventType, setEventType]   = useState<EventType>(preset?.eventType ?? "gathering");
+  const [title, setTitle]           = useState(initialTitle ?? "");
   const [location, setLocation]     = useState("");
   const [date, setDate]             = useState("");
   const [time, setTime]             = useState("");
@@ -77,7 +90,7 @@ export function EventCreatePage() {
   const [accentColor, setAccent]    = useState(PINK);
   const [customColor, setCustom]    = useState(PINK);
   const [fontKey, setFont]          = useState("playfair");
-  const [photoId, setPhoto]         = useState<string | null>(null);
+  const [photoId, setPhoto]         = useState<string | null>(preset?.photoId ?? null);
   const [uploading, setUploading]   = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);

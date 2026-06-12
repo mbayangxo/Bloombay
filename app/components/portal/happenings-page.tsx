@@ -676,7 +676,7 @@ function StaticCollage() {
 /* ── FAB ─────────────────────────────────────────────────── */
 function CreateFAB() {
   return (
-    <Link href="/member/happenings/create" style={{ textDecoration: "none" }}>
+    <Link href="/member/host" style={{ textDecoration: "none" }}>
       <div style={{
         position: "fixed",
         bottom: 84,
