@@ -9,6 +9,20 @@ const DARK   = "#1C1B1C";
 const CREAM  = "#F6F1EB";
 const NAV_BG = "#F6F1EB";
 
+function getPageBg(): string {
+  const h = new Date().getHours();
+  if (h >= 5  && h < 12) return "linear-gradient(170deg, #FF1F7D 0%, #FF69A8 45%, #FFB3D4 100%)";
+  if (h >= 12 && h < 17) return "linear-gradient(170deg, #E8006A 0%, #FF4499 45%, #FF9CC8 100%)";
+  if (h >= 17 && h < 21) return "linear-gradient(170deg, #C0004A 0%, #E8006A 45%, #FF4499 100%)";
+  return "linear-gradient(170deg, #3A0018 0%, #720034 45%, #C0004A 100%)";
+}
+
+function getNavBg(): string {
+  const h = new Date().getHours();
+  if (h >= 21 || h < 5) return "rgba(58,0,24,0.96)";
+  return "rgba(232,0,106,0.96)";
+}
+
 const POSTER_IMGS = [
   "/happenings/posters/01_Girls_Night.png",
   "/happenings/posters/02_Save_The_Date_Aperitivo.png",
@@ -664,22 +678,24 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: "#0A0A0A", minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
+    <div style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
 
       {/* ── Fixed top bar ── */}
       {standalone && <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-        background: "#0A0A0A",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        background: getNavBg(),
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(255,255,255,0.12)",
         height: 54,
         paddingTop: "env(safe-area-inset-top, 0px)",
         display: "flex", alignItems: "center",
       }}>
         {/* Left: BB+ · city · slab */}
         <div style={{ flex: 1, paddingLeft: 18, display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: PINK }}>BB+</span>
+          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>BB+</span>
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
         </div>
@@ -690,11 +706,11 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             {(["happenings","city"] as HapTab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "5px 12px", borderRadius: 999, border: "none",
-                background: tab === t ? PINK : "transparent",
-                color: "white",
+                background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
+                color: tab === t ? PINK : "rgba(255,255,255,0.85)",
                 fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
                 letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
-                boxShadow: tab === t ? `0 2px 10px ${PINK}55` : "none",
+                boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
               }}>
                 {t === "happenings" ? "HAPPENINGS" : "CITY"}
               </button>
@@ -728,7 +744,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span style={{ position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%", background: PINK, border: "1.5px solid #0A0A0A" }}/>
+            <span style={{ position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%", background: "white" }}/>
           </Link>
         </div>
       </div>}
@@ -843,7 +859,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
         {/* ── CITY TAB (standalone only — embedded in CityPage when not standalone) ── */}
         {standalone && tab === "city" && (
-          <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)", background: "#0A0A0A" }}>
+          <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)" }}>
             <div style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
               <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
