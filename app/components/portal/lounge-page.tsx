@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { updateProfile } from "@/lib/auth/actions";
+import { createClient } from "@/lib/supabase/client";
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
@@ -362,7 +363,7 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 
 export function LoungePage({ user }: { user?: LoungeUser }) {
-  const [localName, setLocalName] = useState(user?.name         ?? "May");
+  const [localName, setLocalName] = useState(user?.name         ?? "");
   const [localNbhd, setLocalNbhd] = useState(user?.neighborhood ?? "NYC");
   const [localBio,  setLocalBio]  = useState(user?.bio          ?? "Part of the world made for women.");
   const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
@@ -370,9 +371,26 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const [showEdit,        setShowEdit]        = useState(false);
   const [copied,          setCopied]          = useState(false);
   const [toast,           setToast]           = useState<string | null>(null);
+  const [clubCount,       setClubCount]       = useState<number | null>(null);
+  const [gatheringCount,  setGatheringCount]  = useState<number | null>(null);
 
-  const displayName    = localName;
-  const displayInitial = localName[0]?.toUpperCase() ?? "M";
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (!u) return;
+      // Real club count from memberships
+      supabase.from("club_memberships").select("club_slug", { count: "exact", head: true })
+        .eq("user_id", u.id)
+        .then(({ count }) => setClubCount(count ?? 0));
+      // Real gathering attendance count
+      supabase.from("gathering_attendance").select("gathering_id", { count: "exact", head: true })
+        .eq("user_id", u.id)
+        .then(({ count }) => setGatheringCount(count ?? 0));
+    });
+  }, []);
+
+  const displayName    = localName || user?.name || "";
+  const displayInitial = displayName[0]?.toUpperCase() ?? "✦";
   const displayHandle  = localName.split(" ")[0].toLowerCase();
   const memberNum      = getMemberNumber(localName);
   const referralCode   = getReferralCode(localName);
@@ -465,7 +483,11 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
               {/* Stats row */}
               <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
-                {[{ num: "12", label: "Events" }, { num: "3", label: "Clubs" }, { num: String(ALL_BLOOMIES.length), label: "Bloomies" }].map(s => (
+                {[
+                  { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
+                  { num: clubCount !== null ? String(clubCount) : "—", label: "Clubs" },
+                  { num: String(ALL_BLOOMIES.length), label: "Bloomies" },
+                ].map(s => (
                   <div key={s.label} style={{ textAlign: "center" as const }}>
                     <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: PINK, lineHeight: 1 }}>{s.num}</p>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(0,0,0,0.32)", marginTop: 2 }}>{s.label.toUpperCase()}</p>

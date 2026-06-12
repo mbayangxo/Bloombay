@@ -387,35 +387,13 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ── FIXED TOP BAR ── */}
+      {/* ── TOP gradient fade (BottomNav renders the actual top bar) ── */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 90,
         height: "calc(env(safe-area-inset-top, 0px) + 58px)",
-        display: "flex", alignItems: "flex-end", justifyContent: "space-between",
-        paddingLeft: 20, paddingRight: 20, paddingBottom: 12,
-        background: "linear-gradient(180deg, rgba(28,0,24,0.9) 0%, transparent 100%)",
+        background: "linear-gradient(180deg, rgba(28,0,24,0.88) 0%, transparent 100%)",
         pointerEvents: "none",
-      }}>
-        <div style={{ pointerEvents: "auto" }}>
-          <BBLogo size={22} light />
-        </div>
-        <Link
-          href="/member/you"
-          style={{
-            pointerEvents: "auto", cursor: "pointer",
-            width: 36, height: 36, borderRadius: "50%",
-            background: loading ? "rgba(255,255,255,0.18)" : PINK,
-            border: "2px solid rgba(255,255,255,0.28)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: `0 2px 10px rgba(255,31,125,0.5)`,
-            textDecoration: "none",
-          }}
-        >
-          <span style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "14px", color: "white" }}>
-            {loading ? "…" : displayInitial}
-          </span>
-        </Link>
-      </div>
+      }} />
 
       {/* ── EDIT PROFILE SHEET ── */}
       {showEditProfile && (

@@ -287,9 +287,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {/* ── Top icons: Apt · Pin · Mailbox · Chat ── */}
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
 
-            {/* Apt / Lounge */}
-            <TopTile href="/member/lounge" label="My Apt">
-              <IconApt c={isDarkPage ? "white" : PINK} />
+            {/* Lobby / Community rooms */}
+            <TopTile href="/member/lobby" label="Lobby">
+              <IconLobby c={isDarkPage ? "white" : PINK} />
             </TopTile>
 
             {/* Pin drop / City */}
