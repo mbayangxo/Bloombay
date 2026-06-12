@@ -571,7 +571,28 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [introText, setIntroText] = useState("");
   const [, startT] = useTransition();
 
-  const ctaLabel = club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN";
+  const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
+  const ctaLabel = isPaid ? "JOIN · CHECKOUT →" : (club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN");
+
+  async function handleCTA() {
+    if (isPaid) {
+      // Stripe checkout for paid clubs
+      try {
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clubId: club.id }),
+        });
+        const { url, error } = await res.json();
+        if (error) { setApplyError(error); return; }
+        window.location.href = url;
+      } catch {
+        setApplyError("Checkout failed. Please try again.");
+      }
+      return;
+    }
+    setShowForm(true);
+  }
 
   return (
     <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", fontFamily: "var(--font-jost)" }}>
@@ -621,7 +642,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 {applied ? (
                   <div style={{ display: "inline-block", padding: "10px 22px", borderRadius: 24, background: "#FFF9E6", color: "#b45309", fontSize: 11, fontWeight: 700 }}>Applied ✓</div>
                 ) : (
-                  <button onClick={() => setShowForm(true)} style={{ padding: "10px 22px", borderRadius: 24, background: club.color, color: "white", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", border: "none", cursor: "pointer", boxShadow: `0 4px 18px ${club.color}44` }}>
+                  <button onClick={handleCTA} style={{ padding: "10px 22px", borderRadius: 24, background: club.color, color: "white", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", border: "none", cursor: "pointer", boxShadow: `0 4px 18px ${club.color}44` }}>
                     {ctaLabel}
                   </button>
                 )}
@@ -884,7 +905,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               <div style={{ width: "100%", padding: "16px 0", borderRadius: 32, background: "#FFF9E6", color: "#b45309", fontWeight: 700, fontSize: 14, textAlign: "center" }}>Application Submitted ✓</div>
             ) : (
               <>
-                <button onClick={() => setShowForm(true)} style={{ width: "100%", padding: "16px 0", borderRadius: 32, background: club.color, color: "white", fontWeight: 700, fontSize: 14, letterSpacing: "0.06em", border: "none", cursor: "pointer", boxShadow: `0 6px 24px ${club.color}44` }}>
+                <button onClick={handleCTA} style={{ width: "100%", padding: "16px 0", borderRadius: 32, background: club.color, color: "white", fontWeight: 700, fontSize: 14, letterSpacing: "0.06em", border: "none", cursor: "pointer", boxShadow: `0 6px 24px ${club.color}44` }}>
                   {ctaLabel}
                 </button>
                 {club.entryStyle !== "open" && (

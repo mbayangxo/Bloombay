@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import {
+  getMyConversations,
+  getMessages,
+  sendMessage as dbSendMessage,
+  markConversationRead,
+} from "@/lib/actions/direct-messages";
+import type { ConversationSummary, DirectMessage } from "@/lib/actions/direct-messages";
 
 type ConvoType = "plan" | "club" | "direct" | "group" | "event";
 type View = "list" | "thread";
@@ -19,6 +27,8 @@ interface Convo {
   online?: boolean;
   bio?: string;
   memberCount?: number;
+  // Real DB conversation id (if this came from DB)
+  dbConvoId?: string;
 }
 
 interface Message {
@@ -303,11 +313,52 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
+  // Load real messages from DB if this is a real conversation
+  useEffect(() => {
+    if (!convo.dbConvoId) return;
+    getMessages(convo.dbConvoId).then(dbMsgs => {
+      if (dbMsgs.length > 0) {
+        setMsgs(dbMsgs.map((m, i) => ({
+          id: i,
+          sender: m.sender?.full_name ?? m.sender?.first_name ?? "Someone",
+          initial: (m.sender?.full_name ?? m.sender?.first_name ?? "?").charAt(0).toUpperCase(),
+          color: PINK,
+          text: m.content,
+          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isMe: false, // We'd need userId context here; treated as others for now
+        })));
+      }
+    });
+    // Realtime subscription
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`dm:${convo.dbConvoId}`)
+      .on("postgres_changes", {
+        event: "INSERT", schema: "public", table: "direct_messages",
+        filter: `conversation_id=eq.${convo.dbConvoId}`,
+      }, payload => {
+        const m = payload.new as DirectMessage;
+        setMsgs(prev => [...prev, {
+          id: prev.length + 1000,
+          sender: "Them", initial: "?", color: PINK,
+          text: m.content,
+          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isMe: false,
+        }]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [convo.dbConvoId]);
+
   function sendMessage() {
     const text = draft.trim();
     if (!text) return;
     setMsgs(prev => [...prev, { id: prev.length + 100, sender: "Me", initial: "Y", color: PINK, text, time: "now", isMe: true }]);
     setDraft("");
+    // Persist to DB if real conversation
+    if (convo.dbConvoId) {
+      dbSendMessage(convo.dbConvoId, text).catch(console.error);
+    }
   }
 
   const waveHeights = [10, 18, 8, 26, 14, 10, 30, 12, 22, 8, 20, 16, 10, 28, 14, 8, 18, 12, 24, 14];
@@ -602,20 +653,58 @@ function GenericThreadView({ convo, messages, onBack }: { convo: Convo; messages
 }
 
 // ── Main Chat Page ─────────────────────────────────────────────────────────────
+function dbConvoToUI(c: ConversationSummary, idx: number): Convo {
+  const other = c.participants[0];
+  const name = c.name ?? other?.full_name ?? other?.first_name ?? "Conversation";
+  const timeAgo = (() => {
+    if (!c.last_message_at) return "";
+    const diff = Date.now() - new Date(c.last_message_at).getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    if (m < 60) return `${m}m`;
+    if (h < 24) return `${h}h`;
+    return `${Math.floor(diff / 86400000)}d`;
+  })();
+  return {
+    id: 9000 + idx,
+    type: c.type,
+    name,
+    initial: name.charAt(0).toUpperCase(),
+    color: PINK,
+    preview: c.last_preview ?? "Start a conversation",
+    time: timeAgo,
+    unread: c.unread_count,
+    subtitle: `${c.type.charAt(0).toUpperCase() + c.type.slice(1)} · Bloomie`,
+    dbConvoId: c.id,
+  };
+}
+
 export default function ChatPage() {
   const [view, setView] = useState<View>("list");
   const [activeConvo, setActiveConvo] = useState<Convo | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [showNewChat, setShowNewChat] = useState(false);
   const [read, setRead] = useState<Set<number>>(new Set());
+  const [dbConvos, setDbConvos] = useState<Convo[]>([]);
+
+  // Load real conversations from DB on mount
+  useEffect(() => {
+    getMyConversations().then(data => {
+      if (data.length > 0) setDbConvos(data.map(dbConvoToUI));
+    }).catch(console.error);
+  }, []);
 
   function openConvo(convo: Convo) {
     setRead(prev => new Set([...prev, convo.id]));
     setActiveConvo(convo);
     setView("thread");
+    if (convo.dbConvoId) markConversationRead(convo.dbConvoId).catch(console.error);
   }
 
   function backToList() { setView("list"); setActiveConvo(null); }
+
+  // All conversations: real DB first, then demo
+  const allConvos = [...dbConvos, ...CONVOS];
 
   if (view === "thread" && activeConvo) {
     if (activeConvo.type === "direct") return <DirectProfileThread convo={activeConvo} messages={THREAD_MESSAGES[activeConvo.id] ?? []} onBack={backToList} />;
@@ -623,8 +712,8 @@ export default function ChatPage() {
     return <GenericThreadView convo={activeConvo} messages={THREAD_MESSAGES[activeConvo.id] ?? []} onBack={backToList} />;
   }
 
-  const shown = CONVOS.filter(c => c.type !== "plan" && (filter === "all" || c.type === filter));
-  const totalUnread = CONVOS.filter(c => c.type !== "plan").reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
+  const shown = allConvos.filter(c => c.type !== "plan" && (filter === "all" || c.type === filter));
+  const totalUnread = allConvos.filter(c => c.type !== "plan").reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 112, background: LOUNGE_BG, position: "relative", overflow: "hidden" }}>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getMyNotifications, markAllRead as markAllReadDB } from "@/lib/actions/notifications";
+import type { Notification as DBNotif } from "@/lib/actions/notifications";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 interface Notif {
@@ -268,19 +270,59 @@ function NoteCard({ n }: { n: Notif }) {
   return inner;
 }
 
+function dbNotifToUI(n: DBNotif, idx: number): Notif {
+  const ago = (() => {
+    const diff = Date.now() - new Date(n.created_at).getTime();
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days  = Math.floor(diff / 86400000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  })();
+  return {
+    id: idx,
+    type: n.type as Notif["type"],
+    title: n.title,
+    body: n.body ?? "",
+    time: ago,
+    unread: !n.read,
+    clubName: (n.data as Record<string,string> | null)?.clubName,
+    clubCrest: (n.data as Record<string,string> | null)?.clubCrest,
+    witnessId: (n.data as Record<string,string> | null)?.witnessId,
+  };
+}
+
 /* ── Page ────────────────────────────────────────────────────────── */
 export default function NotificationsPage() {
   const [nowItems, setNowItems]         = useState<Notif[]>(INITIAL_NOW);
   const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
+  const [loaded, setLoaded]             = useState(false);
 
   const unreadCount = [...nowItems, ...earlierItems].filter(n => n.unread).length;
   const totalItems  = nowItems.length + earlierItems.length;
 
+  // Load real notifications from DB; fall back to demo data if none
+  useEffect(() => {
+    getMyNotifications(40).then(data => {
+      if (data.length > 0) {
+        const cutoff = Date.now() - 3 * 3600000; // 3 hours ago
+        const now     = data.filter(n => new Date(n.created_at).getTime() > cutoff).map(dbNotifToUI);
+        const earlier = data.filter(n => new Date(n.created_at).getTime() <= cutoff).map(dbNotifToUI);
+        setNowItems(now);
+        setEarlierItems(earlier);
+      }
+      setLoaded(true);
+    }).catch(() => setLoaded(true));
+  }, []);
+
   function markAllRead() {
     setNowItems(p => p.map(n => ({ ...n, unread: false })));
     setEarlierItems(p => p.map(n => ({ ...n, unread: false })));
+    markAllReadDB().catch(console.error);
   }
-  useEffect(() => { markAllRead(); }, []);
+  useEffect(() => { if (loaded) markAllRead(); }, [loaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderSection(items: Notif[], label: string, faint?: boolean) {
     if (items.length === 0) return null;

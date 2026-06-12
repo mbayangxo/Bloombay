@@ -2,7 +2,9 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TicketCard, PosterCard, GatheringCard, InvitationEventCard, type EventType, type EventCardData } from "./event-card-templates";
+import { createEvent } from "@/lib/actions/happenings";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -64,6 +66,7 @@ function Stepper({ step, total }: { step: number; total: number }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function EventCreatePage() {
+  const router = useRouter();
   const [step, setStep]             = useState(1);
   const [eventType, setEventType]   = useState<EventType>("gathering");
   const [title, setTitle]           = useState("");
@@ -76,6 +79,8 @@ export function EventCreatePage() {
   const [fontKey, setFont]          = useState("playfair");
   const [photoId, setPhoto]         = useState<string | null>(null);
   const [uploading, setUploading]   = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const fileRef                     = useRef<HTMLInputElement>(null);
 
   const TOTAL_STEPS = 4;
@@ -326,14 +331,42 @@ export function EventCreatePage() {
           ))}
         </div>
 
+        {publishError && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#C01040", textAlign: "center" }}>{publishError}</p>
+        )}
+
         {/* Publish */}
-        <button style={{
-          background: PINK, borderRadius: 999, padding: "16px",
-          border: "none", cursor: "pointer",
-          boxShadow: `0 6px 24px ${PINK}55`,
-        }}>
+        <button
+          disabled={publishing}
+          onClick={async () => {
+            if (!title || !date || !time) { setPublishError("Please fill in title, date, and time."); return; }
+            setPublishing(true);
+            setPublishError(null);
+            try {
+              const dateTime = new Date(`${date}T${time}`).toISOString();
+              await createEvent({
+                title,
+                description: description || undefined,
+                venue: location || undefined,
+                date_time: dateTime,
+                category: eventType === "gathering" ? "social" : eventType === "concert" ? "culture" : "social",
+                accent_color: accentColor,
+                photo_url: photoId ?? undefined,
+              });
+              router.push("/member/happenings");
+            } catch (e) {
+              setPublishError((e as Error).message ?? "Failed to publish. Try again.");
+              setPublishing(false);
+            }
+          }}
+          style={{
+            background: publishing ? "#AAA" : PINK, borderRadius: 999, padding: "16px",
+            border: "none", cursor: publishing ? "not-allowed" : "pointer",
+            boxShadow: publishing ? "none" : `0 6px 24px ${PINK}55`,
+          }}
+        >
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>
-            PUBLISH EVENT →
+            {publishing ? "PUBLISHING…" : "PUBLISH EVENT →"}
           </p>
         </button>
       </div>
