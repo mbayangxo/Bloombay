@@ -129,8 +129,20 @@ const CSS = `
 
 type HapTab = "happenings" | "city";
 type Filter = "All" | "Tonight" | "This Weekend" | "Invitations" | "Open Seats" | "Gatherings" | "Club Events" | "Parties" | "Dinners";
+type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
 const FILTERS: Filter[] = ["All", "Tonight", "This Weekend", "Invitations", "Open Seats", "Gatherings", "Club Events", "Parties", "Dinners"];
+
+const CATEGORY_CHIPS: { id: CategoryFilter; emoji: string; label: string }[] = [
+  { id: "arts",   emoji: "🎨", label: "Arts"   },
+  { id: "eat",    emoji: "🍽️", label: "Eat"    },
+  { id: "music",  emoji: "🎵", label: "Music"  },
+  { id: "books",  emoji: "📚", label: "Books"  },
+  { id: "active", emoji: "🏃", label: "Active" },
+  { id: "drinks", emoji: "🍷", label: "Drinks" },
+  { id: "film",   emoji: "🎬", label: "Film"   },
+  { id: "dance",  emoji: "💃", label: "Dance"  },
+];
 
 /* ── helpers ──────────────────────────────────────────────── */
 
@@ -156,6 +168,20 @@ function matchesFilter(ev: Event, filter: Filter): boolean {
   if (filter === "Club Events") return ev.event_type === "club" || ev.event_type === "club_event";
   if (filter === "Invitations") return ev.event_type === "invitation" || ev.event_type === "private";
   if (filter === "Open Seats") return ev.event_type === "open_seat";
+  return true;
+}
+
+function matchesCategoryFilter(ev: Event, cat: CategoryFilter): boolean {
+  if (cat === "all") return true;
+  const t = ((ev.event_type ?? "") + " " + ev.title).toLowerCase();
+  if (cat === "arts")   return /museum|gallery|art|exhibition|creative|design|craft/.test(t);
+  if (cat === "eat")    return /brunch|dinner|lunch|meal|food|restaurant|dining|tasting|breakfast|supper|feast/.test(t);
+  if (cat === "music")  return /concert|music|show|performance|vinyl|jazz|festival|dj|band|live/.test(t);
+  if (cat === "books")  return /book|reading|writing|literary|poetry|bagels|literature/.test(t);
+  if (cat === "active") return /walk|run|hike|outdoor|fitness|yoga|sports|trip|road|cycling|bike/.test(t);
+  if (cat === "drinks") return /wine|cocktail|bar|drinking|aperitivo|happy hour|rosé|spirits|champagne|prosecco/.test(t);
+  if (cat === "film")   return /film|movie|cinema|screening|documentary|watch/.test(t);
+  if (cat === "dance")  return /dance|dancing|club|nightlife|party|rave/.test(t);
   return true;
 }
 
@@ -673,9 +699,10 @@ function CreateFAB() {
 
 /* ── Main ────────────────────────────────────────────────── */
 export function HappeningsPage({ standalone = true }: { standalone?: boolean }) {
-  const [tab,        setTab]       = useState<HapTab>("happenings");
-  const [filter,     setFilter]    = useState<Filter>("All");
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [tab,            setTab]           = useState<HapTab>("happenings");
+  const [filter,         setFilter]        = useState<Filter>("All");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [filterOpen,     setFilterOpen]    = useState(false);
   const [showMap,    setShowMap]   = useState(false);
   const [events,     setEvents]    = useState<Event[]>([]);
   const [joined,     setJoined]    = useState<Set<string>>(new Set());
@@ -706,7 +733,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     });
   }
 
-  const filtered = events.filter(ev => matchesFilter(ev, filter));
+  const filtered = events.filter(ev => matchesFilter(ev, filter) && matchesCategoryFilter(ev, categoryFilter));
 
   const tickerItems = events.length > 0
     ? events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.starts_at)}`)
@@ -791,7 +818,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         {(standalone ? tab === "happenings" : true) && (
           <>
             {/* Filter chips — always visible horizontal scroll */}
-            <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 10px", scrollbarWidth: "none" as const }}>
+            <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 4px", scrollbarWidth: "none" as const }}>
               {FILTERS.map(f => (
                 <button key={f} onClick={() => setFilter(f)} style={{
                   flexShrink: 0, padding: "6px 16px", borderRadius: 999,
@@ -806,6 +833,28 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                   {f}
                 </button>
               ))}
+            </div>
+
+            {/* Interest category chips — compact secondary row */}
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "4px 14px 10px", scrollbarWidth: "none" as const }}>
+              {CATEGORY_CHIPS.map(c => {
+                const active = categoryFilter === c.id;
+                return (
+                  <button key={c.id} onClick={() => setCategoryFilter(active ? "all" : c.id)} style={{
+                    flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
+                    padding: "4px 10px", borderRadius: 999, border: "none",
+                    background: active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)",
+                    color: active ? "white" : "rgba(255,255,255,0.45)",
+                    fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                    letterSpacing: "0.04em", cursor: "pointer",
+                    outline: active ? `1.5px solid rgba(255,255,255,0.4)` : "none",
+                    transition: "all 0.15s",
+                  }}>
+                    <span style={{ fontSize: 11, lineHeight: 1 }}>{c.emoji}</span>
+                    {c.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Ticker */}
