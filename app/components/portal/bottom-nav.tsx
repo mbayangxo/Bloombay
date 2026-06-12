@@ -189,14 +189,20 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
   const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby") || pathname.startsWith("/member/plans");
-  const [navHidden, setNavHidden] = useState(false);
+  const [navShrunk, setNavShrunk] = useState(false);
+  const [navTouched, setNavTouched] = useState(false);
   const lastYRef = useRef(0);
+  const shrinkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     function onScroll() {
       const y = window.scrollY;
-      if (y > lastYRef.current + 14) setNavHidden(true);
-      else if (y < lastYRef.current - 8) setNavHidden(false);
+      if (y > lastYRef.current + 10) {
+        setNavShrunk(true);
+        if (shrinkTimer.current) clearTimeout(shrinkTimer.current);
+      } else if (y < lastYRef.current - 6) {
+        setNavShrunk(false);
+      }
       lastYRef.current = y;
     }
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -320,13 +326,18 @@ export function BottomNav({ user }: { user?: NavUser }) {
       {/* ══════════ FLOATING PILL BOTTOM NAV ══════════ */}
       <div
         className="fixed z-50 md:hidden"
+        onTouchStart={() => { setNavTouched(true); setNavShrunk(false); }}
+        onTouchEnd={() => { setTimeout(() => setNavTouched(false), 600); }}
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)",
-          left: "16px",
-          right: "16px",
-          transform: navHidden ? "translateY(calc(100% + 28px))" : "translateY(0)",
-          transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          pointerEvents: navHidden ? "none" : "auto",
+          left: navShrunk && !navTouched ? "50%" : "16px",
+          right: navShrunk && !navTouched ? "auto" : "16px",
+          transform: navShrunk && !navTouched
+            ? "translateX(-50%) scale(0.72)"
+            : "none",
+          transformOrigin: "bottom center",
+          transition: "all 0.42s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          opacity: navShrunk && !navTouched ? 0.72 : 1,
         }}
       >
         {/* Outer glow ring (decorative) */}
@@ -380,7 +391,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   {renderTabIcon(tab.key, active)}
                 </div>
 
-                {/* Label */}
+                {/* Label — hidden when shrunk */}
                 <span style={{
                   fontSize: "7.5px",
                   fontWeight: active ? 800 : 600,
@@ -389,6 +400,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   color: active ? PINK : "rgba(0,0,0,0.32)",
                   transition: "all 0.2s",
                   lineHeight: 1,
+                  opacity: navShrunk && !navTouched ? 0 : 1,
+                  maxHeight: navShrunk && !navTouched ? 0 : 12,
+                  overflow: "hidden",
                 }}>
                   {label.toUpperCase()}
                 </span>
