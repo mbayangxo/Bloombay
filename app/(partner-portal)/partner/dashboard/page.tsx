@@ -11,7 +11,8 @@ type Tab =
   | "rating"
   | "requests"
   | "mailbox"
-  | "perks";
+  | "perks"
+  | "templates";
 
 // ── Mock data ──────────────────────────────────────────────────────────────
 
@@ -177,6 +178,156 @@ function IconCheck({ size = 14 }: { size?: number }) {
   );
 }
 
+function IconTemplate({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="9" y1="21" x2="9" y2="9" />
+    </svg>
+  );
+}
+
+// ── Template data ──────────────────────────────────────────────────────────
+
+const FOOD_TEMPLATES = [
+  { name: "Hero Product",      file: "01_Hero_Product.png"     },
+  { name: "Promotion",         file: "02_Promotion.png"        },
+  { name: "Open Hours",        file: "03_Open_Hours.png"       },
+  { name: "Menu Card",         file: "04_Menu_Card.png"        },
+  { name: "Founder Story",     file: "05_Founder_Story.png"    },
+  { name: "Loyalty Card",      file: "06_Loyalty_Card.png"     },
+  { name: "Mood Board",        file: "07_Mood_Board.png"       },
+  { name: "New On The Menu",   file: "08_New_On_The_Menu.png"  },
+];
+
+const EVENT_TEMPLATES = [
+  { name: "Book Society",   file: "Event_Book_Society.png"   },
+  { name: "Dinner Society", file: "Event_Dinner_Society.png" },
+  { name: "Museum Girls",   file: "Event_Museum_Girls.png"   },
+  { name: "Sunday Walk",    file: "Event_Sunday_Walk.png"    },
+];
+
+const TICKET_TEMPLATES = [
+  { name: "Dinner Society",       file: "Ticket_Dinner_Society.png"     },
+  { name: "Girls Night",          file: "Ticket_Girls_Night.png"        },
+  { name: "Museum Exhibition",    file: "Ticket_Museum_Exhibition.png"  },
+  { name: "NYC → Marrakech",      file: "Ticket_NYC_Marrakech.png"      },
+];
+
+function TemplateCard({ name, src }: { name: string; src: string }) {
+  return (
+    <div
+      className="bg-white rounded-2xl overflow-hidden"
+      style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid rgba(255,31,125,0.08)" }}
+    >
+      {/* Preview image */}
+      <div style={{ height: 180, background: "#FFF0F5", position: "relative", overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={name}
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+        />
+      </div>
+      {/* Footer */}
+      <div className="p-4 flex items-center justify-between">
+        <p className="text-sm font-semibold" style={{ color: "#111111" }}>{name}</p>
+        <a
+          href={src}
+          download
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+          style={{ background: "#FFF0F5", color: "#FF1F7D", textDecoration: "none" }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Save
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function TemplatesSection() {
+  return (
+    <div className="max-w-4xl">
+      {/* Food & Venue */}
+      <div className="mb-10">
+        <div className="mb-5">
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Food & Venue Templates</h2>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Use these on Instagram, your website, or anywhere BloomBay women will see your brand.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {FOOD_TEMPLATES.map(t => (
+            <TemplateCard
+              key={t.file}
+              name={t.name}
+              src={`/food templates/${t.file}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Event Gatherings */}
+      <div className="mb-10">
+        <div className="mb-5">
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Event Templates</h2>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Promote BloomBay gatherings at your venue with these ready-made event cards.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {EVENT_TEMPLATES.map(t => (
+            <TemplateCard
+              key={t.file}
+              name={t.name}
+              src={`/club gatherings,casual gatherings templates/${t.file}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Tickets */}
+      <div className="mb-6">
+        <div className="mb-5">
+          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Ticket Templates</h2>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Share these as digital tickets or invitations for special events.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {TICKET_TEMPLATES.map(t => (
+            <TemplateCard
+              key={t.file}
+              name={t.name}
+              src={`/tickets templates/${t.file}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Usage tip */}
+      <div
+        className="rounded-2xl p-5 flex items-start gap-3"
+        style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.12)" }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0 mt-0.5">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "#111111" }}>How to use your templates</p>
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+            Save the template, then open it in Canva, Adobe Express, or your phone&apos;s photo editor to add your branding, photos, and details. Tag <strong style={{ color: "#FF1F7D" }}>@bloombay</strong> when you post.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Star Rating Display ────────────────────────────────────────────────────
 
 function StarRating({ rating, max = 5, size = 16 }: { rating: number; max?: number; size?: number }) {
@@ -204,6 +355,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
   { id: "requests", label: "Requests", icon: <IconClipboard size={15} /> },
   { id: "mailbox", label: "Mailbox", icon: <IconInbox size={15} /> },
   { id: "perks", label: "Partner Perks", icon: <IconAward size={15} /> },
+  { id: "templates", label: "Templates", icon: <IconTemplate size={15} /> },
 ];
 
 // ── Section Components ─────────────────────────────────────────────────────
@@ -811,6 +963,7 @@ export default function YourVenue() {
         {activeTab === "requests" && <RequestsSection />}
         {activeTab === "mailbox" && <MailboxSection />}
         {activeTab === "perks" && <PerksSection />}
+        {activeTab === "templates" && <TemplatesSection />}
       </div>
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#111111" }}>
