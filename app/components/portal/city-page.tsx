@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { PushPin } from "./scrapbook";
+import { getNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote, type BloomNote } from "@/lib/actions/bloom-notes";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -1156,9 +1158,26 @@ function EatsPartnerCard({ partner: p, onOpen }: { partner: EatsPartner; onOpen:
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>{typeLabel[p.type]}</span>
         </div>
         {/* Save */}
-        <button onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }} style={{ position: "absolute", top: 10, right: 12, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <button onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }} style={{ position: "absolute", top: 10, right: 78, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
+        {/* Pinned bloom notes stack — tap opens storefront */}
+        <div style={{ position: "absolute", top: 14, right: 12, width: 56, height: 52, pointerEvents: "none" }}>
+          {/* back papers */}
+          <div style={{ position: "absolute", inset: "5px 0 0 3px", background: "#F0E0BC", borderRadius: 3, transform: "rotate(6deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}/>
+          <div style={{ position: "absolute", inset: "2px 2px 2px 1px", background: "#F8ECD0", borderRadius: 3, transform: "rotate(-3deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.25)" }}/>
+          {/* front note */}
+          <div style={{ position: "absolute", inset: 0, background: "#FFF8E6", borderRadius: 3, transform: "rotate(1.5deg)", boxShadow: "0 3px 10px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: "#C0185F", lineHeight: 1 }}>{p.bloomNotes}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 800, letterSpacing: "0.12em", color: "#9A8A6A", marginTop: 2 }}>BLOOM NOTES</p>
+          </div>
+          {/* push pin */}
+          <PushPin color="pink" size={12} style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
+          {/* who left the last note */}
+          <div style={{ position: "absolute", bottom: -7, left: -7, width: 21, height: 21, borderRadius: "50%", background: `linear-gradient(135deg, ${p.accentColor}, ${p.heroColor})`, border: "2px solid #FFF8E6", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{p.hostNote.from.charAt(0)}</span>
+          </div>
+        </div>
         {/* Name */}
         <div style={{ position: "absolute", bottom: 10, left: 14, right: 46 }}>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>{p.name}</p>
@@ -1294,6 +1313,141 @@ function StarRow({ color = "#E8336E", size = 9 }: { color?: string; size?: numbe
 
 function toSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+// Notes other women left behind — until real ones exist for this place
+const DEMO_BLOOM_NOTES = [
+  { name: "Maya",  text: "Came here after a hard week. Sat alone, ordered the special, felt human again.", flowers: 23, when: "2 days ago" },
+  { name: "Sofia", text: "Ask for the corner table. Golden hour hits it at 6.", flowers: 41, when: "1 week ago" },
+  { name: "Lina",  text: "Brought my mom. She still talks about it.", flowers: 17, when: "2 weeks ago" },
+];
+
+const NOTE_TONES = ["#FFF6D8", "#FDE8EE", "#E8F2E4"];
+
+function BloomNotesBoard({ placeSlug, placeName, brand, accent }: { placeSlug: string; placeName: string; brand: string; accent: string }) {
+  const [notes, setNotes]     = useState<BloomNote[]>([]);
+  const [loaded, setLoaded]   = useState(false);
+  const [draft, setDraft]     = useState("");
+  const [posting, setPosting] = useState(false);
+
+  useEffect(() => {
+    getNotesForPlace(placeSlug).then(n => { setNotes(n); setLoaded(true); }).catch(() => setLoaded(true));
+  }, [placeSlug]);
+
+  async function post() {
+    const text = draft.trim();
+    if (!text || posting) return;
+    setPosting(true);
+    const res = await leaveBloomNote(placeSlug, placeName, text);
+    if (res.ok) {
+      setDraft("");
+      setNotes(await getNotesForPlace(placeSlug));
+    }
+    setPosting(false);
+  }
+
+  async function onFlower(id: string) {
+    setNotes(ns => ns.map(n => n.id === id
+      ? { ...n, gave_flower: !n.gave_flower, flower_count: n.flower_count + (n.gave_flower ? -1 : 1) }
+      : n));
+    await toggleFlower(id);
+  }
+
+  async function onSave(id: string) {
+    setNotes(ns => ns.map(n => n.id === id ? { ...n, saved: !n.saved } : n));
+    await toggleSaveNote(id);
+  }
+
+  const showDemo = loaded && notes.length === 0;
+
+  return (
+    <div style={{
+      backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px",
+      backgroundColor: "#F8F0E0", borderRadius: 14, padding: "16px 14px", marginBottom: 12,
+      boxShadow: "0 6px 24px rgba(0,0,0,0.4)", position: "relative",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ display: "inline-flex", background: brand, borderRadius: 4, padding: "3px 9px" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.14em" }}>BLOOM NOTES</span>
+        </div>
+        <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#B0A090" }}>left behind, for you ✿</span>
+      </div>
+
+      {/* Composer — leave one behind */}
+      <div style={{ background: "#FFF8E6", borderRadius: 4, padding: "12px 12px 10px", marginBottom: 14, boxShadow: "0 3px 12px rgba(0,0,0,0.15)", transform: "rotate(-0.6deg)", position: "relative" }}>
+        <PushPin color="gold" size={13} style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
+        <textarea
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          placeholder="Leave a little note for the next girl…"
+          rows={2}
+          maxLength={500}
+          style={{
+            width: "100%", border: "none", outline: "none", background: "transparent", resize: "none",
+            fontFamily: "var(--font-caveat)", fontSize: 16, color: "#4A3A2A", lineHeight: 1.4,
+          }}
+        />
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button onClick={post} disabled={posting || !draft.trim()} style={{
+            background: draft.trim() ? PINK : "rgba(0,0,0,0.08)",
+            color: draft.trim() ? "white" : "#AAA",
+            border: "none", borderRadius: 999, padding: "6px 16px", cursor: draft.trim() ? "pointer" : "default",
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em",
+            boxShadow: draft.trim() ? `0 3px 12px ${PINK}55` : "none",
+          }}>
+            {posting ? "PINNING…" : "PIN IT ✿"}
+          </button>
+        </div>
+      </div>
+
+      {/* The notes */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {showDemo && DEMO_BLOOM_NOTES.map((n, i) => (
+          <div key={i} style={{ background: NOTE_TONES[i % 3], borderRadius: 4, padding: "12px 12px 10px", boxShadow: "0 3px 12px rgba(0,0,0,0.14)", transform: `rotate(${i % 2 === 0 ? -0.8 : 1}deg)`, position: "relative" }}>
+            <PushPin color={i % 2 === 0 ? "pink" : "red"} size={12} style={{ position: "absolute", top: -7, left: `${30 + i * 18}%`, zIndex: 2 }}/>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15.5, color: "#4A3A2A", lineHeight: 1.45, marginBottom: 8 }}>{n.text}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: `linear-gradient(135deg, ${accent}, ${brand})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{n.name.charAt(0)}</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#2A1A10" }}>{n.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#B0A090" }}>{n.when}</p>
+              <span style={{ marginLeft: "auto", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: "#C0185F" }}>✿ {n.flowers}</span>
+            </div>
+          </div>
+        ))}
+
+        {notes.map((n, i) => (
+          <div key={n.id} style={{ background: NOTE_TONES[i % 3], borderRadius: 4, padding: "12px 12px 10px", boxShadow: "0 3px 12px rgba(0,0,0,0.14)", transform: `rotate(${i % 2 === 0 ? -0.8 : 1}deg)`, position: "relative" }}>
+            <PushPin color={i % 2 === 0 ? "pink" : "red"} size={12} style={{ position: "absolute", top: -7, left: `${30 + (i % 4) * 14}%`, zIndex: 2 }}/>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15.5, color: "#4A3A2A", lineHeight: 1.45, marginBottom: 8 }}>{n.content}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              {n.author_avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={n.author_avatar} alt="" style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover" }}/>
+              ) : (
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: `linear-gradient(135deg, ${accent}, ${brand})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{(n.author_name ?? "B").charAt(0)}</span>
+                </div>
+              )}
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#2A1A10" }}>{n.author_name ?? "A Bloomie"}</p>
+              <button onClick={() => onSave(n.id)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill={n.saved ? "#C0185F" : "none"} stroke="#C0185F" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </button>
+              <button onClick={() => onFlower(n.id)} style={{
+                background: n.gave_flower ? "#C0185F" : "rgba(192,24,95,0.1)",
+                color: n.gave_flower ? "white" : "#C0185F",
+                border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer",
+                fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800,
+              }}>
+                ✿ {n.flower_count}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: EatsPartner; onBack: () => void; isOwner?: boolean }) {
@@ -1503,6 +1657,9 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
             ))}
           </PaperCard>
         </div>
+
+        {/* ── Bloom notes board — read them all, leave one ── */}
+        <BloomNotesBoard placeSlug={toSlug(p.name)} placeName={p.name} brand={BRAND} accent={ACCENT} />
 
         {/* ── What Bloomies are saying ── */}
         <div style={{
