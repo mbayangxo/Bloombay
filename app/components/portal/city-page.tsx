@@ -776,6 +776,19 @@ interface EatsPartner {
   textColor: string;
   menuHighlights: { item: string; price: string; note?: string }[];
   bloomieNote: string;
+  // Profile (storefront) extras
+  lovedBy: number;          // "LOVED BY N WOMEN"
+  bloomNotes: number;       // "N BLOOM NOTES"
+  poem: string;             // handwritten description under the name
+  polaroidCaption: string;  // caption under hero polaroid
+  hostNote: { from: string; text: string };
+  about: string;
+  tips: string[];           // pink sticky note bloom tips
+  girlFavorites: { item: string; note: string; tone: string }[];
+  reviews: { name: string; text: string; ago: string }[];
+  hours: string;
+  instagram: string;
+  visited: boolean;
 }
 
 const EATS_PARTNERS: EatsPartner[] = [
@@ -783,7 +796,7 @@ const EATS_PARTNERS: EatsPartner[] = [
     id: 10, name: "Bar Pisellino",    type: "bar",         hood: "West Village",
     tagline: "Aperitivo hour, every hour",
     tags: ["Italian", "Cocktails", "Date Night"],
-    saves: 847, rating: "9.4", priceRange: "$$",
+    saves: 847, rating: "4.7", priceRange: "$$",
     heroColor: "#C84A18", accentColor: "#FF7040", textColor: "#FFF5EE",
     menuHighlights: [
       { item: "Negroni Sbagliato", price: "$18", note: "the one" },
@@ -791,12 +804,29 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Spritz Flight",     price: "$22", note: "3 variations" },
     ],
     bloomieNote: "Get there before 7pm for a seat at the bar.",
+    lovedBy: 847, bloomNotes: 134,
+    poem: "The kind of corner that turns a Tuesday into a little Italian holiday.",
+    polaroidCaption: "marble bar + a spritz + golden hour",
+    hostNote: { from: "Maya", text: "Order the Sbagliato and sit at the window. Watch the Village go by. Trust me." },
+    about: "A tiny all-day bar with Venetian soul and West Village charm. Espresso in the morning, spritzes from noon, and tramezzini whenever.",
+    tips: ["Go before 7pm. The bar seats are everything.", "Cash tips for the bartenders — they remember you."],
+    girlFavorites: [
+      { item: "Negroni Sbagliato", note: "the only answer",   tone: "#FFD8C0" },
+      { item: "Tramezzini",        note: "tiny + perfect",    tone: "#FFE8D8" },
+      { item: "Window Seat",       note: "best in the house", tone: "#FFF0E4" },
+    ],
+    reviews: [
+      { name: "Sara",  text: "My go-to before dinner anywhere in the Village. Never misses.", ago: "3 days ago" },
+      { name: "Jess",  text: "The bartender remembered my order from a month ago.",           ago: "1 week ago" },
+      { name: "Lina",  text: "Came alone with a book, stayed three hours.",                   ago: "2 weeks ago" },
+    ],
+    hours: "Daily, 8AM – 12AM", instagram: "@barpisellino", visited: true,
   },
   {
     id: 11, name: "Café Kitsuné",     type: "café",        hood: "West Village",
     tagline: "Matcha, sunshine & silence",
     tags: ["Coffee", "Matcha", "Solo", "Pastries"],
-    saves: 623, rating: "9.1", priceRange: "$",
+    saves: 623, rating: "4.8", priceRange: "$",
     heroColor: "#3A6A38", accentColor: "#8AC878", textColor: "#F0FAF0",
     menuHighlights: [
       { item: "Matcha Latte",      price: "$8",  note: "oat milk" },
@@ -804,12 +834,29 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Cold Brew",         price: "$7" },
     ],
     bloomieNote: "Garden seats fill by 11am on weekends.",
+    lovedBy: 623, bloomNotes: 98,
+    poem: "The kind of place that makes your weekday feel like a soft little secret.",
+    polaroidCaption: "sunlight + good coffee + therapy",
+    hostNote: { from: "Amina", text: "Order the pistachio matcha and sit by the front window. Go before 11am, trust me." },
+    about: "A cosy all-day café with Parisian soul and NYC energy. Perfect for slow mornings, long catch-ups, and solo coffee dates.",
+    tips: ["Go before 11am. The light is perfect.", "Ask for the patio in the back!"],
+    girlFavorites: [
+      { item: "Pistachio Matcha",  note: "most ordered",      tone: "#D8EED0" },
+      { item: "Almond Croissant",  note: "the classic",       tone: "#F4E8D0" },
+      { item: "Window Table",      note: "best seat in the house", tone: "#E4F0E0" },
+    ],
+    reviews: [
+      { name: "Sara",  text: "My go-to write, read, overthink, and glow spot. Never misses.", ago: "3 days ago" },
+      { name: "Jess",  text: "Almond croissant is insane. And the playlist? Chef's kiss.",    ago: "1 week ago" },
+      { name: "Lina",  text: "The girls who work here are angels. Feels like home.",          ago: "2 weeks ago" },
+    ],
+    hours: "Daily, 7AM – 7PM", instagram: "@cafekitsune.nyc", visited: true,
   },
   {
     id: 12, name: "Via Carota",       type: "fine_dining", hood: "West Village",
     tagline: "Italian soul, no reservations",
     tags: ["Italian", "Dinner", "Date Night", "Brunch"],
-    saves: 591, rating: "9.6", priceRange: "$$$",
+    saves: 591, rating: "4.9", priceRange: "$$$",
     heroColor: "#5A1A0A", accentColor: "#D4602A", textColor: "#FFF4EE",
     menuHighlights: [
       { item: "Insalata Verde",    price: "$19", note: "legendary" },
@@ -817,12 +864,29 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Bistecca",          price: "$58", note: "for two" },
     ],
     bloomieNote: "Walk in at 5:30pm or wait. Worth it.",
+    lovedBy: 591, bloomNotes: 112,
+    poem: "A candlelit corner of Tuscany that somehow landed on Grove Street.",
+    polaroidCaption: "candlelight + cacio e pepe + her",
+    hostNote: { from: "Dani", text: "Get the insalata verde even if it sounds boring. It will change you." },
+    about: "Jody Williams and Rita Sodi's beloved trattoria. No reservations, all heart. The most romantic walk-in in Manhattan.",
+    tips: ["Walk in at 5:30pm sharp or expect a wait.", "Sit at the bar if it's just two of you — faster."],
+    girlFavorites: [
+      { item: "Insalata Verde",    note: "legendary",       tone: "#E8D8C8" },
+      { item: "Cacio e Pepe",      note: "order two",        tone: "#F4E4D4" },
+      { item: "Bar Seats",         note: "skip the wait",    tone: "#EEDFD0" },
+    ],
+    reviews: [
+      { name: "Maya",  text: "Took my mom here. She cried. The salad did that.",          ago: "5 days ago" },
+      { name: "Aisha", text: "Waited 45 min and would do it again tomorrow.",             ago: "1 week ago" },
+      { name: "Noor",  text: "Date night gold. Candlelight does the flirting for you.",   ago: "3 weeks ago" },
+    ],
+    hours: "Daily, 5PM – 11PM", instagram: "@viacarota", visited: false,
   },
   {
     id: 13, name: "Lucien",           type: "casual",      hood: "East Village",
     tagline: "French bistro, no fuss",
     tags: ["French", "Dinner", "Wine", "Classic"],
-    saves: 412, rating: "8.8", priceRange: "$$",
+    saves: 412, rating: "4.4", priceRange: "$$",
     heroColor: "#1A1430", accentColor: "#8080C8", textColor: "#F4F0FF",
     menuHighlights: [
       { item: "Steak Frites",      price: "$38", note: "always" },
@@ -830,12 +894,29 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Crème Brûlée",      price: "$14" },
     ],
     bloomieNote: "Tiny, cash-only, magical. Go early.",
+    lovedBy: 412, bloomNotes: 76,
+    poem: "Paris squeezed into a shoebox on First Avenue, exactly as it should be.",
+    polaroidCaption: "red wine + steak frites + no rush",
+    hostNote: { from: "Camille", text: "Sit at the bar, order the steak frites, and let the night decide the rest." },
+    about: "A tiny, beloved French bistro that hasn't changed in decades — and that's exactly the point. Candle wax, red wine, good company.",
+    tips: ["Go early — it's tiny and fills fast.", "Bring cash. Seriously."],
+    girlFavorites: [
+      { item: "Steak Frites",      note: "always",          tone: "#E0D8F0" },
+      { item: "House Red",         note: "by the carafe",   tone: "#E8E0F4" },
+      { item: "Corner Booth",      note: "if you're lucky", tone: "#DDD4EE" },
+    ],
+    reviews: [
+      { name: "Ava",   text: "Felt like I was in a French film the entire dinner.",      ago: "2 days ago" },
+      { name: "Riley", text: "The crème brûlée crack is the best sound in NYC.",         ago: "1 week ago" },
+      { name: "Zoe",   text: "Came for one drink. Left at 1am. No regrets.",             ago: "2 weeks ago" },
+    ],
+    hours: "Daily, 6PM – 1AM", instagram: "@lucien.nyc", visited: false,
   },
   {
     id: 14, name: "Russ & Daughters", type: "bakery",      hood: "Lower East Side",
     tagline: "NYC institution since 1914",
     tags: ["Brunch", "Bagels", "Breakfast", "Iconic"],
-    saves: 388, rating: "9.3", priceRange: "$",
+    saves: 388, rating: "4.6", priceRange: "$",
     heroColor: "#8B4513", accentColor: "#C87038", textColor: "#FFF8F0",
     menuHighlights: [
       { item: "Classic Bagel + Lox", price: "$22", note: "build your own" },
@@ -843,12 +924,29 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Babka",               price: "$9",  note: "chocolate always" },
     ],
     bloomieNote: "The Appetizing Plate is non-negotiable.",
+    lovedBy: 388, bloomNotes: 64,
+    poem: "A hundred years of bagels and somehow it still tastes like the first.",
+    polaroidCaption: "lox + babka + a Sunday well spent",
+    hostNote: { from: "Rachel", text: "Get the appetizing plate, split it with your best friend, and thank me later." },
+    about: "Four generations of appetizing on the Lower East Side. The bagels, the lox, the babka — this is the city's breakfast soul.",
+    tips: ["Weekday mornings = no line.", "Chocolate babka. Always chocolate."],
+    girlFavorites: [
+      { item: "Appetizing Plate",  note: "serves two",       tone: "#F0DCC8" },
+      { item: "Chocolate Babka",   note: "always",           tone: "#E8D0B8" },
+      { item: "Everything Bagel",  note: "with scallion",    tone: "#F4E4D0" },
+    ],
+    reviews: [
+      { name: "Hana",  text: "Brought my whole book club. We did NOT share well.",       ago: "4 days ago" },
+      { name: "Tess",  text: "The babka sold me. I now plan weekends around it.",        ago: "1 week ago" },
+      { name: "Mara",  text: "100 years old and still the best bagel in the city.",      ago: "3 weeks ago" },
+    ],
+    hours: "Daily, 8AM – 4PM", instagram: "@russanddaughters", visited: true,
   },
   {
     id: 15, name: "The Four Horsemen",type: "bar",         hood: "Williamsburg",
     tagline: "Natural wine & good company",
     tags: ["Wine Bar", "Williamsburg", "Dinner", "Natural Wine"],
-    saves: 334, rating: "9.0", priceRange: "$$$",
+    saves: 334, rating: "4.5", priceRange: "$$$",
     heroColor: "#1A2810", accentColor: "#6A9848", textColor: "#F4FEE8",
     menuHighlights: [
       { item: "Wine by the Glass",  price: "$16–$28" },
@@ -856,13 +954,34 @@ const EATS_PARTNERS: EatsPartner[] = [
       { item: "Seasonal Pasta",     price: "$32" },
     ],
     bloomieNote: "Ask the sommelier — they actually know.",
+    lovedBy: 334, bloomNotes: 58,
+    poem: "Where natural wine stops being a personality and starts being a pleasure.",
+    polaroidCaption: "orange wine + good lighting + your people",
+    hostNote: { from: "Sofia", text: "Tell them what you usually drink and let them pick. They've never been wrong." },
+    about: "James Murphy's Williamsburg wine bar with a Michelin star and zero pretension. Natural wines, seasonal plates, perfect acoustics.",
+    tips: ["Ask the sommelier — they actually know.", "The seasonal pasta changes weekly. Always order it."],
+    girlFavorites: [
+      { item: "Orange Wine",       note: "ask for funky",   tone: "#E4ECD4" },
+      { item: "Seasonal Pasta",    note: "changes weekly",  tone: "#ECF2DC" },
+      { item: "Back Corner",       note: "the cozy spot",   tone: "#DCE8CC" },
+    ],
+    reviews: [
+      { name: "Ines",  text: "The somm picked a bottle off one sentence. Perfection.",   ago: "6 days ago" },
+      { name: "Dree",  text: "Best date spot in Williamsburg, no debate.",               ago: "2 weeks ago" },
+      { name: "Kat",   text: "Music + wine + lighting = the whole vibe.",                ago: "1 month ago" },
+    ],
+    hours: "Daily, 5PM – 12AM", instagram: "@fourhorsemenbk", visited: false,
   },
 ];
 
 function EatsPage({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("Tonight");
   const [savedIds, setSaved] = useState<number[]>([]);
+  const [profileId, setProfileId] = useState<number | null>(null);
   function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
+
+  const openPartner = EATS_PARTNERS.find(p => p.id === profileId);
+  if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} />;
 
   return (
     <div style={{
@@ -1002,7 +1121,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
           {EATS_PARTNERS.map(p => (
-            <EatsPartnerCard key={p.id} partner={p} />
+            <EatsPartnerCard key={p.id} partner={p} onOpen={() => setProfileId(p.id)} />
           ))}
         </div>
       </div>
@@ -1010,7 +1129,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   );
 }
 
-function EatsPartnerCard({ partner: p }: { partner: EatsPartner }) {
+function EatsPartnerCard({ partner: p, onOpen }: { partner: EatsPartner; onOpen: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -1023,9 +1142,9 @@ function EatsPartnerCard({ partner: p }: { partner: EatsPartner }) {
       marginBottom: 14, borderRadius: 22, overflow: "hidden",
       boxShadow: "0 8px 32px rgba(0,0,0,0.14)",
     }}>
-      {/* Hero band */}
-      <div style={{
-        position: "relative", height: 110,
+      {/* Hero band — tap to open storefront */}
+      <div onClick={onOpen} style={{
+        position: "relative", height: 110, cursor: "pointer",
         backgroundImage: `${DARK_GRAIN}`,
         backgroundSize: "160px 160px",
         backgroundColor: p.heroColor,
@@ -1037,12 +1156,17 @@ function EatsPartnerCard({ partner: p }: { partner: EatsPartner }) {
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>{typeLabel[p.type]}</span>
         </div>
         {/* Save */}
-        <button onClick={() => setSaved(s => !s)} style={{ position: "absolute", top: 10, right: 12, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <button onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }} style={{ position: "absolute", top: 10, right: 12, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
         {/* Name */}
         <div style={{ position: "absolute", bottom: 10, left: 14, right: 46 }}>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>{p.name}</p>
+        </div>
+        {/* Visit hint */}
+        <div style={{ position: "absolute", bottom: 10, right: 12, background: "rgba(255,255,255,0.16)", backdropFilter: "blur(6px)", borderRadius: 999, padding: "4px 10px", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.1em" }}>VISIT</span>
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
 
@@ -1125,6 +1249,299 @@ function MenuTemplate({ partner: p }: { partner: EatsPartner }) {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: isFine ? p.accentColor : "#FF9B70", marginLeft: 12, flexShrink: 0 }}>{item.price}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARTNER STOREFRONT — scrapbook profile: photos, reviews, menu, atmosphere
+// ═══════════════════════════════════════════════════════════════════════════════
+function Tape({ rotate = 0, top = -8, left = "50%" }: { rotate?: number; top?: number; left?: string }) {
+  return (
+    <div style={{
+      position: "absolute", top, left, transform: `translateX(-50%) rotate(${rotate}deg)`,
+      width: 54, height: 16, background: "rgba(255,248,230,0.55)",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.12)", zIndex: 3,
+    }}/>
+  );
+}
+
+function PaperCard({ children, rotate = 0, style = {} }: { children: React.ReactNode; rotate?: number; style?: React.CSSProperties }) {
+  return (
+    <div style={{
+      position: "relative",
+      backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px",
+      backgroundColor: "#FBF6EE",
+      borderRadius: 8, padding: "14px",
+      boxShadow: "0 4px 18px rgba(0,0,0,0.35)",
+      transform: rotate ? `rotate(${rotate}deg)` : undefined,
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function StarRow({ color = "#E8336E", size = 9 }: { color?: string; size?: number }) {
+  return (
+    <span style={{ display: "inline-flex", gap: 1 }}>
+      {[0,1,2,3,4].map(i => (
+        <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill={color}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+      ))}
+    </span>
+  );
+}
+
+function PartnerStorefront({ partner: p, onBack }: { partner: EatsPartner; onBack: () => void }) {
+  const [savedToWorld, setSavedToWorld] = useState(false);
+
+  // Brand palette derived from the partner
+  const BRAND  = p.heroColor;
+  const ACCENT = p.accentColor;
+
+  // Toned "photo" placeholder — gradient tile standing in for real imagery
+  function PhotoTile({ tone, h = 70, br = 6 }: { tone: string; h?: number; br?: number }) {
+    return (
+      <div style={{
+        height: h, borderRadius: br, flexShrink: 0,
+        background: `linear-gradient(135deg, ${tone} 0%, ${BRAND}33 60%, ${BRAND}66 100%)`,
+        backgroundBlendMode: "multiply",
+        boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)",
+      }}/>
+    );
+  }
+
+  return (
+    <div style={{
+      backgroundImage: `${DARK_GRAIN}`,
+      backgroundSize: "160px 160px",
+      backgroundColor: "#100C0A",
+      minHeight: "100vh", paddingBottom: 120,
+      position: "relative",
+    }}>
+      {/* subtle brand glow */}
+      <div style={{ position: "fixed", top: "10%", left: "20%", width: 300, height: 300, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND}40 0%, transparent 70%)`, filter: "blur(60px)", pointerEvents: "none" }}/>
+
+      <BackBtn onBack={onBack} label="EATS"/>
+
+      <div style={{ position: "relative", padding: "calc(env(safe-area-inset-top,0px) + 100px) 14px 0", maxWidth: 480, margin: "0 auto" }}>
+
+        {/* ── Header strip: BLOOMBAY · BLOOM APPROVED · badge ── */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, padding: "0 4px" }}>
+          <div style={{ background: BRAND, borderRadius: 4, padding: "4px 10px" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.2em" }}>BLOOMBAY</span>
+          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#F6C8D8", transform: "rotate(-3deg)" }}>bloom approved ♡</p>
+          {/* Partner badge */}
+          <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#FBF6EE", display: "flex", alignItems: "center", justifyContent: "center", border: `2px dashed ${BRAND}`, boxShadow: "0 2px 10px rgba(0,0,0,0.4)" }}>
+            <span style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: BRAND }}>{p.name.charAt(0)}</span>
+          </div>
+        </div>
+
+        {/* ── Hero collage: title card + polaroid ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 10, marginBottom: 12 }}>
+          {/* Title card */}
+          <PaperCard rotate={-0.8} style={{ padding: "18px 14px" }}>
+            <Tape rotate={-4} left="30%"/>
+            <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,7.5vw,34px)", fontWeight: 900, fontStyle: "italic", color: BRAND, lineHeight: 1.0, marginBottom: 6 }}>{p.name}</h1>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: ACCENT, marginBottom: 10 }}>{p.hood}, NYC</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#5A4A3A", lineHeight: 1.4 }}>{p.poem} <span style={{ color: "#E8336E" }}>♡</span></p>
+          </PaperCard>
+
+          {/* Polaroid + notes column */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Polaroid */}
+            <div style={{ background: "#FDFBF6", padding: "7px 7px 22px", borderRadius: 3, boxShadow: "0 6px 20px rgba(0,0,0,0.45)", transform: "rotate(1.5deg)", position: "relative" }}>
+              <Tape rotate={3}/>
+              <div style={{ height: 110, borderRadius: 2, background: `linear-gradient(150deg, ${ACCENT}AA 0%, ${BRAND} 70%)`, position: "relative", overflow: "hidden" }}>
+                {/* simple table-scene suggestion */}
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 34, background: "rgba(255,255,255,0.18)" }}/>
+                <div style={{ position: "absolute", bottom: 22, left: "28%", width: 30, height: 18, borderRadius: "0 0 14px 14px", background: "rgba(255,255,255,0.85)" }}/>
+                <div style={{ position: "absolute", bottom: 26, right: "22%", width: 26, height: 12, borderRadius: 8, background: "rgba(255,240,210,0.9)" }}/>
+                <div style={{ position: "absolute", top: 10, left: "15%", width: 40, height: 52, borderRadius: "50% 50% 0 0", background: "rgba(255,255,255,0.22)" }}/>
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10.5, color: "#8A7A6A", textAlign: "center", marginTop: 5, lineHeight: 1 }}>{p.polaroidCaption}</p>
+            </div>
+            {/* Bloom notes count */}
+            <PaperCard rotate={1} style={{ padding: "10px 12px", textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#E8336E", lineHeight: 1 }}>{p.bloomNotes}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#7A6A5A", marginTop: 3 }}>BLOOM NOTES</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#B0A090", marginTop: 2 }}>see all →</p>
+            </PaperCard>
+          </div>
+        </div>
+
+        {/* ── Rated strip + host note ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 10, marginBottom: 12 }}>
+          <PaperCard rotate={0.6} style={{ padding: "13px 14px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 6 }}>BLOOMIES RATED</p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, color: "#2A1A10", lineHeight: 1 }}>{p.rating}</p>
+              <StarRow/>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#9A8A7A", letterSpacing: "0.08em", marginTop: 6 }}>LOVED BY {p.lovedBy} WOMEN</p>
+          </PaperCard>
+
+          <PaperCard rotate={-0.5} style={{ padding: "13px 14px" }}>
+            <Tape rotate={-5} left="70%"/>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 7 }}>A NOTE FROM {p.hostNote.from.toUpperCase()}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#4A3A2A", lineHeight: 1.45 }}>{p.hostNote.text} <span style={{ color: "#E8336E" }}>♡</span></p>
+          </PaperCard>
+        </div>
+
+        {/* ── Girl favorites + about/tips column ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 10, marginBottom: 12 }}>
+          {/* Girl favorites */}
+          <PaperCard rotate={-0.4}>
+            <div style={{ display: "inline-flex", background: BRAND, borderRadius: 4, padding: "3px 9px", marginBottom: 12 }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.14em" }}>GIRL FAVORITES</span>
+            </div>
+            {p.girlFavorites.map((f, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: i < p.girlFavorites.length - 1 ? 11 : 0 }}>
+                <div style={{ width: 38 }}><PhotoTile tone={f.tone} h={38} br={5}/></div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "#2A1A10", letterSpacing: "0.04em", lineHeight: 1.2 }}>{f.item.toUpperCase()}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11.5, color: ACCENT, marginTop: 1 }}>{f.note}</p>
+                </div>
+                <span style={{ color: "#E8336E", fontSize: 9 }}>♡</span>
+              </div>
+            ))}
+          </PaperCard>
+
+          {/* About + tips */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <PaperCard rotate={0.7} style={{ padding: "12px 13px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 6 }}>✦ ABOUT {p.name.split(" ")[0].toUpperCase()}</p>
+              {/* storefront illustration suggestion */}
+              <div style={{ height: 54, borderRadius: 5, marginBottom: 7, background: `linear-gradient(180deg, ${BRAND}22 0%, ${BRAND}44 100%)`, position: "relative", overflow: "hidden", border: `1px solid ${BRAND}33` }}>
+                <div style={{ position: "absolute", bottom: 0, left: "20%", right: "20%", top: 14, border: `2px solid ${BRAND}88`, borderBottom: "none", borderRadius: "6px 6px 0 0", background: "rgba(255,255,255,0.4)" }}/>
+                <div style={{ position: "absolute", top: 8, left: "14%", right: "14%", height: 7, background: BRAND, borderRadius: 2 }}/>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#6A5A4A", lineHeight: 1.55 }}>{p.about}</p>
+            </PaperCard>
+
+            {/* Pink bloom tips */}
+            {p.tips.map((tip, i) => (
+              <div key={i} style={{
+                background: i === 0 ? "#F9C8D8" : "#F6B8CC",
+                borderRadius: 6, padding: "10px 12px",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                transform: `rotate(${i === 0 ? -1.2 : 1.4}deg)`,
+                position: "relative",
+              }}>
+                <Tape rotate={i === 0 ? 4 : -3}/>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "#C0185F", marginBottom: 4 }}>BLOOM TIP</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#7A1A40", lineHeight: 1.35 }}>{tip} ♡</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── More photos + passport ── */}
+        <div style={{ marginBottom: 12 }}>
+          <PaperCard rotate={0.3} style={{ padding: "12px 13px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
+              <div style={{ display: "inline-flex", background: BRAND, borderRadius: 4, padding: "3px 9px" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.14em" }}>MORE FROM {p.name.split(" ")[0].toUpperCase()}</span>
+              </div>
+              <span style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#B0A090" }}>the atmosphere ✦</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 7 }}>
+              {[`${ACCENT}88`, `${BRAND}55`, `${ACCENT}55`, `${BRAND}77`].map((tone, i) => (
+                <PhotoTile key={i} tone={tone} h={64} br={5}/>
+              ))}
+            </div>
+          </PaperCard>
+        </div>
+
+        {/* ── Bloom passport stamp ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+          <PaperCard rotate={-0.6} style={{ padding: "14px", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#7A6A5A", marginBottom: 9 }}>BLOOM PASSPORT</p>
+            {p.visited ? (
+              <>
+                <div style={{ display: "inline-block", border: "2.5px solid #C0185F", borderRadius: 6, padding: "5px 14px", transform: "rotate(-6deg)", marginBottom: 7 }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 900, color: "#C0185F", letterSpacing: "0.18em" }}>VISITED</span>
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#9A8A7A" }}>added to your bloom passport</p>
+              </>
+            ) : (
+              <>
+                <div style={{ display: "inline-block", border: "2px dashed #B0A090", borderRadius: 6, padding: "5px 14px", transform: "rotate(-4deg)", marginBottom: 7 }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: "#B0A090", letterSpacing: "0.16em" }}>NOT YET</span>
+                </div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#9A8A7A" }}>stamp it when you go ✈</p>
+              </>
+            )}
+          </PaperCard>
+
+          {/* Menu peek */}
+          <PaperCard rotate={0.8} style={{ padding: "13px 14px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 8 }}>FROM THE MENU</p>
+            {p.menuHighlights.map((m, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: i < p.menuHighlights.length - 1 ? 6 : 0 }}>
+                <span style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontStyle: "italic", color: "#3A2A1A", lineHeight: 1.2 }}>{m.item}</span>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: ACCENT, marginLeft: 8, flexShrink: 0 }}>{m.price}</span>
+              </div>
+            ))}
+          </PaperCard>
+        </div>
+
+        {/* ── What Bloomies are saying ── */}
+        <div style={{
+          backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px",
+          backgroundColor: "#F6EFE4", borderRadius: 14, padding: "14px", marginBottom: 12,
+          boxShadow: "0 6px 24px rgba(0,0,0,0.4)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: BRAND, marginBottom: 11 }}>WHAT BLOOMIES ARE SAYING</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
+            {p.reviews.map((r, i) => (
+              <div key={i}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 5 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: `linear-gradient(135deg, ${ACCENT}, ${BRAND})`, flexShrink: 0 }}/>
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#2A1A10", lineHeight: 1 }}>{r.name}</p>
+                    <StarRow size={6}/>
+                  </div>
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#6A5A4A", lineHeight: 1.5 }}>{r.text}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "#B0A090", marginTop: 4 }}>{r.ago}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Quick info + save CTA ── */}
+        <div style={{
+          backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px",
+          backgroundColor: BRAND, borderRadius: 16, padding: "16px",
+          boxShadow: `0 10px 36px ${BRAND}88`,
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>QUICK INFO</p>
+          {[
+            { icon: "📍", text: `${p.hood}, NYC` },
+            { icon: "🕐", text: p.hours },
+            { icon: "✦",  text: p.instagram },
+          ].map((row, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+              <span style={{ fontSize: 10 }}>{row.icon}</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.88)" }}>{row.text}</span>
+            </div>
+          ))}
+          <button onClick={() => setSavedToWorld(s => !s)} style={{
+            marginTop: 8, width: "100%",
+            background: savedToWorld ? "rgba(255,255,255,0.92)" : PINK,
+            color: savedToWorld ? BRAND : "white",
+            border: "none", borderRadius: 999, padding: "12px 0",
+            fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+            letterSpacing: "0.12em", cursor: "pointer",
+            boxShadow: savedToWorld ? "none" : `0 4px 18px ${PINK}77`,
+            transition: "all 0.2s",
+          }}>
+            {savedToWorld ? "✓ SAVED TO MY WORLD" : "SAVE TO MY WORLD ♡"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
