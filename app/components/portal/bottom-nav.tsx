@@ -176,7 +176,7 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",   key: "home"   },
-  { href: "/member/lounge", key: "avenue" },
+  { href: "/member/lobby",  key: "avenue" },
   { href: "/member/clubs",  key: "clubs"  },
   { href: "/member/city",   key: "city"   },
 ] as const;
@@ -187,7 +187,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
-  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lounge");
+  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby");
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
@@ -204,7 +204,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   function isActive(href: string) {
     if (href === "/member/city")   return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
-    if (href === "/member/lounge") return pathname.startsWith("/member/lounge") || pathname.startsWith("/member/chat");
+    if (href === "/member/lobby") return pathname.startsWith("/member/lobby") || pathname.startsWith("/member/chat");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
@@ -287,9 +287,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {/* ── Top icons: Apt · Pin · Mailbox · Chat ── */}
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
 
-            {/* Lobby / Community rooms */}
-            <TopTile href="/member/lobby" label="Lobby">
-              <IconLobby c={isDarkPage ? "white" : PINK} />
+            {/* Apartment / Profile */}
+            <TopTile href="/member/you" label="Apartment">
+              <IconApt c={isDarkPage ? "white" : PINK} />
             </TopTile>
 
             {/* Pin drop / City */}

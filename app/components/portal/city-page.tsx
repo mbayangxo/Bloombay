@@ -1367,14 +1367,13 @@ function NeighborhoodMap() {
 }
 
 // ── Root city page with 3-mode top bar ────────────────────────────────────────
-type CityRootMode = "tonight" | "map" | "guide";
+type CityRootMode = "tonight" | "guide";
 
 export function CityPage() {
   const [mode, setMode] = useState<CityRootMode>("tonight");
 
   const MODES: { id: CityRootMode; label: string }[] = [
     { id: "tonight", label: "OUT TONIGHT" },
-    { id: "map",     label: "NEIGHBORHOODS" },
     { id: "guide",   label: "THE CITY" },
   ];
 
@@ -1410,7 +1409,6 @@ export function CityPage() {
       {/* Content */}
       <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
         {mode === "tonight" && <HappeningsPage standalone={false} />}
-        {mode === "map"     && <NeighborhoodMap />}
         {mode === "guide"   && <CityGuide />}
       </div>
     </div>
