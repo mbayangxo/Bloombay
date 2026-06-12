@@ -406,36 +406,19 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 96 }}>
 
-      {/* ══════════ STREET SIGN HERO ══════════ */}
+      {/* ══════════ HERO ══════════ */}
       <div style={{
         background: `linear-gradient(180deg, ${DARK} 0%, #2A0818 60%, #4A0C28 100%)`,
-        paddingTop: 54,
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
         paddingBottom: 0,
         position: "relative",
         overflow: "hidden",
       }}>
-
-        {/* Cobblestone texture overlay */}
-        <div style={{
-          position: "absolute", inset: 0, opacity: 0.04,
-          backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(255,255,255,0.8) 18px, rgba(255,255,255,0.8) 19px), repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(255,255,255,0.8) 18px, rgba(255,255,255,0.8) 19px)`,
-        }} />
-
-        {/* Street light glow */}
         <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        {/* Signs cluster */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 20px 0", gap: 6, position: "relative", zIndex: 1 }}>
-
-          {/* Top mini label */}
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>
-            ✦ &nbsp; BLOOMBAY NYC &nbsp; ✦
-          </p>
-
-          {/* Main street sign — THE AVENUE */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 20px 0", gap: 6, position: "relative", zIndex: 1 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>✦ &nbsp; BLOOMBAY NYC &nbsp; ✦</p>
           <StreetSign line1="THE AVENUE" line2="PRETTY GIRL AVE" size="large" />
-
-          {/* Street number plates */}
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "4px 12px" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em" }}>MEMBER #{memberNum}</p>
@@ -446,42 +429,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           </div>
         </div>
 
-        {/* Address plate — curves into profile card */}
-        <div style={{
-          margin: "28px 20px 0",
-          background: "white",
-          borderRadius: "20px 20px 0 0",
-          padding: "20px 20px 0",
-          position: "relative",
-          zIndex: 1,
-        }}>
-          {/* Pink accent top strip */}
+        <div style={{ margin: "28px 20px 0", background: "white", borderRadius: "20px 20px 0 0", padding: "20px 20px 0", position: "relative", zIndex: 1 }}>
           <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: `linear-gradient(90deg, ${PINK}, #FF5BAD, transparent)`, borderRadius: "0 0 4px 4px" }} />
-
-          {/* Profile row */}
           <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingTop: 8 }}>
-
-            {/* Avatar */}
-            <div style={{
-              width: 68, height: 68, borderRadius: "50%", flexShrink: 0,
-              background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-              fontSize: 28, color: "white",
-              boxShadow: `0 4px 20px ${PINK}44`,
-              border: "3px solid white",
-            }}>
+            <div style={{ width: 68, height: 68, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "white", boxShadow: `0 4px 20px ${PINK}44`, border: "3px solid white" }}>
               {displayInitial}
             </div>
-
-            {/* Name & info */}
             <div style={{ flex: 1, paddingTop: 4 }}>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: DARK, lineHeight: 1, marginBottom: 4 }}>
-                {displayName.split(" ")[0]}.
-              </h1>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: DARK, lineHeight: 1, marginBottom: 4 }}>{displayName.split(" ")[0] || "You"}.</h1>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#999" }}>{localNbhd} · NYC</p>
-
-              {/* Stats row */}
               <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
                 {[
                   { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
@@ -496,15 +452,11 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               </div>
             </div>
           </div>
-
-          {/* Bio */}
-          <div style={{ borderLeft: `3px solid ${PINK}`, paddingLeft: 12, margin: "16px 0 0" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#444", lineHeight: 1.65 }}>
-              &ldquo;{localBio}&rdquo;
-            </p>
-          </div>
-
-          {/* Interest tags */}
+          {localBio && (
+            <div style={{ borderLeft: `3px solid ${PINK}`, paddingLeft: 12, margin: "16px 0 0" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#444", lineHeight: 1.65 }}>&ldquo;{localBio}&rdquo;</p>
+            </div>
+          )}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginTop: 14, paddingBottom: 20 }}>
             {INTEREST_TAGS.map(tag => (
               <span key={tag} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, padding: "5px 12px", borderRadius: 999, background: "#FFF0F5", color: PINK, border: `1px solid rgba(255,31,125,0.15)` }}>{tag}</span>
@@ -513,7 +465,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      {/* ══════════ PAGE BODY (white) ══════════ */}
+      {/* ══════════ PAGE BODY ══════════ */}
       <div style={{ background: PAPER }}>
 
         {/* ── FLOWERS ─────────────────────────────────────────────────────── */}

@@ -293,56 +293,31 @@ export function LandingPage() {
 
         {/* Hero statement */}
         <div className="flex-1 flex flex-col justify-end px-6 pb-5">
-          <h1 style={{ lineHeight: 0.92, margin: 0 }}>
+          <h1 style={{ margin: 0 }}>
             <span
               className="block"
               style={{
-                fontSize: "clamp(58px, 17vw, 76px)",
+                fontSize: "clamp(38px, 11vw, 52px)",
                 fontFamily: "var(--font-fraunces)",
                 fontStyle: "italic",
                 fontWeight: 300,
                 color: "white",
                 letterSpacing: "-0.02em",
+                lineHeight: 1.05,
               }}
             >
-              Women
+              Women are gathering.
             </span>
             <span
               className="block"
               style={{
-                fontSize: "clamp(58px, 17vw, 76px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                color: "white",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              are
-            </span>
-            <span
-              className="block"
-              style={{
-                fontSize: "clamp(58px, 17vw, 76px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                color: "white",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              gathering.
-            </span>
-            <span
-              className="block"
-              style={{
-                fontSize: "clamp(28px, 8vw, 38px)",
+                fontSize: "clamp(38px, 11vw, 52px)",
                 fontFamily: "var(--font-fraunces)",
                 fontStyle: "italic",
                 fontWeight: 300,
                 color: "rgba(255,255,255,0.72)",
-                letterSpacing: "-0.01em",
-                marginTop: "0.15em",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.05,
               }}
             >
               It&apos;s a woman&apos;s world.
@@ -350,15 +325,16 @@ export function LandingPage() {
             <span
               className="block"
               style={{
-                fontSize: "clamp(28px, 8vw, 38px)",
+                fontSize: "clamp(38px, 11vw, 52px)",
                 fontFamily: "var(--font-fraunces)",
                 fontStyle: "italic",
                 fontWeight: 300,
                 color: "rgba(255,255,255,0.72)",
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.05,
               }}
             >
-              We&apos;re in it.
+              We&apos;re it.
             </span>
           </h1>
           <p
