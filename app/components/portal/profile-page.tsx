@@ -437,8 +437,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxStart, setLightboxStart] = useState(0);
 
-  const [firstName, setFirstName] = useState(user.first_name ?? "");
+  const [firstName, setFirstName] = useState(user.full_name || user.first_name || "");
   const [phone, setPhone] = useState(user.phone ?? "");
+  const [neighborhoodEdit, setNeighborhoodEdit] = useState(user.neighborhood || user.borough || "");
+  const [bioEdit, setBioEdit] = useState(user.bio ?? "");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -470,7 +472,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const addWorldInputRef = useRef<HTMLInputElement>(null);
 
   // Derived values
-  const displayName = user.first_name ?? user.email?.split("@")[0] ?? "Member";
+  const displayName = user.full_name || user.first_name || user.email?.split("@")[0] || "Member";
   const initials = (user.first_name?.[0] ?? user.email?.[0] ?? "?").toUpperCase();
   const memberNumber = user.id.slice(-4).toUpperCase();
   const bloomCode = `BB-${user.id.slice(0, 4).toUpperCase()}`;
@@ -597,6 +599,8 @@ export function ProfilePage({ user }: { user: AuthUser }) {
     const fd = new FormData();
     fd.append("first_name", firstName);
     fd.append("phone", phone);
+    fd.append("neighborhood", neighborhoodEdit);
+    fd.append("bio", bioEdit);
     const result = await updateProfileInfo(fd);
     setSaving(false);
     setSaveMsg(result.error
@@ -1197,6 +1201,26 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                     onChange={e => setPhone(e.target.value)}
                     placeholder="+1 (555) 000-0000"
                     style={inputStyle}
+                  />
+                </Field>
+
+                <Field label="NEIGHBORHOOD">
+                  <input
+                    type="text"
+                    value={neighborhoodEdit}
+                    onChange={e => setNeighborhoodEdit(e.target.value)}
+                    placeholder="e.g. Bed-Stuy, Harlem, Astoria"
+                    style={inputStyle}
+                  />
+                </Field>
+
+                <Field label="BIO">
+                  <textarea
+                    value={bioEdit}
+                    onChange={e => setBioEdit(e.target.value)}
+                    placeholder="A few words about you…"
+                    rows={3}
+                    style={{ ...inputStyle, resize: "vertical", minHeight: 72 }}
                   />
                 </Field>
               </div>
