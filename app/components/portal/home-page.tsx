@@ -367,8 +367,8 @@ export function HomePage() {
         <div style={{ pointerEvents: "auto" }}>
           <BBLogo size={22} light />
         </div>
-        <button
-          onClick={() => setShowEditProfile(true)}
+        <Link
+          href="/member/you"
           style={{
             pointerEvents: "auto", cursor: "pointer",
             width: 36, height: 36, borderRadius: "50%",
@@ -376,12 +376,13 @@ export function HomePage() {
             border: "2px solid rgba(255,255,255,0.28)",
             display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: `0 2px 10px rgba(255,31,125,0.5)`,
+            textDecoration: "none",
           }}
         >
           <span style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "14px", color: "white" }}>
             {loading ? "…" : displayInitial}
           </span>
-        </button>
+        </Link>
       </div>
 
       {/* ── EDIT PROFILE SHEET ── */}

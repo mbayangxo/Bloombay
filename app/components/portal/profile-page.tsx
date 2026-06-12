@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { logout, updateProfileInfo } from "@/lib/auth/actions";
 import { AvatarUpload } from "@/app/components/shared/avatar-upload";
 import { createClient } from "@/lib/supabase/client";
@@ -10,7 +11,8 @@ import type { AuthUser } from "@/lib/auth/get-user";
 const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
-type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "settings";
+type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
+type TemplateId = "id" | "board" | "zine" | "collage";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -103,6 +105,325 @@ function Lightbox({
   );
 }
 
+// ─── Template: ID Card ────────────────────────────────────────────────────────
+
+function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation, sign, vibe, onAvatarClick }: TemplateProps) {
+  return (
+    <div style={{ background: "#F5EDD8", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
+      {/* BLOOMBAY MEMBER label top-left */}
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>BLOOMBAY MEMBER</p>
+
+      {/* Paper clip SVG at top-center */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+        <svg width="28" height="18" viewBox="0 0 28 18" fill="none">
+          <path d="M14 2 C6 2 2 6 2 10 C2 14 6 16 14 16 C22 16 26 14 26 10 C26 6 22 2 14 2" stroke="#999" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </svg>
+      </div>
+
+      {/* Photo slot centered */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+        <button
+          onClick={onAvatarClick}
+          style={{ width: 80, height: 100, borderRadius: 8, overflow: "hidden", border: "none", cursor: "pointer", padding: 0, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 36, color: "rgba(255,31,125,0.5)" }}>{initials}</p>
+          )}
+        </button>
+      </div>
+
+      {/* Form-style labeled rows */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
+        {[
+          { label: "NAME", value: displayName },
+          { label: "LIVES IN", value: neighborhood || "New York City" },
+          { label: "SIGN", value: sign || "—" },
+          { label: "VIBE", value: vibe || "—" },
+          { label: "OCCUPATION", value: occupation || "—" },
+        ].map(row => (
+          <div key={row.label} style={{ display: "flex", alignItems: "baseline", gap: 8, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingBottom: 8 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.4)", minWidth: 72, textTransform: "uppercase" as const }}>{row.label}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 600, color: "#1C1B1C" }}>{row.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* BloomBay italic script signature right-aligned */}
+      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: PINK, textAlign: "right" as const }}>BloomBay</p>
+    </div>
+  );
+}
+
+// ─── Template: Board ──────────────────────────────────────────────────────────
+
+function TemplateBoard({ displayName, initials, avatarUrl, photos, onAvatarClick }: TemplateProps) {
+  const polaroidPhotos = [
+    photos[0]?.url || null,
+    photos[1]?.url || null,
+    photos[2]?.url || null,
+    avatarUrl || null,
+  ];
+  const rotations = [-2.5, 3, -1.5, 2];
+  const polaroidLabels = [displayName, "moments", "vibes", "me"];
+  const gradients = [
+    "linear-gradient(135deg, #FFD6EA, #FFABD4)",
+    "linear-gradient(135deg, #FFB3D9, #FF5BAD)",
+    "linear-gradient(135deg, #FFF0F8, #FFD6EA)",
+    "linear-gradient(135deg, #FFABD4, #FF1F7D)",
+  ];
+
+  return (
+    <div style={{ background: "#E5E5E5", padding: 20, borderRadius: 16, position: "relative" }}>
+      {/* Top-left: bold BB + drawn heart */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 900, color: "#1C1B1C", letterSpacing: "-0.02em" }}>BB</p>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
+          <path d="M9 14 C9 14 1 9 1 4.5 C1 2.5 2.7 1 5 1 C6.8 1 8.2 2 9 3.2 C9.8 2 11.2 1 13 1 C15.3 1 17 2.5 17 4.5 C17 9 9 14 9 14Z" stroke={PINK} strokeWidth="1.5" fill="none" />
+        </svg>
+      </div>
+
+      {/* 2x2 polaroid grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        {polaroidPhotos.map((url, i) => (
+          <button
+            key={i}
+            onClick={i === 3 ? onAvatarClick : undefined}
+            style={{ background: "none", border: "none", padding: 0, cursor: i === 3 ? "pointer" : "default", transform: `rotate(${rotations[i]}deg)` }}
+          >
+            <div style={{ background: "white", padding: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}>
+              <div style={{ width: "100%", aspectRatio: "1", background: url ? "transparent" : gradients[i], overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "rgba(255,31,125,0.4)" }}>{initials}</p>
+                )}
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", textAlign: "center" as const, marginTop: 6 }}>{polaroidLabels[i]}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Bottom row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 16, color: "#555" }}>you bloom here ✦</p>
+        {/* Flower SVG doodle */}
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="4" fill={PINK} />
+          <ellipse cx="14" cy="6" rx="3" ry="5" fill="rgba(255,31,125,0.35)" />
+          <ellipse cx="14" cy="22" rx="3" ry="5" fill="rgba(255,31,125,0.35)" />
+          <ellipse cx="6" cy="14" rx="5" ry="3" fill="rgba(255,31,125,0.35)" />
+          <ellipse cx="22" cy="14" rx="5" ry="3" fill="rgba(255,31,125,0.35)" />
+          <ellipse cx="8.5" cy="8.5" rx="3" ry="5" transform="rotate(-45 8.5 8.5)" fill="rgba(255,31,125,0.25)" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template: Zine ───────────────────────────────────────────────────────────
+
+function TemplateZine({ displayName, initials, avatarUrl, onAvatarClick }: TemplateProps) {
+  const memberNum = Math.abs(displayName.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 9000) + 1000;
+
+  return (
+    <div style={{ background: "linear-gradient(160deg, #FF1F7D, #c4005a)", borderRadius: 16, overflow: "hidden", position: "relative" }}>
+      {/* Checkerboard strip */}
+      <div style={{ width: "100%", height: 16, overflow: "hidden" }}>
+        <svg width="100%" height="16">
+          <defs>
+            <pattern id="checker" width="16" height="16" patternUnits="userSpaceOnUse">
+              <rect width="8" height="8" fill="black" />
+              <rect x="8" y="8" width="8" height="8" fill="black" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="16" fill="url(#checker)" opacity="0.35" />
+        </svg>
+      </div>
+
+      <div style={{ padding: "16px 20px 24px" }}>
+        {/* Edition label */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "32px", fontWeight: 900, color: "white", letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 18, textTransform: "uppercase" as const }}>
+          # {displayName}<br />EDITION
+        </p>
+
+        {/* Center photo */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+          <button
+            onClick={onAvatarClick}
+            style={{ width: 160, height: 200, border: "3px solid rgba(255,255,255,0.4)", padding: 0, background: "rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}
+          >
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 64, color: "rgba(255,255,255,0.5)" }}>{initials}</p>
+            )}
+          </button>
+        </div>
+
+        {/* Barcode label */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.3)", paddingTop: 14 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.28em", color: "rgba(255,255,255,0.9)", marginBottom: 4 }}>BLOOMBAY</p>
+          <div style={{ display: "flex", gap: 2, marginBottom: 6 }}>
+            {Array.from({ length: 32 }).map((_, i) => (
+              <div key={i} style={{ width: i % 3 === 0 ? 3 : 2, height: 18, background: "rgba(255,255,255,0.7)", borderRadius: 0 }} />
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.12em" }}>MEMBER {memberNum}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.12em" }}>EST. 2025</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template: Collage ────────────────────────────────────────────────────────
+
+function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick }: TemplateProps) {
+  const swatches = ["#FF1F7D", "#FF5BAD", "#FFB3D9", "#FFD6EA", "#FFF0F8"];
+  const days = ["M", "T", "W", "Th", "F", "S", "Su"];
+  const today = new Date().getDay();
+  const dayMap: Record<number, number> = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 0: 6 };
+  const activeDayIdx = dayMap[today] ?? 0;
+
+  return (
+    <div style={{ background: "#FAFAFA", borderRadius: 16, border: "2px solid #E0E0E0", overflow: "hidden" }}>
+      {/* Notebook rings */}
+      <div style={{ background: "#F0F0F0", padding: "10px 20px 8px", display: "flex", justifyContent: "space-around", borderBottom: "1px solid #E0E0E0" }}>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} style={{ width: 16, height: 16, borderRadius: "50%", border: "2.5px solid #BDBDBD", background: "white" }} />
+        ))}
+      </div>
+
+      <div style={{ padding: "14px 16px" }}>
+        {/* Header row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, borderBottom: "1px solid #E0E0E0", paddingBottom: 10 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "#555", letterSpacing: "0.04em" }}>
+            <span style={{ color: "#aaa", fontWeight: 800, letterSpacing: "0.12em", fontSize: "8px" }}>SUBJECT TOPIC:</span>{" "}
+            {displayName}
+          </p>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.14em", color: "#aaa", marginRight: 4 }}>DATE:</p>
+            {days.map((d, i) => (
+              <span key={d} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: i === activeDayIdx ? 900 : 600, color: i === activeDayIdx ? PINK : "#bbb", textDecoration: i === activeDayIdx ? "underline" : "none" }}>{d}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Main content row */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
+          {/* Left: main polaroid */}
+          <button
+            onClick={onAvatarClick}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", transform: "rotate(-2deg)", flexShrink: 0 }}
+          >
+            <div style={{ background: "white", padding: "6px 6px 22px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
+              <div style={{ width: 140, height: 160, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 48, color: "rgba(255,31,125,0.4)" }}>{initials}</p>
+                )}
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", textAlign: "center" as const, marginTop: 4 }}>{displayName}</p>
+            </div>
+          </button>
+
+          {/* Right column */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+            {/* Small polaroid */}
+            <div style={{ background: "white", padding: "5px 5px 18px", boxShadow: "0 3px 10px rgba(0,0,0,0.12)", transform: "rotate(1.5deg)" }}>
+              <div style={{ width: "100%", height: 110, background: "linear-gradient(135deg, #FFB3D9, #FF5BAD)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {photos[0]?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photos[0].url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em" }}>MOMENTS</p>
+                )}
+              </div>
+            </div>
+
+            {/* Product-card rectangle */}
+            <div style={{ background: PINK, borderRadius: 8, padding: "10px 12px", flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>VIBE</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.3 }}>{vibe || "just blooming ✦"}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Color swatch strip */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 6, overflow: "hidden" }}>
+          {swatches.map(c => (
+            <div key={c} style={{ flex: 1, height: 12, background: c }} />
+          ))}
+        </div>
+
+        {/* Bottom: envelope + handwritten text */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* CSS envelope shape */}
+          <div style={{ position: "relative", width: 32, height: 22, flexShrink: 0 }}>
+            <div style={{ width: 32, height: 22, background: PINK, borderRadius: 2 }} />
+            <div style={{ position: "absolute", top: 0, left: 0, width: 0, height: 0, borderLeft: "16px solid transparent", borderRight: "16px solid transparent", borderTop: "11px solid #c4005a" }} />
+          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 15, color: "#888" }}>
+            sent with love from bloombay ✦
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template Props ───────────────────────────────────────────────────────────
+
+type TemplateProps = {
+  displayName: string;
+  initials: string;
+  avatarUrl: string | null;
+  neighborhood: string;
+  occupation: string;
+  sign: string;
+  vibe: string;
+  photos: Photo[];
+  onAvatarClick: () => void;
+};
+
+// ─── Template Picker + Active Template ───────────────────────────────────────
+
+function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
+  const templates: { id: TemplateId; label: string; bg: string; textColor: string }[] = [
+    { id: "id",      label: "ID",      bg: "#F5EDD8", textColor: "#888" },
+    { id: "board",   label: "BOARD",   bg: "#E5E5E5", textColor: "#555" },
+    { id: "zine",    label: "ZINE",    bg: "#FF1F7D", textColor: "white" },
+    { id: "collage", label: "COLLAGE", bg: "#FAFAFA", textColor: "#888" },
+  ];
+
+  return (
+    <div style={{ display: "flex", overflowX: "auto", gap: 10, padding: "16px 18px 12px", scrollbarWidth: "none" as const }}>
+      {templates.map(t => (
+        <button
+          key={t.id}
+          onClick={() => setTemplateId(t.id)}
+          style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+        >
+          <div style={{ width: 64, height: 80, borderRadius: 10, background: t.bg, border: `2px solid ${templateId === t.id ? PINK : "transparent"}`, boxShadow: templateId === t.id ? `0 0 0 1px ${PINK}` : "0 2px 8px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: t.textColor, letterSpacing: "0.12em" }}>{t.label}</p>
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: templateId === t.id ? 800 : 600, color: templateId === t.id ? PINK : "rgba(0,0,0,0.35)", letterSpacing: "0.1em" }}>{t.label}</p>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ─── ProfilePage ──────────────────────────────────────────────────────────────
 
 export function ProfilePage({ user }: { user: AuthUser }) {
@@ -129,6 +450,22 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const [bloomCodeCopied, setBloomCodeCopied] = useState(false);
   const [bloomLinkCopied, setBloomLinkCopied] = useState(false);
 
+  // Template state
+  const [templateId, setTemplateId] = useState<TemplateId>("id");
+
+  // Profile extra fields
+  const [occupation, setOccupation] = useState("");
+  const [sign, setSign] = useState("");
+  const [vibe, setVibe] = useState("");
+  const [extraSaved, setExtraSaved] = useState(false);
+
+  // Socials state
+  const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
+  const [socialsSaved, setSocialsSaved] = useState(false);
+
+  // Avatar upload ref for template clicks
+  const avatarUploadRef = useRef<HTMLDivElement>(null);
+
   const addInputRef = useRef<HTMLInputElement>(null);
   const addWorldInputRef = useRef<HTMLInputElement>(null);
 
@@ -146,8 +483,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const monthShortNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const currentMonthYear = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
-  // Member since: use a fixed plausible date since we don't have joined_at in AuthUser
-  // We'll show Jan 2026 as a reasonable default
+  // Member since
   const memberSince = `${monthShortNames[0]} 2026`;
 
   // All photos for lightbox: avatar first, then gallery
@@ -155,6 +491,37 @@ export function ProfilePage({ user }: { user: AuthUser }) {
     ...(avatarUrl ? [{ url: avatarUrl }] : []),
     ...photos.map(p => ({ url: p.url })),
   ];
+
+  // Load data from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedTemplate = localStorage.getItem("bb_template_id") as TemplateId | null;
+    if (savedTemplate) setTemplateId(savedTemplate);
+
+    const savedExtra = localStorage.getItem(`bb_profile_extra_${user.id}`);
+    if (savedExtra) {
+      try {
+        const parsed = JSON.parse(savedExtra);
+        setOccupation(parsed.occupation ?? "");
+        setSign(parsed.sign ?? "");
+        setVibe(parsed.vibe ?? "");
+      } catch {}
+    }
+
+    const savedSocials = localStorage.getItem(`bb_socials_${user.id}`);
+    if (savedSocials) {
+      try {
+        const parsed = JSON.parse(savedSocials);
+        setSocials(prev => ({ ...prev, ...parsed }));
+      } catch {}
+    }
+  }, [user.id]);
+
+  // Save template to localStorage
+  function handleSetTemplate(id: TemplateId) {
+    setTemplateId(id);
+    if (typeof window !== "undefined") localStorage.setItem("bb_template_id", id);
+  }
 
   useEffect(() => {
     createClient()
@@ -266,14 +633,59 @@ export function ProfilePage({ user }: { user: AuthUser }) {
     });
   }
 
+  function handleSaveExtra() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`bb_profile_extra_${user.id}`, JSON.stringify({ occupation, sign, vibe }));
+    }
+    setExtraSaved(true);
+    setTimeout(() => setExtraSaved(false), 2000);
+  }
+
+  function handleSaveSocials() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`bb_socials_${user.id}`, JSON.stringify(socials));
+    }
+    setSocialsSaved(true);
+    setTimeout(() => setSocialsSaved(false), 2000);
+  }
+
+  function handleAvatarClick() {
+    // Trigger AvatarUpload click via the hidden button in the polaroid header
+    const btn = document.getElementById("avatar-upload-trigger");
+    if (btn) btn.click();
+  }
+
   const tabs: { id: TabId; label: string }[] = [
-    { id: "profile", label: "Profile" },
-    { id: "moments", label: "Moments" },
-    { id: "world", label: "World" },
+    { id: "profile",   label: "Profile" },
+    { id: "moments",   label: "Moments" },
+    { id: "world",     label: "World" },
     { id: "bloomcode", label: "Bloom Code" },
     { id: "bloomlink", label: "Bloom Link" },
-    { id: "settings", label: "Settings" },
+    { id: "links",     label: "Links" },
+    { id: "settings",  label: "Settings" },
   ];
+
+  const neighborhood = user.neighborhood || user.borough || "";
+
+  // Portal links based on role
+  const portalLinks: { label: string; href: string }[] = [];
+  if (user.role === "club_owner" || user.role === "founder") portalLinks.push({ label: "Club Mama Portal", href: "/club-owner/dashboard" });
+  if (user.role === "partner") portalLinks.push({ label: "Partner Portal", href: "/partner/dashboard" });
+  if (user.role === "curator") portalLinks.push({ label: "Curator Portal", href: "/curator/dashboard" });
+  if (user.role === "admin") portalLinks.push({ label: "Admin Portal", href: "/admin/dashboard" });
+  if (user.role === "founder") portalLinks.push({ label: "Founder Dashboard", href: "/admin/dashboard" });
+
+  const templateProps: TemplateProps = {
+    displayName,
+    initials,
+    avatarUrl,
+    neighborhood,
+    occupation,
+    sign,
+    vibe,
+    photos,
+    onAvatarClick: handleAvatarClick,
+  };
 
   /* ── render ─────────────────────────────────── */
 
@@ -281,7 +693,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
     <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* ══════════════════════════ PORTFOLIO HEADER ══════════════════════════ */}
-      <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5EC 80%, #FFF0F8 100%)", padding: "20px 18px 24px", position: "relative" }}>
+      <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5EC 80%, #FFF0F8 100%)", padding: "20px 18px 0", position: "relative" }}>
 
         {/* Top bar: month/year + member number */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -294,51 +706,37 @@ export function ProfilePage({ user }: { user: AuthUser }) {
         </div>
 
         {/* Main row: text left + polaroid right */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
 
           {/* Left: name + location + cards + badge */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            {/* Large italic username */}
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 34, color: "#1C1B1C", lineHeight: 1.1, marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {displayName}.
             </p>
 
-            {/* Location */}
-            {(user.neighborhood || user.borough) && (
+            {(user.neighborhood || user.borough) ? (
               <p style={{ fontFamily: "var(--font-jost)", fontStyle: "italic", fontSize: 11, color: "rgba(0,0,0,0.45)", marginBottom: 14, letterSpacing: "0.03em" }}>
                 {user.neighborhood}{user.borough ? ` · ${user.borough}` : ""}
               </p>
-            )}
-            {!user.neighborhood && !user.borough && (
+            ) : (
               <p style={{ fontFamily: "var(--font-jost)", fontStyle: "italic", fontSize: 11, color: "rgba(0,0,0,0.3)", marginBottom: 14 }}>
                 New York City
               </p>
             )}
 
-            {/* Two info cards side by side */}
             <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-              {/* Member since card */}
               <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>
-                  MEMBER SINCE
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>
-                  {memberSince}
-                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>MEMBER SINCE</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{memberSince}</p>
               </div>
-
-              {/* Status card */}
               <div style={{ flex: 1, background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 3 }}>
-                  STATUS
-                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 3 }}>STATUS</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>
                   {isFounder ? "Founding" : (user.verification_status === "verified" ? "Verified" : "Active")}
                 </p>
               </div>
             </div>
 
-            {/* Founding member badge */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#1C1B1C", borderRadius: 999, padding: "6px 14px" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>
                 ✦ {isFounder ? "FOUNDING MEMBER" : "MEMBER"}
@@ -346,25 +744,20 @@ export function ProfilePage({ user }: { user: AuthUser }) {
             </div>
           </div>
 
-          {/* Right: polaroid card */}
+          {/* Right: polaroid card with hidden avatar upload trigger */}
           <div style={{ flexShrink: 0 }}>
             <div style={{ background: "white", borderRadius: 16, padding: "8px 8px 18px", boxShadow: "0 6px 24px rgba(255,31,125,0.12)", width: 88, position: "relative" }}>
-              {/* Photo area */}
               <div style={{ width: 72, height: 72, borderRadius: 10, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", marginBottom: 10 }}>
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "rgba(255,31,125,0.5)" }}>
-                    {initials}
-                  </p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "rgba(255,31,125,0.5)" }}>{initials}</p>
                 )}
               </div>
-              {/* Avatar upload inside polaroid */}
-              <div style={{ position: "absolute", bottom: 20, right: 4 }} onClick={e => e.stopPropagation()}>
+              <div id="avatar-upload-trigger-wrapper" style={{ position: "absolute", bottom: 20, right: 4 }} onClick={e => e.stopPropagation()} ref={avatarUploadRef}>
                 <AvatarUpload userId={user.id} currentUrl={avatarUrl} initials={initials} size={24} onUpdate={url => setAvatarUrl(url)} />
               </div>
-              {/* Handwriting name label */}
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.5)", textAlign: "center", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingLeft: 2, paddingRight: 2 }}>
                 {displayName}
               </p>
@@ -372,6 +765,18 @@ export function ProfilePage({ user }: { user: AuthUser }) {
           </div>
 
         </div>
+
+        {/* Template Picker */}
+        <TemplatePicker templateId={templateId} setTemplateId={handleSetTemplate} />
+
+        {/* Active Template rendered full-width */}
+        <div style={{ padding: "0 0 24px" }}>
+          {templateId === "id" && <TemplateID {...templateProps} />}
+          {templateId === "board" && <TemplateBoard {...templateProps} />}
+          {templateId === "zine" && <TemplateZine {...templateProps} />}
+          {templateId === "collage" && <TemplateCollage {...templateProps} />}
+        </div>
+
       </div>
 
       {/* ══════════════════════════ TABS ══════════════════════════ */}
@@ -409,13 +814,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
         {/* ─── PROFILE TAB ─── */}
         {activeTab === "profile" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-            {/* Section label */}
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.6)", marginBottom: 2 }}>
               YOUR APARTMENT
             </p>
 
-            {/* Account info */}
             <div style={cardStyle}>
               <p style={sectionLabel}>ACCOUNT</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
@@ -425,7 +827,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             </div>
 
-            {/* Bio */}
             {user.bio && (
               <div style={cardStyle}>
                 <p style={sectionLabel}>BIO</p>
@@ -433,7 +834,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             )}
 
-            {/* Interests */}
             {user.interests && user.interests.length > 0 && (
               <div style={cardStyle}>
                 <p style={sectionLabel}>INTERESTS</p>
@@ -446,7 +846,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                 </div>
               </div>
             )}
-
           </div>
         )}
 
@@ -457,7 +856,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               YOUR MOMENTS
             </p>
 
-            {/* Photo grid */}
             {photos.length > 0 && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
                 {photos.map((photo, i) => (
@@ -482,7 +880,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                   </div>
                 ))}
 
-                {/* Uploading placeholders */}
                 {uploadingCount > 0 && Array.from({ length: uploadingCount }).map((_, i) => (
                   <div key={`up-${i}`} style={{ borderRadius: 16, aspectRatio: "1", background: "rgba(255,31,125,0.08)", border: "1.5px dashed rgba(255,31,125,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span className="animate-spin" style={{ width: 22, height: 22, borderRadius: "50%", border: "2px solid #FF1F7D", borderTopColor: "transparent", display: "inline-block" }} />
@@ -491,7 +888,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             )}
 
-            {/* Empty state */}
             {photos.length === 0 && uploadingCount === 0 && (
               <div style={{ ...cardStyle, textAlign: "center", padding: "32px 18px" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,31,125,0.5)", marginBottom: 6 }}>No moments yet</p>
@@ -499,7 +895,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             )}
 
-            {/* Add button */}
             <button
               onClick={() => addInputRef.current?.click()}
               style={{ width: "100%", padding: "14px", borderRadius: 16, border: `1.5px dashed rgba(255,31,125,0.4)`, background: "rgba(255,31,125,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
@@ -522,7 +917,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
             </p>
 
             {worldPhotos.length === 0 && uploadingWorldCount === 0 ? (
-              /* Empty call-to-action */
               <div style={{ ...cardStyle, textAlign: "center", padding: "40px 20px" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 22, color: "rgba(255,31,125,0.6)", marginBottom: 6 }}>
                   Share your world ✦
@@ -542,7 +936,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </div>
             ) : (
               <>
-                {/* 2-column photo grid */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
                   {worldPhotos.map(photo => (
                     <div key={photo.id} style={{ position: "relative", borderRadius: 16, overflow: "hidden", aspectRatio: "1", background: "rgba(255,31,125,0.05)", border: "1px solid rgba(255,31,125,0.1)" }}>
@@ -581,7 +974,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
             </p>
 
             <div style={{ ...cardStyle, textAlign: "center", padding: "32px 20px" }}>
-              {/* Decorative code display */}
               <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE8F4 100%)", borderRadius: 18, padding: "24px 20px", marginBottom: 20, border: "1px solid rgba(255,31,125,0.15)" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,31,125,0.5)", marginBottom: 8, letterSpacing: "0.1em" }}>
                   your unique code
@@ -631,7 +1023,6 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                 Your shareable profile link
               </p>
 
-              {/* Link display */}
               <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE8F4 100%)", borderRadius: 14, padding: "14px 16px", marginBottom: 18, border: "1px solid rgba(255,31,125,0.12)", display: "flex", alignItems: "center", gap: 10 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
@@ -666,6 +1057,113 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                 )}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ─── LINKS TAB ─── */}
+        {activeTab === "links" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.6)", marginBottom: 2 }}>
+              YOUR LINKS
+            </p>
+
+            {([
+              {
+                key: "instagram" as const,
+                label: "Instagram",
+                placeholder: "@yourhandle",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                ),
+              },
+              {
+                key: "tiktok" as const,
+                label: "TikTok",
+                placeholder: "@yourhandle",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                  </svg>
+                ),
+              },
+              {
+                key: "twitter" as const,
+                label: "Twitter / X",
+                placeholder: "@yourhandle",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M4 4l16 16M4 20L20 4" />
+                  </svg>
+                ),
+              },
+              {
+                key: "pinterest" as const,
+                label: "Pinterest",
+                placeholder: "pinterest.com/you",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.17 1.22-5.17s-.31-.63-.31-1.56c0-1.46.85-2.55 1.9-2.55.9 0 1.33.67 1.33 1.48 0 .9-.58 2.25-.87 3.5-.25 1.05.52 1.9 1.55 1.9 1.86 0 3.1-2.4 3.1-5.24 0-2.16-1.46-3.67-3.55-3.67-2.42 0-3.84 1.81-3.84 3.69 0 .73.28 1.51.63 1.94a.25.25 0 0 1 .06.24c-.06.26-.21.83-.24.94-.04.15-.13.18-.3.11-1.12-.52-1.82-2.16-1.82-3.48 0-2.83 2.06-5.43 5.93-5.43 3.11 0 5.53 2.22 5.53 5.18 0 3.09-1.95 5.57-4.65 5.57-.91 0-1.76-.47-2.05-1.03l-.56 2.08c-.2.78-.75 1.76-1.12 2.36.85.26 1.74.4 2.67.4 5.52 0 10-4.48 10-10S17.52 2 12 2z" />
+                  </svg>
+                ),
+              },
+              {
+                key: "spotify" as const,
+                label: "Spotify",
+                placeholder: "open.spotify.com/user/…",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 13.5c2.5-1 5.5-.8 8 .5" />
+                    <path d="M7 10.8c3-1.3 7-1 10 .7" />
+                    <path d="M9 16c2-0.8 4.5-.6 6.5.4" />
+                  </svg>
+                ),
+              },
+              {
+                key: "website" as const,
+                label: "Website",
+                placeholder: "https://yoursite.com",
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                ),
+              },
+            ] as { key: keyof typeof socials; label: string; placeholder: string; icon: React.ReactNode }[]).map(platform => (
+              <div key={platform.key} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px" }}>
+                <div style={{ flexShrink: 0 }}>{platform.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(0,0,0,0.35)", marginBottom: 6 }}>{platform.label.toUpperCase()}</p>
+                  <input
+                    type="text"
+                    value={socials[platform.key]}
+                    onChange={e => setSocials(prev => ({ ...prev, [platform.key]: e.target.value }))}
+                    placeholder={platform.placeholder}
+                    style={{ ...inputStyle, background: "transparent", border: "none", padding: "0", fontSize: 13, color: "#1C1B1C" }}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={handleSaveSocials}
+              style={{ ...pinkBtn, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+            >
+              {socialsSaved ? (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Saved ✓
+                </>
+              ) : "Save Links"}
+            </button>
           </div>
         )}
 
@@ -714,6 +1212,54 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </button>
             </form>
 
+            {/* Profile extra fields */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>PROFILE EXTRAS</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <Field label="OCCUPATION">
+                  <input
+                    type="text"
+                    value={occupation}
+                    onChange={e => setOccupation(e.target.value)}
+                    placeholder="e.g. Designer, Student, Founder"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="ZODIAC SIGN">
+                  <input
+                    type="text"
+                    value={sign}
+                    onChange={e => setSign(e.target.value)}
+                    placeholder="e.g. Scorpio ♏"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="VIBE / TAGLINE">
+                  <input
+                    type="text"
+                    value={vibe}
+                    onChange={e => setVibe(e.target.value)}
+                    placeholder="e.g. living in full bloom"
+                    style={inputStyle}
+                  />
+                </Field>
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveExtra}
+                style={{ ...outlineBtn, marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              >
+                {extraSaved ? (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Saved ✓
+                  </>
+                ) : "Save Extras"}
+              </button>
+            </div>
+
             {/* Update email form */}
             <form onSubmit={handleUpdateEmail} style={cardStyle}>
               <p style={sectionLabel}>EMAIL ADDRESS</p>
@@ -741,11 +1287,30 @@ export function ProfilePage({ user }: { user: AuthUser }) {
               </p>
             </form>
 
+            {/* Portal switcher */}
+            {portalLinks.length > 0 && (
+              <div style={cardStyle}>
+                <p style={sectionLabel}>YOUR PORTALS</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {portalLinks.map(portal => (
+                    <Link key={portal.href} href={portal.href} style={{ textDecoration: "none" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "14px 16px", boxShadow: "0 2px 8px rgba(255,31,125,0.06)" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 700, color: "#1C1B1C" }}>{portal.label}</p>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Sign out */}
             <form action={logout}>
               <button
                 type="submit"
-                style={{ width: "100%", padding: "14px", borderRadius: 14, border: "none", background: "white", borderColor: "rgba(255,31,125,0.1)", fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, letterSpacing: "0.08em", color: "#aaa", cursor: "pointer", boxShadow: "0 2px 10px rgba(255,31,125,0.06)" }}
+                style={{ width: "100%", padding: "14px", borderRadius: 14, border: "none", background: "white", fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, letterSpacing: "0.08em", color: "#aaa", cursor: "pointer", boxShadow: "0 2px 10px rgba(255,31,125,0.06)" }}
               >
                 Sign Out
               </button>
