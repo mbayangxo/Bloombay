@@ -758,6 +758,107 @@ const EATS_GRID = [
   { id: 9, name: "Buvette",       hood: "WEST VILLAGE", saved: 7,  bg: "#F0EEF8" },
 ];
 
+// ── Partner profiles with menu templates ─────────────────────────────────────
+type RestaurantType = "fine_dining" | "café" | "bar" | "bakery" | "casual";
+
+interface EatsPartner {
+  id: number;
+  name: string;
+  type: RestaurantType;
+  hood: string;
+  tagline: string;
+  tags: string[];
+  saves: number;
+  rating: string;
+  priceRange: string;
+  heroColor: string;
+  accentColor: string;
+  textColor: string;
+  menuHighlights: { item: string; price: string; note?: string }[];
+  bloomieNote: string;
+}
+
+const EATS_PARTNERS: EatsPartner[] = [
+  {
+    id: 10, name: "Bar Pisellino",    type: "bar",         hood: "West Village",
+    tagline: "Aperitivo hour, every hour",
+    tags: ["Italian", "Cocktails", "Date Night"],
+    saves: 847, rating: "9.4", priceRange: "$$",
+    heroColor: "#C84A18", accentColor: "#FF7040", textColor: "#FFF5EE",
+    menuHighlights: [
+      { item: "Negroni Sbagliato", price: "$18", note: "the one" },
+      { item: "Tramezzini",        price: "$14" },
+      { item: "Spritz Flight",     price: "$22", note: "3 variations" },
+    ],
+    bloomieNote: "Get there before 7pm for a seat at the bar.",
+  },
+  {
+    id: 11, name: "Café Kitsuné",     type: "café",        hood: "West Village",
+    tagline: "Matcha, sunshine & silence",
+    tags: ["Coffee", "Matcha", "Solo", "Pastries"],
+    saves: 623, rating: "9.1", priceRange: "$",
+    heroColor: "#3A6A38", accentColor: "#8AC878", textColor: "#F0FAF0",
+    menuHighlights: [
+      { item: "Matcha Latte",      price: "$8",  note: "oat milk" },
+      { item: "Croissant",         price: "$6",  note: "always fresh" },
+      { item: "Cold Brew",         price: "$7" },
+    ],
+    bloomieNote: "Garden seats fill by 11am on weekends.",
+  },
+  {
+    id: 12, name: "Via Carota",       type: "fine_dining", hood: "West Village",
+    tagline: "Italian soul, no reservations",
+    tags: ["Italian", "Dinner", "Date Night", "Brunch"],
+    saves: 591, rating: "9.6", priceRange: "$$$",
+    heroColor: "#5A1A0A", accentColor: "#D4602A", textColor: "#FFF4EE",
+    menuHighlights: [
+      { item: "Insalata Verde",    price: "$19", note: "legendary" },
+      { item: "Cacio e Pepe",      price: "$26" },
+      { item: "Bistecca",          price: "$58", note: "for two" },
+    ],
+    bloomieNote: "Walk in at 5:30pm or wait. Worth it.",
+  },
+  {
+    id: 13, name: "Lucien",           type: "casual",      hood: "East Village",
+    tagline: "French bistro, no fuss",
+    tags: ["French", "Dinner", "Wine", "Classic"],
+    saves: 412, rating: "8.8", priceRange: "$$",
+    heroColor: "#1A1430", accentColor: "#8080C8", textColor: "#F4F0FF",
+    menuHighlights: [
+      { item: "Steak Frites",      price: "$38", note: "always" },
+      { item: "Moules Marinières", price: "$28" },
+      { item: "Crème Brûlée",      price: "$14" },
+    ],
+    bloomieNote: "Tiny, cash-only, magical. Go early.",
+  },
+  {
+    id: 14, name: "Russ & Daughters", type: "bakery",      hood: "Lower East Side",
+    tagline: "NYC institution since 1914",
+    tags: ["Brunch", "Bagels", "Breakfast", "Iconic"],
+    saves: 388, rating: "9.3", priceRange: "$",
+    heroColor: "#8B4513", accentColor: "#C87038", textColor: "#FFF8F0",
+    menuHighlights: [
+      { item: "Classic Bagel + Lox", price: "$22", note: "build your own" },
+      { item: "Appetizing Plate",    price: "$28", note: "serves two" },
+      { item: "Babka",               price: "$9",  note: "chocolate always" },
+    ],
+    bloomieNote: "The Appetizing Plate is non-negotiable.",
+  },
+  {
+    id: 15, name: "The Four Horsemen",type: "bar",         hood: "Williamsburg",
+    tagline: "Natural wine & good company",
+    tags: ["Wine Bar", "Williamsburg", "Dinner", "Natural Wine"],
+    saves: 334, rating: "9.0", priceRange: "$$$",
+    heroColor: "#1A2810", accentColor: "#6A9848", textColor: "#F4FEE8",
+    menuHighlights: [
+      { item: "Wine by the Glass",  price: "$16–$28" },
+      { item: "Charcuterie Board",  price: "$24" },
+      { item: "Seasonal Pasta",     price: "$32" },
+    ],
+    bloomieNote: "Ask the sommelier — they actually know.",
+  },
+];
+
 function EatsPage({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("Tonight");
   const [savedIds, setSaved] = useState<number[]>([]);
@@ -893,7 +994,137 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             </div>
           </div>
         </div>
+
+        {/* ── PARTNER PROFILES ── */}
+        <div style={{ paddingTop: 8 }}>
+          <div style={{ padding: "0 14px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9B70" }}/>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
+          </div>
+          {EATS_PARTNERS.map(p => (
+            <EatsPartnerCard key={p.id} partner={p} />
+          ))}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function EatsPartnerCard({ partner: p }: { partner: EatsPartner }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const typeLabel: Record<RestaurantType, string> = {
+    fine_dining: "FINE DINING", café: "CAFÉ", bar: "BAR", bakery: "BAKERY", casual: "CASUAL",
+  };
+
+  return (
+    <div style={{
+      marginBottom: 14, borderRadius: 22, overflow: "hidden",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.14)",
+    }}>
+      {/* Hero band */}
+      <div style={{
+        position: "relative", height: 110,
+        backgroundImage: `${DARK_GRAIN}`,
+        backgroundSize: "160px 160px",
+        backgroundColor: p.heroColor,
+      }}>
+        <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 50%, ${p.accentColor}55 0%, transparent 65%)` }}/>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.45) 100%)" }}/>
+        {/* Type badge */}
+        <div style={{ position: "absolute", top: 12, left: 14, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", borderRadius: 999, padding: "3px 10px" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>{typeLabel[p.type]}</span>
+        </div>
+        {/* Save */}
+        <button onClick={() => setSaved(s => !s)} style={{ position: "absolute", top: 10, right: 12, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        {/* Name */}
+        <div style={{ position: "absolute", bottom: 10, left: 14, right: 46 }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>{p.name}</p>
+        </div>
+      </div>
+
+      {/* Info strip */}
+      <div style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: "#FFFAF6", padding: "12px 14px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#999", letterSpacing: "0.08em" }}>{p.hood.toUpperCase()}</span>
+          <span style={{ color: "#ddd" }}>·</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#bbb" }}>{p.priceRange}</span>
+          <span style={{ color: "#ddd" }}>·</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#FF9B70" }}>★ {p.rating}</span>
+          <span style={{ marginLeft: "auto", fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#bbb" }}>{p.saves} saves</span>
+        </div>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#7A5A40", marginBottom: 8, lineHeight: 1.3 }}>"{p.tagline}"</p>
+        {/* Tags */}
+        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" as const, marginBottom: 10 }}>
+          {p.tags.map(tag => (
+            <span key={tag} style={{ background: "rgba(255,155,112,0.12)", border: "1px solid rgba(255,155,112,0.22)", borderRadius: 999, padding: "3px 9px", fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#CC7040", letterSpacing: "0.04em" }}>{tag}</span>
+          ))}
+        </div>
+
+        {/* Bloomie note */}
+        <div style={{ background: "rgba(255,155,112,0.07)", borderLeft: `3px solid ${p.accentColor}`, padding: "8px 10px", marginBottom: 10, borderRadius: "0 8px 8px 0" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#5A3A20", lineHeight: 1.4 }}>{p.bloomieNote}</p>
+        </div>
+
+        {/* Menu toggle */}
+        <button onClick={() => setMenuOpen(o => !o)} style={{
+          width: "100%", background: "none", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "8px 0 12px",
+          borderTop: "1px solid rgba(255,155,112,0.12)",
+        }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: "#FF9B70" }}>MENU HIGHLIGHTS</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF9B70" strokeWidth="2.5" strokeLinecap="round" style={{ transform: menuOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        {/* Menu template — expandable */}
+        {menuOpen && <MenuTemplate partner={p} />}
+      </div>
+    </div>
+  );
+}
+
+function MenuTemplate({ partner: p }: { partner: EatsPartner }) {
+  const isFine    = p.type === "fine_dining";
+  const isCafé    = p.type === "café";
+  const isBakery  = p.type === "bakery";
+
+  return (
+    <div style={{
+      marginBottom: 14, borderRadius: 14, overflow: "hidden",
+      ...(isFine   ? { backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: p.heroColor } : {}),
+      ...(isCafé   ? { background: "#F6FAF2", border: "1px solid rgba(138,200,120,0.2)" } : {}),
+      ...(isBakery ? { background: "#FEF8F0", border: "1px solid rgba(200,120,60,0.2)" } : {}),
+      ...(!isFine && !isCafé && !isBakery ? { backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "#FFFAF4", border: "1px solid rgba(255,155,112,0.15)" } : {}),
+      padding: "14px",
+    }}>
+      {/* Menu header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div>
+          <p style={{ fontFamily: isFine ? "var(--font-playfair)" : "var(--font-jost)", fontStyle: isFine ? "italic" : "normal", fontSize: isFine ? 16 : 11, fontWeight: isFine ? 700 : 800, color: isFine ? "rgba(255,255,255,0.9)" : "#3A2010", letterSpacing: isFine ? "0" : "0.08em" }}>{p.name}</p>
+          {isFine && <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.15em", marginTop: 2 }}>MENU</p>}
+        </div>
+        <div style={{ width: 26, height: 1, background: isFine ? "rgba(255,255,255,0.3)" : "rgba(180,90,40,0.3)" }}/>
+      </div>
+      {/* Items */}
+      {p.menuHighlights.map((item, i) => (
+        <div key={i} style={{
+          display: "flex", alignItems: "flex-start", justifyContent: "space-between",
+          padding: "9px 0",
+          borderBottom: i < p.menuHighlights.length - 1 ? `1px solid ${isFine ? "rgba(255,255,255,0.08)" : "rgba(180,90,40,0.1)"}` : "none",
+        }}>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: isFine ? "var(--font-playfair)" : "var(--font-jost)", fontStyle: isFine ? "italic" : "normal", fontSize: 12, fontWeight: isFine ? 600 : 700, color: isFine ? "rgba(255,255,255,0.88)" : "#2A1A10", lineHeight: 1.2 }}>{item.item}</p>
+            {item.note && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: isFine ? `${p.accentColor}bb` : "#AA8060", marginTop: 2 }}>{item.note}</p>}
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: isFine ? p.accentColor : "#FF9B70", marginLeft: 12, flexShrink: 0 }}>{item.price}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -1425,6 +1656,10 @@ function CityGuide() {
   const [category, setCategory] = useState<CityCategory>("landing");
 
   if (category === "landing") return <CityLanding onSelect={setCategory}/>;
+  if (category === "eat")     return <EatsPage          onBack={() => setCategory("landing")}/>;
+  if (category === "go")      return <GoPage            onBack={() => setCategory("landing")}/>;
+  if (category === "solo")    return <SoloPage          onBack={() => setCategory("landing")}/>;
+  if (category === "bloomies")return <BloomiesFavoritesPage onBack={() => setCategory("landing")}/>;
 
   const band = BANDS.find(b => b.id === category);
   if (!band) return <CityLanding onSelect={setCategory}/>;
