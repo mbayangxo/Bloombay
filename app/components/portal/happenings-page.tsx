@@ -16,6 +16,8 @@ function inferEventType(ev: Event): EventType {
   if (t.includes("concert") || t.includes("music") || t.includes("show") || t.includes("performance")) return "concert";
   if (t.includes("party") || t.includes("birthday") || t.includes("celebration") || t.includes("social")) return "party";
   if (t.includes("invitation") || t.includes("invite")) return "invitation";
+  if (t.includes("open_seat") || t.includes("open seat") || t.includes("last seat")) return "open_seats";
+  if (t.includes("table") || t.includes("supper club") || t.includes("private dinner")) return "table";
   if (t.includes("brunch") || t.includes("dinner") || t.includes("lunch") || t.includes("meal")) return "brunch";
   if (t.includes("walk") || t.includes("outdoor") || t.includes("hike") || t.includes("run")) return "walk";
   if (t.includes("museum") || t.includes("gallery") || t.includes("art") || t.includes("exhibition")) return "museum";
@@ -619,10 +621,12 @@ function EventTemplatesStrip({ events }: { events: Event[] }) {
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
   const DEMO_EVENTS: EventCardData[] = [
-    { id: "d1", type: "concert",    title: "Vinyl Night & Jazz", host: "Girl Creatives", location: "Bushwick", date: "SAT JUN 14", time: "9 PM", spotsLeft: 12, accentColor: "#1C1B1C" },
-    { id: "d2", type: "party",      title: "Girls Night Out",    host: "BloomBay",       location: "SoHo",     date: "FRI JUN 13", time: "10 PM", spotsLeft: 6,  accentColor: PINK },
-    { id: "d3", type: "gathering",  title: "Italian Dinner Society", host: "Yande",      location: "Carbone",  date: "THU JUN 19", time: "7:30 PM", going: 8 },
-    { id: "d4", type: "invitation", title: "Pilates + Matcha",   host: "Sofia K.",       location: "Williamsburg", date: "SUN JUN 15", time: "9 AM", spotsLeft: 3 },
+    { id: "d1", type: "concert",    title: "Vinyl Night & Jazz",      host: "Girl Creatives", location: "Bushwick",     date: "SAT JUN 14", time: "9 PM",    spotsLeft: 12, accentColor: "#1C1B1C" },
+    { id: "d2", type: "party",      title: "Girls Night Out",          host: "BloomBay",       location: "SoHo",         date: "FRI JUN 13", time: "10 PM",   spotsLeft: 6,  accentColor: PINK },
+    { id: "d3", type: "gathering",  title: "Italian Dinner Society",   host: "Yande",          location: "Carbone",      date: "THU JUN 19", time: "7:30 PM", going: 8 },
+    { id: "d4", type: "invitation", title: "Pilates + Matcha",         host: "Sofia K.",       location: "Williamsburg", date: "SUN JUN 15", time: "9 AM",    spotsLeft: 3 },
+    { id: "d7", type: "open_seats", title: "Sunday Supper",            host: "Natalie M.",     location: "West Village", date: "SUN JUN 15", time: "7 PM",    spotsLeft: 2, going: 6 },
+    { id: "d8", type: "table",      title: "Private Dinner Party",     host: "House of Flora", location: "NoHo",         date: "SAT JUN 21", time: "8 PM",    spotsLeft: 4, accentColor: "#1A3A1A" },
     { id: "d5", type: "brunch",     title: "Sunday Brunch Club", host: "BloomBay",       location: "Ladurée SoHo", date: "SUN JUN 22", time: "11 AM", going: 14 },
     { id: "d6", type: "museum",     title: "MoMA + Froyo After", host: "Girl Creatives", location: "Midtown",  date: "SAT JUN 21", time: "2 PM", spotsLeft: 5 },
   ];

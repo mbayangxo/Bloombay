@@ -97,7 +97,8 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     aboutNote: (club.welcome_line as string | null) ?? undefined,
   };
 
-  return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} />;
+  const isOwner = club.owner_id === user.id;
+  return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} isOwner={isOwner} />;
 }
 
 function extractTagline(description: string | null): string {

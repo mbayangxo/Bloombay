@@ -561,7 +561,7 @@ function ClubChat({ club }: { club: ClubLandingData }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0 }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number }) {
+export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean }) {
   const [applied, setApplied] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [clubTab, setClubTab] = useState<ClubTab>("about");
@@ -871,7 +871,11 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
 
           {/* ── BOTTOM CTA ───────────────────────────────────────────────── */}
           <section style={{ padding: "0 20px 48px" }}>
-            {applied ? (
+            {isOwner ? (
+              <Link href={`/member/clubs/${club.id}/manage`} style={{ display: "block", width: "100%", padding: "16px 0", borderRadius: 32, background: club.color, color: "white", fontWeight: 700, fontSize: 14, letterSpacing: "0.06em", textAlign: "center", textDecoration: "none", boxShadow: `0 6px 24px ${club.color}44` }}>
+                MANAGE CLUB ✦
+              </Link>
+            ) : applied ? (
               <div style={{ width: "100%", padding: "16px 0", borderRadius: 32, background: "#FFF9E6", color: "#b45309", fontWeight: 700, fontSize: 14, textAlign: "center" }}>Application Submitted ✓</div>
             ) : (
               <>

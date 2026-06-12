@@ -13,7 +13,7 @@ import Link from "next/link";
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
 
-export type EventType = "concert" | "party" | "gathering" | "invitation" | "brunch" | "walk" | "museum";
+export type EventType = "concert" | "party" | "gathering" | "invitation" | "brunch" | "walk" | "museum" | "open_seats" | "table";
 
 export interface EventCardData {
   id: number | string;
@@ -412,11 +412,192 @@ export function InvitationEventCard({ ev }: { ev: EventCardData }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// OPEN SEATS CARD  (last-minute seats at a table / dinner event)
+// Looks like a restaurant hostess hold card — dark, candlelit, urgent
+// ─────────────────────────────────────────────────────────────────────────────
+export function OpenSeatsCard({ ev }: { ev: EventCardData }) {
+  const href = ev.href ?? "#";
+  const seats = ev.spotsLeft ?? 2;
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 172, height: 218,
+        borderRadius: 14,
+        overflow: "hidden",
+        position: "relative",
+        background: "linear-gradient(160deg, #1A0808 0%, #2D0E0E 50%, #1A0808 100%)",
+        boxShadow: "0 10px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(200,60,20,0.3)",
+      }}>
+        {/* Candle glow ambient */}
+        <div style={{ position: "absolute", bottom: 0, left: "35%", width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,140,40,0.28) 0%, transparent 70%)", pointerEvents: "none" }}/>
+
+        {/* Flame SVG */}
+        <div style={{ position: "absolute", top: 14, right: 16 }}>
+          <svg width="10" height="16" viewBox="0 0 10 16">
+            <path d="M5 15 C1 12 0 8 2 5 C3 3 4 4.5 5 2 C6 4.5 7 3 8 5 C10 8 9 12 5 15Z" fill="url(#fl_g)"/>
+            <defs>
+              <radialGradient id="fl_g" cx="50%" cy="80%" r="55%">
+                <stop offset="0%" stopColor="#FFFAC0"/>
+                <stop offset="40%" stopColor="#FFB020"/>
+                <stop offset="100%" stopColor="#FF5500" stopOpacity="0.6"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Seats badge */}
+        <div style={{
+          position: "absolute", top: 14, left: 14,
+          background: "rgba(255,100,40,0.18)", border: "1px solid rgba(255,120,40,0.35)",
+          borderRadius: 999, padding: "4px 10px",
+        }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, color: "#FFA060", letterSpacing: "0.1em" }}>
+            {seats} SEAT{seats !== 1 ? "S" : ""} LEFT
+          </span>
+        </div>
+
+        {/* Divider line */}
+        <div style={{ position: "absolute", top: 52, left: 14, right: 14, height: "0.5px", background: "linear-gradient(90deg, transparent, rgba(255,120,40,0.4), transparent)" }}/>
+
+        {/* Content */}
+        <div style={{ position: "absolute", top: 64, left: 14, right: 14 }}>
+          {ev.host && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,160,80,0.7)", marginBottom: 6 }}>
+              {ev.host.toUpperCase()}
+            </p>
+          )}
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "#FFF5EE", lineHeight: 1.15, marginBottom: 8 }}>
+            {ev.title}
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", color: "rgba(255,200,150,0.55)", marginBottom: 12 }}>
+            📍 {ev.location}
+          </p>
+
+          {/* Date/time row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "5px 9px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "#FFA060" }}>{ev.date}</p>
+            </div>
+            <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,120,40,0.4)" }}/>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,200,150,0.7)" }}>{ev.time}</p>
+          </div>
+
+          {/* Perforated bottom */}
+          <div style={{ borderTop: "1px dashed rgba(255,120,40,0.25)", paddingTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: "#FFA060" }}>CLAIM SEAT →</p>
+            {ev.going !== undefined && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,180,100,0.45)" }}>{ev.going} going</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TABLE CARD  (private dinner, reserved table, supper club)
+// Looks like a formal dinner place card / menu cover — cream, elegant
+// ─────────────────────────────────────────────────────────────────────────────
+export function TableCard({ ev }: { ev: EventCardData }) {
+  const accent = ev.accentColor ?? "#1A2B1A";
+  const href = ev.href ?? "#";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 172, height: 218,
+        borderRadius: 14,
+        overflow: "hidden",
+        position: "relative",
+        background: "#FDFAF4",
+        boxShadow: "0 10px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)",
+        border: "1px solid rgba(180,160,120,0.2)",
+      }}>
+        {/* Top color band */}
+        <div style={{ height: 6, background: `linear-gradient(90deg, ${accent}, ${accent}BB, ${accent})` }}/>
+
+        {/* Ornamental top rule */}
+        <div style={{ margin: "10px 14px 0", display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ flex: 1, height: "0.5px", background: `${accent}40` }}/>
+          <span style={{ fontSize: 8, color: `${accent}88` }}>✦</span>
+          <div style={{ flex: 1, height: "0.5px", background: `${accent}40` }}/>
+        </div>
+
+        {/* Header */}
+        <div style={{ padding: "8px 14px 0", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.22em", color: `${accent}88`, marginBottom: 5 }}>
+            DINNER TABLE
+          </p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 19, color: accent, lineHeight: 1.1, marginBottom: 2 }}>
+            {ev.title}
+          </p>
+          {ev.host && (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: `${accent}88`, marginBottom: 0 }}>hosted by {ev.host}</p>
+          )}
+        </div>
+
+        {/* Middle rule */}
+        <div style={{ margin: "9px 14px", display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ flex: 1, height: "0.5px", background: `${accent}25` }}/>
+          <span style={{ fontSize: 6, color: `${accent}55` }}>◆</span>
+          <div style={{ flex: 1, height: "0.5px", background: `${accent}25` }}/>
+        </div>
+
+        {/* Details */}
+        <div style={{ padding: "0 14px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: `${accent}77`, marginBottom: 5 }}>📍 {ev.location}</p>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.1em", color: `${accent}55`, marginBottom: 2 }}>DATE</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: accent }}>{ev.date}</p>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.1em", color: `${accent}55`, marginBottom: 2 }}>TIME</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: accent }}>{ev.time}</p>
+            </div>
+          </div>
+
+          {/* Seats row */}
+          {ev.spotsLeft !== undefined && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: i < ev.spotsLeft! ? `${accent}22` : "transparent", border: `1px solid ${i < ev.spotsLeft! ? accent : `${accent}30`}` }}/>
+              ))}
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: `${accent}66` }}>{ev.spotsLeft} left</p>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom CTA strip */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+          <div style={{ margin: "0 14px", borderTop: `1px solid ${accent}20`, padding: "8px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ flex: 1, height: "0.5px", background: `${accent}20` }}/>
+              <span style={{ fontSize: 6, color: `${accent}55` }}>◆</span>
+              <div style={{ flex: 1, height: "0.5px", background: `${accent}20` }}/>
+            </div>
+          </div>
+          <div style={{ background: accent, padding: "9px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.92)" }}>RESERVE A SEAT</p>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Auto-picker — selects the right card template for an event type
 // ─────────────────────────────────────────────────────────────────────────────
 export function EventCard({ ev }: { ev: EventCardData }) {
   if (ev.type === "concert")    return <TicketCard ev={ev} />;
   if (ev.type === "party")      return <PosterCard ev={ev} />;
   if (ev.type === "invitation") return <InvitationEventCard ev={ev} />;
+  if (ev.type === "open_seats") return <OpenSeatsCard ev={ev} />;
+  if (ev.type === "table")      return <TableCard ev={ev} />;
   return <GatheringCard ev={ev} />;
 }
