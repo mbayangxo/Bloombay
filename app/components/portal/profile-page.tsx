@@ -12,7 +12,7 @@ const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -105,8 +105,359 @@ function Lightbox({
   );
 }
 
-// ─── Template: ID Card ────────────────────────────────────────────────────────
+// ─── Template Props ────────────────────────────────────────────────────────────
 
+type TemplateProps = {
+  displayName: string;
+  initials: string;
+  avatarUrl: string | null;
+  neighborhood: string;
+  occupation: string;
+  sign: string;
+  vibe: string;
+  archetype: string;
+  sheIs: string;
+  sigTraits: string;
+  luckyCharm: string;
+  photos: Photo[];
+  onAvatarClick: () => void;
+};
+
+// ─── Shared template helpers ───────────────────────────────────────────────────
+const PAPER_GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
+function AptPhotoSlot({ url, initials, w, h, radius = 8, rotate = 0, onClick }: { url: string | null; initials: string; w: number; h: number; radius?: number; rotate?: number; onClick?: () => void }) {
+  return (
+    <button onClick={onClick}
+      style={{ background: "none", border: "none", padding: 0, cursor: onClick ? "pointer" : "default",
+        transform: `rotate(${rotate}deg)`, flexShrink: 0, width: w, height: h }}>
+      <div style={{ width: w, height: h, borderRadius: radius, overflow: "hidden",
+        background: "linear-gradient(135deg,#FFD6EA,#FFABD4)",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {url
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: Math.floor(h * 0.35), color: "rgba(255,31,125,0.45)" }}>{initials}</p>}
+      </div>
+    </button>
+  );
+}
+
+// ─── 1. The Dossier ───────────────────────────────────────────────────────────
+// Inspired by: Orchideia Dossier mockup (IMG_3655) — clipboard, archetype fields, handwritten values.
+function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, archetype, sheIs, sigTraits, luckyCharm, sign, onAvatarClick }: TemplateProps) {
+  const rows = [
+    { label: "NAME",             value: displayName },
+    { label: "ARCHETYPE",        value: archetype || "undiscovered" },
+    { label: "SHE IS",           value: sheIs || "the girl who moves the room without realising" },
+    { label: "SIGNATURE TRAITS", value: sigTraits || "unapologetically herself" },
+    { label: "LUCKY CHARM",      value: luckyCharm || "Books by Toni" },
+    { label: "SIGN",             value: sign || "—" },
+  ];
+  return (
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#F5EDD8", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
+      {/* Top warm-brown bar */}
+      <div style={{ height: 28, background: "linear-gradient(90deg,#8B6914,#A07820,#8B6914)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,248,220,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
+      </div>
+      {/* Clipboard clip */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: -2 }}>
+        <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+          <rect x="8" y="2" width="16" height="12" rx="4" stroke="#999" strokeWidth="2.5" fill="none"/>
+          <rect x="13" y="0" width="6" height="6" rx="2" fill="#bbb"/>
+        </svg>
+      </div>
+      {/* Body */}
+      <div style={{ padding: "8px 22px 22px" }}>
+        <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
+          {/* Photo slot — slightly rotated, white border polaroid style */}
+          <div style={{ flexShrink: 0, transform: "rotate(-2.5deg)", background: "white", padding: "6px 6px 18px", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}>
+            <AptPhotoSlot url={avatarUrl} initials={initials} w={72} h={88} radius={2} onClick={onAvatarClick} />
+          </div>
+          {/* Dossier ID field */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 4 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)" }}>BLOOMBAY MEMBER</p>
+            <svg width="80" height="22" viewBox="0 0 80 22" fill="none" style={{ display: "block" }}>
+              {Array.from({length: 32}).map((_,i)=>(
+                <rect key={i} x={i*2.2} y={i%3===0?2:i%7===0?0:4} width={i%4===0?2:1.2} height={i%3===0?20:i%7===0?22:18} fill="#1C1B1C" opacity={0.5+Math.sin(i)*0.3}/>
+              ))}
+            </svg>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(0,0,0,0.4)" }}>BB · {displayName.slice(0,4).toUpperCase()} · 2026</p>
+          </div>
+        </div>
+        {/* Fields */}
+        {rows.map(r => (
+          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(139,105,20,0.18)", paddingBottom: 8 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(0,0,0,0.32)", marginBottom: 2 }}>{r.label}</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, fontWeight: 600, color: "#1C1B1C", lineHeight: 1.3 }}>{r.value}</p>
+          </div>
+        ))}
+        {/* Flower doodle + BloomBay */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="4" fill={PINK}/>
+            <ellipse cx="14" cy="6" rx="3" ry="5" fill="rgba(255,31,125,0.3)"/>
+            <ellipse cx="14" cy="22" rx="3" ry="5" fill="rgba(255,31,125,0.3)"/>
+            <ellipse cx="6" cy="14" rx="5" ry="3" fill="rgba(255,31,125,0.3)"/>
+            <ellipse cx="22" cy="14" rx="5" ry="3" fill="rgba(255,31,125,0.3)"/>
+          </svg>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: PINK }}>BloomBay</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 2. The Beauty Table ──────────────────────────────────────────────────────
+// Inspired by: IMG_3566 — pink card with metal clip, photo left, typewriter fields right.
+function TemplateBeautyTable({ displayName, initials, avatarUrl, occupation, vibe, sheIs, onAvatarClick }: TemplateProps) {
+  const fields = [
+    { q: "WHAT SHE DOES", a: occupation || "building something" },
+    { q: "HER WORLD",     a: vibe || "she moves different" },
+    { q: "SHE IS",        a: sheIs || "the one they talk about" },
+  ];
+  return (
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#FF5BAD", borderRadius: 12, overflow: "hidden", boxShadow: "0 12px 40px rgba(255,31,125,0.35), inset 0 1px 0 rgba(255,255,255,0.2)" }}>
+      {/* Clip */}
+      <div style={{ display: "flex", justifyContent: "center", paddingTop: 6, paddingBottom: 2 }}>
+        <svg width="28" height="18" viewBox="0 0 28 18" fill="none">
+          <rect x="6" y="2" width="16" height="11" rx="4" stroke="rgba(255,255,255,0.7)" strokeWidth="2" fill="none"/>
+          <rect x="11" y="0" width="6" height="5" rx="1.5" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      {/* THE BEAUTY TABLE label */}
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(255,255,255,0.6)", padding: "0 18px", marginBottom: 10 }}>THE BEAUTY TABLE//</p>
+      {/* Two-column body */}
+      <div style={{ display: "flex", gap: 14, padding: "0 18px 20px", alignItems: "flex-start" }}>
+        {/* Photo */}
+        <div style={{ flexShrink: 0, background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: 4, border: "1.5px solid rgba(255,255,255,0.3)" }}>
+          <AptPhotoSlot url={avatarUrl} initials={initials} w={80} h={96} radius={7} onClick={onAvatarClick} />
+        </div>
+        {/* Fields */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 12 }}>{displayName}</p>
+          {fields.map(f => (
+            <div key={f.q} style={{ marginBottom: 10 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", borderBottom: "1px solid rgba(255,255,255,0.2)", paddingBottom: 3, marginBottom: 4 }}>{f.q}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "white", lineHeight: 1.4, textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 3. The Notebook ─────────────────────────────────────────────────────────
+// Inspired by: IMG_3562/3563 — spiral notebook, grid paper, photos clipped in, stickers.
+function TemplateNotebook({ displayName, initials, avatarUrl, sheIs, photos, onAvatarClick }: TemplateProps) {
+  const slotPhotos = [avatarUrl, photos[0]?.url ?? null, photos[1]?.url ?? null];
+  const rotations = [-2, 1.5, -1];
+  const positions = [{ top: 20, left: 16 }, { top: 12, right: 16 }, { bottom: 28, left: "50%", transform: "translateX(-50%)" }];
+  return (
+    <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 36px rgba(0,0,0,0.16)", minHeight: 320 }}>
+      {/* Grid paper background */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: `
+          repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(100,149,237,0.15) 19px, rgba(100,149,237,0.15) 20px),
+          repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(100,149,237,0.15) 19px, rgba(100,149,237,0.15) 20px),
+          #FEFCF7
+        `,
+      }}/>
+      {/* Red margin line */}
+      <div style={{ position: "absolute", left: 44, top: 0, bottom: 0, width: 2, background: "rgba(220,80,80,0.25)" }}/>
+      {/* Spiral binding (left side) */}
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 44, background: "rgba(240,235,230,0.9)", borderRight: "1px solid rgba(0,0,0,0.08)" }}>
+        {Array.from({length: 18}).map((_,i)=>(
+          <div key={i} style={{ width: 22, height: 14, borderRadius: "50%", border: "2.5px solid #888", margin: "12px auto 0", background: "transparent" }}/>
+        ))}
+      </div>
+      {/* Content area */}
+      <div style={{ position: "relative", paddingLeft: 56, paddingRight: 16, paddingTop: 16, paddingBottom: 20, minHeight: 320 }}>
+        {/* Name sticky note */}
+        <div style={{ background: PINK, borderRadius: 4, padding: "4px 10px", display: "inline-block", transform: "rotate(-1deg)", marginBottom: 12, boxShadow: "2px 2px 6px rgba(0,0,0,0.15)" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, fontWeight: 700, color: "white" }}>{displayName}</p>
+        </div>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.5)", marginBottom: 14, lineHeight: 1.5 }}>
+          {sheIs || "the girl moving in silence ♡"}
+        </p>
+        {/* Photos row — polaroid style */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          {slotPhotos.map((url, i) => (
+            <div key={i} style={{ background: "white", padding: "5px 5px 14px", boxShadow: "0 3px 12px rgba(0,0,0,0.15)", transform: `rotate(${rotations[i]}deg)`, flexShrink: 0 }}>
+              <AptPhotoSlot url={url} initials={initials} w={68} h={72} radius={2} onClick={i === 0 ? onAvatarClick : undefined} />
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.4)", textAlign: "center", marginTop: 4, lineHeight: 1 }}>
+                {["me ✦", "moments", "vibes"][i]}
+              </p>
+            </div>
+          ))}
+        </div>
+        {/* Pink clip sticker */}
+        <div style={{ position: "absolute", top: 12, right: 20 }}>
+          <svg width="20" height="22" viewBox="0 0 20 22" fill="none">
+            <circle cx="10" cy="10" r="7" stroke={PINK} strokeWidth="2" fill="none"/>
+            <rect x="9" y="4" width="2" height="14" rx="1" fill={PINK} opacity="0.5"/>
+          </svg>
+        </div>
+        {/* "With Love Always" text */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginTop: 6 }}>With Love Always ♡</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 4. The Magazine ─────────────────────────────────────────────────────────
+// Inspired by: IMG_3559 — magazine cover, name as issue title, barcode, bold type.
+function TemplateZineMag({ displayName, initials, avatarUrl, occupation, vibe, onAvatarClick }: TemplateProps) {
+  const memberNum = Math.abs(displayName.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 9000) + 1000;
+  return (
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#1A0010", borderRadius: 14, overflow: "hidden", boxShadow: "0 14px 48px rgba(0,0,0,0.35)" }}>
+      {/* Top accent bar */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${PINK}, #FF69B4, ${PINK})` }}/>
+      {/* Category + edition */}
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 18px 6px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)" }}>BLOOMBAY</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.12em" }}>✦ BIRTHDAY EDITION</p>
+      </div>
+      {/* Name as massive cover title */}
+      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(28px,8vw,38px)", color: "white", lineHeight: 0.95, padding: "0 18px 12px", letterSpacing: "-0.01em", textTransform: "uppercase" as const }}>
+        {displayName}
+      </p>
+      {/* Photo — center stage */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "0 18px 16px", position: "relative" }}>
+        <div style={{ border: "2.5px solid rgba(255,255,255,0.2)", borderRadius: 4, overflow: "hidden", width: "100%", aspectRatio: "4/5", background: "rgba(255,255,255,0.06)" }}>
+          <AptPhotoSlot url={avatarUrl} initials={initials} w={"100%" as unknown as number} h={"100%" as unknown as number} radius={0} onClick={onAvatarClick} />
+        </div>
+        {/* Occupation badge */}
+        <div style={{ position: "absolute", bottom: 24, left: 26, background: PINK, borderRadius: 4, padding: "4px 10px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>{occupation || "MAIN CHARACTER"}</p>
+        </div>
+      </div>
+      {/* Barcode footer */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 18px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", gap: 1.5, marginBottom: 3 }}>
+            {Array.from({length: 36}).map((_,i)=>(
+              <div key={i} style={{ width: i%3===0?2.5:1.5, height: 18, background: "rgba(255,255,255,0.55)" }}/>
+            ))}
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>MEMBER {memberNum} · {vibe || "THAT GIRL"}</p>
+        </div>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: PINK, flexShrink: 0 }}>BB.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 5. The Solo ─────────────────────────────────────────────────────────────
+// Inspired by: IMG_3565 — pink stripes, large italic title, two-panel photo + list.
+function TemplateSolo({ displayName, initials, avatarUrl, sheIs, sigTraits, vibe, luckyCharm, onAvatarClick }: TemplateProps) {
+  const list = [
+    sheIs || "soirée nights & fresh air",
+    sigTraits || "unbothered, focused, glowing",
+    vibe || "she moves at her own pace",
+    luckyCharm || "her presence is the main event",
+  ].filter(Boolean);
+  return (
+    <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 40px rgba(255,31,125,0.25)" }}>
+      {/* Pink striped header */}
+      <div style={{
+        padding: "18px 18px 12px",
+        background: `repeating-linear-gradient(180deg, #FF8EC7 0px, #FF8EC7 14px, #FF69B4 14px, #FF69B4 28px)`,
+        position: "relative",
+      }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>BLOOMBAY · HER WORLD</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "clamp(28px,8vw,40px)", fontWeight: 900, color: "white", lineHeight: 0.9, textShadow: "0 2px 16px rgba(200,0,80,0.4)" }}>
+          {displayName.split(" ")[0]}—<br />{displayName.split(" ").slice(1).join(" ") || "Date"}
+        </p>
+      </div>
+      {/* Two-panel */}
+      <div style={{ display: "flex", background: "#FFF0F8" }}>
+        {/* Photo panel */}
+        <div style={{ flex: 1, background: "#FFE0F0", padding: "12px 10px 12px 14px", position: "relative" }}>
+          <AptPhotoSlot url={avatarUrl} initials={initials} w={"100%" as unknown as number} h={140} radius={10} onClick={onAvatarClick} />
+          {/* Labels */}
+          {["cutie","queen","✦"].map((lbl, i) => (
+            <div key={i} style={{ position: "absolute", top: 18 + i*36, right: i%2===0 ? 4 : "auto", left: i%2===1 ? 2 : "auto", background: "rgba(255,255,255,0.88)", borderRadius: 999, padding: "2px 8px", backdropFilter: "blur(6px)", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#1C1B1C" }}>{lbl}</p>
+            </div>
+          ))}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.12em", color: "rgba(255,31,125,0.6)", textAlign: "center", marginTop: 6 }}>RICH GIRLS CLUB</p>
+        </div>
+        {/* List panel */}
+        <div style={{ flex: 1, background: "#1C1B1C", padding: "14px 12px 14px 12px" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 10, fontStyle: "italic" }}>Her life:</p>
+          {list.map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+              <div style={{ width: 16, height: 16, borderRadius: 4, background: PINK, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, color: "white" }}>{i+1}</p>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>{item}</p>
+            </div>
+          ))}
+          {/* Heart bottom right */}
+          <div style={{ textAlign: "right", marginTop: 8 }}>
+            <div style={{ display: "inline-flex", width: 28, height: 28, borderRadius: 8, background: PINK, alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="12" viewBox="0 0 24 22" fill="white"><path d="M12 21s-8.5-6-8.5-12.5C3.5 4.5 7 2 12 6c5-4 8.5-1.5 8.5 2.5C20.5 15 12 21 12 21z"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 6. The Billboard ────────────────────────────────────────────────────────
+// Inspired by: IMG_3652 — editorial two-panel, photo half / bold type half.
+function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe, sheIs, onAvatarClick }: TemplateProps) {
+  return (
+    <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,0.25)", minHeight: 240 }}>
+      {/* Top meta bar */}
+      <div style={{ background: "#F5EDD8", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.35)" }}>BB+ CREATIVE STUDIO</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>(2026)</p>
+      </div>
+      {/* Two-panel */}
+      <div style={{ display: "flex", height: 260 }}>
+        {/* Left: photo on pink */}
+        <div style={{ flex: 1, background: "#FFB3D9", position: "relative", overflow: "hidden" }}>
+          <AptPhotoSlot url={avatarUrl} initials={initials} w={"100%" as unknown as number} h={260} radius={0} onClick={onAvatarClick} />
+          {/* Subline */}
+          <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "white", lineHeight: 1.4, textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
+              {sheIs || "she built different."}
+            </p>
+          </div>
+        </div>
+        {/* Right: dark type panel */}
+        <div style={{ flex: 1, background: "#0D0820", padding: "16px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(24px,6vw,32px)", fontWeight: 900, color: "white", lineHeight: 0.92, letterSpacing: "-0.02em", textTransform: "uppercase" as const }}>
+              {displayName.split(" ").map((w, i) => (
+                <span key={i} style={{ display: "block", color: i === 0 ? "white" : PINK }}>{w}</span>
+              ))}
+            </p>
+          </div>
+          <div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 6 }}>{occupation || "main character"}</p>
+            <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}, transparent)`, marginBottom: 8 }}/>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(255,255,255,0.3)" }}>
+              {vibe?.toUpperCase() || "THAT GIRL"} · BLOOMBAY
+            </p>
+          </div>
+        </div>
+      </div>
+      {/* Bottom ticker */}
+      <div style={{ background: PINK, padding: "4px 0", overflow: "hidden" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.16em", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap" }}>
+          &nbsp;&nbsp;&nbsp;ASI · SE · VERÍA · TU · MARCA · SI · TRABAJÁRAMOS · JUNTOS · ✦ · BLOOMBAY · ✦ · ASI · SE · VERÍA · TU · MARCA
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 0. The ID Card (original) ───────────────────────────────────────────────
 function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation, sign, vibe, onAvatarClick }: TemplateProps) {
   return (
     <div style={{ background: "#F5EDD8", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
@@ -382,28 +733,20 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
   );
 }
 
-// ─── Template Props ───────────────────────────────────────────────────────────
-
-type TemplateProps = {
-  displayName: string;
-  initials: string;
-  avatarUrl: string | null;
-  neighborhood: string;
-  occupation: string;
-  sign: string;
-  vibe: string;
-  photos: Photo[];
-  onAvatarClick: () => void;
-};
-
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
   const templates: { id: TemplateId; label: string; bg: string; textColor: string }[] = [
-    { id: "id",      label: "ID",      bg: "#F5EDD8", textColor: "#888" },
-    { id: "board",   label: "BOARD",   bg: "#E5E5E5", textColor: "#555" },
-    { id: "zine",    label: "ZINE",    bg: "#FF1F7D", textColor: "white" },
-    { id: "collage", label: "COLLAGE", bg: "#FAFAFA", textColor: "#888" },
+    { id: "id",           label: "ID",       bg: "#F5EDD8", textColor: "#888" },
+    { id: "board",        label: "BOARD",    bg: "#E5E5E5", textColor: "#555" },
+    { id: "zine",         label: "ZINE",     bg: "#FF1F7D", textColor: "white" },
+    { id: "collage",      label: "COLLAGE",  bg: "#FAFAFA", textColor: "#888" },
+    { id: "dossier",      label: "DOSSIER",  bg: "#F5EDD8", textColor: "#8B6914" },
+    { id: "beauty_table", label: "BEAUTY",   bg: "#FF5BAD", textColor: "white" },
+    { id: "notebook",     label: "NOTEBOOK", bg: "#FEFCF7", textColor: "#555" },
+    { id: "magazine",     label: "MAG",      bg: "#1A0010", textColor: "#FF1F7D" },
+    { id: "solo",         label: "SOLO",     bg: "#FF8EC7", textColor: "white" },
+    { id: "billboard",    label: "BILLBOARD",bg: "#0D0820", textColor: "#FF1F7D" },
   ];
 
   return (
@@ -459,6 +802,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const [occupation, setOccupation] = useState("");
   const [sign, setSign] = useState("");
   const [vibe, setVibe] = useState("");
+  const [archetype, setArchetype] = useState("");
+  const [sheIs, setSheIs] = useState("");
+  const [sigTraits, setSigTraits] = useState("");
+  const [luckyCharm, setLuckyCharm] = useState("");
   const [extraSaved, setExtraSaved] = useState(false);
 
   // Socials state
@@ -507,6 +854,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
         setOccupation(parsed.occupation ?? "");
         setSign(parsed.sign ?? "");
         setVibe(parsed.vibe ?? "");
+        setArchetype(parsed.archetype ?? "");
+        setSheIs(parsed.sheIs ?? "");
+        setSigTraits(parsed.sigTraits ?? "");
+        setLuckyCharm(parsed.luckyCharm ?? "");
       } catch {}
     }
 
@@ -639,7 +990,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
 
   function handleSaveExtra() {
     if (typeof window !== "undefined") {
-      localStorage.setItem(`bb_profile_extra_${user.id}`, JSON.stringify({ occupation, sign, vibe }));
+      localStorage.setItem(`bb_profile_extra_${user.id}`, JSON.stringify({ occupation, sign, vibe, archetype, sheIs, sigTraits, luckyCharm }));
     }
     setExtraSaved(true);
     setTimeout(() => setExtraSaved(false), 2000);
@@ -687,6 +1038,10 @@ export function ProfilePage({ user }: { user: AuthUser }) {
     occupation,
     sign,
     vibe,
+    archetype,
+    sheIs,
+    sigTraits,
+    luckyCharm,
     photos,
     onAvatarClick: handleAvatarClick,
   };
@@ -779,6 +1134,12 @@ export function ProfilePage({ user }: { user: AuthUser }) {
           {templateId === "board" && <TemplateBoard {...templateProps} />}
           {templateId === "zine" && <TemplateZine {...templateProps} />}
           {templateId === "collage" && <TemplateCollage {...templateProps} />}
+          {templateId === "dossier" && <TemplateDossier {...templateProps} />}
+          {templateId === "beauty_table" && <TemplateBeautyTable {...templateProps} />}
+          {templateId === "notebook" && <TemplateNotebook {...templateProps} />}
+          {templateId === "magazine" && <TemplateZineMag {...templateProps} />}
+          {templateId === "solo" && <TemplateSolo {...templateProps} />}
+          {templateId === "billboard" && <TemplateBillboard {...templateProps} />}
         </div>
 
       </div>
@@ -1259,6 +1620,42 @@ export function ProfilePage({ user }: { user: AuthUser }) {
                     value={vibe}
                     onChange={e => setVibe(e.target.value)}
                     placeholder="e.g. living in full bloom"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="ARCHETYPE">
+                  <input
+                    type="text"
+                    value={archetype}
+                    onChange={e => setArchetype(e.target.value)}
+                    placeholder="e.g. The Visionary, The Creative"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="SHE IS">
+                  <input
+                    type="text"
+                    value={sheIs}
+                    onChange={e => setSheIs(e.target.value)}
+                    placeholder="e.g. the girl who moves the room"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="SIGNATURE TRAITS">
+                  <input
+                    type="text"
+                    value={sigTraits}
+                    onChange={e => setSigTraits(e.target.value)}
+                    placeholder="e.g. unapologetically herself"
+                    style={inputStyle}
+                  />
+                </Field>
+                <Field label="LUCKY CHARM">
+                  <input
+                    type="text"
+                    value={luckyCharm}
+                    onChange={e => setLuckyCharm(e.target.value)}
+                    placeholder="e.g. Books by Toni Morrison"
                     style={inputStyle}
                   />
                 </Field>
