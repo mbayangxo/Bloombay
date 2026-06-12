@@ -203,221 +203,341 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BUILDING LABELS PANEL  (landing slide 0)
-// Buildings laid flat horizontally — a scrollable city avenue
+// NYC BUILDING TILE — single tappable building with facade + windows
 // ═══════════════════════════════════════════════════════════════════════════════
-function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
-  const [query, setQuery] = useState("");
-  const [focused, setFocused] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+interface BuildingConfig {
+  id: string;
+  category?: CityCategory;
+  label?: string;
+  subLabel?: string;
+  width: number;   // px
+  height: number;  // px — varies like real NYC skyline
+  wallColor: string;
+  windowColor: string;
+  windowLitColor: string;
+  winCols: number;
+  winRows: number;
+  rooftop: "flat" | "setback" | "arched" | "stepped" | "tower";
+  waterTower?: boolean;
+  accentTop?: string;  // colored top stripe/band
+  filler?: boolean;    // decorative, not clickable
+}
 
-  const trimmed = query.trim().toLowerCase();
-  const results = trimmed.length > 0
-    ? HOOD_INDEX.filter(h =>
-        h.name.toLowerCase().includes(trimmed) ||
-        h.borough.toLowerCase().includes(trimmed) ||
-        h.tags.some(t => t.includes(trimmed))
-      ).slice(0, 5)
-    : [];
+const SKYLINE_BUILDINGS: BuildingConfig[] = [
+  // Left edge filler — narrow brownstone
+  {
+    id: "fill-1", filler: true,
+    width: 48, height: 118,
+    wallColor: "#7A5438", windowColor: "#1A0A04", windowLitColor: "#F5D080",
+    winCols: 2, winRows: 5, rooftop: "flat",
+  },
+  // PLACES — wide limestone with cornice
+  {
+    id: "places", category: "places", label: "PLACES", subLabel: "Eats · Cafés",
+    width: 112, height: 168,
+    wallColor: "#C8B89A", windowColor: "#3A2A1A", windowLitColor: "#FFDF90",
+    winCols: 4, winRows: 8, rooftop: "stepped",
+    waterTower: true,
+    accentTop: "#B8A88A",
+  },
+  // Narrow filler — dark glass
+  {
+    id: "fill-2", filler: true,
+    width: 38, height: 88,
+    wallColor: "#3A4A5A", windowColor: "#0A1A2A", windowLitColor: "#A0D0FF",
+    winCols: 2, winRows: 4, rooftop: "flat",
+  },
+  // PEOPLE — slim glass tower, tallest
+  {
+    id: "people", category: "people", label: "PEOPLE", subLabel: "Clubs · Meets",
+    width: 82, height: 214,
+    wallColor: "#6A8AAA", windowColor: "#0A1A2A", windowLitColor: "#C0E8FF",
+    winCols: 3, winRows: 12, rooftop: "tower",
+    accentTop: "#8AAABF",
+  },
+  // Filler — brick mid-rise
+  {
+    id: "fill-3", filler: true,
+    width: 56, height: 104,
+    wallColor: "#8A4A3A", windowColor: "#1A0800", windowLitColor: "#FFD070",
+    winCols: 2, winRows: 5, rooftop: "arched",
+  },
+  // CULTURE — wide pre-war, medium height
+  {
+    id: "culture", category: "culture", label: "CULTURE", subLabel: "Art · Gems",
+    width: 128, height: 148,
+    wallColor: "#D4C8B4", windowColor: "#2A1A0A", windowLitColor: "#FFE8A0",
+    winCols: 5, winRows: 7, rooftop: "stepped",
+    waterTower: true,
+    accentTop: "#C4B8A4",
+  },
+  // Filler — copper/green patina
+  {
+    id: "fill-4", filler: true,
+    width: 60, height: 134,
+    wallColor: "#5A7A6A", windowColor: "#0A180A", windowLitColor: "#B0FFD0",
+    winCols: 2, winRows: 6, rooftop: "arched",
+  },
+  // ACTIVITY — dark steel, setback design
+  {
+    id: "activity", category: "activity", label: "ACTIVITY", subLabel: "Events · Nights",
+    width: 100, height: 188,
+    wallColor: "#2A3A4A", windowColor: "#050D15", windowLitColor: "#80C4FF",
+    winCols: 4, winRows: 10, rooftop: "setback",
+    accentTop: "#3A4A5A",
+  },
+  // Right edge filler — narrow brick
+  {
+    id: "fill-5", filler: true,
+    width: 44, height: 96,
+    wallColor: "#6A4A38", windowColor: "#180800", windowLitColor: "#FFCF70",
+    winCols: 2, winRows: 4, rooftop: "flat",
+    waterTower: true,
+  },
+];
 
-  const showDropdown = focused && (results.length > 0 || trimmed.length > 0);
+function BuildingTile({
+  b, onTap, active,
+}: {
+  b: BuildingConfig;
+  onTap?: () => void;
+  active?: boolean;
+}) {
+  const [pressed, setPressed] = useState(false);
+  const winW = Math.floor((b.width - 16) / b.winCols) - 4;
+  const winH = Math.floor((b.height * 0.72 - 14) / b.winRows) - 4;
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (
-        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
-        inputRef.current && !inputRef.current.contains(e.target as Node)
-      ) {
-        setFocused(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  // Rooftop height / shape
+  const roofH = b.rooftop === "tower" ? 28 : b.rooftop === "setback" ? 18 : b.rooftop === "stepped" ? 12 : b.rooftop === "arched" ? 10 : 6;
+  const bodyH = b.height - roofH;
 
-  const strips: { band: Band; solidBg: string; lightBg: string }[] = [
-    { band: BANDS[0], solidBg: "#C80060", lightBg: "#FF1F7D" },
-    { band: BANDS[1], solidBg: "#A8004C", lightBg: "#E8006A" },
-    { band: BANDS[2], solidBg: "#E8006A", lightBg: "#FF5BAD" },
-    { band: BANDS[3], solidBg: "#FF1F7D", lightBg: "#C80060" },
-  ];
-
-  return (
-    <div style={{
-      position: "absolute", inset: 0, overflow: "hidden",
-      background: "linear-gradient(180deg, #FFB3D9 0%, #FF8FB8 20%, #FFC090 55%, #FFD4A8 80%, #FFDFC8 100%)",
-      display: "flex", flexDirection: "column",
-    }}>
-      <style>{CSS}</style>
-      {/* Sky backdrop */}
-      <div style={{ position: "absolute", inset: 0 }}>
-        <DaySkyline />
+  function Rooftop() {
+    const w = b.width;
+    if (b.rooftop === "tower") return (
+      <div style={{ position: "relative", width: w, height: roofH }}>
+        <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: Math.floor(w * 0.4), height: roofH, background: b.accentTop ?? b.wallColor, borderRadius: "3px 3px 0 0" }} />
       </div>
-      {/* Haze at ground level */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(to top, rgba(255,210,170,0.45), transparent)", pointerEvents: "none" }} />
+    );
+    if (b.rooftop === "setback") return (
+      <div style={{ position: "relative", width: w, height: roofH }}>
+        <div style={{ position: "absolute", left: "15%", right: "15%", height: roofH * 0.6, background: b.accentTop ?? b.wallColor, top: 0 }} />
+        <div style={{ position: "absolute", left: 0, right: 0, height: roofH * 0.45, background: b.wallColor, bottom: 0 }} />
+      </div>
+    );
+    if (b.rooftop === "arched") return (
+      <div style={{ width: w, height: roofH, background: b.wallColor, borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }} />
+    );
+    if (b.rooftop === "stepped") return (
+      <div style={{ position: "relative", width: w, height: roofH }}>
+        <div style={{ position: "absolute", left: 0, right: 0, height: 4, background: b.accentTop ?? b.wallColor, top: 0 }} />
+        <div style={{ position: "absolute", left: "8%", right: "8%", height: 4, background: b.wallColor, top: 4 }} />
+        <div style={{ position: "absolute", left: "16%", right: "16%", height: 4, background: b.wallColor, top: 8 }} />
+      </div>
+    );
+    // flat
+    return <div style={{ width: w, height: roofH, background: b.accentTop ?? b.wallColor }} />;
+  }
 
-      {/* City header — title and CITY GUIDE button on the same row */}
+  const el = (
+    <div
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onTouchStart={() => setPressed(true)}
+      onTouchEnd={() => { setPressed(false); onTap?.(); }}
+      onClick={onTap}
+      style={{
+        width: b.width,
+        display: "flex", flexDirection: "column", alignItems: "center",
+        cursor: b.filler ? "default" : "pointer",
+        transform: pressed && !b.filler ? "scaleY(0.96)" : "scaleY(1)",
+        transformOrigin: "bottom center",
+        transition: "transform 0.1s",
+        WebkitTapHighlightColor: "transparent",
+        position: "relative",
+      }}
+    >
+      {/* Active highlight glow */}
+      {active && !b.filler && (
+        <div style={{ position: "absolute", inset: 0, background: `${PINK}22`, borderRadius: "4px 4px 0 0", zIndex: 5, pointerEvents: "none" }} />
+      )}
+
+      {/* Rooftop */}
+      <Rooftop />
+
+      {/* Water tower */}
+      {b.waterTower && (
+        <div style={{ position: "absolute", top: roofH - 22, right: Math.floor(b.width * 0.18), zIndex: 3 }}>
+          <div style={{ width: 10, height: 14, background: "#5A4030", borderRadius: "2px 2px 0 0", margin: "0 auto" }} />
+          <div style={{ width: 14, height: 8, background: "#4A3020", borderRadius: "50% 50% 0 0 / 60% 60% 0 0", marginLeft: -2 }} />
+          <div style={{ width: 2, height: 8, background: "#4A3020", margin: "0 auto" }} />
+        </div>
+      )}
+
+      {/* Building body */}
       <div style={{
-        position: "relative", zIndex: 5,
-        padding: "68px 20px 0",
-        display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12,
+        width: b.width, height: bodyH,
+        background: b.wallColor,
+        position: "relative",
+        overflow: "hidden",
+        boxShadow: active && !b.filler ? `inset 0 0 0 2px ${PINK}88` : "inset -2px 0 8px rgba(0,0,0,0.15)",
       }}>
-        <div>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.85)", marginBottom: 5 }}>THE CITY</p>
-          <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 31, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 2px 16px rgba(200,50,100,0.5)", margin: 0 }}>
-            Your<br />Avenue.
-          </h1>
-        </div>
-        <button onClick={onSwipeToMenu} style={{
-          flexShrink: 0, marginBottom: 4,
-          background: "rgba(255,255,255,0.28)", backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.45)", borderRadius: 999,
-          padding: "9px 15px", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 7,
-          WebkitTapHighlightColor: "transparent",
-        }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.1em" }}>CITY GUIDE</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
-      </div>
+        {/* Shadow on right edge — depth */}
+        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 6, background: "rgba(0,0,0,0.12)", pointerEvents: "none" }} />
 
-      {/* ── Neighborhood search ── */}
-      <div style={{ position: "relative", zIndex: 20, padding: "14px 20px 0" }}>
+        {/* Window grid */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 9,
-          background: "rgba(255,255,255,0.22)", backdropFilter: "blur(14px) saturate(1.3)",
-          WebkitBackdropFilter: "blur(14px) saturate(1.3)",
-          border: `1.5px solid ${focused ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.35)"}`,
-          borderRadius: 999, padding: "10px 16px",
-          transition: "border-color 0.2s",
+          position: "absolute",
+          top: 10,
+          left: 0, right: 0,
+          display: "grid",
+          gridTemplateColumns: `repeat(${b.winCols}, ${winW}px)`,
+          gridTemplateRows: `repeat(${b.winRows}, ${winH}px)`,
+          gap: 4,
+          justifyContent: "center",
+          padding: "0 8px",
         }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
-            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onFocus={() => setFocused(true)}
-            placeholder="Search a neighborhood…"
-            style={{
-              flex: 1, background: "none", border: "none", outline: "none",
-              fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 500,
-              color: "white", letterSpacing: "0.01em",
-            }}
-          />
-          {query.length > 0 && (
-            <button onClick={() => { setQuery(""); inputRef.current?.focus(); }}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
-              </svg>
-            </button>
-          )}
+          {Array.from({ length: b.winCols * b.winRows }, (_, i) => {
+            const litSeed = (i * 7 + b.id.charCodeAt(0)) % 10;
+            const lit = litSeed > 3;
+            const pinkWindow = litSeed === 8;
+            return (
+              <div key={i} style={{
+                width: winW, height: winH,
+                background: pinkWindow ? `${PINK}99` : lit ? b.windowLitColor : b.windowColor,
+                borderRadius: 1,
+                boxShadow: lit ? `0 0 3px ${b.windowLitColor}66` : "none",
+              }} />
+            );
+          })}
         </div>
 
-        {/* Dropdown results */}
-        {showDropdown && (
-          <div ref={dropdownRef} style={{
-            position: "absolute", top: "calc(100% - 4px)", left: 20, right: 20,
-            background: "rgba(20,4,16,0.96)", backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 18, overflow: "hidden",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
-            zIndex: 30,
+        {/* Category label on building face — only for non-filler */}
+        {!b.filler && b.label && (
+          <div style={{
+            position: "absolute", bottom: 12, left: 0, right: 0,
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+            zIndex: 2,
           }}>
-            {results.length > 0 ? results.map((hood, i) => (
-              <Link key={hood.slug} href={`/member/city/neighborhoods/${hood.slug}`} style={{ textDecoration: "none", display: "block" }}
-                onClick={() => { setQuery(""); setFocused(false); }}>
-                <div style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "13px 16px",
-                  borderBottom: i < results.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
-                    <div>
-                      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "white", lineHeight: 1 }}>{hood.name}</p>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", marginTop: 2 }}>{hood.borough.toUpperCase()}</p>
-                    </div>
-                  </div>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </Link>
-            )) : (
-              <div style={{ padding: "18px 16px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>No neighborhoods found for "{trimmed}"</p>
-              </div>
+            <div style={{
+              background: active ? PINK : "rgba(0,0,0,0.55)",
+              backdropFilter: "blur(4px)",
+              borderRadius: 6, padding: "4px 8px",
+              border: active ? `1px solid ${PINK}` : "1px solid rgba(255,255,255,0.15)",
+              transition: "background 0.2s",
+            }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.12em", color: "white", lineHeight: 1 }}>{b.label}</p>
+            </div>
+            {b.subLabel && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 600, color: "rgba(255,255,255,0.55)", letterSpacing: "0.05em" }}>{b.subLabel}</p>
             )}
           </div>
         )}
       </div>
 
-      {/* ── Avenue: horizontal strips stacked vertically ── */}
-      <div style={{ position: "relative", zIndex: 5, flex: 1, overflowY: "auto", scrollbarWidth: "none" as const }}>
-        {strips.map(({ band, solidBg, lightBg }, idx) => (
-          <button
-            key={band.id}
-            onClick={() => onSelect(band.id)}
-            style={{
-              width: "100%", height: 78,
-              display: "flex", flexDirection: "row",
-              background: "none", border: "none",
-              borderBottom: idx < strips.length - 1 ? "1px solid rgba(255,255,255,0.12)" : "none",
-              cursor: "pointer", position: "relative", overflow: "hidden",
-              WebkitTapHighlightColor: "transparent",
-              padding: 0,
-            }}
-          >
-            {/* Left solid block with rotated label */}
-            <div style={{
-              width: 76, height: "100%", flexShrink: 0,
-              background: solidBg,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <span style={{
-                fontFamily: "var(--font-jost)",
-                fontSize: band.label.length > 7 ? 8 : 11,
-                fontWeight: 900, color: "white",
-                letterSpacing: "0.18em",
-                writingMode: "vertical-rl" as const,
-                transform: "rotate(180deg)",
-              }}>
-                {band.label}
-              </span>
-            </div>
-            {/* Right: lighter with dot texture + icon + sub */}
-            <div style={{
-              flex: 1, height: "100%",
-              background: lightBg,
-              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
-              backgroundSize: "14px 14px",
-              display: "flex", alignItems: "center",
-              padding: "0 18px",
-              gap: 14,
-            }}>
-              <span style={{ fontSize: 28, lineHeight: 1, flexShrink: 0 }}>{band.icon}</span>
-              <p style={{
-                fontFamily: "var(--font-jost)",
-                fontSize: "11px", fontWeight: 500,
-                color: "rgba(255,255,255,0.82)",
-                letterSpacing: "0.02em",
-                lineHeight: 1.3,
-              }}>
-                {band.sub}
-              </p>
-            </div>
-            {/* Arrow */}
-            <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </div>
-          </button>
-        ))}
+      {/* Ground floor — slightly darker base strip */}
+      <div style={{ width: b.width, height: 6, background: `color-mix(in srgb, ${b.wallColor} 70%, black)` }} />
+    </div>
+  );
+
+  return el;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BUILDING LABELS PANEL  — NYC skyline, horizontal scroll, tap to explore
+// ═══════════════════════════════════════════════════════════════════════════════
+function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCategory) => void; onSwipeToMenu: () => void }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  function handleBuildingTap(b: BuildingConfig) {
+    if (b.filler || !b.category) return;
+    setActiveId(b.id);
+    onSelect(b.category);
+  }
+
+  return (
+    <div style={{
+      position: "absolute", inset: 0, overflow: "hidden",
+      display: "flex", flexDirection: "column",
+    }}>
+      <style>{CSS}</style>
+
+      {/* ── SKY — clean NYC dusk gradient, no confusing imagery ── */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(180deg, #1A1040 0%, #2A1860 18%, #6A2870 38%, #C05080 58%, #E08070 75%, #F0C090 90%, #F8E0C0 100%)",
+      }} />
+
+      {/* Stars */}
+      {[{top:"8%",left:"12%"},{top:"5%",left:"35%"},{top:"12%",left:"55%"},{top:"7%",left:"72%"},{top:"14%",left:"88%"},{top:"4%",left:"92%"}].map((s,i)=>(
+        <div key={i} style={{ position:"absolute", top:s.top, left:s.left, width:2, height:2, borderRadius:"50%", background:"white", opacity:0.7, zIndex:1, pointerEvents:"none" }} />
+      ))}
+
+      {/* Moon */}
+      <div style={{ position:"absolute", top:"6%", right:"18%", zIndex:1, pointerEvents:"none" }}>
+        <div style={{ width:18, height:18, borderRadius:"50%", background:"rgba(255,245,200,0.9)", boxShadow:"0 0 12px rgba(255,240,180,0.7)" }} />
+      </div>
+
+      {/* Header */}
+      <div style={{ position:"relative", zIndex:5, padding:"calc(env(safe-area-inset-top,0px) + 68px) 20px 0", display:"flex", alignItems:"flex-end", justifyContent:"space-between" }}>
+        <div>
+          <p style={{ fontFamily:"var(--font-jost)", fontSize:"7px", fontWeight:800, letterSpacing:"0.3em", color:"rgba(255,255,255,0.6)", marginBottom:4 }}>THE CITY</p>
+          <h1 style={{ fontFamily:"var(--font-fraunces)", fontSize:28, fontWeight:900, fontStyle:"italic", color:"white", lineHeight:1, margin:0, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>New York.</h1>
+        </div>
+        <button onClick={onSwipeToMenu} style={{
+          background:"rgba(255,255,255,0.18)", backdropFilter:"blur(10px)",
+          border:"1px solid rgba(255,255,255,0.35)", borderRadius:999,
+          padding:"8px 14px", cursor:"pointer", display:"flex", alignItems:"center", gap:6,
+          WebkitTapHighlightColor:"transparent",
+        }}>
+          <span style={{ fontFamily:"var(--font-jost)", fontSize:"8px", fontWeight:700, color:"white", letterSpacing:"0.1em" }}>CITY GUIDE</span>
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      {/* Hint text */}
+      <div style={{ position:"relative", zIndex:5, padding:"10px 20px 0" }}>
+        <p style={{ fontFamily:"var(--font-caveat)", fontSize:14, color:"rgba(255,255,255,0.45)" }}>tap a building to explore ↓</p>
+      </div>
+
+      {/* ── SKYLINE — horizontal scroll, buildings sit on ground ── */}
+      <div style={{ flex:1, position:"relative", zIndex:4 }}>
+        {/* Ground / street */}
+        <div style={{
+          position:"absolute", bottom:0, left:0, right:0, height:24,
+          background:"linear-gradient(to top, #1A1208, #2A2010)",
+          zIndex:2,
+        }}>
+          {/* Street dashes */}
+          <div style={{ position:"absolute", top:"50%", left:0, right:0, height:1, background:"repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 20px, transparent 20px, transparent 40px)" }} />
+        </div>
+
+        {/* Sidewalk strip */}
+        <div style={{ position:"absolute", bottom:24, left:0, right:0, height:8, background:"#2A2818", zIndex:2 }} />
+
+        {/* Horizontal scroll of buildings */}
+        <div style={{
+          position:"absolute", bottom:32, left:0, right:0,
+          overflowX:"auto", overflowY:"hidden",
+          scrollbarWidth:"none" as const,
+          display:"flex", alignItems:"flex-end",
+          paddingLeft:16, paddingRight:32,
+          zIndex:3,
+          WebkitOverflowScrolling: "touch" as const,
+        }}
+          className="type-scroll"
+        >
+          {/* Ambient city glow at ground level */}
+          <div style={{ position:"sticky", left:0, bottom:0, width:"100%", height:40, background:"linear-gradient(to top, rgba(255,140,60,0.18), transparent)", pointerEvents:"none", zIndex:1 }} />
+
+          {SKYLINE_BUILDINGS.map(b => (
+            <BuildingTile
+              key={b.id}
+              b={b}
+              active={activeId === b.id}
+              onTap={() => handleBuildingTap(b)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
