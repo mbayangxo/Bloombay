@@ -34,6 +34,8 @@ interface Message {
 const PINK  = "#FF1F7D";
 const CREAM = "#FAF6F2";
 const PAPER = "#FEFCF9";
+const DARK  = "#1C1B1C";
+const LOUNGE_BG = "linear-gradient(180deg, #1A050F 0%, #2A0A18 40%, #1C0812 100%)";
 
 const CONVOS: Convo[] = [
   { id: 1, type: "plan",   name: "Morocco October",  initial: "M",  color: "#FF1F7D", preview: "Aaliyah: Who's booking flights?",         time: "2m",  unread: 3, subtitle: "Plan Room · 6 women" },
@@ -219,13 +221,13 @@ function NewChatSheet({ onClose }: { onClose: () => void }) {
 function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread: boolean; isLast: boolean; onClick: () => void }) {
   const isDM = convo.type === "direct";
   return (
-    <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", textAlign: "left", cursor: "pointer", background: isUnread ? "#FFFCF9" : "white", borderBottom: isLast ? "none" : "1px solid #F5EFE9", gap: 14, padding: "14px 16px", WebkitTapHighlightColor: "transparent" }}>
+    <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", textAlign: "left", cursor: "pointer", background: isUnread ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)", borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)", gap: 14, padding: "14px 16px", WebkitTapHighlightColor: "transparent" }}>
       <div style={{ position: "relative", flexShrink: 0 }}>
-        <div style={{ width: 50, height: 50, borderRadius: isDM ? "50%" : "16px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", background: convo.bgGradient ?? `linear-gradient(135deg,${convo.color},${convo.color}BB)`, fontSize: convo.initial.length > 1 ? "12px" : "18px", boxShadow: isUnread ? `0 0 0 2.5px ${convo.color},0 0 0 5px ${CREAM}` : "0 2px 8px rgba(0,0,0,0.1)" }}>
+        <div style={{ width: 50, height: 50, borderRadius: isDM ? "50%" : "16px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", background: convo.bgGradient ?? `linear-gradient(135deg,${convo.color},${convo.color}BB)`, fontSize: convo.initial.length > 1 ? "12px" : "18px", boxShadow: isUnread ? `0 0 0 2.5px ${convo.color},0 0 0 5px rgba(255,255,255,0.05)` : "0 2px 8px rgba(0,0,0,0.3)" }}>
           {convo.initial}
         </div>
         {isDM && convo.online && (
-          <div style={{ position: "absolute", bottom: 2, right: 2, width: 12, height: 12, borderRadius: "50%", background: "#22C55E", border: "2px solid white" }}/>
+          <div style={{ position: "absolute", bottom: 2, right: 2, width: 12, height: 12, borderRadius: "50%", background: "#22C55E", border: "2px solid #1A050F" }}/>
         )}
         {isUnread && convo.unread > 0 && (
           <div style={{ position: "absolute", top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: PINK, boxShadow: "0 1px 4px rgba(255,31,125,0.55)" }}>
@@ -235,13 +237,13 @@ function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-          <p style={{ flex: 1, minWidth: 0, fontSize: "14px", fontWeight: isUnread ? 700 : 500, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.2 }}>{convo.name}</p>
-          <span style={{ fontSize: "10px", flexShrink: 0, color: "#C0B5AD" }}>{convo.time}</span>
+          <p style={{ flex: 1, minWidth: 0, fontSize: "14px", fontWeight: isUnread ? 700 : 500, color: "white", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.2 }}>{convo.name}</p>
+          <span style={{ fontSize: "10px", flexShrink: 0, color: "rgba(255,255,255,0.35)" }}>{convo.time}</span>
         </div>
-        <p style={{ fontSize: "12px", color: isUnread ? "#555" : "#B8AFA8", fontWeight: isUnread ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4 }}>{convo.preview}</p>
-        {convo.subtitle && <p style={{ fontSize: "10px", color: "#C8BFB6", marginTop: 2 }}>{convo.subtitle}</p>}
+        <p style={{ fontSize: "12px", color: isUnread ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.35)", fontWeight: isUnread ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4 }}>{convo.preview}</p>
+        {convo.subtitle && <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.25)", marginTop: 2 }}>{convo.subtitle}</p>}
       </div>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(180,150,140,0.35)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
         <polyline points="9 18 15 12 9 6"/>
       </svg>
     </button>
@@ -625,32 +627,33 @@ export default function ChatPage() {
   const totalUnread = CONVOS.filter(c => c.type !== "plan").reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 112, background: CREAM }}>
+    <div style={{ minHeight: "100vh", paddingBottom: 112, background: LOUNGE_BG, position: "relative", overflow: "hidden" }}>
+      {/* Ambient pink glow behind header */}
+      <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "120%", height: 340, background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,31,125,0.22) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+
       {/* Header */}
-      <div style={{ padding: "70px 20px 18px" }}>
+      <div style={{ padding: "70px 20px 18px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>✦ CHATS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.45)", marginBottom: 6, textTransform: "uppercase" }}>✦ Members Lounge</p>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(38px,10vw,52px)", fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 0.9 }}>Chats.</h1>
+              <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(38px,10vw,54px)", fontWeight: 900, fontStyle: "italic", color: "#F6F1EB", lineHeight: 0.9 }}>The Lounge.</h1>
               {totalUnread > 0 && (
-                <span style={{ fontSize: "9px", fontWeight: 800, color: "white", background: PINK, borderRadius: 999, padding: "3px 10px", boxShadow: "0 2px 8px rgba(255,31,125,0.4)", marginBottom: 4 }}>{totalUnread} new</span>
+                <span style={{ fontSize: "9px", fontWeight: 800, color: "white", background: PINK, borderRadius: 999, padding: "3px 10px", boxShadow: "0 2px 8px rgba(255,31,125,0.5)", marginBottom: 4 }}>{totalUnread} new</span>
               )}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
-              <div style={{ height: 1, width: 36, background: PINK, opacity: 0.35 }}/><div style={{ height: 1, width: 14, background: PINK, opacity: 0.18 }}/><div style={{ height: 1, width: 6, background: PINK, opacity: 0.1 }}/>
-            </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "15px", fontStyle: "italic", color: "rgba(255,255,255,0.38)", marginTop: 6 }}>where conversations happen</p>
           </div>
-          <button onClick={() => setShowNewChat(true)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(135deg,${PINK},#FF69B4)`, boxShadow: "0 3px 12px rgba(255,31,125,0.38)", border: "none", cursor: "pointer", marginTop: 28 }}>
+          <button onClick={() => setShowNewChat(true)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(135deg,${PINK},#FF69B4)`, boxShadow: "0 3px 16px rgba(255,31,125,0.5)", border: "none", cursor: "pointer", marginTop: 32, flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div style={{ padding: "0 20px 16px", display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none" }}>
+      <div style={{ padding: "0 20px 16px", display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none", position: "relative", zIndex: 1 }}>
         {FILTERS.map(f => (
-          <button key={f.value} onClick={() => setFilter(f.value)} style={{ padding: "7px 16px", borderRadius: 999, flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer", ...(filter === f.value ? { background: "#1A1A1A", color: "white", border: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.18)" } : { background: "white", color: "#888", border: "1.5px solid #EBE5DF" }) }}>
+          <button key={f.value} onClick={() => setFilter(f.value)} style={{ padding: "7px 16px", borderRadius: 999, flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer", ...(filter === f.value ? { background: PINK, color: "white", border: "none", boxShadow: `0 2px 12px rgba(255,31,125,0.4)` } : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }) }}>
             {f.label}
           </button>
         ))}
@@ -658,16 +661,16 @@ export default function ChatPage() {
 
       {/* Conversation list */}
       {shown.length > 0 ? (
-        <div style={{ margin: "0 16px", borderRadius: 20, overflow: "hidden", background: "white", boxShadow: "0 4px 24px rgba(0,0,0,0.07)", border: "1px solid #EDE7E0" }}>
+        <div style={{ margin: "0 16px", borderRadius: 20, overflow: "hidden", background: "rgba(255,255,255,0.04)", boxShadow: "0 4px 40px rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.08)", position: "relative", zIndex: 1 }}>
           {shown.map((convo, idx) => (
             <ConvoRow key={convo.id} convo={convo} isUnread={convo.unread > 0 && !read.has(convo.id)} isLast={idx === shown.length - 1} onClick={() => openConvo(convo)} />
           ))}
         </div>
       ) : (
-        <div style={{ margin: "0 16px", borderRadius: 20, padding: "56px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "white", boxShadow: "0 4px 24px rgba(0,0,0,0.07)", border: "1px solid #EDE7E0" }}>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", background: "#FFF0F5" }}>💬</div>
-          <p style={{ fontSize: "14px", fontWeight: 600, color: "#AAA" }}>No conversations here yet</p>
-          <p style={{ fontSize: "12px", textAlign: "center", color: "#CCC", maxWidth: 220, lineHeight: 1.5 }}>Tap + to start a conversation.</p>
+        <div style={{ margin: "0 16px", borderRadius: 20, padding: "56px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.05)", boxShadow: "0 4px 40px rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.08)", position: "relative", zIndex: 1 }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", background: "rgba(255,31,125,0.15)" }}>💬</div>
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.5)" }}>No conversations here yet</p>
+          <p style={{ fontSize: "12px", textAlign: "center", color: "rgba(255,255,255,0.3)", maxWidth: 220, lineHeight: 1.5 }}>Tap + to start a conversation.</p>
         </div>
       )}
 
