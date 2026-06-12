@@ -156,7 +156,39 @@ export async function toggleFlower(noteId: string): Promise<{ gave: boolean }> {
   return { gave: true };
 }
 
-// Toggle saving a note. Returns new state.
+// Batch load note counts for multiple places — use on listing pages
+export async function getNoteCountsByPlace(slugs: string[]): Promise<Record<string, number>> {
+  if (slugs.length === 0) return {};
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("bloom_notes")
+    .select("place_slug")
+    .in("place_slug", slugs);
+
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    counts[row.place_slug] = (counts[row.place_slug] ?? 0) + 1;
+  }
+  return counts;
+}
+
+// Top notes for a place, sorted by flower count (most flowers first)
+export async function getTopNotesForPlace(placeSlug: string, limit = 50): Promise<BloomNote[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from("bloom_notes")
+    .select(NOTE_SELECT)
+    .eq("place_slug", placeSlug)
+    .limit(limit);
+
+  if (error || !data) return [];
+  return (data as unknown as NoteRow[])
+    .map(r => rowToNote(r, user?.id ?? null))
+    .sort((a, b) => b.flower_count - a.flower_count);
+}
+
 export async function toggleSaveNote(noteId: string): Promise<{ saved: boolean }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
