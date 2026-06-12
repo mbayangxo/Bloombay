@@ -3,11 +3,43 @@
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
+import { EventCard, type EventCardData, type EventType } from "@/app/components/portal/event-card-templates";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
 const CREAM  = "#F6F1EB";
 const NAV_BG = "#F6F1EB";
+
+// Map DB event_type string → EventType for template dispatch
+function inferEventType(ev: Event): EventType {
+  const t = (ev.event_type ?? "").toLowerCase();
+  if (t.includes("concert") || t.includes("music") || t.includes("show") || t.includes("performance")) return "concert";
+  if (t.includes("party") || t.includes("birthday") || t.includes("celebration") || t.includes("social")) return "party";
+  if (t.includes("invitation") || t.includes("invite")) return "invitation";
+  if (t.includes("brunch") || t.includes("dinner") || t.includes("lunch") || t.includes("meal")) return "brunch";
+  if (t.includes("walk") || t.includes("outdoor") || t.includes("hike") || t.includes("run")) return "walk";
+  if (t.includes("museum") || t.includes("gallery") || t.includes("art") || t.includes("exhibition")) return "museum";
+  return "gathering";
+}
+
+function toCardData(ev: Event): EventCardData {
+  const d = new Date(ev.starts_at);
+  const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
+  const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return {
+    id: ev.id,
+    type: inferEventType(ev),
+    title: ev.title,
+    host: ev.host_name ?? undefined,
+    location: ev.venue ?? ev.neighborhood ?? ev.city,
+    date: dateStr,
+    time: timeStr,
+    spotsLeft: ev.spots_left ?? undefined,
+    going: ev.attending_count,
+    accentColor: ev.accent_color ?? undefined,
+    href: `/member/happenings/${ev.slug ?? ev.id}`,
+  };
+}
 
 function getPageBg(): string {
   const h = new Date().getHours();
@@ -540,56 +572,59 @@ function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub
   );
 }
 
-/* ── Collage section (real events) ───────────────────────── */
-function CollageGrid({ events, joined, toggleJoin }: { events: Event[]; joined: Set<string>; toggleJoin: (id: string) => void }) {
-  let posterCount = 0;
-  let ticketCount = 0;
-  let clubCount   = 0;
-
+/* ── Event templates strip (real events) ────────────────── */
+function EventTemplatesStrip({ events }: { events: Event[] }) {
+  if (events.length === 0) return null;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px" }}>
-      {events.map((ev, i) => {
-        const mod = i % 5;
-        const isFullWidth = mod === 0;
-
-        if (isFullWidth) {
-          const pi = posterCount++;
-          return (
-            <div key={ev.id} style={{ gridColumn: "span 2" }}>
-              <PosterCard ev={ev} posterIdx={pi} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)} fullWidth/>
-            </div>
-          );
-        } else if (mod === 1 || mod === 3) {
-          const ti = ticketCount++;
-          return <TicketCard key={ev.id} ev={ev} ticketIdx={ti} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
-        } else if (mod === 2) {
-          return <PaperCard key={ev.id} ev={ev} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
-        } else {
-          const ci = clubCount++;
-          return <ClubCard key={ev.id} ev={ev} clubIdx={ci} joined={joined.has(ev.id)} onToggle={() => toggleJoin(ev.id)}/>;
-        }
-      })}
+    <div>
+      <div style={{ padding: "0 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>YOUR EVENTS</span>
+      </div>
+      <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
+        {events.map(ev => (
+          <EventCard key={ev.id} ev={toCardData(ev)} />
+        ))}
+      </div>
     </div>
   );
 }
 
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
+  const DEMO_EVENTS: EventCardData[] = [
+    { id: "d1", type: "concert",    title: "Vinyl Night & Jazz", host: "Girl Creatives", location: "Bushwick", date: "SAT JUN 14", time: "9 PM", spotsLeft: 12, accentColor: "#1C1B1C" },
+    { id: "d2", type: "party",      title: "Girls Night Out",    host: "BloomBay",       location: "SoHo",     date: "FRI JUN 13", time: "10 PM", spotsLeft: 6,  accentColor: PINK },
+    { id: "d3", type: "gathering",  title: "Italian Dinner Society", host: "Yande",      location: "Carbone",  date: "THU JUN 19", time: "7:30 PM", going: 8 },
+    { id: "d4", type: "invitation", title: "Pilates + Matcha",   host: "Sofia K.",       location: "Williamsburg", date: "SUN JUN 15", time: "9 AM", spotsLeft: 3 },
+    { id: "d5", type: "brunch",     title: "Sunday Brunch Club", host: "BloomBay",       location: "Ladurée SoHo", date: "SUN JUN 22", time: "11 AM", going: 14 },
+    { id: "d6", type: "museum",     title: "MoMA + Froyo After", host: "Girl Creatives", location: "Midtown",  date: "SAT JUN 21", time: "2 PM", spotsLeft: 5 },
+  ];
+
   return (
     <>
-      {/* Featured swipe strip */}
+      {/* Template showcase — one of each type */}
+      <div style={{ padding: "0 14px 8px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>HAPPENING SOON</p>
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 12, scrollbarWidth: "none" as const }}>
+          {DEMO_EVENTS.map(ev => (
+            <EventCard key={ev.id} ev={ev} />
+          ))}
+        </div>
+      </div>
+      {/* Photo poster strip */}
       <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 12px 12px", scrollbarWidth: "none" as const }}>
         {[
           { img: POSTER_IMGS[0], title: "Girls Night Out", sub: "This weekend · SoHo" },
           { img: POSTER_IMGS[7], title: "Rooftop Sessions", sub: "Fri · 8PM · Williamsburg" },
-          { img: POSTER_IMGS[1], title: "Save the Date: Aperitivo", sub: "Next Fri · Harlem" },
           { img: POSTER_IMGS[5], title: "Dance All Night", sub: "Sat · Midnight · DUMBO" },
         ].map((item, i) => (
-          <div key={i} style={{ flexShrink: 0, width: 160, height: 200, borderRadius: 14, overflow: "hidden", position: "relative", boxShadow: "0 6px 22px rgba(0,0,0,0.45)" }}>
+          <div key={i} style={{ flexShrink: 0, width: 150, height: 190, borderRadius: 14, overflow: "hidden", position: "relative", boxShadow: "0 6px 22px rgba(0,0,0,0.45)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.img} alt={item.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%)" }}/>
             <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{item.title}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2 }}>{item.title}</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", marginTop: 2 }}>{item.sub}</p>
             </div>
           </div>
@@ -805,7 +840,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
             {/* Collage: real events */}
             {!loading && filtered.length > 0 && (
-              <CollageGrid events={filtered} joined={joined} toggleJoin={toggleJoin}/>
+              <EventTemplatesStrip events={filtered} />
             )}
 
             {/* Collage: static posters when no events */}
