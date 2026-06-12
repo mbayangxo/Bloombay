@@ -274,164 +274,147 @@ export function LandingPage() {
           minHeight: "100svh",
           background: "#FF1F7D",
           paddingTop: "env(safe-area-inset-top, 0px)",
+          overflow: "hidden",
         }}
       >
+        <style>{`
+          .bb-outline {
+            -webkit-text-stroke: 2.5px white;
+            color: transparent;
+          }
+          .bb-outline-dark {
+            -webkit-text-stroke: 2.5px rgba(180,0,80,0.7);
+            color: transparent;
+          }
+        `}</style>
+
         {/* Logo bar */}
-        <div className="flex items-center justify-between px-7 pt-10 pb-2">
+        <div className="flex items-center justify-between px-6 pt-9 pb-0">
           <div className="flex items-center gap-2">
-            <BBLogo size={22} light />
-            <span className="text-xs font-black tracking-widest" style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.22em" }}>BLOOMBAY</span>
+            <BBLogo size={20} light />
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.26em", color: "rgba(255,255,255,0.5)" }}>BLOOMBAY</span>
           </div>
-          <Link
-            href="/portals"
-            className="text-xs font-bold tracking-widest"
-            style={{ color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em" }}
-          >
+          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
             LOG IN
           </Link>
         </div>
 
-        {/* Hero statement */}
-        <div className="flex-1 flex flex-col justify-end px-6 pb-5">
-          <h1 style={{ margin: 0 }}>
-            <span
-              className="block"
-              style={{
-                fontSize: "clamp(38px, 11vw, 52px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                color: "white",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.05,
-              }}
-            >
-              Women are gathering.
+        {/* ── HERO TYPOGRAPHY ── */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 22px", paddingTop: 8 }}>
+
+          {/* Eyebrow */}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.5)", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+            <span>✦</span> EST. 2025 · NEW YORK CITY
+          </p>
+
+          {/* Main headline — mixed filled + outlined */}
+          <h1 style={{ margin: 0, lineHeight: 0.88 }}>
+            {/* "Women" — huge, white bold filled */}
+            <span className="block" style={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 900,
+              fontSize: "clamp(68px, 19vw, 86px)",
+              color: "white",
+              letterSpacing: "-0.03em",
+              lineHeight: 0.9,
+            }}>
+              Women
             </span>
-            <span
-              className="block"
-              style={{
-                fontSize: "clamp(38px, 11vw, 52px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                color: "rgba(255,255,255,0.72)",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.05,
-              }}
-            >
-              It&apos;s a woman&apos;s world.
+
+            {/* "are" — italic, Fraunces, medium weight filled */}
+            <span className="block" style={{
+              fontFamily: "var(--font-fraunces)",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: "clamp(58px, 16vw, 74px)",
+              color: "white",
+              letterSpacing: "-0.02em",
+              lineHeight: 0.95,
+            }}>
+              are
             </span>
-            <span
-              className="block"
-              style={{
-                fontSize: "clamp(38px, 11vw, 52px)",
-                fontFamily: "var(--font-fraunces)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                color: "rgba(255,255,255,0.72)",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.05,
-              }}
-            >
-              We&apos;re it.
+
+            {/* "gathering." — outlined/hollow */}
+            <span className="block bb-outline" style={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 900,
+              fontSize: "clamp(56px, 15vw, 72px)",
+              letterSpacing: "-0.03em",
+              lineHeight: 0.95,
+            }}>
+              gathering.
             </span>
           </h1>
-          <p
-            className="mt-6"
-            style={{
-              fontSize: "13px",
-              color: "rgba(255,255,255,0.46)",
-              fontFamily: "var(--font-jost)",
-              fontWeight: 400,
-              lineHeight: 1.6,
-              maxWidth: 260,
-            }}
-          >
-            A private world for women — clubs, gatherings, and real connections.
-          </p>
+
+          {/* Small caps list — like IMG_3878 */}
+          <div style={{ margin: "22px 0 0", display: "flex", flexDirection: "column", gap: 3 }}>
+            {["DINNER RESERVATIONS.", "MUSEUM GIRLS.", "BOOK CLUBS.", "SUNDAY WALKS."].map(line => (
+              <p key={line} style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                color: "rgba(255,255,255,0.55)",
+              }}>{line}</p>
+            ))}
+          </div>
+
+          {/* Rule + tagline */}
+          <div style={{ marginTop: 20 }}>
+            <div style={{ width: 32, height: 1.5, background: "rgba(255,255,255,0.35)", marginBottom: 14 }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+              A city of women is already happening.
+            </p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "14px", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+              Find your table.
+            </p>
+          </div>
         </div>
 
-        {/* CTAs — invitation card style */}
-        <div className="px-5 pb-14 pt-5 flex flex-col gap-3">
-          {/* Luxury invitation card CTA */}
-          <Link
-            href="/waitlist"
-            style={{
-              display: "block",
-              background: "#FDF8F2",
-              borderRadius: 12,
-              padding: "20px 22px",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.95)",
-              border: "1px solid rgba(26,0,14,0.07)",
-              textDecoration: "none",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "7.5px",
-                fontWeight: 900,
-                letterSpacing: "0.28em",
-                color: "#bbb",
-                fontFamily: "var(--font-jost)",
-                marginBottom: 10,
-              }}
-            >
-              YOU ARE CORDIALLY INVITED
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontStyle: "italic",
-                    fontWeight: 400,
-                    fontSize: "22px",
-                    color: "#1A000E",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  Request your invitation.
-                </p>
-                <p style={{ fontSize: "11px", color: "#aaa", marginTop: 5, fontFamily: "var(--font-jost)" }}>
-                  Join the waitlist →
-                </p>
-              </div>
-              {/* Wax seal */}
-              <div
-                style={{
-                  width: 46, height: 46, borderRadius: "50%", flexShrink: 0,
-                  background: "linear-gradient(135deg,#FF1F7D,#c4005a)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 4px 14px rgba(255,31,125,0.5)",
-                }}
-              >
-                <span style={{ color: "white", fontWeight: 900, fontSize: "11px", fontFamily: "var(--font-jost)", letterSpacing: "0.05em" }}>BB</span>
-              </div>
+        {/* ── CTAs ── */}
+        <div style={{ padding: "20px 20px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+          <Link href="/waitlist" style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "white", borderRadius: 999,
+            padding: "16px 24px",
+            textDecoration: "none",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+          }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 900, letterSpacing: "0.1em", color: "#FF1F7D" }}>
+              JOIN THE WAITLIST →
+            </span>
+          </Link>
+
+          <Link href="/portals" style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 999,
+            padding: "14px 24px",
+            textDecoration: "none",
+          }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
+              Log in
+            </span>
+          </Link>
+        </div>
+
+        {/* ── Stat bar — inspired by dark concept ── */}
+        <div style={{
+          margin: "20px 20px 0",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 0,
+          borderTop: "1px solid rgba(255,255,255,0.15)",
+          paddingTop: 16,
+        }}>
+          {[
+            { num: "247", label: "members" },
+            { num: "500", label: "founding spots" },
+            { num: "NYC", label: "first city" },
+          ].map((s, i) => (
+            <div key={s.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, borderRight: i < 2 ? "1px solid rgba(255,255,255,0.15)" : "none" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "18px", fontWeight: 900, color: "white", lineHeight: 1 }}>{s.num}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>{s.label.toUpperCase()}</p>
             </div>
-          </Link>
-
-          {/* Founding Mother option */}
-          <Link
-            href="/waitlist"
-            className="flex items-center justify-center gap-2 py-2"
-            style={{ textDecoration: "none" }}
-          >
-            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", fontFamily: "var(--font-jost)" }}>
-              Apply as a
-            </span>
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)" }}>
-              Founding Mother 👑
-            </span>
-          </Link>
-
-          <Link
-            href="/portals"
-            className="flex items-center justify-center py-2"
-            style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontFamily: "var(--font-jost)" }}
-          >
-            already a member?&nbsp;<strong style={{ color: "rgba(255,255,255,0.68)" }}>sign in</strong>
-          </Link>
+          ))}
         </div>
       </section>
 
