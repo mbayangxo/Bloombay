@@ -38,7 +38,7 @@ interface WallZone {
 const WALL_ZONES: WallZone[] = [
   {
     id: "now",
-    emoji: "🔥", label: "Happening Now", sub: "Right now, in real time",
+    emoji: "✦", label: "Happening Now", sub: "Right now, in real time",
     dark: true, noteBg: "#0D0810",
     accent: "#FF1F7D", textColor: "rgba(255,255,255,0.88)", subColor: "rgba(255,255,255,0.32)",
     emptyText: "Nothing happening yet.",
@@ -77,7 +77,7 @@ const GIRL_BAR_ROOMS = [
   { id: 1, name: "Late Night Lounge", sub: "Open now",                    desc: "No filter, no judgment. Slip in and stay a while.",      women: 127, live: true,  color: "#FF1F7D", emoji: "🌙" },
   { id: 2, name: "Voice Rooms",       sub: "Join a conversation",          desc: "Live audio spaces — listen in or take the mic.",         women: 84,  live: true,  color: "#C084FC", emoji: "🎙" },
   { id: 3, name: "Confessions",       sub: "Share anonymously",            desc: "Say what you've been holding. No names here.",           women: 52,  live: true,  color: "#FB7185", emoji: "💌" },
-  { id: 4, name: "Hot Topics",        sub: "What's on everyone's mind",    desc: "The conversations happening right now.",                 women: 84,  live: true,  color: "#F59E0B", emoji: "🔥" },
+  { id: 4, name: "Hot Topics",        sub: "What's on everyone's mind",    desc: "The conversations happening right now.",                 women: 84,  live: true,  color: "#FF1F7D", emoji: "♡" },
 ];
 
 // ── Seed content ─────────────────────────────────────────────────────────────
@@ -497,7 +497,7 @@ const WALL_AVATARS = [
 
 const ZONE_FILTERS: { id: WallCategory | "all"; label: string; emoji: string }[] = [
   { id: "all",      label: "All",         emoji: "✦" },
-  { id: "now",      label: "Happening Now", emoji: "🔥" },
+  { id: "now",      label: "Happening Now", emoji: "✦" },
   { id: "gather",   label: "Gather",      emoji: "🌸" },
   { id: "ask",      label: "Ask the Room", emoji: "💬" },
   { id: "discover", label: "Discover",    emoji: "✦" },

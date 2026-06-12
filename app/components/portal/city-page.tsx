@@ -1953,7 +1953,7 @@ function GoPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 const TICKER_ITEMS = ["VILLA PIZZA", "DIOR CAFÉ POP-UP", "JAZZ CLUB FRIDAYS", "ROOFTOP THURSDAYS", "PASTA NIGHT LES", "BROOKLYN FLEA", "MATCHA BARS", "HOTEL BARS", "WINE TASTING SOHO"];
 const TREND_LIST = [
-  { rank: 1,  name: "Italian in the West Village",    tag: "DINING",     count: 247, hot: true,  badge: "🔥 ON FIRE" },
+  { rank: 1,  name: "Italian in the West Village",    tag: "DINING",     count: 247, hot: true,  badge: "✦ MOST SEARCHED" },
   { rank: 2,  name: "Dior Café Pop-Up on Madison",    tag: "POP-UP",     count: 188, hot: true,  badge: "✦ NEW" },
   { rank: 3,  name: "Late Night Jazz in Harlem",       tag: "NIGHTLIFE",  count: 156, hot: false, badge: null },
   { rank: 4,  name: "Rooftop Bars This Season",        tag: "DRINKS",     count: 134, hot: false, badge: null },

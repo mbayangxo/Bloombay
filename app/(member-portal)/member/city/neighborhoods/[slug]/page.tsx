@@ -203,7 +203,7 @@ function EatCard({ eat, accent }: { eat: NeighborhoodData["eats"][0]; accent: st
     }}>
       {eat.hot && (
         <div style={{ position: "absolute", top: 14, right: 14, background: PINK, borderRadius: 999, padding: "2px 9px" }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>🔥 HOT</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>✦ HOT</span>
         </div>
       )}
       <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 7 }}>
@@ -331,7 +331,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
               letterSpacing: "0.12em", textTransform: "uppercase" as const,
               color: tab === t ? hood.heroAccent : "rgba(255,255,255,0.28)",
             }}>
-              {t === "eats" ? "🍽 Eats" : t === "trending" ? "🔥 Trending" : "✦ Most Loved"}
+              {t === "eats" ? "🍽 Eats" : t === "trending" ? "✦ Trending" : "✦ Most Loved"}
             </span>
           </button>
         ))}
