@@ -29,13 +29,9 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
               YANDE · BLOOMBAY AI
             </p>
 
-            <h1 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(24px, 7vw, 32px)", color: DARK, lineHeight: 1.2, marginBottom: 14 }}>
+            <h1 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(24px, 7vw, 32px)", color: DARK, lineHeight: 1.2, marginBottom: 36 }}>
               Try again in a moment.
             </h1>
-
-            <p style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 17, color: "#8A6A7A", lineHeight: 1.6, marginBottom: 36 }}>
-              We&apos;ll be right back. Try again shortly.
-            </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <button onClick={() => reset()} style={{ background: PINK, color: "white", border: "none", borderRadius: 999, padding: "14px 0", cursor: "pointer", fontFamily: "sans-serif", fontSize: "10px", fontWeight: 800, letterSpacing: "0.14em", boxShadow: `0 6px 20px ${PINK}44`, width: "100%" }}>

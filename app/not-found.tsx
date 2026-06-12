@@ -45,20 +45,15 @@ export default function NotFound() {
           fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
           fontSize: "clamp(26px, 8vw, 34px)", color: DARK, lineHeight: 1.2, marginBottom: 14,
         }}>
-          Hmm. This page doesn't exist.
+          This page isn&apos;t here.
         </h1>
 
         <p style={{
           fontFamily: "var(--font-caveat)", fontSize: 18, color: "#8A6A7A",
-          lineHeight: 1.55, marginBottom: 8,
-        }}>
-          I looked everywhere for it. Trust me, I checked.
-        </p>
-        <p style={{
-          fontFamily: "var(--font-caveat)", fontSize: 17, color: "#B08A9A",
           lineHeight: 1.55, marginBottom: 36,
         }}>
-          Maybe the link changed, or it was just never here. Either way — let's get you somewhere good.
+          The link may have changed, or it was never here to begin with.<br/>
+          Let me take you somewhere real.
         </p>
 
         {/* CTAs */}
