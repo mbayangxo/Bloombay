@@ -1617,71 +1617,104 @@ function CityHub({ onSelect }: { onSelect: (m: "tonight" | "guide") => void }) {
 }
 
 // ── Root city page ────────────────────────────────────────────────────────────
-type CityRootMode = "hub" | "tonight" | "guide";
+type CityRootMode = "tonight" | "guide" | "map";
 
 export function CityPage() {
-  const [mode, setMode] = useState<CityRootMode>("hub");
+  const [mode, setMode] = useState<CityRootMode>("tonight");
 
-  if (mode === "tonight") {
-    return (
-      <div style={{ minHeight: "100vh" }}>
-        {/* Back button */}
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-          paddingTop: "env(safe-area-inset-top, 0px)",
-          background: "rgba(255,252,248,0.96)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,31,125,0.1)",
-        }}>
-          <div style={{ height: 54, display: "flex", alignItems: "center", padding: "0 16px", gap: 12 }}>
-            <button onClick={() => setMode("hub")} style={{
-              background: "none", border: "none", cursor: "pointer", padding: 0,
-              display: "flex", alignItems: "center", gap: 7,
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>CITY</span>
-            </button>
-            <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.1)" }} />
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: DARK }}>Out Tonight</p>
-          </div>
-        </div>
-        <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
-          <HappeningsPage standalone={false} />
+  const MODES: { id: CityRootMode; label: string }[] = [
+    { id: "tonight", label: "TONIGHT"    },
+    { id: "guide",   label: "CITY GUIDE" },
+    { id: "map",     label: "MAP"        },
+  ];
+
+  return (
+    <div style={{ minHeight: "100vh" }}>
+      {/* Fixed top bar with pill buttons */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        background: "rgba(255,252,248,0.97)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderBottom: "1px solid rgba(255,31,125,0.1)",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+      }}>
+        <div style={{ height: 54, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", gap: 8 }}>
+          {MODES.map(m => {
+            const active = mode === m.id;
+            return (
+              <button key={m.id} onClick={() => setMode(m.id)} style={{
+                padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer",
+                background: active ? PINK : "rgba(0,0,0,0.06)",
+                color: active ? "white" : "rgba(0,0,0,0.45)",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+                letterSpacing: "0.07em", whiteSpace: "nowrap" as const,
+                boxShadow: active ? `0 4px 14px ${PINK}55` : "none",
+                transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+                transform: active ? "scale(1.04)" : "scale(1)",
+              }}>
+                {m.label}
+              </button>
+            );
+          })}
         </div>
       </div>
-    );
-  }
 
-  if (mode === "guide") {
-    return (
-      <div style={{ minHeight: "100vh" }}>
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
-          paddingTop: "env(safe-area-inset-top, 0px)",
-          background: "rgba(255,252,248,0.96)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,31,125,0.1)",
-        }}>
-          <div style={{ height: 54, display: "flex", alignItems: "center", padding: "0 16px", gap: 12 }}>
-            <button onClick={() => setMode("hub")} style={{
-              background: "none", border: "none", cursor: "pointer", padding: 0,
-              display: "flex", alignItems: "center", gap: 7,
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.08em" }}>CITY</span>
-            </button>
-            <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.1)" }} />
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: DARK }}>City Guide</p>
-          </div>
-        </div>
-        <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
-          <CityGuide />
+      {/* Content */}
+      <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
+        {mode === "tonight" && <HappeningsPage standalone={false} />}
+        {mode === "guide"   && <CityGuide />}
+        {mode === "map"     && <CityMapView />}
+      </div>
+    </div>
+  );
+}
+
+// ── Map view placeholder (real map integration TBD) ──────────────────────────
+function CityMapView() {
+  return (
+    <div style={{ minHeight: "calc(100vh - 54px)", background: "#F0EBE4", paddingBottom: 110 }}>
+      {/* Neighborhood search on map page */}
+      <div style={{
+        padding: "16px 16px 0",
+        background: "linear-gradient(160deg, #FF1F7D 0%, #E8006A 100%)",
+        paddingBottom: 20,
+      }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>SEARCH NYC</p>
+        <NeighborhoodSearch />
+      </div>
+
+      {/* Quick neighborhood chips */}
+      <div style={{ padding: "16px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)", marginBottom: 10 }}>POPULAR</p>
+        <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+          {["West Village","Williamsburg","SoHo","Harlem","DUMBO","Nolita","Crown Heights","Bushwick"].map(n => (
+            <Link key={n} href={`/member/city/neighborhoods/${n.toLowerCase().replace(/ /g,"-")}`} style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "white", borderRadius: 999,
+                padding: "8px 14px",
+                border: `1.5px solid rgba(255,31,125,0.15)`,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: DARK }}>{n}</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
-    );
-  }
 
-  return <CityHub onSelect={setMode} />;
+      {/* Map placeholder */}
+      <div style={{ margin: "20px 16px 0", borderRadius: 20, overflow: "hidden", border: "1.5px solid rgba(0,0,0,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+        <div style={{ background: "#D6E8F5", height: 320, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#666" }}>Interactive map coming soon</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.35)", letterSpacing: "0.04em" }}>Use search above to explore neighborhoods</p>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -176,8 +176,9 @@ function IconLobby({ c, w = 2 }: SVGProps) {
 // ── Nav tabs config ───────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",   key: "home"   },
-  { href: "/member/lobby",  key: "avenue" },
+  { href: "/member/plans",  key: "plans"  },
   { href: "/member/clubs",  key: "clubs"  },
+  { href: "/member/lobby",  key: "avenue" },
   { href: "/member/city",   key: "city"   },
 ] as const;
 
@@ -187,7 +188,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
-  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby");
+  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby") || pathname.startsWith("/member/plans");
   const [navHidden, setNavHidden] = useState(false);
   const lastYRef = useRef(0);
 
@@ -211,16 +212,18 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function renderTabIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.42)";
     const w = active ? 2.2 : 1.8;
-    if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
-    if (key === "avenue")    return <IconLobby      c={c} w={w} />;
-    if (key === "clubs")     return <IconClubs      c={c} />;
-    if (key === "city")      return <IconHappenings c={c} w={w} />;
+    if (key === "home")   return <IconTime     c={c} w={w} slab={slab} />;
+    if (key === "plans")  return <IconPlans    c={c} w={w} />;
+    if (key === "clubs")  return <IconClubs    c={c} />;
+    if (key === "avenue") return <IconLobby    c={c} w={w} />;
+    if (key === "city")   return <IconHappenings c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
     if (key === "home")   return SLAB_LABEL[slab];
-    if (key === "avenue") return "Avenue";
+    if (key === "plans")  return "Plans";
     if (key === "clubs")  return "Clubs";
+    if (key === "avenue") return "Avenue";
     if (key === "city")   return "City";
     return key;
   }
@@ -364,7 +367,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               >
                 {/* Icon pill */}
                 <div style={{
-                  width: 62, height: 42, borderRadius: 999,
+                  width: 50, height: 38, borderRadius: 999,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   background: active
                     ? `linear-gradient(145deg, ${PINK}, #FF5BAD)`
