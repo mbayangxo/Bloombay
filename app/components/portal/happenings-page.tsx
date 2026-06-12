@@ -4,6 +4,11 @@ import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
 import { EventCard, type EventCardData, type EventType } from "@/app/components/portal/event-card-templates";
+import {
+  joinWaitlist, leaveWaitlist, getWaitlistCounts, getMyWaitlistIds,
+  witnessAttendee, getWitnessedIds,
+  leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
+} from "@/lib/actions/happenings";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -372,9 +377,193 @@ function TypeCarousel({ onSelect }: { onSelect: (label: string) => void }) {
   );
 }
 
+/* ── Tonight strip ────────────────────────────────────────── */
+function TonightStrip({ events, joined, onToggle }: { events: Event[]; joined: Set<string>; onToggle: (id: string) => void }) {
+  const tonight = events.filter(ev => {
+    const diffH = (new Date(ev.starts_at).getTime() - Date.now()) / 36e5;
+    return diffH >= 0 && diffH <= 8;
+  });
+  if (tonight.length === 0) return null;
+  return (
+    <div style={{ margin: "12px 14px 4px", borderRadius: 14, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", padding: "12px 12px 14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
+        <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, animation: "livePulse 1.2s ease-in-out infinite" }}/>
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.9)" }}>TONIGHT</span>
+        <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>— happening now</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
+        {tonight.map(ev => (
+          <div key={ev.id} style={{ flexShrink: 0, width: 160, background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, marginBottom: 4 }}>{ev.title}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>{ev.venue ?? ev.neighborhood} · {new Date(ev.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
+            {ev.spots_left !== null && ev.spots_left > 0 && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: PINK, marginBottom: 6 }}>{ev.spots_left} seats left</p>
+            )}
+            <button onClick={() => onToggle(ev.id)} style={{
+              width: "100%", padding: "6px 0", borderRadius: 6, border: "none",
+              background: joined.has(ev.id) ? "rgba(255,255,255,0.12)" : PINK,
+              color: "white", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
+              cursor: "pointer",
+            }}>
+              {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Bring a Friend sheet ──────────────────────────────────── */
+function InviteFriendSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const link = typeof window !== "undefined" ? `${window.location.origin}/member/happenings/${ev.slug ?? ev.id}` : "";
+
+  function copy() {
+    navigator.clipboard.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div style={{ background: "rgba(0,0,0,0.5)", position: "absolute", inset: 0 }}/>
+      <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1 }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)", margin: "0 auto 16px" }}/>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>BRING A FRIEND</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 6 }}>{ev.title}</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#9A8070", marginBottom: 18, lineHeight: 1.4 }}>Women only. Your friend will need to verify she's a woman to join Bloombay.</p>
+        <div style={{ background: "white", borderRadius: 10, padding: "12px 14px", border: "1px solid rgba(0,0,0,0.08)", marginBottom: 12, wordBreak: "break-all" as const }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "#999", marginBottom: 4, letterSpacing: "0.08em" }}>INVITE LINK</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#444" }}>{link}</p>
+        </div>
+        <button onClick={copy} style={{
+          width: "100%", padding: "14px", borderRadius: 999,
+          background: copied ? "#22C55E" : PINK, color: "white", border: "none",
+          fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, letterSpacing: "0.08em",
+          cursor: "pointer", boxShadow: copied ? "0 4px 18px rgba(34,197,94,0.35)" : `0 4px 18px ${PINK}55`,
+        }}>
+          {copied ? "COPIED ✓" : "COPY LINK"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Post-event witness sheet ──────────────────────────────── */
+function WitnessSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+  const [witnessed, setWitnessed] = useState<Set<string>>(new Set());
+  const DEMO_ATTENDEES = [
+    { id: "a1", name: "Mia", color: PINK },
+    { id: "a2", name: "Zara", color: "#C084FC" },
+    { id: "a3", name: "Sofia", color: "#FF69B4" },
+  ];
+
+  useEffect(() => {
+    getWitnessedIds(ev.id).then(ids => setWitnessed(new Set(ids)));
+  }, [ev.id]);
+
+  async function toggle(userId: string) {
+    setWitnessed(prev => { const s = new Set(prev); s.has(userId) ? s.delete(userId) : s.add(userId); return s; });
+    await witnessAttendee(ev.id, userId);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div style={{ background: "rgba(0,0,0,0.5)", position: "absolute", inset: 0 }}/>
+      <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1 }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)", margin: "0 auto 16px" }}/>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>WHO DID YOU MEET?</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 16 }}>{ev.title}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {DEMO_ATTENDEES.map(a => (
+            <button key={a.id} onClick={() => toggle(a.id)} style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12,
+              background: witnessed.has(a.id) ? `${PINK}15` : "white",
+              border: witnessed.has(a.id) ? `1.5px solid ${PINK}` : "1px solid rgba(0,0,0,0.08)",
+              cursor: "pointer", textAlign: "left" as const,
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${a.color}, ${a.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: "white" }}>{a.name[0]}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C" }}>{a.name}</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#9A8070", marginTop: 1 }}>was there with you</p>
+              </div>
+              {witnessed.has(a.id) && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Host review sheet ─────────────────────────────────────── */
+function HostReviewSheet({ ev, onClose, onDone }: { ev: Event; onClose: () => void; onDone: (id: string) => void }) {
+  const [rating, setRating]   = useState(0);
+  const [content, setContent] = useState("");
+  const [saving, setSaving]   = useState(false);
+
+  async function submit() {
+    if (!rating || saving || !ev.host_name) return;
+    setSaving(true);
+    // host_id would come from event data in a real system; for now use event id as proxy
+    const res = await leaveHostReview(ev.id, ev.id, rating, content);
+    if (res.ok) onDone(ev.id);
+    setSaving(false);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div style={{ background: "rgba(0,0,0,0.5)", position: "absolute", inset: 0 }}/>
+      <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1 }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)", margin: "0 auto 16px" }}/>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>RATE THE HOST</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 4 }}>{ev.host_name ?? "The host"}</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#9A8070", marginBottom: 18 }}>{ev.title}</p>
+        <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+          {[1,2,3,4,5].map(n => (
+            <button key={n} onClick={() => setRating(n)} style={{
+              width: 44, height: 44, borderRadius: 10, border: "none",
+              background: n <= rating ? PINK : "rgba(0,0,0,0.06)",
+              fontSize: 20, cursor: "pointer",
+              boxShadow: n <= rating ? `0 3px 12px ${PINK}44` : "none",
+            }}>⭐</button>
+          ))}
+        </div>
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder="Say something about her hosting… (optional)"
+          rows={3}
+          maxLength={300}
+          style={{
+            width: "100%", borderRadius: 10, border: "1px solid rgba(0,0,0,0.1)",
+            padding: "12px 14px", fontFamily: "var(--font-caveat)", fontSize: 16,
+            color: "#3A2A1A", resize: "none", outline: "none", background: "white",
+            marginBottom: 14,
+          }}
+        />
+        <button onClick={submit} disabled={!rating || saving} style={{
+          width: "100%", padding: "14px", borderRadius: 999,
+          background: rating ? PINK : "rgba(0,0,0,0.08)",
+          color: rating ? "white" : "#AAA", border: "none",
+          fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, letterSpacing: "0.08em",
+          cursor: rating ? "pointer" : "default",
+          boxShadow: rating ? `0 4px 18px ${PINK}55` : "none",
+        }}>
+          {saving ? "SAVING…" : "LEAVE REVIEW ✦"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Poster Card (full-width, tall, image-forward) ────────── */
-function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false }: {
+function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitlistCount = 0, onWaitlist = false, onJoinWaitlist, onInvite }: {
   ev: Event; posterIdx: number; joined: boolean; onToggle: () => void; fullWidth?: boolean;
+  waitlistCount?: number; onWaitlist?: boolean; onJoinWaitlist?: () => void; onInvite?: () => void;
 }) {
   const badge  = getBadge(ev);
   const poster = ev.image_url ?? POSTER_IMGS[posterIdx % POSTER_IMGS.length];
@@ -421,17 +610,37 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false }: {
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em", flex: 1 }}>
             {ev.venue ?? ""}{ev.neighborhood ? ` · ${ev.neighborhood}` : ""}
+            {ev.spots_left === 0 && waitlistCount > 0 && (
+              <span style={{ color: "rgba(255,200,100,0.9)", marginLeft: 4 }}>· Full · {waitlistCount} waiting</span>
+            )}
           </span>
-          <button onClick={onToggle} style={{
-            background: joined ? "rgba(255,255,255,0.12)" : PINK,
-            color: "white", border: joined ? "1.5px solid rgba(255,255,255,0.35)" : "none",
-            borderRadius: 999, padding: "5px 14px",
-            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em",
-            cursor: "pointer", flexShrink: 0,
-            boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
-          }}>
-            {joined ? "JOINED ✓" : "JOIN →"}
-          </button>
+          {onInvite && (
+            <button onClick={e => { e.stopPropagation(); onInvite(); }} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 999, padding: "5px 10px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+              👯
+            </button>
+          )}
+          {ev.spots_left === 0 ? (
+            <button onClick={onJoinWaitlist} style={{
+              background: onWaitlist ? "rgba(255,255,255,0.12)" : "rgba(255,180,50,0.85)",
+              color: "white", border: onWaitlist ? "1.5px solid rgba(255,255,255,0.35)" : "none",
+              borderRadius: 999, padding: "5px 12px",
+              fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.05em",
+              cursor: "pointer", flexShrink: 0,
+            }}>
+              {onWaitlist ? "WAITLISTED ✓" : "WAITLIST →"}
+            </button>
+          ) : (
+            <button onClick={onToggle} style={{
+              background: joined ? "rgba(255,255,255,0.12)" : PINK,
+              color: "white", border: joined ? "1.5px solid rgba(255,255,255,0.35)" : "none",
+              borderRadius: 999, padding: "5px 14px",
+              fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em",
+              cursor: "pointer", flexShrink: 0,
+              boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
+            }}>
+              {joined ? "JOINED ✓" : "JOIN →"}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -439,8 +648,9 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false }: {
 }
 
 /* ── Ticket Card (perforated stub look) ───────────────────── */
-function TicketCard({ ev, ticketIdx, joined, onToggle }: {
+function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWaitlist = false, onJoinWaitlist, onInvite }: {
   ev: Event; ticketIdx: number; joined: boolean; onToggle: () => void;
+  waitlistCount?: number; onWaitlist?: boolean; onJoinWaitlist?: () => void; onInvite?: () => void;
 }) {
   const img = TICKET_IMGS[ticketIdx % TICKET_IMGS.length];
   const badge = getBadge(ev);
@@ -471,19 +681,40 @@ function TicketCard({ ev, ticketIdx, joined, onToggle }: {
 
       {/* Stub */}
       <div style={{ padding: "10px 12px 12px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>ADMIT ONE</p>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 3 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)" }}>ADMIT ONE</p>
+          {onInvite && (
+            <button onClick={e => { e.stopPropagation(); onInvite(); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, padding: 0, lineHeight: 1 }}>👯</button>
+          )}
+        </div>
         <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.2, marginBottom: 4 }}>{ev.title}</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.45)", letterSpacing: "0.04em", marginBottom: 8 }}>{fmtShort(ev.starts_at)}</p>
-        <button onClick={onToggle} style={{
-          width: "100%", padding: "7px 0",
-          background: joined ? "rgba(0,0,0,0.06)" : PINK,
-          color: joined ? "rgba(0,0,0,0.5)" : "white",
-          border: "none", borderRadius: 6,
-          fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
-          cursor: "pointer",
-        }}>
-          {joined ? "JOINED ✓" : "GRAB A SEAT"}
-        </button>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.45)", letterSpacing: "0.04em", marginBottom: ev.spots_left === 0 && waitlistCount > 0 ? 3 : 8 }}>{fmtShort(ev.starts_at)}</p>
+        {ev.spots_left === 0 && waitlistCount > 0 && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#D97706", marginBottom: 6 }}>Full · {waitlistCount} women waiting</p>
+        )}
+        {ev.spots_left === 0 ? (
+          <button onClick={onJoinWaitlist} style={{
+            width: "100%", padding: "7px 0",
+            background: onWaitlist ? "rgba(0,0,0,0.06)" : "#D97706",
+            color: onWaitlist ? "rgba(0,0,0,0.5)" : "white",
+            border: "none", borderRadius: 6,
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
+            cursor: "pointer",
+          }}>
+            {onWaitlist ? "WAITLISTED ✓" : "JOIN WAITLIST →"}
+          </button>
+        ) : (
+          <button onClick={onToggle} style={{
+            width: "100%", padding: "7px 0",
+            background: joined ? "rgba(0,0,0,0.06)" : PINK,
+            color: joined ? "rgba(0,0,0,0.5)" : "white",
+            border: "none", borderRadius: 6,
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
+            cursor: "pointer",
+          }}>
+            {joined ? "JOINED ✓" : "GRAB A SEAT"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -601,7 +832,15 @@ function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub
 }
 
 /* ── Event templates strip (real events) ────────────────── */
-function EventTemplatesStrip({ events }: { events: Event[] }) {
+function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onToggle, onWaitlist, onInvite }: {
+  events: Event[];
+  joined: Set<string>;
+  waitlistCounts: Record<string, number>;
+  myWaitlist: Set<string>;
+  onToggle: (id: string) => void;
+  onWaitlist: (id: string) => void;
+  onInvite: (ev: Event) => void;
+}) {
   if (events.length === 0) return null;
   return (
     <div>
@@ -610,9 +849,31 @@ function EventTemplatesStrip({ events }: { events: Event[] }) {
         <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>YOUR EVENTS</span>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
-        {events.map(ev => (
-          <EventCard key={ev.id} ev={toCardData(ev)} />
-        ))}
+        {events.map(ev => {
+          const isFull = ev.spots_left !== null && ev.spots_left !== undefined && ev.spots_left <= 0;
+          const wCount = waitlistCounts[ev.id] ?? 0;
+          const onList = myWaitlist.has(ev.id);
+          return (
+            <div key={ev.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
+              <EventCard ev={toCardData(ev)} />
+              {/* Action row below card */}
+              <div style={{ display: "flex", gap: 6, marginTop: 6, justifyContent: "space-between", alignItems: "center" }}>
+                <button onClick={() => onInvite(ev)} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, cursor: "pointer" }}>
+                  👯 Bring a friend
+                </button>
+                {isFull ? (
+                  <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
+                    {onList ? `Waitlisted${wCount > 1 ? ` · ${wCount} waiting` : ""}` : `Full · ${wCount > 0 ? `${wCount} waiting` : "Join waitlist"}`}
+                  </button>
+                ) : (
+                  <button onClick={() => onToggle(ev.id)} style={{ background: joined.has(ev.id) ? "rgba(255,255,255,0.1)" : PINK, border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", boxShadow: joined.has(ev.id) ? "none" : `0 2px 10px ${PINK}55` }}>
+                    {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -713,6 +974,21 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   const [loading,    setLoading]   = useState(true);
   const [, startTransition] = useTransition();
 
+  // Waitlist
+  const [waitlistCounts, setWaitlistCounts] = useState<Record<string, number>>({});
+  const [myWaitlist,     setMyWaitlist]     = useState<Set<string>>(new Set());
+
+  // Host streak
+  const [hostedCount, setHostedCount] = useState(0);
+
+  // Review tracking
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+
+  // Sheets
+  const [inviteEv,   setInviteEv]   = useState<Event | null>(null);
+  const [witnessEv,  setWitnessEv]  = useState<Event | null>(null);
+  const [reviewEv,   setReviewEv]   = useState<Event | null>(null);
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -720,6 +996,20 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       setEvents(evs);
       setJoined(new Set(ids));
       setLoading(false);
+
+      // Load ancillary data in background
+      const eventIds = evs.map(e => e.id);
+      Promise.all([
+        getWaitlistCounts(eventIds),
+        getMyWaitlistIds(),
+        getMyHostedCount(),
+        getMyReviewedEventIds(),
+      ]).then(([wCounts, wIds, hCount, rIds]) => {
+        setWaitlistCounts(wCounts);
+        setMyWaitlist(new Set(wIds));
+        setHostedCount(hCount);
+        setReviewedIds(new Set(rIds));
+      }).catch(() => {});
     }
     load();
   }, []);
@@ -736,6 +1026,24 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       else await joinEvent(eventId);
     });
   }
+
+  function toggleWaitlist(eventId: string) {
+    const onList = myWaitlist.has(eventId);
+    setMyWaitlist(prev => { const s = new Set(prev); onList ? s.delete(eventId) : s.add(eventId); return s; });
+    setWaitlistCounts(prev => ({ ...prev, [eventId]: Math.max(0, (prev[eventId] ?? 0) + (onList ? -1 : 1)) }));
+    startTransition(async () => {
+      if (onList) await leaveWaitlist(eventId);
+      else await joinWaitlist(eventId);
+    });
+  }
+
+  // Past events you attended (ended within last 48 hours)
+  const now = Date.now();
+  const recentPast = events.filter(ev => {
+    const ended = new Date(ev.starts_at).getTime();
+    const diffH = (now - ended) / 36e5;
+    return diffH >= 0 && diffH <= 48 && joined.has(ev.id);
+  });
 
   const filtered = events.filter(ev => matchesFilter(ev, filter) && matchesCategoryFilter(ev, categoryFilter));
 
@@ -821,6 +1129,44 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
           <>
+            {/* ── Post-event witness section ── */}
+            {!loading && recentPast.length > 0 && (
+              <div style={{ margin: "10px 14px 4px", background: "rgba(255,255,255,0.07)", borderRadius: 12, padding: "12px 14px", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>HAPPENED RECENTLY</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {recentPast.slice(0, 3).map(ev => (
+                    <div key={ev.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.title}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>{ev.neighborhood ?? ev.city}</p>
+                      </div>
+                      {!reviewedIds.has(ev.id) && ev.host_name && (
+                        <button onClick={() => setReviewEv(ev)} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+                          Rate host
+                        </button>
+                      )}
+                      <button onClick={() => setWitnessEv(ev)} style={{ background: PINK, border: "none", borderRadius: 999, padding: "4px 10px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
+                        Who was there?
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Tonight strip ── */}
+            {!loading && <TonightStrip events={events} joined={joined} onToggle={toggleJoin} />}
+
+            {/* ── Host streak badge ── */}
+            {!loading && hostedCount >= 2 && (
+              <div style={{ margin: "8px 14px 4px", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.06)", borderRadius: 999, padding: "7px 14px", width: "fit-content" }}>
+                <span style={{ fontSize: 14 }}>🔥</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>
+                  {hostedCount} events hosted
+                </p>
+              </div>
+            )}
+
             {/* Filter chips — always visible horizontal scroll */}
             <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 4px", scrollbarWidth: "none" as const }}>
               {FILTERS.map(f => (
@@ -893,7 +1239,15 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
             {/* Collage: real events */}
             {!loading && filtered.length > 0 && (
-              <EventTemplatesStrip events={filtered} />
+              <EventTemplatesStrip
+                events={filtered}
+                joined={joined}
+                waitlistCounts={waitlistCounts}
+                myWaitlist={myWaitlist}
+                onToggle={toggleJoin}
+                onWaitlist={toggleWaitlist}
+                onInvite={setInviteEv}
+              />
             )}
 
             {/* Collage: static posters when no events */}
@@ -1163,6 +1517,17 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
       {/* FAB */}
       {tab === "happenings" && !showMap && <CreateFAB/>}
+
+      {/* ── Sheets ── */}
+      {inviteEv  && <InviteFriendSheet ev={inviteEv}  onClose={() => setInviteEv(null)} />}
+      {witnessEv && <WitnessSheet      ev={witnessEv} onClose={() => setWitnessEv(null)} />}
+      {reviewEv  && (
+        <HostReviewSheet
+          ev={reviewEv}
+          onClose={() => setReviewEv(null)}
+          onDone={id => { setReviewedIds(prev => new Set([...prev, id])); setReviewEv(null); }}
+        />
+      )}
     </div>
   );
 }
