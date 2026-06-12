@@ -578,7 +578,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
     if (isPaid) {
       // Stripe checkout for paid clubs
       try {
-        const res = await fetch("/api/stripe/checkout", {
+        const res = await fetch("/api/whop/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ clubId: club.id }),

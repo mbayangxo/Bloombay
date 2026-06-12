@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClubCheckoutSession } from "@/lib/stripe";
+import { createClubCheckoutSession } from "@/lib/whop";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
