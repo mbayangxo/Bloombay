@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { HappeningsPage } from "./happenings-page";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -70,7 +69,7 @@ const CSS = `
 `;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type CityCategory = "landing" | "places" | "people" | "culture" | "activity";
+type CityCategory = "landing" | "eat" | "go" | "solo" | "bloomies";
 
 interface Band {
   id: CityCategory;
@@ -100,10 +99,10 @@ const HOOD_INDEX = [
 ];
 
 const BANDS: Band[] = [
-  { id: "places",   label: "PLACES",   sub: "Restaurants · Cafés · Museums",          icon: "🍽️", accentColor: "#FF1F7D" },
-  { id: "people",   label: "PEOPLE",   sub: "Clubs · Open Seats · Gatherings",        icon: "👭", accentColor: "#E8006A" },
-  { id: "culture",  label: "CULTURE",  sub: "What girls love · Hidden gems · Trends", icon: "✦",  accentColor: "#FF5BAD" },
-  { id: "activity", label: "ACTIVITY", sub: "Events · Happenings · Things to do",     icon: "🌃", accentColor: "#C80060" },
+  { id: "eat",      label: "EAT",               sub: "Restaurants · Cafés · Bars",              icon: "🍽️", accentColor: "#FF1F7D" },
+  { id: "go",       label: "GO",                sub: "Museums · Walks · Things to do",          icon: "🗺️", accentColor: "#E8006A" },
+  { id: "solo",     label: "SOLO",              sub: "For your alone time · Self-care · Peace", icon: "🌸", accentColor: "#FF5BAD" },
+  { id: "bloomies", label: "BLOOMIES FAVES",    sub: "Member picks · Hidden gems · Top spots",  icon: "✦",  accentColor: "#C80060" },
 ];
 
 // ── Day Skyline SVG ───────────────────────────────────────────────────────────
@@ -231,9 +230,9 @@ const SKYLINE_BUILDINGS: BuildingConfig[] = [
     wallColor: "#7A5438", windowColor: "#1A0A04", windowLitColor: "#F5D080",
     winCols: 2, winRows: 5, rooftop: "flat",
   },
-  // PLACES — wide limestone with cornice
+  // EAT — wide limestone with cornice
   {
-    id: "places", category: "places", label: "PLACES", subLabel: "Eats · Cafés",
+    id: "eat", category: "eat", label: "EAT", subLabel: "Eats · Cafés",
     width: 112, height: 168,
     wallColor: "#C8B89A", windowColor: "#3A2A1A", windowLitColor: "#FFDF90",
     winCols: 4, winRows: 8, rooftop: "stepped",
@@ -247,9 +246,9 @@ const SKYLINE_BUILDINGS: BuildingConfig[] = [
     wallColor: "#3A4A5A", windowColor: "#0A1A2A", windowLitColor: "#A0D0FF",
     winCols: 2, winRows: 4, rooftop: "flat",
   },
-  // PEOPLE — slim glass tower, tallest
+  // GO — slim glass tower, tallest
   {
-    id: "people", category: "people", label: "PEOPLE", subLabel: "Clubs · Meets",
+    id: "go", category: "go", label: "GO", subLabel: "Museums · Walks",
     width: 82, height: 214,
     wallColor: "#6A8AAA", windowColor: "#0A1A2A", windowLitColor: "#C0E8FF",
     winCols: 3, winRows: 12, rooftop: "tower",
@@ -262,9 +261,9 @@ const SKYLINE_BUILDINGS: BuildingConfig[] = [
     wallColor: "#8A4A3A", windowColor: "#1A0800", windowLitColor: "#FFD070",
     winCols: 2, winRows: 5, rooftop: "arched",
   },
-  // CULTURE — wide pre-war, medium height
+  // SOLO — wide pre-war, medium height
   {
-    id: "culture", category: "culture", label: "CULTURE", subLabel: "Art · Gems",
+    id: "solo", category: "solo", label: "SOLO", subLabel: "Self-care · Peace",
     width: 128, height: 148,
     wallColor: "#D4C8B4", windowColor: "#2A1A0A", windowLitColor: "#FFE8A0",
     winCols: 5, winRows: 7, rooftop: "stepped",
@@ -278,9 +277,9 @@ const SKYLINE_BUILDINGS: BuildingConfig[] = [
     wallColor: "#5A7A6A", windowColor: "#0A180A", windowLitColor: "#B0FFD0",
     winCols: 2, winRows: 6, rooftop: "arched",
   },
-  // ACTIVITY — dark steel, setback design
+  // BLOOMIES FAVES — dark steel, setback design
   {
-    id: "activity", category: "activity", label: "ACTIVITY", subLabel: "Events · Nights",
+    id: "bloomies", category: "bloomies", label: "BLOOMIES", subLabel: "Member Faves",
     width: 100, height: 188,
     wallColor: "#2A3A4A", windowColor: "#050D15", windowLitColor: "#80C4FF",
     winCols: 4, winRows: 10, rooftop: "setback",
@@ -1587,170 +1586,30 @@ function NeighborhoodSearch() {
   );
 }
 
-// ── City hub nav card ─────────────────────────────────────────────────────────
-function CityNavCard({ onClick, icon, label, sub, accent, preview }: {
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-  sub: string;
-  accent: string;
-  preview?: string;
-}) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <button
-      onClick={onClick}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      onTouchStart={() => setPressed(true)}
-      onTouchEnd={() => setPressed(false)}
-      style={{
-        width: "100%", background: "none", border: "none", padding: 0,
-        cursor: "pointer", textAlign: "left" as const,
-        WebkitTapHighlightColor: "transparent",
-        transform: pressed ? "scale(0.975)" : "scale(1)",
-        transition: "transform 0.12s",
-      }}
-    >
-      <div style={{
-        background: "white",
-        borderRadius: 22,
-        overflow: "hidden",
-        boxShadow: pressed
-          ? "0 2px 12px rgba(0,0,0,0.1)"
-          : "0 6px 28px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05)",
-        border: "1.5px solid rgba(0,0,0,0.06)",
-        transition: "box-shadow 0.12s",
-      }}>
-        {/* Colored top band */}
-        <div style={{ height: 6, background: accent }} />
-
-        <div style={{ padding: "18px 20px 20px", display: "flex", alignItems: "center", gap: 16 }}>
-          {/* Icon tile */}
-          <div style={{
-            width: 56, height: 56, borderRadius: 16, flexShrink: 0,
-            background: `linear-gradient(145deg, ${accent}22, ${accent}0D)`,
-            border: `1.5px solid ${accent}30`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            {icon}
-          </div>
-
-          {/* Text */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{
-              fontFamily: "var(--font-playfair)",
-              fontStyle: "italic",
-              fontWeight: 900,
-              fontSize: 22,
-              color: DARK,
-              lineHeight: 1,
-              marginBottom: 5,
-            }}>{label}</p>
-            <p style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: "10px",
-              fontWeight: 600,
-              color: "rgba(0,0,0,0.38)",
-              letterSpacing: "0.04em",
-              lineHeight: 1.4,
-            }}>{sub}</p>
-            {preview && (
-              <p style={{
-                fontFamily: "var(--font-caveat)",
-                fontSize: 12,
-                color: accent,
-                marginTop: 6,
-                lineHeight: 1,
-              }}>{preview}</p>
-            )}
-          </div>
-
-          {/* Arrow */}
-          <div style={{
-            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
-            background: accent,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: `0 4px 14px ${accent}44`,
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-// ── City hub (landing) ────────────────────────────────────────────────────────
-function CityHub({ onSelect }: { onSelect: (m: "tonight" | "guide") => void }) {
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(160deg, #FF1F7D 0%, #E8006A 45%, #C80060 100%)",
-      paddingBottom: 110,
-    }}>
-      {/* Header */}
-      <div style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
-        padding: "calc(env(safe-area-inset-top, 0px) + 70px) 20px 0",
-      }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.55)", marginBottom: 8 }}>NEW YORK CITY</p>
-        <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 42, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 0.95, margin: "0 0 6px" }}>The City.</h1>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.55)", marginBottom: 24 }}>what&apos;s happening in your world</p>
-
-        {/* Neighborhood search */}
-        <NeighborhoodSearch />
-      </div>
-
-      {/* Nav cards */}
-      <div style={{ padding: "28px 16px 0", display: "flex", flexDirection: "column", gap: 14 }}>
-        <CityNavCard
-          onClick={() => onSelect("tonight")}
-          label="Out Tonight"
-          sub="Gatherings · Open Seats · What's On"
-          accent={PINK}
-          preview="tap to see what's happening →"
-          icon={
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          }
-        />
-        <CityNavCard
-          onClick={() => onSelect("guide")}
-          label="The City Guide"
-          sub="Restaurants · Bars · Hidden Gems"
-          accent="#C80060"
-          preview="tap to explore the city →"
-          icon={
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C80060" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-          }
-        />
-      </div>
-    </div>
-  );
-}
 
 // ── Root city page ────────────────────────────────────────────────────────────
-type CityRootMode = "tonight" | "guide" | "map";
+type CityRootMode = "guide" | "map";
 
 export function CityPage() {
-  const [mode, setMode] = useState<CityRootMode>("tonight");
+  const [mode, setMode] = useState<CityRootMode>("guide");
+  const [hoodQuery, setHoodQuery] = useState("");
+  const [hoodOpen, setHoodOpen] = useState(false);
 
   const MODES: { id: CityRootMode; label: string }[] = [
-    { id: "tonight", label: "TONIGHT"    },
-    { id: "guide",   label: "CITY GUIDE" },
-    { id: "map",     label: "MAP"        },
+    { id: "guide", label: "THE CITY" },
+    { id: "map",   label: "MAP"   },
   ];
+
+  const hoodResults = hoodQuery.length > 0
+    ? HOOD_INDEX.filter(h =>
+        h.name.toLowerCase().includes(hoodQuery.toLowerCase()) ||
+        h.tags.some(t => t.includes(hoodQuery.toLowerCase()))
+      ).slice(0, 5)
+    : [];
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      {/* Fixed top bar with pill buttons */}
+      {/* Fixed top bar */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         paddingTop: "env(safe-area-inset-top, 0px)",
@@ -1760,32 +1619,93 @@ export function CityPage() {
         borderBottom: "1px solid rgba(255,31,125,0.1)",
         boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
       }}>
-        <div style={{ height: 54, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", gap: 8 }}>
+        <div style={{ height: 54, display: "flex", alignItems: "center", padding: "0 12px", gap: 7 }}>
+
+          {/* Tab pills */}
           {MODES.map(m => {
             const active = mode === m.id;
             return (
               <button key={m.id} onClick={() => setMode(m.id)} style={{
-                padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer",
+                padding: "7px 13px", borderRadius: 999, border: "none", cursor: "pointer",
                 background: active ? PINK : "rgba(0,0,0,0.06)",
                 color: active ? "white" : "rgba(0,0,0,0.45)",
                 fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
                 letterSpacing: "0.07em", whiteSpace: "nowrap" as const,
                 boxShadow: active ? `0 4px 14px ${PINK}55` : "none",
                 transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
-                transform: active ? "scale(1.04)" : "scale(1)",
+                flexShrink: 0,
               }}>
                 {m.label}
               </button>
             );
           })}
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.1)", flexShrink: 0 }} />
+
+          {/* Tiny neighborhood search */}
+          <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 5,
+              background: "rgba(0,0,0,0.05)", borderRadius: 999,
+              padding: "5px 10px 5px 8px",
+              border: hoodOpen ? `1.5px solid ${PINK}55` : "1.5px solid transparent",
+              transition: "border-color 0.15s",
+            }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={hoodQuery}
+                onChange={e => { setHoodQuery(e.target.value); setHoodOpen(true); }}
+                onFocus={() => setHoodOpen(true)}
+                onBlur={() => setTimeout(() => setHoodOpen(false), 150)}
+                placeholder="neighborhood…"
+                style={{
+                  border: "none", background: "transparent", outline: "none",
+                  fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500,
+                  color: DARK, width: "100%", minWidth: 0,
+                }}
+              />
+              {hoodQuery && (
+                <button onClick={() => { setHoodQuery(""); setHoodOpen(false); }} style={{ border: "none", background: "none", padding: 0, cursor: "pointer", lineHeight: 1 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown results */}
+            {hoodOpen && hoodResults.length > 0 && (
+              <div style={{
+                position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+                background: "rgba(255,252,248,0.98)", borderRadius: 14,
+                boxShadow: "0 8px 30px rgba(0,0,0,0.14)",
+                border: "1.5px solid rgba(255,31,125,0.12)",
+                overflow: "hidden", zIndex: 100,
+              }}>
+                {hoodResults.map(h => (
+                  <button key={h.slug} onMouseDown={() => { setHoodQuery(h.name); setHoodOpen(false); }} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    width: "100%", padding: "9px 12px", border: "none", background: "transparent",
+                    cursor: "pointer", textAlign: "left" as const,
+                  }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: DARK }}>{h.name}</span>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)", letterSpacing: "0.05em" }}>{h.borough.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 
       {/* Content */}
       <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
-        {mode === "tonight" && <HappeningsPage standalone={false} />}
-        {mode === "guide"   && <CityGuide />}
-        {mode === "map"     && <CityMapView />}
+        {mode === "guide" && <CityGuide />}
+        {mode === "map"   && <CityMapView />}
       </div>
     </div>
   );

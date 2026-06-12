@@ -667,7 +667,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     <div style={{ background: "#0A0A0A", minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
       <style>{CSS}</style>
 
-      {/* ── Fixed top bar (standalone only) ── */}
+
+      {/* ── Fixed top bar ── */}
       {standalone && <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         background: "#0A0A0A",
@@ -681,11 +682,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: PINK }}>BB+</span>
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
-          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>TONIGHT</span>
         </div>
 
-        {/* Center: toggle */}
+        {/* Center: HAPPENINGS | CITY toggle */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
             {(["happenings","city"] as HapTab[]).map(t => (
@@ -703,32 +702,33 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           </div>
         </div>
 
-        {/* Right icons */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, paddingRight: 16 }}>
-          <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Right: same icons as global nav — Apt · Pin · Mail · Chat */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 14 }}>
+          <Link href="/member/you" aria-label="Apartment" style={{ display: "flex", padding: 4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="2" y1="21" x2="22" y2="21"/>
+              <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
+              <circle cx="14.5" cy="13" r="0.7" fill="rgba(255,255,255,0.75)" stroke="none"/>
+            </svg>
+          </Link>
+          <Link href="/member/city" aria-label="City" style={{ display: "flex", padding: 4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="rgba(255,255,255,0.75)" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="7.5" r="5" fill="rgba(255,255,255,0.75)"/>
+              <line x1="12" y1="12.5" x2="12" y2="21" stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+          </Link>
+          <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex", padding: 4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
-            <div style={{ position: "absolute", top: "-4px", right: "-5px", width: 14, height: 14, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
+            <div style={{ position: "absolute", top: 0, right: 0, width: 13, height: 13, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
           </Link>
-          <Link href="/member/notifications" aria-label="Notifications" style={{ position: "relative", display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          <Link href="/member/chat" aria-label="Chat" style={{ position: "relative", display: "flex", padding: 4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span style={{ position: "absolute", top: "-1px", right: "-1px", width: 7, height: 7, borderRadius: "50%", background: PINK }}/>
-          </Link>
-          <Link href="/member/chat" aria-label="Chats" style={{ display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-            </svg>
-          </Link>
-          <Link href="/member/lounge" aria-label="The Lobby" style={{ display: "flex" }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="2" width="18" height="20" rx="1"/>
-              <path d="M9 12h.01"/>
-            </svg>
+            <span style={{ position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%", background: PINK, border: "1.5px solid #0A0A0A" }}/>
           </Link>
         </div>
       </div>}

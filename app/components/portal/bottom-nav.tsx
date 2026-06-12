@@ -163,12 +163,25 @@ function IconChatBubble({ c }: SVGProps) {
   );
 }
 
-function IconLobby({ c, w = 2 }: SVGProps) {
+// Street sign — rectangular plate on a pole
+function IconAveSign({ c, w = 2 }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 21V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v15"/>
-      <path d="M9 21V12h6v9"/>
-      <circle cx="14.5" cy="16.5" r="0.5" fill={c}/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Pole */}
+      <line x1="12" y1="10" x2="12" y2="22" stroke={c} strokeWidth={w} strokeLinecap="round"/>
+      {/* Sign plate */}
+      <rect x="3" y="3" width="18" height="8" rx="1.5" stroke={c} strokeWidth={w} fill="none"/>
+      {/* AVE text — three short lines suggesting letters */}
+      <line x1="7"  y1="5.5" x2="6"  y2="9"   stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="7"  y1="5.5" x2="8"  y2="9"   stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="6.5" y1="7.5" x2="7.5" y2="7.5" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="10" y1="5.5" x2="10" y2="9"   stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="10" y1="5.5" x2="11.2" y2="7.2" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="11.2" y1="7.2" x2="10" y2="9" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="13.5" y1="5.5" x2="13.5" y2="9" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="13.5" y1="5.5" x2="15.5" y2="5.5" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="13.5" y1="7.2" x2="15"   y2="7.2" stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
+      <line x1="13.5" y1="9"   x2="15.5" y2="9"   stroke={c} strokeWidth={w - 0.4} strokeLinecap="round"/>
     </svg>
   );
 }
@@ -188,7 +201,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname = usePathname();
   const slab     = getSlab();
-  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby") || pathname.startsWith("/member/plans");
+  const isDarkPage = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
   const [navShrunk, setNavShrunk] = useState(false);
   const [navTouched, setNavTouched] = useState(false);
   const lastYRef = useRef(0);
@@ -221,7 +234,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
     if (key === "home")   return <IconTime     c={c} w={w} slab={slab} />;
     if (key === "plans")  return <IconPlans    c={c} w={w} />;
     if (key === "clubs")  return <IconClubs    c={c} />;
-    if (key === "avenue") return <IconLobby    c={c} w={w} />;
+    if (key === "avenue") return <IconAveSign  c={c} w={w} />;
     if (key === "city")   return <IconHappenings c={c} w={w} />;
   }
 
