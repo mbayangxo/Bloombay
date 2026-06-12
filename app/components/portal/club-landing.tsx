@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
+import { applyToClub } from "@/lib/actions/clubs";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -563,8 +564,12 @@ function ClubChat({ club }: { club: ClubLandingData }) {
 
 export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean }) {
   const [applied, setApplied] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [clubTab, setClubTab] = useState<ClubTab>("about");
+  const [introText, setIntroText] = useState("");
+  const [, startT] = useTransition();
 
   const ctaLabel = club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN";
 
@@ -1145,7 +1150,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(0,0,0,0.38)", marginBottom: 8 }}>TELL US ABOUT YOURSELF</label>
-                <textarea rows={3} placeholder="A little about you — work, vibe, what you love…" style={{ width: "100%", background: "#F8F8F8", borderRadius: 16, padding: "12px 16px", fontSize: 13, outline: "none", border: "2px solid transparent", resize: "none", color: DARK, boxSizing: "border-box" }} onFocus={e => (e.target.style.borderColor = club.color)} onBlur={e => (e.target.style.borderColor = "transparent")} />
+                <textarea rows={3} value={introText} onChange={e => setIntroText(e.target.value)} placeholder="A little about you — work, vibe, what you love…" style={{ width: "100%", background: "#F8F8F8", borderRadius: 16, padding: "12px 16px", fontSize: 13, outline: "none", border: "2px solid transparent", resize: "none", color: DARK, boxSizing: "border-box" }} onFocus={e => (e.target.style.borderColor = club.color)} onBlur={e => (e.target.style.borderColor = "transparent")} />
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(0,0,0,0.38)", marginBottom: 8 }}>INSTAGRAM (optional)</label>
@@ -1158,8 +1163,25 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 </label>
               )}
             </div>
-            <button onClick={() => { setApplied(true); setShowForm(false); }} style={{ width: "100%", marginTop: 20, padding: "16px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: club.color, border: "none", cursor: "pointer" }}>
-              Submit Application
+            {applyError && <p style={{ fontSize: 12, color: "#ef4444", marginTop: 8 }}>{applyError}</p>}
+            <button
+              disabled={applying}
+              onClick={async () => {
+                setApplying(true);
+                setApplyError(null);
+                try {
+                  await applyToClub(club.id, introText || undefined);
+                  setApplied(true);
+                  setShowForm(false);
+                } catch (err) {
+                  setApplyError((err as { message?: string })?.message ?? "Something went wrong. Try again.");
+                } finally {
+                  setApplying(false);
+                }
+              }}
+              style={{ width: "100%", marginTop: 20, padding: "16px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: applying ? `${club.color}88` : club.color, border: "none", cursor: applying ? "default" : "pointer" }}
+            >
+              {applying ? "Submitting…" : "Submit Application"}
             </button>
             {club.accessType !== "free" && (
               <p style={{ textAlign: "center", fontSize: 11, color: "rgba(0,0,0,0.35)", marginTop: 12 }}>Payment is only collected after the Club Mama approves you.</p>

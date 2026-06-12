@@ -159,6 +159,39 @@ export async function getClubGatherings(clubId: string) {
   return data ?? [];
 }
 
+// ── Album / gallery ───────────────────────────────────────────────────────────
+
+export async function getClubAlbum(clubId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("clubs")
+    .select("album_urls")
+    .eq("id", clubId)
+    .single();
+  const urls = (data?.album_urls as string[] | null) ?? [];
+  return Array.isArray(urls) ? urls : [];
+}
+
+export async function addClubPhoto(clubId: string, url: string): Promise<void> {
+  const supabase = await createClient();
+  const current = await getClubAlbum(clubId);
+  const { error } = await supabase
+    .from("clubs")
+    .update({ album_urls: [...current, url] })
+    .eq("id", clubId);
+  if (error) throw error;
+}
+
+export async function removeClubPhoto(clubId: string, url: string): Promise<void> {
+  const supabase = await createClient();
+  const current = await getClubAlbum(clubId);
+  const { error } = await supabase
+    .from("clubs")
+    .update({ album_urls: current.filter(u => u !== url) })
+    .eq("id", clubId);
+  if (error) throw error;
+}
+
 // ── Club edit ─────────────────────────────────────────────────────────────────
 
 export async function updateClub(

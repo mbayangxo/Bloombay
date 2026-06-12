@@ -5,14 +5,16 @@ import Link from "next/link";
 import {
   getClubApplications, updateApplicationStatus, getClubPosts,
   createClubPost, deleteClubPost, getClubGatherings, createGathering, updateClub,
+  getClubAlbum, addClubPhoto, removeClubPhoto,
   type ClubApplication, type ClubPost,
 } from "@/lib/actions/clubs";
+import { uploadClubPhoto } from "@/lib/storage/upload";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
 const CREAM = "#F6F1EB";
 
-type ManageTab = "overview" | "members" | "updates" | "gathering" | "edit";
+type ManageTab = "overview" | "members" | "updates" | "gathering" | "photos" | "edit";
 
 interface ClubData {
   id: string;
@@ -73,6 +75,7 @@ export function ClubManageDashboard({ club }: { club: ClubData }) {
             { id: "members",   label: "Members"   },
             { id: "updates",   label: "Updates"   },
             { id: "gathering", label: "Gathering" },
+            { id: "photos",    label: "Photos"    },
             { id: "edit",      label: "Edit Club" },
           ] as { id: ManageTab; label: string }[]).map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -93,6 +96,7 @@ export function ClubManageDashboard({ club }: { club: ClubData }) {
         {tab === "members"   && <MembersTab   clubId={club.id} accent={accent} membershipType={club.membership_type ?? "open"}/>}
         {tab === "updates"   && <UpdatesTab   clubId={club.id} accent={accent}/>}
         {tab === "gathering" && <GatheringTab clubId={club.id} accent={accent}/>}
+        {tab === "photos"    && <PhotosTab    clubId={club.id} accent={accent}/>}
         {tab === "edit"      && <EditTab      club={club}      accent={accent}/>}
       </div>
     </div>
@@ -489,6 +493,106 @@ function EditTab({ club, accent }: { club: ClubData; accent: string }) {
         boxShadow: name.trim() && !saving ? `0 6px 22px ${accent}44` : "none",
         transition: "all 0.18s",
       }}>{saving ? "SAVING…" : "SAVE CHANGES"}</button>
+    </div>
+  );
+}
+
+// ── Photos tab ────────────────────────────────────────────────────────────────
+function PhotosTab({ clubId, accent }: { clubId: string; accent: string }) {
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [, startT] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    getClubAlbum(clubId).then(p => { setPhotos(p); setLoading(false); });
+  }, [clubId]);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || uploading) return;
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files).slice(0, 10)) {
+        const url = await uploadClubPhoto(file, clubId);
+        await addClubPhoto(clubId, url);
+        urls.push(url);
+      }
+      setPhotos(prev => [...prev, ...urls]);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleRemove(url: string) {
+    setPhotos(prev => prev.filter(p => p !== url));
+    startT(() => removeClubPhoto(clubId, url));
+  }
+
+  return (
+    <div>
+      {/* Upload zone */}
+      <button
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        style={{
+          width: "100%", borderRadius: 18, border: `2px dashed ${accent}44`,
+          background: `${accent}08`, padding: "28px 0", cursor: uploading ? "default" : "pointer",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 18,
+        }}
+      >
+        {uploading ? (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: `${accent}88` }}>Uploading…</p>
+        ) : (
+          <>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={`${accent}88`} strokeWidth="1.5" strokeLinecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: `${accent}AA`, letterSpacing: "0.1em" }}>TAP TO ADD PHOTOS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", color: "rgba(255,255,255,0.25)" }}>Up to 10 at a time · JPG, PNG, HEIC</p>
+          </>
+        )}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={e => handleFiles(e.target.files)}
+      />
+
+      {/* Grid */}
+      {loading ? <LoadingDots accent={accent}/> : photos.length === 0 ? (
+        <EmptyState text="No photos yet. Add some to bring your club to life!" accent={accent}/>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <SectionLabel label={`${photos.length} PHOTO${photos.length !== 1 ? "S" : ""}`} accent={accent}/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+            {photos.map((url, i) => (
+              <div key={i} style={{ position: "relative", aspectRatio: "1", borderRadius: 10, overflow: "hidden" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }}/>
+                <button
+                  onClick={() => handleRemove(url)}
+                  style={{
+                    position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%",
+                    background: "rgba(0,0,0,0.65)", border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
