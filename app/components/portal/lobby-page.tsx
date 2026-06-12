@@ -5,93 +5,88 @@ import { BBLogo } from "./bb-logo";
 
 const PINK = "#FF1F7D";
 
-// ── Door data ──────────────────────────────────────────────────────────────────
-interface DoorConfig {
-  street: string;
+// ── Avenue data ─────────────────────────────────────────────────────────────────
+interface AvenueConfig {
+  signLine1: string;
+  signLine2: string;
   title: string;
   tagline: string;
   href: string;
-  background: string;
-  knobColor: string;
+  accent: string;
   count: number | null;
-  darkText?: boolean;
-  lightPanel?: boolean;
 }
 
-const DOORS: DoorConfig[] = [
+const AVENUES: AvenueConfig[] = [
   {
-    street: "Wall St.",
+    signLine1: "WALL ST.",
+    signLine2: "THE WALL AVE.",
     title: "The Wall",
     tagline: "Post. Share. Vibe.",
     href: "/member/lobby/wall",
-    background: "linear-gradient(145deg, #FF1F7D 0%, #E8007A 100%)",
-    knobColor: "#FFD6EE",
+    accent: "#FF1F7D",
     count: 247,
   },
   {
-    street: "Fashion Ave.",
+    signLine1: "FASHION AVE.",
+    signLine2: "THE CLOSET BLVD.",
     title: "The Closet",
-    tagline: "Fits. Advice. Swap.",
+    tagline: "Fits. Advice. Style.",
     href: "/member/lobby/closet",
-    background: "linear-gradient(145deg, #FFB3D9 0%, #FF8EC7 100%)",
-    knobColor: "#FF1F7D",
+    accent: "#E8007A",
     count: 183,
-    darkText: true,
   },
   {
-    street: "Match Lane",
+    signLine1: "MATCH LANE",
+    signLine2: "GIRL MATE AVE.",
     title: "Girl Mate",
     tagline: "Find your people.",
     href: "/member/lobby/girl-mate",
-    background: "linear-gradient(145deg, #E8A050 0%, #C87830 100%)",
-    knobColor: "#FFF0D0",
+    accent: "#FF1F7D",
     count: 89,
   },
   {
-    street: "Market Row",
+    signLine1: "MARKET ROW",
+    signLine2: "THE SHOP ST.",
     title: "The Shop",
     tagline: "Her brand. Her world.",
     href: "/member/lobby/shop",
-    background: "linear-gradient(145deg, #9B0060 0%, #CC0080 100%)",
-    knobColor: "#FFB3E6",
+    accent: "#C4005A",
     count: 134,
   },
   {
-    street: "Bloom Blvd.",
+    signLine1: "BLOOM BLVD.",
+    signLine2: "THE VANITY AVE.",
     title: "The Vanity",
     tagline: "Beauty. Glow. You.",
     href: "/member/lobby/vanity",
-    background: "linear-gradient(145deg, #FFF0F5 0%, #FFE0EC 100%)",
-    knobColor: "#FF1F7D",
+    accent: "#FF1F7D",
     count: 76,
-    darkText: true,
-    lightPanel: true,
   },
   {
-    street: "Library Lane",
+    signLine1: "LIBRARY LANE",
+    signLine2: "READING ROOM RD.",
     title: "The Reading Room",
     tagline: "Books. Discuss. Share.",
     href: "/member/lobby/reading-room",
-    background: "linear-gradient(145deg, #2C1808 0%, #4A2C14 100%)",
-    knobColor: "#D4A853",
+    accent: "#D4A853",
     count: 54,
   },
   {
-    street: "Cinema Row",
+    signLine1: "CINEMA ROW",
+    signLine2: "SCREENING ROOM ST.",
     title: "The Screening Room",
     tagline: "Film. Watch. Review.",
     href: "/member/lobby/screening-room",
-    background: "linear-gradient(145deg, #0A0A1A 0%, #1A1A3A 100%)",
-    knobColor: "#C8A0FF",
+    accent: "#FF1F7D",
     count: 38,
   },
   {
-    street: "Press Row",
+    signLine1: "PRESS ROW",
+    signLine2: "MAGAZINE AVE.",
     title: "Magazine",
     tagline: "BloomBay Editorial.",
     href: "/member/lobby/magazine",
-    background: "linear-gradient(145deg, #1A0010 0%, #2D0018 100%)",
-    knobColor: "#FF1F7D",
+    accent: "#FF1F7D",
     count: null,
   },
 ];
@@ -136,104 +131,77 @@ const TOP_POSTS = [
   },
 ];
 
-// ── LobbyDoor ──────────────────────────────────────────────────────────────────
-function LobbyDoor({ door }: { door: DoorConfig }) {
-  const panelBg    = door.lightPanel ? "rgba(0,0,0,0.07)" : "rgba(255,255,255,0.13)";
-  const textColor  = door.darkText ? "rgba(0,0,0,0.8)"   : "white";
-  const labelColor = door.darkText ? "rgba(0,0,0,0.45)"  : "rgba(255,255,255,0.75)";
-
+// ── AvenueSign ─────────────────────────────────────────────────────────────────
+function AvenueSign({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
   return (
-    <Link href={door.href} style={{ textDecoration: "none" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+    <Link href={avenue.href} style={{ textDecoration: "none", display: "block" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
 
-        {/* Street sign */}
-        <div style={{ background: "rgba(0,0,0,0.28)", borderRadius: 4, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.18)" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "rgba(255,255,255,0.75)", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>{door.street.toUpperCase()}</p>
-        </div>
+        {/* Cross-sign cluster */}
+        <div style={{ position: "relative", width: 148, height: 92, marginBottom: 0 }}>
 
-        <div style={{ position: "relative", width: "100%", aspectRatio: "3 / 5" }}>
-
-          {/* The door shape */}
+          {/* Upper crossing sign (street name) */}
           <div style={{
             position: "absolute",
-            inset: 0,
-            background: door.background,
-            borderRadius: "50% 50% 8px 8px / 18% 18% 8px 8px",
-            boxShadow: [
-              "0 1px 0 rgba(0,0,0,0.45)",
-              "0 3px 0 rgba(0,0,0,0.22)",
-              "0 10px 28px rgba(0,0,0,0.22)",
-              "inset 0 1px 0 rgba(255,255,255,0.45)",
-              "inset 0 -2px 0 rgba(0,0,0,0.12)",
-            ].join(", "),
-            overflow: "hidden",
+            top: 0,
+            left: flip ? "auto" : 8,
+            right: flip ? 8 : "auto",
+            background: avenue.accent,
+            borderRadius: 5,
+            padding: "5px 12px",
+            border: "2.5px solid rgba(255,255,255,0.25)",
+            boxShadow: `3px 3px 0 rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.1)`,
+            transform: `rotate(${flip ? 1.5 : -1.5}deg)`,
+            zIndex: 2,
+            maxWidth: 120,
           }}>
-            {/* Gloss overlay */}
-            <div style={{
-              position: "absolute", top: 0, left: 0, right: 0, height: "44%",
-              background: "linear-gradient(to bottom, rgba(255,255,255,0.38) 0%, transparent 100%)",
-              pointerEvents: "none", zIndex: 2,
-            }} />
-
-            {/* Inset decorative panel — carries the room name */}
-            <div style={{
-              position: "absolute",
-              top: "14%", left: "11%", right: "11%", bottom: "22%",
-              borderRadius: "38% 38% 5px 5px / 14% 14% 5px 5px",
-              background: panelBg,
-              border: "1.5px solid rgba(255,255,255,0.2)",
-              boxShadow: "inset 0 2px 8px rgba(0,0,0,0.18)",
-              zIndex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "6px 5px 10px",
-              gap: 3,
-            }}>
-              <p style={{
-                fontFamily: "var(--font-playfair)",
-                fontStyle: "italic",
-                fontWeight: 400,
-                fontSize: 11,
-                color: textColor,
-                textAlign: "center",
-                lineHeight: 1.15,
-              }}>{door.title}</p>
-              <p style={{
-                fontFamily: "var(--font-jost)",
-                fontSize: 6,
-                fontWeight: 700,
-                color: labelColor,
-                textAlign: "center",
-                letterSpacing: "0.04em",
-                lineHeight: 1.3,
-              }}>{door.tagline}</p>
-            </div>
-
-            {/* Knob / handle */}
-            <div style={{
-              position: "absolute", bottom: "24%", right: "17%",
-              width: 9, height: 9, borderRadius: "50%",
-              background: door.knobColor,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
-              zIndex: 3,
-            }} />
-
-            {/* Activity count badge */}
-            {door.count !== null && (
-              <div style={{
-                position: "absolute", top: 8, right: 8,
-                background: PINK, borderRadius: 999,
-                height: 18, minWidth: 18, paddingLeft: 9, paddingRight: 9,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                zIndex: 4,
-              }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: "white", lineHeight: 1 }}>{door.count}</span>
-              </div>
-            )}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.08em", whiteSpace: "nowrap" as const }}>{avenue.signLine1}</p>
           </div>
+
+          {/* Main sign (avenue title) */}
+          <div style={{
+            position: "absolute",
+            top: 28,
+            left: flip ? 8 : "auto",
+            right: flip ? "auto" : 8,
+            background: avenue.accent,
+            borderRadius: 5,
+            padding: "8px 14px",
+            border: "2.5px solid rgba(255,255,255,0.25)",
+            boxShadow: `3px 3px 0 rgba(0,0,0,0.2), 0 4px 16px ${avenue.accent}55`,
+            transform: `rotate(${flip ? -2 : 2}deg)`,
+            zIndex: 3,
+          }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", whiteSpace: "nowrap" as const, lineHeight: 1.1 }}>{avenue.title}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 600, color: "rgba(255,255,255,0.75)", letterSpacing: "0.04em", marginTop: 2 }}>{avenue.tagline}</p>
+          </div>
+
+          {/* Count badge */}
+          {avenue.count !== null && (
+            <div style={{
+              position: "absolute", top: 26, left: flip ? "auto" : 4, right: flip ? 4 : "auto",
+              background: "white", borderRadius: 999, height: 18, minWidth: 18,
+              paddingLeft: 6, paddingRight: 6,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+              zIndex: 5,
+            }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: avenue.accent, lineHeight: 1 }}>{avenue.count}</span>
+            </div>
+          )}
         </div>
+
+        {/* Pole */}
+        <div style={{
+          width: 7,
+          height: 36,
+          background: "linear-gradient(90deg, #aaa 0%, #ddd 35%, #bbb 65%, #999 100%)",
+          boxShadow: "1px 0 3px rgba(0,0,0,0.2)",
+          borderRadius: "0 0 2px 2px",
+        }} />
+
+        {/* Base */}
+        <div style={{ width: 18, height: 5, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, #aaa, #888)", boxShadow: "0 2px 4px rgba(0,0,0,0.25)" }} />
       </div>
     </Link>
   );
@@ -310,7 +278,7 @@ export function LobbyPage() {
         </div>
         <div style={{ marginTop: 20 }}>
           <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>pick a door, enter a world</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>every block has something for you ♡</p>
         </div>
       </div>
 
@@ -329,14 +297,12 @@ export function LobbyPage() {
         </div>
       </div>
 
-      {/* ══ THE DOORS — horizontal scroll ═══════════════════════════════════ */}
-      <div style={{ marginTop: 32 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 14, padding: "0 24px" }}>THE AVENUE</p>
-        <div className="lscroll" style={{ display: "flex", gap: 14, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
-          {DOORS.map((door) => (
-            <div key={door.href} style={{ flexShrink: 0, width: 130 }}>
-              <LobbyDoor door={door} />
-            </div>
+      {/* ══ THE AVENUE — sign grid ════════════════════════════════════════ */}
+      <div style={{ marginTop: 32, paddingBottom: 8 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 20, padding: "0 24px" }}>THE AVENUE</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 8px", padding: "0 20px" }}>
+          {AVENUES.map((avenue, i) => (
+            <AvenueSign key={avenue.href} avenue={avenue} flip={i % 2 === 1} />
           ))}
         </div>
       </div>

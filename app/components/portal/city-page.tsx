@@ -74,7 +74,7 @@ const CSS = `
 `;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type CityCategory = "landing" | "eat" | "go" | "solo" | "bloomies";
+type CityCategory = "landing" | "eat" | "go" | "solo" | "bloomies" | "girl_gems" | "girl_favs";
 
 interface Band {
   id: CityCategory;
@@ -110,61 +110,95 @@ const BANDS: Band[] = [
   { id: "bloomies", label: "BLOOMIES FAVES",    sub: "Member picks · Hidden gems · Top spots",  icon: "✦",  accentColor: "#C80060" },
 ];
 
-// ── Day Skyline SVG ───────────────────────────────────────────────────────────
+// ── Horizontal Skyline SVG ────────────────────────────────────────────────────
+// Buildings as horizontal bars anchored on the LEFT, extending right — like
+// viewing a skyline from the side (reference: IMG_3117 perspective style).
 function DaySkyline({ width = 430, height = 700 }: { width?: number; height?: number }) {
   function lcg(s: number) { return (s * 16807) % 2147483647; }
-  const buildings: { x: number; w: number; h: number; idx: number }[] = [];
-  let x = 0, s = 42, idx = 0;
-  while (x < width + 40) {
-    s = lcg(s); const w = 10 + (s % 19);
-    s = lcg(s); const hFrac = 0.38 + (s % 1000) / 1000 * 0.52;
-    buildings.push({ x, w, h: Math.floor(height * hFrac), idx });
-    x += w; idx++;
+
+  // Generate horizontal bars (each = one building)
+  const bars: { y: number; bh: number; bw: number; idx: number }[] = [];
+  let y = 0, s = 99, idx = 0;
+  while (y < height) {
+    s = lcg(s); const bh = 9 + (s % 16);           // bar height 9–25 px
+    s = lcg(s); const bw = Math.floor(width * (0.2 + (s % 1000) / 1000 * 0.72));  // bar width
+    s = lcg(s); const gap = 3 + (s % 6);            // gap between bars
+    bars.push({ y, bh, bw, idx });
+    y += bh + gap;
+    idx++;
   }
-  const bldgColors = ["#F5E6FF","#FFE0F0","#FFF0E8","#E8F4FF","#FFF5E0","#F0E8FF","#FFE8D6","#E8FFF5","#FFE0EC","#F8E8FF"];
+
+  // Soft pink/rose/cream palette
+  const colors = ["#FFD6EA","#FFABD4","#FFB3D9","#FFC8E8","#F5C8FF","#FFD6FF","#FFCCE8","#FFB8D4","#FFE0F0","#F8D6FF"];
+
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" style={{ display: "block", width: "100%", height: "100%" }}>
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice"
+      style={{ display: "block", width: "100%", height: "100%" }}>
       <defs>
-        <linearGradient id="sg_sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#FFB3D9"/>
-          <stop offset="50%" stopColor="#FF7BAC"/>
+        {/* Sky gradient — horizontal, golden-hour pink to soft peach */}
+        <linearGradient id="hsky_bg" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#FF8FB8"/>
+          <stop offset="45%" stopColor="#FFB3D9"/>
           <stop offset="100%" stopColor="#FFC8A0"/>
         </linearGradient>
-        <radialGradient id="sg_sun" cx="70%" cy="25%" r="30%">
-          <stop offset="0%" stopColor="rgba(255,240,180,0.55)"/>
-          <stop offset="100%" stopColor="rgba(255,200,100,0)"/>
-        </radialGradient>
-        <radialGradient id="sg_glow" cx="50%" cy="85%" r="55%">
-          <stop offset="0%" stopColor="rgba(255,180,120,0.25)"/>
-          <stop offset="100%" stopColor="rgba(255,180,120,0)"/>
+        {/* Subtle vertical sky gradient overlay */}
+        <linearGradient id="hsky_ov" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(255,180,200,0.4)"/>
+          <stop offset="100%" stopColor="rgba(255,160,80,0.25)"/>
+        </linearGradient>
+        {/* Glow from left where buildings anchor */}
+        <radialGradient id="hsky_glow" cx="0%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="rgba(255,100,160,0.28)"/>
+          <stop offset="100%" stopColor="rgba(255,100,160,0)"/>
         </radialGradient>
       </defs>
-      <rect width={width} height={height} fill="url(#sg_sky)"/>
-      <rect width={width} height={height} fill="url(#sg_sun)"/>
-      <rect width={width} height={height} fill="url(#sg_glow)"/>
-      {buildings.map((b) => {
-        const col = bldgColors[b.idx % bldgColors.length];
-        const winW = 3, winH = 3, gapX = 4, gapY = 5;
-        const cols = Math.max(1, Math.floor((b.w - 2) / (winW + gapX)));
-        const rows = Math.max(1, Math.floor((b.h - 8) / (winH + gapY)));
-        const hasSetback = b.w >= 16 && b.h >= height * 0.65 && b.idx % 6 === 2;
+
+      {/* Background sky */}
+      <rect width={width} height={height} fill="url(#hsky_bg)"/>
+      <rect width={width} height={height} fill="url(#hsky_ov)"/>
+      <rect width={width} height={height} fill="url(#hsky_glow)"/>
+
+      {/* Building bars — left-anchored horizontal blocks */}
+      {bars.map((b) => {
+        const col = colors[b.idx % colors.length];
+        const winH = Math.max(3, b.bh - 6);
+        const winCount = Math.max(1, Math.floor(b.bw / 14));
+        const hasSetback = b.bw > width * 0.6 && b.idx % 5 === 1;
         return (
           <g key={b.idx}>
-            <rect x={b.x} y={height - b.h} width={b.w} height={b.h} fill={col}/>
+            {/* Drop shadow for depth */}
+            <rect x={3} y={b.y + 3} width={b.bw} height={b.bh} fill="rgba(200,60,120,0.18)" rx={1}/>
+            {/* Building bar */}
+            <rect x={0} y={b.y} width={b.bw} height={b.bh} fill={col} rx={1}/>
+            {/* Right-edge highlight (gloss) */}
+            <rect x={b.bw - 3} y={b.y + 1} width={2} height={b.bh - 2} fill="rgba(255,255,255,0.35)" rx={0.5}/>
+            {/* Top-edge highlight */}
+            <rect x={1} y={b.y} width={b.bw - 4} height={1.5} fill="rgba(255,255,255,0.4)" rx={0.5}/>
+            {/* Setback tower */}
             {hasSetback && (
-              <>
-                <rect x={b.x + Math.floor(b.w*.18)} y={height - b.h - Math.floor(b.h*.22)} width={Math.floor(b.w*.64)} height={Math.floor(b.h*.22)} fill={col}/>
-                <rect x={b.x + Math.floor(b.w/2) - 0.9} y={height - b.h - Math.floor(b.h*.32) - 14} width={1.8} height={16} fill="rgba(200,100,180,0.3)"/>
-              </>
+              <rect x={0} y={b.y - Math.floor(b.bh * 0.7)} width={Math.floor(b.bw * 0.55)} height={Math.floor(b.bh * 0.7)} fill={col} rx={1}/>
             )}
-            {Array.from({length: rows}, (_, row) =>
-              Array.from({length: cols}, (_, col_) => {
-                const seed = b.idx * 11 + row * 7 + col_ * 13;
-                if (seed % 5 === 0) return null;
-                const fill = seed % 9 === 1 ? "rgba(255,180,80,0.85)" : seed % 13 === 3 ? "rgba(255,120,180,0.75)" : "rgba(255,200,120,0.7)";
-                return <rect key={`${row}-${col_}`} x={b.x + 1 + col_ * (winW + gapX)} y={height - b.h + 5 + row * (winH + gapY)} width={winW} height={winH} rx="0.3" fill={fill}/>;
-              })
-            )}
+            {/* Windows — tiny warm squares running along the bar */}
+            {b.bh >= 13 && Array.from({ length: winCount }, (_, wi) => {
+              const seed = b.idx * 17 + wi * 13;
+              const lit = seed % 5 !== 0;
+              if (!lit) return null;
+              const wFill = seed % 7 === 1
+                ? "rgba(255,200,80,0.85)"
+                : seed % 11 === 3
+                ? "rgba(255,120,180,0.75)"
+                : "rgba(255,220,140,0.7)";
+              return (
+                <rect key={wi}
+                  x={4 + wi * 14}
+                  y={b.y + Math.floor((b.bh - winH) / 2)}
+                  width={6}
+                  height={winH}
+                  fill={wFill}
+                  rx={0.5}
+                />
+              );
+            })}
           </g>
         );
       })}
@@ -599,54 +633,68 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
           </button>
         </div>
 
-        {/* ── GIRL GEMS ── */}
-        <section style={{ padding: "20px 20px 0" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>GIRL GEMS</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>spots only we know ♡</p>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {GIRL_GEMS.map((gem, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 18, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: gem.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{gem.emoji}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{gem.name}</p>
-                      <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>{gem.type}</span>
-                    </div>
-                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{gem.neighborhood}</p>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, lineHeight: 1.5 }}>{gem.note}</p>
-                  </div>
-                </div>
+        {/* ── GIRL GEMS + GIRL FAVORITES entry tiles ── */}
+        <div style={{ padding: "20px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {/* Girl Gems tile */}
+          <button
+            onClick={() => onSelect("girl_gems")}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}
+          >
+            <div style={{
+              background: "linear-gradient(145deg, rgba(139,69,19,0.6) 0%, rgba(114,47,55,0.7) 100%)",
+              backdropFilter: "blur(12px)",
+              borderRadius: 20,
+              padding: "18px 16px",
+              border: "1px solid rgba(255,255,255,0.1)",
+              minHeight: 140,
+              display: "flex",
+              flexDirection: "column" as const,
+              justifyContent: "space-between",
+              position: "relative" as const,
+              overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", top: -20, right: -20, fontSize: 64, opacity: 0.12, lineHeight: 1 }}>💎</div>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>GIRL GEMS</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.1 }}>spots only<br />we know</p>
               </div>
-            ))}
-          </div>
-        </section>
+              <div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{GIRL_GEMS.length} hidden gems ✦</p>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.7)" }}>EXPLORE →</span>
+              </div>
+            </div>
+          </button>
 
-        {/* ── GIRL FAVORITES ── */}
-        <section style={{ padding: "24px 20px 0" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>GIRL FAVORITES</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>most saved this month ♡</p>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {GIRL_FAVS.map((fav, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.25)", minWidth: 20 }}>0{i+1}</span>
-                <span style={{ fontSize: 18 }}>{fav.emoji}</span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "white" }}>{fav.name}</p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.38)" }}>{fav.neighborhood}</p>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{fav.saves.toLocaleString()}</p>
-                  <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>saves</p>
-                </div>
+          {/* Girl Favorites tile */}
+          <button
+            onClick={() => onSelect("girl_favs")}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}
+          >
+            <div style={{
+              background: "linear-gradient(145deg, rgba(180,30,80,0.65) 0%, rgba(200,0,96,0.6) 100%)",
+              backdropFilter: "blur(12px)",
+              borderRadius: 20,
+              padding: "18px 16px",
+              border: "1px solid rgba(255,31,125,0.2)",
+              minHeight: 140,
+              display: "flex",
+              flexDirection: "column" as const,
+              justifyContent: "space-between",
+              position: "relative" as const,
+              overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", top: -20, right: -20, fontSize: 64, opacity: 0.12, lineHeight: 1 }}>♡</div>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>GIRL FAVS</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.1 }}>most saved<br />this month</p>
               </div>
-            ))}
-          </div>
-        </section>
+              <div>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Top {GIRL_FAVS.length} picks ♡</p>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.7)" }}>SEE ALL →</span>
+              </div>
+            </div>
+          </button>
+        </div>
 
         {/* Band list */}
         <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "0 14px 24px" }}>
@@ -2230,16 +2278,178 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// GIRL GEMS PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+function GirlGemsPage({ onBack }: { onBack: () => void }) {
+  return (
+    <div style={{
+      backgroundImage: `${DARK_GRAIN}, linear-gradient(160deg, #1A0810 0%, #2A1018 50%, #1A0C10 100%)`,
+      backgroundSize: "160px 160px, 100% 100%",
+      minHeight: "100vh",
+      paddingBottom: 120,
+    }}>
+      {/* Hero */}
+      <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#160A10" }} />
+        <div style={{ position: "absolute", top: "20%", left: "20%", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,69,19,0.35) 0%, transparent 70%)", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", top: "30%", right: "10%", width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 70%)", filter: "blur(24px)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(26,8,16,0.9) 100%)" }} />
+        <BackBtn onBack={onBack} label="CITY" />
+        <div style={{ position: "absolute", bottom: 20, left: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(139,100,60,0.8)", marginBottom: 5 }}>GIRL GEMS · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Spots only<br />we know.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 5 }}>curated by the bloomies ♡</p>
+        </div>
+      </div>
+
+      {/* Gems list */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>THE LIST</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {GIRL_GEMS.map((gem, i) => (
+            <div key={i} style={{
+              backgroundImage: `${DARK_GRAIN}`,
+              backgroundSize: "160px 160px",
+              backgroundColor: "#1E0E14",
+              borderRadius: 20,
+              padding: "16px 16px 18px",
+              border: "1px solid rgba(255,255,255,0.06)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+              overflow: "hidden",
+              position: "relative",
+            }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${gem.color}99, transparent)` }} />
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: gem.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: `0 4px 16px ${gem.color}66` }}>
+                  {gem.emoji}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white" }}>{gem.name}</p>
+                    <span style={{ fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{gem.type}</span>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginBottom: 8, letterSpacing: "0.04em" }}>{gem.neighborhood}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,220,200,0.7)", lineHeight: 1.6 }}>"{gem.note}"</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Submit CTA */}
+        <div style={{
+          marginTop: 24,
+          backgroundImage: `${DARK_GRAIN}`,
+          backgroundSize: "160px 160px",
+          backgroundColor: "#1A0810",
+          borderRadius: 20,
+          padding: "20px 18px",
+          border: "1px solid rgba(255,31,125,0.15)",
+          textAlign: "center" as const,
+        }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>know a hidden gem? ✦</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions — coming soon</p>
+          <button style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "pointer" }}>
+            SUBMIT A GEM →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GIRL FAVORITES PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+function GirlFavsPage({ onBack }: { onBack: () => void }) {
+  return (
+    <div style={{
+      backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+      backgroundSize: "200px 200px, 80px 80px",
+      backgroundColor: "#F9F4EE",
+      minHeight: "100vh",
+      paddingBottom: 120,
+    }}>
+      {/* Hero */}
+      <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, linear-gradient(145deg, #1A0818 0%, #2A0820 50%, #160A14 100%)`, backgroundSize: "160px 160px, 100% 100%" }} />
+        <div style={{ position: "absolute", top: "15%", left: "30%", width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.3) 0%, transparent 70%)", filter: "blur(36px)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 35%, rgba(26,8,24,0.88) 100%)" }} />
+        <BackBtn onBack={onBack} label="CITY" />
+        <div style={{ position: "absolute", bottom: 20, left: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 5 }}>GIRL FAVS · NYC</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Most saved<br />this month.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 5 }}>by the bloomies community ♡</p>
+        </div>
+      </div>
+
+      {/* Stats bar */}
+      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0818", padding: "12px 18px", display: "flex", gap: 0 }}>
+        {[["3,200+", "total saves"], ["847", "this month"], ["5", "top spots"]].map(([val, label], i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <div style={{ width: 1, background: "rgba(255,31,125,0.15)", margin: "0 16px" }} />}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK }}>{val}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em", marginTop: 1 }}>{label}</p>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Ranked list */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 14 }}>THE RANKING</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {GIRL_FAVS.map((fav, i) => (
+            <div key={i} style={{
+              backgroundImage: `${DARK_GRAIN}`,
+              backgroundSize: "160px 160px",
+              backgroundColor: i === 0 ? "#200C18" : "#1C0C14",
+              borderRadius: 18,
+              padding: "14px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              border: i === 0 ? "1px solid rgba(255,31,125,0.2)" : "1px solid rgba(255,255,255,0.04)",
+              boxShadow: i === 0 ? "0 4px 24px rgba(255,31,125,0.12)" : "none",
+              position: "relative" as const,
+              overflow: "hidden",
+            }}>
+              {i === 0 && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${PINK}88, transparent)` }} />}
+              {/* Rank */}
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: i === 0 ? `rgba(255,31,125,0.15)` : "rgba(255,255,255,0.05)", border: `1px solid ${i === 0 ? "rgba(255,31,125,0.3)" : "rgba(255,255,255,0.08)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: i === 0 ? PINK : "rgba(255,255,255,0.4)" }}>{i + 1}</span>
+              </div>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{fav.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 700, color: "white", marginBottom: 2 }}>{fav.name}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>{fav.neighborhood}</p>
+              </div>
+              <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: i === 0 ? PINK : "rgba(255,255,255,0.55)" }}>{fav.saves.toLocaleString()}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.06em" }}>SAVES</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 function CityGuide() {
   const [category, setCategory] = useState<CityCategory>("landing");
 
-  if (category === "landing") return <CityLanding onSelect={setCategory}/>;
-  if (category === "eat")     return <EatsPage          onBack={() => setCategory("landing")}/>;
-  if (category === "go")      return <GoPage            onBack={() => setCategory("landing")}/>;
-  if (category === "solo")    return <SoloPage          onBack={() => setCategory("landing")}/>;
-  if (category === "bloomies")return <BloomiesFavoritesPage onBack={() => setCategory("landing")}/>;
+  if (category === "landing")   return <CityLanding onSelect={setCategory}/>;
+  if (category === "eat")       return <EatsPage             onBack={() => setCategory("landing")}/>;
+  if (category === "go")        return <GoPage               onBack={() => setCategory("landing")}/>;
+  if (category === "solo")      return <SoloPage             onBack={() => setCategory("landing")}/>;
+  if (category === "bloomies")  return <BloomiesFavoritesPage onBack={() => setCategory("landing")}/>;
+  if (category === "girl_gems") return <GirlGemsPage         onBack={() => setCategory("landing")}/>;
+  if (category === "girl_favs") return <GirlFavsPage         onBack={() => setCategory("landing")}/>;
 
   const band = BANDS.find(b => b.id === category);
   if (!band) return <CityLanding onSelect={setCategory}/>;
