@@ -1,5 +1,5 @@
-import { GirlmatePage } from "@/app/components/portal/girlmate-page";
+import { GirlMatePage } from "@/app/components/portal/girlmate-page";
 
 export default function GirlmateRoute() {
-  return <GirlmatePage />;
+  return <GirlMatePage />;
 }
