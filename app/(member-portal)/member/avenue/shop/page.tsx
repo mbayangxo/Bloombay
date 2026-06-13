@@ -1,2 +1,5 @@
-import { ShopPage } from "@/app/components/portal/shop-page";
-export default function ShopRoute() { return <ShopPage />; }
+import { redirect } from "next/navigation";
+
+export default function ShopRoute() {
+  redirect("/member/hanger");
+}

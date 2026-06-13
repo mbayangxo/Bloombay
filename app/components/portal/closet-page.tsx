@@ -619,6 +619,46 @@ export function ClosetPage() {
         })}
       </div>
 
+      {/* The Hanger — sell & swap banner */}
+      <div style={{ padding: "4px 18px 120px" }}>
+        <Link href="/member/hanger" style={{ textDecoration: "none", display: "block" }}>
+          <div style={{
+            background: "linear-gradient(135deg, #1C1B1C 0%, #2E0A1C 100%)",
+            borderRadius: 20,
+            padding: "20px 20px",
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            boxShadow: `0 6px 24px rgba(255,31,125,0.18)`,
+            border: "1px solid rgba(255,31,125,0.12)",
+          }}>
+            {/* Hanger icon — Silhouette Rule: hook = petal arc */}
+            <div style={{
+              width: 52, height: 52, borderRadius: "50%",
+              background: `${PINK}18`,
+              border: `1.5px solid ${PINK}44`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <path d="M13 5 C13 5 15.5 3 16 5 C16.5 7 14 8 14 8" stroke={PINK} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+                <path d="M14 8 L20 15 C22 17 21 20 19 20 L7 20 C5 20 4 17 6 15 Z" stroke={PINK} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill={`${PINK}18`}/>
+              </svg>
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 3 }}>THE HANGER</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "rgba(255,238,220,0.92)", lineHeight: 1.2, margin: 0 }}>Sell & swap with the girls.</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>List pieces. Buy from members. Ship it out.</p>
+            </div>
+
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </Link>
+      </div>
+
       {/* FAB — fixed bottom-right */}
       <button
         onClick={() => setShowCreate(true)}
