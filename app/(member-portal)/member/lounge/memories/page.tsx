@@ -31,6 +31,24 @@ interface WitnessNote {
   date: string;
 }
 
+interface MissedEvent {
+  id: string;
+  title: string;
+  venue: string;
+  date: string;
+  clubName?: string;
+  reasonYouWouldHaveLoved: string;
+}
+
+interface UpcomingEvent {
+  id: string;
+  title: string;
+  venue: string;
+  date: string;
+  clubName?: string;
+  href: string;
+}
+
 interface TrailItem {
   id: string;
   type: "event" | "bloom_note" | "club" | "moment";
@@ -70,6 +88,48 @@ const RECAPS: BloomRecap[] = [
     events: 1, saves: 6, bloomiesMet: 0, flowers: 3, clubsJoined: 1,
     yandeObservation: "Your first full month here. You started quietly. That's always how the good ones start.",
     highlight: "You attended your first BloomBay event.",
+  },
+];
+
+// Demo missed events — in production: events from last month where user_id
+// not in event_attendees, filtered to clubs the user belongs to.
+const MISSED_LAST_MONTH: MissedEvent[] = [
+  {
+    id: "m1",
+    title: "Sunday Rooftop Brunch",
+    venue: "Dumbo House · Brooklyn",
+    date: "May 18",
+    clubName: "Dinner Society",
+    reasonYouWouldHaveLoved: "8 women from your clubs went. Two of them are in your neighborhood.",
+  },
+  {
+    id: "m2",
+    title: "Women in Design: Studio Visits",
+    venue: "Soho galleries, guided",
+    date: "May 24",
+    clubName: "Museum Girls",
+    reasonYouWouldHaveLoved: "You've saved 3 design studios in The City. This had your name all over it.",
+  },
+];
+
+// Demo upcoming this month — in production: events from current month in
+// clubs the user belongs to, where starts_at >= now().
+const COMING_UP_THIS_MONTH: UpcomingEvent[] = [
+  {
+    id: "u1",
+    title: "Book Club: July Picks",
+    venue: "McNally Jackson · Nolita",
+    date: "Jun 21",
+    clubName: "Book Club",
+    href: "/member/happenings",
+  },
+  {
+    id: "u2",
+    title: "Girls Dinner at Carbone",
+    venue: "Carbone · West Village",
+    date: "Jun 27",
+    clubName: "Dinner Society",
+    href: "/member/happenings",
   },
 ];
 
@@ -370,6 +430,66 @@ export default function BloomTrailsPage() {
           ))}
         </div>
       </div>
+
+      {/* ── What you missed last month ── */}
+      {MISSED_LAST_MONTH.length > 0 && (
+        <div style={{ padding: "28px 20px 0" }}>
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>FROM LAST MONTH</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", marginTop: 3 }}>You missed these. Could be different this time.</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {MISSED_LAST_MONTH.map(ev => (
+              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none" }}>
+                <div style={{ background: "white", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)", borderLeft: `3px solid rgba(0,0,0,0.08)` }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: INK, lineHeight: 1.2, flex: 1 }}>{ev.title}</p>
+                    {ev.clubName && (
+                      <span style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", color: PINK, background: `${PINK}14`, borderRadius: 4, padding: "2px 6px", whiteSpace: "nowrap" }}>
+                        {ev.clubName.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", marginBottom: 6 }}>{ev.venue} · {ev.date}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#777", lineHeight: 1.5 }}>
+                    &ldquo;{ev.reasonYouWouldHaveLoved}&rdquo; — Yande ✦
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Coming up this month ── */}
+      {COMING_UP_THIS_MONTH.length > 0 && (
+        <div style={{ padding: "28px 20px 0" }}>
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>THIS MONTH — DON&apos;T MISS</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", marginTop: 3 }}>From your clubs. Yande thinks you&apos;ll want to be there.</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {COMING_UP_THIS_MONTH.map(ev => (
+              <Link key={ev.id} href={ev.href} style={{ textDecoration: "none" }}>
+                <div style={{ background: `linear-gradient(135deg, ${PINK}08 0%, transparent 100%)`, border: `1px solid ${PINK}22`, borderRadius: 16, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: INK, lineHeight: 1.2, flex: 1 }}>{ev.title}</p>
+                    {ev.clubName && (
+                      <span style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", color: PINK, background: `${PINK}14`, borderRadius: 4, padding: "2px 6px", whiteSpace: "nowrap" }}>
+                        {ev.clubName.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", marginBottom: 8 }}>{ev.venue} · {ev.date}</p>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: PINK, borderRadius: 999, boxShadow: `0 2px 8px ${PINK}44` }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", letterSpacing: "0.04em" }}>RSVP now →</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Yande's Witness ── */}
       <div style={{ padding: "28px 20px 0" }}>
