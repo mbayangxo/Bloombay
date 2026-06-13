@@ -107,16 +107,18 @@ function IconPlans({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Introductions: two people with a connection spark between them
+// Introductions: four women together — Sex and the City city girls
 function IconIntroductions({ c, w = 2 }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="7" cy="7" r="3"/>
-      <path d="M1 21v-1a6 6 0 0 1 6-6"/>
-      <circle cx="17" cy="7" r="3"/>
-      <path d="M23 21v-1a6 6 0 0 0-6-6"/>
-      <line x1="12" y1="13" x2="12" y2="17"/>
-      <line x1="10" y1="15" x2="14" y2="15"/>
+    <svg width="24" height="20" viewBox="0 0 40 22" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="5" cy="5" r="2.5"/>
+      <path d="M2.5 8 Q5 7 7.5 8 L9 21 L1 21 Z"/>
+      <circle cx="14" cy="4.5" r="2.5"/>
+      <path d="M11.5 7.5 Q14 6.5 16.5 7.5 L18 21 L10 21 Z"/>
+      <circle cx="26" cy="5" r="2.5"/>
+      <path d="M23.5 8 Q26 7 28.5 8 L30 21 L22 21 Z"/>
+      <circle cx="35" cy="4.5" r="2.5"/>
+      <path d="M32.5 7.5 Q35 6.5 37.5 7.5 L39 21 L31 21 Z"/>
     </svg>
   );
 }
@@ -263,7 +265,7 @@ const TABS = [
   { href: "/member/plans",  key: "plans"         },
   { href: "/member/clubs",  key: "clubs"         },
   { href: "/member/lobby",  key: "avenue"        },
-  { href: "/member/city",   key: "city"          },
+  { href: "/member/happenings", key: "city"       },
   { href: "/member/match",  key: "introductions" },
 ] as const;
 
@@ -290,7 +292,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
   }, []);
 
   function isActive(href: string) {
-    if (href === "/member/city")  return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
+    if (href === "/member/happenings") return pathname.startsWith("/member/happenings") || pathname.startsWith("/member/city");
     if (href === "/member/lobby") return pathname.startsWith("/member/lobby") || pathname.startsWith("/member/chat");
     if (href === "/member/match") return pathname.startsWith("/member/match") || pathname.startsWith("/member/girlmate");
     return pathname === href || pathname.startsWith(href + "/");
@@ -339,6 +341,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
             background: PINK, border: "2px solid rgba(253,251,247,0.97)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "7.5px", fontWeight: 900, color: "white", fontFamily: "var(--font-jost)",
+            animation: "pinkPulse 2s ease-in-out infinite",
+            boxShadow: `0 0 0 3px ${PINK}30, 0 0 10px ${PINK}44`,
           }}>3</div>
         )}
         {badge === "dot" && (

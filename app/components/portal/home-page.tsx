@@ -377,11 +377,26 @@ export function HomePage() {
       };
     });
 
-  const nameFontSize = loading ? 48 : Math.max(36, 58 - Math.max(0, (displayName.length - 5) * 3));
+  const _hour = new Date().getHours();
+  const slab = _hour >= 5 && _hour < 12 ? "morning"
+    : _hour >= 12 && _hour < 17 ? "afternoon"
+    : _hour >= 17 && _hour < 21 ? "evening"
+    : "tonight";
+
+  function getHomeBg(): string {
+    if (slab === "morning")   return "linear-gradient(160deg, #FF5BAD 0%, #FF1F7D 45%, #FFB3D9 80%, #FFF5FA 100%)";
+    if (slab === "afternoon") return "linear-gradient(160deg, #FF1F7D 0%, #E8006A 50%, #FF5BAD 82%, #FFD0E8 100%)";
+    if (slab === "evening")   return "linear-gradient(160deg, #C4005A 0%, #8B0036 50%, #C4005A 82%, #FF5BAD 100%)";
+    return "linear-gradient(160deg, #1C0018 0%, #380028 42%, #6A003C 75%, #C4005A 100%)";
+  }
+
+  function getHeaderDark(): boolean {
+    return slab === "evening" || slab === "tonight";
+  }
 
   return (
     <div style={{
-      background: "linear-gradient(180deg, #1C0018 0%, #380028 18%, #6A003C 34%, #CC1060 46%, #FF1F7D 54%, #FFB3D9 74%, #FFF0F8 100%)",
+      background: getHomeBg(),
       minHeight: "100vh",
       paddingBottom: 112,
       overflowX: "hidden",
@@ -409,107 +424,52 @@ export function HomePage() {
       {/* ══ HEADER SHELL ═════════════════════════════════════════════════════════ */}
       <div style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
-        paddingLeft: 16, paddingRight: 16, paddingBottom: 20,
+        paddingLeft: 16, paddingRight: 16, paddingBottom: 14,
       }}>
 
-        {/* ── UNIFIED CARD: greeting top + tonight bottom ── */}
-        <div style={{
-          background: "#000",
-          borderRadius: 22,
-          overflow: "hidden",
-          animation: "cardPulse 4s ease-in-out infinite",
-          position: "relative",
-        }}>
-          {/* Pink glow bottom-right */}
-          <div style={{ position: "absolute", bottom: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
-
-          {/* — TOP: Greeting + Date — */}
-          <div style={{ padding: "24px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
-            {/* Left: greeting */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "13px", letterSpacing: "0.24em", color: PINK, marginBottom: 8 }}>{greeting.toUpperCase()},</p>
-              <p style={{
-                fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
-                fontSize: nameFontSize,
-                color: "white", lineHeight: 0.84, letterSpacing: "-0.02em",
-              }}>{loading ? "…" : `${displayName}.`}</p>
-              {!loading && (
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.38)", marginTop: 12, letterSpacing: "0.02em" }}>
-                  {activeDayEvents.length > 0
-                    ? `${activeDayEvents.length} thing${activeDayEvents.length > 1 ? "s" : ""} on your calendar${activeDayIdx === todayDow ? " today" : ` on ${WEEK_DAYS[activeDayIdx]}`}.`
-                    : `Nothing planned${activeDayIdx === todayDow ? " today" : ` on ${WEEK_DAYS[activeDayIdx]}`}.`}
-                </p>
-              )}
-            </div>
-            {/* Right: date */}
-            <div style={{ textAlign: "right" as const, flexShrink: 0, paddingTop: 2, paddingLeft: 10 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 54, color: "white", lineHeight: 1, letterSpacing: "-0.02em", opacity: 0.88 }}>{dayOfMonth}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "9px", letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginTop: 3 }}>{dayAbbr}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "9px", letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)", marginTop: 2 }}>{monthShort}</p>
-            </div>
+        {/* ── COMPACT GREETING ROW (not a big dark card) ── */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 4 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "9px", letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginBottom: 3 }}>
+              {greeting.toUpperCase()},
+            </p>
+            <p style={{
+              fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
+              fontSize: loading ? 32 : Math.max(26, 42 - Math.max(0, (displayName.length - 5) * 3)),
+              color: "white", lineHeight: 0.9, letterSpacing: "-0.02em",
+            }}>{loading ? "…" : `${displayName}.`}</p>
           </div>
-
-          {/* Pink separator */}
-          <div style={{ height: 1, background: `linear-gradient(90deg, ${PINK}99, rgba(255,31,125,0.15), transparent)`, margin: "0 20px" }} />
-
-          {/* — BOTTOM: YOUR WEEK mini calendar — */}
-          <div style={{ padding: "14px 20px 6px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>YOUR WEEK</p>
-            <div style={{ display: "flex", gap: 4 }}>
-              {weekDays.map((d, i) => {
-                const hasEvent = (DAILY_EVENTS[i] ?? []).length > 0;
-                const isSelected = i === activeDayIdx;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedDay(i)}
-                    style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
-                  >
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: isSelected ? PINK : "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}>{d.abbr}</p>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: isSelected ? PINK : "rgba(255,255,255,0.07)", border: isSelected ? "none" : "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: isSelected ? 800 : 600, color: isSelected ? "white" : "rgba(255,255,255,0.5)" }}>{d.date}</p>
-                    </div>
-                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: hasEvent ? PINK : "transparent" }} />
-                  </button>
-                );
-              })}
-            </div>
+          {/* Date badge */}
+          <div style={{
+            background: getHeaderDark() ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.22)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: 10, padding: "6px 10px", textAlign: "center" as const,
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "9px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.88)" }}>{dayAbbr}</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: "white", lineHeight: 0.9, marginTop: 1 }}>{dayOfMonth}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "7px", letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", marginTop: 1 }}>{monthShort}</p>
           </div>
+        </div>
 
-          {/* — YOUR DAY timeline — */}
-          <div style={{ padding: "10px 20px 18px" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)" }}>
-                {activeDayIdx === todayDow ? "YOUR DAY" : WEEK_DAYS[activeDayIdx]}
-              </p>
-              <Link href="/member/plans" style={{ textDecoration: "none" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.42)" }}>full schedule →</span>
-              </Link>
-            </div>
-            {activeDayEvents.length === 0 ? (
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Nothing planned. Enjoy the day. ✦</p>
-            ) : activeDayEvents.map((ev, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < activeDayEvents.length - 1 ? 14 : 0 }}>
-                <div style={{ width: 40, flexShrink: 0, textAlign: "right" as const }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.52)", lineHeight: 1 }}>{ev.time.split(" ")[0]}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.36)" }}>{ev.time.split(" ")[1]}</p>
+        {/* Tiny calendar week strip */}
+        <div style={{ display: "flex", gap: 3, marginBottom: 14, marginTop: 8 }}>
+          {weekDays.map((d, i) => {
+            const hasEvent = (DAILY_EVENTS[i] ?? []).length > 0;
+            const isSelected = i === activeDayIdx;
+            return (
+              <button
+                key={i}
+                onClick={() => setSelectedDay(i)}
+                style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+              >
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: isSelected ? "white" : "rgba(255,255,255,0.32)", letterSpacing: "0.05em" }}>{d.abbr}</p>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: isSelected ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.07)", border: isSelected ? "1px solid rgba(255,255,255,0.5)" : "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: isSelected ? 800 : 500, color: isSelected ? "white" : "rgba(255,255,255,0.45)" }}>{d.date}</p>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: ev.label === "TONIGHT" ? PINK : "rgba(255,255,255,0.3)", boxShadow: ev.label === "TONIGHT" ? `0 0 0 3px rgba(255,31,125,0.18)` : "none" }} />
-                  {i < activeDayEvents.length - 1 && <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.08)", marginTop: 3 }} />}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.1 }}>{ev.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.48)", marginTop: 2, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{ev.loc.split(" · ")[0]}</p>
-                </div>
-                {ev.label === "NEXT" && (
-                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "3px 8px" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.1em" }}>NEXT</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                <div style={{ width: 3, height: 3, borderRadius: "50%", background: hasEvent ? "white" : "transparent", opacity: 0.6 }} />
+              </button>
+            );
+          })}
         </div>
 
         {/* Chips row */}
