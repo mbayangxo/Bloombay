@@ -1433,27 +1433,25 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               <TraditionsStrip traditions={traditions} onFollow={handleFollowTradition} />
             )}
 
-            {/* ── NEW IN NYC? ── */}
+            {/* ── INTRODUCTIONS link ── */}
             {!loading && (
               <div style={{ margin: "8px 14px 16px" }}>
-                <div style={{
-                  borderRadius: 18, overflow: "hidden",
-                  background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
-                  border: "1px solid rgba(255,31,125,0.22)",
-                  padding: "16px 18px",
-                  display: "flex", alignItems: "center", gap: 14,
-                }}>
-                  <div style={{ fontSize: 28 }}>📍</div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white", lineHeight: 1.1 }}>New in NYC?</p>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>We have dinners, open seats & clubs just for you</p>
-                  </div>
-                  <Link href="/member/match?new_in_town=1" style={{ textDecoration: "none", flexShrink: 0 }}>
-                    <div style={{ background: "white", borderRadius: 999, padding: "7px 14px" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK }}>JOIN →</p>
+                <Link href="/member/introductions" style={{ textDecoration: "none" }}>
+                  <div style={{
+                    borderRadius: 18, overflow: "hidden",
+                    background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
+                    border: "1px solid rgba(255,31,125,0.22)",
+                    padding: "14px 18px",
+                    display: "flex", alignItems: "center", gap: 14,
+                  }}>
+                    <div style={{ fontSize: 24 }}>👋</div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.1 }}>Introductions</p>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Meet new arrivals, locals & women finding their people</p>
                     </div>
-                  </Link>
-                </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </Link>
               </div>
             )}
           </>

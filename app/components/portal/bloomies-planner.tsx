@@ -33,7 +33,7 @@ const RSVP_COLORS: Record<RSVPStatus, string> = {
   yes: "#22C55E", maybe: GOLD, no: "#EF4444", pending: "#D1D5DB",
 };
 const RSVP_LABELS: Record<RSVPStatus, string> = {
-  yes: "YES ✓", maybe: "MAYBE", no: "NO", pending: "PENDING",
+  yes: "I'm going", maybe: "Not sure yet", no: "I'm not", pending: "Pending",
 };
 
 const AVATAR_COLORS = ["#FF1F7D","#FF69B4","#A855F7","#0EA5E9","#83C5A0","#D4A853","#E8006A","#C4005A"];

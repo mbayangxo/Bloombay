@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
@@ -239,6 +239,8 @@ export function ZoneInteriorPage({ clubId = "", zoneId = "z1" }: { clubId?: stri
   const [promptSubmitted, setPromptSubmitted] = useState(false);
   const [postInput, setPostInput] = useState("");
   const [showCompose, setShowCompose] = useState(false);
+  const [composeImage, setComposeImage] = useState<string | null>(null);
+  const composeFileRef = useRef<HTMLInputElement | null>(null);
 
   function toggleSave(id: string) {
     setSaved(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -519,17 +521,21 @@ export function ZoneInteriorPage({ clubId = "", zoneId = "z1" }: { clubId?: stri
       {showCompose && (
         <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ width: "100%", maxWidth: 448, background: "white", borderRadius: "26px 26px 0 0", padding: "26px 24px 40px" }}>
+            <input ref={composeFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={e => {
+              const f = e.target.files?.[0]; if (!f) return;
+              const r = new FileReader(); r.onload = ev => { if (ev.target?.result) setComposeImage(ev.target.result as string); }; r.readAsDataURL(f); e.target.value = "";
+            }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
               <div>
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", color: zone.color, marginBottom: 3 }}>{zone.name.toUpperCase()}</p>
                 <h3 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: "#111" }}>Post to zone</h3>
               </div>
-              <button onClick={() => setShowCompose(false)} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "#F0F0F0", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <button onClick={() => { setShowCompose(false); setComposeImage(null); }} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "#F0F0F0", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="#888" strokeWidth="1.8" strokeLinecap="round" /></svg>
               </button>
             </div>
             <textarea
-              rows={5}
+              rows={4}
               value={postInput}
               onChange={e => setPostInput(e.target.value)}
               placeholder={`Share something with ${zone.name}…`}
@@ -537,9 +543,25 @@ export function ZoneInteriorPage({ clubId = "", zoneId = "z1" }: { clubId?: stri
               onFocus={e => (e.target.style.borderColor = zone.color)}
               onBlur={e => { if (!postInput) e.target.style.borderColor = "transparent"; }}
             />
-            <button onClick={() => { setShowCompose(false); setPostInput(""); }} disabled={!postInput.trim()} style={{ width: "100%", marginTop: 14, padding: "15px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: zone.color, border: "none", cursor: postInput.trim() ? "pointer" : "default", opacity: postInput.trim() ? 1 : 0.38 }}>
-              Post →
-            </button>
+            {/* Photo preview */}
+            {composeImage && (
+              <div style={{ position: "relative", marginTop: 10, borderRadius: 14, overflow: "hidden", maxHeight: 200 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={composeImage} alt="" style={{ width: "100%", objectFit: "cover", maxHeight: 200, display: "block" }} />
+                <button onClick={() => setComposeImage(null)} style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                </button>
+              </div>
+            )}
+            {/* Action row */}
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button onClick={() => composeFileRef.current?.click()} style={{ width: 42, height: 42, borderRadius: "50%", border: "none", cursor: "pointer", background: `${zone.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={zone.color} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <button onClick={() => { setShowCompose(false); setPostInput(""); setComposeImage(null); }} disabled={!postInput.trim() && !composeImage} style={{ flex: 1, padding: "13px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: zone.color, border: "none", cursor: (postInput.trim() || composeImage) ? "pointer" : "default", opacity: (postInput.trim() || composeImage) ? 1 : 0.38 }}>
+                Post →
+              </button>
+            </div>
           </div>
         </div>
       )}

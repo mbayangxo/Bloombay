@@ -184,6 +184,7 @@ const DEFAULT_CLUB: ClubLandingData = {
 interface ChatMessage {
   id: number; author: string; initial: string; color: string;
   text: string; time: string; mine?: boolean;
+  imageUrl?: string;
   reactions?: { emoji: string; count: number }[];
 }
 
@@ -504,18 +505,37 @@ function ClubChat({ club }: { club: ClubLandingData }) {
   const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
   const [input, setInput] = useState("");
   const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   function send() {
-    if (!input.trim()) return;
-    setMessages(prev => [...prev, { id: Date.now(), author: "You", initial: "M", color: "#FF69B4", text: input.trim(), time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }), mine: true }]);
+    if (!input.trim() && !pendingImage) return;
+    setMessages(prev => [...prev, {
+      id: Date.now(), author: "You", initial: "M", color: "#FF69B4",
+      text: input.trim(), imageUrl: pendingImage ?? undefined,
+      time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+      mine: true,
+    }]);
     setInput("");
+    setPendingImage(null);
+  }
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { if (ev.target?.result) setPendingImage(ev.target.result as string); };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 280px)", minHeight: 400 }}>
+      <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
+
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 20px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div style={{ display: "flex" }}>
           {CLUB_MEMBERS.slice(0, 5).map(m => (
@@ -531,7 +551,15 @@ function ClubChat({ club }: { club: ClubLandingData }) {
             {!msg.mine && <div style={{ width: 32, height: 32, borderRadius: "50%", background: msg.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0, marginBottom: 4 }}>{msg.initial}</div>}
             <div style={{ display: "flex", flexDirection: "column", alignItems: msg.mine ? "flex-end" : "flex-start", maxWidth: "75%" }}>
               {!msg.mine && <span style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, marginLeft: 4, color: msg.color }}>{msg.author}</span>}
-              <div style={{ padding: "10px 16px", fontSize: 13, lineHeight: 1.5, background: msg.mine ? club.color : "white", color: msg.mine ? "white" : "#111", borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px", boxShadow: msg.mine ? `0 2px 12px ${club.color}40` : "0 1px 6px rgba(0,0,0,0.06)" }}>{msg.text}</div>
+              {msg.imageUrl && (
+                <div style={{ borderRadius: msg.mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", overflow: "hidden", marginBottom: msg.text ? 6 : 0, maxWidth: 220 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={msg.imageUrl} alt="" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
+                </div>
+              )}
+              {msg.text && (
+                <div style={{ padding: "10px 16px", fontSize: 13, lineHeight: 1.5, background: msg.mine ? club.color : "white", color: msg.mine ? "white" : "#111", borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px", boxShadow: msg.mine ? `0 2px 12px ${club.color}40` : "0 1px 6px rgba(0,0,0,0.06)" }}>{msg.text}</div>
+              )}
               {msg.reactions && (
                 <div style={{ display: "flex", gap: 6, marginTop: 6, marginLeft: 4 }}>
                   {msg.reactions.map(r => (
@@ -548,11 +576,28 @@ function ClubChat({ club }: { club: ClubLandingData }) {
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
+      {/* Pending image preview */}
+      {pendingImage && (
+        <div style={{ padding: "8px 16px 0", background: "white" }}>
+          <div style={{ position: "relative", width: 80, height: 80, borderRadius: 12, overflow: "hidden" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={pendingImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <button onClick={() => setPendingImage(null)} style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="7" height="7" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, borderTop: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
+        {/* Photo button */}
+        <button onClick={() => fileRef.current?.click()} style={{ width: 36, height: 36, borderRadius: "50%", background: `${club.color}12`, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={club.color} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
         <div style={{ flex: 1, display: "flex", alignItems: "center", borderRadius: 24, padding: "10px 16px", background: "#FFF5F8", border: "1.5px solid #FFE0EE" }}>
           <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Say something…" style={{ flex: 1, background: "transparent", fontSize: 14, outline: "none", border: "none", color: "#111" }} />
         </div>
-        <button onClick={send} disabled={!input.trim()} style={{ width: 40, height: 40, borderRadius: "50%", background: club.color, border: "none", cursor: input.trim() ? "pointer" : "default", opacity: input.trim() ? 1 : 0.3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <button onClick={send} disabled={!input.trim() && !pendingImage} style={{ width: 40, height: 40, borderRadius: "50%", background: club.color, border: "none", cursor: (input.trim() || pendingImage) ? "pointer" : "default", opacity: (input.trim() || pendingImage) ? 1 : 0.3, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
         </button>
       </div>
