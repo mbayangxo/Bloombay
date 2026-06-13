@@ -34,6 +34,7 @@ interface ShopItem {
   gradientB: string;
   badge?: string;
   saves: number;
+  sharedClub?: string;
 }
 
 const MOCK_ITEMS: ShopItem[] = [
@@ -42,21 +43,21 @@ const MOCK_ITEMS: ShopItem[] = [
     category: "beauty", name: "Melanin Glow Oil",
     description: "Small-batch face oil formulated for dark skin tones. Uses Marula, Baobab + Rosehip. No synthetics.",
     price: "£42", gradientA: "#F7971E", gradientB: "#FFD200",
-    badge: "BB FOUNDER", saves: 89,
+    badge: "BB FOUNDER", saves: 89, sharedClub: "The Reading Room",
   },
   {
     id: "2", brand: "Zara Styles", seller: "Zara F.", seller_initial: "Z", seller_color: "#C084FC",
     category: "fashion", name: "Vintage Styling Session",
     description: "1hr virtual wardrobe audit. She'll help you shop your own closet before buying anything new.",
     price: "£55", gradientA: "#C084FC", gradientB: "#818CF8",
-    badge: "TOP SELLER", saves: 134,
+    badge: "TOP SELLER", saves: 134, sharedClub: "The Closet",
   },
   {
     id: "3", brand: "Amara's Kitchen", seller: "Amara T.", seller_initial: "A", seller_color: "#E8A050",
     category: "food", name: "West African Spice Bundle",
     description: "Hand-blended suya spice, egusi mix, and jollof seasoning. Ships UK-wide.",
     price: "£18", gradientA: "#F7971E", gradientB: "#F44336",
-    saves: 67,
+    saves: 67, sharedClub: "African Girls Club",
   },
   {
     id: "4", brand: "Temi Digital", seller: "Temi A.", seller_initial: "T", seller_color: "#83C5A0",
@@ -70,14 +71,14 @@ const MOCK_ITEMS: ShopItem[] = [
     category: "wellness", name: "1:1 Pilates Drop-In",
     description: "Private reformer session in Williamsburg. Beginner-friendly. DM to book.",
     price: "$65", gradientA: "#FFB3D9", gradientB: PINK,
-    saves: 45,
+    saves: 45, sharedClub: "Wellness & Pilates",
   },
   {
     id: "6", brand: "Kezia Creates", seller: "Kezia M.", seller_initial: "K", seller_color: "#EC4899",
     category: "fashion", name: "Custom Press-On Nails",
     description: "Bespoke handmade press-ons. You send her your inspo, she builds the set. 2-week turnaround.",
     price: "£35", gradientA: "#FF9A9E", gradientB: "#FAD0C4",
-    saves: 178,
+    saves: 178, sharedClub: "Beauty & Nails",
   },
 ];
 
@@ -111,13 +112,18 @@ function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onS
         </div>
 
         <div style={{ padding: "12px 14px 14px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: item.sharedClub ? 3 : 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${item.seller_color}, ${item.seller_color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 800, color: "white" }}>{item.seller_initial}</div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: "#888" }}>{item.seller}</p>
             </div>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: meta.color, background: `${meta.color}10`, borderRadius: 99, padding: "2px 7px" }}>{meta.label.toUpperCase()}</span>
           </div>
+          {item.sharedClub && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, marginBottom: 6, letterSpacing: "0.02em" }}>
+              ✦ Also in {item.sharedClub}
+            </p>
+          )}
 
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: DARK, marginBottom: 4, lineHeight: 1.3 }}>{item.name}</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.55)", lineHeight: 1.5, marginBottom: 12 }}>{item.description}</p>
