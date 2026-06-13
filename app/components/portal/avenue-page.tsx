@@ -45,15 +45,6 @@ const AVENUES: AvenueConfig[] = [
     count: 89,
   },
   {
-    signLine1: "SERVICE ROW",
-    signLine2: "THE BOOK ST.",
-    title: "The Book",
-    tagline: "Book women-owned services.",
-    href: "/member/book",
-    accent: "#C4005A",
-    count: 48,
-  },
-  {
     signLine1: "BLOOM BLVD.",
     signLine2: "THE VANITY AVE.",
     title: "The Vanity",
@@ -121,12 +112,12 @@ const TOP_POSTS = [
     blooms: 132,
   },
   {
-    room: "The Book",
-    roomHref: "/member/book",
+    room: "The Closet",
+    roomHref: "/member/avenue/closet",
     user: "Temi A.",
     initial: "T",
     color: "#A855F7",
-    text: "Just launched my natural hair care services 🌿 Book me through The Book!",
+    text: "Found the most beautiful vintage blazer for $28 — just listed it on The Hanger 🖤",
     blooms: 89,
   },
   {

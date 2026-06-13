@@ -346,8 +346,31 @@ export function LandingPage() {
             </span>
           </h1>
 
-          {/* Small caps list — like IMG_3878 */}
-          <div style={{ margin: "22px 0 0", display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* Secondary statement */}
+          <div style={{ marginTop: 18, lineHeight: 0.88 }}>
+            <span className="block" style={{
+              fontFamily: "var(--font-fraunces)",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: "clamp(22px, 6vw, 32px)",
+              color: "rgba(255,255,255,0.55)",
+              letterSpacing: "-0.01em",
+            }}>
+              it&apos;s a girls world,
+            </span>
+            <span className="block bb-outline" style={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 900,
+              fontSize: "clamp(36px, 10vw, 52px)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1,
+            }}>
+              we&apos;re it.
+            </span>
+          </div>
+
+          {/* Small caps list */}
+          <div style={{ margin: "18px 0 0", display: "flex", flexDirection: "column", gap: 3 }}>
             {["DINNER RESERVATIONS.", "MUSEUM GIRLS.", "BOOK CLUBS.", "SUNDAY WALKS."].map(line => (
               <p key={line} style={{
                 fontFamily: "var(--font-jost)",
@@ -459,6 +482,29 @@ export function LandingPage() {
               </span>
               <span className="block font-black text-white" style={{ fontSize: "clamp(54px, 9vw, 92px)" }}>gathering.</span>
             </h1>
+
+            {/* Secondary statement */}
+            <div className="mb-6" style={{ lineHeight: 0.9 }}>
+              <span className="block" style={{
+                fontFamily: "var(--font-fraunces)",
+                fontStyle: "italic",
+                fontWeight: 300,
+                fontSize: "clamp(20px, 3.5vw, 38px)",
+                color: "rgba(255,255,255,0.5)",
+                letterSpacing: "-0.01em",
+              }}>
+                it&apos;s a girls world,
+              </span>
+              <span className="block bb-outline" style={{
+                fontFamily: "var(--font-jost)",
+                fontWeight: 900,
+                fontSize: "clamp(34px, 6vw, 64px)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+              }}>
+                we&apos;re it.
+              </span>
+            </div>
 
             <div className="mb-7 flex flex-col gap-0.5">
               {["DINNER RESERVATIONS.", "MUSEUM GIRLS.", "BOOK CLUBS.", "SUNDAY WALKS."].map((line) => (

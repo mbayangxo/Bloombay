@@ -19,8 +19,19 @@ export function TopBar({
 
       <p className="text-xs text-gray-400 font-medium">{day} · {location}</p>
 
-      {/* Icon row: Messages · Ping · Plans */}
+      {/* Icon row: The Book · Messages · Ping · Plans */}
       <div className="flex items-center gap-1.5">
+
+        {/* The Book */}
+        <Link href="/member/book" aria-label="The Book"
+          className="flex items-center gap-1 px-2 h-9 rounded-full transition-all hover:scale-105"
+          style={{ background: "var(--pale-pink-bg)" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          </svg>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.08em", color: "var(--bb-pink)" }}>THE BOOK</span>
+        </Link>
 
         {/* Messages */}
         <Link href="/member/messages" aria-label="Messages"
