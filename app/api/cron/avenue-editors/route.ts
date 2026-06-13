@@ -398,10 +398,10 @@ async function scrapeWorkTikTok(): Promise<string[]> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hashtags,
-          resultsPerPage: 30,
+          resultsPerPage: 60,  // 60 × 24 hashtags = up to 1440 videos
           shouldDownloadVideos: false,
           shouldDownloadCovers: false,
-          maxItems: 400,
+          maxItems: 2000,
         }),
       }
     );

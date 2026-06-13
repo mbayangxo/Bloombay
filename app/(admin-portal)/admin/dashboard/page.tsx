@@ -272,7 +272,8 @@ type Section =
   | "happenings"
   | "safety"
   | "mailroom"
-  | "city-trending";
+  | "city-trending"
+  | "editor-inbox";
 
 const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: number }[] = [
   { id: "overview", label: "Overview", Icon: IconGrid },

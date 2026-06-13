@@ -90,10 +90,10 @@ async function scrapeTikTokNYC(): Promise<RawSpot[]> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hashtags,
-          resultsPerPage: 50,  // 50 per hashtag — skim widely, not just top
+          resultsPerPage: 100,  // 100 per hashtag × 27 hashtags = up to 2700 videos
           shouldDownloadVideos: false,
           shouldDownloadCovers: false,
-          maxItems: 1000,      // cap total to keep runtime reasonable
+          maxItems: 3000,        // cap total — let the relevance filter do the work
         }),
       }
     );
@@ -115,9 +115,9 @@ async function scrapeTikTokNYC(): Promise<RawSpot[]> {
       attempts++;
     }
 
-    // Fetch all results — skim widely
+    // Fetch all results — skim widely across thousands of videos
     const itemsRes = await fetch(
-      `https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}/dataset/items?token=${process.env.APIFY_API_KEY}&limit=500`
+      `https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}/dataset/items?token=${process.env.APIFY_API_KEY}&limit=3000`
     );
     const items = await itemsRes.json() as TikTokItem[];
 
@@ -174,16 +174,22 @@ async function extractSpotsFromTikTok(items: TikTokItem[]): Promise<RawSpot[]> {
   if (!process.env.ANTHROPIC_API_KEY || items.length === 0) return [];
 
   // Smart skim: score every video for NYC place/event relevance,
-  // then take the top-scoring 170 (not just top by play count).
+  // then take the top-scoring ones across thousands of scraped videos.
   const scored = items
     .map(item => ({ item, score: relevanceScore(item) }))
     .filter(({ score }) => score > 0)  // drop obviously irrelevant
     .sort((a, b) => b.score - a.score);
 
-  // Take 170 — mix of high-relevance and some mid-range for variety
-  const sampled = scored.slice(0, 170).map(({ item }) => item);
+  // Take up to 500 high-relevance videos — then sample for Claude's context window
+  const highRelevance = scored.slice(0, 500).map(({ item }) => item);
 
-  const descriptions = sampled
+  // Claude can process ~800 descriptions before hitting context limits.
+  // Send a mix: top 300 by relevance + 200 random from the high-relevance pool.
+  const top300 = highRelevance.slice(0, 300);
+  const randomMid = highRelevance.slice(300).sort(() => Math.random() - 0.5).slice(0, 200);
+  const forClaude = [...top300, ...randomMid];
+
+  const descriptions = forClaude
     .map(v => v.desc)
     .filter(Boolean)
     .join("\n---\n");
