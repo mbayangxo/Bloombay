@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClubCheckoutSession } from "@/lib/whop";
+import { chargeClubMembership } from "@/lib/payments";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
   if (!club) return NextResponse.json({ error: "Club not found" }, { status: 404 });
   if (!club.is_paid) return NextResponse.json({ error: "Club is free" }, { status: 400 });
 
-  const checkoutUrl = await createClubCheckoutSession({
+  const { url } = await chargeClubMembership({
     clubId: club.id,
     clubName: club.name,
     priceCents: club.price_cents ?? 1000,
     userId: user.id,
-    userEmail: user.email,
+    userEmail: user.email ?? "",
   });
 
-  return NextResponse.json({ url: checkoutUrl });
+  return NextResponse.json({ url });
 }
