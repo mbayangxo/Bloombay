@@ -658,7 +658,7 @@ function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
           <p className="text-sm leading-relaxed" style={{ color: "#444" }}>
             Parisian patisserie meets NYC girl culture. The perfect brunch spot.
           </p>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Description editor coming soon")}>Edit description</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => {}}>Edit description</button>
         </div>
 
         {/* Neighborhood */}
@@ -681,7 +681,7 @@ function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
               </div>
             ))}
           </div>
-          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => showToast("Photo upload coming soon")}>Upload photos</button>
+          <button className="mt-3 text-xs font-semibold" style={{ color: "#FF1F7D" }} onClick={() => {}}>Upload photos</button>
         </div>
       </div>
     </div>

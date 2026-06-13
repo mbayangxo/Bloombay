@@ -529,9 +529,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   }
 
   const ROOMS = [
-    { label: "Bloom Trails",   icon: "🎈", href: "/member/avenue/memories",  num: "01", accentColor: "#FF69B4" },
-    { label: "Bouquet",        icon: "💐", href: "/member/avenue/bouquet",   num: "02", accentColor: PINK      },
-    { label: "Bloomies",       icon: "🌸", href: "/member/avenue/bloomies",  num: "03", accentColor: "#E8006A" },
+    { label: "Bloom Trails",   icon: "🎈", href: "/member/lounge/memories",  num: "01", accentColor: "#FF69B4" },
+    { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",   num: "02", accentColor: PINK      },
+    { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",  num: "03", accentColor: "#E8006A" },
     { label: "Clubs",          icon: "🌺", href: "/member/clubs",           num: "04", accentColor: "#C4005A" },
     ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
   ];

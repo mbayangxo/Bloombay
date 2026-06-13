@@ -2419,7 +2419,7 @@ function GirlGemsPage({ onBack }: { onBack: () => void }) {
           textAlign: "center" as const,
         }}>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>know a hidden gem? ✦</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions — coming soon</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions</p>
           <button style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "pointer" }}>
             SUBMIT A GEM →
           </button>
@@ -2847,7 +2847,7 @@ function CityMapView() {
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#666" }}>Interactive map coming soon</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#666" }}>Map launching in New York City</p>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.35)", letterSpacing: "0.04em" }}>Use search above to explore neighborhoods</p>
         </div>
       </div>

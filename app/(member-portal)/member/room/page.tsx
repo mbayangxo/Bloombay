@@ -790,7 +790,7 @@ function GirlBarRoomEntry({ room, onLeave }: { room: GBRoom; onLeave: () => void
         </button>
         <div className="flex items-center gap-1.5">
           {room.live && <div className="w-2 h-2 rounded-full" style={{ background:"#FF1F7D", boxShadow:"0 0 6px #FF1F7D", animation:"room-glow 1.6s ease-in-out infinite" }} />}
-          <span className="text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: room.live ? "#FF1F7D" : "rgba(255,255,255,0.3)" }}>{room.live ? "LIVE" : "COMING SOON"}</span>
+          <span className="text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: room.live ? "#FF1F7D" : "rgba(255,255,255,0.3)" }}>{room.live ? "LIVE" : ""}</span>
         </div>
         <div className="w-9 h-9" />
       </div>

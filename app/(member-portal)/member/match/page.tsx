@@ -30,7 +30,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
           className="px-3 py-1.5 rounded-full text-[9px] font-bold tracking-[0.22em] uppercase"
           style={{ background: "rgba(255,31,125,0.12)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.2)" }}
         >
-          COMING SOON
+          
         </div>
 
         {/* Title */}

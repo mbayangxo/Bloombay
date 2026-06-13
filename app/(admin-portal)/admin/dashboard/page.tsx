@@ -67,9 +67,9 @@ const CURATORS = [
 
 const CITIES = [
   { name: "NYC", status: "Active", women: 94, clubs: 12, seats: 8 },
-  { name: "Chicago", status: "Coming Soon", women: 0, clubs: 0, seats: 0 },
-  { name: "Atlanta", status: "Coming Soon", women: 0, clubs: 0, seats: 0 },
-  { name: "London", status: "Coming Soon", women: 0, clubs: 0, seats: 0 },
+  { name: "Chicago", status: "Opening Soon", women: 0, clubs: 0, seats: 0 },
+  { name: "Atlanta", status: "Opening Soon", women: 0, clubs: 0, seats: 0 },
+  { name: "London", status: "Opening Soon", women: 0, clubs: 0, seats: 0 },
 ];
 
 const WOMEN_STATS = {
@@ -832,7 +832,7 @@ function WomenSection() {
         <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
           17 women are awaiting identity verification before they can access clubs and open seats.
         </p>
-        <button onClick={() => {}} className="text-xs font-bold px-3 py-1.5 rounded-full mt-2 inline-block" style={{ background: "#FF1F7D", color: "white" }}>
+        <button className="text-xs font-bold px-3 py-1.5 rounded-full mt-2 inline-block" style={{ background: "#FF1F7D", color: "white" }}>
           Review Queue →
         </button>
       </div>
@@ -1062,7 +1062,7 @@ function HostsSection() {
                     {h.warnings >= 2 ? "Archive Host" : `Warn (${h.warnings + 1} of 3)`}
                   </button>
                   <button
-                    onClick={() => showToast("Messaging coming soon")}
+                    onClick={() => {}}
                     className="px-4 py-2 rounded-full text-xs font-bold transition-all"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >
@@ -1197,10 +1197,10 @@ function ClubsSection() {
                   <span className="text-xs px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>
                     Curator: {club.curator}
                   </span>
-                  <button onClick={() => showToast("Club editor coming soon")} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
+                  <button onClick={() => {}} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }}>
                     Edit Club
                   </button>
-                  <button onClick={() => showToast("Archive coming soon")} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <button onClick={() => {}} className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
                     Archive
                   </button>
                 </div>
@@ -1365,7 +1365,7 @@ function SafetySection() {
               ))}
             </div>
             <button
-              onClick={() => showToast("Report coming soon")}
+              onClick={() => {}}
               className="mt-5 w-full py-2 rounded-full text-xs font-bold"
               style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}
             >
@@ -1666,7 +1666,7 @@ function HappeningsSection() {
                 <span className="text-sm font-bold flex-shrink-0" style={{ color: "rgba(255,255,255,0.6)" }}>{ev.price}</span>
                 <div className="flex gap-2 flex-shrink-0">
                   <button
-                    onClick={() => showToast("Editor coming soon")}
+                    onClick={() => {}}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                     style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >

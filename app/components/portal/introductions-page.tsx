@@ -831,7 +831,7 @@ export function IntroductionsPage() {
 
         {/* ── Coming soon: Hanger · Book · Bloom Trip ───────────────────────── */}
         <section className="px-5">
-          <SectionHeader eyebrow="COMING SOON" title="More for you." note="Built for Bloombay women. Dropping soon." />
+          <SectionHeader eyebrow="MORE FOR YOU" title="More for you." note="Built for Bloombay women. Dropping soon." />
           <div className="flex flex-col gap-3">
             {[
               { href: "/member/hanger", label: "The Hanger", sub: "Sell & swap fashion with women in the city.", accent: "#C084FC" },

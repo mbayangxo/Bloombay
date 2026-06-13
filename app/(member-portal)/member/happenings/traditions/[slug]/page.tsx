@@ -125,7 +125,7 @@ export default function TraditionPage({ params }: { params: { slug: string } }) 
 
         {gatherings.length === 0 ? (
           <div style={{ textAlign: "center" as const, padding: "40px 0" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,31,125,0.4)" }}>First edition coming soon.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,31,125,0.4)" }}>This tradition is being planned.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
