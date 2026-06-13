@@ -8,6 +8,7 @@ import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
 import { MorningAfterCard } from "./morning-after-card";
+import { BloomRecapCard } from "./bloom-recap-card";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 
 // Inject pulse keyframe once
@@ -306,6 +307,7 @@ export function HomePage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showMorningAfter, setShowMorningAfter] = useState(true);
+  const [showRecap, setShowRecap] = useState(true);
   const [showSafety, setShowSafety] = useState(false);
 
   useEffect(() => {
@@ -526,6 +528,10 @@ export function HomePage() {
       <ClubActivityRow />
 
       {/* ══ MORNING-AFTER ═══════════════════════════════════════════════════════ */}
+      {showRecap && (
+        <BloomRecapCard onDismiss={() => setShowRecap(false)} />
+      )}
+
       {showMorningAfter && (
         <MorningAfterCard
           happeningTitle="Girls Dinner"
