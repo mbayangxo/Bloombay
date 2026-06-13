@@ -10,6 +10,10 @@
       "schedule": "0 10 * * 1"
     },
     {
+      "path": "/api/cron/avenue-editors",
+      "schedule": "0 7 * * 2"
+    },
+    {
       "path": "/api/cron/city-intelligence",
       "schedule": "0 8 * * 3"
     }
