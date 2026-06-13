@@ -356,7 +356,7 @@ export function LandingPage() {
               color: "rgba(255,255,255,0.55)",
               letterSpacing: "-0.01em",
             }}>
-              it&apos;s a girls world,
+              it&apos;s a woman&apos;s world,
             </span>
             <span className="block bb-outline" style={{
               fontFamily: "var(--font-jost)",
@@ -493,7 +493,7 @@ export function LandingPage() {
                 color: "rgba(255,255,255,0.5)",
                 letterSpacing: "-0.01em",
               }}>
-                it&apos;s a girls world,
+                it&apos;s a woman&apos;s world,
               </span>
               <span className="block bb-outline" style={{
                 fontFamily: "var(--font-jost)",

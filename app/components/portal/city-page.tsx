@@ -521,15 +521,29 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
           <p style={{ fontFamily:"var(--font-jost)", fontSize:"7px", fontWeight:800, letterSpacing:"0.3em", color:"rgba(255,255,255,0.6)", marginBottom:4 }}>THE CITY</p>
           <h1 style={{ fontFamily:"var(--font-fraunces)", fontSize:28, fontWeight:900, fontStyle:"italic", color:"white", lineHeight:1, margin:0, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>New York.</h1>
         </div>
-        <button onClick={onSwipeToMenu} style={{
-          background:"rgba(255,255,255,0.18)", backdropFilter:"blur(10px)",
-          border:"1px solid rgba(255,255,255,0.35)", borderRadius:999,
-          padding:"8px 14px", cursor:"pointer", display:"flex", alignItems:"center", gap:6,
-          WebkitTapHighlightColor:"transparent",
-        }}>
-          <span style={{ fontFamily:"var(--font-jost)", fontSize:"8px", fontWeight:700, color:"white", letterSpacing:"0.1em" }}>CITY GUIDE</span>
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8 }}>
+          <button onClick={onSwipeToMenu} style={{
+            background:"rgba(255,255,255,0.18)", backdropFilter:"blur(10px)",
+            border:"1px solid rgba(255,255,255,0.35)", borderRadius:999,
+            padding:"8px 14px", cursor:"pointer", display:"flex", alignItems:"center", gap:6,
+            WebkitTapHighlightColor:"transparent",
+          }}>
+            <span style={{ fontFamily:"var(--font-jost)", fontSize:"8px", fontWeight:700, color:"white", letterSpacing:"0.1em" }}>CITY GUIDE</span>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <Link href="/member/book" style={{ textDecoration:"none" }}>
+            <div style={{
+              background:"rgba(255,31,125,0.25)", backdropFilter:"blur(10px)",
+              border:"1px solid rgba(255,31,125,0.4)", borderRadius:999,
+              padding:"6px 12px", display:"flex", alignItems:"center", gap:5,
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+              </svg>
+              <span style={{ fontFamily:"var(--font-jost)", fontSize:"8px", fontWeight:800, color:"white", letterSpacing:"0.1em" }}>THE BOOK</span>
+            </div>
+          </Link>
+        </div>
       </div>
 
       {/* Hint text */}
