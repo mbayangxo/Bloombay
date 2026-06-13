@@ -1281,6 +1281,74 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
 
+            {/* ── Last Minute Plans ── */}
+            {(() => {
+              const nowMs = Date.now();
+              const lastMinute = events.filter(ev => {
+                const ms = new Date(ev.starts_at).getTime();
+                const hoursAway = (ms - nowMs) / 36e5;
+                return hoursAway >= 0 && hoursAway <= 6;
+              });
+              if (loading || lastMinute.length === 0) return null;
+              return (
+                <div style={{ margin: "12px 14px 0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,220,0,0.12)", border: "1px solid rgba(255,220,0,0.22)", borderRadius: 999, padding: "4px 10px 4px 7px" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD700", animation: "livePulse 1.2s ease-in-out infinite" }} />
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.16em", color: "#FFD700" }}>LAST MINUTE</span>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.32)", fontWeight: 600 }}>Starting in the next 6 hours</p>
+                  </div>
+                  <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
+                    {lastMinute.slice(0, 6).map((ev, i) => {
+                      const startTime = new Date(ev.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+                      const hoursAway = Math.round((new Date(ev.starts_at).getTime() - nowMs) / 36e5 * 10) / 10;
+                      const isJoined = joined.has(ev.id);
+                      return (
+                        <div key={ev.id} style={{
+                          flexShrink: 0,
+                          width: 160,
+                          background: "rgba(255,220,0,0.06)",
+                          border: "1px solid rgba(255,220,0,0.15)",
+                          borderRadius: 14,
+                          padding: "12px 13px 12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 6,
+                        }}>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "#FFD700", letterSpacing: "0.1em" }}>
+                            ⚡ {hoursAway < 1 ? "< 1h away" : `${hoursAway}h away`}
+                          </p>
+                          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{ev.title}</p>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", lineHeight: 1.3 }}>
+                            {startTime}{ev.venue ? ` · ${ev.venue}` : ""}
+                          </p>
+                          <button
+                            onClick={() => { const id = ev.id; void (isJoined ? leaveEvent(id) : joinEvent(id)); setJoined(prev => { const s = new Set(prev); isJoined ? s.delete(id) : s.add(id); return s; }); }}
+                            style={{
+                              marginTop: 2,
+                              padding: "7px 0",
+                              borderRadius: 999,
+                              border: "none",
+                              background: isJoined ? "rgba(255,255,255,0.1)" : "#FFD700",
+                              color: isJoined ? "rgba(255,255,255,0.5)" : "#111",
+                              fontFamily: "var(--font-jost)",
+                              fontSize: "8px",
+                              fontWeight: 900,
+                              cursor: "pointer",
+                              letterSpacing: "0.08em",
+                            }}
+                          >
+                            {isJoined ? "JOINED ✓" : "JOIN NOW →"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* ── Tonight strip ── */}
             {!loading && <TonightStrip events={events} joined={joined} onToggle={toggleJoin} />}
 

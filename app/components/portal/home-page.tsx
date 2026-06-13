@@ -8,6 +8,7 @@ import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
 import { MorningAfterCard } from "./morning-after-card";
+import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 
 // Inject pulse keyframe once
 if (typeof document !== "undefined") {
@@ -305,6 +306,7 @@ export function HomePage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showMorningAfter, setShowMorningAfter] = useState(true);
+  const [showSafety, setShowSafety] = useState(false);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -412,6 +414,10 @@ export function HomePage() {
         pointerEvents: "none",
       }} />
 
+      {/* ── BLOOM SAFETY button (fixed top-right) ── */}
+      <BloomSafetyButton onOpen={() => setShowSafety(true)} />
+      {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}
+
       {/* ── EDIT PROFILE SHEET ── */}
       {showEditProfile && (
         <EditProfileSheet
@@ -474,14 +480,15 @@ export function HomePage() {
           })}
         </div>
 
-        {/* Chips row */}
-        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        {/* Chips row — 4 chips, scrollable */}
+        <div style={{ display: "flex", gap: 8, marginTop: 14, overflowX: "auto", scrollbarWidth: "none" as const }}>
           {[
-            { href: "/member/happenings", label: "Tonight",    icon: "✦", bg: "white"                   },
-            { href: "/member/city",       label: "City Guide",  icon: "◎", bg: "rgba(255,255,255,0.10)"  },
-            { href: "/member/plans",      label: "My Plans",    icon: "◫", bg: "rgba(255,255,255,0.10)"  },
+            { href: "/member/happenings",           label: "Tonight",     icon: "✦", bg: "white"                  },
+            { href: "/member/happenings?lm=1",      label: "Last Minute", icon: "⚡", bg: "rgba(255,255,255,0.10)" },
+            { href: "/member/city",                 label: "City Guide",  icon: "◎", bg: "rgba(255,255,255,0.10)" },
+            { href: "/member/plans",                label: "My Plans",    icon: "◫", bg: "rgba(255,255,255,0.10)" },
           ].map(c => (
-            <Link key={c.href} href={c.href} style={{ textDecoration: "none", flex: 1 }}>
+            <Link key={c.href} href={c.href} style={{ textDecoration: "none", flexShrink: 0, minWidth: 80 }}>
               <div style={{
                 padding: "12px 10px",
                 borderRadius: 14,
