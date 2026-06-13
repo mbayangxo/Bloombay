@@ -192,42 +192,127 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
   onBack: () => void;
 }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#FBE8EE", paddingBottom: 100 }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 60%, #FFF5F0 100%)", paddingBottom: 100 }}>
+      <style>{`
+        @keyframes inviteCardIn {
+          from { transform: translateY(18px); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        .invite-card { animation: inviteCardIn 0.4s cubic-bezier(0.34,1.3,0.64,1) both; }
+        .invite-card:active { transform: scale(0.97) !important; transition: transform 0.1s; }
+      `}</style>
+
       {/* Header */}
-      <div style={{ padding: "56px 20px 20px", background: "linear-gradient(160deg, #FF1F7D 0%, #FF6BA8 100%)" }}>
+      <div style={{ padding: "56px 20px 24px", background: "linear-gradient(160deg, #FF1F7D 0%, #FF5BAD 100%)", position: "relative", overflow: "hidden" }}>
+        {/* Background shimmer */}
+        <div style={{ position: "absolute", top: -20, right: -20, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.1), transparent)", pointerEvents: "none" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <button onClick={onBack} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.7)" }}>THE INVITATION BOX</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.65)" }}>THE INVITATION BOX</p>
         </div>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 36, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Invitations.</h1>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>Someone saved you a seat.</p>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 40, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, marginBottom: 4 }}>Invitations.</h1>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Someone saved you a seat.</p>
       </div>
 
-      <div style={{ padding: "20px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {items.map(item => {
+      <div style={{ padding: "20px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
+        {items.map((item, idx) => {
           const isUnread = !openedItems.has(item.id);
+
+          /* Physical envelope card */
           const content = (
-            <div style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(200,80,120,0.14)", border: `1.5px solid ${isUnread ? "rgba(255,31,125,0.25)" : "rgba(0,0,0,0.06)"}` }}>
-              {/* Envelope top flap */}
-              <div style={{ height: 8, background: `linear-gradient(135deg, ${item.color}CC, ${item.color}88)` }} />
-              {/* V-flap */}
-              <div style={{ display: "flex", overflow: "hidden", height: 12 }}>
-                <div style={{ width: "50%", height: 12, background: `${item.color}99`, clipPath: "polygon(0 0, 100% 0, 100% 100%)" }} />
-                <div style={{ width: "50%", height: 12, background: `${item.color}99`, clipPath: "polygon(0 0, 0 100%, 100% 0)" }} />
-              </div>
-              {/* Content */}
-              <div style={{ padding: "14px 16px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${item.color}, ${item.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: item.initial.length > 2 ? 9 : 13, fontWeight: 800, color: "white", flexShrink: 0 }}>{item.initial}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: isUnread ? 700 : 500, color: "#1A1A1A", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
-                    {isUnread && <div style={{ width: 8, height: 8, borderRadius: "50%", background: PINK, flexShrink: 0, boxShadow: `0 0 6px ${PINK}88` }} />}
+            <div
+              className="invite-card"
+              style={{
+                position: "relative",
+                animationDelay: `${idx * 0.07}s`,
+                borderRadius: 20,
+                boxShadow: isUnread
+                  ? "0 8px 32px rgba(255,31,125,0.2), 0 2px 8px rgba(0,0,0,0.06)"
+                  : "0 4px 18px rgba(0,0,0,0.08)",
+              }}
+            >
+              {/* Paper layer behind for depth */}
+              <div style={{
+                position: "absolute", inset: 0, borderRadius: 20,
+                background: `${item.color}22`,
+                transform: "rotate(1.4deg)",
+                zIndex: 0,
+              }} />
+
+              {/* Envelope card */}
+              <div style={{
+                position: "relative", zIndex: 1,
+                borderRadius: 20, overflow: "hidden",
+                background: "white",
+                border: `1.5px solid ${isUnread ? item.color + "30" : "rgba(0,0,0,0.05)"}`,
+              }}>
+                {/* Envelope top with V-flap */}
+                <div style={{ position: "relative", overflow: "hidden" }}>
+                  {/* Solid color top */}
+                  <div style={{
+                    height: 52,
+                    background: `linear-gradient(135deg, ${item.color}EE, ${item.color}BB)`,
+                    position: "relative",
+                  }}>
+                    {/* Shine */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "50%", background: "linear-gradient(180deg, rgba(255,255,255,0.15), transparent)" }} />
+                    {/* Unread dot */}
+                    {isUnread && (
+                      <div style={{
+                        position: "absolute", top: 10, right: 12,
+                        width: 10, height: 10, borderRadius: "50%",
+                        background: "white", boxShadow: "0 0 8px rgba(255,255,255,0.8)",
+                      }} />
+                    )}
                   </div>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontStyle: "italic", color: "#999", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.preview}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#C07080", marginTop: 4 }}>from {item.from} · {item.date}</p>
+                  {/* V fold */}
+                  <svg width="100%" height="24" viewBox="0 0 320 24" preserveAspectRatio="none" style={{ display: "block", marginTop: -1 }}>
+                    <polygon points="0,0 320,0 160,24" fill={item.color + "BB"} />
+                    <polygon points="0,0 320,0 160,24" fill="rgba(0,0,0,0.06)" />
+                  </svg>
                 </div>
+
+                {/* Content */}
+                <div style={{ padding: "10px 16px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  {/* Avatar */}
+                  <div style={{
+                    width: 42, height: 42, borderRadius: "50%", flexShrink: 0, marginTop: 2,
+                    background: `linear-gradient(135deg, ${item.color}, ${item.color}88)`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: item.initial.length > 2 ? 9 : 14, fontWeight: 800, color: "white",
+                    boxShadow: `0 3px 12px ${item.color}44`,
+                    border: "2.5px solid white",
+                  }}>{item.initial}</div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: "var(--font-playfair)", fontStyle: "italic",
+                      fontSize: 15, fontWeight: isUnread ? 700 : 500,
+                      color: "#1A1A1A", marginBottom: 3,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{item.subject}</p>
+                    <p style={{
+                      fontFamily: "var(--font-jost)", fontSize: 11,
+                      color: "#aaa", overflow: "hidden", textOverflow: "ellipsis",
+                      whiteSpace: "nowrap", marginBottom: 6,
+                    }}>{item.preview}</p>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#C07080" }}>from {item.from} · {item.date}</p>
+                      {isUnread
+                        ? <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: PINK, letterSpacing: "0.18em", background: `${PINK}12`, borderRadius: 99, padding: "3px 8px" }}>NEW</span>
+                        : <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#ccc", letterSpacing: "0.1em" }}>OPENED</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom wax seal strip */}
+                <div style={{
+                  height: 8,
+                  background: `linear-gradient(90deg, ${item.color}33, ${item.color}55, ${item.color}33)`,
+                }} />
               </div>
             </div>
           );
@@ -246,9 +331,13 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
 
         {items.length === 0 && (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
-            <p style={{ fontSize: 40, marginBottom: 12 }}>📬</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#1A1A1A" }}>No invitations yet.</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "#C07080", marginTop: 4 }}>When someone saves you a seat, it'll appear here.</p>
+            <svg width="60" height="50" viewBox="0 0 60 50" style={{ opacity: 0.25, marginBottom: 14 }}>
+              <rect x="2" y="12" width="56" height="38" rx="6" fill={PINK}/>
+              <polygon points="2,12 30,32 58,12" fill="#E0005A"/>
+              <polygon points="2,50 58,50 58,12 30,32 2,12" fill="none"/>
+            </svg>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#1A1A1A", marginBottom: 4 }}>No invitations yet.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#C07080" }}>When someone saves you a seat, it&apos;ll appear here.</p>
           </div>
         )}
       </div>
