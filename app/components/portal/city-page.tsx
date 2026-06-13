@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
+import { createClient } from "@/lib/supabase/client";
 import {
   getNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
   getNoteCountsByPlace, type BloomNote,
@@ -2097,7 +2098,41 @@ const TREND_LIST = [
 ];
 
 function TrendingPage({ onBack }: { onBack: () => void }) {
-  const tickerText = TICKER_ITEMS.join("   ✦   ") + "   ✦   ";
+  // Live data from city_trending table; falls back to demo list when empty
+  const [liveItems, setLiveItems] = useState<Array<{
+    id: string; name: string; category: string; description: string | null;
+    source: string | null; badge: string | null; save_count: number; neighborhood: string | null;
+  }>>([]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("city_trending")
+      .select("id,name,category,description,source,badge,save_count,neighborhood")
+      .eq("status", "approved")
+      .order("rank_order", { ascending: true })
+      .limit(10)
+      .then(({ data }) => { if (data && data.length > 0) setLiveItems(data); });
+  }, []);
+
+  const displayItems = liveItems.length > 0
+    ? liveItems.map((item, i) => ({
+        rank: i + 1,
+        name: item.name,
+        tag: item.category.toUpperCase(),
+        count: item.save_count,
+        hot: i < 2,
+        badge: item.badge,
+        description: item.description,
+        source: item.source,
+      }))
+    : TREND_LIST.map(item => ({ ...item, description: null, source: null }));
+
+  const tickerNames = liveItems.length > 0
+    ? liveItems.map(i => i.name.toUpperCase())
+    : TICKER_ITEMS;
+
+  const tickerText = tickerNames.join("   ✦   ") + "   ✦   ";
   const doubled = tickerText + tickerText;
 
   return (
@@ -2141,7 +2176,7 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {TREND_LIST.map((item, i) => (
+        {displayItems.map((item, i) => (
           <div key={item.rank} style={{
             backgroundImage: `${PAPER_TEX}`,
             backgroundSize: "200px 200px",
@@ -2170,13 +2205,21 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
                       <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: i === 0 ? PINK : "#FF7744" }}>{item.badge}</span>
                     </div>
                   )}
+                  {"source" in item && item.source && (
+                    <div style={{ background: "rgba(0,0,0,0.04)", borderRadius: 999, padding: "2px 7px" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(100,60,80,0.5)", letterSpacing: "0.06em" }}>via {item.source}</span>
+                    </div>
+                  )}
                 </div>
                 <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 700, fontStyle: "italic", color: DARK, lineHeight: 1.2 }}>{item.name}</p>
+                {"description" in item && item.description && (
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(120,60,80,0.6)", marginTop: 3, lineHeight: 1.4 }}>{item.description}</p>
+                )}
               </div>
               {/* Count */}
               <div style={{ flexShrink: 0, textAlign: "right" as const }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 800, color: i < 2 ? (i === 0 ? PINK : "#FF7744") : "rgba(180,80,120,0.3)", lineHeight: 1 }}>{item.count}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(120,60,80,0.4)", letterSpacing: "0.05em" }}>BLOOMIES</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: "rgba(120,60,80,0.4)", letterSpacing: "0.05em" }}>SAVED</p>
               </div>
             </div>
           </div>
