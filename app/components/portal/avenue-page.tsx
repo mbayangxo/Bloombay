@@ -22,7 +22,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "THE WALL AVE.",
     title: "The Wall",
     tagline: "Post. Share. Vibe.",
-    href: "/member/lobby/wall",
+    href: "/member/avenue/wall",
     accent: "#FF1F7D",
     count: 247,
   },
@@ -31,7 +31,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "THE CLOSET BLVD.",
     title: "The Closet",
     tagline: "Fits. Advice. Style.",
-    href: "/member/lobby/closet",
+    href: "/member/avenue/closet",
     accent: "#E8007A",
     count: 183,
   },
@@ -49,7 +49,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "THE SHOP ST.",
     title: "The Shop",
     tagline: "Her brand. Her world.",
-    href: "/member/lobby/shop",
+    href: "/member/avenue/shop",
     accent: "#C4005A",
     count: 134,
   },
@@ -58,7 +58,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "THE VANITY AVE.",
     title: "The Vanity",
     tagline: "Beauty. Glow. You.",
-    href: "/member/lobby/vanity",
+    href: "/member/avenue/vanity",
     accent: "#FF1F7D",
     count: 76,
   },
@@ -67,7 +67,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "READING ROOM RD.",
     title: "The Reading Room",
     tagline: "Books. Discuss. Share.",
-    href: "/member/lobby/reading-room",
+    href: "/member/avenue/reading-room",
     accent: "#D4A853",
     count: 54,
   },
@@ -76,7 +76,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "SCREENING ROOM ST.",
     title: "The Screening Room",
     tagline: "Film. Watch. Review.",
-    href: "/member/lobby/screening-room",
+    href: "/member/avenue/screening-room",
     accent: "#FF1F7D",
     count: 38,
   },
@@ -85,7 +85,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "MAGAZINE AVE.",
     title: "Magazine",
     tagline: "BloomBay Editorial.",
-    href: "/member/lobby/magazine",
+    href: "/member/avenue/magazine",
     accent: "#FF1F7D",
     count: null,
   },
@@ -94,7 +94,7 @@ const AVENUES: AvenueConfig[] = [
     signLine2: "HEALTH BAR AVE.",
     title: "The Health Bar",
     tagline: "Recipes. Rituals. Glow.",
-    href: "/member/lobby/health",
+    href: "/member/avenue/wellness",
     accent: "#4A7C59",
     count: 156,
   },
@@ -104,7 +104,7 @@ const AVENUES: AvenueConfig[] = [
 const TOP_POSTS = [
   {
     room: "The Wall",
-    roomHref: "/member/lobby/wall",
+    roomHref: "/member/avenue/wall",
     user: "Aaliyah M.",
     initial: "A",
     color: "#FF1F7D",
@@ -113,7 +113,7 @@ const TOP_POSTS = [
   },
   {
     room: "The Closet",
-    roomHref: "/member/lobby/closet",
+    roomHref: "/member/avenue/closet",
     user: "Zara F.",
     initial: "Z",
     color: "#FF69B4",
@@ -122,7 +122,7 @@ const TOP_POSTS = [
   },
   {
     room: "The Shop",
-    roomHref: "/member/lobby/shop",
+    roomHref: "/member/avenue/shop",
     user: "Temi A.",
     initial: "T",
     color: "#A855F7",
@@ -131,7 +131,7 @@ const TOP_POSTS = [
   },
   {
     room: "The Vanity",
-    roomHref: "/member/lobby/vanity",
+    roomHref: "/member/avenue/vanity",
     user: "Sofia W.",
     initial: "S",
     color: "#E8A050",
@@ -263,8 +263,8 @@ function TopPostCard({ post }: { post: typeof TOP_POSTS[number] }) {
   );
 }
 
-// ── LobbyPage ──────────────────────────────────────────────────────────────────
-export function LobbyPage() {
+// ── AvenuePage ──────────────────────────────────────────────────────────────────
+export function AvenuePage() {
   return (
     <div style={{
       background: "linear-gradient(160deg, #FF1F7D 0%, #FF1F7D 45%, #FF5BAD 80%, #FFB3D9 100%)",
@@ -295,7 +295,7 @@ export function LobbyPage() {
       <div style={{ marginTop: 24 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", marginBottom: 12 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(255,255,255,0.7)", letterSpacing: "0.18em" }}>TOP POSTS</p>
-          <Link href="/member/lobby/wall" style={{ textDecoration: "none" }}>
+          <Link href="/member/avenue/wall" style={{ textDecoration: "none" }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.38)" }}>all →</span>
           </Link>
         </div>

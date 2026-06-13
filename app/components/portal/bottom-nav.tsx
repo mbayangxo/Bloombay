@@ -264,7 +264,7 @@ const TABS = [
   { href: "/member/home",   key: "home"          },
   { href: "/member/plans",  key: "plans"         },
   { href: "/member/clubs",  key: "clubs"         },
-  { href: "/member/lobby",  key: "avenue"        },
+  { href: "/member/avenue",  key: "avenue"        },
   { href: "/member/happenings", key: "city"       },
   { href: "/member/match",  key: "introductions" },
 ] as const;
@@ -275,7 +275,7 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname    = usePathname();
   const slab        = getSlab();
-  const isDarkPage  = pathname.startsWith("/member/home") || pathname.startsWith("/member/lobby") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
+  const isDarkPage  = pathname.startsWith("/member/home") || pathname.startsWith("/member/avenue") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
   const [navShrunk, setNavShrunk]   = useState(false);
   const [navTouched, setNavTouched] = useState(false);
   const lastYRef = useRef(0);
@@ -293,7 +293,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings") || pathname.startsWith("/member/city");
-    if (href === "/member/lobby") return pathname.startsWith("/member/lobby") || pathname.startsWith("/member/chat");
+    if (href === "/member/avenue") return pathname.startsWith("/member/avenue") || pathname.startsWith("/member/chat");
     if (href === "/member/match") return pathname.startsWith("/member/match") || pathname.startsWith("/member/girlmate");
     return pathname === href || pathname.startsWith(href + "/");
   }

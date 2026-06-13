@@ -408,7 +408,7 @@ export function WallPage() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
           {/* Back arrow */}
           <Link
-            href="/member/lobby"
+            href="/member/avenue"
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 34, height: 34, borderRadius: "50%",

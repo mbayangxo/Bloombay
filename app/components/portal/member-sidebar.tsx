@@ -10,7 +10,7 @@ import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
 const NAV = [
   { href: "/member/home",          label: "THE DAILY",  n: "01" },
   { href: "/member/clubs",         label: "CLUBS",      n: "02" },
-  { href: "/member/room",          label: "LOBBY",      n: "03" },
+  { href: "/member/avenue",        label: "AVENUE",      n: "03" },
   { href: "/member/lounge",        label: "APARTMENT",  n: "04" },
   { href: "/member/match",         label: "CONNECT",    n: "05" },
   { href: "/member/city",          label: "THE CITY",   n: "06" },

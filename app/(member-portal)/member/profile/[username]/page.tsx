@@ -324,7 +324,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(7,0,7,0.95) 100%)" }} />
 
         {/* Back button */}
-        <Link href="/member/lobby" style={{ textDecoration: "none" }}>
+        <Link href="/member/avenue" style={{ textDecoration: "none" }}>
           <div style={{
             position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 14px)", left: 16, zIndex: 10,
             background: "rgba(0,0,0,0.4)", backdropFilter: "blur(10px)",

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
           type: "membership_confirmed",
           title: "Welcome to BloomBay!",
           body: "Your membership is confirmed. The Avenue is yours.",
-          link: "/member/lobby",
+          link: "/member/avenue",
         });
       }
 

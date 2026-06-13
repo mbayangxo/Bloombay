@@ -812,6 +812,31 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
   const [socialsSaved, setSocialsSaved] = useState(false);
 
+  // Notification preferences
+  const [notifHappenings, setNotifHappenings] = useState(true);
+  const [notifClubs,      setNotifClubs]      = useState(true);
+  const [notifMessages,   setNotifMessages]   = useState(true);
+  const [notifFlowers,    setNotifFlowers]    = useState(true);
+  const [notifReminders,  setNotifReminders]  = useState(false);
+
+  // Contact Us
+  const [contactMsg,     setContactMsg]     = useState("");
+  const [contactSent,    setContactSent]    = useState(false);
+  const [contactBusy,    setContactBusy]    = useState(false);
+
+  // Report a user
+  const [reportUser,     setReportUser]     = useState("");
+  const [reportReason,   setReportReason]   = useState("");
+  const [reportSent,     setReportSent]     = useState(false);
+
+  // Block
+  const [blockInput,     setBlockInput]     = useState("");
+  const [blockedUsers,   setBlockedUsers]   = useState<string[]>([]);
+
+  // Delete account
+  const [deleteConfirm,  setDeleteConfirm]  = useState("");
+  const [deleteOpen,     setDeleteOpen]     = useState(false);
+
   // Avatar upload ref for template clicks
   const avatarUploadRef = useRef<HTMLDivElement>(null);
 
@@ -1756,6 +1781,204 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             )}
+
+            {/* ── Notification Preferences ── */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>NOTIFICATIONS</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {([
+                  { label: "Happenings near you",   val: notifHappenings, set: setNotifHappenings },
+                  { label: "Club activity",           val: notifClubs,      set: setNotifClubs      },
+                  { label: "Messages & flowers",      val: notifMessages,   set: setNotifMessages   },
+                  { label: "Flowers received",        val: notifFlowers,    set: setNotifFlowers    },
+                  { label: "Event reminders",         val: notifReminders,  set: setNotifReminders  },
+                ] as { label: string; val: boolean; set: (v: boolean) => void }[]).map(item => (
+                  <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#555", fontWeight: 500 }}>{item.label}</p>
+                    <button
+                      onClick={() => item.set(!item.val)}
+                      style={{
+                        width: 42, height: 24, borderRadius: 999, border: "none", cursor: "pointer",
+                        background: item.val ? PINK : "rgba(0,0,0,0.12)",
+                        position: "relative", transition: "background 0.2s", flexShrink: 0,
+                      }}
+                    >
+                      <div style={{
+                        width: 18, height: 18, borderRadius: "50%", background: "white",
+                        position: "absolute", top: 3,
+                        left: item.val ? 21 : 3,
+                        transition: "left 0.2s",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                      }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Contact Us ── */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>CONTACT US</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#aaa", marginBottom: 14, lineHeight: 1.5 }}>
+                Questions, feedback, or need help? We read every message.
+              </p>
+              {contactSent ? (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#22c55e", fontWeight: 600 }}>
+                  Message sent ✦ We&apos;ll get back to you within 24 hours.
+                </p>
+              ) : (
+                <>
+                  <textarea
+                    value={contactMsg}
+                    onChange={e => setContactMsg(e.target.value)}
+                    placeholder="Tell us what's on your mind…"
+                    rows={4}
+                    style={{ ...inputStyle, resize: "none", marginBottom: 12 } as React.CSSProperties}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!contactMsg.trim()) return;
+                      setContactBusy(true);
+                      await new Promise(r => setTimeout(r, 600));
+                      setContactBusy(false);
+                      setContactSent(true);
+                    }}
+                    disabled={contactBusy || !contactMsg.trim()}
+                    style={{ ...pinkBtn, opacity: contactMsg.trim() ? 1 : 0.5 } as React.CSSProperties}
+                  >
+                    {contactBusy ? "Sending…" : "Send Message"}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* ── Report a User ── */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>REPORT A USER</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#aaa", marginBottom: 14, lineHeight: 1.5 }}>
+                All reports are confidential. We review every one within 24 hours.
+              </p>
+              {reportSent ? (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#22c55e", fontWeight: 600 }}>
+                  Report received ✦ Thank you for keeping BloomBay safe.
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <Field label="USERNAME OR NAME">
+                    <input
+                      type="text"
+                      value={reportUser}
+                      onChange={e => setReportUser(e.target.value)}
+                      placeholder="Who are you reporting?"
+                      style={inputStyle}
+                    />
+                  </Field>
+                  <Field label="WHAT HAPPENED">
+                    <textarea
+                      value={reportReason}
+                      onChange={e => setReportReason(e.target.value)}
+                      placeholder="Describe the situation…"
+                      rows={3}
+                      style={{ ...inputStyle, resize: "none" } as React.CSSProperties}
+                    />
+                  </Field>
+                  <button
+                    onClick={() => { if (reportUser.trim() && reportReason.trim()) setReportSent(true); }}
+                    disabled={!reportUser.trim() || !reportReason.trim()}
+                    style={{ ...outlineBtn, opacity: (reportUser.trim() && reportReason.trim()) ? 1 : 0.45 } as React.CSSProperties}
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ── Block People ── */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>BLOCKED USERS</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#aaa", marginBottom: 14, lineHeight: 1.5 }}>
+                Blocked women can&apos;t see your profile, message you, or invite you to events.
+              </p>
+              <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                <input
+                  type="text"
+                  value={blockInput}
+                  onChange={e => setBlockInput(e.target.value)}
+                  placeholder="Username to block"
+                  style={{ ...inputStyle, flex: 1 } as React.CSSProperties}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && blockInput.trim()) {
+                      setBlockedUsers(prev => [...prev, blockInput.trim()]);
+                      setBlockInput("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => { if (blockInput.trim()) { setBlockedUsers(prev => [...prev, blockInput.trim()]); setBlockInput(""); } }}
+                  style={{ ...outlineBtn, flexShrink: 0, padding: "12px 16px" } as React.CSSProperties}
+                >
+                  Block
+                </button>
+              </div>
+              {blockedUsers.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {blockedUsers.map(u => (
+                    <div key={u} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 12, background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#555", fontWeight: 500 }}>@{u}</p>
+                      <button
+                        onClick={() => setBlockedUsers(prev => prev.filter(x => x !== u))}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "11px", color: "#bbb", fontWeight: 600 }}
+                      >
+                        Unblock
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {blockedUsers.length === 0 && (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#ccc", fontStyle: "italic" }}>No blocked users.</p>
+              )}
+            </div>
+
+            {/* ── Delete Account ── */}
+            <div style={{ ...cardStyle, border: "1.5px solid rgba(239,68,68,0.18)" }}>
+              <p style={{ ...sectionLabel, color: "rgba(239,68,68,0.6)" }}>DANGER ZONE</p>
+              {!deleteOpen ? (
+                <button
+                  onClick={() => setDeleteOpen(true)}
+                  style={{ ...outlineBtn, color: "#ef4444", borderColor: "rgba(239,68,68,0.3)", width: "100%" } as React.CSSProperties}
+                >
+                  Delete My Account
+                </button>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#ef4444", lineHeight: 1.5 }}>
+                    This permanently deletes your profile, club memberships, and all data. Type <strong>DELETE</strong> to confirm.
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteConfirm}
+                    onChange={e => setDeleteConfirm(e.target.value)}
+                    placeholder="Type DELETE to confirm"
+                    style={{ ...inputStyle, border: "1.5px solid rgba(239,68,68,0.3)" } as React.CSSProperties}
+                  />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => { setDeleteOpen(false); setDeleteConfirm(""); }}
+                      style={{ ...outlineBtn, flex: 1 } as React.CSSProperties}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      disabled={deleteConfirm !== "DELETE"}
+                      style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", cursor: deleteConfirm === "DELETE" ? "pointer" : "default", background: deleteConfirm === "DELETE" ? "#ef4444" : "rgba(239,68,68,0.1)", color: deleteConfirm === "DELETE" ? "white" : "rgba(239,68,68,0.3)", fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700 }}
+                    >
+                      Delete Forever
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Sign out */}
             <form action={logout}>

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-type Room = "lobby" | "wall" | "girlbar" | "new-keys" | "vanity" | "closet";
+type Room = "avenue" | "wall" | "girlbar" | "new-keys" | "vanity" | "closet";
 type WallCategory = "gather" | "discover" | "plan" | "now" | "ask";
 
 interface WallPost {
@@ -578,7 +578,7 @@ function TheWall({ onBack }: { onBack: () => void }) {
               <polyline points="15 18 9 12 15 6"/>
             </svg>
           </button>
-          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(255,255,255,0.55)" }}>THE LOBBY</p>
+          <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(255,255,255,0.55)" }}>THE AVENUE</p>
         </div>
 
         {/* Title block */}
@@ -1076,7 +1076,7 @@ function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBa
           </svg>
         </button>
         <div>
-          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>THE LOBBY</p>
+          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#FF1F7D" }}>THE AVENUE</p>
           <h1 className="text-3xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>{name}</h1>
         </div>
       </div>
@@ -1096,16 +1096,16 @@ function ComingSoonRoom({ name, sub, onBack }: { name: string; sub: string; onBa
   );
 }
 
-// ── The Lobby ────────────────────────────────────────────────────────────────
+// ── The Avenue ────────────────────────────────────────────────────────────────
 
 function useEnterRoom(): Room {
   const params = useSearchParams();
   const enter = params.get("enter");
   if (enter === "girlbar" || enter === "wall") return enter as Room;
-  return "lobby";
+  return "avenue";
 }
 
-const LOBBY_DOORS = [
+const AVENUE_DOORS = [
   { id: "wall" as Room, n: "01", name: "The Wall", sub: "Community board", hint: "Leave a note", bg: "#FAF5EE", dark: false, accent: "#FF1F7D", available: true, newCount: 4 },
   { id: "girlbar" as Room, n: "02", name: "Girl Bar", sub: "Live audio rooms", hint: "27 women listening", bg: "#1A1008", dark: true, accent: "#FF69B4", available: true, newCount: 11 },
   { id: "new-keys" as Room, n: "03", name: "New Keys", sub: "Newcomers & arrivals", hint: "", bg: "#FFF0F7", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
@@ -1113,12 +1113,12 @@ const LOBBY_DOORS = [
   { id: "closet" as Room, n: "05", name: "The Closet", sub: "Outfits & what to wear", hint: "", bg: "#F9F5F0", dark: false, accent: "#FF1F7D", available: false, newCount: 0 },
 ];
 
-function TheLobbyInner() {
+function TheAvenueInner() {
   const enterRoom = useEnterRoom();
   const [room, setRoom] = useState<Room>(enterRoom);
 
-  if (room === "wall")    return <TheWall onBack={() => setRoom("lobby")} />;
-  if (room === "girlbar") return <GirlBar onBack={() => setRoom("lobby")} />;
+  if (room === "wall")    return <TheWall onBack={() => setRoom("avenue")} />;
+  if (room === "girlbar") return <GirlBar onBack={() => setRoom("avenue")} />;
 
   return (
     <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0C050F" }}>
@@ -1126,7 +1126,7 @@ function TheLobbyInner() {
       <div className="px-5 pt-16 pb-4 md:px-8 md:pt-4">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "rgba(255,31,125,0.6)" }}>✦ BLOOMBAY</p>
         <h1 className="text-4xl font-bold italic leading-none" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,248,240,0.94)" }}>
-          The Lobby
+          The Avenue
         </h1>
         <p className="text-sm mt-1 italic" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.28)" }}>
           Step inside. Choose your room.
@@ -1223,7 +1223,7 @@ function TheLobbyInner() {
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <span className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#FF1F7D" }} />
           <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.38)" }}>
-            35 women in The Lobby right now
+            35 women in The Avenue right now
           </p>
         </div>
       </div>
@@ -1231,10 +1231,10 @@ function TheLobbyInner() {
   );
 }
 
-export default function TheLobbyPage() {
+export default function TheAvenuePage() {
   return (
     <Suspense>
-      <TheLobbyInner />
+      <TheAvenueInner />
     </Suspense>
   );
 }

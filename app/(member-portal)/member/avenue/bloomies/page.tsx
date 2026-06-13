@@ -120,7 +120,7 @@ export default function BloomiesPage() {
               <Link href="/member/messages" style={{ flex: 1, textDecoration: "none" }}>
                 <div style={{ padding: "13px 0", borderRadius: 14, background: PINK, textAlign: "center" as const, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, color: "white", boxShadow: `0 4px 14px ${PINK}44` }}>Message</div>
               </Link>
-              <Link href="/member/lobby/bouquet" style={{ flex: 1, textDecoration: "none" }}>
+              <Link href="/member/avenue/bouquet" style={{ flex: 1, textDecoration: "none" }}>
                 <div style={{ padding: "13px 0", borderRadius: 14, background: "white", textAlign: "center" as const, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, border: `1.5px solid rgba(255,31,125,0.2)` }}>Add to Bouquet</div>
               </Link>
             </div>

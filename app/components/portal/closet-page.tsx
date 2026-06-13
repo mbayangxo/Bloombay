@@ -507,7 +507,7 @@ export function ClosetPage() {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Link href="/member/lobby" style={{
+            <Link href="/member/avenue" style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 32, height: 32, borderRadius: "50%",
               background: "rgba(28,27,28,0.06)", color: DARK,
