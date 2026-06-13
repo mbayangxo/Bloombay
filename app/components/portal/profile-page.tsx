@@ -1592,6 +1592,41 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </button>
             </form>
 
+            {/* New-in-Town */}
+            <div style={cardStyle}>
+              <p style={sectionLabel}>YOUR CITY STATUS</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
+                Help us surface the right dinners, clubs, and open seats for where you are in the city.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {([
+                  { id: "just_moved",  label: "Just moved here 📍" },
+                  { id: "new_6mo",     label: "New (< 6 months) 🌱" },
+                  { id: "fresh_start", label: "Fresh start ✨" },
+                  { id: "local",       label: "Local 🏙️" },
+                  { id: "native",      label: "NYC native 🗽" },
+                ] as const).map(opt => {
+                  const active = (user as { arrival_status?: string }).arrival_status === opt.id;
+                  return (
+                    <button key={opt.id}
+                      onClick={() => {
+                        void import("@/lib/actions/happenings").then(m =>
+                          m.updateArrivalStatus(opt.id as "just_moved"|"new_6mo"|"fresh_start"|"local"|"native")
+                        );
+                      }}
+                      style={{
+                        padding: "8px 14px", borderRadius: 999, border: "none", cursor: "pointer",
+                        background: active ? PINK : "rgba(0,0,0,0.06)",
+                        color: active ? "white" : "rgba(0,0,0,0.55)",
+                        fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: active ? 800 : 600,
+                        transition: "all 0.18s",
+                      }}
+                    >{opt.label}</button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Profile extra fields */}
             <div style={cardStyle}>
               <p style={sectionLabel}>PROFILE EXTRAS</p>

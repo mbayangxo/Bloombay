@@ -110,7 +110,12 @@ export async function getMySavedNotes(): Promise<BloomNote[]> {
   return ids.map(id => notes.find(n => n.id === id)).filter((n): n is BloomNote => !!n);
 }
 
-export async function leaveBloomNote(placeSlug: string, placeName: string, content: string): Promise<{ ok: boolean; error?: string }> {
+export async function leaveBloomNote(
+  placeSlug: string,
+  placeName: string,
+  content: string,
+  tags: CityTag[] = []
+): Promise<{ ok: boolean; error?: string }> {
   const trimmed = content.trim();
   if (!trimmed) return { ok: false, error: "Write something first." };
   if (trimmed.length > 500) return { ok: false, error: "Keep it under 500 characters." };
@@ -119,14 +124,20 @@ export async function leaveBloomNote(placeSlug: string, placeName: string, conte
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  const { error } = await supabase.from("bloom_notes").insert({
+  const { data: note, error } = await supabase.from("bloom_notes").insert({
     author_id: user.id,
     place_slug: placeSlug,
     place_name: placeName,
     content: trimmed,
-  });
+  }).select("id").single();
 
-  return error ? { ok: false, error: error.message } : { ok: true };
+  if (error) return { ok: false, error: error.message };
+
+  if (tags.length && note) {
+    await supabase.from("bloom_note_tags").insert(tags.map(tag => ({ note_id: note.id, tag })));
+  }
+
+  return { ok: true };
 }
 
 export async function deleteBloomNote(noteId: string): Promise<{ ok: boolean }> {
@@ -208,3 +219,59 @@ export async function toggleSaveNote(noteId: string): Promise<{ saved: boolean }
   await supabase.from("bloom_note_saves").insert({ note_id: noteId, user_id: user.id });
   return { saved: true };
 }
+
+// ── City Intelligence tags ────────────────────────────────────────────────────
+
+export type CityTag =
+  | "solo_friendly" | "group_vibes" | "laptop_friendly"
+  | "first_date" | "meet_people" | "worth_it"
+  | "romantic" | "special_occasion";
+
+export const CITY_TAG_LABELS: Record<CityTag, string> = {
+  solo_friendly:    "Solo-friendly",
+  group_vibes:      "Group vibes",
+  laptop_friendly:  "Laptop ok",
+  first_date:       "First date",
+  meet_people:      "Meet people",
+  worth_it:         "Worth it",
+  romantic:         "Romantic",
+  special_occasion: "Special occasion",
+};
+
+export const CITY_TAG_EMOJIS: Record<CityTag, string> = {
+  solo_friendly:    "🌸",
+  group_vibes:      "👯",
+  laptop_friendly:  "💻",
+  first_date:       "🌹",
+  meet_people:      "✨",
+  worth_it:         "💫",
+  romantic:         "🕯️",
+  special_occasion: "🥂",
+};
+
+export async function addNoteTags(noteId: string, tags: CityTag[]): Promise<void> {
+  if (!tags.length) return;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("bloom_note_tags").upsert(
+    tags.map(tag => ({ note_id: noteId, tag })),
+    { onConflict: "note_id,tag" }
+  );
+}
+
+export async function getPlaceTagCounts(placeSlug: string): Promise<Record<CityTag, number>> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("bloom_note_tags")
+    .select("tag, bloom_notes!inner(place_slug)")
+    .eq("bloom_notes.place_slug", placeSlug);
+
+  const counts: Partial<Record<CityTag, number>> = {};
+  for (const row of (data ?? []) as { tag: string }[]) {
+    const t = row.tag as CityTag;
+    counts[t] = (counts[t] ?? 0) + 1;
+  }
+  return counts as Record<CityTag, number>;
+}
+

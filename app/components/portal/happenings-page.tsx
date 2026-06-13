@@ -10,6 +10,7 @@ import {
   leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
   toggleGatheringFlower, getGatheringFlowersForUser,
 } from "@/lib/actions/happenings";
+import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -983,6 +984,48 @@ function CreateFAB() {
   );
 }
 
+/* ── Traditions strip ────────────────────────────────────── */
+function TraditionsStrip({ traditions, onFollow }: {
+  traditions: Tradition[];
+  onFollow: (id: string) => void;
+}) {
+  if (traditions.length === 0) return null;
+  const FREQ_LABEL: Record<string, string> = { weekly: "Weekly", biweekly: "Bi-weekly", monthly: "Monthly", seasonal: "Seasonal", irregular: "Recurring" };
+  return (
+    <div style={{ padding: "0 0 8px" }}>
+      <div style={{ padding: "8px 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK }} />
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)" }}>TRADITIONS</span>
+        <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.25)", marginLeft: 4 }}>recurring series by Bloomies</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 14px 8px", scrollbarWidth: "none" as const }}>
+        {traditions.map(t => (
+          <div key={t.id} style={{
+            flexShrink: 0, width: 160, borderRadius: 16,
+            background: `linear-gradient(145deg, ${t.primary_color}22, ${t.primary_color}44)`,
+            border: `1px solid ${t.primary_color}44`,
+            padding: "14px 14px 12px",
+            position: "relative", overflow: "hidden",
+          }}>
+            <div style={{ position: "absolute", top: -16, right: -16, width: 60, height: 60, borderRadius: "50%", background: `${t.primary_color}22` }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.12em", color: t.primary_color, marginBottom: 4 }}>{FREQ_LABEL[t.frequency] ?? "RECURRING"} · {t.neighborhood ?? "NYC"}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 14, color: "white", lineHeight: 1.2, marginBottom: 6 }}>{t.name}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>by {t.host_name ?? "A Bloomie"} · {t.follower_count} following</p>
+            <button onClick={() => onFollow(t.id)} style={{
+              background: t.is_following ? "rgba(255,255,255,0.12)" : t.primary_color,
+              border: "none", borderRadius: 999, padding: "5px 12px",
+              color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800,
+              cursor: "pointer", transition: "all 0.18s",
+            }}>
+              {t.is_following ? "FOLLOWING ✓" : "FOLLOW →"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main ────────────────────────────────────────────────── */
 export function HappeningsPage({ standalone = true }: { standalone?: boolean }) {
   const [tab,            setTab]           = useState<HapTab>("happenings");
@@ -992,6 +1035,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   const [searchOpen,     setSearchOpen]    = useState(false);
   const [searchQuery,    setSearchQuery]   = useState("");
   const [gatheringFlowers, setGatheringFlowers] = useState<Record<string, { count: number; gave: boolean }>>({});
+  const [traditions,   setTraditions]   = useState<Tradition[]>([]);
   const [events,     setEvents]    = useState<Event[]>([]);
   const [joined,     setJoined]    = useState<Set<string>>(new Set());
   const [loading,    setLoading]   = useState(true);
@@ -1028,12 +1072,14 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         getMyHostedCount(),
         getMyReviewedEventIds(),
         getGatheringFlowersForUser(eventIds),
-      ]).then(([wCounts, wIds, hCount, rIds, flowers]) => {
+        getTraditions(8),
+      ]).then(([wCounts, wIds, hCount, rIds, flowers, trads]) => {
         setWaitlistCounts(wCounts);
         setMyWaitlist(new Set(wIds));
         setHostedCount(hCount);
         setReviewedIds(new Set(rIds));
         setGatheringFlowers(flowers as Record<string, { count: number; gave: boolean }>);
+        setTraditions(trads as Tradition[]);
       }).catch(() => {});
     }
     load();
@@ -1085,6 +1131,14 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       return { ...prev, [eventId]: { count: cur.count + (cur.gave ? -1 : 1), gave: !cur.gave } };
     });
     void toggleGatheringFlower(eventId);
+  }
+
+  function handleFollowTradition(id: string) {
+    setTraditions(prev => prev.map(t => t.id === id
+      ? { ...t, is_following: !t.is_following, follower_count: t.follower_count + (t.is_following ? -1 : 1) }
+      : t
+    ));
+    void toggleFollowTradition(id);
   }
 
   const tickerItems = events.length > 0
@@ -1371,6 +1425,34 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+            {/* ── TRADITIONS ── */}
+            {!loading && traditions.length > 0 && (
+              <TraditionsStrip traditions={traditions} onFollow={handleFollowTradition} />
+            )}
+
+            {/* ── NEW IN NYC? ── */}
+            {!loading && (
+              <div style={{ margin: "8px 14px 16px" }}>
+                <div style={{
+                  borderRadius: 18, overflow: "hidden",
+                  background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
+                  border: "1px solid rgba(255,31,125,0.22)",
+                  padding: "16px 18px",
+                  display: "flex", alignItems: "center", gap: 14,
+                }}>
+                  <div style={{ fontSize: 28 }}>📍</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white", lineHeight: 1.1 }}>New in NYC?</p>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>We have dinners, open seats & clubs just for you</p>
+                  </div>
+                  <Link href="/member/match?new_in_town=1" style={{ textDecoration: "none", flexShrink: 0 }}>
+                    <div style={{ background: "white", borderRadius: 999, padding: "7px 14px" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK }}>JOIN →</p>
+                    </div>
+                  </Link>
                 </div>
               </div>
             )}

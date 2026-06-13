@@ -5,7 +5,9 @@ import Link from "next/link";
 import { PushPin } from "./scrapbook";
 import {
   getTopNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
-  type BloomNote,
+  getPlaceTagCounts, addNoteTags,
+  type BloomNote, type CityTag,
+  CITY_TAG_LABELS, CITY_TAG_EMOJIS,
 } from "@/lib/actions/bloom-notes";
 
 const PINK  = "#FF1F7D";
@@ -152,19 +154,27 @@ function NoteCard({
 }
 
 // ── Composer strip ────────────────────────────────────────────────────────────
+const ALL_TAGS = Object.keys(CITY_TAG_LABELS) as CityTag[];
+
 function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; placeName: string; onPosted: () => void }) {
-  const [draft, setDraft]     = useState("");
-  const [posting, setPosting] = useState(false);
-  const [error, setError]     = useState("");
+  const [draft, setDraft]       = useState("");
+  const [selectedTags, setTags] = useState<CityTag[]>([]);
+  const [posting, setPosting]   = useState(false);
+  const [error, setError]       = useState("");
+
+  function toggleTag(tag: CityTag) {
+    setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag].slice(0, 3));
+  }
 
   async function post() {
     const text = draft.trim();
     if (!text || posting) return;
     setPosting(true);
     setError("");
-    const res = await leaveBloomNote(placeSlug, placeName, text);
+    const res = await leaveBloomNote(placeSlug, placeName, text, selectedTags);
     if (res.ok) {
       setDraft("");
+      setTags([]);
       onPosted();
     } else {
       setError(res.error ?? "Something went wrong.");
@@ -189,6 +199,31 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
           resize: "none", fontFamily: "var(--font-caveat)", fontSize: 17, color: "#3A2A1A", lineHeight: 1.45,
         }}
       />
+      {/* City intelligence tag chips */}
+      {draft.trim().length > 0 && (
+        <div style={{ marginBottom: 10, marginTop: 4 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#B0A090", letterSpacing: "0.1em", marginBottom: 6 }}>QUICK TAGS · PICK UP TO 3</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            {ALL_TAGS.map(tag => {
+              const active = selectedTags.includes(tag);
+              return (
+                <button key={tag} onClick={() => toggleTag(tag)} style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  padding: "4px 9px", borderRadius: 999,
+                  background: active ? PINK : "rgba(0,0,0,0.05)",
+                  border: `1px solid ${active ? PINK : "rgba(0,0,0,0.1)"}`,
+                  color: active ? "white" : "#6A5A4A",
+                  fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: active ? 700 : 600,
+                  cursor: "pointer", transition: "all 0.15s",
+                }}>
+                  <span style={{ fontSize: 10 }}>{CITY_TAG_EMOJIS[tag]}</span>
+                  {CITY_TAG_LABELS[tag]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#E53E3E", marginBottom: 6 }}>{error}</p>}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
@@ -213,13 +248,18 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function BloomNotesPage({ placeSlug }: { placeSlug: string }) {
-  const [notes, setNotes] = useState<BloomNote[]>([]);
+  const [notes, setNotes]       = useState<BloomNote[]>([]);
+  const [tagCounts, setTagCounts] = useState<Partial<Record<CityTag, number>>>({});
   const placeName = notes[0]?.place_name ?? unslug(placeSlug);
   const bloomScore = notes.reduce((sum, n) => sum + n.flower_count, 0);
 
   async function load() {
-    const data = await getTopNotesForPlace(placeSlug, 100);
+    const [data, counts] = await Promise.all([
+      getTopNotesForPlace(placeSlug, 100),
+      getPlaceTagCounts(placeSlug),
+    ]);
     setNotes(data);
+    setTagCounts(counts);
   }
 
   useEffect(() => { load(); }, [placeSlug]);
@@ -281,9 +321,27 @@ export function BloomNotesPage({ placeSlug }: { placeSlug: string }) {
       <div style={{ padding: "20px 18px 0" }}>
 
         {/* ── Composer ── */}
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: 20 }}>
           <Composer placeSlug={placeSlug} placeName={placeName} onPosted={load} />
         </div>
+
+        {/* ── City Intelligence: aggregated tags ── */}
+        {Object.keys(tagCounts).length > 0 && (
+          <div style={{ marginBottom: 24, background: "white", borderRadius: 14, padding: "12px 14px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.05)" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 10 }}>WOMEN SAY THIS PLACE IS…</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {(Object.entries(tagCounts) as [CityTag, number][])
+                .sort((a, b) => b[1] - a[1])
+                .map(([tag, count]) => (
+                  <div key={tag} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 999, background: `${PINK}0E`, border: `1px solid ${PINK}22` }}>
+                    <span style={{ fontSize: 12 }}>{CITY_TAG_EMOJIS[tag]}</span>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK }}>{CITY_TAG_LABELS[tag]}</span>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.3)", fontWeight: 600 }}>· {count}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Notes feed ── */}
         {notes.length === 0 ? (

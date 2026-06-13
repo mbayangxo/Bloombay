@@ -368,3 +368,72 @@ export async function getProfileFlowerCount(profileId: string): Promise<number> 
   return count ?? 0;
 }
 
+// ── Host Reputation ───────────────────────────────────────────────────────────
+
+export interface HostReputation {
+  flowersReceived: number;
+  totalAttendees: number;
+  repeatAttendees: number;
+  eventsHosted: number;
+}
+
+export async function getHostReputation(hostId: string): Promise<HostReputation> {
+  const supabase = await createClient();
+
+  // Events hosted
+  const { count: eventsHosted } = await supabase
+    .from("gatherings")
+    .select("id", { count: "exact", head: true })
+    .eq("host_id", hostId);
+
+  // Flowers received (across all their events)
+  const { data: hostEvents } = await supabase
+    .from("gatherings")
+    .select("id")
+    .eq("host_id", hostId);
+
+  const eventIds = (hostEvents ?? []).map((e: { id: string }) => e.id);
+
+  let flowersReceived = 0;
+  let totalAttendees = 0;
+  let repeatAttendees = 0;
+
+  if (eventIds.length > 0) {
+    const { count: fc } = await supabase
+      .from("gathering_flowers")
+      .select("gathering_id", { count: "exact", head: true })
+      .in("gathering_id", eventIds);
+    flowersReceived = fc ?? 0;
+
+    // Unique total attendees
+    const { data: attendees } = await supabase
+      .from("gathering_attendance")
+      .select("user_id")
+      .in("gathering_id", eventIds);
+    const allUsers = (attendees ?? []).map((a: { user_id: string }) => a.user_id);
+    totalAttendees = new Set(allUsers).size;
+
+    // Repeat attendees (appeared more than once)
+    const freq: Record<string, number> = {};
+    allUsers.forEach(u => { freq[u] = (freq[u] ?? 0) + 1; });
+    repeatAttendees = Object.values(freq).filter(v => v > 1).length;
+  }
+
+  return {
+    flowersReceived,
+    totalAttendees,
+    repeatAttendees,
+    eventsHosted: eventsHosted ?? 0,
+  };
+}
+
+export async function updateArrivalStatus(
+  status: "just_moved" | "new_6mo" | "fresh_start" | "local" | "native"
+): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("profiles").update({ arrival_status: status }).eq("id", user.id);
+}
+
+
