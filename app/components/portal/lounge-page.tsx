@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
+const GOLD   = "#D4A853";
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 
@@ -62,13 +63,6 @@ const BLOOMIE_UPDATES: Record<string, { emoji: string; text: string; time: strin
   ],
 };
 
-const WITNESS_ENTRIES = [
-  { initial: "A", color: "#FF1F7D", text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
-  { initial: "Z", color: "#FF69B4", text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
-  { initial: "N", color: "#C084FC", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
-  { initial: "M", color: "#FB923C", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
-];
-
 const MEMORIES = [
   { emoji: "🌅", title: "Williamsburg morning", date: "May 12", color: "#FFF0F5", rotate: "-2.5deg" },
   { emoji: "🍷", title: "Rooftop wine hour",    date: "May 8",  color: "#FFE8F3", rotate:  "2deg"   },
@@ -79,6 +73,13 @@ const MEMORIES = [
 ];
 
 const INTEREST_TAGS = ["Soft Life", "Art", "Wellness", "Food", "Music", "Travel"];
+
+const WITNESS_ENTRIES = [
+  { initial: "A", color: "#FF1F7D", text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
+  { initial: "Z", color: "#FF69B4", text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
+  { initial: "N", color: "#C084FC", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
+  { initial: "M", color: "#FB923C", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
+];
 
 function getMemberNumber(name: string) {
   const s = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -94,79 +95,199 @@ function getReferralCode(name: string) {
 interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
 interface BloomieProfile { name: string; neighborhood: string; color: string; initial: string; since: string; }
 
-// ── STREET SIGN COMPONENT ─────────────────────────────────────────────────────
+// ── MEMBERSHIP CARD ───────────────────────────────────────────────────────────
 
-function StreetSign({ line1, line2, size = "large" }: { line1: string; line2?: string; size?: "large" | "medium" | "small" }) {
-  const isLarge  = size === "large";
-  const isMedium = size === "medium";
-  const fontSize = isLarge ? 22 : isMedium ? 14 : 11;
-  const padding  = isLarge ? "14px 28px" : isMedium ? "9px 18px" : "6px 14px";
-  const border   = isLarge ? 4 : isMedium ? 3 : 2;
-
+function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
+  name: string; memberNum: string; tier?: string;
+}) {
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: isLarge ? 4 : 3 }}>
+    <div style={{
+      width: "100%",
+      maxWidth: 340,
+      margin: "0 auto",
+      aspectRatio: "85.6 / 54",
+      borderRadius: 14,
+      position: "relative",
+      overflow: "hidden",
+      background: "linear-gradient(138deg, #0D0008 0%, #2A0820 28%, #580035 58%, #A40050 82%, #C4005A 100%)",
+      boxShadow: "0 24px 60px rgba(0,0,0,0.55), 0 8px 24px rgba(196,0,90,0.22), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
+    }}>
+      {/* Holographic shimmer stripe */}
       <div style={{
-        background: PINK,
-        border: `${border}px solid white`,
-        outline: `${border}px solid ${PINK}`,
-        borderRadius: 4,
-        padding,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
-      }}>
-        <p style={{
-          fontFamily: "var(--font-jost)",
-          fontWeight: 900,
-          fontSize,
-          color: "white",
-          letterSpacing: "0.14em",
-          textAlign: "center",
-          lineHeight: 1,
-          margin: 0,
-        }}>{line1}</p>
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg, transparent 5%, #FF1F7D 25%, #FF69B4 45%, #FFB3D9 60%, #FF5BAD 78%, #FF1F7D 88%, transparent 98%)",
+      }} />
+
+      {/* Light streak */}
+      <div style={{
+        position: "absolute", top: 0, left: "15%", width: "38%", height: "100%",
+        background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.035) 50%, transparent 72%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Paper grain texture */}
+      <div style={{
+        position: "absolute", inset: 0, opacity: 0.04,
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
+        pointerEvents: "none",
+      }} />
+
+      {/* Large bloom watermark */}
+      <div style={{ position: "absolute", right: -10, bottom: -10, width: 110, height: 110, opacity: 0.08, pointerEvents: "none" }}>
+        <svg viewBox="0 0 100 100" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="22" rx="11" ry="22"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(60 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(120 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(180 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(240 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(300 50 50)"/>
+          <circle cx="50" cy="50" r="12"/>
+        </svg>
       </div>
-      {line2 && (
-        <div style={{
-          background: "#E8006A",
-          border: `${border - 1}px solid white`,
-          outline: `${border - 1}px solid #E8006A`,
-          borderRadius: 3,
-          padding: isLarge ? "8px 22px" : "5px 14px",
-          boxShadow: "0 3px 12px rgba(0,0,0,0.3)",
-        }}>
-          <p style={{
-            fontFamily: "var(--font-jost)",
-            fontWeight: 800,
-            fontSize: fontSize - (isLarge ? 6 : 3),
-            color: "white",
-            letterSpacing: "0.12em",
-            textAlign: "center",
-            lineHeight: 1,
-            margin: 0,
-          }}>{line2}</p>
+
+      {/* Card content */}
+      <div style={{
+        position: "relative", zIndex: 1,
+        display: "flex", flexDirection: "column", justifyContent: "space-between",
+        height: "100%", padding: "14px 18px 12px",
+        boxSizing: "border-box",
+      }}>
+        {/* Top row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "white", lineHeight: 1 }}>BloomBay</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.28em", color: "rgba(255,255,255,0.32)", marginTop: 2 }}>NEW YORK CITY</p>
+          </div>
+          <div style={{
+            background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.48)",
+            borderRadius: 3, padding: "2px 8px",
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: GOLD }}>{tier}</p>
+          </div>
         </div>
-      )}
+
+        {/* Gold chip */}
+        <div style={{
+          width: 30, height: 21, borderRadius: 3,
+          background: "linear-gradient(135deg, #D4A853 0%, #F4D03F 38%, #D4A853 65%, #B8860B 100%)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.28)",
+          position: "relative", overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute", inset: "3px 3px",
+            border: "0.5px solid rgba(0,0,0,0.18)", borderRadius: 1,
+            background: "linear-gradient(90deg, rgba(0,0,0,0.08) 0%, transparent 30%, rgba(0,0,0,0.04) 70%, transparent 100%)",
+          }} />
+        </div>
+
+        {/* Name + number */}
+        <div>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700,
+            fontSize: 16, color: "white", letterSpacing: "0.03em", marginBottom: 5,
+            textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+          }}>{name || "Member"}</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)" }}>
+              ●●●● ●●●● ●●●● {memberNum}
+            </p>
+            <div style={{ textAlign: "right" as const }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.28)" }}>SINCE</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>2026</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-// ── SIGN SECTION DIVIDER ──────────────────────────────────────────────────────
+// ── APARTMENT DOOR ────────────────────────────────────────────────────────────
 
-function SignDivider({ label }: { label: string }) {
+function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
+  label: string; icon: string; href: string; num: string; accentColor?: string;
+}) {
+  const doorWood = "#B5724A";
+  const doorPanel = "#C9895A";
+  const frameColor = "#7A4A28";
+
   return (
-    <div style={{ padding: "8px 20px 0", display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 20 }}>
-      <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.14)" }} />
-      <div style={{
-        background: PINK,
-        border: "2px solid white",
-        outline: "2px solid " + PINK,
-        borderRadius: 3,
-        padding: "4px 14px",
-        boxShadow: "0 2px 8px rgba(255,31,125,0.35)",
-      }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, letterSpacing: "0.22em", color: "white", margin: 0 }}>{label}</p>
+    <Link href={href} style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
+      <div style={{ position: "relative", display: "inline-block" }}>
+        {/* Drop shadow */}
+        <div style={{
+          position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)",
+          width: 50, height: 10, borderRadius: "50%",
+          background: "rgba(0,0,0,0.2)", filter: "blur(5px)",
+        }} />
+
+        {/* Door SVG */}
+        <svg width="58" height="82" viewBox="0 0 58 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Frame */}
+          <rect x="0" y="24" width="58" height="58" rx="1" fill={frameColor}/>
+          <path d={`M0 24 Q0 0 29 0 Q58 0 58 24 Z`} fill={frameColor}/>
+
+          {/* Door body */}
+          <rect x="2" y="24" width="54" height="56" rx="1" fill={doorWood}/>
+          <path d={`M2 24 Q2 2 29 2 Q56 2 56 24 Z`} fill={doorWood}/>
+
+          {/* Door surface lighter */}
+          <rect x="4" y="25" width="50" height="54" rx="1" fill={doorPanel}/>
+          <path d={`M4 25 Q4 4 29 4 Q54 4 54 25 Z`} fill={doorPanel}/>
+
+          {/* Top panel */}
+          <rect x="8" y="28" width="42" height="20" rx="2.5" fill="rgba(0,0,0,0.12)" stroke="rgba(0,0,0,0.14)" strokeWidth="0.8"/>
+
+          {/* Bottom panel */}
+          <rect x="8" y="56" width="42" height="18" rx="2.5" fill="rgba(0,0,0,0.12)" stroke="rgba(0,0,0,0.14)" strokeWidth="0.8"/>
+
+          {/* Highlight on arch */}
+          <path d={`M6 24 Q6 6 29 6 Q48 6 52 18`} stroke="rgba(255,255,255,0.14)" strokeWidth="2" fill="none" strokeLinecap="round"/>
+
+          {/* Gold number plate */}
+          <rect x="19" y="14" width="20" height="12" rx="2" fill={GOLD} opacity="0.9"/>
+          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#7B4A1A">{num}</text>
+
+          {/* Door knob */}
+          <circle cx="44" cy="44" r="4.5" fill={GOLD} opacity="0.9"/>
+          <circle cx="44" cy="44" r="3" fill="url(#knobGrad)"/>
+          <circle cx="43" cy="43" r="1.2" fill="rgba(255,255,255,0.5)"/>
+
+          <defs>
+            <radialGradient id="knobGrad" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stopColor="#F4D03F"/>
+              <stop offset="100%" stopColor="#B8860B"/>
+            </radialGradient>
+          </defs>
+        </svg>
+
+        {/* Room icon overlay */}
+        <div style={{
+          position: "absolute", top: "36%", left: "38%", transform: "translate(-50%, -50%)",
+          fontSize: 18, lineHeight: 1, pointerEvents: "none",
+        }}>{icon}</div>
+
+        {/* Accent dot */}
+        <div style={{
+          position: "absolute", top: -4, right: -4, width: 12, height: 12,
+          borderRadius: "50%", background: accentColor,
+          boxShadow: `0 2px 8px ${accentColor}66`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "white" }} />
+        </div>
       </div>
-      <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.14)" }} />
-    </div>
+
+      {/* Threshold */}
+      <div style={{ width: 64, height: 4, borderRadius: "0 0 4px 4px", background: frameColor, boxShadow: "0 2px 6px rgba(0,0,0,0.22)", marginTop: -8 }} />
+
+      <p style={{
+        fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800,
+        letterSpacing: "0.1em", color: "#888",
+        textAlign: "center" as const, textTransform: "uppercase" as const,
+        lineHeight: 1.4, maxWidth: 68,
+      }}>{label}</p>
+    </Link>
   );
 }
 
@@ -347,11 +468,12 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
             <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
             <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
               className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
-              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111", lineHeight: 1.6 }} />
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
           </div>
-          {error && <p className="text-xs" style={{ color: "#e53e3e" }}>{error}</p>}
-          <button onClick={handleSave} disabled={pending} className="w-full py-4 rounded-2xl font-bold text-sm"
-            style={{ background: pending ? "#FFB6D0" : PINK, color: "white" }}>
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <button onClick={handleSave} disabled={pending}
+            className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+            style={{ background: pending ? "#F0E0E8" : PINK, color: pending ? "#C8A0B0" : "white" }}>
             {pending ? "Saving…" : "Save Changes"}
           </button>
         </div>
@@ -360,7 +482,7 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   );
 }
 
-// ── MAIN PAGE ─────────────────────────────────────────────────────────────────
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export function LoungePage({ user }: { user?: LoungeUser }) {
   const [localName, setLocalName] = useState(user?.name         ?? "");
@@ -378,11 +500,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (!u) return;
-      // Real club count from memberships
       supabase.from("club_memberships").select("club_slug", { count: "exact", head: true })
         .eq("user_id", u.id)
         .then(({ count }) => setClubCount(count ?? 0));
-      // Real gathering attendance count
       supabase.from("gathering_attendance").select("gathering_id", { count: "exact", head: true })
         .eq("user_id", u.id)
         .then(({ count }) => setGatheringCount(count ?? 0));
@@ -396,6 +516,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const referralCode   = getReferralCode(localName);
   const earnedFlowers  = ALL_FLOWERS.filter(f => (USER_EARNED_FLOWER_IDS as readonly string[]).includes(f.id));
 
+  void INTEREST_TAGS; void WITNESS_ENTRIES; void MEMORIES; void displayInitial;
+
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2400); }
   function copyLink() {
     navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`);
@@ -403,184 +525,162 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     showToast("Link copied!");
   }
 
+  const ROOMS = [
+    { label: "Bloom Trails",   icon: "🎈", href: "/member/lobby/memories",  num: "01", accentColor: "#FF69B4" },
+    { label: "Bouquet",        icon: "💐", href: "/member/lobby/bouquet",   num: "02", accentColor: PINK      },
+    { label: "Bloomies",       icon: "🌸", href: "/member/lobby/bloomies",  num: "03", accentColor: "#E8006A" },
+    { label: "Clubs",          icon: "🌺", href: "/member/clubs",           num: "04", accentColor: "#C4005A" },
+  ];
+
   return (
     <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 96 }}>
 
       {/* ══════════ HERO ══════════ */}
       <div style={{
-        background: `linear-gradient(180deg, ${DARK} 0%, #2A0818 60%, #4A0C28 100%)`,
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
-        paddingBottom: 0,
-        position: "relative",
-        overflow: "hidden",
+        background: `linear-gradient(175deg, ${DARK} 0%, #2A0818 55%, #4A0C28 100%)`,
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
+        paddingBottom: 0, position: "relative", overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 20px 0", gap: 6, position: "relative", zIndex: 1 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>✦ &nbsp; BLOOMBAY NYC &nbsp; ✦</p>
-          <StreetSign line1="THE AVENUE" line2="PRETTY GIRL AVE" size="large" />
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "4px 12px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em" }}>MEMBER #{memberNum}</p>
-            </div>
-            <div style={{ background: "rgba(255,31,125,0.15)", border: "1px solid rgba(255,31,125,0.3)", borderRadius: 4, padding: "4px 12px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, letterSpacing: "0.1em" }}>✦ FOUNDING</p>
-            </div>
-          </div>
+        {/* Label */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 6, position: "relative", zIndex: 1 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.28)" }}>✦ &nbsp; YOUR APARTMENT &nbsp; ✦</p>
         </div>
 
-        <div style={{ margin: "28px 20px 0", background: "white", borderRadius: "20px 20px 0 0", padding: "20px 20px 0", position: "relative", zIndex: 1 }}>
-          <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: `linear-gradient(90deg, ${PINK}, #FF5BAD, transparent)`, borderRadius: "0 0 4px 4px" }} />
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingTop: 8 }}>
-            <div style={{ width: 68, height: 68, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg, ${PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "white", boxShadow: `0 4px 20px ${PINK}44`, border: "3px solid white" }}>
-              {displayInitial}
+        {/* Name */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 20px 0", gap: 8, position: "relative", zIndex: 1 }}>
+          <h1 style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+            fontSize: "clamp(44px, 12vw, 62px)", color: "rgba(255,238,220,0.92)",
+            lineHeight: 0.92, margin: 0,
+          }}>{displayName.split(" ")[0] || "You"}.</h1>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{localNbhd} · NYC</p>
+
+          {/* Badges */}
+          <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+            <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 4, padding: "4px 12px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em" }}>MEMBER #{memberNum}</p>
             </div>
-            <div style={{ flex: 1, paddingTop: 4 }}>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: DARK, lineHeight: 1, marginBottom: 4 }}>{displayName.split(" ")[0] || "You"}.</h1>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#999" }}>{localNbhd} · NYC</p>
-              <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
-                {[
-                  { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
-                  { num: clubCount !== null ? String(clubCount) : "—", label: "Clubs" },
-                  { num: String(ALL_BLOOMIES.length), label: "Bloomies" },
-                ].map(s => (
-                  <div key={s.label} style={{ textAlign: "center" as const }}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: PINK, lineHeight: 1 }}>{s.num}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(0,0,0,0.32)", marginTop: 2 }}>{s.label.toUpperCase()}</p>
-                  </div>
-                ))}
-              </div>
+            <div style={{ background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.38)", borderRadius: 4, padding: "4px 12px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: GOLD, letterSpacing: "0.1em" }}>✦ FOUNDING</p>
             </div>
           </div>
-          {localBio && (
-            <div style={{ borderLeft: `3px solid ${PINK}`, paddingLeft: 12, margin: "16px 0 0" }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#444", lineHeight: 1.65 }}>&ldquo;{localBio}&rdquo;</p>
-            </div>
-          )}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginTop: 14, paddingBottom: 20 }}>
-            {INTEREST_TAGS.map(tag => (
-              <span key={tag} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, padding: "5px 12px", borderRadius: 999, background: "#FFF0F5", color: PINK, border: `1px solid rgba(255,31,125,0.15)` }}>{tag}</span>
+
+          {/* Stats */}
+          <div style={{ display: "flex", gap: 20, marginTop: 8, paddingBottom: 24 }}>
+            {[
+              { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
+              { num: clubCount !== null ? String(clubCount) : "—", label: "Clubs" },
+              { num: String(ALL_BLOOMIES.length), label: "Bloomies" },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: "center" as const }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: PINK, lineHeight: 1 }}>{s.num}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)", marginTop: 2 }}>{s.label.toUpperCase()}</p>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ══════════ PAGE BODY ══════════ */}
-      <div style={{ background: PAPER }}>
+      {/* ══════════ MEMBERSHIP CARD ══════════ */}
+      <div style={{ padding: "0 20px", marginTop: -18, position: "relative", zIndex: 2 }}>
+        <MembershipCard name={displayName} memberNum={memberNum} tier="FOUNDING" />
+      </div>
 
-        {/* ── FLOWERS ─────────────────────────────────────────────────────── */}
-        <SignDivider label="RECOGNITION" />
-        <div style={{ padding: "0 20px 24px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 12 }}>✦ YOUR FLOWERS · {earnedFlowers.length} EARNED</p>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const, margin: "0 -20px", paddingLeft: 20, paddingRight: 20 }}>
-            {ALL_FLOWERS.map(flower => {
-              const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
-              return (
-                <div key={flower.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "12px 10px", borderRadius: 16, background: earned ? flower.bg : "#F8F8F8", border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`, opacity: earned ? 1 : 0.38, minWidth: 64 }}>
-                  <span style={{ fontSize: 24 }}>{flower.emoji}</span>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, textAlign: "center" as const, color: earned ? flower.color : "#bbb", lineHeight: 1.3, maxWidth: 56 }}>{flower.label}</p>
-                </div>
-              );
-            })}
+      {/* ══════════ ROOMS ══════════ */}
+      <div style={{ padding: "32px 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)" }}>✦ YOUR ROOMS</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: DARK, marginTop: 2 }}>The Apartment.</p>
           </div>
-        </div>
-
-        {/* ── WHAT THEY SAY ────────────────────────────────────────────────── */}
-        <SignDivider label="WHAT THEY SAY" />
-        <div style={{ padding: "0 20px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-          {WITNESS_ENTRIES.map((w, i) => (
-            <div key={i} style={{ display: "flex", gap: 14, padding: "14px 16px", background: "white", borderRadius: 18, boxShadow: "0 2px 10px rgba(255,31,125,0.06)", borderLeft: `3px solid ${w.color}` }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: `linear-gradient(135deg,${w.color},${w.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: 800, color: "white" }}>{w.initial}</div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#333", lineHeight: 1.55 }}>&ldquo;{w.text}&rdquo;</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb", marginTop: 4 }}>{w.date}</p>
-              </div>
+          <Link href="/member/profile" style={{ textDecoration: "none" }}>
+            <div style={{ background: "#FFF0F5", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.15)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>View Profile →</p>
             </div>
-          ))}
+          </Link>
         </div>
 
-        {/* ── HER WORLD ────────────────────────────────────────────────────── */}
-        <SignDivider label="HER WORLD" />
-        <div style={{ padding: "0 20px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>BLOOMIES · {ALL_BLOOMIES.length} FRIENDS</p>
-            <button onClick={() => setShowBloomies(true)} style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, background: "none", border: "none", cursor: "pointer" }}>See all →</button>
-          </div>
-          <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
-            {ALL_BLOOMIES.map(m => (
-              <button key={m.name} onClick={() => setSelectedBloomie(m)}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", background: "none", border: "none", flexShrink: 0 }}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", background: `linear-gradient(135deg,${m.color},${m.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "white", boxShadow: `0 4px 12px ${m.color}33` }}>{m.initial}</div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#aaa" }}>{m.name.split(" ")[0]}</p>
-              </button>
+        {/* Floor */}
+        <div style={{
+          background: "white",
+          borderRadius: 24,
+          padding: "28px 12px 20px",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(255,31,125,0.05)",
+          border: "1px solid rgba(0,0,0,0.05)",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Wall paper top strip */}
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: 8,
+            background: "repeating-linear-gradient(90deg, #FFE4EF 0px, #FFE4EF 18px, #FFF0F5 18px, #FFF0F5 36px)",
+          }} />
+          {/* Baseboard bottom strip */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 10,
+            background: "linear-gradient(180deg, #E8D8CC 0%, #D4C0B0 100%)",
+          }} />
+
+          {/* Hallway floor */}
+          <div style={{
+            position: "absolute", bottom: 10, left: 0, right: 0, height: 18,
+            background: "linear-gradient(180deg, #C8A888 0%, #B89878 100%)",
+            opacity: 0.4,
+          }} />
+
+          {/* Doors row */}
+          <div style={{ display: "flex", justifyContent: "space-around", alignItems: "flex-end", gap: 4, position: "relative", zIndex: 1 }}>
+            {ROOMS.map(r => (
+              <ApartmentDoor key={r.href} label={r.label} icon={r.icon} href={r.href} num={r.num} accentColor={r.accentColor} />
             ))}
-            <Link href="/member/match" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textDecoration: "none", flexShrink: 0 }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", border: `1.5px dashed rgba(255,31,125,0.3)`, background: "rgba(255,31,125,0.04)", display: "flex", alignItems: "center", justifyContent: "center", color: PINK, fontSize: 22 }}>+</div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#ccc" }}>Invite</p>
-            </Link>
-          </div>
-        </div>
-
-        {/* ── MOMENTS ──────────────────────────────────────────────────────── */}
-        <SignDivider label="MOMENTS" />
-        <div style={{ padding: "0 0 24px" }}>
-          <div style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 20px 12px", scrollbarWidth: "none" as const }}>
-            {MEMORIES.map((m, i) => (
-              <div key={i} style={{ flexShrink: 0, transform: `rotate(${m.rotate})`, transformOrigin: "center top" }}>
-                <div style={{ padding: "10px 10px 32px", background: m.color, borderRadius: 4, width: 132, boxShadow: "0 6px 24px rgba(0,0,0,0.12)" }}>
-                  <div style={{ width: "100%", height: 100, background: `${m.color}88`, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontSize: 44, opacity: 0.75 }}>{m.emoji}</span>
-                  </div>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#555", textAlign: "center" as const, lineHeight: 1.35, marginTop: 8 }}>{m.title}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#bbb", textAlign: "center" as const, marginTop: 3 }}>{m.date}</p>
-                </div>
-              </div>
-            ))}
-            <div style={{ flexShrink: 0, transform: "rotate(1deg)" }}>
-              <button onClick={() => showToast("Memory feature coming soon ✦")}
-                style={{ padding: "10px 10px 32px", background: "rgba(255,31,125,0.04)", border: "1.5px dashed rgba(255,31,125,0.2)", borderRadius: 4, width: 132, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ width: "100%", height: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: 32, color: PINK, opacity: 0.35 }}>+</span>
-                </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,31,125,0.4)", marginTop: 8 }}>Add a memory</p>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ── SHARE / REFERRAL ─────────────────────────────────────────────── */}
-        <SignDivider label="YOUR LINK" />
-        <div style={{ padding: "0 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 8 }}>YOUR BLOOMBAY LINK</p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#FFF5F8", borderRadius: 12, padding: "10px 14px", marginBottom: 12 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1A1A1A" }}>bloombay.app/{displayHandle}</p>
-              <button onClick={copyLink} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "4px 12px" }}>
-                {copied ? "Copied ✓" : "Copy"}
-              </button>
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => { navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`); showToast("Link copied!"); }}
-                style={{ flex: 1, padding: "11px 0", borderRadius: 999, border: `2px solid ${PINK}`, background: "transparent", color: PINK, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-                Share
-              </button>
-              <button onClick={() => { navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`); showToast("Invite link copied!"); }}
-                style={{ flex: 1, padding: "11px 0", borderRadius: 999, border: "none", background: PINK, color: "white", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-                Invite Girls
-              </button>
-            </div>
-          </div>
-
-          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.25),transparent 70%)" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 6 }}>REFERRAL CODE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "white" }}>{referralCode}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Invite women you actually know.</p>
           </div>
         </div>
       </div>
 
-      {/* ══════════ FLOATING EDIT BUTTON ══════════ */}
+      {/* ══════════ FLOWERS ══════════ */}
+      <div style={{ padding: "28px 20px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>✦ YOUR FLOWERS · {earnedFlowers.length} EARNED</p>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const, margin: "0 -20px", paddingLeft: 20, paddingRight: 20 }}>
+          {ALL_FLOWERS.map(flower => {
+            const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
+            return (
+              <div key={flower.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 10px", borderRadius: 14, background: earned ? flower.bg : "#F8F8F8", border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`, opacity: earned ? 1 : 0.3, minWidth: 58 }}>
+                <span style={{ fontSize: 20 }}>{flower.emoji}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, textAlign: "center" as const, color: earned ? flower.color : "#bbb", lineHeight: 1.3, maxWidth: 50 }}>{flower.label}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ══════════ SHARE ══════════ */}
+      <div style={{ padding: "24px 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOMBAY LINK</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
+          </div>
+          <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
+            {copied ? "Copied ✓" : "Copy"}
+          </button>
+        </div>
+
+        <div style={{ background: DARK, borderRadius: 20, padding: "14px 18px", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>REFERRAL CODE</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
+          </div>
+          <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
+            style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
+            Copy
+          </button>
+        </div>
+      </div>
+
+      {/* ══════════ EDIT BUTTON ══════════ */}
       <div style={{ position: "fixed", bottom: 88, right: 20, zIndex: 40 }}>
         <button onClick={() => setShowEdit(true)}
           style={{ display: "flex", alignItems: "center", gap: 7, padding: "10px 18px 10px 14px", borderRadius: 999, background: PINK, color: "white", border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(255,31,125,0.45)", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.06em" }}>
