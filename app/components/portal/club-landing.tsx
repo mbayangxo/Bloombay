@@ -186,9 +186,13 @@ interface ChatMessage {
   text: string; time: string; mine?: boolean;
   imageUrl?: string;
   reactions?: { emoji: string; count: number }[];
+  type?: "welcome";
+  welcomeTag?: string;
+  welcomeInterests?: string[];
 }
 
 const CHAT_MESSAGES: ChatMessage[] = [
+  { id: 0, type: "welcome", author: "Yande O.", initial: "Y", color: "#FF1F7D", text: "Say hi to Bea! She just joined Museum Girls — she's an art lover, gallery hopper, and always down for a long lunch 🎨 Welcome her to the club!", time: "Yesterday", welcomeTag: "Just joined", welcomeInterests: ["Gallery openings", "Art collecting", "Museum lunches"] },
   { id: 1, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "The Hockney retrospective at the Whitney is stunning. Has everyone been?", time: "2:14 PM" },
   { id: 2, author: "Kelechi O.", initial: "K", color: "#FF69B4", text: "YES the scale of those pool paintings in person 😭 I cried a little tbh", time: "2:16 PM", reactions: [{ emoji: "♡", count: 4 }] },
   { id: 3, author: "You", initial: "M", color: "#FF69B4", text: "Ok we need a club outing ASAP. I'm not missing this one", time: "2:17 PM", mine: true },
@@ -480,11 +484,36 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(0,0,0,0.4)", marginBottom: 4 }}>MONTHLY FEE (optional)</label>
-                  <p style={{ fontSize: 10, color: "rgba(0,0,0,0.4)", marginBottom: 8 }}>If you'd like to lead &amp; charge for this zone, add a price. The Club Mama earns a share.</p>
-                  <div style={{ position: "relative" }}>
+                  <p style={{ fontSize: 10, color: "rgba(0,0,0,0.4)", marginBottom: 8 }}>If you'd like to charge for this zone, set a monthly fee below.</p>
+                  <div style={{ position: "relative", marginBottom: zonePrice && parseFloat(zonePrice) > 0 ? 12 : 0 }}>
                     <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 14, fontWeight: 600, color: "rgba(0,0,0,0.4)" }}>$</span>
                     <input type="number" value={zonePrice} onChange={e => setZonePrice(e.target.value)} placeholder="0" style={{ width: "100%", background: "#F8F8F8", borderRadius: 16, paddingLeft: 32, paddingRight: 16, paddingTop: 12, paddingBottom: 12, fontSize: 14, outline: "none", border: "2px solid transparent", color: "#111", boxSizing: "border-box" }} onFocus={e => (e.target.style.borderColor = club.color)} onBlur={e => (e.target.style.borderColor = "transparent")} />
                   </div>
+                  {zonePrice && parseFloat(zonePrice) > 0 && (
+                    <div>
+                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.15em", color: "rgba(0,0,0,0.35)", marginBottom: 8 }}>HOW THE REVENUE SPLITS</p>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <div style={{ flex: 1, padding: "10px 8px", borderRadius: 12, background: "#F0FDF4", textAlign: "center" }}>
+                          <p style={{ fontSize: 18, fontWeight: 800, color: "#16A34A", lineHeight: 1 }}>60%</p>
+                          <p style={{ fontSize: 9, fontWeight: 700, color: "#16A34A", marginTop: 3 }}>You</p>
+                          <p style={{ fontSize: 8, color: "#16A34A", opacity: 0.7 }}>Zone Leader</p>
+                        </div>
+                        <div style={{ flex: 1, padding: "10px 8px", borderRadius: 12, background: `${club.color}10`, textAlign: "center" }}>
+                          <p style={{ fontSize: 18, fontWeight: 800, color: club.color, lineHeight: 1 }}>25%</p>
+                          <p style={{ fontSize: 9, fontWeight: 700, color: club.color, marginTop: 3 }}>Club Mama</p>
+                          <p style={{ fontSize: 8, color: club.color, opacity: 0.7 }}>{club.mamaName.split(" ")[0]}</p>
+                        </div>
+                        <div style={{ flex: 1, padding: "10px 8px", borderRadius: 12, background: "#FFF0F8", textAlign: "center" }}>
+                          <p style={{ fontSize: 18, fontWeight: 800, color: "#FF1F7D", lineHeight: 1 }}>15%</p>
+                          <p style={{ fontSize: 9, fontWeight: 700, color: "#FF1F7D", marginTop: 3 }}>Bloombay</p>
+                          <p style={{ fontSize: 8, color: "#FF1F7D", opacity: 0.7 }}>Platform</p>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 10, color: "rgba(0,0,0,0.35)", marginTop: 8, textAlign: "center" }}>
+                        You'd earn <strong style={{ color: "#16A34A" }}>${(parseFloat(zonePrice) * 0.6).toFixed(2)}/mo</strong> per member at ${parseFloat(zonePrice).toFixed(0)}/mo
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <button onClick={submitRequest} disabled={!zoneName.trim()} style={{ width: "100%", padding: "14px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: club.color, border: "none", cursor: zoneName.trim() ? "pointer" : "default", opacity: zoneName.trim() ? 1 : 0.4 }}>
                   Submit to Club Mama →
@@ -501,7 +530,7 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
 
 // ─── Club Chat ────────────────────────────────────────────────────────────────
 
-function ClubChat({ club }: { club: ClubLandingData }) {
+function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub?: number }) {
   const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
   const [input, setInput] = useState("");
   const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
@@ -546,7 +575,74 @@ function ClubChat({ club }: { club: ClubLandingData }) {
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: 16, background: "#FFF5F8" }}>
-        {messages.map(msg => (
+
+        {/* New member intro card — shown only in the first 7 days */}
+        {daysInClub <= 7 && (
+          <div style={{ borderRadius: 20, background: "linear-gradient(135deg, #FFF0F8 0%, #FFF9E6 100%)", border: `2px solid ${club.color}30`, padding: "16px 18px", boxShadow: "0 2px 16px rgba(255,31,125,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: club.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>Y</div>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{club.mamaName}</p>
+                <p style={{ fontSize: 10, color: "rgba(0,0,0,0.4)" }}>Club Mama · just now</p>
+              </div>
+              <div style={{ marginLeft: "auto", padding: "3px 10px", borderRadius: 20, background: `${club.color}15`, fontSize: 9, fontWeight: 700, color: club.color, letterSpacing: "0.1em" }}>NEW MEMBER</div>
+            </div>
+            <div style={{ background: "white", borderRadius: 14, padding: "12px 14px", marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>M</div>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#111", fontFamily: "var(--font-playfair)" }}>You</p>
+                  <p style={{ fontSize: 11, color: "rgba(0,0,0,0.4)" }}>Just joined {club.name} 🌸</p>
+                </div>
+              </div>
+              <p style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.55 }}>New to the club and excited to be here. Can't wait to meet everyone!</p>
+            </div>
+            <p style={{ fontSize: 13, color: "#111", lineHeight: 1.5 }}>Welcome to <strong>{club.name}</strong>! We're so happy you're here — say hi 🎉</p>
+            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              {["♡ Welcome", "🌸 Say hi", "✦ Wave"].map(label => (
+                <button key={label} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${club.color}12`, color: club.color, border: `1px solid ${club.color}30`, cursor: "pointer" }}>{label}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {messages.map(msg => {
+          if (msg.type === "welcome") {
+            return (
+              <div key={msg.id} style={{ borderRadius: 18, background: "white", border: "1.5px solid rgba(0,0,0,0.06)", overflow: "hidden", boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+                <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: msg.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{msg.initial}</div>
+                  <div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: msg.color }}>{msg.author}</span>
+                    <span style={{ fontSize: 10, color: "rgba(0,0,0,0.35)", marginLeft: 6 }}>introduced a new member · {msg.time}</span>
+                  </div>
+                </div>
+                <div style={{ padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #FF69B4, #FF1F7D)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{msg.author.slice(-3, -2).toUpperCase() || "B"}</div>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{msg.author === "Yande O." ? "Bea T." : "New Member"}</p>
+                      {msg.welcomeTag && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: club.color, background: `${club.color}12`, padding: "2px 8px", borderRadius: 10 }}>{msg.welcomeTag.toUpperCase()}</span>}
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.5, marginBottom: 8 }}>{msg.text}</p>
+                  {msg.welcomeInterests && (
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {msg.welcomeInterests.map(i => (
+                        <span key={i} style={{ fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: `${club.color}10`, color: club.color }}>{i}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div style={{ padding: "8px 14px 10px", borderTop: "1px solid rgba(0,0,0,0.04)", display: "flex", gap: 8 }}>
+                  {["♡ Welcome her", "🌸 Say hi"].map(label => (
+                    <button key={label} onClick={() => setLikedIds(p => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: likedIds.has(msg.id) ? `${club.color}15` : "rgba(0,0,0,0.04)", color: likedIds.has(msg.id) ? club.color : "#888", border: "none", cursor: "pointer" }}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return (
           <div key={msg.id} style={{ display: "flex", alignItems: "flex-end", gap: 12, flexDirection: msg.mine ? "row-reverse" : "row" }}>
             {!msg.mine && <div style={{ width: 32, height: 32, borderRadius: "50%", background: msg.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0, marginBottom: 4 }}>{msg.initial}</div>}
             <div style={{ display: "flex", flexDirection: "column", alignItems: msg.mine ? "flex-end" : "flex-start", maxWidth: "75%" }}>
@@ -572,7 +668,8 @@ function ClubChat({ club }: { club: ClubLandingData }) {
               <span style={{ fontSize: 10, color: "rgba(0,0,0,0.3)", marginTop: 4, marginLeft: 4 }}>{msg.time}</span>
             </div>
           </div>
-        ))}
+          );
+        })}
         <div ref={bottomRef} />
       </div>
 
@@ -1150,7 +1247,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           )}
 
           {/* ── Chat tab ── */}
-          {clubTab === "chat" && <ClubChat club={club} />}
+          {clubTab === "chat" && <ClubChat club={club} daysInClub={daysInClub} />}
 
           {/* ── Events tab ── */}
           {clubTab === "events" && (
