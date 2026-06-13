@@ -243,11 +243,11 @@ function IconChatBubble({ c }: SVGProps) {
 
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",  key: "home"          },
-  { href: "/member/match", key: "introductions" },
-  { href: "/member/clubs", key: "clubs"         },
-  { href: "/member/lobby", key: "avenue"        },
-  { href: "/member/city",  key: "city"          },
+  { href: "/member/home",   key: "home"   },
+  { href: "/member/plans",  key: "plans"  },
+  { href: "/member/clubs",  key: "clubs"  },
+  { href: "/member/lobby",  key: "avenue" },
+  { href: "/member/city",   key: "city"   },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -275,26 +275,25 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function isActive(href: string) {
     if (href === "/member/city")  return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
     if (href === "/member/lobby") return pathname.startsWith("/member/lobby") || pathname.startsWith("/member/chat");
-    if (href === "/member/match") return pathname.startsWith("/member/match") || pathname.startsWith("/member/girlmate");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   function renderIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.36)";
     const w = active ? 2.2 : 1.7;
-    if (key === "home")          return <IconTime          c={c} w={w} slab={slab} />;
-    if (key === "introductions") return <IconIntroductions c={c} w={w} />;
-    if (key === "clubs")         return <IconClubs         c={c} />;
-    if (key === "avenue")        return <IconAveSign       c={c} w={w} />;
-    if (key === "city")          return <IconHappenings    c={c} w={w} />;
+    if (key === "home")   return <IconTime         c={c} w={w} slab={slab} />;
+    if (key === "plans")  return <IconIntroductions c={c} w={w} />;
+    if (key === "clubs")  return <IconClubs         c={c} />;
+    if (key === "avenue") return <IconAveSign       c={c} w={w} />;
+    if (key === "city")   return <IconHappenings    c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    if (key === "home")          return SLAB_LABEL[slab];
-    if (key === "introductions") return "Meet";
-    if (key === "clubs")         return "Clubs";
-    if (key === "avenue")        return "Avenue";
-    if (key === "city")          return "City";
+    if (key === "home")   return SLAB_LABEL[slab];
+    if (key === "plans")  return "Plans";
+    if (key === "clubs")  return "Clubs";
+    if (key === "avenue") return "Avenue";
+    if (key === "city")   return "City";
     return key;
   }
 
