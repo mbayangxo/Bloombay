@@ -51,14 +51,14 @@ export default function ApplyClubMamaPage() {
 
   // Step 4 — Commitment
   const [agreeCommit, setAgreeCommit] = useState(false);
-  const [agreeStipend, setAgreeStipend] = useState(false);
+
   const [agreeStandards, setAgreeStandards] = useState(false);
 
   function canNext(): boolean {
     if (step === 1) return clubName.trim().length >= 2 && !!category && neighborhood.trim().length >= 2;
     if (step === 2) return description.trim().length >= 30 && !!frequency && !!membershipType;
     if (step === 3) return whyRun.trim().length >= 40 && experience.trim().length >= 20;
-    if (step === 4) return agreeCommit && agreeStipend && agreeStandards;
+    if (step === 4) return agreeCommit && agreeStandards;
     return false;
   }
 
@@ -125,12 +125,12 @@ export default function ApplyClubMamaPage() {
           </h1>
           <h1 className="font-bold italic leading-tight mb-3"
             style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,7vw,32px)", color: PINK }}>
-            Get paid for it.
+            Lead your community.
           </h1>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
             style={{ background: `${PINK}15`, border: `1px solid ${PINK}28` }}>
-            <span style={{ fontSize: "14px" }}>💸</span>
-            <p className="text-xs font-bold" style={{ color: PINK }}>$250/month stipend</p>
+            <span style={{ fontSize: "14px" }}>🌸</span>
+            <p className="text-xs font-bold" style={{ color: PINK }}>Club Mama Program</p>
           </div>
         </div>
       </div>
@@ -463,21 +463,21 @@ export default function ApplyClubMamaPage() {
               </p>
             </div>
 
-            {/* Stipend card */}
+            {/* Club Mama card */}
             <div className="rounded-2xl p-5 mb-6 relative overflow-hidden"
               style={{ background: `${PINK}12`, border: `1.5px solid ${PINK}30` }}>
               <div className="absolute top-0 right-0 w-28 h-28 rounded-full pointer-events-none"
                 style={{ background: `radial-gradient(circle, ${PINK} 0%, transparent 70%)`, opacity: 0.1, transform: "translate(30%, -30%)" }} />
               <div className="relative">
                 <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: `${PINK}99` }}>
-                  YOUR MONTHLY STIPEND
+                  YOUR ROLE
                 </p>
-                <p className="text-3xl font-black mb-1"
-                  style={{ fontFamily: "var(--font-playfair)", color: PINK }}>
-                  $250
+                <p className="text-xl font-black mb-1"
+                  style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", color: PINK }}>
+                  Club Mama
                 </p>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  Paid monthly, directly to you. BloomBay covers club operating costs separately.
+                  You host, you lead, you shape the culture. BloomBay handles logistics and discovery.
                 </p>
               </div>
             </div>
@@ -524,7 +524,6 @@ export default function ApplyClubMamaPage() {
             <div className="flex flex-col gap-3 mb-8">
               {[
                 { label: "I commit to the program requirements above", state: agreeCommit, set: setAgreeCommit },
-                { label: "I understand stipend is contingent on maintaining active membership and event standards", state: agreeStipend, set: setAgreeStipend },
                 { label: "I agree to uphold BloomBay's community standards and values", state: agreeStandards, set: setAgreeStandards },
               ].map(({ label, state, set }, i) => (
                 <button key={i} onClick={() => set(s => !s)}

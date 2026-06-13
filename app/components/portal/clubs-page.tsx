@@ -27,27 +27,51 @@ const GRADS = [
 
 const VIBES = ["creative", "wellness", "adventure", "career", "night out", "faith", "fashion", "foodie"];
 
-const NEAR_YOU = [
-  { name: "SoHo",           clubs: 14, grad: "linear-gradient(135deg,#FF85C0,#FFB3D9)" },
-  { name: "Williamsburg",   clubs: 9,  grad: "linear-gradient(135deg,#E8006A,#FF5BAD)" },
-  { name: "West Village",   clubs: 11, grad: "linear-gradient(135deg,#C80060,#FF1F7D)" },
-  { name: "Brooklyn Hts",   clubs: 11, grad: "linear-gradient(135deg,#FF1F7D,#FF85C0)" },
-  { name: "Harlem",         clubs: 9,  grad: "linear-gradient(135deg,#A8004C,#E8006A)" },
+const NEAR_YOU_FALLBACK = [
+  { name: "SoHo",           clubs: 0, grad: "linear-gradient(135deg,#FF85C0,#FFB3D9)" },
+  { name: "Williamsburg",   clubs: 0, grad: "linear-gradient(135deg,#E8006A,#FF5BAD)" },
+  { name: "West Village",   clubs: 0, grad: "linear-gradient(135deg,#C80060,#FF1F7D)" },
+  { name: "Brooklyn Hts",   clubs: 0, grad: "linear-gradient(135deg,#FF1F7D,#FF85C0)" },
+  { name: "Harlem",         clubs: 0, grad: "linear-gradient(135deg,#A8004C,#E8006A)" },
+];
+const NEAR_YOU_GRADS = [
+  "linear-gradient(135deg,#FF85C0,#FFB3D9)",
+  "linear-gradient(135deg,#E8006A,#FF5BAD)",
+  "linear-gradient(135deg,#C80060,#FF1F7D)",
+  "linear-gradient(135deg,#FF1F7D,#FF85C0)",
+  "linear-gradient(135deg,#A8004C,#E8006A)",
 ];
 
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [clubs, setClubs] = useState<RealClub[]>([]);
   const [happenings, setHappenings] = useState<RealGathering[]>([]);
+  const [nearYou, setNearYou] = useState(NEAR_YOU_FALLBACK);
 
   useEffect(() => {
     const supabase = createClient();
     supabase
       .from("clubs")
-      .select("id, name, description, primary_color, cover_url, slug")
+      .select("id, name, description, primary_color, cover_url, slug, neighborhood")
       .order("created_at", { ascending: false })
-      .limit(8)
-      .then(({ data }) => { if (data) setClubs(data as RealClub[]); });
+      .limit(50)
+      .then(({ data }) => {
+        if (!data) return;
+        setClubs((data as (RealClub & { neighborhood?: string | null })[]).slice(0, 8));
+
+        // Compute real neighborhood counts
+        const counts: Record<string, number> = {};
+        for (const c of data) {
+          const n = (c as { neighborhood?: string | null }).neighborhood;
+          if (n) counts[n] = (counts[n] ?? 0) + 1;
+        }
+        const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        if (entries.length > 0) {
+          setNearYou(entries.map(([name, clubs], i) => ({
+            name, clubs, grad: NEAR_YOU_GRADS[i % NEAR_YOU_GRADS.length],
+          })));
+        }
+      });
 
     const now = new Date().toISOString();
     supabase
@@ -421,7 +445,7 @@ export function ClubsPage() {
         </div>
 
         <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 16, scrollbarWidth: "none" as const }}>
-          {NEAR_YOU.map((n, i) => {
+          {nearYou.map((n, i) => {
             const rots = [-2.5, 1.8, -1.2, 2.2, -1.5];
             return (
               <div key={i} style={{ flexShrink: 0, position: "relative" }}>

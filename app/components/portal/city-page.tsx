@@ -1026,18 +1026,81 @@ const EATS_PARTNERS: EatsPartner[] = [
   },
 ];
 
+// Real partner row from restaurant_partners table
+interface RealPartnerRow {
+  id: string; name: string; restaurant_type: string; neighborhood: string | null;
+  tagline: string | null; about: string | null; bloom_notes: number; bloom_rating: number;
+  price_range: string | null; brand_color: string; cover_url: string | null;
+  poem: string | null; polaroid_caption: string | null; host_note: string | null;
+  bloom_tips: string[] | null; girl_favorites: {item:string;description:string}[] | null;
+  reviews: {author:string;text:string;rating:number}[] | null; instagram: string | null;
+  hours: Record<string,string> | null; loved_by: string[] | null; visited_by: string[];
+  photo_urls: string[];
+}
+
+function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
+  const typeMap: Record<string, RestaurantType> = {
+    café: "café", cafe: "café", coffee: "café", bar: "bar", cocktail: "bar",
+    bakery: "bakery", casual: "casual", fine_dining: "fine_dining", restaurant: "casual",
+  };
+  const heroColors = ["#C84A18","#3A6A38","#5A1A0A","#1A3A6A","#6A1A5A","#3A1A6A"];
+  const heroColor = r.brand_color || heroColors[idx % heroColors.length];
+  return {
+    id: idx + 100,
+    name: r.name,
+    type: typeMap[r.restaurant_type?.toLowerCase() ?? ""] ?? "casual",
+    hood: r.neighborhood ?? "NYC",
+    tagline: r.tagline ?? "",
+    tags: [r.restaurant_type ?? "Dining"],
+    saves: r.loved_by?.length ?? 0,
+    rating: r.bloom_rating ? String(r.bloom_rating.toFixed(1)) : "—",
+    priceRange: r.price_range ?? "$",
+    heroColor,
+    accentColor: heroColor,
+    textColor: "#FFF",
+    menuHighlights: (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.item, price: "" })),
+    bloomieNote: r.bloom_tips?.[0] ?? r.polaroid_caption ?? "",
+    lovedBy: r.loved_by?.length ?? 0,
+    poem: r.poem ?? r.tagline ?? "",
+    polaroidCaption: r.polaroid_caption ?? "",
+    hostNote: r.host_note ? { from: "BloomBay", text: r.host_note } : { from: "BloomBay", text: r.about ?? "" },
+    about: r.about ?? "",
+    tips: r.bloom_tips ?? [],
+    girlFavorites: (r.girl_favorites ?? []).map(g => ({ item: g.item, note: g.description ?? "", tone: "#FFE8D0" })),
+    reviews: (r.reviews ?? []).map(rv => ({ name: rv.author, text: rv.text, ago: "recently" })),
+    hours: r.hours ? Object.values(r.hours)[0] ?? "Daily" : "Daily",
+    instagram: r.instagram ?? "",
+    visited: (r.visited_by ?? []).length > 0,
+  };
+}
+
 function EatsPage({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("Tonight");
   const [savedIds, setSaved] = useState<number[]>([]);
   const [profileId, setProfileId] = useState<number | null>(null);
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
+  const [realPartners, setRealPartners] = useState<EatsPartner[]>([]);
   function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   useEffect(() => {
+    // Fetch real restaurant partners from DB
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient()
+        .from("restaurant_partners")
+        .select("*")
+        .order("bloom_notes", { ascending: false })
+        .limit(20)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            setRealPartners((data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i)));
+          }
+        });
+    });
     getNoteCountsByPlace(EATS_PARTNERS.map(p => toSlug(p.name))).then(setNoteCounts).catch(() => {});
   }, []);
 
-  const openPartner = EATS_PARTNERS.find(p => p.id === profileId);
+  const allPartners = realPartners.length > 0 ? realPartners : EATS_PARTNERS;
+  const openPartner = allPartners.find(p => p.id === profileId);
   if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} />;
 
   return (
@@ -1126,20 +1189,28 @@ function EatsPage({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Spot grid */}
+        {/* Spot grid — real partners when available, fallback to editorial */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 14 }}>
-          {EATS_GRID.map(spot => (
-            <div key={spot.id} style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: spot.bg, borderRadius: 16, padding: "13px 13px 11px", boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 700, fontStyle: "italic", color: DARK, lineHeight: 1.2, marginBottom: 4 }}>{spot.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#aaa", letterSpacing: "0.06em" }}>{spot.hood}</p>
-              <div style={{ marginTop: 9, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#bbb" }}>{spot.saved} saved</span>
-                <button onClick={() => toggleSave(spot.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill={savedIds.includes(spot.id) ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                </button>
+          {(realPartners.length > 0 ? realPartners.slice(3, 9) : EATS_GRID).map((spot, idx) => {
+            const isReal = realPartners.length > 0;
+            const name  = isReal ? (spot as EatsPartner).name       : (spot as typeof EATS_GRID[0]).name;
+            const hood  = isReal ? (spot as EatsPartner).hood        : (spot as typeof EATS_GRID[0]).hood;
+            const saves = isReal ? (spot as EatsPartner).saves       : (spot as typeof EATS_GRID[0]).saved;
+            const id    = isReal ? (spot as EatsPartner).id          : (spot as typeof EATS_GRID[0]).id;
+            const bg    = isReal ? "#FAF0E8"                         : (spot as typeof EATS_GRID[0]).bg;
+            return (
+              <div key={id} onClick={isReal ? () => setProfileId(id) : undefined} style={{ backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`, backgroundSize: "200px 200px, 80px 80px", backgroundColor: bg, borderRadius: 16, padding: "13px 13px 11px", boxShadow: "0 2px 10px rgba(0,0,0,0.07)", cursor: isReal ? "pointer" : "default" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 700, fontStyle: "italic", color: DARK, lineHeight: 1.2, marginBottom: 4 }}>{name}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#aaa", letterSpacing: "0.06em" }}>{hood}</p>
+                <div style={{ marginTop: 9, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#bbb" }}>{saves} saved</span>
+                  <button onClick={e => { e.stopPropagation(); toggleSave(id); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill={savedIds.includes(id) ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Bottom picks */}
@@ -1177,7 +1248,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9B70" }}/>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
-          {EATS_PARTNERS.map(p => (
+          {allPartners.map(p => (
             <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} onOpen={() => setProfileId(p.id)} />
           ))}
         </div>
