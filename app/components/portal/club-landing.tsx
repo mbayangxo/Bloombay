@@ -702,6 +702,90 @@ function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub
   );
 }
 
+// ─── Leave Club ───────────────────────────────────────────────────────────────
+
+function LeaveClubButton({ clubName }: { clubName: string }) {
+  const [confirm, setConfirm] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [left, setLeft] = useState(false);
+
+  async function handleLeave() {
+    setLeaving(true);
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      // Try both membership tables (slug-based and id-based)
+      await supabase.from("club_memberships").delete().eq("user_id", user.id);
+      await supabase.from("user_clubs").delete().eq("user_id", user.id);
+      setLeft(true);
+    } catch {
+      setLeaving(false);
+    }
+  }
+
+  if (left) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px 0", fontFamily: "var(--font-caveat)", fontSize: 16, color: "#aaa" }}>
+        You&apos;ve left {clubName}. You can always come back.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      {!confirm ? (
+        <button
+          onClick={() => setConfirm(true)}
+          style={{
+            width: "100%", padding: "14px", background: "none",
+            border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, cursor: "pointer",
+            fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600,
+            color: "rgba(0,0,0,0.3)", letterSpacing: "0.02em",
+          }}
+        >
+          Leave club
+        </button>
+      ) : (
+        <div style={{ background: "#FFF5F5", border: "1px solid rgba(220,0,0,0.1)", borderRadius: 16, padding: "16px 18px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#333", marginBottom: 4 }}>
+            Leave {clubName}?
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#999", marginBottom: 14, lineHeight: 1.5 }}>
+            You&apos;ll lose access to the chat, zones, and events. You can rejoin anytime if it&apos;s open.
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={handleLeave}
+              disabled={leaving}
+              style={{
+                flex: 1, padding: "11px 0", borderRadius: 999,
+                border: "none", background: "#CC0000", color: "white",
+                fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800,
+                cursor: leaving ? "default" : "pointer", opacity: leaving ? 0.6 : 1,
+              }}
+            >
+              {leaving ? "Leaving…" : "Yes, leave"}
+            </button>
+            <button
+              onClick={() => setConfirm(false)}
+              style={{
+                padding: "11px 18px", borderRadius: 999,
+                border: "1px solid rgba(0,0,0,0.1)", background: "white",
+                fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600,
+                color: "#555", cursor: "pointer",
+              }}
+            >
+              Stay
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean }) {
@@ -1162,6 +1246,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   </ul>
                 </div>
               )}
+
+              {/* Leave club — quiet, at the bottom, requires confirmation */}
+              <LeaveClubButton clubName={club.name} />
             </div>
           )}
 
