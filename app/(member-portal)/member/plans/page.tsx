@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { BloomiesPlanner } from "@/app/components/portal/bloomies-planner";
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
@@ -1748,11 +1749,18 @@ function PlansPageInner() {
   const searchParams = useSearchParams();
   const theme = THEME;
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [view, setView]               = useState<View>("list");
   const [mainTab, setMainTab]         = useState<MainTab>("plans");
   const [activeRoom, setActiveRoom]   = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
+
+  useEffect(() => {
+    void import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+    });
+  }, []);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editorDay, setEditorDay]     = useState<string | null>(null);
@@ -1913,6 +1921,16 @@ function PlansPageInner() {
 
             {/* Ornamental divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
+              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
+              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
+            </div>
+
+            {/* Bloomies Planner™ — real live plans */}
+            {userId && <BloomiesPlanner userId={userId} />}
+
+            {/* Ornamental divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 22px 0", marginBottom: 18 }}>
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
               <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
