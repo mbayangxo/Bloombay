@@ -495,6 +495,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const [toast,           setToast]           = useState<string | null>(null);
   const [clubCount,       setClubCount]       = useState<number | null>(null);
   const [gatheringCount,  setGatheringCount]  = useState<number | null>(null);
+  const [ownedClub,       setOwnedClub]       = useState<{ slug: string; name: string } | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -506,6 +507,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
       supabase.from("gathering_attendance").select("gathering_id", { count: "exact", head: true })
         .eq("user_id", u.id)
         .then(({ count }) => setGatheringCount(count ?? 0));
+      supabase.from("clubs").select("slug, name").eq("owner_id", u.id).limit(1).single()
+        .then(({ data }) => { if (data) setOwnedClub({ slug: (data as { slug: string; name: string }).slug, name: (data as { slug: string; name: string }).name }); });
     });
   }, []);
 
@@ -530,6 +533,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     { label: "Bouquet",        icon: "💐", href: "/member/lobby/bouquet",   num: "02", accentColor: PINK      },
     { label: "Bloomies",       icon: "🌸", href: "/member/lobby/bloomies",  num: "03", accentColor: "#E8006A" },
     { label: "Clubs",          icon: "🌺", href: "/member/clubs",           num: "04", accentColor: "#C4005A" },
+    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
   ];
 
   return (
@@ -595,9 +599,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)" }}>✦ YOUR ROOMS</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: DARK, marginTop: 2 }}>The Apartment.</p>
           </div>
-          <Link href="/member/profile" style={{ textDecoration: "none" }}>
-            <div style={{ background: "#FFF0F5", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.15)" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>View Profile →</p>
+          <Link href="/member/you" style={{ textDecoration: "none" }}>
+            <div style={{ background: "#FFF0F5", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.15)", display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>Settings</p>
             </div>
           </Link>
         </div>

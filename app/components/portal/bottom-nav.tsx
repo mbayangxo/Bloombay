@@ -366,7 +366,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <BBLogo size={26} pinkColor={PINK} />
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <TopTile href="/member/you" label="Apartment">
+            <TopTile href="/member/lounge" label="Apartment">
               <IconApt c={isDarkPage ? "white" : PINK} />
             </TopTile>
             <TopTile href="/member/city" label="City">

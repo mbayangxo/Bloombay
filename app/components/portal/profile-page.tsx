@@ -769,7 +769,7 @@ function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId;
 
 // ─── ProfilePage ──────────────────────────────────────────────────────────────
 
-export function ProfilePage({ user }: { user: AuthUser }) {
+export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?: TabId }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatar_url ?? null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [worldPhotos, setWorldPhotos] = useState<Photo[]>([]);
@@ -791,7 +791,7 @@ export function ProfilePage({ user }: { user: AuthUser }) {
   const [emailBusy, setEmailBusy] = useState(false);
   const [emailMsg, setEmailMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  const [activeTab, setActiveTab] = useState<TabId>("profile");
+  const [activeTab, setActiveTab] = useState<TabId>(defaultTab ?? "profile");
   const [bloomCodeCopied, setBloomCodeCopied] = useState(false);
   const [bloomLinkCopied, setBloomLinkCopied] = useState(false);
 
