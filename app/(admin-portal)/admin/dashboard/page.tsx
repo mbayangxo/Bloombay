@@ -286,6 +286,7 @@ const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: numbe
   { id: "open-seats", label: "Open Seats", Icon: IconCalendar },
   { id: "happenings", label: "Happenings", Icon: IconCalendar },
   { id: "city-trending", label: "City Trending", Icon: IconCalendar, badge: 0 },
+  { id: "editor-inbox", label: "Editor Inbox", Icon: IconMail },
   { id: "safety", label: "Safety Center", Icon: IconShield, badge: 6 },
   { id: "mailroom", label: "Mailroom", Icon: IconMail, badge: 35 },
 ];
@@ -1963,6 +1964,300 @@ function HappeningsSection() {
   );
 }
 
+// ─── Editor Inbox ─────────────────────────────────────────────────────────────
+
+const EDITORS = [
+  { id: "magazine",     label: "Magazine",        emoji: "📰", color: "#D4A853" },
+  { id: "reading-room", label: "Reading Room",     emoji: "📚", color: "#8D6E63" },
+  { id: "screening",    label: "Screening Room",   emoji: "🎬", color: "#5B2D8E" },
+  { id: "wellness",     label: "The Health Bar",   emoji: "🌿", color: "#4A7C59" },
+  { id: "hanger",       label: "The Closet",       emoji: "👗", color: "#C4005A" },
+  { id: "vanity",       label: "The Vanity",       emoji: "✨", color: "#FF1F7D" },
+  { id: "wall",         label: "The Wall",         emoji: "💬", color: "#0F4C81" },
+  { id: "working",      label: "Girl Working",     emoji: "💼", color: "#1A0A2E" },
+  { id: "column",       label: "The Column (Zuri)", emoji: "🖊️", color: "#880E4F" },
+];
+
+type InstructionType = "voice" | "reference" | "correction" | "feedback";
+
+interface Instruction {
+  id: string;
+  instruction_type: InstructionType;
+  instruction: string;
+  reference_title?: string;
+  original_content?: string;
+  edited_content?: string;
+  active: boolean;
+  created_at: string;
+}
+
+const TYPE_META: Record<InstructionType, { label: string; color: string; desc: string }> = {
+  voice:      { label: "Voice Rule",       color: "#FF1F7D", desc: "How to sound — tone, style, attitude" },
+  reference:  { label: "Reference Article", color: "#D4A853", desc: "An article you loved — learn this voice" },
+  correction: { label: "Correction",        color: "#E65100", desc: "What you changed and why" },
+  feedback:   { label: "Feedback",          color: "#0F4C81", desc: "General notes on recent output" },
+};
+
+function EditorInboxSection() {
+  const [selectedEditor, setSelectedEditor] = useState(EDITORS[0].id);
+  const [activeTab, setActiveTab] = useState<InstructionType | "all">("all");
+  const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [addType, setAddType] = useState<InstructionType>("voice");
+  const [inputText, setInputText] = useState("");
+  const [inputTitle, setInputTitle] = useState("");
+  const [inputOriginal, setInputOriginal] = useState("");
+  const [inputEdited, setInputEdited] = useState("");
+  const [inputNote, setInputNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const editor = EDITORS.find(e => e.id === selectedEditor)!;
+
+  // Load instructions for selected editor
+  const loadInstructions = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/editor-instructions?editor=${selectedEditor}`);
+      if (res.ok) {
+        const data = await res.json() as Instruction[];
+        setInstructions(data);
+      }
+    } catch { /* graceful degradation */ }
+    setLoading(false);
+  };
+
+  // Load on editor change
+  useState(() => { loadInstructions(); });
+
+  const filtered = activeTab === "all" ? instructions : instructions.filter(i => i.instruction_type === activeTab);
+
+  const handleSave = async () => {
+    if (!inputText.trim()) return;
+    setSaving(true);
+    try {
+      await fetch("/api/editor-instructions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          editor_name: selectedEditor,
+          instruction_type: addType,
+          instruction: inputText,
+          reference_title: addType === "reference" ? inputTitle : undefined,
+          original_content: addType === "correction" ? inputOriginal : undefined,
+          edited_content: addType === "correction" ? inputEdited : undefined,
+        }),
+      });
+      setInputText(""); setInputTitle(""); setInputOriginal(""); setInputEdited(""); setInputNote("");
+      setAdding(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      await loadInstructions();
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
+
+  const handleToggle = async (id: string, active: boolean) => {
+    try {
+      await fetch(`/api/editor-instructions/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: !active }) });
+      setInstructions(prev => prev.map(i => i.id === id ? { ...i, active: !active } : i));
+    } catch { /* ignore */ }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`/api/editor-instructions/${id}`, { method: "DELETE" });
+      setInstructions(prev => prev.filter(i => i.id !== id));
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <div style={{ padding: "0 0 40px" }}>
+      <div className="px-4 md:px-8 pt-6 pb-4">
+        <h2 className="text-2xl font-bold mb-1">Editor Inbox</h2>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14 }}>
+          Train each AI editor. Give them voice rules, reference articles, corrections, and feedback. They learn your taste every week.
+        </p>
+      </div>
+
+      {/* Editor selector */}
+      <div className="px-4 md:px-8 mb-6">
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
+          {EDITORS.map(e => (
+            <button key={e.id} onClick={() => { setSelectedEditor(e.id); setActiveTab("all"); loadInstructions(); }} style={{
+              flexShrink: 0, padding: "8px 14px", borderRadius: 99, cursor: "pointer",
+              background: selectedEditor === e.id ? e.color : "rgba(255,255,255,0.06)",
+              border: `1.5px solid ${selectedEditor === e.id ? e.color : "rgba(255,255,255,0.1)"}`,
+              color: "white", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700,
+              transition: "all 0.15s",
+            }}>{e.emoji} {e.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Selected editor card */}
+      <div className="px-4 md:px-8 mb-6">
+        <div style={{ background: `${editor.color}18`, border: `1px solid ${editor.color}44`, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: "white", marginBottom: 4 }}>{editor.emoji} {editor.label}</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
+              {instructions.filter(i => i.active).length} active instructions · {instructions.length} total
+            </p>
+          </div>
+          <button
+            onClick={() => setAdding(true)}
+            style={{ background: editor.color, border: "none", borderRadius: 99, padding: "9px 18px", color: "white", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, cursor: "pointer", letterSpacing: "0.04em" }}
+          >
+            + Add Instruction
+          </button>
+        </div>
+      </div>
+
+      {/* Add instruction panel */}
+      {adding && (
+        <div className="px-4 md:px-8 mb-6">
+          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "20px" }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" as const }}>
+              {(["voice", "reference", "correction", "feedback"] as InstructionType[]).map(t => (
+                <button key={t} onClick={() => setAddType(t)} style={{
+                  padding: "6px 14px", borderRadius: 99, cursor: "pointer",
+                  background: addType === t ? TYPE_META[t].color : "rgba(255,255,255,0.06)",
+                  border: `1.5px solid ${addType === t ? TYPE_META[t].color : "rgba(255,255,255,0.1)"}`,
+                  color: "white", fontSize: 11, fontWeight: 700,
+                }}>
+                  {TYPE_META[t].label}
+                </button>
+              ))}
+            </div>
+
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 14 }}>{TYPE_META[addType].desc}</p>
+
+            {addType === "reference" && (
+              <input
+                value={inputTitle}
+                onChange={e => setInputTitle(e.target.value)}
+                placeholder="Article title or source (e.g. 'The Cut — this piece on dating')"
+                style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 14px", color: "white", fontSize: 13, marginBottom: 10, outline: "none", boxSizing: "border-box" as const }}
+              />
+            )}
+
+            {addType === "correction" && (
+              <>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 6 }}>What the editor wrote:</p>
+                <textarea
+                  value={inputOriginal}
+                  onChange={e => setInputOriginal(e.target.value)}
+                  rows={3}
+                  placeholder="Paste what the editor originally wrote..."
+                  style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 14px", color: "white", fontSize: 13, resize: "vertical", marginBottom: 10, outline: "none", boxSizing: "border-box" as const }}
+                />
+                <p style={{ color: "#FF1F7D", fontSize: 11, marginBottom: 6 }}>Your corrected version:</p>
+                <textarea
+                  value={inputEdited}
+                  onChange={e => setInputEdited(e.target.value)}
+                  rows={3}
+                  placeholder="Paste how it should actually read..."
+                  style={{ width: "100%", background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 10, padding: "10px 14px", color: "white", fontSize: 13, resize: "vertical", marginBottom: 10, outline: "none", boxSizing: "border-box" as const }}
+                />
+              </>
+            )}
+
+            <textarea
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              rows={addType === "reference" ? 6 : 3}
+              placeholder={
+                addType === "voice"      ? "e.g. Sound like Roxane Gay's essay voice — confident, specific, a little furious on behalf of women. Never hedge. Never say 'some people might think.'" :
+                addType === "reference"  ? "Paste the full article text here. The editor will study this and write in a similar voice." :
+                addType === "correction" ? "What specifically should change? e.g. 'The tone was too academic — use contractions, write how a person actually talks'" :
+                                           "e.g. The magazine picks this week were too listicle-y. I want 3 deep articles over 5 shallow ones. Lead with the most provocative take, not the safest one."
+              }
+              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 14px", color: "white", fontSize: 13, resize: "vertical", outline: "none", marginBottom: 14, boxSizing: "border-box" as const }}
+            />
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={handleSave} disabled={saving || !inputText.trim()} style={{ background: editor.color, border: "none", borderRadius: 99, padding: "9px 20px", color: "white", fontSize: 12, fontWeight: 800, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}>
+                {saving ? "Saving..." : saved ? "Saved ✓" : "Save Instruction"}
+              </button>
+              <button onClick={() => setAdding(false)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 99, padding: "9px 20px", color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter tabs */}
+      <div className="px-4 md:px-8 mb-4">
+        <div style={{ display: "flex", gap: 8 }}>
+          {(["all", "voice", "reference", "correction", "feedback"] as const).map(t => (
+            <button key={t} onClick={() => setActiveTab(t)} style={{
+              padding: "5px 13px", borderRadius: 99, cursor: "pointer",
+              background: activeTab === t ? (t === "all" ? "rgba(255,255,255,0.12)" : TYPE_META[t].color) : "rgba(255,255,255,0.05)",
+              border: `1px solid ${activeTab === t ? "transparent" : "rgba(255,255,255,0.08)"}`,
+              color: activeTab === t ? "white" : "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 700,
+            }}>{t === "all" ? "All" : TYPE_META[t].label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Instructions list */}
+      <div className="px-4 md:px-8" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {loading && <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>Loading...</p>}
+        {!loading && filtered.length === 0 && (
+          <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "32px", textAlign: "center" }}>
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 14, marginBottom: 8 }}>No instructions yet for {editor.label}.</p>
+            <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>Add a voice rule, paste a reference article, or leave feedback — the editor learns from everything you give it.</p>
+          </div>
+        )}
+        {filtered.map(inst => {
+          const meta = TYPE_META[inst.instruction_type];
+          return (
+            <div key={inst.id} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${inst.active ? meta.color + "30" : "rgba(255,255,255,0.07)"}`, borderRadius: 14, padding: "16px 18px", opacity: inst.active ? 1 : 0.45 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ background: meta.color + "22", color: meta.color, borderRadius: 99, padding: "2px 9px", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em" }}>{meta.label.toUpperCase()}</span>
+                  {!inst.active && <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 10 }}>PAUSED</span>}
+                  <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>{new Date(inst.created_at).toLocaleDateString()}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => handleToggle(inst.id, inst.active)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 99, padding: "4px 10px", color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                    {inst.active ? "Pause" : "Activate"}
+                  </button>
+                  <button onClick={() => handleDelete(inst.id)} style={{ background: "none", border: "1px solid rgba(255,0,0,0.2)", borderRadius: 99, padding: "4px 10px", color: "rgba(255,100,100,0.6)", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              {inst.reference_title && (
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 6, fontStyle: "italic" }}>Ref: {inst.reference_title}</p>
+              )}
+
+              {inst.original_content && (
+                <div style={{ marginBottom: 10 }}>
+                  <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, marginBottom: 4 }}>ORIGINAL:</p>
+                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, lineHeight: 1.5, background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "8px 10px" }}>{inst.original_content.slice(0, 200)}{inst.original_content.length > 200 ? "..." : ""}</p>
+                </div>
+              )}
+
+              {inst.edited_content && (
+                <div style={{ marginBottom: 10 }}>
+                  <p style={{ color: "#FF1F7D", fontSize: 10, marginBottom: 4 }}>YOUR VERSION:</p>
+                  <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, lineHeight: 1.5, background: "rgba(255,31,125,0.05)", borderRadius: 8, padding: "8px 10px", border: "1px solid rgba(255,31,125,0.12)" }}>{inst.edited_content.slice(0, 200)}{inst.edited_content.length > 200 ? "..." : ""}</p>
+                </div>
+              )}
+
+              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, lineHeight: 1.6 }}>{inst.instruction.slice(0, 400)}{inst.instruction.length > 400 ? "..." : ""}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MissionControlPage() {
@@ -1980,8 +2275,9 @@ export default function MissionControlPage() {
       case "open-seats":  return <OpenSeatsSection />;
       case "happenings":  return <HappeningsSection />;
       case "city-trending": return <CityTrendingSection />;
-      case "safety":      return <SafetySection />;
-      case "mailroom":    return <MailroomSection />;
+      case "editor-inbox":  return <EditorInboxSection />;
+      case "safety":        return <SafetySection />;
+      case "mailroom":      return <MailroomSection />;
     }
   };
 

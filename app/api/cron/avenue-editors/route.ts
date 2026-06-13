@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { buildEditorContext } from "@/lib/actions/editor-instructions";
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret");
@@ -307,6 +308,16 @@ async function runEditor(supabase: Supabase, editor: RoomEditor): Promise<number
   if (!process.env.ANTHROPIC_API_KEY) return 0;
 
   try {
+    // Load founder's taste instructions for this editor (voice rules, references, corrections)
+    const founderContext = await buildEditorContext(editor.room).catch(() => "");
+
+    const systemPrompt = [
+      `You are the ${editor.persona}.`,
+      `You write for BloomBay, a curated women's social club in NYC.`,
+      `Everything you generate is culturally aware, specific, and written for women 22–38 who want real recommendations from someone with actual taste. Never generic. Never corporate.`,
+      founderContext, // founder's personalized instructions injected here
+    ].filter(Boolean).join("\n\n");
+
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -317,7 +328,7 @@ async function runEditor(supabase: Supabase, editor: RoomEditor): Promise<number
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 2048,
-        system: `You are the ${editor.persona}. You write for BloomBay, a curated women's social club in NYC. Everything you generate is culturally aware, specific, and written for women 22–38 who want real recommendations from someone with actual taste. Never generic. Never corporate.`,
+        system: systemPrompt,
         messages: [{ role: "user", content: editor.prompt }],
       }),
     });
