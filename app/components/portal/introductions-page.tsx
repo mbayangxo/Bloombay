@@ -272,10 +272,10 @@ function BloomRequestLetterPage({ req, onAccept, onDecline, onBack }: {
               </div>
             )}
             <div className="mt-4 pt-4" style={{ borderTop: "1px dashed rgba(255,31,125,0.18)" }}>
-              <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>YANDE SAYS:</p>
-              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#999" }}>
-                The right connections don&apos;t just happen, they&apos;re chosen. You bring the intention, we bring the women.
+              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-caveat)", color: "#999", fontSize: "13px" }}>
+                This feels like a friendship worth exploring.
               </p>
+              <p className="text-[9px] mt-1" style={{ color: "#FF1F7D", letterSpacing: "0.05em" }}>— Yande ✦</p>
             </div>
           </div>
         </div>
@@ -671,7 +671,7 @@ export function IntroductionsPage() {
               <p className="text-sm italic" style={{ color: "#FF1F7D", fontFamily: "var(--font-caveat)", fontSize: "17px" }}>
                 The invitations are coming. Your energy precedes you.
               </p>
-              <p className="text-xs mt-1" style={{ color: "#bbb" }}>— Yande</p>
+              <p className="text-xs mt-1" style={{ color: "#bbb" }}>— Yande ✦</p>
             </div>
           ) : (
             <div className="flex flex-col gap-4">

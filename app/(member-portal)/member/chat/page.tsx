@@ -296,7 +296,7 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
       )}
       <div style={{ maxWidth: "72%", display: "flex", flexDirection: "column", gap: 3, alignItems: msg.isMe ? "flex-end" : "flex-start" }}>
         {showName && !msg.isMe && <span style={{ fontSize: "10px", color: "#B8AFA8", fontWeight: 600, padding: "0 2px" }}>{msg.sender}</span>}
-        <div style={{ padding: "10px 14px", borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px", fontSize: "13px", lineHeight: 1.5, ...(msg.isMe ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" } : { background: "white", color: "#2A2A2A", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", border: "1px solid #F0EBE4" }) }}>
+        <div style={{ padding: "10px 14px", borderRadius: msg.isMe ? "18px 18px 4px 18px / 20px 20px 4px 20px" : "18px 18px 18px 4px / 20px 20px 20px 4px", fontSize: "13px", lineHeight: 1.5, ...(msg.isMe ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" } : { background: "white", color: "#2A2A2A", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", border: "1px solid #F0EBE4" }) }}>
           {msg.text}
         </div>
         <span style={{ fontSize: "9px", color: "#C8BFB6", padding: "0 2px" }}>{msg.time}</span>

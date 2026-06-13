@@ -539,26 +539,25 @@ export function BloomRequestPage() {
           >
             <p
               style={{
-                fontFamily: "var(--font-jost)",
-                fontSize: 7,
-                fontWeight: 800,
-                letterSpacing: "0.22em",
-                color: PINK,
-                marginBottom: 8,
-              }}
-            >
-              YANDE SAYS
-            </p>
-            <p
-              style={{
                 fontFamily: "var(--font-caveat)",
                 fontSize: 16,
-                color: "rgba(255,255,255,0.65)",
+                color: "rgba(255,255,255,0.75)",
                 lineHeight: 1.55,
               }}
             >
-              &ldquo;The right connections don&apos;t just happen, they&apos;re chosen. You bring the intention, we bring the women.&rdquo;
+              &ldquo;She sees something in you. And she&apos;d love to get to know the real you.&rdquo;
             </p>
+            <p
+              style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                color: "#E8007A",
+                marginTop: 8,
+              }}
+            >
+              — Yande ✦</p>
           </div>
           <RuleBookCard />
         </div>

@@ -1299,7 +1299,7 @@ export function PlanRoomPage() {
                 style={{
                   maxWidth: "70%",
                   background: msg.sent ? PINK : "#F5F5F5",
-                  borderRadius: msg.sent ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
+                  borderRadius: msg.sent ? "14px 14px 4px 14px / 16px 16px 4px 16px" : "14px 14px 14px 4px / 16px 16px 16px 4px",
                   padding: "8px 12px",
                 }}
               >
