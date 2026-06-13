@@ -10,26 +10,28 @@ const PINK  = "#FF1F7D";
 const GOLD  = "#D4A853";
 const CREAM = "rgba(251,247,241,0.98)";
 
-// 5-petal flower path for nav (viewBox "0 0 360 84")
-// Each petal sits over one tab: x centers at 36, 108, 180, 252, 324
-// Center petal (Clubs, x=180) peaks at y=6; outer petals peak at y=12
+// 6-petal flower path for nav (viewBox "0 0 360 84")
+// Each petal sits over one tab: x centers at 30, 90, 150, 210, 270, 330
+// Center petals (Clubs x=150, Avenue x=210) peak at y=8; outer petals at y=12
 const BLOOM_PATH =
-  "M 18 84 Q 0 84 0 66 L 0 32 " +
-  "C 8 20 18 12 36 12 C 54 12 64 20 72 32 " +   // petal 1
-  "C 80 20 90 12 108 12 C 126 12 136 20 144 32 " + // petal 2
-  "C 152 16 162 6 180 6 C 198 6 208 16 216 32 " +  // petal 3 (center, taller)
-  "C 224 20 234 12 252 12 C 270 12 280 20 288 32 " + // petal 4
-  "C 296 20 306 12 324 12 C 342 12 352 20 360 32 " + // petal 5
-  "L 360 66 Q 360 84 342 84 Z";
+  "M 14 84 Q 0 84 0 66 L 0 32 " +
+  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +      // petal 1 (Home)
+  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +   // petal 2 (Plans)
+  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +   // petal 3 (Clubs)
+  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +   // petal 4 (Avenue)
+  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " + // petal 5 (City)
+  "C 307 18 317 12 330 12 C 343 12 353 18 360 32 " + // petal 6 (Introductions)
+  "L 360 66 Q 360 84 346 84 Z";
 
-// Only the scalloped top edge (for the inner highlight stroke)
+// Scalloped top edge only (for inner highlight stroke)
 const BLOOM_TOP =
   "M 0 32 " +
-  "C 8 20 18 12 36 12 C 54 12 64 20 72 32 " +
-  "C 80 20 90 12 108 12 C 126 12 136 20 144 32 " +
-  "C 152 16 162 6 180 6 C 198 6 208 16 216 32 " +
-  "C 224 20 234 12 252 12 C 270 12 280 20 288 32 " +
-  "C 296 20 306 12 324 12 C 342 12 352 20 360 32";
+  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +
+  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +
+  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +
+  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +
+  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " +
+  "C 307 18 317 12 330 12 C 343 12 353 18 360 32";
 
 // Inject keyframes once
 if (typeof document !== "undefined") {
@@ -92,8 +94,8 @@ function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
   );
 }
 
-// Introductions: open book / plans icon (same family as before)
-function IconIntroductions({ c, w = 2 }: SVGProps) {
+// Plans: open notebook with lines
+function IconPlans({ c, w = 2 }: SVGProps) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -101,6 +103,20 @@ function IconIntroductions({ c, w = 2 }: SVGProps) {
       <line x1="9" y1="8"  x2="15" y2="8"/>
       <line x1="9" y1="12" x2="15" y2="12"/>
       <line x1="9" y1="16" x2="12" y2="16"/>
+    </svg>
+  );
+}
+
+// Introductions: two people with a connection spark between them
+function IconIntroductions({ c, w = 2 }: SVGProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="7" cy="7" r="3"/>
+      <path d="M1 21v-1a6 6 0 0 1 6-6"/>
+      <circle cx="17" cy="7" r="3"/>
+      <path d="M23 21v-1a6 6 0 0 0-6-6"/>
+      <line x1="12" y1="13" x2="12" y2="17"/>
+      <line x1="10" y1="15" x2="14" y2="15"/>
     </svg>
   );
 }
@@ -199,8 +215,8 @@ function NavBloom() {
       {/* Inner white highlight along the scalloped top */}
       <path d={BLOOM_TOP} fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1"/>
 
-      {/* Tiny gold dots at petal valleys (x: 72, 144, 216, 288; y ≈ 30 in viewBox) */}
-      {[72, 144, 216, 288].map(x => (
+      {/* Tiny gold dots at petal valleys (x: 60, 120, 180, 240, 300; y ≈ 30) */}
+      {[60, 120, 180, 240, 300].map(x => (
         <circle key={x} cx={x} cy={30} r="1.8" fill={GOLD} opacity="0.35"/>
       ))}
     </svg>
@@ -243,11 +259,12 @@ function IconChatBubble({ c }: SVGProps) {
 
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",   key: "home"   },
-  { href: "/member/plans",  key: "plans"  },
-  { href: "/member/clubs",  key: "clubs"  },
-  { href: "/member/lobby",  key: "avenue" },
-  { href: "/member/city",   key: "city"   },
+  { href: "/member/home",   key: "home"          },
+  { href: "/member/plans",  key: "plans"         },
+  { href: "/member/clubs",  key: "clubs"         },
+  { href: "/member/lobby",  key: "avenue"        },
+  { href: "/member/city",   key: "city"          },
+  { href: "/member/match",  key: "introductions" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -275,25 +292,28 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function isActive(href: string) {
     if (href === "/member/city")  return pathname.startsWith("/member/city") || pathname.startsWith("/member/happenings");
     if (href === "/member/lobby") return pathname.startsWith("/member/lobby") || pathname.startsWith("/member/chat");
+    if (href === "/member/match") return pathname.startsWith("/member/match") || pathname.startsWith("/member/girlmate");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   function renderIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.36)";
     const w = active ? 2.2 : 1.7;
-    if (key === "home")   return <IconTime         c={c} w={w} slab={slab} />;
-    if (key === "plans")  return <IconIntroductions c={c} w={w} />;
-    if (key === "clubs")  return <IconClubs         c={c} />;
-    if (key === "avenue") return <IconAveSign       c={c} w={w} />;
-    if (key === "city")   return <IconHappenings    c={c} w={w} />;
+    if (key === "home")          return <IconTime           c={c} w={w} slab={slab} />;
+    if (key === "plans")         return <IconPlans          c={c} w={w} />;
+    if (key === "clubs")         return <IconClubs          c={c} />;
+    if (key === "avenue")        return <IconAveSign        c={c} w={w} />;
+    if (key === "city")          return <IconHappenings     c={c} w={w} />;
+    if (key === "introductions") return <IconIntroductions  c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    if (key === "home")   return SLAB_LABEL[slab];
-    if (key === "plans")  return "Plans";
-    if (key === "clubs")  return "Clubs";
-    if (key === "avenue") return "Avenue";
-    if (key === "city")   return "City";
+    if (key === "home")          return SLAB_LABEL[slab];
+    if (key === "plans")         return "Plans";
+    if (key === "clubs")         return "Clubs";
+    if (key === "avenue")        return "Avenue";
+    if (key === "city")          return "City";
+    if (key === "introductions") return "Meet";
     return key;
   }
 
@@ -390,7 +410,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           {TABS.map((tab, i) => {
             const active = isActive(tab.href);
             const label  = tabLabel(tab.key);
-            const isCenter = i === 2;
+            const isCenter = i === 2 || i === 3;
             return (
               <Link
                 key={tab.href}
