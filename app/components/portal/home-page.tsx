@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
+import { MorningAfterCard } from "./morning-after-card";
 
 // Inject pulse keyframe once
 if (typeof document !== "undefined") {
@@ -303,6 +304,7 @@ export function HomePage() {
   const [tonightIdx, setTonightIdx] = useState(0);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showMorningAfter, setShowMorningAfter] = useState(true);
 
   useEffect(() => {
     const t = getTimeOfDay(new Date().getHours());
@@ -515,6 +517,15 @@ export function HomePage() {
       </div>
 
       <ClubActivityRow />
+
+      {/* ══ MORNING-AFTER ═══════════════════════════════════════════════════════ */}
+      {showMorningAfter && (
+        <MorningAfterCard
+          happeningTitle="Girls Dinner"
+          happeningVenue="Carbone · West Village"
+          onDismiss={() => setShowMorningAfter(false)}
+        />
+      )}
 
       {/* ══ LIVE PULSE ══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", gap: 8 }}>

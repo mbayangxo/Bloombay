@@ -215,22 +215,291 @@ const TICKET_TEMPLATES = [
   { name: "NYC → Marrakech",      file: "Ticket_NYC_Marrakech.png"      },
 ];
 
+// ── Silhouette Rule: Bloom petal mark for Studio ──────────────────────────
+// At first glance: a grid/layout icon. Second glance: six petals around a centre.
+function StudioBloomMark({ size = 20, color = "#FF1F7D" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="2" fill={color} />
+      {[0,1,2,3,4,5].map(i => {
+        const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+        const cx = 10 + Math.cos(angle) * 5.5;
+        const cy = 10 + Math.sin(angle) * 5.5;
+        return (
+          <ellipse
+            key={i}
+            cx={cx} cy={cy}
+            rx="2.5" ry="1.4"
+            fill={color}
+            opacity="0.6"
+            transform={`rotate(${(i / 6) * 360}, ${cx}, ${cy})`}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+// ── Template Studio ────────────────────────────────────────────────────────
+
+type StudioTemplate = {
+  name: string;
+  src: string;
+  category: "food" | "event" | "ticket";
+};
+
+const ALL_STUDIO_TEMPLATES: StudioTemplate[] = [
+  ...FOOD_TEMPLATES.map(t => ({ ...t, src: `/food templates/${t.file}`, category: "food" as const })),
+  ...EVENT_TEMPLATES.map(t => ({ ...t, src: `/club gatherings,casual gatherings templates/${t.file}`, category: "event" as const })),
+  ...TICKET_TEMPLATES.map(t => ({ ...t, src: `/tickets templates/${t.file}`, category: "ticket" as const })),
+];
+
+type StudioCat = "all" | "food" | "event" | "ticket";
+
+function TemplateStudioCard({
+  name,
+  src,
+  onCustomize,
+}: {
+  name: string;
+  src: string;
+  onCustomize: () => void;
+}) {
+  return (
+    <div
+      className="bg-white rounded-2xl overflow-hidden"
+      style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid rgba(255,31,125,0.08)" }}
+    >
+      <div style={{ height: 160, background: "#FFF0F5", position: "relative", overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+        {/* Hover overlay with Customize CTA */}
+        <div
+          className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+          style={{ background: "rgba(17,17,17,0.72)" }}
+        >
+          <button
+            onClick={onCustomize}
+            className="px-4 py-2 rounded-full text-xs font-bold text-white"
+            style={{ background: "#FF1F7D", boxShadow: "0 2px 0 rgba(150,0,55,0.8)" }}
+          >
+            Customize →
+          </button>
+        </div>
+      </div>
+      <div className="p-3 flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold truncate" style={{ color: "#111111" }}>{name}</p>
+        <div className="flex gap-1.5 flex-shrink-0">
+          <button
+            onClick={onCustomize}
+            className="px-2.5 py-1 rounded-full text-xs font-bold"
+            style={{ background: "#FFF0F5", color: "#FF1F7D" }}
+          >
+            Studio
+          </button>
+          <a
+            href={src}
+            download
+            className="px-2.5 py-1 rounded-full text-xs font-bold"
+            style={{ background: "#F5F5F5", color: "#666", textDecoration: "none" }}
+          >
+            ↓
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BrandStudioSheet({
+  template,
+  onClose,
+}: {
+  template: StudioTemplate;
+  onClose: () => void;
+}) {
+  const [venueName, setVenueName]   = useState("Ladurée SoHo");
+  const [tagline,   setTagline]     = useState("Parisian patisserie meets NYC girl culture.");
+  const [brandColor, setBrandColor] = useState("#FF1F7D");
+  const [copied,    setCopied]      = useState(false);
+
+  function handleCopyLink() {
+    navigator.clipboard?.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-[200]"
+        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+        onClick={onClose}
+      />
+      <div
+        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl overflow-y-auto"
+        style={{ background: "#FEFCF7", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.22)" }}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
+        </div>
+
+        <div className="px-6 pb-10">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-5 mt-2">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <StudioBloomMark size={16} />
+                <p className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FF1F7D" }}>TEMPLATE STUDIO</p>
+              </div>
+              <p className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+                Brand your template.
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(0,0,0,0.07)" }}
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+            </button>
+          </div>
+
+          {/* Live preview */}
+          <div
+            className="rounded-2xl overflow-hidden mb-6 relative"
+            style={{ height: 200, background: "#000" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={template.src}
+              alt={template.name}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", opacity: 0.82 }}
+            />
+            {/* Brand overlay */}
+            <div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(to bottom, transparent 30%, ${brandColor}ee 100%)` }}
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <p
+                className="text-white font-bold text-lg leading-tight"
+                style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}
+              >
+                {venueName || "Your Venue"}
+              </p>
+              <p className="text-white text-xs mt-1" style={{ opacity: 0.75 }}>
+                {tagline || "Your tagline here"}
+              </p>
+              {/* Silhouette Rule: the BB mark bottom-right secretly contains a bloom geometry */}
+              <div className="absolute bottom-4 right-4">
+                <StudioBloomMark size={18} color="rgba(255,255,255,0.45)" />
+              </div>
+            </div>
+          </div>
+
+          {/* Brand controls */}
+          <div className="flex flex-col gap-4">
+            {/* Venue name */}
+            <div>
+              <p className="text-xs font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>Venue Name</p>
+              <input
+                value={venueName}
+                onChange={e => setVenueName(e.target.value)}
+                placeholder="Your venue name"
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }}
+              />
+            </div>
+
+            {/* Tagline */}
+            <div>
+              <p className="text-xs font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>Tagline</p>
+              <input
+                value={tagline}
+                onChange={e => setTagline(e.target.value)}
+                placeholder="A short line about your space"
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }}
+              />
+            </div>
+
+            {/* Brand colour */}
+            <div>
+              <p className="text-xs font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#aaa" }}>Brand Colour</p>
+              <div className="flex gap-3 items-center flex-wrap">
+                {["#FF1F7D","#111111","#C9A27A","#7B5EA7","#E87040","#2E6B9E"].map(c => (
+                  <button
+                    key={c}
+                    onClick={() => setBrandColor(c)}
+                    className="w-8 h-8 rounded-full flex-shrink-0"
+                    style={{
+                      background: c,
+                      border: brandColor === c ? "3px solid #111" : "2px solid transparent",
+                      outline: brandColor === c ? "2px solid white" : "none",
+                      outlineOffset: 1,
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+                    }}
+                  />
+                ))}
+                <label className="cursor-pointer">
+                  <input
+                    type="color"
+                    value={brandColor}
+                    onChange={e => setBrandColor(e.target.value)}
+                    className="sr-only"
+                  />
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                    style={{ background: "#F5F5F5", color: "#999", border: "1.5px dashed #ddd" }}
+                  >
+                    +
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mt-2">
+              <a
+                href={template.src}
+                download
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold text-center"
+                style={{ background: "#111", color: "white", textDecoration: "none", boxShadow: "0 2px 0 rgba(0,0,0,0.5)" }}
+              >
+                Download base →
+              </a>
+              <button
+                onClick={handleCopyLink}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold"
+                style={{ background: "#FFF0F5", color: "#FF1F7D", border: "1.5px solid rgba(255,31,125,0.2)" }}
+              >
+                {copied ? "Copied ✦" : "Copy share link"}
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-400 text-center leading-relaxed">
+              Download the base, then open in Canva or Adobe Express to apply your branding above. Tag <strong style={{ color: "#FF1F7D" }}>@bloombay</strong> when you post.
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 function TemplateCard({ name, src }: { name: string; src: string }) {
   return (
     <div
       className="bg-white rounded-2xl overflow-hidden"
       style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid rgba(255,31,125,0.08)" }}
     >
-      {/* Preview image */}
       <div style={{ height: 180, background: "#FFF0F5", position: "relative", overflow: "hidden" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={name}
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
-        />
+        <img src={src} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
       </div>
-      {/* Footer */}
       <div className="p-4 flex items-center justify-between">
         <p className="text-sm font-semibold" style={{ color: "#111111" }}>{name}</p>
         <a
@@ -250,63 +519,63 @@ function TemplateCard({ name, src }: { name: string; src: string }) {
 }
 
 function TemplatesSection() {
+  const [activeStudioCat, setActiveStudioCat] = useState<StudioCat>("all");
+  const [selectedTemplate, setSelectedTemplate] = useState<StudioTemplate | null>(null);
+
+  const filtered = activeStudioCat === "all"
+    ? ALL_STUDIO_TEMPLATES
+    : ALL_STUDIO_TEMPLATES.filter(t => t.category === activeStudioCat);
+
+  const CAT_LABELS: { id: StudioCat; label: string }[] = [
+    { id: "all",    label: "All" },
+    { id: "food",   label: "Food & Venue" },
+    { id: "event",  label: "Events" },
+    { id: "ticket", label: "Tickets" },
+  ];
+
   return (
     <div className="max-w-4xl">
-      {/* Food & Venue */}
-      <div className="mb-10">
-        <div className="mb-5">
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Food & Venue Templates</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Use these on Instagram, your website, or anywhere BloomBay women will see your brand.
+      {/* Studio header */}
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <StudioBloomMark size={18} />
+            <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Template Studio</h2>
+          </div>
+          <p className="text-sm text-gray-400">
+            Pick a template, brand it with your venue colours and name, then share.
           </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {FOOD_TEMPLATES.map(t => (
-            <TemplateCard
-              key={t.file}
-              name={t.name}
-              src={`/food templates/${t.file}`}
-            />
-          ))}
         </div>
       </div>
 
-      {/* Event Gatherings */}
-      <div className="mb-10">
-        <div className="mb-5">
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Event Templates</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Promote BloomBay gatherings at your venue with these ready-made event cards.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {EVENT_TEMPLATES.map(t => (
-            <TemplateCard
-              key={t.file}
-              name={t.name}
-              src={`/club gatherings,casual gatherings templates/${t.file}`}
-            />
-          ))}
-        </div>
+      {/* Category filter pills */}
+      <div className="flex gap-2 flex-wrap mb-6">
+        {CAT_LABELS.map(c => (
+          <button
+            key={c.id}
+            onClick={() => setActiveStudioCat(c.id)}
+            className="px-4 py-1.5 rounded-full text-xs font-bold transition-all"
+            style={
+              activeStudioCat === c.id
+                ? { background: "#111", color: "white" }
+                : { background: "#F5F5F5", color: "#666" }
+            }
+          >
+            {c.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tickets */}
-      <div className="mb-6">
-        <div className="mb-5">
-          <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Ticket Templates</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Share these as digital tickets or invitations for special events.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {TICKET_TEMPLATES.map(t => (
-            <TemplateCard
-              key={t.file}
-              name={t.name}
-              src={`/tickets templates/${t.file}`}
-            />
-          ))}
-        </div>
+      {/* Template grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {filtered.map((t, i) => (
+          <TemplateStudioCard
+            key={i}
+            name={t.name}
+            src={t.src}
+            onCustomize={() => setSelectedTemplate(t)}
+          />
+        ))}
       </div>
 
       {/* Usage tip */}
@@ -318,12 +587,20 @@ function TemplatesSection() {
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <div>
-          <p className="text-sm font-semibold" style={{ color: "#111111" }}>How to use your templates</p>
+          <p className="text-sm font-semibold" style={{ color: "#111111" }}>How Template Studio works</p>
           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-            Save the template, then open it in Canva, Adobe Express, or your phone&apos;s photo editor to add your branding, photos, and details. Tag <strong style={{ color: "#FF1F7D" }}>@bloombay</strong> when you post.
+            Hit <strong style={{ color: "#111" }}>Studio</strong> on any template to preview it with your venue branding. Download the base, finish in Canva or Adobe Express, and tag <strong style={{ color: "#FF1F7D" }}>@bloombay</strong> when you post.
           </p>
         </div>
       </div>
+
+      {/* Brand studio sheet */}
+      {selectedTemplate && (
+        <BrandStudioSheet
+          template={selectedTemplate}
+          onClose={() => setSelectedTemplate(null)}
+        />
+      )}
     </div>
   );
 }
@@ -355,7 +632,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] 
   { id: "requests", label: "Requests", icon: <IconClipboard size={15} /> },
   { id: "mailbox", label: "Mailbox", icon: <IconInbox size={15} /> },
   { id: "perks", label: "Partner Perks", icon: <IconAward size={15} /> },
-  { id: "templates", label: "Templates", icon: <IconTemplate size={15} /> },
+  { id: "templates", label: "Template Studio", icon: <IconTemplate size={15} /> },
 ];
 
 // ── Section Components ─────────────────────────────────────────────────────
