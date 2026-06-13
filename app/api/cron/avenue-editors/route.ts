@@ -29,6 +29,9 @@ export async function POST(req: NextRequest) {
 
   const results: Record<string, number> = {};
 
+  // Scrape TikTok for work sentiment before generating Girl Working content
+  const workTrends = await scrapeWorkTikTok();
+
   await Promise.all([
     runEditor(supabase, MAGAZINE_EDITOR).then(n  => { results.magazine  = n; }),
     runEditor(supabase, BOOK_EDITOR).then(n       => { results.book      = n; }),
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
     runEditor(supabase, HANGER_EDITOR).then(n     => { results.hanger    = n; }),
     runEditor(supabase, VANITY_EDITOR).then(n     => { results.vanity    = n; }),
     runEditor(supabase, WALL_EDITOR).then(n       => { results.wall      = n; }),
-    runEditor(supabase, WORKING_EDITOR).then(n    => { results.working   = n; }),
+    runEditor(supabase, buildWorkingEditor(workTrends)).then(n => { results.working = n; }),
     runEditor(supabase, COLUMN_EDITOR).then(n     => { results.column    = n; }),
   ]);
 
@@ -235,12 +238,18 @@ Avoid: generic icebreakers, LinkedIn-style 'what's your biggest lesson' question
 Go for: questions women actually want to answer with a glass of wine — funny, a little vulnerable, specific to this stage of life.`,
 };
 
-const WORKING_EDITOR: RoomEditor = {
-  room: "working",
-  contentType: "career_tip",
-  persona: "A career editor who negotiated her salary twice before 30, left a toxic job with no backup plan, and knows exactly which companies actually promote women and which ones don't",
-  count: 5,
-  prompt: `Generate 5 career content pieces for BloomBay women this week. Mix: 1 job spotlight + 1 career move of the week + 1 NYC professional event + 1 salary/money tip + 1 workplace hot take.
+// Built dynamically with TikTok work-trend data injected into the prompt
+function buildWorkingEditor(workTrends: string[]): RoomEditor {
+  const trendsContext = workTrends.length > 0
+    ? `\n\nTikTok work trends women are talking about THIS WEEK (real, scraped):\n${workTrends.slice(0, 15).map((t, i) => `${i + 1}. ${t}`).join("\n")}\n\nIncorporate these real trends into your hot take and career move picks where relevant.`
+    : "";
+
+  return {
+    room: "working",
+    contentType: "career_tip",
+    persona: "A career editor who negotiated her salary twice before 30, left a toxic job with no backup plan, and knows exactly which companies actually promote women and which ones don't. She covers all industries — not just tech.",
+    count: 5,
+    prompt: `Generate 5 career content pieces for BloomBay women this week. Mix: 1 job spotlight + 1 career move of the week (specific industry this rotation) + 1 NYC professional event + 1 salary/money tip + 1 workplace hot take.${trendsContext}
 
 For each return JSON:
 {
@@ -248,18 +257,20 @@ For each return JSON:
   "body": "2-3 sentences. Direct. Numbers when possible. No 'girlboss' energy.",
   "meta": {
     "category": "job_spotlight|career_move|nyc_event|salary_tip|hot_take",
+    "industry": "tech|finance|media|fashion|healthcare|creative|law|nonprofit|all",
     "salary_range": "for job spotlights — actual NYC market rate",
     "location": "NYC or Remote",
-    "event_date": "for events only — date/time",
+    "event_date": "for events only",
     "source_url": "if applicable"
   },
-  "yande_note": "1 sentence — specific to where a BloomBay woman is in her career right now",
+  "yande_note": "1 sentence specific to where a BloomBay woman in her 20s-30s actually is in her career right now",
   "badge": "HOT JOB" | "THIS WEEK" | "NEGOTIATE THIS" | "HOT TAKE" | null
 }
 
-Hot takes should have real opinions — 'The culture fit interview question is usually just asking if you'll tolerate bad behavior' is a real hot take. 'Be yourself!' is not.
-Salary tips should have actual numbers — 'Women in marketing in NYC earn $72K-$95K on average, and most are underpaid by 12%' is useful. 'Know your worth!' is not.`,
-};
+Hot takes should have real opinions and if possible, incorporate what women are actually stressing about on TikTok this week.
+Salary tips should have actual numbers — NYC-specific market rates, not vibes.`,
+  };
+}
 
 const COLUMN_EDITOR: RoomEditor = {
   room: "column",
@@ -272,8 +283,8 @@ Themes to rotate: love + dating / the city / work + ambition / body + pleasure /
 
 Pick the theme that feels most relevant to women in NYC right now (June, summer starting, FOMO, the warmth, the pressure).
 
-Return ONE JSON object:
-{
+Return a JSON ARRAY with exactly ONE item:
+[{
   "title": "I Couldn't Help But Wonder... [her question or phrase]",
   "body": "The full column — 500-700 words. Written as Zuri in first person. Opens with a scene or question, not a thesis. Ends somewhere — not resolved, just somewhere real. References a specific NYC place, feeling, or moment. Occasional wit, never sarcasm as armor.",
   "meta": {
@@ -283,7 +294,7 @@ Return ONE JSON object:
   },
   "yande_note": "ONE sentence from Yande — not what the column is about, but why she's sharing it THIS week. Like: 'Zuri wrote this on a Sunday in May and I haven't stopped thinking about the last line.'",
   "badge": "THIS WEEK'S COLUMN"
-}
+}]
 
 The column should feel like something you'd screenshot and send to your best friend at 11pm.`,
 };
@@ -351,4 +362,117 @@ function currentMonday(): string {
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(d.setDate(diff));
   return monday.toISOString().split("T")[0];
+}
+
+// ── TikTok work-sentiment scraper ─────────────────────────────────────────────
+// Scrapes hashtags about women + work, returns extracted trend themes.
+// Used to ground Girl Working content in what women are actually experiencing.
+
+interface TikTokItem {
+  desc: string;
+  stats: { playCount: number; diggCount: number };
+  hashtags: Array<{ name: string }>;
+}
+
+async function scrapeWorkTikTok(): Promise<string[]> {
+  if (!process.env.APIFY_API_KEY || !process.env.ANTHROPIC_API_KEY) return [];
+
+  const hashtags = [
+    // What women are feeling at work
+    "WomenAtWork", "corporatelife", "9to5life", "workstress",
+    "quietquitting", "actingmyage", "worklifebalance", "officedrama",
+    // Career / growth
+    "CareerTok", "careeradvice", "careerwomen", "salarytransparency",
+    "negotiatethat", "workingwoman", "girlsinfinance", "girlsintech",
+    // Entrepreneurship
+    "womanfounder", "femalefounders", "womeninbusiness", "girlboss",
+    // Creator economy
+    "contentcreatorlife", "creatortips", "influencerlife", "creatoreconomy",
+  ];
+
+  try {
+    const runRes = await fetch(
+      `https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs?token=${process.env.APIFY_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hashtags,
+          resultsPerPage: 30,
+          shouldDownloadVideos: false,
+          shouldDownloadCovers: false,
+          maxItems: 400,
+        }),
+      }
+    );
+    if (!runRes.ok) return [];
+    const run = await runRes.json() as { data: { id: string } };
+    const runId = run.data.id;
+
+    // Poll (max 90s)
+    let attempts = 0;
+    while (attempts < 18) {
+      await sleep(5000);
+      const statusRes = await fetch(`https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}?token=${process.env.APIFY_API_KEY}`);
+      const status = await statusRes.json() as { data: { status: string } };
+      if (status.data.status === "SUCCEEDED") break;
+      if (status.data.status === "FAILED") return [];
+      attempts++;
+    }
+
+    const itemsRes = await fetch(`https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}/dataset/items?token=${process.env.APIFY_API_KEY}&limit=400`);
+    const items = await itemsRes.json() as TikTokItem[];
+
+    // Filter for videos with real work/career content in the description
+    const relevant = items
+      .filter(v => {
+        const d = (v.desc ?? "").toLowerCase();
+        const workWords = ["work", "job", "career", "salary", "boss", "office", "corporate", "freelance", "founder", "client", "meeting", "toxic", "burnout", "negotiate", "raise", "promote", "quit", "hire", "interview", "startup", "business", "brand deal", "content", "creator", "followers", "views"];
+        return workWords.some(w => d.includes(w)) && d.length > 15;
+      })
+      .sort((a, b) => (b.stats?.playCount ?? 0) - (a.stats?.playCount ?? 0))
+      .slice(0, 170);
+
+    if (relevant.length === 0) return [];
+
+    // Ask Claude to extract the top work themes/stresses women are discussing
+    const descriptions = relevant.slice(0, 170).map(v => v.desc).filter(Boolean).join("\n---\n");
+
+    const prompt = `You are reading TikTok video descriptions posted by women about work, careers, jobs, and the creator economy.
+
+Video descriptions:
+${descriptions}
+
+Extract the TOP 15 specific themes, stresses, trends, or conversations women are having about work this week.
+Be specific — not "work life balance" but "women talking about being passed over for promotions they earned" or "creators frustrated with brand deals not paying on time."
+
+Return a JSON array of 15 strings, each one a specific theme or work trend.`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    const data = await res.json() as { content: Array<{ text: string }> };
+    const text = data.content[0]?.text ?? "[]";
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return [];
+    return JSON.parse(jsonMatch[0]) as string[];
+  } catch (e) {
+    console.error("[AvenueEditors] Work TikTok scrape failed:", e);
+    return [];
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

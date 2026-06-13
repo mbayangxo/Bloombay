@@ -115,9 +115,9 @@ async function scrapeTikTokNYC(): Promise<RawSpot[]> {
       attempts++;
     }
 
-    // Fetch results
+    // Fetch all results — skim widely
     const itemsRes = await fetch(
-      `https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}/dataset/items?token=${process.env.APIFY_API_KEY}&limit=100`
+      `https://api.apify.com/v2/acts/clockworks~tiktok-hashtag-scraper/runs/${runId}/dataset/items?token=${process.env.APIFY_API_KEY}&limit=500`
     );
     const items = await itemsRes.json() as TikTokItem[];
 
@@ -138,17 +138,55 @@ interface TikTokItem {
   hashtags: Array<{ name: string }>;
 }
 
+// Score a video for how likely it is to mention a real NYC place or event.
+// High score = likely useful. Low score = generic/filler/reaction content.
+function relevanceScore(item: TikTokItem): number {
+  const desc = (item.desc ?? "").toLowerCase();
+  let score = 0;
+
+  // NYC place signals
+  const placeWords = ["restaurant", "spot", "cafe", "bar", "brunch", "popup", "pop-up", "pop up", "sample sale", "opening", "gallery", "museum", "festival", "market", "store", "shop", "studio", "lounge", "juice", "pilates", "gym", "event", "experience", "reservation", "must try", "must visit", "just opened", "go to", "went to", "tried", "ate at", "came here", "obsessed with", "new in nyc", "hidden gem", "underrated"];
+  const placeHits = placeWords.filter(w => desc.includes(w)).length;
+  score += placeHits * 3;
+
+  // NYC location signals
+  const nycWords = ["nyc", "new york", "manhattan", "brooklyn", "queens", "bronx", "williamsburg", "soho", "tribeca", "harlem", "chelsea", "west village", "east village", "lower east side", "midtown", "downtown", "uptown", "bed stuy", "bushwick", "astoria", "greenpoint", "dumbo", "fidi"];
+  const nycHits = nycWords.filter(w => desc.includes(w)).length;
+  score += nycHits * 2;
+
+  // Engagement signal (viral but not just a meme)
+  const plays = item.stats?.playCount ?? 0;
+  if (plays > 500000) score += 2;
+  if (plays > 100000) score += 1;
+
+  // Penalize generic content
+  const genericWords = ["pov:", "me when", "it's giving", "brat summer", "response to", "stitch", "duet", "reply to"];
+  const genericHits = genericWords.filter(w => desc.includes(w)).length;
+  score -= genericHits * 2;
+
+  // Must have some description content
+  if (desc.length < 20) score -= 5;
+
+  return score;
+}
+
 async function extractSpotsFromTikTok(items: TikTokItem[]): Promise<RawSpot[]> {
   if (!process.env.ANTHROPIC_API_KEY || items.length === 0) return [];
 
-  // Skim through a wide sample — not just top by plays.
-  // Mix: some high-engagement + many mid-tier to catch what's actually going around.
-  const sorted = [...items].sort((a, b) => (b.stats?.playCount ?? 0) - (a.stats?.playCount ?? 0));
-  const top20 = sorted.slice(0, 20);
-  const midRange = sorted.slice(20, 200).filter((_, i) => i % 3 === 0); // every 3rd
-  const sampled = [...top20, ...midRange].slice(0, 80); // cap at 80 for Claude context
+  // Smart skim: score every video for NYC place/event relevance,
+  // then take the top-scoring 170 (not just top by play count).
+  const scored = items
+    .map(item => ({ item, score: relevanceScore(item) }))
+    .filter(({ score }) => score > 0)  // drop obviously irrelevant
+    .sort((a, b) => b.score - a.score);
 
-  const descriptions = sampled.map(v => v.desc).filter(Boolean).join("\n---\n");
+  // Take 170 — mix of high-relevance and some mid-range for variety
+  const sampled = scored.slice(0, 170).map(({ item }) => item);
+
+  const descriptions = sampled
+    .map(v => v.desc)
+    .filter(Boolean)
+    .join("\n---\n");
 
   const prompt = `You are extracting trending NYC spots and events from TikTok video descriptions.
 
@@ -177,7 +215,7 @@ Return a JSON array. If you can't identify specific places (just general content
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
+        max_tokens: 2048,
         messages: [{ role: "user", content: prompt }],
       }),
     });
