@@ -8,6 +8,7 @@ import {
   joinWaitlist, leaveWaitlist, getWaitlistCounts, getMyWaitlistIds,
   witnessAttendee, getWitnessedIds,
   leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
+  toggleGatheringFlower, getGatheringFlowersForUser,
 } from "@/lib/actions/happenings";
 
 const PINK   = "#FF1F7D";
@@ -134,7 +135,7 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "city";
+type HapTab = "happenings" | "map" | "city";
 type Filter = "All" | "Tonight" | "This Weekend" | "Invitations" | "Open Seats" | "Gatherings" | "Club Events" | "Parties" | "Dinners";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
@@ -832,7 +833,7 @@ function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub
 }
 
 /* ── Event templates strip (real events) ────────────────── */
-function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onToggle, onWaitlist, onInvite }: {
+function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onToggle, onWaitlist, onInvite, flowers, onFlower }: {
   events: Event[];
   joined: Set<string>;
   waitlistCounts: Record<string, number>;
@@ -840,6 +841,8 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
   onToggle: (id: string) => void;
   onWaitlist: (id: string) => void;
   onInvite: (ev: Event) => void;
+  flowers: Record<string, { count: number; gave: boolean }>;
+  onFlower: (id: string) => void;
 }) {
   if (events.length === 0) return null;
   return (
@@ -857,13 +860,31 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
             <div key={ev.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
               <EventCard ev={toCardData(ev)} />
               {/* Action row below card */}
-              <div style={{ display: "flex", gap: 6, marginTop: 6, justifyContent: "space-between", alignItems: "center" }}>
-                <button onClick={() => onInvite(ev)} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, cursor: "pointer" }}>
-                  👯 Bring a friend
+              <div style={{ display: "flex", gap: 5, marginTop: 6, alignItems: "center" }}>
+                {/* Flower button */}
+                {(() => {
+                  const fl = flowers[ev.id] ?? { count: 0, gave: false };
+                  return (
+                    <button onClick={() => onFlower(ev.id)} style={{
+                      display: "flex", alignItems: "center", gap: 3,
+                      background: fl.gave ? "rgba(255,31,125,0.3)" : "rgba(255,255,255,0.1)",
+                      border: `1px solid ${fl.gave ? "rgba(255,31,125,0.5)" : "rgba(255,255,255,0.15)"}`,
+                      borderRadius: 999, padding: "4px 9px", cursor: "pointer",
+                      color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800,
+                      transition: "all 0.18s",
+                    }}>
+                      <span style={{ fontSize: 11 }}>🌸</span>
+                      {fl.count > 0 && <span>{fl.count}</span>}
+                    </button>
+                  );
+                })()}
+                <button onClick={() => onInvite(ev)} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "4px 9px", color: "rgba(255,255,255,0.65)", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, cursor: "pointer" }}>
+                  👯 Invite
                 </button>
+                <div style={{ flex: 1 }} />
                 {isFull ? (
-                  <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
-                    {onList ? `Waitlisted${wCount > 1 ? ` · ${wCount} waiting` : ""}` : `Full · ${wCount > 0 ? `${wCount} waiting` : "Join waitlist"}`}
+                  <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 10px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
+                    {onList ? "WAITLISTED" : "WAITLIST →"}
                   </button>
                 ) : (
                   <button onClick={() => onToggle(ev.id)} style={{ background: joined.has(ev.id) ? "rgba(255,255,255,0.1)" : PINK, border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", boxShadow: joined.has(ev.id) ? "none" : `0 2px 10px ${PINK}55` }}>
@@ -968,7 +989,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   const [filter,         setFilter]        = useState<Filter>("All");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const [filterOpen,     setFilterOpen]    = useState(false);
-  const [showMap,    setShowMap]   = useState(false);
+  const [searchOpen,     setSearchOpen]    = useState(false);
+  const [searchQuery,    setSearchQuery]   = useState("");
+  const [gatheringFlowers, setGatheringFlowers] = useState<Record<string, { count: number; gave: boolean }>>({});
   const [events,     setEvents]    = useState<Event[]>([]);
   const [joined,     setJoined]    = useState<Set<string>>(new Set());
   const [loading,    setLoading]   = useState(true);
@@ -1004,11 +1027,13 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         getMyWaitlistIds(),
         getMyHostedCount(),
         getMyReviewedEventIds(),
-      ]).then(([wCounts, wIds, hCount, rIds]) => {
+        getGatheringFlowersForUser(eventIds),
+      ]).then(([wCounts, wIds, hCount, rIds, flowers]) => {
         setWaitlistCounts(wCounts);
         setMyWaitlist(new Set(wIds));
         setHostedCount(hCount);
         setReviewedIds(new Set(rIds));
+        setGatheringFlowers(flowers as Record<string, { count: number; gave: boolean }>);
       }).catch(() => {});
     }
     load();
@@ -1045,7 +1070,22 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     return diffH >= 0 && diffH <= 48 && joined.has(ev.id);
   });
 
-  const filtered = events.filter(ev => matchesFilter(ev, filter) && matchesCategoryFilter(ev, categoryFilter));
+  const filtered = events.filter(ev => {
+    if (!matchesFilter(ev, filter) || !matchesCategoryFilter(ev, categoryFilter)) return false;
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return ev.title.toLowerCase().includes(q) ||
+      (ev.venue ?? ev.neighborhood ?? ev.city).toLowerCase().includes(q) ||
+      (ev.host_name ?? "").toLowerCase().includes(q);
+  });
+
+  function toggleEventFlower(eventId: string) {
+    setGatheringFlowers(prev => {
+      const cur = prev[eventId] ?? { count: 0, gave: false };
+      return { ...prev, [eventId]: { count: cur.count + (cur.gave ? -1 : 1), gave: !cur.gave } };
+    });
+    void toggleGatheringFlower(eventId);
+  }
 
   const tickerItems = events.length > 0
     ? events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.starts_at)}`)
@@ -1074,27 +1114,34 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
         </div>
 
-        {/* Center: HAPPENINGS | CITY toggle */}
+        {/* Center: HAPPENINGS | MAP | CITY toggle */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {(["happenings","city"] as HapTab[]).map(t => (
-              <button key={t} onClick={() => setTab(t)} style={{
-                padding: "5px 12px", borderRadius: 999, border: "none",
+            {([["happenings","HAPPENINGS"],["map","MAP"],["city","CITY"]] as [HapTab, string][]).map(([t, label]) => (
+              <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
+                padding: "5px 10px", borderRadius: 999, border: "none",
                 background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
                 color: tab === t ? PINK : "rgba(255,255,255,0.85)",
-                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
                 letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
                 boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
               }}>
-                {t === "happenings" ? "HAPPENINGS" : "CITY"}
+                {label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Right: same icons as global nav — Apt · Pin · Mail · Chat */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 14 }}>
-          <Link href="/member/you" aria-label="Apartment" style={{ display: "flex", padding: 4 }}>
+        {/* Right: search icon + nav icons */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingRight: 14 }}>
+          {tab === "happenings" && (
+            <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 4, background: "none", border: "none", cursor: "pointer" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+          )}
+          <Link href="/member/lounge" aria-label="Apartment" style={{ display: "flex", padding: 4 }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="2" y1="21" x2="22" y2="21"/>
               <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
@@ -1123,8 +1170,34 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         </div>
       </div>}
 
+      {/* ── Collapsible search bar ── */}
+      {standalone && searchOpen && (
+        <div style={{
+          position: "fixed", top: 54, left: 0, right: 0, zIndex: 50,
+          background: getNavBg(), backdropFilter: "blur(20px)",
+          padding: "10px 14px 12px",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 14px" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search events, venues, hosts…"
+              style={{ flex: 1, background: "none", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "white", caretColor: PINK }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", fontSize: 16, lineHeight: 1, padding: 0 }}>×</button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? 54 : 0 }}>
+      <div style={{ paddingTop: standalone ? (searchOpen ? 108 : 54) : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -1250,6 +1323,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                 onToggle={toggleJoin}
                 onWaitlist={toggleWaitlist}
                 onInvite={setInviteEv}
+                flowers={gatheringFlowers}
+                onFlower={toggleEventFlower}
               />
             )}
 
@@ -1300,6 +1375,66 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
           </>
+        )}
+
+        {/* ── MAP TAB ── */}
+        {standalone && tab === "map" && (
+          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 18px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>happening near you</p>
+              </div>
+            </div>
+            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 380 }}>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
+              {[10, 25, 40, 55, 70, 85].map(pct => (
+                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+              ))}
+              {[15, 30, 45, 60, 75, 90].map(pct => (
+                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+              ))}
+              <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
+              <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
+              {[
+                {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
+                {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
+                {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
+                {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
+                {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
+                {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
+                {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
+              ].map((pin, i) => (
+                <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
+                  <div style={{ background: pin.color, borderRadius: 20, padding: "4px 10px 4px 8px", display: "flex", alignItems: "center", gap: 5, boxShadow: `0 3px 12px ${pin.color}66`, whiteSpace: "nowrap" as const }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
+                  </div>
+                  <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
+                </div>
+              ))}
+              <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(12px)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,31,125,0.12)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP · COMING SOON</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
+              </div>
+            </div>
+            <div style={{ padding: "12px 16px 24px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
+              {[
+                { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
+                { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
+                { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
+                { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
+                { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
+                { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
+              ].map((chip, i) => (
+                <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{chip.time}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* ── CITY TAB (standalone only — embedded in CityPage when not standalone) ── */}
@@ -1406,120 +1541,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       </div>
 
       {/* ══ FULL-PAGE MAP OVERLAY ══════════════════════════════════════════════ */}
-      {showMap && (
-        <div style={{
-          position: "fixed", top: 54, left: 0, right: 0, bottom: 0,
-          zIndex: 49,
-          display: "flex", flexDirection: "column",
-          overflow: "hidden",
-        }}>
-          {/* Header */}
-          <div style={{
-            padding: "16px 18px 14px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            background: "rgba(255,255,255,0.7)",
-            backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255,31,125,0.1)",
-            flexShrink: 0,
-          }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>happening near you</p>
-            </div>
-            <button onClick={() => setShowMap(false)} style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: PINK, border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: `0 3px 12px ${PINK}55`,
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          {/* Map body */}
-          <div style={{ flex: 1, margin: "14px 16px 0", borderRadius: 24, overflow: "hidden", position: "relative" }}>
-            {/* Base map gradient */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
-            {/* Street grid */}
-            {[10, 25, 40, 55, 70, 85].map(pct => (
-              <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-            ))}
-            {[15, 30, 45, 60, 75, 90].map(pct => (
-              <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-            ))}
-            {/* Park blob */}
-            <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
-            {/* Water edge */}
-            <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
-
-            {/* Event pins */}
-            {[
-              {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
-              {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
-              {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
-              {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
-              {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
-              {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
-              {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
-            ].map((pin, i) => (
-              <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
-                <div style={{
-                  background: pin.color, borderRadius: 20,
-                  padding: "4px 10px 4px 8px",
-                  display: "flex", alignItems: "center", gap: 5,
-                  boxShadow: `0 3px 12px ${pin.color}66`,
-                  whiteSpace: "nowrap" as const,
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
-                  <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
-                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
-                </div>
-                <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
-              </div>
-            ))}
-
-            {/* Coming soon notice */}
-            <div style={{
-              position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4,
-              background: "rgba(255,255,255,0.82)",
-              backdropFilter: "blur(12px)",
-              borderRadius: 14,
-              padding: "12px 16px",
-              border: "1px solid rgba(255,31,125,0.12)",
-            }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP · COMING SOON</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
-            </div>
-          </div>
-
-          {/* Event chips scroll */}
-          <div style={{ padding: "12px 16px 20px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const, flexShrink: 0, background: "rgba(255,255,255,0.55)", backdropFilter: "blur(12px)" }}>
-            {[
-              { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
-              { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
-              { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
-              { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
-              { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
-              { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
-            ].map((chip, i) => (
-              <div key={i} style={{
-                flexShrink: 0, background: "white", borderRadius: 999,
-                padding: "8px 14px",
-                border: `1.5px solid ${chip.color}33`,
-                boxShadow: `0 2px 10px ${chip.color}22`,
-              }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: chip.color }}>{chip.label}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.4)", marginTop: 1 }}>{chip.time}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* FAB */}
-      {tab === "happenings" && !showMap && <CreateFAB/>}
+      {tab === "happenings" && <CreateFAB/>}
 
       {/* ── Sheets ── */}
       {inviteEv  && <InviteFriendSheet ev={inviteEv}  onClose={() => setInviteEv(null)} />}

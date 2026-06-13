@@ -277,3 +277,94 @@ export async function checkAndNotifyStreak(): Promise<void> {
     p_meta: { hosted_count: n },
   });
 }
+
+// ── Gathering flowers ─────────────────────────────────────────────────────────
+
+export async function toggleGatheringFlower(gatheringId: string): Promise<{ gave: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { gave: false };
+
+  const { data: existing } = await supabase
+    .from("gathering_flowers")
+    .select("gathering_id")
+    .eq("gathering_id", gatheringId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase.from("gathering_flowers").delete().eq("gathering_id", gatheringId).eq("user_id", user.id);
+    return { gave: false };
+  }
+  await supabase.from("gathering_flowers").insert({ gathering_id: gatheringId, user_id: user.id });
+  return { gave: true };
+}
+
+export async function getGatheringFlowersForUser(gatheringIds: string[]): Promise<Record<string, { count: number; gave: boolean }>> {
+  if (!gatheringIds.length) return {};
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: counts } = await supabase
+    .from("gathering_flowers")
+    .select("gathering_id")
+    .in("gathering_id", gatheringIds);
+
+  const result: Record<string, { count: number; gave: boolean }> = {};
+  for (const row of (counts ?? []) as { gathering_id: string }[]) {
+    result[row.gathering_id] = { count: (result[row.gathering_id]?.count ?? 0) + 1, gave: false };
+  }
+
+  if (user) {
+    const { data: mine } = await supabase
+      .from("gathering_flowers")
+      .select("gathering_id")
+      .in("gathering_id", gatheringIds)
+      .eq("user_id", user.id);
+    for (const row of (mine ?? []) as { gathering_id: string }[]) {
+      if (result[row.gathering_id]) result[row.gathering_id].gave = true;
+    }
+  }
+
+  return result;
+}
+
+// ── Profile flowers ───────────────────────────────────────────────────────────
+
+export async function sendProfileFlower(
+  profileId: string,
+  flowerType: "general" | "witness" | "host" | "club" = "general",
+  message?: string
+): Promise<{ gave: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.id === profileId) return { gave: false };
+
+  const { data: existing } = await supabase
+    .from("profile_flowers")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .eq("user_id", user.id)
+    .eq("flower_type", flowerType)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase.from("profile_flowers").delete()
+      .eq("profile_id", profileId).eq("user_id", user.id).eq("flower_type", flowerType);
+    return { gave: false };
+  }
+  await supabase.from("profile_flowers").insert({
+    profile_id: profileId, user_id: user.id, flower_type: flowerType, message: message ?? null,
+  });
+  return { gave: true };
+}
+
+export async function getProfileFlowerCount(profileId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("profile_flowers")
+    .select("profile_id", { count: "exact", head: true })
+    .eq("profile_id", profileId);
+  return count ?? 0;
+}
+
