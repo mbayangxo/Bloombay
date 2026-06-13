@@ -29,25 +29,33 @@ export async function POST(req: NextRequest) {
 
   const results: { source: string; found: number; inserted: number }[] = [];
 
-  // ── 1. TikTok NYC hashtags via Apify ────────────────────────────────────────
-  const tiktokItems = await scrapeTikTokNYC();
-  const tiktokInserted = await insertSpots(supabase, tiktokItems, "TikTok NYC");
-  results.push({ source: "TikTok", found: tiktokItems.length, inserted: tiktokInserted });
+  // Run all sources in parallel for speed
+  const [tiktokItems, yelpItems, googleItems, eventbriteItems, eaterItems, timeoutItems] = await Promise.all([
+    scrapeTikTokNYC(),       // TikTok: trending hashtags → what women are posting about
+    scrapeYelpNYC(),         // Yelp: top-rated & recently opened NYC spots
+    scrapeGooglePlaces(),    // Google Places: trending NYC places by category
+    scrapeEventbrite(),      // Eventbrite: pop-ups, festivals, brand activations
+    scrapeEaterNYC(),        // Eater NYC: new openings + restaurant news
+    scrapeTimeOut(),         // Time Out NYC: curated weekly picks
+  ]);
 
-  // ── 2. Eventbrite: pop-ups, festivals, brand activations ────────────────────
-  const eventbriteItems = await scrapeEventbrite();
-  const eventbriteInserted = await insertSpots(supabase, eventbriteItems, "Eventbrite");
-  results.push({ source: "Eventbrite", found: eventbriteItems.length, inserted: eventbriteInserted });
+  const [ti, yi, gi, ei, eati, toi] = await Promise.all([
+    insertSpots(supabase, tiktokItems,     "TikTok NYC"),
+    insertSpots(supabase, yelpItems,       "Yelp"),
+    insertSpots(supabase, googleItems,     "Google Places"),
+    insertSpots(supabase, eventbriteItems, "Eventbrite"),
+    insertSpots(supabase, eaterItems,      "Eater NYC"),
+    insertSpots(supabase, timeoutItems,    "Time Out NYC"),
+  ]);
 
-  // ── 3. Eater NYC RSS feed ────────────────────────────────────────────────────
-  const eaterItems = await scrapeEaterNYC();
-  const eaterInserted = await insertSpots(supabase, eaterItems, "Eater NYC");
-  results.push({ source: "Eater NYC", found: eaterItems.length, inserted: eaterInserted });
-
-  // ── 4. Time Out NYC RSS ──────────────────────────────────────────────────────
-  const timeoutItems = await scrapeTimeOut();
-  const timeoutInserted = await insertSpots(supabase, timeoutItems, "Time Out NYC");
-  results.push({ source: "Time Out NYC", found: timeoutItems.length, inserted: timeoutInserted });
+  results.push(
+    { source: "TikTok NYC",    found: tiktokItems.length,     inserted: ti   },
+    { source: "Yelp",          found: yelpItems.length,        inserted: yi   },
+    { source: "Google Places", found: googleItems.length,      inserted: gi   },
+    { source: "Eventbrite",    found: eventbriteItems.length,  inserted: ei   },
+    { source: "Eater NYC",     found: eaterItems.length,       inserted: eati },
+    { source: "Time Out NYC",  found: timeoutItems.length,     inserted: toi  },
+  );
 
   return NextResponse.json({ ok: true, results, week_of: currentMonday() });
 }
@@ -297,6 +305,146 @@ function categorizeEventbrite(name: string): string {
   if (n.includes("yoga") || n.includes("wellness") || n.includes("meditation")) return "wellness";
   if (n.includes("coffee") || n.includes("café") || n.includes("cafe")) return "coffee";
   return "event";
+}
+
+// ── Yelp Fusion API ───────────────────────────────────────────────────────────
+// Free tier: 5,000 calls/day — more than enough.
+// Required env var: YELP_API_KEY (create at yelp.com/developers)
+// Pulls: top-rated + recently opened spots across dining, nightlife, beauty, wellness
+
+const YELP_CATEGORIES = [
+  { term: "restaurants",    label: "dining"   },
+  { term: "bars",           label: "drinks"   },
+  { term: "coffee",         label: "coffee"   },
+  { term: "beauty",         label: "wellness" },
+  { term: "yoga pilates",   label: "wellness" },
+  { term: "art gallery",    label: "art"      },
+  { term: "popup shop",     label: "pop-up"   },
+];
+
+async function scrapeYelpNYC(): Promise<RawSpot[]> {
+  if (!process.env.YELP_API_KEY) {
+    console.log("[CityIntel] Yelp key not set — skipping");
+    return [];
+  }
+
+  const spots: RawSpot[] = [];
+
+  for (const cat of YELP_CATEGORIES) {
+    try {
+      const res = await fetch(
+        `https://api.yelp.com/v3/businesses/search?` +
+        `location=New York City, NY&` +
+        `term=${encodeURIComponent(cat.term)}&` +
+        `sort_by=rating&` +
+        `limit=10`,
+        { headers: { Authorization: `Bearer ${process.env.YELP_API_KEY}` } }
+      );
+      if (!res.ok) continue;
+
+      const data = await res.json() as {
+        businesses: Array<{
+          name: string;
+          rating: number;
+          review_count: number;
+          location: { city: string; neighborhood?: string };
+          categories: Array<{ title: string }>;
+          url: string;
+          is_closed: boolean;
+        }>
+      };
+
+      for (const biz of (data.businesses ?? [])) {
+        if (biz.is_closed) continue;
+        if (biz.rating < 4.0) continue; // only quality spots
+
+        spots.push({
+          name: biz.name,
+          category: cat.label,
+          neighborhood: biz.location.neighborhood ?? biz.location.city ?? null,
+          description: `${biz.rating}★ · ${biz.review_count} reviews · ${biz.categories.map(c => c.title).join(", ")}`,
+          badge: biz.rating >= 4.5 ? "TOP RATED" : null,
+          source_url: biz.url,
+        });
+      }
+    } catch (e) {
+      console.error("[CityIntel] Yelp fetch failed for", cat.term, e);
+    }
+  }
+
+  return spots;
+}
+
+// ── Google Places API ─────────────────────────────────────────────────────────
+// Free up to $200/month = ~40,000 place detail calls or ~120,000 search calls.
+// Required env var: GOOGLE_PLACES_API_KEY
+// Pulls: trending NYC spots by category using Nearby Search
+
+const GOOGLE_PLACE_TYPES = [
+  { type: "restaurant",   category: "dining"   },
+  { type: "bar",          category: "drinks"   },
+  { type: "cafe",         category: "coffee"   },
+  { type: "art_gallery",  category: "art"      },
+  { type: "beauty_salon", category: "wellness" },
+  { type: "gym",          category: "wellness" },
+  { type: "night_club",   category: "nightlife"},
+];
+
+// NYC center coordinates
+const NYC_LAT = 40.7128;
+const NYC_LNG = -74.0060;
+const SEARCH_RADIUS = 8000; // 8km covers most of Manhattan + parts of Brooklyn
+
+async function scrapeGooglePlaces(): Promise<RawSpot[]> {
+  if (!process.env.GOOGLE_PLACES_API_KEY) {
+    console.log("[CityIntel] Google Places key not set — skipping");
+    return [];
+  }
+
+  const spots: RawSpot[] = [];
+
+  for (const pt of GOOGLE_PLACE_TYPES) {
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?` +
+        `location=${NYC_LAT},${NYC_LNG}&` +
+        `radius=${SEARCH_RADIUS}&` +
+        `type=${pt.type}&` +
+        `rankby=prominence&` +
+        `key=${process.env.GOOGLE_PLACES_API_KEY}`
+      );
+      if (!res.ok) continue;
+
+      const data = await res.json() as {
+        results: Array<{
+          name: string;
+          rating?: number;
+          user_ratings_total?: number;
+          vicinity: string;
+          place_id: string;
+        }>
+      };
+
+      for (const place of (data.results ?? []).slice(0, 8)) {
+        if (!place.rating || place.rating < 4.0) continue;
+
+        const neighborhood = place.vicinity.split(",").slice(-2, -1)[0]?.trim() ?? null;
+
+        spots.push({
+          name: place.name,
+          category: pt.category,
+          neighborhood,
+          description: `${place.rating}★ · ${place.user_ratings_total ?? 0} reviews on Google`,
+          badge: (place.rating ?? 0) >= 4.7 ? "HIGHLY RATED" : null,
+          source_url: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+        });
+      }
+    } catch (e) {
+      console.error("[CityIntel] Google Places fetch failed for", pt.type, e);
+    }
+  }
+
+  return spots;
 }
 
 // ── Eater NYC RSS ─────────────────────────────────────────────────────────────
