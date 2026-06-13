@@ -271,7 +271,8 @@ type Section =
   | "open-seats"
   | "happenings"
   | "safety"
-  | "mailroom";
+  | "mailroom"
+  | "city-trending";
 
 const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: number }[] = [
   { id: "overview", label: "Overview", Icon: IconGrid },
@@ -283,6 +284,7 @@ const NAV: { id: Section; label: string; Icon: () => ReactElement; badge?: numbe
   { id: "clubs", label: "Clubs", Icon: IconDiamond },
   { id: "open-seats", label: "Open Seats", Icon: IconCalendar },
   { id: "happenings", label: "Happenings", Icon: IconCalendar },
+  { id: "city-trending", label: "City Trending", Icon: IconCalendar, badge: 0 },
   { id: "safety", label: "Safety Center", Icon: IconShield, badge: 6 },
   { id: "mailroom", label: "Mailroom", Icon: IconMail, badge: 35 },
 ];
@@ -1326,6 +1328,162 @@ function OpenSeatsSection() {
   );
 }
 
+// ─── Section: City Trending ───────────────────────────────────────────────────
+// Yande's AI curator submits spots here every Wednesday.
+// Founder approves, denies, or reorders before they go live on the City page.
+
+const CATEGORY_COLORS: Record<string, string> = {
+  "pop-up": "#FF1F7D", dining: "#E65C00", drinks: "#7B1FA2",
+  art: "#1565C0", nightlife: "#C62828", shopping: "#2E7D32",
+  brunch: "#F9A825", coffee: "#5D4037", wellness: "#388E3C",
+  event: "#FF7744", other: "#888",
+};
+
+function CityTrendingSection() {
+  const [items, setItems] = useState([
+    { id: "1", name: "Soft-Serve & Frozen Yogurt Wave",      category: "dining",   source: "TikTok NYC",    badge: "GOING VIRAL", status: "pending" as const, description: "Every shop in lower Manhattan is packed right now. The queue at Morgenstern's has been wild all week.", yandeNote: "The city is in its soft-serve era. If you haven't been to Morgenstern's yet, this is your sign." },
+    { id: "2", name: "Dior Beauty Pop-Up — Madison Ave",     category: "pop-up",   source: "Instagram",     badge: "FREE",         status: "pending" as const, description: "Free fragrance sampling, mini makeovers, and a photo moment. Running through June 22.", yandeNote: "Free Dior. You can literally walk in and walk out smelling like money. Go." },
+    { id: "3", name: "Brooklyn Night Market",                category: "event",    source: "Eventbrite",    badge: null,           status: "pending" as const, description: "Williamsburg waterfront. 60+ vendors, live music, golden hour views.", yandeNote: "Saturday golden hour at the waterfront with 60 food vendors. Bring your situationship." },
+    { id: "4", name: "Sample Sale: Sandro & Maje",          category: "shopping", source: "Time Out NYC",  badge: "NEW",          status: "pending" as const, description: "Up to 70% off. SoHo, this weekend only.", yandeNote: "70% off Sandro. You know what to do." },
+    { id: "5", name: "MoMA: Yoko Ono Retrospective",        category: "art",      source: "Eater NYC",     badge: null,           status: "pending" as const, description: "Opens June 15. Major retrospective, tickets selling fast.", yandeNote: "This one is going to be everywhere. See it before everyone else does." },
+    { id: "6", name: "Jazz at Lincoln Center Rooftop",      category: "nightlife", source: "TikTok NYC",   badge: null,           status: "pending" as const, description: "Friday night series, $15 entry. Views are insane.", yandeNote: "Friday jazz on a rooftop with Central Park below you. $15. BloomBay-coded." },
+  ]);
+
+  const [toast, setToast] = useState<string | null>(null);
+  const PINK = "#FF1F7D";
+
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
+
+  function approve(id: string, rank: number) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: "approved" as const } : i));
+    showToast(`✦ Approved — goes live as #${rank + 1} on the City page`);
+  }
+
+  function deny(id: string) {
+    setItems(prev => prev.filter(i => i.id !== id));
+    showToast("Removed from queue");
+  }
+
+  const pending  = items.filter(i => i.status === "pending");
+  const approved = items.filter(i => i.status === "approved");
+
+  return (
+    <div className="p-6 max-w-2xl mx-auto">
+      <div className="mb-6">
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>✦ YANDE&apos;S CITY INTELLIGENCE</p>
+        <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 26, color: "white", lineHeight: 1.1, marginBottom: 6 }}>What&apos;s Hot This Week</h2>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
+          Yande scraped TikTok, Eventbrite, Eater, and Time Out. These are her picks for NYC this week.<br/>
+          Approve what goes live. Deny what doesn&apos;t. Runs automatically every Wednesday 8am.
+        </p>
+      </div>
+
+      {/* Pending queue */}
+      {pending.length > 0 && (
+        <div className="mb-8">
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>
+            PENDING REVIEW — {pending.length} spots
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {pending.map((item, i) => {
+              const catColor = CATEGORY_COLORS[item.category] ?? "#888";
+              return (
+                <div key={item.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, overflow: "hidden" }}>
+                  <div style={{ height: 3, background: catColor }} />
+                  <div style={{ padding: "16px 18px" }}>
+                    {/* Top row */}
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: catColor, background: `${catColor}18`, borderRadius: 999, padding: "2px 8px" }}>
+                            {item.category.toUpperCase()}
+                          </span>
+                          {item.badge && (
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.1em", color: PINK, background: `${PINK}18`, borderRadius: 999, padding: "2px 8px" }}>
+                              {item.badge}
+                            </span>
+                          )}
+                          <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.25)" }}>via {item.source}</span>
+                        </div>
+                        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 700, color: "white", lineHeight: 1.2, marginBottom: 4 }}>{item.name}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>{item.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Yande's note */}
+                    <div style={{ background: "rgba(255,31,125,0.07)", border: `1px solid ${PINK}22`, borderRadius: 12, padding: "10px 14px", marginBottom: 12 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginBottom: 4 }}>YANDE&apos;S NOTE</p>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>&ldquo;{item.yandeNote}&rdquo;</p>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => approve(item.id, approved.length)}
+                        style={{
+                          flex: 1, padding: "11px 0", borderRadius: 999, border: "none",
+                          background: PINK, color: "white",
+                          fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, cursor: "pointer",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        ✦ Approve — goes live
+                      </button>
+                      <button
+                        onClick={() => deny(item.id)}
+                        style={{
+                          padding: "11px 18px", borderRadius: 999,
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          background: "rgba(255,255,255,0.04)",
+                          color: "rgba(255,255,255,0.4)",
+                          fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, cursor: "pointer",
+                        }}
+                      >
+                        Skip
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Approved this week */}
+      {approved.length > 0 && (
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>
+            LIVE THIS WEEK — {approved.length} spots
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {approved.map((item, i) => (
+              <div key={item.id} style={{ background: "rgba(255,31,125,0.06)", border: `1px solid ${PINK}22`, borderRadius: 14, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)", lineHeight: 1, minWidth: 20 }}>#{i + 1}</p>
+                <p style={{ flex: 1, fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>{item.name}</p>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: "#22c55e", letterSpacing: "0.1em" }}>LIVE ●</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pending.length === 0 && approved.length === 0 && (
+        <div style={{ textAlign: "center", padding: "48px 0" }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.2)", marginBottom: 8 }}>Nothing in the queue yet.</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.2)" }}>Yande runs every Wednesday at 8am. Check back then.</p>
+        </div>
+      )}
+
+      {toast && (
+        <div style={{ position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)", background: "#111", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "10px 20px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", zIndex: 999 }}>
+          {toast}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Section: Safety Center ───────────────────────────────────────────────────
 
 function SafetySection() {
@@ -1820,6 +1978,7 @@ export default function MissionControlPage() {
       case "clubs":      return <ClubsSection />;
       case "open-seats":  return <OpenSeatsSection />;
       case "happenings":  return <HappeningsSection />;
+      case "city-trending": return <CityTrendingSection />;
       case "safety":      return <SafetySection />;
       case "mailroom":    return <MailroomSection />;
     }
