@@ -4,14 +4,14 @@
 //
 // Room editors:
 //   Magazine   → editorial voice, culture/career/love/opinion
-//   Book       → literary curator, reading recommendations
+//   Reading    → literary curator, Pan-African lit + women empowerment books
 //   Screening  → film & TV editor, what to watch this week
 //   Wellness   → wellness guide, pilates/gym spots + recipes + tips
 //   Hanger     → fashion editor, trends + NYC sample sales + vintage finds
 //   Vanity     → beauty editor, skincare + makeup + product recs
 //   Wall       → community editor, weekly prompts + conversation starters
-//   Shop       → commerce editor, finds + sales + new arrivals
-//   City       → extends City Intelligence with wellness/beauty venues
+//   Working    → career editor, jobs + opportunities + NYC events + hot takes
+//   Column     → Zuri's weekly personal column ("I Couldn't Help But Wonder...")
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     runEditor(supabase, HANGER_EDITOR).then(n     => { results.hanger    = n; }),
     runEditor(supabase, VANITY_EDITOR).then(n     => { results.vanity    = n; }),
     runEditor(supabase, WALL_EDITOR).then(n       => { results.wall      = n; }),
-    runEditor(supabase, SHOP_EDITOR).then(n       => { results.shop      = n; }),
+    runEditor(supabase, WORKING_EDITOR).then(n    => { results.working   = n; }),
+    runEditor(supabase, COLUMN_EDITOR).then(n     => { results.column    = n; }),
   ]);
 
   return NextResponse.json({ ok: true, results, week_of: currentMonday() });
@@ -81,49 +82,52 @@ Topics this week should feel timely — think: career pivots after 28, navigatin
 };
 
 const BOOK_EDITOR: RoomEditor = {
-  room: "book",
+  room: "reading-room",
   contentType: "book_rec",
-  persona: "A literary Bloomie who reads everything and remembers every line",
+  persona: "A literary curator who reads women writers from everywhere — Nigeria, India, Brazil, Korea, France, NYC — and has strong opinions about all of it. She centers women's stories from around the world, not just one culture.",
   count: 4,
-  prompt: `Recommend 4 books for BloomBay women this week. Mix genres: fiction, nonfiction, self-growth, AfrоLit, romance.
+  prompt: `Recommend 4 books for BloomBay women this week. BloomBay is for women of all backgrounds and cultures. Mix: 1 international women's spotlight (rotating by region each week — Nigerian/Ghanaian, South Asian, Latin American, East Asian, Caribbean, European) + 1 woman-written literary fiction + 1 nonfiction/self-growth by a woman + 1 wildcard (poetry, essays, graphic novel).
 
 For each book return JSON:
 {
   "title": "book title",
+  "body": "2 sentences. Not a plot summary — WHY this book and WHY now. Specific. If it's hard, say it's hard and say why it's worth it.",
   "meta": {
     "book_author": "Author Name",
-    "category": "fiction|nonfiction|self-growth|romance|afrolit",
+    "category": "fiction|nonfiction|self-growth|romance|poetry|international|wildcard",
+    "region": "the author's cultural origin/region (e.g. 'Nigerian', 'South Asian', 'Latin American', 'Universal')",
     "rating": 4 or 5,
-    "why": "2 sentences — why THIS woman should read THIS book right now"
+    "why": "1 sentence — 'If you're going through X, read this' or 'This book will rearrange something in you'"
   },
-  "yande_note": "Yande's one-liner rec (warm, specific, not generic)",
-  "badge": "STAFF PICK" | "TRENDING" | null
+  "yande_note": "Specific rec for a BloomBay woman. 'Stop avoiding this.' or 'Read this when you need to remember you're not alone.'",
+  "badge": "INTERNATIONAL PICK" | "STAFF PICK" | "OVERLOOKED GEM" | "TRENDING" | null
 }
 
-Prioritize books by women of color, books about identity, diaspora, ambition, love, friendship, and books that are actually being talked about right now.`,
+Women writers from all cultures matter here equally. Rotate the international spotlight every week — don't default to only one region.`,
 };
 
 const SCREENING_EDITOR: RoomEditor = {
   room: "screening",
   contentType: "film_rec",
-  persona: "The Bloomie who always knows what to watch and has strong opinions",
+  persona: "A film and TV editor who watches everything, has strong opinions, and is not afraid to say something is overrated or defend a so-called guilty pleasure with receipts",
   count: 4,
-  prompt: `Recommend 4 films or TV shows for BloomBay women this week. Mix: theatrical, streaming, classics, international.
+  prompt: `Recommend 4 films or TV shows for BloomBay women this week. Mix: 1 new drop (Netflix/Hulu/theaters this week) + 1 international/arthouse + 1 series pick + 1 'you should have watched this already'.
 
 For each return JSON:
 {
   "title": "film or show title",
+  "body": "2 sentences. Not a synopsis — your actual opinion. What mood to watch it in. What makes it worth 2 hours.",
   "meta": {
-    "where_to_watch": "Netflix|Hulu|Prime|A24|In Theaters|etc",
-    "genre": "drama|comedy|documentary|thriller|romance|etc",
-    "runtime": "1h 45m" or "Series · 8 episodes"
+    "where_to_watch": "Netflix|Hulu|Prime|A24|In Theaters|HBO Max|Apple TV+|etc",
+    "genre": "drama|comedy|documentary|thriller|romance|arthouse|international|etc",
+    "runtime": "1h 45m" or "Series · 8 episodes",
+    "pick_type": "new_drop|international|series|throwback"
   },
-  "body": "2 sentences on what it's about and why it resonates",
-  "yande_note": "1 sentence — Yande's specific reason you need to watch this",
-  "badge": "NEW THIS WEEK" | "WATCH NOW" | null
+  "yande_note": "Text-your-group-chat energy. 'Just finished this, it destroyed me, watch it immediately.' Or: 'Skip the first episode, trust me, it gets good.'",
+  "badge": "NEW THIS WEEK" | "INTERNATIONAL" | "SERIES PICK" | "WATCH NOW" | null
 }
 
-Bias toward films centering women, Black stories, diaspora narratives, international cinema, and things that are actually being talked about.`,
+Center: women directors, Black stories, diaspora narratives, international cinema. Be honest — if something is prestige garbage, say it's prestige garbage.`,
 };
 
 const WELLNESS_EDITOR: RoomEditor = {
@@ -231,30 +235,57 @@ Avoid: generic icebreakers, LinkedIn-style 'what's your biggest lesson' question
 Go for: questions women actually want to answer with a glass of wine — funny, a little vulnerable, specific to this stage of life.`,
 };
 
-const SHOP_EDITOR: RoomEditor = {
-  room: "shop",
-  contentType: "product_rec",
-  persona: "A shopping editor who only recommends things she actually loves",
-  count: 4,
-  prompt: `Generate 4 product recommendations for BloomBay's shop section this week.
-
-Mix: home, lifestyle, wellness tools, books, experiences — things women actually want.
+const WORKING_EDITOR: RoomEditor = {
+  room: "working",
+  contentType: "career_tip",
+  persona: "A career editor who negotiated her salary twice before 30, left a toxic job with no backup plan, and knows exactly which companies actually promote women and which ones don't",
+  count: 5,
+  prompt: `Generate 5 career content pieces for BloomBay women this week. Mix: 1 job spotlight + 1 career move of the week + 1 NYC professional event + 1 salary/money tip + 1 workplace hot take.
 
 For each return JSON:
 {
-  "title": "product name or category find",
+  "title": "title",
+  "body": "2-3 sentences. Direct. Numbers when possible. No 'girlboss' energy.",
   "meta": {
-    "category": "home|lifestyle|wellness|beauty|fashion|experience|food",
-    "price": "$XX",
-    "buy_url": "if known",
-    "brand": "brand name"
+    "category": "job_spotlight|career_move|nyc_event|salary_tip|hot_take",
+    "salary_range": "for job spotlights — actual NYC market rate",
+    "location": "NYC or Remote",
+    "event_date": "for events only — date/time",
+    "source_url": "if applicable"
   },
-  "body": "2 sentences. What it is, why it's great.",
-  "yande_note": "1 sentence — specific to why a BloomBay woman would love this",
-  "badge": "STAFF PICK" | "LIMITED" | "NEW" | null
+  "yande_note": "1 sentence — specific to where a BloomBay woman is in her career right now",
+  "badge": "HOT JOB" | "THIS WEEK" | "NEGOTIATE THIS" | "HOT TAKE" | null
 }
 
-Bias toward: Black-owned brands, woman-founded, quality over fast fashion, things you'd genuinely gift your best friend.`,
+Hot takes should have real opinions — 'The culture fit interview question is usually just asking if you'll tolerate bad behavior' is a real hot take. 'Be yourself!' is not.
+Salary tips should have actual numbers — 'Women in marketing in NYC earn $72K-$95K on average, and most are underpaid by 12%' is useful. 'Know your worth!' is not.`,
+};
+
+const COLUMN_EDITOR: RoomEditor = {
+  room: "column",
+  contentType: "column",
+  persona: "Zuri, a 29-year-old writer living in NYC for 7 years who writes 'I Couldn't Help But Wonder...' — a weekly personal column about modern life, love, work, and the city. She's been heartbroken twice, promoted twice, and is still figuring it out.",
+  count: 1,
+  prompt: `Write ONE weekly column for BloomBay as Zuri. The column is called "I Couldn't Help But Wonder..." — yes, like Carrie Bradshaw, but modern, NYC, real.
+
+Themes to rotate: love + dating / the city / work + ambition / body + pleasure / friendship / money (the feeling of it, not tips) / home + identity.
+
+Pick the theme that feels most relevant to women in NYC right now (June, summer starting, FOMO, the warmth, the pressure).
+
+Return ONE JSON object:
+{
+  "title": "I Couldn't Help But Wonder... [her question or phrase]",
+  "body": "The full column — 500-700 words. Written as Zuri in first person. Opens with a scene or question, not a thesis. Ends somewhere — not resolved, just somewhere real. References a specific NYC place, feeling, or moment. Occasional wit, never sarcasm as armor.",
+  "meta": {
+    "theme": "love|city|work|body|friends|money|home",
+    "author": "Zuri",
+    "word_count": [actual word count as a number]
+  },
+  "yande_note": "ONE sentence from Yande — not what the column is about, but why she's sharing it THIS week. Like: 'Zuri wrote this on a Sunday in May and I haven't stopped thinking about the last line.'",
+  "badge": "THIS WEEK'S COLUMN"
+}
+
+The column should feel like something you'd screenshot and send to your best friend at 11pm.`,
 };
 
 // ── Core runner ───────────────────────────────────────────────────────────────

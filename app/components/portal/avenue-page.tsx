@@ -89,6 +89,24 @@ const AVENUES: AvenueConfig[] = [
     accent: "#4A7C59",
     count: 156,
   },
+  {
+    signLine1: "CAREER BLVD.",
+    signLine2: "GIRL WORKING ST.",
+    title: "Girl Working",
+    tagline: "Jobs. Money. Hot Takes.",
+    href: "/member/avenue/working",
+    accent: "#1A0A2E",
+    count: 94,
+  },
+  {
+    signLine1: "PRESS LANE",
+    signLine2: "THE COLUMN AVE.",
+    title: "The Column",
+    tagline: "Zuri writes every Sunday.",
+    href: "/member/avenue/column",
+    accent: "#C4005A",
+    count: null,
+  },
 ];
 
 // ── Top Posts data ─────────────────────────────────────────────────────────────

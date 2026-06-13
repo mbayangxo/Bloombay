@@ -65,9 +65,20 @@ async function scrapeTikTokNYC(): Promise<RawSpot[]> {
   }
 
   const hashtags = [
-    "NYCpopup", "NYCfoodie", "NYCevents", "NYCbrunch",
-    "nycrestaurant", "nycfashion", "nycbeauty", "nycsamplesale",
-    "nycfestival", "NYCthingstodo",
+    // Food & dining — where people are actually eating
+    "NYCfoodie", "nycrestaurant", "NYCeats", "nycfoodreview", "wheretoeatatnyc",
+    "NYCbrunch", "nycfoodspot", "nycfoodscene", "nycfoodtour",
+    // Pop-ups & activations — brand events, free stuff
+    "NYCpopup", "nycpopups", "nycbrandactivation", "freenyc",
+    // Events & experiences
+    "NYCevents", "nycfestival", "NYCthingstodo", "nycthisweekend",
+    "nycactivities", "nycmuseum", "nycart", "nycexhibit",
+    // Fashion & beauty — sample sales, drops
+    "nycfashion", "nycbeauty", "nycsamplesale", "nycshoppingfinds",
+    // Wellness
+    "NYCwellness", "NYCpilates", "nycgyms", "nycjuice",
+    // Girls & women in the city
+    "nycgirlthings", "nycwomen", "nycgirls",
   ];
 
   try {
@@ -79,9 +90,10 @@ async function scrapeTikTokNYC(): Promise<RawSpot[]> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hashtags,
-          resultsPerPage: 20,
+          resultsPerPage: 50,  // 50 per hashtag — skim widely, not just top
           shouldDownloadVideos: false,
           shouldDownloadCovers: false,
+          maxItems: 1000,      // cap total to keep runtime reasonable
         }),
       }
     );
@@ -129,19 +141,21 @@ interface TikTokItem {
 async function extractSpotsFromTikTok(items: TikTokItem[]): Promise<RawSpot[]> {
   if (!process.env.ANTHROPIC_API_KEY || items.length === 0) return [];
 
-  // Take top videos by engagement
-  const top = items
-    .sort((a, b) => (b.stats?.playCount ?? 0) - (a.stats?.playCount ?? 0))
-    .slice(0, 30);
+  // Skim through a wide sample — not just top by plays.
+  // Mix: some high-engagement + many mid-tier to catch what's actually going around.
+  const sorted = [...items].sort((a, b) => (b.stats?.playCount ?? 0) - (a.stats?.playCount ?? 0));
+  const top20 = sorted.slice(0, 20);
+  const midRange = sorted.slice(20, 200).filter((_, i) => i % 3 === 0); // every 3rd
+  const sampled = [...top20, ...midRange].slice(0, 80); // cap at 80 for Claude context
 
-  const descriptions = top.map(v => v.desc).filter(Boolean).join("\n---\n");
+  const descriptions = sampled.map(v => v.desc).filter(Boolean).join("\n---\n");
 
   const prompt = `You are extracting trending NYC spots and events from TikTok video descriptions.
 
 Video descriptions:
 ${descriptions}
 
-Extract up to 10 specific places, pop-ups, events, or experiences that are trending.
+Extract up to 20 specific places, pop-ups, events, or experiences that are trending.
 For each one, return JSON:
 {
   "name": "specific name (e.g. 'Dior Beauty Pop-Up Madison Ave', 'Via Carota', 'Brooklyn Night Market')",
