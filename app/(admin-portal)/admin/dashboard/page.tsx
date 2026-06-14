@@ -2396,6 +2396,9 @@ export default function MissionControlPage() {
 
           {/* Live indicator + QA link */}
           <div className="flex items-center gap-3 mb-2">
+            <Link href="/admin/events" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.35)", borderRadius: 999, padding: "6px 12px", textDecoration: "none" }}>
+              ✦ EVENTS CURATOR →
+            </Link>
             <Link href="/admin/qa" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "6px 12px", textDecoration: "none" }}>
               QA &amp; FEEDBACK →
             </Link>
