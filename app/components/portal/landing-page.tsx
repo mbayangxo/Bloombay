@@ -347,6 +347,19 @@ export function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
+          STATEMENT — Women are gathering.
+      ══════════════════════════════════════════════════════ */}
+      <div style={{ background: IVORY, padding: "48px 22px 40px", borderTop: "1px solid #ecddd4", overflow: "hidden" }}>
+        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 9vw, 88px)", color: INK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: 0, maxWidth: 860 }}>
+          Women are{" "}
+          <span style={{ color: PINK }}>gathering.</span>
+        </p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#bbb", marginTop: 20 }}>
+          NEW YORK CITY &nbsp;·&nbsp; EST. 2025 &nbsp;·&nbsp; BLOOMBAY
+        </p>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════
           YOUR FRIENDS ARE HERE — Testimonial + profile cards
       ══════════════════════════════════════════════════════ */}
       <section style={{ padding: "80px 22px", background: INK, position: "relative", overflow: "hidden" }}>
@@ -415,6 +428,18 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════════════
+          STATEMENT — It's a woman's world.
+      ══════════════════════════════════════════════════════ */}
+      <div style={{ background: INK, padding: "52px 22px 44px", overflow: "hidden" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 9vw, 92px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.03em", margin: 0 }}>
+          It&apos;s a woman&apos;s world.
+        </p>
+        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(32px, 8vw, 80px)", color: PINK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: "8px 0 0" }}>
+          We&apos;re it.
+        </p>
+      </div>
 
       {/* ══════════════════════════════════════════════════════
           IT'S A WOMAN'S WORLD. WE'RE IT.
