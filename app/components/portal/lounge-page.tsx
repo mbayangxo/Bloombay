@@ -8,6 +8,99 @@ import { createClient } from "@/lib/supabase/client";
 // ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
 const PINK   = "#FF1F7D";
+
+// ── PURCHASE HISTORY ──────────────────────────────────────────────────────────
+
+interface Purchase {
+  id: string;
+  type: string;
+  item_name: string | null;
+  amount_cents: number | null;
+  currency: string;
+  status: string;
+  created_at: string;
+}
+
+const PURCHASE_META: Record<string, { icon: string; label: string }> = {
+  membership:          { icon: "🌺", label: "BloomBay Membership" },
+  platform_membership: { icon: "🌺", label: "BloomBay Membership" },
+  event_ticket:        { icon: "🎟️", label: "Event Ticket" },
+  club_membership:     { icon: "💎", label: "Club Membership" },
+  hanger_purchase:     { icon: "👗", label: "The Hanger" },
+};
+
+function formatCurrency(cents: number | null, currency = "gbp") {
+  if (!cents) return "—";
+  const sym = currency === "gbp" ? "£" : "$";
+  return `${sym}${(cents / 100).toFixed(2)}`;
+}
+
+function PurchaseHistorySection() {
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("purchases")
+          .select("id, type, item_name, amount_cents, currency, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(20);
+        setPurchases((data as Purchase[]) ?? []);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div style={{ padding: "28px 20px 0" }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>
+        ✦ PURCHASE HISTORY
+      </p>
+
+      {loading ? (
+        <div style={{ background: "white", borderRadius: 16, padding: "20px", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb" }}>Loading…</p>
+        </div>
+      ) : purchases.length === 0 ? (
+        <div style={{ background: "white", borderRadius: 16, padding: "20px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.06)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#bbb", textAlign: "center" }}>No purchases yet</p>
+        </div>
+      ) : (
+        <div style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
+          {purchases.map((p, i) => {
+            const meta = PURCHASE_META[p.type] ?? { icon: "✦", label: p.type };
+            const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: i < purchases.length - 1 ? "1px solid #FFF0F5" : "none" }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#FFF0F5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                  {meta.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                    {p.item_name ?? meta.label}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>{date}</p>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: PINK }}>
+                    {formatCurrency(p.amount_cents, p.currency)}
+                  </p>
+                  {p.status !== "completed" && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#F59E0B", fontWeight: 700 }}>{p.status}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
 const GOLD   = "#D4A853";
@@ -736,6 +829,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           })}
         </div>
       </div>
+
+      {/* ══════════ PURCHASE HISTORY ══════════ */}
+      <PurchaseHistorySection />
 
       {/* ══════════ SHARE ══════════ */}
       <div style={{ padding: "24px 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
@@ -194,12 +195,58 @@ const CONDITION_COLORS: Record<string, string> = {
   "good":          "#F59E0B",
 };
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+interface EarningsRow {
+  id: string;
+  item_name: string | null;
+  listing_id: string | null;
+  amount_cents: number;
+  seller_receives_cents: number;
+  bloombay_fee_cents: number;
+  created_at: string;
+}
+
+interface SellerBalance {
+  pending_cents: number;
+  paid_out_cents: number;
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 export function HangerPage() {
   const [activeCategory, setActiveCategory]   = useState<Category>("All");
   const [sellSheetOpen,  setSellSheetOpen]     = useState(false);
   const [buyingId,       setBuyingId]          = useState<string | null>(null);
   const [buyError,       setBuyError]          = useState<string | null>(null);
+  const [earnings,       setEarnings]          = useState<EarningsRow[]>([]);
+  const [balance,        setBalance]           = useState<SellerBalance | null>(null);
+  const [showEarnings,   setShowEarnings]      = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const [{ data: earningsData }, { data: balanceData }] = await Promise.all([
+          supabase
+            .from("hanger_earnings")
+            .select("id, item_name, listing_id, amount_cents, seller_receives_cents, bloombay_fee_cents, created_at")
+            .eq("seller_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(50),
+          supabase
+            .from("hanger_seller_balance")
+            .select("pending_cents, paid_out_cents")
+            .eq("seller_id", user.id)
+            .single(),
+        ]);
+
+        setEarnings((earningsData as EarningsRow[]) ?? []);
+        if (balanceData) setBalance(balanceData as SellerBalance);
+      } catch { /* no sales yet */ }
+    })();
+  }, []);
 
   async function handleBuy(listingId: string) {
     setBuyingId(listingId);
@@ -356,83 +403,54 @@ export function HangerPage() {
 
       {/* ── Seller balance strip ───────────────────────────────────────────────── */}
       <div style={{ padding: "10px 12px 0" }}>
-        <div
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 12,
-            padding: "10px 14px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 9,
-                fontFamily: "var(--font-jost), sans-serif",
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.35)",
-              }}
+        <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)" }}>
+                Your Earnings
+              </p>
+              <p style={{ margin: "2px 0 0", fontSize: 18, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: "#fff" }}>
+                £{((balance?.pending_cents ?? 0) / 100).toFixed(2)}{" "}
+                <span style={{ fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontStyle: "normal", fontWeight: 400, color: "rgba(255,255,255,0.35)" }}>
+                  pending · £{((balance?.paid_out_cents ?? 0) / 100).toFixed(2)} paid out
+                </span>
+              </p>
+              <p style={{ margin: "2px 0 0", fontSize: 12, fontFamily: "var(--font-caveat), cursive", color: "rgba(255,255,255,0.3)" }}>
+                {earnings.length > 0 ? `${earnings.length} sale${earnings.length === 1 ? "" : "s"} · you keep 90%` : "paid out when your item sells ✦"}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowEarnings(v => !v)}
+              style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, padding: "6px 14px", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", color: "rgba(255,255,255,0.65)", cursor: "pointer", whiteSpace: "nowrap" as const }}
             >
-              Your Balance
-            </p>
-            <p
-              style={{
-                margin: "2px 0 0",
-                fontSize: 18,
-                fontFamily: "var(--font-playfair), serif",
-                fontStyle: "italic",
-                fontWeight: 700,
-                color: "#fff",
-              }}
-            >
-              $0.00{" "}
-              <span
-                style={{
-                  fontSize: 11,
-                  fontFamily: "var(--font-jost), sans-serif",
-                  fontStyle: "normal",
-                  fontWeight: 400,
-                  color: "rgba(255,255,255,0.35)",
-                }}
-              >
-                pending
-              </span>
-            </p>
-            <p
-              style={{
-                margin: "2px 0 0",
-                fontSize: 12,
-                fontFamily: "var(--font-caveat), cursive",
-                color: "rgba(255,255,255,0.3)",
-              }}
-            >
-              paid out when your item sells ✦
-            </p>
+              {showEarnings ? "Hide" : "Sales →"}
+            </button>
           </div>
 
-          <button
-            style={{
-              background: "transparent",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 20,
-              padding: "6px 14px",
-              fontSize: 11,
-              fontFamily: "var(--font-jost), sans-serif",
-              fontWeight: 700,
-              letterSpacing: "0.04em",
-              color: "rgba(255,255,255,0.65)",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Withdraw →
-          </button>
+          {/* Earnings history panel */}
+          {showEarnings && (
+            <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 12 }}>
+              {earnings.length === 0 ? (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "8px 0" }}>No sales yet — list something to get started ✦</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {earnings.map(e => {
+                    const date = new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                    return (
+                      <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>👗</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.85)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{e.item_name ?? "Item sold"}</p>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{date} · you keep £{(e.seller_receives_cents / 100).toFixed(2)}</p>
+                        </div>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: PINK, flexShrink: 0 }}>£{(e.amount_cents / 100).toFixed(2)}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
