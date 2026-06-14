@@ -721,33 +721,42 @@ ALTER TABLE bloomies_plan_invites  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bloomies_plan_messages ENABLE ROW LEVEL SECURITY;
 
 -- Plans: visible to creator + invitees
+DROP POLICY IF EXISTS "plan_select" ON bloomies_plans;
 CREATE POLICY "plan_select" ON bloomies_plans FOR SELECT
   USING (
     auth.uid() = creator_id
     OR EXISTS (SELECT 1 FROM bloomies_plan_invites WHERE plan_id = id AND invitee_id = auth.uid())
   );
+DROP POLICY IF EXISTS "plan_insert" ON bloomies_plans;
 CREATE POLICY "plan_insert" ON bloomies_plans FOR INSERT WITH CHECK (auth.uid() = creator_id);
+DROP POLICY IF EXISTS "plan_update" ON bloomies_plans;
 CREATE POLICY "plan_update" ON bloomies_plans FOR UPDATE USING (auth.uid() = creator_id);
+DROP POLICY IF EXISTS "plan_delete" ON bloomies_plans;
 CREATE POLICY "plan_delete" ON bloomies_plans FOR DELETE USING (auth.uid() = creator_id);
 
 -- Invites: creator can manage; invitees can update own RSVP and see all for the plan
+DROP POLICY IF EXISTS "invite_select" ON bloomies_plan_invites;
 CREATE POLICY "invite_select" ON bloomies_plan_invites FOR SELECT
   USING (
     invitee_id = auth.uid()
     OR EXISTS (SELECT 1 FROM bloomies_plans WHERE id = plan_id AND creator_id = auth.uid())
   );
+DROP POLICY IF EXISTS "invite_insert" ON bloomies_plan_invites;
 CREATE POLICY "invite_insert" ON bloomies_plan_invites FOR INSERT
   WITH CHECK (EXISTS (SELECT 1 FROM bloomies_plans WHERE id = plan_id AND creator_id = auth.uid()));
+DROP POLICY IF EXISTS "invite_update_rsvp" ON bloomies_plan_invites;
 CREATE POLICY "invite_update_rsvp" ON bloomies_plan_invites FOR UPDATE
   USING (invitee_id = auth.uid());
 
 -- Messages: visible to plan members; plan members can send
+DROP POLICY IF EXISTS "msg_select" ON bloomies_plan_messages;
 CREATE POLICY "msg_select" ON bloomies_plan_messages FOR SELECT
   USING (
     sender_id = auth.uid()
     OR EXISTS (SELECT 1 FROM bloomies_plans WHERE id = plan_id AND creator_id = auth.uid())
     OR EXISTS (SELECT 1 FROM bloomies_plan_invites WHERE plan_id = bloomies_plan_messages.plan_id AND invitee_id = auth.uid())
   );
+DROP POLICY IF EXISTS "msg_insert" ON bloomies_plan_messages;
 CREATE POLICY "msg_insert" ON bloomies_plan_messages FOR INSERT
   WITH CHECK (
     auth.uid() = sender_id
