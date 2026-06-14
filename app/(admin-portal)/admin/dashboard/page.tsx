@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useState, useEffect, type ReactElement } from "react";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -371,7 +371,33 @@ function SectionHeader({ title, sub, category }: { title: string; sub?: string; 
 
 // ─── Section: Overview ────────────────────────────────────────────────────────
 
+interface LiveStatsData {
+  members:  { total: number; new_week: number; pending: number };
+  clubs:    { active: number; top: { id: string; name: string; member_count: number }[] };
+  wall:     { total_posts: number; posts_week: number };
+  girlmate: { active_listings: number };
+}
+
 function OverviewSection() {
+  const [liveStats, setLiveStats] = useState<LiveStatsData | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/live-stats")
+      .then(r => r.ok ? r.json() : null)
+      .then((d: LiveStatsData | null) => { if (d) setLiveStats(d); })
+      .catch(() => {});
+  }, []);
+
+  const statCards = liveStats
+    ? [
+        { label: "Women Waiting",     value: String(liveStats.members.pending),    sub: "Pending review" },
+        { label: "Total Members",     value: String(liveStats.members.total),      sub: "Active in BloomBay" },
+        { label: "New This Week",     value: String(liveStats.members.new_week),   sub: "New members" },
+        { label: "Active Clubs",      value: String(liveStats.clubs.active),       sub: "Live right now" },
+        { label: "Wall Posts",        value: String(liveStats.wall.total_posts),   sub: `+${liveStats.wall.posts_week} this week` },
+      ]
+    : LIVE_STATS;
+
   return (
     <div>
       <SectionHeader
@@ -382,12 +408,12 @@ function OverviewSection() {
 
       {/* Live stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 px-0 md:px-0">
-        {LIVE_STATS.slice(0, 4).map((s) => (
+        {statCards.slice(0, 4).map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
         ))}
       </div>
       <div className="mb-8">
-        <StatCard label={LIVE_STATS[4].label} value={LIVE_STATS[4].value} sub={LIVE_STATS[4].sub} />
+        <StatCard label={statCards[4].label} value={statCards[4].value} sub={statCards[4].sub} />
       </div>
 
       {/* Curator Leaderboard */}
@@ -529,55 +555,100 @@ function CitiesSection() {
 
 // ─── Section: Pending Members ─────────────────────────────────────────────────
 
+interface RealApplication {
+  id: string;
+  user_id: string | null;
+  first_name: string | null;
+  name: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  submitted_at: string | null;
+  founding_mother: boolean | null;
+  bio: string | null;
+  vibe: string | null;
+  goals: string[] | null;
+  interests: string[] | null;
+  age: string | null;
+  uiStatus: "pending" | "approved" | "declined";
+}
+
+function timeAgo(iso: string | null): string {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1)  return "Just now";
+  if (h < 24) return `${h}h ago`;
+  if (h < 48) return "Yesterday";
+  return `${Math.floor(h / 24)}d ago`;
+}
+
 function PendingSection() {
-  const [members, setMembers] = useState(PENDING_MEMBERS.map((m) => ({ ...m, status: "pending" as "pending" | "approved" | "declined" })));
-  const [expanded, setExpanded] = useState<number | null>(null);
-  const [declineNote, setDeclineNote] = useState<Record<number, string>>({});
+  const [members, setMembers] = useState<RealApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [declineNote, setDeclineNote] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<string | null>(null);
 
-  const pending = members.filter((m) => m.status === "pending");
-  const reviewed = members.filter((m) => m.status !== "pending");
+  useEffect(() => {
+    fetch("/api/admin/approve-member?status=pending")
+      .then(r => r.ok ? r.json() : [])
+      .then((apps: RealApplication[]) => {
+        setMembers((apps ?? []).map(a => ({ ...a, uiStatus: "pending" as const })));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const pending  = members.filter((m) => m.uiStatus === "pending");
+  const reviewed = members.filter((m) => m.uiStatus !== "pending");
 
   function showToast(message: string) {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
   }
 
-  async function approve(id: number) {
+  async function approve(id: string) {
     const member = members.find((m) => m.id === id);
-    const name = member ? member.name.split(" ")[0] : "her";
-    // Optimistic update
-    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "approved" } : m));
+    const name = member?.first_name ?? member?.name?.split(" ")[0] ?? "her";
+    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, uiStatus: "approved" } : m));
     setExpanded(null);
     showToast("✓ Approved — " + name + " has been welcomed");
-    // If there's a real applicationId (uuid), call the API
-    // For now, mock IDs just update local state (real IDs come from Supabase)
+    try {
+      await fetch("/api/admin/approve-member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId: id, action: "approve" }),
+      });
+    } catch { /* already updated UI */ }
   }
 
-  async function decline(id: number) {
-    const member = members.find((m) => m.id === id);
-    // Optimistic update
-    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "declined" } : m));
+  async function decline(id: string) {
+    setMembers((prev) => prev.map((m) => m.id === id ? { ...m, uiStatus: "declined" } : m));
     setExpanded(null);
     showToast("Application declined");
-    // For real applications with uuid IDs, call the API
-    void member; // suppress unused warning
+    try {
+      await fetch("/api/admin/approve-member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId: id, action: "decline", declineNote: declineNote[id] ?? "" }),
+      });
+    } catch { /* already updated UI */ }
   }
 
   return (
     <div>
       <SectionHeader
         title="Member Queue"
-        sub={`${pending.length} pending review · ${reviewed.filter((m) => m.status === "approved").length} approved today`}
+        sub={`${pending.length} pending review · ${reviewed.filter((m) => m.uiStatus === "approved").length} approved this session`}
         category="Applications"
       />
 
       {/* Stats strip */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Pending Review", value: String(pending.length), sub: "Awaiting Yande" },
-          { label: "Approved Today", value: String(reviewed.filter((m) => m.status === "approved").length), sub: "Sent welcome email" },
-          { label: "Total Waitlist", value: "1,847", sub: "NYC" },
+          { label: "Pending Review",  value: String(pending.length),                                                       sub: "Awaiting decision" },
+          { label: "Approved",        value: String(reviewed.filter((m) => m.uiStatus === "approved").length),             sub: "This session" },
+          { label: "Declined",        value: String(reviewed.filter((m) => m.uiStatus === "declined").length),             sub: "This session" },
         ].map((s) => <StatCard key={s.label} {...s} />)}
       </div>
 
@@ -590,18 +661,23 @@ function PendingSection() {
         <div>
           <p className="text-sm font-bold" style={{ color: "#FF1F7D" }}>Review every member personally</p>
           <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Check photo clarity, bio authenticity, and profile completeness. Approved women receive an immediate email + SMS invite to sign in.
+            Check photo clarity, bio authenticity, and profile completeness. Approved women receive an immediate welcome notification.
           </p>
         </div>
       </div>
 
       {/* Pending cards */}
       <div className="flex flex-col gap-4 mb-8">
-        {pending.length === 0 ? (
+        {loading ? (
+          <div className="rounded-2xl p-8 text-center" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <p className="text-white/40 text-sm">Loading applications…</p>
+          </div>
+        ) : pending.length === 0 ? (
           <div className="rounded-2xl p-8 text-center" style={{ background: "rgba(255,255,255,0.04)" }}>
             <p className="text-white/40 text-sm">No pending applications — queue is clear.</p>
           </div>
         ) : pending.map((m) => {
+          const displayName = m.name ?? m.first_name ?? "Unknown";
           const isOpen = expanded === m.id;
           return (
             <div
@@ -619,38 +695,37 @@ function PendingSection() {
                 onClick={() => setExpanded(isOpen ? null : m.id)}
                 className="w-full px-5 py-4 flex items-center gap-4 text-left"
               >
-                {/* Photo placeholder */}
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
                   style={{ background: "#FF1F7D", color: "white" }}
                 >
-                  {m.name[0]}
+                  {displayName[0]?.toUpperCase()}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-bold text-sm text-white">{m.name}</p>
-                    {m.foundingMother && (
+                    <p className="font-bold text-sm text-white">{displayName}</p>
+                    {m.founding_mother && (
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
                         FOUNDING MOTHER
                       </span>
                     )}
                   </div>
                   <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    {m.neighborhood} · {m.age}yo · {m.submittedAt}
+                    {[m.neighborhood, m.age ? `${m.age}yo` : null, timeAgo(m.submitted_at)].filter(Boolean).join(" · ")}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={(e) => { e.stopPropagation(); approve(m.id); }}
+                    onClick={(e) => { e.stopPropagation(); void approve(m.id); }}
                     className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
                     style={{ background: "#FF1F7D", color: "white" }}
                   >
                     Approve
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); decline(m.id); }}
+                    onClick={(e) => { e.stopPropagation(); void decline(m.id); }}
                     className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
                     style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
                   >
@@ -669,9 +744,8 @@ function PendingSection() {
               {isOpen && (
                 <div className="px-5 pb-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
                   <div className="pt-4 grid md:grid-cols-2 gap-5">
-                    {/* Left: photo + bio */}
+                    {/* Left: bio + vibe */}
                     <div className="flex flex-col gap-4">
-                      {/* Photo area */}
                       <div>
                         <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>PHOTO</p>
                         <div
@@ -682,44 +756,50 @@ function PendingSection() {
                             className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold"
                             style={{ background: "#FF1F7D", color: "white" }}
                           >
-                            {m.name[0]}
+                            {displayName[0]?.toUpperCase()}
                           </div>
-                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Photo submitted — {m.name.split(" ")[0]}</p>
-                          <p className="text-[10px] px-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>Photo submitted for review</p>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Photo submitted — {m.first_name ?? displayName.split(" ")[0]}</p>
                         </div>
                       </div>
 
-                      {/* Bio */}
-                      <div>
-                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>BIO</p>
-                        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>&ldquo;{m.bio}&rdquo;</p>
-                      </div>
+                      {m.bio && (
+                        <div>
+                          <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>BIO</p>
+                          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>&ldquo;{m.bio}&rdquo;</p>
+                        </div>
+                      )}
 
-                      <div>
-                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>VIBE</p>
-                        <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{m.vibe}</p>
-                      </div>
+                      {m.vibe && (
+                        <div>
+                          <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>VIBE</p>
+                          <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{m.vibe}</p>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Right: profile details */}
+                    {/* Right: goals, interests, decision */}
                     <div className="flex flex-col gap-4">
-                      <div>
-                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>GOALS</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {m.goals.map((g) => (
-                            <span key={g} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>{g}</span>
-                          ))}
+                      {(m.goals?.length ?? 0) > 0 && (
+                        <div>
+                          <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>GOALS</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(m.goals ?? []).map((g) => (
+                              <span key={g} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }}>{g}</span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>INTERESTS</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {m.interests.map((i) => (
-                            <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>{i}</span>
-                          ))}
+                      )}
+                      {(m.interests?.length ?? 0) > 0 && (
+                        <div>
+                          <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>INTERESTS</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(m.interests ?? []).map((interest) => (
+                              <span key={interest} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}>{interest}</span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      {m.foundingMother && (
+                      )}
+                      {m.founding_mother && (
                         <div
                           className="rounded-xl px-4 py-3"
                           style={{ background: "rgba(255,31,125,0.1)", border: "1px solid rgba(255,31,125,0.2)" }}
@@ -732,7 +812,7 @@ function PendingSection() {
                       {/* Decision */}
                       <div className="flex flex-col gap-2 pt-2">
                         <button
-                          onClick={() => approve(m.id)}
+                          onClick={() => void approve(m.id)}
                           className="w-full py-3 rounded-full font-bold text-sm"
                           style={{ background: "#FF1F7D", color: "white" }}
                         >
@@ -748,7 +828,7 @@ function PendingSection() {
                             style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}
                           />
                           <button
-                            onClick={() => decline(m.id)}
+                            onClick={() => void decline(m.id)}
                             className="w-full py-2.5 rounded-full text-xs font-bold"
                             style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}
                           >
@@ -768,32 +848,35 @@ function PendingSection() {
       {/* Reviewed */}
       {reviewed.length > 0 && (
         <div>
-          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>REVIEWED TODAY</p>
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>REVIEWED THIS SESSION</p>
           <div className="flex flex-col gap-2">
-            {reviewed.map((m) => (
-              <div
-                key={m.id}
-                className="rounded-xl px-4 py-3 flex items-center gap-3"
-                style={{ background: "rgba(255,255,255,0.03)" }}
-              >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: "#FF1F7D", color: "white" }}>
-                  {m.name[0]}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">{m.name}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{m.neighborhood}</p>
-                </div>
-                <span
-                  className="text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={m.status === "approved"
-                    ? { background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }
-                    : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.35)" }
-                  }
+            {reviewed.map((m) => {
+              const displayName = m.name ?? m.first_name ?? "Unknown";
+              return (
+                <div
+                  key={m.id}
+                  className="rounded-xl px-4 py-3 flex items-center gap-3"
+                  style={{ background: "rgba(255,255,255,0.03)" }}
                 >
-                  {m.status === "approved" ? "Approved ✓" : "Declined"}
-                </span>
-              </div>
-            ))}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: "#FF1F7D", color: "white" }}>
+                    {displayName[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white">{displayName}</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{m.neighborhood}</p>
+                  </div>
+                  <span
+                    className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={m.uiStatus === "approved"
+                      ? { background: "rgba(255,31,125,0.15)", color: "#FF1F7D" }
+                      : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.35)" }
+                    }
+                  >
+                    {m.uiStatus === "approved" ? "Approved ✓" : "Declined"}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 
 function admin() {
   return createClient(
@@ -8,8 +9,17 @@ function admin() {
   );
 }
 
-function verifyAdmin(req: NextRequest): boolean {
-  return req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD;
+async function verifyAdmin(req: NextRequest): Promise<boolean> {
+  if (req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD) return true;
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll() { return req.cookies.getAll(); }, setAll() {} } }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  return ["admin", "founder"].includes(profile?.role ?? "");
 }
 
 async function yandeWelcome(app: {
@@ -61,7 +71,7 @@ Sound like a friend who already knows them, not a brand. No emojis. No "Welcome 
 
 // POST /api/admin/approve-member
 export async function POST(req: NextRequest) {
-  if (!verifyAdmin(req)) {
+  if (!await verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -128,7 +138,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/admin/approve-member — list applications
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
+  if (!await verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

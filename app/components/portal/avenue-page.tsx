@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
+import { useState, useEffect } from "react";
 
 const PINK = "#FF1F7D";
 
@@ -110,44 +111,44 @@ const AVENUES: AvenueConfig[] = [
 ];
 
 // ── Top Posts data ─────────────────────────────────────────────────────────────
-const TOP_POSTS = [
-  {
-    room: "The Wall",
-    roomHref: "/member/avenue/wall",
-    user: "Aaliyah M.",
-    initial: "A",
-    color: "#FF1F7D",
-    text: "Looking for a study partner in Brooklyn 📚 Anyone free this week?",
-    blooms: 47,
-  },
-  {
-    room: "The Closet",
-    roomHref: "/member/avenue/closet",
-    user: "Zara F.",
-    initial: "Z",
-    color: "#FF69B4",
-    text: "Rate my fit for tonight's dinner — honest opinions only 🖤",
-    blooms: 132,
-  },
-  {
-    room: "The Closet",
-    roomHref: "/member/avenue/closet",
-    user: "Temi A.",
-    initial: "T",
-    color: "#A855F7",
-    text: "Found the most beautiful vintage blazer for $28 — just listed it on The Hanger 🖤",
-    blooms: 89,
-  },
-  {
-    room: "The Vanity",
-    roomHref: "/member/avenue/vanity",
-    user: "Sofia W.",
-    initial: "S",
-    color: "#E8A050",
-    text: "My holy grail moisturiser routine for melanin skin ✨",
-    blooms: 201,
-  },
-];
+
+interface WallPost {
+  id: string;
+  text: string;
+  blooms: number;
+  category: string | null;
+  is_seed: boolean;
+  seed_author: string | null;
+  author: { id: string; first_name: string | null; full_name: string | null } | null;
+}
+
+const CATEGORY_ROOMS: Record<string, { title: string; href: string }> = {
+  wall:           { title: "The Wall",         href: "/member/avenue/wall" },
+  closet:         { title: "The Closet",        href: "/member/avenue/closet" },
+  vanity:         { title: "The Vanity",        href: "/member/avenue/vanity" },
+  wellness:       { title: "The Health Bar",    href: "/member/avenue/wellness" },
+  "reading-room": { title: "The Reading Room",  href: "/member/avenue/reading-room" },
+  screening:      { title: "The Screening Room", href: "/member/avenue/screening-room" },
+  working:        { title: "Girl Working",      href: "/member/avenue/working" },
+  magazine:       { title: "Magazine",          href: "/member/avenue/magazine" },
+};
+const AVATAR_COLORS = ["#FF1F7D", "#FF69B4", "#A855F7", "#E8A050", "#4A7C59", "#C4005A", "#1565C0", "#D4A853"];
+
+function getPostDisplay(post: WallPost, idx: number) {
+  const roomMeta = CATEGORY_ROOMS[post.category ?? "wall"] ?? { title: "The Wall", href: "/member/avenue/wall" };
+  const userName = post.is_seed && post.seed_author
+    ? post.seed_author
+    : (post.author?.first_name ?? post.author?.full_name?.split(" ")[0] ?? "Member");
+  return {
+    room: roomMeta.title,
+    roomHref: roomMeta.href,
+    user: userName,
+    initial: userName[0]?.toUpperCase() ?? "B",
+    color: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+    text: post.text,
+    blooms: post.blooms,
+  };
+}
 
 // ── AvenueSign ─────────────────────────────────────────────────────────────────
 function AvenueSign({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
@@ -226,7 +227,10 @@ function AvenueSign({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boo
 }
 
 // ── TopPostCard ────────────────────────────────────────────────────────────────
-function TopPostCard({ post }: { post: typeof TOP_POSTS[number] }) {
+interface PostDisplay {
+  room: string; roomHref: string; user: string; initial: string; color: string; text: string; blooms: number;
+}
+function TopPostCard({ post }: { post: PostDisplay }) {
   return (
     <Link href={post.roomHref} style={{ textDecoration: "none", flexShrink: 0 }}>
       <div style={{
@@ -274,6 +278,15 @@ function TopPostCard({ post }: { post: typeof TOP_POSTS[number] }) {
 
 // ── AvenuePage ──────────────────────────────────────────────────────────────────
 export function AvenuePage() {
+  const [topPosts, setTopPosts] = useState<PostDisplay[]>([]);
+
+  useEffect(() => {
+    fetch("/api/avenue/top-posts")
+      .then(r => r.ok ? r.json() : [])
+      .then((data: WallPost[]) => setTopPosts((data ?? []).map((p, i) => getPostDisplay(p, i))))
+      .catch(() => {});
+  }, []);
+
   return (
     <div style={{
       background: "linear-gradient(160deg, #FF1F7D 0%, #FF1F7D 45%, #FF5BAD 80%, #FFB3D9 100%)",
@@ -309,9 +322,14 @@ export function AvenuePage() {
           </Link>
         </div>
         <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
-          {TOP_POSTS.map((post, i) => (
-            <TopPostCard key={i} post={post} />
-          ))}
+          {topPosts.length === 0
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} style={{ width: 180, height: 130, background: "rgba(255,255,255,0.12)", borderRadius: 18, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
+              ))
+            : topPosts.map((post, i) => (
+                <TopPostCard key={i} post={post} />
+              ))
+          }
         </div>
       </div>
 
