@@ -20,14 +20,6 @@
     {
       "path": "/api/cron/wall-seeder",
       "schedule": "0 13 * * *"
-    },
-    {
-      "path": "/api/cron/wall-seeder",
-      "schedule": "0 19 * * *"
-    },
-    {
-      "path": "/api/cron/wall-seeder",
-      "schedule": "0 2 * * *"
     }
   ],
   "headers": [
