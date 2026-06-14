@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   let query = supabase
     .from("wall_posts")
     .select(`
-      id, category, text, blooms, created_at,
+      id, category, text, blooms, created_at, is_seed, seed_author,
       author:profiles!author_id ( id, first_name, full_name )
     `)
     .order("created_at", { ascending: false })

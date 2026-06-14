@@ -26,6 +26,8 @@ type WallPost = {
   text: string;
   blooms: number;
   created_at: string;
+  is_seed?: boolean;
+  seed_author?: string | null;
   author: { id: string; first_name: string | null; full_name: string | null } | null;
 };
 
@@ -38,17 +40,20 @@ function timeAgo(iso: string): string {
 }
 
 function authorName(post: WallPost): string {
+  if (post.is_seed) return post.seed_author ?? "Yande ✦";
   const a = post.author;
   if (!a) return "Bloomie";
   return a.full_name ?? a.first_name ?? "Bloomie";
 }
 
 function authorInitial(post: WallPost): string {
+  if (post.is_seed) return "✦";
   return authorName(post)[0]?.toUpperCase() ?? "B";
 }
 
 const AVATAR_COLORS = ["#FF1F7D", "#7C3AED", "#F59E0B", "#059669", "#0EA5E9", "#EC4899"];
-function avatarColor(id: string): string {
+function avatarColor(id: string, isSeed?: boolean): string {
+  if (isSeed) return "#FF1F7D";
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
@@ -59,7 +64,7 @@ function PostCard({ post, bloomed, onBloom }: { post: WallPost; bloomed: boolean
   const meta = CATEGORY_META[post.category] ?? CATEGORY_META.mood;
   const [localBlooms, setLocalBlooms] = useState(post.blooms);
   const [busy, setBusy] = useState(false);
-  const color = avatarColor(post.author?.id ?? post.id);
+  const color = avatarColor(post.author?.id ?? post.id, post.is_seed);
 
   async function handleBloom() {
     if (busy) return;
