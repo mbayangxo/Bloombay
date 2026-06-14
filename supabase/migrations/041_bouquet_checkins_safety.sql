@@ -88,7 +88,7 @@ create policy "pings_update_recipient"
 
 create table if not exists public.event_checkins (
   id           uuid primary key default gen_random_uuid(),
-  event_id     uuid not null references public.events(id) on delete cascade,
+  event_id     uuid not null references public.gatherings(id) on delete cascade,
   user_id      uuid not null references public.profiles(id) on delete cascade,
   checked_in_at timestamptz not null default now(),
   method       text not null default 'qr'
@@ -122,7 +122,7 @@ create table if not exists public.friend_scans (
   id           uuid primary key default gen_random_uuid(),
   initiator_id uuid not null references public.profiles(id) on delete cascade,
   scanned_id   uuid not null references public.profiles(id) on delete cascade,
-  event_id     uuid references public.events(id) on delete set null,
+  event_id     uuid references public.gatherings(id) on delete set null,
   scanned_at   timestamptz not null default now(),
   unique (initiator_id, scanned_id, event_id)
 );
