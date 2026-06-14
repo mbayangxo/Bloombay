@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
+import { ReserveTableSheet } from "./reserve-table-sheet";
 import { createClient } from "@/lib/supabase/client";
 import {
   getNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
@@ -1096,6 +1097,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   const [profileId, setProfileId] = useState<number | null>(null);
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
   const [realPartners, setRealPartners] = useState<EatsPartner[]>([]);
+  const [reserveTarget, setReserveTarget] = useState<{ id: string; name: string } | null>(null);
   function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   useEffect(() => {
