@@ -44,6 +44,20 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(oldToNew[pathname], request.url));
   }
 
+  // ── GirlMate auth gates ───────────────────────────────────────────────────
+  const GM_PROTECTED = ["/girlmate/home", "/girlmate/post", "/girlmate/inbox", "/girlmate/partner/dashboard"];
+  const GM_AUTH_PAGES = ["/girlmate/login", "/girlmate/signup"];
+  const isGMProtected = GM_PROTECTED.some(p => pathname.startsWith(p));
+  const isGMAuthPage  = GM_AUTH_PAGES.some(p => pathname === p);
+
+  if (isGMProtected && !user) {
+    const redirectTo = encodeURIComponent(pathname);
+    return NextResponse.redirect(new URL(`/girlmate/login?redirect=${redirectTo}`, request.url));
+  }
+  if (user && isGMAuthPage) {
+    return NextResponse.redirect(new URL("/girlmate/home", request.url));
+  }
+
   const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/partner", "/curator"];
   const isProtected = PROTECTED.some(p => pathname.startsWith(p));
 

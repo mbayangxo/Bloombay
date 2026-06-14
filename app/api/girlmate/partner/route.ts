@@ -42,6 +42,22 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get("email");
+
+  // Public email lookup — used by the partner dashboard to check approval status
+  if (email) {
+    const supabase = admin();
+    const { data, error } = await supabase
+      .from("girlmate_partner_applications")
+      .select("id,contact_name,email,group_name,platform,group_size,cities,status,partner_code")
+      .eq("email", email.trim().toLowerCase())
+      .order("submitted_at", { ascending: false });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data ?? []);
+  }
+
+  // Admin-only: full list
   const secret = req.headers.get("x-admin-password");
   if (secret !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

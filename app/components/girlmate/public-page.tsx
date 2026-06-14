@@ -123,7 +123,7 @@ function ListingCard({ listing, idx }: { listing: PublicListing; idx: number }) 
             </div>
           </div>
           {/* Locked match score — teaser for sign-up */}
-          <Link href="/waitlist" style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, background: "#FFF0F5", border: `1px solid ${PINK}20`, textDecoration: "none" }}>
+          <Link href="/girlmate/signup" style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, background: "#FFF0F5", border: `1px solid ${PINK}20`, textDecoration: "none" }}>
             <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><rect x="3" y="6" width="8" height="7" rx="1.5" stroke={PINK} strokeWidth="1.4" /><path d="M5 6V4.5a2 2 0 014 0V6" stroke={PINK} strokeWidth="1.4" strokeLinecap="round" /></svg>
             <span style={{ fontSize: "9px", fontWeight: 800, color: PINK, letterSpacing: "0.06em" }}>SEE MATCH</span>
           </Link>
@@ -191,8 +191,8 @@ export function GirlMatePublicPage() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <Link href="/girlmate/partner" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", color: "#888", textDecoration: "none" }}>PARTNERS</Link>
-          <Link href="/portals" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", color: "#888", textDecoration: "none", padding: "7px 16px", border: "1.5px solid #ddd", borderRadius: 999 }}>LOG IN</Link>
-          <Link href="/waitlist" style={{ fontSize: "10px", fontWeight: 900, letterSpacing: "0.1em", color: "white", textDecoration: "none", padding: "9px 20px", borderRadius: 999, background: `linear-gradient(135deg,${PINK},#c4005a)`, boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>POST A LISTING</Link>
+          <Link href="/girlmate/login" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", color: "#888", textDecoration: "none", padding: "7px 16px", border: "1.5px solid #ddd", borderRadius: 999 }}>LOG IN</Link>
+          <Link href="/girlmate/signup" style={{ fontSize: "10px", fontWeight: 900, letterSpacing: "0.1em", color: "white", textDecoration: "none", padding: "9px 20px", borderRadius: 999, background: `linear-gradient(135deg,${PINK},#c4005a)`, boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>POST A LISTING</Link>
         </div>
       </nav>
 
@@ -209,7 +209,7 @@ export function GirlMatePublicPage() {
               <p style={{ fontSize: "8px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>by BloomBay</p>
             </div>
           </div>
-          <Link href="/portals" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.6)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.2)", padding: "6px 14px", borderRadius: 999 }}>LOG IN</Link>
+          <Link href="/girlmate/login" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.6)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.2)", padding: "6px 14px", borderRadius: 999 }}>LOG IN</Link>
         </div>
 
         {/* Hero copy */}
@@ -227,7 +227,7 @@ export function GirlMatePublicPage() {
           </p>
 
           <div style={{ display: "flex", gap: 9 }}>
-            <Link href="/waitlist" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "15px 20px", borderRadius: 14, background: PINK, color: "white", fontWeight: 900, fontSize: "12px", letterSpacing: "0.1em", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>
+            <Link href="/girlmate/signup" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "15px 20px", borderRadius: 14, background: PINK, color: "white", fontWeight: 900, fontSize: "12px", letterSpacing: "0.1em", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>
               POST A LISTING
             </Link>
             <a href="#browse" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "15px 20px", borderRadius: 14, background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.8)", fontWeight: 700, fontSize: "12px", letterSpacing: "0.08em", textDecoration: "none" }}>
@@ -252,7 +252,7 @@ export function GirlMatePublicPage() {
             Rooms, sublets &amp; roommates — women-only, background-checked, real. No sketchy Craigslist. No Facebook group chaos.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
-            <Link href="/waitlist" style={{ padding: "15px 32px", borderRadius: 999, fontWeight: 900, fontSize: "12px", letterSpacing: "0.14em", background: PINK, color: "white", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>POST A LISTING</Link>
+            <Link href="/girlmate/signup" style={{ padding: "15px 32px", borderRadius: 999, fontWeight: 900, fontSize: "12px", letterSpacing: "0.14em", background: PINK, color: "white", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>POST A LISTING</Link>
             <a href="#browse" style={{ padding: "15px 28px", borderRadius: 999, fontWeight: 600, fontSize: "12px", border: "1.5px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>Browse listings</a>
           </div>
         </div>
@@ -318,7 +318,7 @@ export function GirlMatePublicPage() {
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "20px", color: "#ccc", marginBottom: 8 }}>No listings yet in {city}.</p>
               <p style={{ fontSize: "13px", color: "#bbb", marginBottom: 24 }}>Be the first to post — or check another city.</p>
-              <Link href="/waitlist" style={{ display: "inline-flex", padding: "13px 28px", borderRadius: 999, background: PINK, color: "white", fontWeight: 800, fontSize: "12px", letterSpacing: "0.1em", textDecoration: "none" }}>
+              <Link href="/girlmate/signup" style={{ display: "inline-flex", padding: "13px 28px", borderRadius: 999, background: PINK, color: "white", fontWeight: 800, fontSize: "12px", letterSpacing: "0.1em", textDecoration: "none" }}>
                 POST A LISTING →
               </Link>
             </div>
@@ -331,8 +331,8 @@ export function GirlMatePublicPage() {
                 <p style={{ fontWeight: 800, fontSize: "15px", color: "white", marginBottom: 4 }}>See who you actually match with.</p>
                 <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>Sign up to unlock Yande match scores, contact listings, and post your own.</p>
               </div>
-              <Link href="/waitlist" style={{ flexShrink: 0, padding: "13px 26px", borderRadius: 999, background: PINK, color: "white", fontWeight: 900, fontSize: "11px", letterSpacing: "0.1em", textDecoration: "none", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}>
-                JOIN BLOOMBAY →
+              <Link href="/girlmate/signup" style={{ flexShrink: 0, padding: "13px 26px", borderRadius: 999, background: PINK, color: "white", fontWeight: 900, fontSize: "11px", letterSpacing: "0.1em", textDecoration: "none", boxShadow: "0 4px 16px rgba(255,31,125,0.4)" }}>
+                CREATE ACCOUNT →
               </Link>
             </div>
           )}
@@ -345,7 +345,7 @@ export function GirlMatePublicPage() {
       <section style={{ padding: "64px 20px", background: "white" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontWeight: 900, fontSize: "clamp(24px,4vw,36px)", color: INK, marginBottom: 8 }}>
-            How <span style={{ color: PINK, fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400 }}>GirlMate</span> works
+            How <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 400 }}>GirlMate</span> works
           </h2>
           <div style={{ width: 32, height: 2, background: PINK, margin: "0 auto 40px" }} />
 
@@ -377,7 +377,7 @@ export function GirlMatePublicPage() {
               <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.3)", marginBottom: 16 }}>✦ &nbsp;FOR GROUP OWNERS</p>
               <h2 style={{ fontWeight: 900, fontSize: "clamp(22px,4vw,34px)", color: "white", marginBottom: 12, lineHeight: 1.15 }}>
                 Run a housing group?<br />
-                <span style={{ color: PINK, fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400 }}>Bring your women here.</span>
+                <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 400 }}>Bring your women here.</span>
               </h2>
               <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", lineHeight: 1.7, maxWidth: 480, marginBottom: 28 }}>
                 If you manage a Facebook group, WhatsApp chat, or sublet company for women, you can become a <strong style={{ color: "white" }}>GirlMate Partner</strong>. Your members get a verified, safer space — and you get tools to manage it.
