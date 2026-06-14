@@ -621,11 +621,26 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     showToast("Link copied!");
   }
 
+  const [isFoundingMother, setIsFoundingMother] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (!u) return;
+      supabase.from("profiles").select("is_founding_mother").eq("id", u.id).single()
+        .then(({ data }) => {
+          if ((data as { is_founding_mother?: boolean } | null)?.is_founding_mother) {
+            setIsFoundingMother(true);
+          }
+        });
+    });
+  }, []);
+
   const ROOMS = [
-    { label: "Bloom Trails",   icon: "🎈", href: "/member/lounge/memories",  num: "01", accentColor: "#FF69B4" },
-    { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",   num: "02", accentColor: PINK      },
-    { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",  num: "03", accentColor: "#E8006A" },
-    { label: "Clubs",          icon: "🌺", href: "/member/clubs",           num: "04", accentColor: "#C4005A" },
+    { label: "Bloom Trails",   icon: "🎈", href: "/member/lounge/memories",       num: "01", accentColor: "#FF69B4" },
+    { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",         num: "02", accentColor: PINK      },
+    { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",        num: "03", accentColor: "#E8006A" },
+    { label: "Clubs",          icon: "🌺", href: "/member/clubs",                 num: "04", accentColor: "#C4005A" },
     ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
   ];
 
@@ -687,10 +702,16 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
               </p>
             </div>
 
-            {/* BloomBay mark */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+            {/* BloomBay mark / Founding badge */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "rgba(255,31,125,0.7)", letterSpacing: "0.2em" }}>BLOOMBAY</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em" }}>MEMBER</p>
+              {isFoundingMother ? (
+                <div style={{ background: "rgba(212,168,83,0.2)", border: "1px solid rgba(212,168,83,0.6)", borderRadius: 4, padding: "3px 8px", boxShadow: "0 0 10px rgba(212,168,83,0.25)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: GOLD, letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING MOTHER</p>
+                </div>
+              ) : (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em" }}>MEMBER</p>
+              )}
             </div>
           </div>
 
@@ -703,7 +724,9 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
           {/* Bottom strip */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 16, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.15em" }}>FOUNDING MEMBER</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: isFoundingMother ? GOLD : "rgba(255,255,255,0.2)", letterSpacing: "0.15em", fontWeight: isFoundingMother ? 800 : 400 }}>
+              {isFoundingMother ? "✦ FOUNDING MOTHER" : "MEMBER"}
+            </p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.6)" }}>✦ women are gathering</p>
           </div>
         </div>
@@ -732,13 +755,15 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{localNbhd} · NYC</p>
 
           {/* Badges */}
-          <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+          <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" as const, justifyContent: "center" }}>
             <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 4, padding: "4px 12px" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em" }}>MEMBER #{memberNum}</p>
             </div>
-            <div style={{ background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.38)", borderRadius: 4, padding: "4px 12px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: GOLD, letterSpacing: "0.1em" }}>✦ FOUNDING</p>
-            </div>
+            {isFoundingMother && (
+              <div style={{ background: "rgba(212,168,83,0.18)", border: "1px solid rgba(212,168,83,0.5)", borderRadius: 4, padding: "4px 12px", boxShadow: "0 0 12px rgba(212,168,83,0.2)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: GOLD, letterSpacing: "0.12em" }}>✦ FOUNDING MOTHER</p>
+              </div>
+            )}
           </div>
 
           {/* Stats */}

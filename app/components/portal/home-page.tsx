@@ -300,6 +300,93 @@ function EditProfileSheet({
   );
 }
 
+// ── Weekly Prompts Card ────────────────────────────────────────────────────────
+
+const PROMPT_CATEGORY_META: Record<string, { icon: string; color: string; label: string }> = {
+  fashion:     { icon: "👗", color: "#FF1F7D", label: "Fashion" },
+  travel:      { icon: "✈️", color: "#7C3AED", label: "Travel" },
+  career:      { icon: "💼", color: "#F59E0B", label: "Career" },
+  wellness:    { icon: "🌿", color: "#10B981", label: "Wellness" },
+  friendships: { icon: "🤝", color: "#EC4899", label: "Friendships" },
+  city:        { icon: "🗽", color: "#60A5FA", label: "City" },
+};
+
+interface PromptItem { id: string; category: string; prompt_text: string; }
+
+function WeeklyPromptsCard() {
+  const [prompts,   setPrompts]   = useState<PromptItem[]>([]);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000);
+    const week = ((Math.floor(dayOfYear / 7)) % 8) + 1;
+    void supabase
+      .from("weekly_prompts")
+      .select("id, category, prompt_text")
+      .eq("week_number", week)
+      .order("category")
+      .then(({ data }) => { if (data) setPrompts(data as PromptItem[]); });
+  }, []);
+
+  if (prompts.length === 0) return null;
+
+  const active = prompts[activeIdx % prompts.length];
+  const meta = PROMPT_CATEGORY_META[active.category] ?? { icon: "✦", color: PINK, label: active.category };
+
+  return (
+    <div style={{ padding: "18px 16px 0" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>THIS WEEK&apos;S PROMPTS</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.22)" }}>{prompts.length} prompts</p>
+      </div>
+
+      <div style={{
+        borderRadius: 20,
+        background: "rgba(255,255,255,0.06)",
+        border: `1.5px solid ${meta.color}28`,
+        padding: "18px 18px 14px",
+        position: "relative", overflow: "hidden",
+      }}>
+        {/* Glow */}
+        <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${meta.color}22 0%, transparent 70%)`, pointerEvents: "none" }} />
+
+        {/* Category pill */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+          <span style={{ fontSize: 14 }}>{meta.icon}</span>
+          <div style={{ background: `${meta.color}22`, border: `1px solid ${meta.color}44`, borderRadius: 999, padding: "3px 10px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: meta.color, letterSpacing: "0.1em" }}>
+              {meta.label.toUpperCase()}
+            </p>
+          </div>
+        </div>
+
+        {/* Prompt text */}
+        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 17, color: "rgba(255,238,220,0.92)", lineHeight: 1.4, marginBottom: 16 }}>
+          &ldquo;{active.prompt_text}&rdquo;
+        </p>
+
+        {/* Category pills row */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+          {prompts.map((p, i) => {
+            const m = PROMPT_CATEGORY_META[p.category] ?? { icon: "✦", color: PINK, label: p.category };
+            return (
+              <button key={p.id} onClick={() => setActiveIdx(i)}
+                style={{ background: i === activeIdx % prompts.length ? `${m.color}33` : "rgba(255,255,255,0.06)", border: `1px solid ${i === activeIdx % prompts.length ? m.color + "66" : "rgba(255,255,255,0.1)"}`, borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: i === activeIdx % prompts.length ? m.color : "rgba(255,255,255,0.35)" }}>
+                  {m.icon} {m.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── HomePage ───────────────────────────────────────────────────────────────────
 export function HomePage() {
   const [tod,        setTod]       = useState<TimeOfDay>("afternoon");
@@ -534,6 +621,8 @@ export function HomePage() {
       </div>
 
       <ClubActivityRow />
+
+      <WeeklyPromptsCard />
 
       {/* ══ MORNING-AFTER ═══════════════════════════════════════════════════════ */}
       {showRecap && (

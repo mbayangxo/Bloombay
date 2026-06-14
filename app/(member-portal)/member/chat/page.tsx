@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   getMyConversations,
@@ -686,12 +687,26 @@ export default function ChatPage() {
   const [showNewChat, setShowNewChat] = useState(false);
   const [read, setRead] = useState<Set<number>>(new Set());
   const [dbConvos, setDbConvos] = useState<Convo[]>([]);
+  const [isFoundingMother, setIsFoundingMother] = useState(false);
 
   // Load real conversations from DB on mount
   useEffect(() => {
     getMyConversations().then(data => {
       if (data.length > 0) setDbConvos(data.map(dbConvoToUI));
     }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("profiles").select("is_founding_mother").eq("id", user.id).single()
+        .then(({ data }) => {
+          if ((data as { is_founding_mother?: boolean } | null)?.is_founding_mother) {
+            setIsFoundingMother(true);
+          }
+        });
+    });
   }, []);
 
   function openConvo(convo: Convo) {
@@ -747,6 +762,38 @@ export default function ChatPage() {
           </button>
         ))}
       </div>
+
+      {/* Founding Mothers Chat — pinned at top if member */}
+      {isFoundingMother && (filter === "all" || filter === "group") && (
+        <div style={{ margin: "0 16px 10px", position: "relative", zIndex: 1 }}>
+          <Link href="/member/lounge/founding-chat" style={{ textDecoration: "none", display: "block" }}>
+            <div style={{
+              borderRadius: 20, overflow: "hidden",
+              background: "linear-gradient(135deg, rgba(212,168,83,0.15) 0%, rgba(212,168,83,0.08) 100%)",
+              border: "1.5px solid rgba(212,168,83,0.35)",
+              boxShadow: "0 4px 24px rgba(212,168,83,0.12)",
+              display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+            }}>
+              <div style={{ width: 50, height: 50, borderRadius: 16, background: "linear-gradient(135deg, #D4A853, #8A6010)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: "0 2px 12px rgba(212,168,83,0.4)" }}>
+                🌺
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
+                  <p style={{ fontSize: "14px", fontWeight: 700, color: "rgba(255,238,200,0.95)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>Founding Mothers</p>
+                  <div style={{ background: "rgba(212,168,83,0.25)", border: "1px solid rgba(212,168,83,0.5)", borderRadius: 4, padding: "1px 6px", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#D4A853", letterSpacing: "0.1em" }}>PRIVATE</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>Your exclusive founding mothers chat</p>
+                <p style={{ fontSize: "10px", color: "rgba(212,168,83,0.5)", marginTop: 2 }}>100 founding mothers · NYC</p>
+              </div>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(212,168,83,0.4)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Conversation list */}
       {shown.length > 0 ? (
