@@ -408,11 +408,11 @@ export function HomePage() {
       overflowX: "hidden",
     }}>
 
-      {/* ── TOP gradient fade (BottomNav renders the actual top bar) ── */}
+      {/* ── TOP gradient fade (sits below BottomNav top bar at z-50) ── */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 90,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 40,
         height: "calc(env(safe-area-inset-top, 0px) + 58px)",
-        background: "linear-gradient(180deg, rgba(28,0,24,0.88) 0%, transparent 100%)",
+        background: "linear-gradient(180deg, rgba(28,0,24,0.72) 0%, transparent 100%)",
         pointerEvents: "none",
       }} />
 
