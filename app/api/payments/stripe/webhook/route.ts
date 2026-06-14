@@ -29,6 +29,16 @@ export async function POST(req: NextRequest) {
       const type = meta.type;
 
       if (type === "platform_membership") {
+        // Grant platform membership access
+        await supabase
+          .from("profiles")
+          .update({
+            is_member: true,
+            membership_started_at: new Date().toISOString(),
+            membership_type: "platform",
+          })
+          .eq("id", meta.user_id);
+
         await supabase.from("notifications").insert({
           user_id: meta.user_id,
           type: "membership_confirmed",
@@ -90,8 +100,14 @@ export async function POST(req: NextRequest) {
     }
 
     case "customer.subscription.deleted": {
-      // Platform membership cancelled — handle access revocation here
-      // TODO: update user's membership status in DB
+      const sub = event.data.object as Stripe.Subscription;
+      const subMeta = sub.metadata ?? {};
+      if (subMeta.user_id) {
+        await supabase
+          .from("profiles")
+          .update({ is_member: false, membership_type: null })
+          .eq("id", subMeta.user_id);
+      }
       break;
     }
   }

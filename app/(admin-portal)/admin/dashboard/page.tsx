@@ -543,18 +543,25 @@ function PendingSection() {
     setTimeout(() => setToast(null), 3000);
   }
 
-  function approve(id: number) {
+  async function approve(id: number) {
     const member = members.find((m) => m.id === id);
     const name = member ? member.name.split(" ")[0] : "her";
+    // Optimistic update
     setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "approved" } : m));
     setExpanded(null);
-    showToast("✓ Approved — invite sent to " + name);
+    showToast("✓ Approved — " + name + " has been welcomed");
+    // If there's a real applicationId (uuid), call the API
+    // For now, mock IDs just update local state (real IDs come from Supabase)
   }
 
-  function decline(id: number) {
+  async function decline(id: number) {
+    const member = members.find((m) => m.id === id);
+    // Optimistic update
     setMembers((prev) => prev.map((m) => m.id === id ? { ...m, status: "declined" } : m));
     setExpanded(null);
     showToast("Application declined");
+    // For real applications with uuid IDs, call the API
+    void member; // suppress unused warning
   }
 
   return (

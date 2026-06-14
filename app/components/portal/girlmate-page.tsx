@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
@@ -485,7 +485,7 @@ function QuizSheet({ onClose, onComplete }: { onClose: () => void; onComplete: (
 
 // ── Post Sheet ────────────────────────────────────────────────────────────────
 
-function PostSheet({ onClose }: { onClose: () => void }) {
+function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () => void }) {
   const [mode, setMode] = useState<"have" | "need">("have");
   const [type, setType] = useState("room");
   const [city, setCity] = useState("");
@@ -496,8 +496,46 @@ function PostSheet({ onClose }: { onClose: () => void }) {
   const [desc, setDesc] = useState("");
   const [showProfile, setShowProfile] = useState(true);
   const [done, setDone] = useState(false);
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
 
   const valid = city.trim() && hood.trim() && price.trim() && from.trim() && desc.trim();
+
+  async function submit() {
+    if (!valid || posting) return;
+    setPosting(true);
+    setPostError(null);
+    try {
+      const listingType = mode === "have"
+        ? type
+        : type === "room" ? "roommate-wanted" : type === "apartment" ? "co-search" : "co-search";
+      const res = await fetch("/api/girlmate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listing_type: listingType,
+          city: city.trim(),
+          neighborhood: hood.trim(),
+          price: Number(price),
+          available_from: from.trim() || null,
+          available_to: to.trim() || null,
+          description: desc.trim(),
+          show_profile: showProfile,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        setPostError(d.error ?? "Something went wrong");
+        setPosting(false);
+        return;
+      }
+      setDone(true);
+      onPosted?.();
+    } catch {
+      setPostError("Something went wrong");
+      setPosting(false);
+    }
+  }
 
   if (done) return (
     <>
@@ -604,8 +642,9 @@ function PostSheet({ onClose }: { onClose: () => void }) {
             </button>
           </div>
 
-          <button onClick={() => valid && setDone(true)} style={{ width: "100%", padding: "16px", background: valid ? PINK : "#eee", color: valid ? "white" : "#bbb", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", cursor: valid ? "pointer" : "default", boxShadow: valid ? `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` : "none", transition: "all 0.2s" }}>
-            Post listing ✦
+          {postError && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#B71C1C", marginBottom: 8 }}>{postError}</p>}
+          <button onClick={submit} disabled={!valid || posting} style={{ width: "100%", padding: "16px", background: valid ? PINK : "#eee", color: valid ? "white" : "#bbb", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", cursor: valid && !posting ? "pointer" : "default", boxShadow: valid ? `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` : "none", transition: "all 0.2s" }}>
+            {posting ? "Posting…" : "Post listing ✦"}
           </button>
         </div>
       </div>
@@ -615,6 +654,33 @@ function PostSheet({ onClose }: { onClose: () => void }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
+// Map API data to the Listing shape expected by the card components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function apiToListing(r: any): Listing {
+  const COLORS = ["#FF1F7D", "#C084FC", "#0EA5E9", "#FF69B4", "#8B5CF6"];
+  const name = r.profile?.full_name ?? r.profile?.first_name ?? "Bloomie";
+  const colorIdx = r.id.charCodeAt(0) % COLORS.length;
+  return {
+    id: r.id,
+    type: r.listing_type === "co-search" ? "roommate-wanted" : r.listing_type,
+    city: r.city ?? "New York City",
+    neighborhood: r.neighborhood_name ?? "",
+    price: r.price_cents ? Math.round(r.price_cents / 100) : 0,
+    availableFrom: r.available_from ? new Date(r.available_from).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Soon",
+    availableTo: r.available_to ? new Date(r.available_to).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : undefined,
+    furnished: r.furnished ?? false,
+    bathroom: r.private_bathroom ? "private" : "shared",
+    pets: r.pets ?? false,
+    smoking: r.smoking ?? false,
+    weed: r.weed_ok ?? false,
+    halalKitchen: r.halal_kitchen ?? false,
+    description: r.description ?? "",
+    poster: { initial: name[0]?.toUpperCase() ?? "B", color: COLORS[colorIdx], name, showProfile: r.show_profile ?? true },
+    compatibility: 75,
+    yandeNote: r.yande_note ?? "A fellow Bloomie looking for the right match.",
+  };
+}
+
 export function GirlMatePage() {
   const [tab, setTab]                       = useState<Tab>("available");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -622,6 +688,32 @@ export function GirlMatePage() {
   const [showQuiz, setShowQuiz]               = useState(false);
   const [quizDone, setQuizDone]               = useState(false);
   const [showPost, setShowPost]               = useState(false);
+  const [realListings, setRealListings]       = useState<Listing[]>([]);
+  const [realSeekers, setRealSeekers]         = useState<Listing[]>([]);
+
+  async function loadListings(t: Tab) {
+    try {
+      const res = await fetch(`/api/girlmate?tab=${t}`);
+      if (!res.ok) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any[] = await res.json();
+      const mapped = data.map(apiToListing);
+      if (t === "available") setRealListings(mapped);
+      else setRealSeekers(mapped);
+    } catch { /* ignore */ }
+  }
+
+  useEffect(() => {
+    loadListings("available");
+    loadListings("looking");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const displayListings = realListings.length > 0 ? realListings : LISTINGS;
+  // Seekers from API are stored as Listing; cast to Seeker for compatibility view
+  const displaySeekers  = realSeekers.length  > 0
+    ? realSeekers.map(l => ({ id: l.id as unknown as number, initial: l.poster.initial, color: l.poster.color, name: l.poster.name, city: l.city, neighborhood: l.neighborhood, budget: l.price, moveIn: l.availableFrom, type: l.type as "room" | "apartment" | "co-search", showProfile: l.poster.showProfile, note: l.description, compatibility: l.compatibility, yandeNote: l.yandeNote }))
+    : SEEKERS;
 
   return (
     <div style={{ minHeight: "100dvh", background: IVORY }}>
@@ -676,15 +768,15 @@ export function GirlMatePage() {
 
       {/* ── Feed ── */}
       <div style={{ padding: "18px 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
-        {tab === "available" && LISTINGS.map(l => <ListingCard key={l.id} l={l} onOpen={() => setSelectedListing(l)} />)}
-        {tab === "looking"   && SEEKERS.map(s  => <SeekerCard  key={s.id} s={s} onOpen={() => setSelectedSeeker(s)} />)}
+        {tab === "available" && displayListings.map(l => <ListingCard key={l.id} l={l} onOpen={() => setSelectedListing(l)} />)}
+        {tab === "looking"   && displaySeekers.map(s  => <SeekerCard  key={s.id} s={s as unknown as Seeker} onOpen={() => setSelectedSeeker(s as unknown as Seeker)} />)}
       </div>
 
       {/* ── Sheets ── */}
       {selectedListing && <ListingDetail l={selectedListing} onClose={() => setSelectedListing(null)} />}
       {selectedSeeker  && <SeekerDetail  s={selectedSeeker}  onClose={() => setSelectedSeeker(null)} />}
       {showQuiz && <QuizSheet onClose={() => setShowQuiz(false)} onComplete={() => { setQuizDone(true); setShowQuiz(false); }} />}
-      {showPost && <PostSheet onClose={() => setShowPost(false)} />}
+      {showPost && <PostSheet onClose={() => setShowPost(false)} onPosted={() => { loadListings(tab); }} />}
     </div>
   );
 }
