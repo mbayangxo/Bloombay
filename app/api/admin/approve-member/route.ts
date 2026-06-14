@@ -9,12 +9,57 @@ function admin() {
 }
 
 function verifyAdmin(req: NextRequest): boolean {
-  const auth = req.headers.get("x-admin-password");
-  return auth === process.env.ADMIN_PASSWORD;
+  return req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD;
+}
+
+async function yandeWelcome(app: {
+  first_name?: string | null;
+  neighborhood?: string | null;
+  vibe?: string | null;
+  goals?: string[] | null;
+  interests?: string[] | null;
+  city?: string | null;
+}): Promise<string> {
+  const fallback = "You're officially a BloomBay member. Your city just got a little smaller — in the best way. Explore The Avenue and find your table.";
+
+  if (!process.env.ANTHROPIC_API_KEY) return fallback;
+
+  const context = [
+    app.first_name ? `Name: ${app.first_name}` : null,
+    app.neighborhood ? `Neighborhood: ${app.neighborhood}` : null,
+    app.city && app.city !== "New York City" ? `City: ${app.city}` : null,
+    app.vibe ? `Vibe: ${app.vibe}` : null,
+    app.goals?.length ? `Goals: ${app.goals.join(", ")}` : null,
+    app.interests?.length ? `Interests: ${app.interests.join(", ")}` : null,
+  ].filter(Boolean).join("\n");
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 80,
+        system: `You are Yande, BloomBay's AI. Write a 1-2 sentence welcome message for a newly approved member.
+Warm, personal, specific — reference their neighborhood or interests if you have them.
+Sound like a friend who already knows them, not a brand. No emojis. No "Welcome to BloomBay!" openers.`,
+        messages: [{ role: "user", content: context || "New member, no extra details." }],
+      }),
+    });
+
+    if (!res.ok) return fallback;
+    const data = await res.json() as { content: { type: string; text: string }[] };
+    return data.content[0]?.text?.trim() || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 // POST /api/admin/approve-member
-// Body: { applicationId: string, action: "approve" | "decline", declineNote?: string }
 export async function POST(req: NextRequest) {
   if (!verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,7 +73,6 @@ export async function POST(req: NextRequest) {
 
   const supabase = admin();
 
-  // Fetch the application
   const { data: app, error: fetchErr } = await supabase
     .from("member_applications")
     .select("*")
@@ -42,38 +86,38 @@ export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
 
   if (body.action === "approve") {
-    // Update application status
     await supabase
       .from("member_applications")
       .update({ status: "approved", reviewed_at: now })
       .eq("id", body.applicationId);
 
-    // If there's a linked user, grant membership
     if (app.user_id) {
       await supabase
         .from("profiles")
         .update({
-          is_member: true,
+          is_member:             true,
           membership_started_at: now,
-          membership_type: "platform",
+          membership_type:       "platform",
         })
         .eq("id", app.user_id);
 
-      // Send in-app notification
+      // Yande writes a personalised welcome
+      const welcomeBody = await yandeWelcome(app);
+
       await supabase.from("notifications").insert({
         user_id: app.user_id,
-        type: "membership_confirmed",
-        title: "You're in. Welcome to BloomBay.",
-        body: "Your application was approved. The Avenue is yours — explore, connect, and bloom.",
-        link: "/member/avenue",
+        type:    "celebrate",
+        title:   "You're in. ✦",
+        body:    welcomeBody,
+        link:    "/member/home",
       });
     }
   } else {
     await supabase
       .from("member_applications")
       .update({
-        status: "declined",
-        reviewed_at: now,
+        status:       "declined",
+        reviewed_at:  now,
         decline_note: body.declineNote ?? null,
       })
       .eq("id", body.applicationId);
@@ -82,7 +126,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-// GET /api/admin/approve-member — list pending applications
+// GET /api/admin/approve-member — list applications
 export async function GET(req: NextRequest) {
   if (!verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
