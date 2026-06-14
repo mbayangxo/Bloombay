@@ -118,6 +118,24 @@ export async function toggleFollowTradition(traditionId: string): Promise<{ foll
   return { following: true };
 }
 
+export async function linkGatheringToTradition(gatheringId: string, traditionId: string): Promise<{ ok: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+
+  const { data: trad } = await supabase
+    .from("traditions").select("host_id").eq("id", traditionId).single();
+  if (!trad || (trad as { host_id: string }).host_id !== user.id) return { ok: false };
+
+  const { error } = await supabase
+    .from("gatherings")
+    .update({ tradition_id: traditionId })
+    .eq("id", gatheringId)
+    .eq("host_id", user.id);
+
+  return { ok: !error };
+}
+
 export async function getTraditionBySlug(slug: string): Promise<(Tradition & { gatherings?: unknown[] }) | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

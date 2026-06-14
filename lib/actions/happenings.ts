@@ -436,4 +436,73 @@ export async function updateArrivalStatus(
   await supabase.from("profiles").update({ arrival_status: status }).eq("id", user.id);
 }
 
+// ── Host: my hosted gatherings ────────────────────────────────────────────────
+
+export interface HostedGathering {
+  id: string;
+  title: string;
+  starts_at: string;
+  venue: string | null;
+  neighborhood: string | null;
+  attending_count: number;
+  spots_left: number | null;
+  capacity: number | null;
+  tradition_id: string | null;
+}
+
+export async function getMyHostedGatherings(): Promise<{ upcoming: HostedGathering[]; past: HostedGathering[] }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { upcoming: [], past: [] };
+
+  const now = new Date().toISOString();
+  const [{ data: upcoming }, { data: past }] = await Promise.all([
+    supabase.from("gatherings")
+      .select("id, title, starts_at, venue, neighborhood, attending_count, spots_left, capacity, tradition_id")
+      .eq("host_id", user.id)
+      .gte("starts_at", now)
+      .order("starts_at", { ascending: true })
+      .limit(10),
+    supabase.from("gatherings")
+      .select("id, title, starts_at, venue, neighborhood, attending_count, spots_left, capacity, tradition_id")
+      .eq("host_id", user.id)
+      .lt("starts_at", now)
+      .order("starts_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  return {
+    upcoming: (upcoming ?? []) as HostedGathering[],
+    past:     (past     ?? []) as HostedGathering[],
+  };
+}
+
+export interface AttendeePreview {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
+export async function getGatheringAttendeesForHost(gatheringId: string): Promise<AttendeePreview[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data: g } = await supabase
+    .from("gatherings").select("host_id").eq("id", gatheringId).single();
+  if (!g || (g as { host_id: string }).host_id !== user.id) return [];
+
+  const { data } = await supabase
+    .from("gathering_attendance")
+    .select("user_id, profiles!user_id(full_name, avatar_url)")
+    .eq("gathering_id", gatheringId)
+    .limit(30);
+
+  return (data ?? []).map((r: Record<string, unknown>) => {
+    const p = r.profiles as { full_name?: string; avatar_url?: string } | null;
+    return { user_id: r.user_id as string, full_name: p?.full_name ?? null, avatar_url: p?.avatar_url ?? null };
+  });
+}
+
+
 
