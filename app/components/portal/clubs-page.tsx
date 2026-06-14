@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape, Polaroid } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
@@ -248,8 +249,7 @@ export function ClubsPage() {
                 }}>
                   <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px", overflow: "hidden", position: "relative" }}>
                     {club.cover_url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={club.cover_url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                      <Image src={club.cover_url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                     )}
                   </div>
                   <div style={{ marginTop: 10 }}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
@@ -648,9 +649,8 @@ function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub
             <div style={{ display: "flex", flexDirection: "column", alignItems: msg.mine ? "flex-end" : "flex-start", maxWidth: "75%" }}>
               {!msg.mine && <span style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, marginLeft: 4, color: msg.color }}>{msg.author}</span>}
               {msg.imageUrl && (
-                <div style={{ borderRadius: msg.mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", overflow: "hidden", marginBottom: msg.text ? 6 : 0, maxWidth: 220 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={msg.imageUrl} alt="" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
+                <div style={{ borderRadius: msg.mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", overflow: "hidden", marginBottom: msg.text ? 6 : 0, maxWidth: 220, position: "relative", height: 200 }}>
+                  <Image src={msg.imageUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                 </div>
               )}
               {msg.text && (
@@ -677,8 +677,7 @@ function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub
       {pendingImage && (
         <div style={{ padding: "8px 16px 0", background: "white" }}>
           <div style={{ position: "relative", width: 80, height: 80, borderRadius: 12, overflow: "hidden" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={pendingImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Image src={pendingImage} alt="" fill unoptimized style={{ objectFit: "cover" }} />
             <button onClick={() => setPendingImage(null)} style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="7" height="7" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>

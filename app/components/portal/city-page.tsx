@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
@@ -1544,8 +1545,7 @@ function BloomNotesBoard({ placeSlug, placeName, brand, accent }: { placeSlug: s
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15.5, color: "#4A3A2A", lineHeight: 1.45, marginBottom: 8 }}>{n.content}</p>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               {n.author_avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={n.author_avatar} alt="" style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover" }}/>
+                <Image src={n.author_avatar} alt="" width={20} height={20} unoptimized style={{ borderRadius: "50%", objectFit: "cover" }} />
               ) : (
                 <div style={{ width: 20, height: 20, borderRadius: "50%", background: `linear-gradient(135deg, ${accent}, ${brand})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{(n.author_name ?? "B").charAt(0)}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
 import {
@@ -61,8 +62,7 @@ function AuthorChip({ note }: { note: BloomNote }) {
   return (
     <Link href={`/member/profile/${note.author_id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
       {note.author_avatar ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={note.author_avatar} alt="" style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", border: "2px solid white", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}/>
+        <Image src={note.author_avatar} alt="" width={26} height={26} unoptimized style={{ borderRadius: "50%", objectFit: "cover", border: "2px solid white", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }} />
       ) : (
         <div style={{
           width: 26, height: 26, borderRadius: "50%",

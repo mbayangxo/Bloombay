@@ -1320,8 +1320,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
                   {worldPhotos.map(photo => (
                     <div key={photo.id} style={{ position: "relative", borderRadius: 16, overflow: "hidden", aspectRatio: "1", background: "rgba(255,31,125,0.05)", border: "1px solid rgba(255,31,125,0.1)" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <Image src={photo.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                     </div>
                   ))}
                   {uploadingWorldCount > 0 && Array.from({ length: uploadingWorldCount }).map((_, i) => (

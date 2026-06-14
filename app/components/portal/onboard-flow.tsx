@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
@@ -932,7 +933,7 @@ export function OnboardFlow() {
                 onClick={() => avatarInputRef.current?.click()}
               >
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Your photo" className="w-full h-full object-cover" />
+                  <Image src={avatarPreview} alt="Your photo" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-1" style={{ background: "var(--light-pink)" }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.5">
@@ -996,7 +997,7 @@ export function OnboardFlow() {
               onClick={() => selfieInputRef.current?.click()}
             >
               {selfiePreview ? (
-                <img src={selfiePreview} alt="Selfie" className="w-full h-full object-cover" />
+                <Image src={selfiePreview} alt="Selfie" fill unoptimized style={{ objectFit: "cover" }} />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                   <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.3">

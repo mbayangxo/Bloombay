@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from "@/lib/actions/events";
 import { EventCard, type EventCardData, type EventType } from "@/app/components/portal/event-card-templates";
@@ -578,8 +579,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
       height: fullWidth ? 230 : 168,
       boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
     }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={poster} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+      <Image src={poster} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0.75) 65%, rgba(0,0,0,0.92) 100%)" }}/>
 
       {/* Top badges */}
@@ -669,7 +669,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
     }}>
       {/* Ticket image */}
       <div style={{ position: "relative", height: 130, overflow: "hidden" }}>
-        <img src={img} alt={ev.title} style={{ width: "100%", height: "100%", objectFit: "cover" }}/>
+        <Image src={img} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
         {badge && (
           <div style={{ position: "absolute", top: 8, left: 8, display: "flex", alignItems: "center", gap: 4, background: "rgba(0,0,0,0.6)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(6px)" }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
@@ -738,7 +738,7 @@ function ClubCard({ ev, clubIdx, joined, onToggle }: {
       background: "#0A0A0A",
       boxShadow: "0 6px 24px rgba(0,0,0,0.5)",
     }}>
-      <img src={img} alt={ev.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }}/>
+      <Image src={img} alt={ev.title} fill unoptimized style={{ objectFit: "cover", opacity: 0.75 }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.8) 100%)" }}/>
 
       {/* Pink corner accent */}
@@ -787,7 +787,9 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
       <div style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%) rotate(-1deg)", width: 40, height: 12, background: "rgba(255,252,195,0.85)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}/>
 
       {ev.image_url && (
-        <img src={ev.image_url} alt={ev.title} style={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 6, marginBottom: 8 }}/>
+        <div style={{ position: "relative", width: "100%", height: 80, borderRadius: 6, overflow: "hidden", marginBottom: 8 }}>
+          <Image src={ev.image_url} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+        </div>
       )}
       {!ev.image_url && (
         <div style={{ width: "100%", height: 60, borderRadius: 6, marginBottom: 8, background: `${accent}22`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -823,7 +825,7 @@ function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub
       height: 160,
       boxShadow: "0 5px 20px rgba(0,0,0,0.4)",
     }}>
-      <img src={img} alt={title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+      <Image src={img} alt={title} fill style={{ objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 35%, rgba(0,0,0,0.82) 100%)" }}/>
       <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
         <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{title}</p>
@@ -933,8 +935,7 @@ function StaticCollage() {
           { img: POSTER_IMGS[5], title: "Dance All Night", sub: "Sat · Midnight · DUMBO" },
         ].map((item, i) => (
           <div key={i} style={{ flexShrink: 0, width: 150, height: 190, borderRadius: 14, overflow: "hidden", position: "relative", boxShadow: "0 6px 22px rgba(0,0,0,0.45)" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.img} alt={item.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+            <Image src={item.img} alt={item.title} fill style={{ objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%)" }}/>
             <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
               <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2 }}>{item.title}</p>
@@ -1480,8 +1481,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                     { name: "Dance All Night",sub: "SAT · 11PM",              img: POSTER_IMGS[5], going: 10 },
                   ].map((item, i) => (
                     <div key={i} style={{ flexShrink: 0, width: 140, borderRadius: 12, overflow: "hidden", position: "relative", height: 108, boxShadow: "0 4px 20px rgba(0,0,0,0.6)" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={item.img} alt={item.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                      <Image src={item.img} alt={item.name} fill style={{ objectFit: "cover" }} />
                       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 25%, rgba(0,0,0,0.88) 100%)" }}/>
                       {/* Going badge */}
                       <div style={{ position: "absolute", top: 8, right: 8, background: PINK, borderRadius: 999, padding: "2px 7px" }}>

@@ -9,6 +9,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -629,11 +630,9 @@ export function FoodEditorialCard({ ev }: { ev: EventCardData }) {
           width: 130, height: 130, zIndex: 2,
         }}>
           {ev.imageUrl ? (
-            <img src={ev.imageUrl} alt={ev.title} style={{
-              width: "100%", height: "100%", objectFit: "cover", borderRadius: 10,
-              boxShadow: "0 14px 40px rgba(0,0,0,0.22), 0 4px 14px rgba(0,0,0,0.14), 0 2px 0 rgba(0,0,0,0.38)",
-              filter: "contrast(1.04) saturate(1.08)",
-            }}/>
+            <div style={{ position: "relative", width: 130, height: 130, borderRadius: 10, overflow: "hidden", boxShadow: "0 14px 40px rgba(0,0,0,0.22), 0 4px 14px rgba(0,0,0,0.14), 0 2px 0 rgba(0,0,0,0.38)", filter: "contrast(1.04) saturate(1.08)" }}>
+              <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+            </div>
           ) : (
             <div style={{
               width: "100%", height: "100%", borderRadius: 10,
@@ -717,7 +716,7 @@ export function FoodPopupCard({ ev }: { ev: EventCardData }) {
         {/* Food photo */}
         <div style={{ height: 120, position: "relative", overflow: "hidden", zIndex: 1 }}>
           {ev.imageUrl ? (
-            <img src={ev.imageUrl} alt={ev.title} style={{ width: "100%", height: "100%", objectFit: "cover" }}/>
+            <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
           ) : (
             <div style={{ width: "100%", height: "100%", background: "rgba(0,0,0,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44 }}>☕</div>
           )}
@@ -772,7 +771,7 @@ export function BakeryReceiptCard({ ev }: { ev: EventCardData }) {
       }}>
         {/* Food bg image or warm gradient */}
         {ev.imageUrl ? (
-          <img src={ev.imageUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+          <Image src={ev.imageUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
         ) : (
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(145deg, ${accent}88, ${accent}44, #C4862055)` }}/>
         )}

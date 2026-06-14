@@ -217,9 +217,9 @@ function ClubCover({ club }: { club: Club }) {
   return (
     <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7 }}>
-        <div style={{ width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.2)" }}>
+        <div style={{ position: "relative", width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.2)" }}>
           {club.cover_url
-            ? <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ? <Image src={club.cover_url} alt={club.name} fill unoptimized style={{ objectFit: "cover" }} />
             : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${club.primary_color ?? PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{abbr}</p>
               </div>
