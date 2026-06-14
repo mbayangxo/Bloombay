@@ -162,7 +162,7 @@ export function LandingPage() {
           <Link href="/waitlist" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", borderRadius: 18, padding: "18px 22px", textDecoration: "none", boxShadow: "0 12px 40px rgba(0,0,0,0.22)", marginBottom: 14 }}>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: INK }}>SAVE MY SPOT</p>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "11px", color: "#aaa", marginTop: 1 }}>500 founding spots available</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "11px", color: "#aaa", marginTop: 1 }}>100 founding mothers — apply now</p>
             </div>
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" /></svg>
@@ -170,10 +170,14 @@ export function LandingPage() {
           </Link>
 
           <div style={{ display: "flex", alignItems: "center", paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
-            {[{ num: "247", label: "MEMBERS" }, { num: "500", label: "FOUNDING SPOTS" }, { num: "NYC", label: "FIRST CITY" }].map((s, i) => (
+            {[
+              { num: "3 in 5", label: "WOMEN FEEL LONELY IN CITIES" },
+              { num: "100K+", label: "WOMEN MOVE TO NYC YEARLY" },
+              { num: "After 25", label: "MAKING FRIENDS GETS HARDER" },
+            ].map((s, i) => (
               <div key={s.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, borderRight: i < 2 ? "1px solid rgba(255,255,255,0.15)" : "none" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "18px", fontWeight: 900, color: "white", lineHeight: 1 }}>{s.num}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, color: "white", lineHeight: 1.1, textAlign: "center" }}>{s.num}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -304,6 +308,53 @@ export function LandingPage() {
           ))}
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          THE PROBLEM — social stats narrative
+      ══════════════════════════════════════════════════════ */}
+      <section style={{ padding: "72px 22px 64px", background: IVORY }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+
+            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+              <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: "20px" }}>🏙️</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
+                Over <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>100,000 women</strong> move to New York City every year — and most of them know almost nobody.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+              <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: "20px" }}>💔</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
+                <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>3 in 5 women</strong> in major cities report feeling lonely. After 25, making real friends gets harder every year.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+              <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: "20px" }}>📱</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
+                <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>1 in 3 women</strong> says she has no close friends outside her family. The group chats go quiet. The plans stop happening.
+              </p>
+            </div>
+
+            <div style={{ marginTop: 8, paddingTop: 28, borderTop: `2px solid ${PINK}` }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(18px,3vw,22px)", color: INK, letterSpacing: "0.04em", margin: 0 }}>
+                BloomBay is here to change that. <span style={{ color: PINK }}>✦</span>
+              </p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(15px,2.5vw,18px)", color: "#999", marginTop: 8, lineHeight: 1.6 }}>
+                A real community. Real women. Real plans that actually happen.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════════════
           YOUR TABLE IS HERE — Event cards
@@ -471,10 +522,14 @@ export function LandingPage() {
 
           {/* Stats */}
           <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", marginBottom: 32 }}>
-            {[{ num: "247", label: "Members" }, { num: "12+", label: "Clubs" }, { num: "500", label: "Founding spots" }].map(s => (
-              <div key={s.label} style={{ textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "36px", color: "white", lineHeight: 1 }}>{s.num}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.16em", color: "rgba(255,255,255,0.55)", marginTop: 4 }}>{s.label.toUpperCase()}</p>
+            {[
+              { num: "3 in 5", label: "Women feel lonely in cities" },
+              { num: "100K+", label: "Women move to NYC every year" },
+              { num: "1 in 3", label: "Women have no close friends outside family" },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: "center", maxWidth: 180 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(28px,4vw,40px)", color: "white", lineHeight: 1 }}>{s.num}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)", marginTop: 6, lineHeight: 1.4 }}>{s.label.toUpperCase()}</p>
               </div>
             ))}
           </div>
@@ -554,7 +609,7 @@ export function LandingPage() {
             Your place is{" "}
             <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>here.</span>
           </p>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 40 }}>500 founding spots. New York City.</p>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 40 }}>100 founding mothers. New York City.</p>
           <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
             SAVE MY SPOT
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
