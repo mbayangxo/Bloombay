@@ -186,16 +186,23 @@ function ClubActivityRow() {
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.38)" }}>CLUB ACTIVITY</p>
         <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.28)" }}>see all →</Link>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {CLUB_ACTIVITY_ITEMS.map((c, i) => (
           <Link key={i} href="/member/clubs" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.06)", borderRadius: 14, padding: "11px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: c.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", flexShrink: 0 }}>{c.abbr}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.88)", marginBottom: 2 }}>{c.name}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.36)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{c.msg}</p>
+            <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 13, borderRadius: 16, padding: "13px 14px 13px 18px", border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden", background: `linear-gradient(120deg, rgba(255,255,255,0.08) 0%, ${c.color}12 100%)` }}>
+              {/* Left accent bar */}
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: c.color, borderRadius: "16px 0 0 16px" }} />
+              {/* Radial glow */}
+              <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${c.color}22 0%, transparent 70%)`, pointerEvents: "none" }} />
+              {/* Avatar */}
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(145deg, ${c.color}, ${c.color}99)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: "white", flexShrink: 0, boxShadow: `0 4px 14px ${c.color}55`, zIndex: 1 }}>{c.abbr}</div>
+              {/* Text */}
+              <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 700, color: "rgba(255,255,255,0.92)", marginBottom: 3 }}>{c.name}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.42)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{c.msg}</p>
               </div>
-              <div style={{ width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", flexShrink: 0, boxShadow: `0 2px 8px ${PINK}66` }}>{c.unread}</div>
+              {/* Unread badge */}
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", flexShrink: 0, boxShadow: `0 2px 8px ${PINK}66`, zIndex: 1 }}>{c.unread}</div>
             </div>
           </Link>
         ))}
@@ -214,7 +221,7 @@ function ClubCover({ club }: { club: Club }) {
           {club.cover_url
             ? <img src={club.cover_url} alt={club.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${club.primary_color ?? PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{abbr}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{abbr}</p>
               </div>
           }
         </div>
@@ -617,7 +624,7 @@ export function HomePage() {
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.62)", letterSpacing: "0.1em", marginBottom: 5 }}>{TONIGHT_CARDS[tonightIdx].venue}</p>
                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
                   <div>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 400, fontSize: 32, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.58)", marginTop: 4 }}>{TONIGHT_CARDS[tonightIdx].sub}</p>
                   </div>
                   <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55` }}>
