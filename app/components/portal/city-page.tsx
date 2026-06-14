@@ -1267,15 +1267,23 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
           {allPartners.map(p => (
-            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} onOpen={() => setProfileId(p.id)} />
+            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
           ))}
         </div>
       </div>
+
+      {reserveTarget && (
+        <ReserveTableSheet
+          restaurantId={reserveTarget.id}
+          restaurantName={reserveTarget.name}
+          onClose={() => setReserveTarget(null)}
+        />
+      )}
     </div>
   );
 }
 
-function EatsPartnerCard({ partner: p, noteCount, onOpen }: { partner: EatsPartner; noteCount: number; onOpen: () => void }) {
+function EatsPartnerCard({ partner: p, noteCount, onOpen, onReserve }: { partner: EatsPartner; noteCount: number; onOpen: () => void; onReserve: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -1353,6 +1361,16 @@ function EatsPartnerCard({ partner: p, noteCount, onOpen }: { partner: EatsPartn
         {/* Bloomie note */}
         <div style={{ background: "rgba(255,155,112,0.07)", borderLeft: `3px solid ${p.accentColor}`, padding: "8px 10px", marginBottom: 10, borderRadius: "0 8px 8px 0" }}>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#5A3A20", lineHeight: 1.4 }}>{p.bloomieNote}</p>
+        </div>
+
+        {/* Reserve button */}
+        <div style={{ marginBottom: 10 }}>
+          <button
+            onClick={onReserve}
+            style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}
+          >
+            Reserve ✦
+          </button>
         </div>
 
         {/* Menu toggle */}
