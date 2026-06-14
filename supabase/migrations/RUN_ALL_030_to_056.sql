@@ -1589,7 +1589,7 @@ create or replace view public.hanger_earnings as
     round(p.amount_cents * 0.10)::integer as bloombay_fee_cents,
     p.created_at
   from public.purchases p
-  join public.hanger_listings hl on hl.id = p.item_id
+  join public.hanger_listings hl on hl.id = p.item_id::uuid
   where p.type = 'hanger_purchase'
     and p.status = 'completed';
 create table if not exists public.pin_drops (
