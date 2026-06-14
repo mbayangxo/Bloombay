@@ -29,30 +29,39 @@ alter table public.bloom_notes        enable row level security;
 alter table public.bloom_note_flowers enable row level security;
 alter table public.bloom_note_saves   enable row level security;
 
+drop policy if exists "notes_read_all" on public.bloom_notes;
 create policy "notes_read_all"
   on public.bloom_notes for select using (true);
 
+drop policy if exists "notes_insert_own" on public.bloom_notes;
 create policy "notes_insert_own"
   on public.bloom_notes for insert with check (auth.uid() = author_id);
 
+drop policy if exists "notes_delete_own" on public.bloom_notes;
 create policy "notes_delete_own"
   on public.bloom_notes for delete using (auth.uid() = author_id);
 
+drop policy if exists "flowers_read_all" on public.bloom_note_flowers;
 create policy "flowers_read_all"
   on public.bloom_note_flowers for select using (true);
 
+drop policy if exists "flowers_give_own" on public.bloom_note_flowers;
 create policy "flowers_give_own"
   on public.bloom_note_flowers for insert with check (auth.uid() = user_id);
 
+drop policy if exists "flowers_take_back_own" on public.bloom_note_flowers;
 create policy "flowers_take_back_own"
   on public.bloom_note_flowers for delete using (auth.uid() = user_id);
 
+drop policy if exists "saves_read_own" on public.bloom_note_saves;
 create policy "saves_read_own"
   on public.bloom_note_saves for select using (auth.uid() = user_id);
 
+drop policy if exists "saves_insert_own" on public.bloom_note_saves;
 create policy "saves_insert_own"
   on public.bloom_note_saves for insert with check (auth.uid() = user_id);
 
+drop policy if exists "saves_delete_own" on public.bloom_note_saves;
 create policy "saves_delete_own"
   on public.bloom_note_saves for delete using (auth.uid() = user_id);
 
@@ -128,16 +137,25 @@ alter table public.event_waitlist  enable row level security;
 alter table public.event_witnesses enable row level security;
 alter table public.host_reviews    enable row level security;
 
+drop policy if exists "waitlist_read_all" on public.event_waitlist;
 create policy "waitlist_read_all"   on public.event_waitlist  for select using (true);
+drop policy if exists "waitlist_join" on public.event_waitlist;
 create policy "waitlist_join"       on public.event_waitlist  for insert with check (auth.uid() = user_id);
+drop policy if exists "waitlist_leave" on public.event_waitlist;
 create policy "waitlist_leave"      on public.event_waitlist  for delete using  (auth.uid() = user_id);
 
+drop policy if exists "witnesses_read_all" on public.event_witnesses;
 create policy "witnesses_read_all"  on public.event_witnesses for select using (true);
+drop policy if exists "witnesses_write_own" on public.event_witnesses;
 create policy "witnesses_write_own" on public.event_witnesses for insert with check (auth.uid() = from_user_id);
+drop policy if exists "witnesses_delete_own" on public.event_witnesses;
 create policy "witnesses_delete_own" on public.event_witnesses for delete using (auth.uid() = from_user_id);
 
+drop policy if exists "reviews_read_all" on public.host_reviews;
 create policy "reviews_read_all"   on public.host_reviews for select using (true);
+drop policy if exists "reviews_write_own" on public.host_reviews;
 create policy "reviews_write_own"  on public.host_reviews for insert with check (auth.uid() = reviewer_id);
+drop policy if exists "reviews_delete_own" on public.host_reviews;
 create policy "reviews_delete_own" on public.host_reviews for delete using  (auth.uid() = reviewer_id);
 
 -- Notify host when they receive a review
@@ -206,9 +224,13 @@ create table if not exists public.girlmate_profiles (
 );
 
 alter table public.girlmate_profiles enable row level security;
+drop policy if exists "girlmate_read_active" on public.girlmate_profiles;
 create policy "girlmate_read_active" on public.girlmate_profiles for select using (is_active = true);
+drop policy if exists "girlmate_write_own" on public.girlmate_profiles;
 create policy "girlmate_write_own"   on public.girlmate_profiles for insert with check (auth.uid() = user_id);
+drop policy if exists "girlmate_update_own" on public.girlmate_profiles;
 create policy "girlmate_update_own"  on public.girlmate_profiles for update using  (auth.uid() = user_id);
+drop policy if exists "girlmate_delete_own" on public.girlmate_profiles;
 create policy "girlmate_delete_own"  on public.girlmate_profiles for delete using  (auth.uid() = user_id);
 
 create index if not exists girlmate_created_idx on public.girlmate_profiles(created_at desc);
@@ -248,10 +270,15 @@ create or replace view public.hanger_seller_balance as
 alter table public.hanger_listings enable row level security;
 alter table public.hanger_sales    enable row level security;
 
+drop policy if exists "listings_read_active" on public.hanger_listings;
 create policy "listings_read_active" on public.hanger_listings for select using (status = 'active' or auth.uid() = seller_id);
+drop policy if exists "listings_write_own" on public.hanger_listings;
 create policy "listings_write_own"   on public.hanger_listings for insert with check (auth.uid() = seller_id);
+drop policy if exists "listings_update_own" on public.hanger_listings;
 create policy "listings_update_own"  on public.hanger_listings for update using  (auth.uid() = seller_id);
+drop policy if exists "sales_read_own" on public.hanger_sales;
 create policy "sales_read_own"       on public.hanger_sales    for select using  (auth.uid() = seller_id or auth.uid() = buyer_id);
+drop policy if exists "sales_insert_any" on public.hanger_sales;
 create policy "sales_insert_any"     on public.hanger_sales    for insert with check (auth.uid() = buyer_id);
 
 create index if not exists hanger_seller_idx   on public.hanger_listings(seller_id);
@@ -283,10 +310,15 @@ create table if not exists public.book_requests (
 alter table public.book_listings  enable row level security;
 alter table public.book_requests  enable row level security;
 
+drop policy if exists "book_read_active" on public.book_listings;
 create policy "book_read_active"  on public.book_listings  for select using (is_active = true or auth.uid() = provider_id);
+drop policy if exists "book_write_own" on public.book_listings;
 create policy "book_write_own"    on public.book_listings  for insert with check (auth.uid() = provider_id);
+drop policy if exists "book_update_own" on public.book_listings;
 create policy "book_update_own"   on public.book_listings  for update using  (auth.uid() = provider_id);
+drop policy if exists "request_read_own" on public.book_requests;
 create policy "request_read_own"  on public.book_requests  for select using  (auth.uid() = client_id or auth.uid() = (select provider_id from public.book_listings where id = listing_id));
+drop policy if exists "request_write_own" on public.book_requests;
 create policy "request_write_own" on public.book_requests  for insert with check (auth.uid() = client_id);
 
 create index if not exists book_category_idx  on public.book_listings(category, is_active);
@@ -334,11 +366,17 @@ create trigger bloom_trip_count_sync
 alter table public.bloom_trips          enable row level security;
 alter table public.bloom_trip_attendees enable row level security;
 
+drop policy if exists "trips_read_open" on public.bloom_trips;
 create policy "trips_read_open"       on public.bloom_trips          for select using (status in ('open','full') or auth.uid() = organizer_id);
+drop policy if exists "trips_write_own" on public.bloom_trips;
 create policy "trips_write_own"       on public.bloom_trips          for insert with check (auth.uid() = organizer_id);
+drop policy if exists "trips_update_own" on public.bloom_trips;
 create policy "trips_update_own"      on public.bloom_trips          for update using  (auth.uid() = organizer_id);
+drop policy if exists "attendees_read_all" on public.bloom_trip_attendees;
 create policy "attendees_read_all"    on public.bloom_trip_attendees for select using (true);
+drop policy if exists "attendees_join" on public.bloom_trip_attendees;
 create policy "attendees_join"        on public.bloom_trip_attendees for insert with check (auth.uid() = user_id);
+drop policy if exists "attendees_leave" on public.bloom_trip_attendees;
 create policy "attendees_leave"       on public.bloom_trip_attendees for delete using  (auth.uid() = user_id);
 
 create index if not exists trips_departure_idx on public.bloom_trips(departure_date asc);
@@ -381,16 +419,22 @@ alter table public.wellness_posts enable row level security;
 drop policy if exists "wellness_posts_read_all"    on public.wellness_posts;
 drop policy if exists "wellness_posts_insert_own"  on public.wellness_posts;
 drop policy if exists "wellness_posts_delete_own"  on public.wellness_posts;
+drop policy if exists "wellness_posts_read_all" on public.wellness_posts;
 create policy "wellness_posts_read_all"   on public.wellness_posts for select using (true);
+drop policy if exists "wellness_posts_insert_own" on public.wellness_posts;
 create policy "wellness_posts_insert_own" on public.wellness_posts for insert with check (auth.uid() = author_id);
+drop policy if exists "wellness_posts_delete_own" on public.wellness_posts;
 create policy "wellness_posts_delete_own" on public.wellness_posts for delete using (auth.uid() = author_id);
 
 alter table public.wellness_saves enable row level security;
 drop policy if exists "wellness_saves_read_own"   on public.wellness_saves;
 drop policy if exists "wellness_saves_insert_own" on public.wellness_saves;
 drop policy if exists "wellness_saves_delete_own" on public.wellness_saves;
+drop policy if exists "wellness_saves_read_own" on public.wellness_saves;
 create policy "wellness_saves_read_own"   on public.wellness_saves for select using (auth.uid() = user_id);
+drop policy if exists "wellness_saves_insert_own" on public.wellness_saves;
 create policy "wellness_saves_insert_own" on public.wellness_saves for insert with check (auth.uid() = user_id);
+drop policy if exists "wellness_saves_delete_own" on public.wellness_saves;
 create policy "wellness_saves_delete_own" on public.wellness_saves for delete using (auth.uid() = user_id);
 
 -- Keep saves_count in sync
@@ -423,12 +467,15 @@ create table if not exists public.gathering_flowers (
 
 alter table public.gathering_flowers enable row level security;
 
+drop policy if exists "gathering_flowers_read_all" on public.gathering_flowers;
 create policy "gathering_flowers_read_all"
   on public.gathering_flowers for select using (true);
 
+drop policy if exists "gathering_flowers_give_own" on public.gathering_flowers;
 create policy "gathering_flowers_give_own"
   on public.gathering_flowers for insert with check (auth.uid() = user_id);
 
+drop policy if exists "gathering_flowers_take_back_own" on public.gathering_flowers;
 create policy "gathering_flowers_take_back_own"
   on public.gathering_flowers for delete using (auth.uid() = user_id);
 
@@ -444,12 +491,15 @@ create table if not exists public.profile_flowers (
 
 alter table public.profile_flowers enable row level security;
 
+drop policy if exists "profile_flowers_read_all" on public.profile_flowers;
 create policy "profile_flowers_read_all"
   on public.profile_flowers for select using (true);
 
+drop policy if exists "profile_flowers_give_own" on public.profile_flowers;
 create policy "profile_flowers_give_own"
   on public.profile_flowers for insert with check (auth.uid() = user_id);
 
+drop policy if exists "profile_flowers_take_back_own" on public.profile_flowers;
 create policy "profile_flowers_take_back_own"
   on public.profile_flowers for delete using (auth.uid() = user_id);
 
@@ -522,21 +572,27 @@ create table if not exists public.tradition_followers (
 alter table public.traditions       enable row level security;
 alter table public.tradition_followers enable row level security;
 
+drop policy if exists "traditions_read_all" on public.traditions;
 create policy "traditions_read_all"
   on public.traditions for select using (true);
 
+drop policy if exists "traditions_insert_own" on public.traditions;
 create policy "traditions_insert_own"
   on public.traditions for insert with check (auth.uid() = host_id);
 
+drop policy if exists "traditions_update_own" on public.traditions;
 create policy "traditions_update_own"
   on public.traditions for update using (auth.uid() = host_id);
 
+drop policy if exists "tradition_followers_read_all" on public.tradition_followers;
 create policy "tradition_followers_read_all"
   on public.tradition_followers for select using (true);
 
+drop policy if exists "tradition_followers_insert_own" on public.tradition_followers;
 create policy "tradition_followers_insert_own"
   on public.tradition_followers for insert with check (auth.uid() = user_id);
 
+drop policy if exists "tradition_followers_delete_own" on public.tradition_followers;
 create policy "tradition_followers_delete_own"
   on public.tradition_followers for delete using (auth.uid() = user_id);
 
@@ -584,15 +640,18 @@ create table if not exists public.bloom_note_tags (
 
 alter table public.bloom_note_tags enable row level security;
 
+drop policy if exists "note_tags_read_all" on public.bloom_note_tags;
 create policy "note_tags_read_all"
   on public.bloom_note_tags for select using (true);
 
+drop policy if exists "note_tags_insert_own" on public.bloom_note_tags;
 create policy "note_tags_insert_own"
   on public.bloom_note_tags for insert
   with check (
     auth.uid() = (select author_id from public.bloom_notes where id = note_id)
   );
 
+drop policy if exists "note_tags_delete_own" on public.bloom_note_tags;
 create policy "note_tags_delete_own"
   on public.bloom_note_tags for delete
   using (
@@ -694,14 +753,17 @@ CREATE POLICY "msg_insert" ON bloomies_plan_messages FOR INSERT
 -- RLS was enabled in migration 024 but policies were never written.
 
 drop policy if exists "memberships_read_all" on public.club_memberships;
+drop policy if exists "memberships_read_all" on public.club_memberships;
 create policy "memberships_read_all"
   on public.club_memberships for select using (true);
 
+drop policy if exists "memberships_join" on public.club_memberships;
 drop policy if exists "memberships_join" on public.club_memberships;
 create policy "memberships_join"
   on public.club_memberships for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "memberships_leave" on public.club_memberships;
 drop policy if exists "memberships_leave" on public.club_memberships;
 create policy "memberships_leave"
   on public.club_memberships for delete
@@ -725,18 +787,22 @@ create index if not exists bouquet_owner_idx on public.bloom_bouquet(owner_id, p
 
 alter table public.bloom_bouquet enable row level security;
 
+drop policy if exists "bouquet_read_own" on public.bloom_bouquet;
 create policy "bouquet_read_own"
   on public.bloom_bouquet for select
   using (auth.uid() = owner_id);
 
+drop policy if exists "bouquet_add" on public.bloom_bouquet;
 create policy "bouquet_add"
   on public.bloom_bouquet for insert
   with check (auth.uid() = owner_id);
 
+drop policy if exists "bouquet_remove" on public.bloom_bouquet;
 create policy "bouquet_remove"
   on public.bloom_bouquet for delete
   using (auth.uid() = owner_id);
 
+drop policy if exists "bouquet_reorder" on public.bloom_bouquet;
 create policy "bouquet_reorder"
   on public.bloom_bouquet for update
   using (auth.uid() = owner_id);
@@ -761,14 +827,17 @@ create index if not exists pings_sender_idx    on public.safety_pings(sender_id,
 
 alter table public.safety_pings enable row level security;
 
+drop policy if exists "pings_read_own" on public.safety_pings;
 create policy "pings_read_own"
   on public.safety_pings for select
   using (auth.uid() = sender_id or auth.uid() = recipient_id);
 
+drop policy if exists "pings_send" on public.safety_pings;
 create policy "pings_send"
   on public.safety_pings for insert
   with check (auth.uid() = sender_id);
 
+drop policy if exists "pings_update_recipient" on public.safety_pings;
 create policy "pings_update_recipient"
   on public.safety_pings for update
   using (auth.uid() = recipient_id);
@@ -793,14 +862,17 @@ create index if not exists checkins_user_idx  on public.event_checkins(user_id, 
 
 alter table public.event_checkins enable row level security;
 
+drop policy if exists "checkins_read_event" on public.event_checkins;
 create policy "checkins_read_event"
   on public.event_checkins for select
   using (true);                               -- anyone at the event can see who checked in
 
+drop policy if exists "checkins_own" on public.event_checkins;
 create policy "checkins_own"
   on public.event_checkins for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "checkins_delete_own" on public.event_checkins;
 create policy "checkins_delete_own"
   on public.event_checkins for delete
   using (auth.uid() = user_id);
@@ -824,10 +896,12 @@ create index if not exists scans_scanned_idx   on public.friend_scans(scanned_id
 
 alter table public.friend_scans enable row level security;
 
+drop policy if exists "scans_read_own" on public.friend_scans;
 create policy "scans_read_own"
   on public.friend_scans for select
   using (auth.uid() = initiator_id or auth.uid() = scanned_id);
 
+drop policy if exists "scans_write_own" on public.friend_scans;
 create policy "scans_write_own"
   on public.friend_scans for insert
   with check (auth.uid() = initiator_id);
@@ -890,11 +964,13 @@ create index if not exists trending_city_week_idx on public.city_trending(city, 
 alter table public.city_trending enable row level security;
 
 -- Public can read approved items
+drop policy if exists "trending_read_approved" on public.city_trending;
 create policy "trending_read_approved"
   on public.city_trending for select
   using (status = 'approved');
 
 -- Curators and admins can submit
+drop policy if exists "trending_submit" on public.city_trending;
 create policy "trending_submit"
   on public.city_trending for insert
   with check (
@@ -906,6 +982,7 @@ create policy "trending_submit"
   );
 
 -- Admins/founders can approve and update
+drop policy if exists "trending_manage" on public.city_trending;
 create policy "trending_manage"
   on public.city_trending for update
   using (
@@ -925,14 +1002,17 @@ create table if not exists public.city_trending_saves (
 
 alter table public.city_trending_saves enable row level security;
 
+drop policy if exists "trending_saves_read_own" on public.city_trending_saves;
 create policy "trending_saves_read_own"
   on public.city_trending_saves for select
   using (auth.uid() = user_id);
 
+drop policy if exists "trending_saves_add" on public.city_trending_saves;
 create policy "trending_saves_add"
   on public.city_trending_saves for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "trending_saves_remove" on public.city_trending_saves;
 create policy "trending_saves_remove"
   on public.city_trending_saves for delete
   using (auth.uid() = user_id);
@@ -1008,10 +1088,12 @@ create index if not exists avenue_content_status_idx    on public.avenue_content
 
 alter table public.avenue_content enable row level security;
 
+drop policy if exists "avenue_content_read_approved" on public.avenue_content;
 create policy "avenue_content_read_approved"
   on public.avenue_content for select
   using (status = 'approved');
 
+drop policy if exists "avenue_content_submit" on public.avenue_content;
 create policy "avenue_content_submit"
   on public.avenue_content for insert
   with check (
@@ -1022,6 +1104,7 @@ create policy "avenue_content_submit"
     )
   );
 
+drop policy if exists "avenue_content_manage" on public.avenue_content;
 create policy "avenue_content_manage"
   on public.avenue_content for update
   using (
@@ -1041,10 +1124,13 @@ create table if not exists public.avenue_content_saves (
 
 alter table public.avenue_content_saves enable row level security;
 
+drop policy if exists "avenue_saves_own" on public.avenue_content_saves;
 create policy "avenue_saves_own"
   on public.avenue_content_saves for select using (auth.uid() = user_id);
+drop policy if exists "avenue_saves_add" on public.avenue_content_saves;
 create policy "avenue_saves_add"
   on public.avenue_content_saves for insert with check (auth.uid() = user_id);
+drop policy if exists "avenue_saves_remove" on public.avenue_content_saves;
 create policy "avenue_saves_remove"
   on public.avenue_content_saves for delete using (auth.uid() = user_id);
 
@@ -1090,6 +1176,7 @@ create index idx_editor_instructions_editor on public.editor_instructions (edito
 -- Only admins/service role can manage editor instructions
 alter table public.editor_instructions enable row level security;
 
+drop policy if exists "editor_instructions_service_only" on public.editor_instructions;
 create policy "editor_instructions_service_only"
   on public.editor_instructions
   using (false);  -- no public access; cron uses service role key
@@ -1143,6 +1230,7 @@ create table if not exists public.member_applications (
 
 alter table public.member_applications enable row level security;
 -- Only service role can access
+drop policy if exists "member_apps_service_only" on public.member_applications;
 create policy "member_apps_service_only"
   on public.member_applications using (false);
 
@@ -1162,12 +1250,15 @@ create table if not exists public.wall_posts (
 
 alter table public.wall_posts enable row level security;
 
+drop policy if exists "wall_read_all" on public.wall_posts;
 create policy "wall_read_all"
   on public.wall_posts for select using (true);
 
+drop policy if exists "wall_insert_own" on public.wall_posts;
 create policy "wall_insert_own"
   on public.wall_posts for insert with check (auth.uid() = author_id);
 
+drop policy if exists "wall_delete_own" on public.wall_posts;
 create policy "wall_delete_own"
   on public.wall_posts for delete using (auth.uid() = author_id);
 
@@ -1181,12 +1272,15 @@ create table if not exists public.wall_post_blooms (
 
 alter table public.wall_post_blooms enable row level security;
 
+drop policy if exists "wblooms_read_all" on public.wall_post_blooms;
 create policy "wblooms_read_all"
   on public.wall_post_blooms for select using (true);
 
+drop policy if exists "wblooms_insert_own" on public.wall_post_blooms;
 create policy "wblooms_insert_own"
   on public.wall_post_blooms for insert with check (auth.uid() = user_id);
 
+drop policy if exists "wblooms_delete_own" on public.wall_post_blooms;
 create policy "wblooms_delete_own"
   on public.wall_post_blooms for delete using (auth.uid() = user_id);
 
@@ -1227,6 +1321,7 @@ alter table public.wall_posts
 
 -- Update insert policy: users can only insert their own (non-seed) posts
 drop policy if exists "wall_insert_own" on public.wall_posts;
+drop policy if exists "wall_insert_own" on public.wall_posts;
 create policy "wall_insert_own"
   on public.wall_posts for insert
   with check (auth.uid() = author_id AND is_seed = false);
@@ -1242,6 +1337,7 @@ create table if not exists public.founder_analyst_reports (
 
 -- Only service role (cron) can write; founder reads via admin dashboard
 alter table public.founder_analyst_reports enable row level security;
+drop policy if exists "analyst_reports_service_only" on public.founder_analyst_reports;
 create policy "analyst_reports_service_only"
   on public.founder_analyst_reports using (false);
 -- ── GirlMate Partner Applications ────────────────────────────────────────────
@@ -1264,6 +1360,7 @@ create table if not exists public.girlmate_partner_applications (
 );
 
 alter table public.girlmate_partner_applications enable row level security;
+drop policy if exists "gm_partner_apps_service_only" on public.girlmate_partner_applications;
 create policy "gm_partner_apps_service_only"
   on public.girlmate_partner_applications using (false);
 
@@ -1282,6 +1379,7 @@ create table if not exists public.yande_memories (
 alter table public.yande_memories enable row level security;
 
 -- Members can read their own memories (for future in-app use)
+drop policy if exists "memories_own_read" on public.yande_memories;
 create policy "memories_own_read"
   on public.yande_memories for select
   using (auth.uid() = user_id);
@@ -1307,6 +1405,7 @@ create table if not exists public.friendship_scores (
 
 alter table public.friendship_scores enable row level security;
 
+drop policy if exists "friendship_scores_own" on public.friendship_scores;
 create policy "friendship_scores_own"
   on public.friendship_scores for select
   using (auth.uid() = user_a or auth.uid() = user_b);
@@ -1331,12 +1430,15 @@ create table if not exists public.girlmate_messages (
 
 alter table public.girlmate_messages enable row level security;
 
+drop policy if exists "gm_messages_read" on public.girlmate_messages;
 create policy "gm_messages_read" on public.girlmate_messages
   for select using (auth.uid() = from_user_id or auth.uid() = to_user_id);
 
+drop policy if exists "gm_messages_send" on public.girlmate_messages;
 create policy "gm_messages_send" on public.girlmate_messages
   for insert with check (auth.uid() = from_user_id);
 
+drop policy if exists "gm_messages_mark_read" on public.girlmate_messages;
 create policy "gm_messages_mark_read" on public.girlmate_messages
   for update using (auth.uid() = to_user_id)
   with check (auth.uid() = to_user_id);
@@ -1359,10 +1461,12 @@ create table if not exists public.user_feedback (
 alter table public.user_feedback enable row level security;
 
 -- Users can insert their own feedback
+drop policy if exists "users_insert_feedback" on public.user_feedback;
 create policy "users_insert_feedback" on public.user_feedback
   for insert with check (auth.uid() = user_id or user_id is null);
 
 -- Admins/founders can see and update all feedback
+drop policy if exists "admin_manage_feedback" on public.user_feedback;
 create policy "admin_manage_feedback" on public.user_feedback
   for all using (
     exists (
@@ -1387,6 +1491,7 @@ create table if not exists public.site_health_reports (
 
 alter table public.site_health_reports enable row level security;
 
+drop policy if exists "admin_manage_health_reports" on public.site_health_reports;
 create policy "admin_manage_health_reports" on public.site_health_reports
   for all using (
     exists (
@@ -1415,6 +1520,7 @@ alter table public.waitlist enable row level security;
 
 -- Only service role can read/write (admin operations)
 -- Users cannot directly read the waitlist
+drop policy if exists "service_role_all" on public.waitlist;
 create policy "service_role_all" on public.waitlist
   for all using (false) with check (false);
 -- Purchase/transaction ledger for BloomBay
@@ -1439,10 +1545,12 @@ create index if not exists purchases_created_at_idx on public.purchases(created_
 alter table public.purchases enable row level security;
 
 -- Users can only read their own purchases
+drop policy if exists "users_read_own_purchases" on public.purchases;
 create policy "users_read_own_purchases" on public.purchases
   for select using (auth.uid() = user_id);
 
 -- Service role inserts (via webhook)
+drop policy if exists "service_insert_purchases" on public.purchases;
 create policy "service_insert_purchases" on public.purchases
   for insert with check (true);
 
@@ -1484,14 +1592,18 @@ alter table public.pin_drops enable row level security;
 alter table public.pin_drop_joins enable row level security;
 
 -- Members can see all active pins
+drop policy if exists "members_read_pins" on public.pin_drops;
 create policy "members_read_pins" on public.pin_drops
   for select using (expires_at > now());
 -- Members insert their own pins
+drop policy if exists "members_insert_pins" on public.pin_drops;
 create policy "members_insert_pins" on public.pin_drops
   for insert with check (auth.uid() = user_id);
 -- Members can join pins
+drop policy if exists "members_join_pins" on public.pin_drop_joins;
 create policy "members_join_pins" on public.pin_drop_joins
   for insert with check (auth.uid() = user_id);
+drop policy if exists "members_read_joins" on public.pin_drop_joins;
 create policy "members_read_joins" on public.pin_drop_joins
   for select using (true);
 create table if not exists public.table_reservations (
@@ -1516,11 +1628,14 @@ create index if not exists table_reservations_date_idx on public.table_reservati
 alter table public.table_reservations enable row level security;
 
 -- Users can read their own reservations
+drop policy if exists "users_read_own_reservations" on public.table_reservations;
 create policy "users_read_own_reservations" on public.table_reservations
   for select using (auth.uid() = user_id);
 -- Users can create reservations
+drop policy if exists "users_insert_reservations" on public.table_reservations;
 create policy "users_insert_reservations" on public.table_reservations
   for insert with check (auth.uid() = user_id);
 -- Service role manages all
+drop policy if exists "service_manages_reservations" on public.table_reservations;
 create policy "service_manages_reservations" on public.table_reservations
   for all using (true) with check (true);
