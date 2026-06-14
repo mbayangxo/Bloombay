@@ -302,7 +302,8 @@ The column should feel like something you'd screenshot and send to your best fri
 
 // ── Core runner ───────────────────────────────────────────────────────────────
 
-type Supabase = ReturnType<typeof createClient>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Supabase = ReturnType<typeof createClient<any>>;
 
 async function runEditor(supabase: Supabase, editor: RoomEditor): Promise<number> {
   if (!process.env.ANTHROPIC_API_KEY) return 0;

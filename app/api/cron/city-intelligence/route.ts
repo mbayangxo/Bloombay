@@ -562,7 +562,8 @@ Return a JSON array of ${spots.length} strings, one note per spot. Max 100 chars
 
 // ── Insert into city_trending ─────────────────────────────────────────────────
 
-type Supabase = ReturnType<typeof createClient>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Supabase = ReturnType<typeof createClient<any>>;
 
 async function insertSpots(supabase: Supabase, spots: RawSpot[], source: string): Promise<number> {
   if (spots.length === 0) return 0;

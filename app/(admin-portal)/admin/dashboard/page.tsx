@@ -1342,13 +1342,14 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 function CityTrendingSection() {
-  const [items, setItems] = useState([
-    { id: "1", name: "Soft-Serve & Frozen Yogurt Wave",      category: "dining",   source: "TikTok NYC",    badge: "GOING VIRAL", status: "pending" as const, description: "Every shop in lower Manhattan is packed right now. The queue at Morgenstern's has been wild all week.", yandeNote: "The city is in its soft-serve era. If you haven't been to Morgenstern's yet, this is your sign." },
-    { id: "2", name: "Dior Beauty Pop-Up — Madison Ave",     category: "pop-up",   source: "Instagram",     badge: "FREE",         status: "pending" as const, description: "Free fragrance sampling, mini makeovers, and a photo moment. Running through June 22.", yandeNote: "Free Dior. You can literally walk in and walk out smelling like money. Go." },
-    { id: "3", name: "Brooklyn Night Market",                category: "event",    source: "Eventbrite",    badge: null,           status: "pending" as const, description: "Williamsburg waterfront. 60+ vendors, live music, golden hour views.", yandeNote: "Saturday golden hour at the waterfront with 60 food vendors. Bring your situationship." },
-    { id: "4", name: "Sample Sale: Sandro & Maje",          category: "shopping", source: "Time Out NYC",  badge: "NEW",          status: "pending" as const, description: "Up to 70% off. SoHo, this weekend only.", yandeNote: "70% off Sandro. You know what to do." },
-    { id: "5", name: "MoMA: Yoko Ono Retrospective",        category: "art",      source: "Eater NYC",     badge: null,           status: "pending" as const, description: "Opens June 15. Major retrospective, tickets selling fast.", yandeNote: "This one is going to be everywhere. See it before everyone else does." },
-    { id: "6", name: "Jazz at Lincoln Center Rooftop",      category: "nightlife", source: "TikTok NYC",   badge: null,           status: "pending" as const, description: "Friday night series, $15 entry. Views are insane.", yandeNote: "Friday jazz on a rooftop with Central Park below you. $15. BloomBay-coded." },
+  type TrendItem = { id: string; name: string; category: string; source: string; badge: string | null; status: "pending" | "approved"; description: string; yandeNote: string };
+  const [items, setItems] = useState<TrendItem[]>([
+    { id: "1", name: "Soft-Serve & Frozen Yogurt Wave",      category: "dining",   source: "TikTok NYC",    badge: "GOING VIRAL", status: "pending", description: "Every shop in lower Manhattan is packed right now. The queue at Morgenstern's has been wild all week.", yandeNote: "The city is in its soft-serve era. If you haven't been to Morgenstern's yet, this is your sign." },
+    { id: "2", name: "Dior Beauty Pop-Up — Madison Ave",     category: "pop-up",   source: "Instagram",     badge: "FREE",         status: "pending", description: "Free fragrance sampling, mini makeovers, and a photo moment. Running through June 22.", yandeNote: "Free Dior. You can literally walk in and walk out smelling like money. Go." },
+    { id: "3", name: "Brooklyn Night Market",                category: "event",    source: "Eventbrite",    badge: null,           status: "pending", description: "Williamsburg waterfront. 60+ vendors, live music, golden hour views.", yandeNote: "Saturday golden hour at the waterfront with 60 food vendors. Bring your situationship." },
+    { id: "4", name: "Sample Sale: Sandro & Maje",          category: "shopping", source: "Time Out NYC",  badge: "NEW",          status: "pending", description: "Up to 70% off. SoHo, this weekend only.", yandeNote: "70% off Sandro. You know what to do." },
+    { id: "5", name: "MoMA: Yoko Ono Retrospective",        category: "art",      source: "Eater NYC",     badge: null,           status: "pending", description: "Opens June 15. Major retrospective, tickets selling fast.", yandeNote: "This one is going to be everywhere. See it before everyone else does." },
+    { id: "6", name: "Jazz at Lincoln Center Rooftop",      category: "nightlife", source: "TikTok NYC",   badge: null,           status: "pending", description: "Friday night series, $15 entry. Views are insane.", yandeNote: "Friday jazz on a rooftop with Central Park below you. $15. BloomBay-coded." },
   ]);
 
   const [toast, setToast] = useState<string | null>(null);
