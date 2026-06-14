@@ -31,6 +31,8 @@ export async function stripeMembershipCheckout(
   const priceId =
     params.plan === "monthly"
       ? process.env.STRIPE_PRICE_MONTHLY
+      : params.plan === "biannual"
+      ? process.env.STRIPE_PRICE_BIANNUAL
       : process.env.STRIPE_PRICE_ANNUAL;
 
   if (!priceId) {
@@ -45,7 +47,7 @@ export async function stripeMembershipCheckout(
       user_id: params.userId,
       type: "platform_membership",
     },
-    success_url: `${baseUrl()}/member/lobby?membership=success`,
+    success_url: `${baseUrl()}/member/thank-you?type=membership`,
     cancel_url: `${baseUrl()}/join?cancelled=true`,
   });
 
@@ -75,7 +77,7 @@ export async function stripeTicketCheckout(
       event_id: params.eventId,
       type: "event_ticket",
     },
-    success_url: `${baseUrl()}/member/happenings/${params.eventId}?ticket=confirmed`,
+    success_url: `${baseUrl()}/member/thank-you?type=ticket&name=${encodeURIComponent(params.eventName)}&back=${encodeURIComponent('/member/happenings/' + params.eventId)}`,
     cancel_url: `${baseUrl()}/member/happenings/${params.eventId}`,
   });
 
@@ -105,7 +107,7 @@ export async function stripeClubCheckout(
       club_id: params.clubId,
       type: "club_membership",
     },
-    success_url: `${baseUrl()}/member/clubs/${params.clubId}?payment=success`,
+    success_url: `${baseUrl()}/member/thank-you?type=club&name=${encodeURIComponent(params.clubName)}&back=${encodeURIComponent('/member/clubs/' + params.clubId)}`,
     cancel_url: `${baseUrl()}/member/clubs/${params.clubId}`,
   });
 

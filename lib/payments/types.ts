@@ -12,7 +12,7 @@ export interface PaymentResult {
 export interface MembershipParams {
   userId: string;
   userEmail: string;
-  plan: "monthly" | "annual";
+  plan: "monthly" | "biannual" | "annual";
 }
 
 export interface ClubMembershipParams {

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type MembershipBody = {
   type: "membership";
-  plan: "monthly" | "annual";
+  plan: "monthly" | "biannual" | "annual";
 };
 
 type TicketBody = {

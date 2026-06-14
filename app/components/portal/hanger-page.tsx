@@ -198,6 +198,30 @@ const CONDITION_COLORS: Record<string, string> = {
 export function HangerPage() {
   const [activeCategory, setActiveCategory]   = useState<Category>("All");
   const [sellSheetOpen,  setSellSheetOpen]     = useState(false);
+  const [buyingId,       setBuyingId]          = useState<string | null>(null);
+  const [buyError,       setBuyError]          = useState<string | null>(null);
+
+  async function handleBuy(listingId: string) {
+    setBuyingId(listingId);
+    setBuyError(null);
+    try {
+      const res = await fetch("/api/hanger/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId }),
+      });
+      const data = await res.json() as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setBuyError(data.error ?? "Something went wrong");
+        setBuyingId(null);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setBuyError("Network error");
+      setBuyingId(null);
+    }
+  }
 
   // Sell form state
   const [sellTitle,       setSellTitle]       = useState("");
@@ -609,10 +633,12 @@ export function HangerPage() {
 
                 {/* Buy button */}
                 <button
+                  onClick={() => void handleBuy(listing.id)}
+                  disabled={buyingId === listing.id}
                   style={{
                     marginTop: "auto",
                     width: "100%",
-                    background: PINK,
+                    background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK,
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
@@ -621,16 +647,23 @@ export function HangerPage() {
                     fontFamily: "var(--font-jost), sans-serif",
                     fontWeight: 700,
                     letterSpacing: "0.04em",
-                    cursor: "pointer",
+                    cursor: buyingId === listing.id ? "not-allowed" : "pointer",
                   }}
                 >
-                  Buy · {price}
+                  {buyingId === listing.id ? "…" : `Buy · ${price}`}
                 </button>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* ── Buy error toast ───────────────────────────────────────────────────── */}
+      {buyError && (
+        <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)", background: "#e53e3e", color: "white", padding: "10px 20px", borderRadius: 99, fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, zIndex: 200 }}>
+          {buyError}
+        </div>
+      )}
 
       {/* ── Sell sheet backdrop ────────────────────────────────────────────────── */}
       {sellSheetOpen && (

@@ -15,6 +15,14 @@ const PLANS = [
     badge: null,
   },
   {
+    id: "biannual" as const,
+    label: "6 Months",
+    price: "£44",
+    per: "/ 6 months",
+    desc: "Half-year commitment. Save £10.",
+    badge: null,
+  },
+  {
     id: "annual" as const,
     label: "Annual",
     price: "£79",
@@ -34,7 +42,7 @@ const PERKS = [
 ];
 
 export default function UpgradePage() {
-  const [selected, setSelected] = useState<"monthly" | "annual">("annual");
+  const [selected, setSelected] = useState<"monthly" | "biannual" | "annual">("annual");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -158,7 +166,7 @@ export default function UpgradePage() {
             transition: "all 0.15s",
           }}
         >
-          {loading ? "Taking you to checkout…" : `Join — ${selected === "annual" ? "£79 / year" : "£9 / month"} →`}
+          {loading ? "Taking you to checkout…" : `Join — ${selected === "annual" ? "£79 / year" : selected === "biannual" ? "£44 / 6 months" : "£9 / month"} →`}
         </button>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 12, lineHeight: 1.5 }}>
           Secure payment via Stripe. Cancel anytime. No hidden fees.
