@@ -45,13 +45,13 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Insert in-app notification
-  await db.from("notifications").insert({
+  void db.from("notifications").insert({
     user_id: user.id,
     type: "reservation_requested",
     title: `Reservation request sent`,
     body: `We've sent your request to ${body.restaurant_name} for ${body.date} at ${body.time}. We'll confirm within 24h.`,
     link: "/member/lounge",
-  }).catch(() => {});
+  });
 
   // Fetch user phone for SMS confirmation
   const { data: profile } = await db

@@ -7,7 +7,8 @@ alter table public.clubs
 -- Bucket name: avatars      |  Public: true  (may already exist)
 
 -- RLS: club owners can update their own club's cover
-create policy if not exists "Club owner can update cover"
+drop policy if exists "Club owner can update cover" on public.clubs;
+create policy "Club owner can update cover"
   on public.clubs
   for update
   using (owner_id = auth.uid())

@@ -1,14 +1,17 @@
 -- ── Missing: club_memberships RLS policies ────────────────────────────────────
 -- RLS was enabled in migration 024 but policies were never written.
 
-create policy if not exists "memberships_read_all"
+drop policy if exists "memberships_read_all" on public.club_memberships;
+create policy "memberships_read_all"
   on public.club_memberships for select using (true);
 
-create policy if not exists "memberships_join"
+drop policy if exists "memberships_join" on public.club_memberships;
+create policy "memberships_join"
   on public.club_memberships for insert
   with check (auth.uid() = user_id);
 
-create policy if not exists "memberships_leave"
+drop policy if exists "memberships_leave" on public.club_memberships;
+create policy "memberships_leave"
   on public.club_memberships for delete
   using (auth.uid() = user_id);
 

@@ -48,7 +48,7 @@ export async function PATCH(req: NextRequest) {
 
   // In-app notification
   const resAny = reservation as { user_id: string; restaurant_name: string; date: string; time: string };
-  await db.from("notifications").insert({
+  void db.from("notifications").insert({
     user_id: resAny.user_id,
     type: body.status === "confirmed" ? "reservation_confirmed" : "reservation_cancelled",
     title: body.status === "confirmed" ? `Table confirmed at ${resAny.restaurant_name}!` : `Reservation update`,
@@ -56,7 +56,7 @@ export async function PATCH(req: NextRequest) {
       ? `Your table for ${resAny.date} at ${resAny.time} is confirmed. See you there ✦`
       : `Your request at ${resAny.restaurant_name} for ${resAny.date} couldn't be accommodated.`,
     link: "/member/city",
-  }).catch(() => {});
+  });
 
   return NextResponse.json({ ok: true });
 }
