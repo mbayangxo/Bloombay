@@ -90,7 +90,7 @@ begin
 end;
 $$;
 
-drop trigger if exists bloom_note_flower_notify on public.bloom_note_flowers;
+DO $$ BEGIN drop trigger if exists bloom_note_flower_notify on public.bloom_note_flowers; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger bloom_note_flower_notify
   after insert on public.bloom_note_flowers
   for each row execute function public.notify_bloom_note_flower();
@@ -177,7 +177,7 @@ begin
 end;
 $$;
 
-drop trigger if exists host_review_notify on public.host_reviews;
+DO $$ BEGIN drop trigger if exists host_review_notify on public.host_reviews; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger host_review_notify
   after insert on public.host_reviews
   for each row execute function public.notify_host_review();
@@ -198,7 +198,7 @@ begin
 end;
 $$;
 
-drop trigger if exists witness_notify on public.event_witnesses;
+DO $$ BEGIN drop trigger if exists witness_notify on public.event_witnesses; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger witness_notify
   after insert on public.event_witnesses
   for each row execute function public.notify_witness();
@@ -362,7 +362,7 @@ begin
 end;
 $$;
 
-drop trigger if exists bloom_trip_count_sync on public.bloom_trip_attendees;
+DO $$ BEGIN drop trigger if exists bloom_trip_count_sync on public.bloom_trip_attendees; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger bloom_trip_count_sync
   after insert or delete on public.bloom_trip_attendees
   for each row execute function public.sync_trip_count();
@@ -454,8 +454,8 @@ begin
 end;
 $$;
 
-drop trigger if exists wellness_saves_count_sync on public.wellness_saves;
-drop trigger if exists wellness_saves_count_sync on public.wellness_saves;
+DO $$ BEGIN drop trigger if exists wellness_saves_count_sync on public.wellness_saves; EXCEPTION WHEN undefined_table THEN NULL; END $$;
+DO $$ BEGIN drop trigger if exists wellness_saves_count_sync on public.wellness_saves; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger wellness_saves_count_sync
   after insert or delete on public.wellness_saves
   for each row execute function public.sync_wellness_saves_count();
@@ -526,7 +526,7 @@ begin
 end;
 $$;
 
-drop trigger if exists profile_flower_notify on public.profile_flowers;
+DO $$ BEGIN drop trigger if exists profile_flower_notify on public.profile_flowers; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger profile_flower_notify
   after insert on public.profile_flowers
   for each row execute function public.notify_profile_flower();
@@ -615,7 +615,7 @@ begin
 end;
 $$;
 
-drop trigger if exists tradition_follower_count_sync on public.tradition_followers;
+DO $$ BEGIN drop trigger if exists tradition_follower_count_sync on public.tradition_followers; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger tradition_follower_count_sync
   after insert or delete on public.tradition_followers
   for each row execute function public.sync_tradition_follower_count();
@@ -1046,7 +1046,7 @@ begin
 end;
 $$;
 
-drop trigger if exists trending_saves_count on public.city_trending_saves;
+DO $$ BEGIN drop trigger if exists trending_saves_count on public.city_trending_saves; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger trending_saves_count
   after insert or delete on public.city_trending_saves
   for each row execute function public.inc_trending_saves();
@@ -1164,7 +1164,7 @@ begin
 end;
 $$;
 
-drop trigger if exists avenue_saves_count on public.avenue_content_saves;
+DO $$ BEGIN drop trigger if exists avenue_saves_count on public.avenue_content_saves; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger avenue_saves_count
   after insert or delete on public.avenue_content_saves
   for each row execute function public.inc_avenue_saves();
@@ -1208,7 +1208,7 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_editor_instructions_updated_at on public.editor_instructions;
+DO $$ BEGIN drop trigger if exists trg_editor_instructions_updated_at on public.editor_instructions; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger trg_editor_instructions_updated_at
   before update on public.editor_instructions
   for each row execute function update_editor_instructions_updated_at();
@@ -1320,12 +1320,12 @@ begin
 end;
 $$;
 
-drop trigger if exists wall_bloom_up on public.wall_post_blooms;
+DO $$ BEGIN drop trigger if exists wall_bloom_up on public.wall_post_blooms; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger wall_bloom_up
   after insert on public.wall_post_blooms
   for each row execute function public.increment_wall_bloom();
 
-drop trigger if exists wall_bloom_down on public.wall_post_blooms;
+DO $$ BEGIN drop trigger if exists wall_bloom_down on public.wall_post_blooms; EXCEPTION WHEN undefined_table THEN NULL; END $$;
 create trigger wall_bloom_down
   after delete on public.wall_post_blooms
   for each row execute function public.decrement_wall_bloom();
