@@ -117,25 +117,33 @@ export function LandingPage() {
         {/* Main headline */}
         <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 22px" }}>
 
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.36em", color: "rgba(255,255,255,0.5)", marginBottom: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.36em", color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>
             ✦ &nbsp;NEW YORK CITY &nbsp;·&nbsp; EST. 2025
           </p>
 
-          {/* Big phrase rotation: "Women are gathering." */}
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(44px, 13vw, 60px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.01em" }}>
-              Women
+          {/* Primary statement — It's a woman's world. We're it. */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(36px, 10.5vw, 54px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.01em" }}>
+              It&apos;s a woman&apos;s
             </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(60px, 17vw, 82px)", color: "white", lineHeight: 0.82, letterSpacing: "-0.04em", marginTop: 2 }}>
-              are
+            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(54px, 15.5vw, 72px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
+              world.
             </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 15vw, 72px)", lineHeight: 0.88, letterSpacing: "-0.04em", marginTop: 2 }}>
-              <span className="bb-outline">gathering.</span>
+            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(54px, 15.5vw, 72px)", lineHeight: 0.88, letterSpacing: "-0.04em", marginTop: 2 }}>
+              <span className="bb-outline">We&apos;re it.</span>
             </div>
           </div>
 
+          {/* Secondary — Women are gathering. */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+            <Sparkle color="rgba(255,255,255,0.55)" size={11} />
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(17px, 5vw, 22px)", color: "rgba(255,255,255,0.85)", letterSpacing: "-0.01em", margin: 0 }}>
+              Women are gathering.
+            </p>
+          </div>
+
           {/* Handwritten accent */}
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "18px", color: "rgba(255,255,255,0.7)", marginBottom: 24, marginTop: 8, transform: "rotate(-1deg)", display: "inline-block" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "18px", color: "rgba(255,255,255,0.7)", marginBottom: 20, transform: "rotate(-1deg)", display: "inline-block" }}>
             your table is here ♡
           </p>
 
@@ -184,15 +192,21 @@ export function LandingPage() {
           <p style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
             <Sparkle color="rgba(255,255,255,0.55)" size={14} /> EST. 2025 · NEW YORK CITY
           </p>
-          <h1 style={{ margin: "0 0 24px", lineHeight: 0.88 }}>
-            <span style={{ display: "block", fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(50px, 8vw, 82px)", color: "white", letterSpacing: "-0.01em", lineHeight: 0.9 }}>Women</span>
-            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(60px, 10vw, 108px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.84 }}>are</span>
-            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(54px, 9vw, 96px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.9 }}>gathering.</span>
+          <h1 style={{ margin: "0 0 16px", lineHeight: 0.88 }}>
+            <span style={{ display: "block", fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(44px, 7vw, 76px)", color: "white", letterSpacing: "-0.01em", lineHeight: 0.9 }}>It&apos;s a woman&apos;s</span>
+            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 8.5vw, 100px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.84 }}>world.</span>
+            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 8.5vw, 100px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.9 }}>We&apos;re it.</span>
           </h1>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "22px", color: "rgba(255,255,255,0.65)", lineHeight: 1, marginBottom: 12, transform: "rotate(-1.5deg)", display: "inline-block" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+            <Sparkle color="rgba(255,255,255,0.55)" size={13} />
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(18px, 2.5vw, 26px)", color: "rgba(255,255,255,0.8)", letterSpacing: "-0.01em", margin: 0 }}>
+              Women are gathering.
+            </p>
+          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "22px", color: "rgba(255,255,255,0.65)", lineHeight: 1, marginBottom: 10, transform: "rotate(-1.5deg)", display: "inline-block" }}>
             your table is here ♡
           </p>
-          <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.35)", marginBottom: 20, marginTop: 16 }} />
+          <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.35)", marginBottom: 18, marginTop: 14 }} />
           <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "18px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, maxWidth: 320, marginBottom: 36 }}>
             New York City&apos;s social club for women. Clubs, dinners, museums, and real friendship.
           </p>
@@ -276,14 +290,14 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MARQUEE — animated phrase strip
       ══════════════════════════════════════════════════════ */}
-      <div style={{ background: INK, overflow: "hidden", padding: "16px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ background: INK, overflow: "hidden", padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="bb-marquee-track">
           {[...Array(2)].map((_, rep) => (
             <div key={rep} style={{ display: "flex", gap: 0 }}>
               {["your table is here", "your friends are here", "your social life starts here", "it's a woman's world", "we're it", "women are gathering"].map((phrase, i) => (
-                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 20, padding: "0 32px", whiteSpace: "nowrap" }}>
-                  <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "15px", color: "rgba(255,255,255,0.7)" }}>{phrase}</span>
-                  <Sparkle color={PINK} size={10} />
+                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 24, padding: "0 40px", whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "20px", color: "rgba(255,255,255,0.75)" }}>{phrase}</span>
+                  <Sparkle color={PINK} size={12} />
                 </span>
               ))}
             </div>
