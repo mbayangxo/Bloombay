@@ -450,6 +450,8 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
   const [rsvpState, setRsvpState] = useState<"idle" | "paying" | "confirmed">("idle");
   const [saved, setSaved] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   const total = ext.ticketFee + ext.bbFee + ext.venueService;
   const eventCode = `BB-${String(event.id).padStart(4, "0")}-${event.neighborhood.toUpperCase().replace(/ /g, "").slice(0, 4)}-${ext.tableNum}`;
@@ -458,7 +460,32 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
     if (isFree) { setRsvpState("confirmed"); return; }
     setRsvpState("paying");
   }
-  function handlePay() { setRsvpState("confirmed"); }
+  async function handlePay() {
+    setPaying(true);
+    setPayError(null);
+    try {
+      const res = await fetch("/api/payments/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "ticket",
+          eventId: String(event.id),
+          eventName: event.title,
+          amountCents: Math.round(total * 100),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setPayError("Something went wrong. Please try again.");
+    } finally {
+      setPaying(false);
+    }
+  }
 
   // ── CONFIRMED VIEW ─────────────────────────────────────────────────────────
 
@@ -786,27 +813,24 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
             )}
           </div>
 
-          {/* Card input (mock) */}
+          {/* Secure checkout notice */}
           <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "#bbb" }}>PAYMENT</p>
-            <input
-              type="text"
-              placeholder="Card number"
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none mb-2.5"
-              style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }}
-            />
-            <div className="grid grid-cols-2 gap-2.5">
-              <input placeholder="MM/YY" className="px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
-              <input placeholder="CVV" className="px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
-            </div>
+            <p className="text-sm text-center leading-relaxed" style={{ color: "#555" }}>
+              You&apos;ll be taken to our secure payment page to complete your booking.
+            </p>
           </div>
+
+          {payError && (
+            <p className="text-sm text-center" style={{ color: "#e53e3e" }}>{payError}</p>
+          )}
 
           <button
             onClick={handlePay}
-            className="w-full rounded-2xl text-base font-bold text-white transition-all active:scale-[0.97]"
+            disabled={paying}
+            className="w-full rounded-2xl text-base font-bold text-white transition-all active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: "#FF1F7D", boxShadow: "0 6px 20px rgba(255,31,125,0.35)", padding: "18px" }}
           >
-            Pay ${ext.deposit > 0 ? ext.deposit : total} deposit — Secure My Seat ✿
+            {paying ? "Sending you to checkout…" : `Pay £${total} — Secure My Seat ✿`}
           </button>
           <p className="text-[10px] text-center" style={{ color: "#ccc" }}>✿ All women are verified. All vibes are real.</p>
         </div>

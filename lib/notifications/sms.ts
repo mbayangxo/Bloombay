@@ -56,3 +56,15 @@ export function formatWeeklyDigest(
 
   return `${greeting}\n\nThis week in your city:\n${eventLines}${more}\n\nTap to join → bloombay.app`;
 }
+
+export function formatWelcomeSMS(firstName: string): string {
+  return `Hey ${firstName || "Bloomie"} 🌸\n\nYour BloomBay membership is confirmed. The Avenue is yours — women are gathering and you're now one of us.\n\nbloombay.app/member/avenue`;
+}
+
+export function formatTicketConfirmSMS(firstName: string, eventName: string, eventDate: string): string {
+  return `Hey ${firstName || "Bloomie"} 🌸\n\nYou're going to ${eventName}!\n\n📅 ${eventDate}\n\nYour seat is secured. See you there ✿\n\nbloombay.app`;
+}
+
+export function formatClubWelcomeSMS(firstName: string, clubName: string): string {
+  return `Hey ${firstName || "Bloomie"} 🌸\n\nYou're in! Welcome to ${clubName} on BloomBay.\n\nYour club is waiting ✿\n\nbloombay.app`;
+}
