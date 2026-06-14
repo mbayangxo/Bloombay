@@ -20,6 +20,10 @@
     {
       "path": "/api/cron/wall-seeder",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/founder-analyst",
+      "schedule": "0 14 * * 1"
     }
   ],
   "headers": [
