@@ -539,6 +539,83 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 96 }}>
 
+      {/* ══════════ PROFILE CARD PREVIEW ══════════ */}
+      <div style={{
+        background: "linear-gradient(160deg, #FFF5F8 0%, #FFFCF7 100%)",
+        padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 0",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.3)" }}>✦ YOUR PROFILE</p>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
+              <div style={{ background: "rgba(255,31,125,0.07)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999, padding: "6px 14px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>Change Style ✦</p>
+              </div>
+            </Link>
+            <Link href="/member/you" style={{ textDecoration: "none" }}>
+              <div style={{ background: PINK, borderRadius: 999, padding: "6px 14px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Edit Profile →</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Profile card — ID card style */}
+        <div style={{
+          background: "linear-gradient(135deg, #1A0A2E 0%, #2D1050 100%)",
+          borderRadius: 20, padding: "20px", marginBottom: 2,
+          boxShadow: "0 8px 32px rgba(26,10,46,0.25), 0 2px 8px rgba(255,31,125,0.12)",
+          position: "relative", overflow: "hidden",
+        }}>
+          {/* Background glow */}
+          <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 70%)" }} />
+
+          {/* Top row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {/* Avatar */}
+            <div style={{
+              width: 54, height: 54, borderRadius: "50%", flexShrink: 0,
+              background: "linear-gradient(135deg, #FF1F7D, #c4005a)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "2.5px solid rgba(255,255,255,0.25)",
+              boxShadow: "0 4px 16px rgba(255,31,125,0.4)",
+            }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 900, color: "white" }}>{displayInitial}</span>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, color: "rgba(255,238,220,0.95)", lineHeight: 1.1, marginBottom: 3 }}>
+                {displayName.split(" ")[0] || displayName}.
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: "0.06em" }}>
+                {localNbhd}
+              </p>
+            </div>
+
+            {/* BloomBay mark */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "rgba(255,31,125,0.7)", letterSpacing: "0.2em" }}>BLOOMBAY</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em" }}>MEMBER</p>
+            </div>
+          </div>
+
+          {/* Bio if exists */}
+          {localBio && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 14, lineHeight: 1.5, fontStyle: "italic" }}>
+              &ldquo;{localBio}&rdquo;
+            </p>
+          )}
+
+          {/* Bottom strip */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 16, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.15em" }}>FOUNDING MEMBER</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.6)" }}>✦ women are gathering</p>
+          </div>
+        </div>
+      </div>
+
       {/* ══════════ HERO ══════════ */}
       <div style={{
         background: `linear-gradient(175deg, ${DARK} 0%, #2A0818 55%, #4A0C28 100%)`,
