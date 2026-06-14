@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { logout, updateProfileInfo } from "@/lib/auth/actions";
 import { AvatarUpload } from "@/app/components/shared/avatar-upload";
@@ -61,12 +62,15 @@ function Lightbox({
         onClick={e => e.stopPropagation()}
         style={{ width: "100%", maxWidth: 440, padding: "0 20px", boxSizing: "border-box" }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photos[idx].url}
-          alt=""
-          style={{ width: "100%", maxHeight: "72vh", objectFit: "contain", borderRadius: 14, display: "block" }}
-        />
+        <div style={{ position: "relative", width: "100%", maxHeight: "72vh", aspectRatio: "1", overflow: "hidden", borderRadius: 14 }}>
+          <Image
+            src={photos[idx].url}
+            alt=""
+            fill
+            unoptimized
+            style={{ objectFit: "contain" }}
+          />
+        </div>
       </div>
 
       {photos.length > 1 && (
@@ -132,10 +136,9 @@ function AptPhotoSlot({ url, initials, w, h, radius = 8, rotate = 0, onClick }: 
         transform: `rotate(${rotate}deg)`, flexShrink: 0, width: w, height: h }}>
       <div style={{ width: w, height: h, borderRadius: radius, overflow: "hidden",
         background: "linear-gradient(135deg,#FFD6EA,#FFABD4)",
-        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
         {url
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ? <Image src={url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
           : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: Math.floor(h * 0.35), color: "rgba(255,31,125,0.45)" }}>{initials}</p>}
       </div>
     </button>
@@ -475,11 +478,10 @@ function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
         <button
           onClick={onAvatarClick}
-          style={{ width: 80, height: 100, borderRadius: 8, overflow: "hidden", border: "none", cursor: "pointer", padding: 0, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}
+          style={{ width: 80, height: 100, borderRadius: 8, overflow: "hidden", border: "none", cursor: "pointer", padding: 0, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}
         >
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Image src={avatarUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
           ) : (
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 36, color: "rgba(255,31,125,0.5)" }}>{initials}</p>
           )}
@@ -545,10 +547,9 @@ function TemplateBoard({ displayName, initials, avatarUrl, photos, onAvatarClick
             style={{ background: "none", border: "none", padding: 0, cursor: i === 3 ? "pointer" : "default", transform: `rotate(${rotations[i]}deg)` }}
           >
             <div style={{ background: "white", padding: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}>
-              <div style={{ width: "100%", aspectRatio: "1", background: url ? "transparent" : gradients[i], overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: "100%", aspectRatio: "1", background: url ? "transparent" : gradients[i], overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 {url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image src={url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "rgba(255,31,125,0.4)" }}>{initials}</p>
                 )}
@@ -606,11 +607,10 @@ function TemplateZine({ displayName, initials, avatarUrl, onAvatarClick }: Templ
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <button
             onClick={onAvatarClick}
-            style={{ width: 160, height: 200, border: "3px solid rgba(255,255,255,0.4)", padding: 0, background: "rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}
+            style={{ width: 160, height: 200, border: "3px solid rgba(255,255,255,0.4)", padding: 0, background: "rgba(255,255,255,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}
           >
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Image src={avatarUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
             ) : (
               <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 64, color: "rgba(255,255,255,0.5)" }}>{initials}</p>
             )}
@@ -676,10 +676,9 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
             style={{ background: "none", border: "none", padding: 0, cursor: "pointer", transform: "rotate(-2deg)", flexShrink: 0 }}
           >
             <div style={{ background: "white", padding: "6px 6px 22px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
-              <div style={{ width: 140, height: 160, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 140, height: 160, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image src={avatarUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 48, color: "rgba(255,31,125,0.4)" }}>{initials}</p>
                 )}
@@ -692,10 +691,9 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
           <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
             {/* Small polaroid */}
             <div style={{ background: "white", padding: "5px 5px 18px", boxShadow: "0 3px 10px rgba(0,0,0,0.12)", transform: "rotate(1.5deg)" }}>
-              <div style={{ width: "100%", height: 110, background: "linear-gradient(135deg, #FFB3D9, #FF5BAD)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: "100%", height: 110, background: "linear-gradient(135deg, #FFB3D9, #FF5BAD)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 {photos[0]?.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photos[0].url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image src={photos[0].url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em" }}>MOMENTS</p>
                 )}
@@ -1131,10 +1129,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {/* Right: polaroid card with hidden avatar upload trigger */}
           <div style={{ flexShrink: 0 }}>
             <div style={{ background: "white", borderRadius: 16, padding: "8px 8px 18px", boxShadow: "0 6px 24px rgba(255,31,125,0.12)", width: 88, position: "relative" }}>
-              <div style={{ width: 72, height: 72, borderRadius: 10, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", marginBottom: 10 }}>
+              <div style={{ width: 72, height: 72, borderRadius: 10, background: "linear-gradient(135deg, #FFD6EA 0%, #FFABD4 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", marginBottom: 10, position: "relative" }}>
                 {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image src={avatarUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "rgba(255,31,125,0.5)" }}>{initials}</p>
                 )}
@@ -1249,8 +1246,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                       onClick={() => openLightbox(avatarUrl ? i + 1 : i)}
                       style={{ width: "100%", height: "100%", border: "none", padding: 0, cursor: "pointer", display: "block", background: "transparent" }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <Image src={photo.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                     </button>
                     <button
                       onClick={() => removePhoto(photo)}
