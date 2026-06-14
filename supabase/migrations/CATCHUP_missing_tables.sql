@@ -604,12 +604,7 @@ CREATE TABLE IF NOT EXISTS public.bloomies_plans (
 
 ALTER TABLE public.bloomies_plans ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "plan_select" ON public.bloomies_plans;
-CREATE POLICY "plan_select" ON public.bloomies_plans FOR SELECT
-  USING (
-    auth.uid() = creator_id
-    OR EXISTS (SELECT 1 FROM public.bloomies_plan_invites WHERE plan_id = id AND invitee_id = auth.uid())
-  );
+-- plan_select is deferred below (after bloomies_plan_invites is created)
 
 DROP POLICY IF EXISTS "plan_insert" ON public.bloomies_plans;
 CREATE POLICY "plan_insert" ON public.bloomies_plans FOR INSERT WITH CHECK (auth.uid() = creator_id);
@@ -655,6 +650,14 @@ CREATE POLICY "invite_update_rsvp" ON public.bloomies_plan_invites FOR UPDATE
 
 CREATE INDEX IF NOT EXISTS idx_bloomies_invites_plan    ON public.bloomies_plan_invites(plan_id);
 CREATE INDEX IF NOT EXISTS idx_bloomies_invites_invitee ON public.bloomies_plan_invites(invitee_id, created_at DESC);
+
+-- Deferred: plan_select cross-references bloomies_plan_invites so must come after it
+DROP POLICY IF EXISTS "plan_select" ON public.bloomies_plans;
+CREATE POLICY "plan_select" ON public.bloomies_plans FOR SELECT
+  USING (
+    auth.uid() = creator_id
+    OR EXISTS (SELECT 1 FROM public.bloomies_plan_invites WHERE plan_id = id AND invitee_id = auth.uid())
+  );
 
 
 -- ── bloomies_plan_messages ────────────────────────────────────────────────────
