@@ -2,6 +2,7 @@ import { BottomNav } from "../components/portal/bottom-nav";
 import { DesktopTopNav } from "../components/portal/desktop-top-nav";
 import { TimeWrapper } from "../components/portal/time-wrapper";
 import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
+import { FeedbackButton } from "../components/portal/feedback-button";
 import { getAuthUser } from "@/lib/auth/get-user";
 
 function roleLabel(role: string): string {
@@ -35,6 +36,7 @@ export default async function MemberPortalLayout({ children }: { children: React
         </div>
       </div>
       <BottomNav user={user} />
+      <FeedbackButton />
     </TimeWrapper>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, type ReactElement } from "react";
+import Link from "next/link";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -2393,15 +2394,20 @@ export default function MissionControlPage() {
             </p>
           </div>
 
-          {/* Live indicator */}
-          <div className="flex items-center gap-2 mb-2">
-            <div
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "#FF1F7D" }}
-            />
-            <span className="text-xs font-bold tracking-widest" style={{ color: "#FF1F7D" }}>
-              LIVE
-            </span>
+          {/* Live indicator + QA link */}
+          <div className="flex items-center gap-3 mb-2">
+            <Link href="/admin/qa" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "6px 12px", textDecoration: "none" }}>
+              QA &amp; FEEDBACK →
+            </Link>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ background: "#FF1F7D" }}
+              />
+              <span className="text-xs font-bold tracking-widest" style={{ color: "#FF1F7D" }}>
+                LIVE
+              </span>
+            </div>
           </div>
         </div>
 
