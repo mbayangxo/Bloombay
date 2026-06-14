@@ -12,6 +12,7 @@ import {
   toggleGatheringFlower, getGatheringFlowersForUser,
 } from "@/lib/actions/happenings";
 import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
+import { coverUrl } from "@/lib/images/supabase-transform";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -788,7 +789,7 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
 
       {ev.image_url && (
         <div style={{ position: "relative", width: "100%", height: 80, borderRadius: 6, overflow: "hidden", marginBottom: 8 }}>
-          <Image src={ev.image_url} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+          <Image src={coverUrl(ev.image_url) ?? ""} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
         </div>
       )}
       {!ev.image_url && (

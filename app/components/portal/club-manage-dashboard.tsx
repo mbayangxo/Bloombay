@@ -9,6 +9,7 @@ import {
   type ClubApplication, type ClubPost,
 } from "@/lib/actions/clubs";
 import { uploadClubPhoto } from "@/lib/storage/upload";
+import { avatarUrl } from "@/lib/images/supabase-transform";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -217,7 +218,7 @@ function ApplicationCard({ app, accent, onDecide }: { app: ClubApplication; acce
         <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg, ${accent}88, ${accent})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           {app.profile?.avatar_url
             // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={app.profile.avatar_url} alt="" style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover" }}/>
+            ? <img src={avatarUrl(app.profile.avatar_url) ?? ""} alt="" style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover" }}/>
             : <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, color: "white" }}>{initials}</span>
           }
         </div>

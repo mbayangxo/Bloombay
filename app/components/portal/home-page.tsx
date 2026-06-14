@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { BBLogo } from "./bb-logo";
+import { thumbUrl } from "@/lib/images/supabase-transform";
 import { MorningAfterCard } from "./morning-after-card";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
@@ -219,7 +220,7 @@ function ClubCover({ club }: { club: Club }) {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7 }}>
         <div style={{ position: "relative", width: 62, height: 62, borderRadius: 17, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.2)" }}>
           {club.cover_url
-            ? <Image src={club.cover_url} alt={club.name} fill unoptimized style={{ objectFit: "cover" }} />
+            ? <Image src={thumbUrl(club.cover_url) ?? ""} alt={club.name} fill unoptimized style={{ objectFit: "cover" }} />
             : <div style={{ width: "100%", height: "100%", background: `linear-gradient(145deg, ${club.primary_color ?? PINK}, #FF5BAD)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "white" }}>{abbr}</p>
               </div>

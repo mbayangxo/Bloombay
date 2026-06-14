@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape, Polaroid } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
+import { thumbUrl } from "@/lib/images/supabase-transform";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -249,7 +250,7 @@ export function ClubsPage() {
                 }}>
                   <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px", overflow: "hidden", position: "relative" }}>
                     {club.cover_url && (
-                      <Image src={club.cover_url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                      <Image src={thumbUrl(club.cover_url) ?? ""} alt="" fill unoptimized style={{ objectFit: "cover" }} />
                     )}
                   </div>
                   <div style={{ marginTop: 10 }}>
