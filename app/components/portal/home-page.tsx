@@ -32,7 +32,43 @@ const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
 type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null };
 
-// Club section fallback images (real club template designs)
+// ── Event visual template mapping ─────────────────────────────────────────────
+// Every event type gets the right visual treatment.
+// If the host uploaded their own image (image_url), that's used first.
+// Otherwise we pick the template that matches what kind of event it is.
+function getEventVisual(ev: Event): string | null {
+  if (ev.image_url) return ev.image_url;
+  const t  = (ev.event_type ?? "").toLowerCase();
+  const ti = ev.title.toLowerCase();
+  // Ticketed / museum / cultural events → ticket template
+  if (t.includes("museum") || t.includes("exhibition") || t.includes("gallery") || t.includes("film") || t.includes("cinema") || ti.includes("museum") || ti.includes("film"))
+    return "/tickets templates/Ticket_Museum_Exhibition.png";
+  // Dinner / dining events → dinner ticket
+  if (t.includes("dinner") || t.includes("dining") || t.includes("supper") || ti.includes("dinner") || ti.includes("supper"))
+    return "/tickets templates/Ticket_Dinner_Society.png";
+  // Girls night / party / dance → night out ticket
+  if (t.includes("party") || t.includes("dance") || t.includes("night") || ti.includes("girls night") || ti.includes("dance"))
+    return "/tickets templates/Ticket_Girls_Night.png";
+  // Trip / travel / road
+  if (t.includes("trip") || t.includes("travel") || t.includes("road") || ti.includes("trip"))
+    return "/tickets templates/Ticket_NYC_Marrakech.png";
+  // Club: book / reading
+  if (t.includes("book") || t.includes("reading") || ti.includes("book") || ti.includes("bagel"))
+    return "/club gatherings,casual gatherings templates/Event_Book_Society.png";
+  // Club: outdoor / walk / sunday
+  if (t.includes("walk") || t.includes("outdoor") || t.includes("sunday") || ti.includes("walk") || ti.includes("sunday"))
+    return "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png";
+  // Club: brunch / social
+  if (t.includes("brunch") || t.includes("aperitivo") || t.includes("rooftop") || ti.includes("brunch") || ti.includes("aperitivo") || ti.includes("rooftop"))
+    return "/happenings/posters/02_Save_The_Date_Aperitivo.png";
+  // Vinyl / jazz / music
+  if (t.includes("jazz") || t.includes("vinyl") || t.includes("music") || ti.includes("vinyl") || ti.includes("jazz"))
+    return "/happenings/posters/03_Vinyl_Night_Jazz.png";
+  // Default happenings poster
+  return "/happenings/posters/01_Girls_Night.png";
+}
+
+// Club section template fallbacks
 const CLUB_IMAGES = [
   { image: "/club gatherings,casual gatherings templates/Event_Museum_Girls.png",   name: "Museum Girls",   href: "/member/clubs" },
   { image: "/club gatherings,casual gatherings templates/Event_Book_Society.png",   name: "Book Society",   href: "/member/clubs" },
@@ -135,8 +171,8 @@ export function HomePage() {
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
-    // Load real events
-    getEvents().then(evs => setEvents(evs.filter(e => e.image_url)));
+    // Load real events — every event gets a visual (own image or matched template)
+    getEvents().then(evs => setEvents(evs));
     const supabase = createClient();
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -264,7 +300,7 @@ export function HomePage() {
                 <Link href="/member/happenings" style={{ textDecoration: "none", display: "block", position: "relative" }}>
                   {/* The event image IS the poster — show it at full width, natural height */}
                   <Image
-                    src={ev.image_url!}
+                    src={getEventVisual(ev)!}
                     alt={ev.title}
                     width={0}
                     height={0}
@@ -408,30 +444,34 @@ export function HomePage() {
           </div>
           {/* Each event image is the poster — no container box, no text strip, just the real poster with shadow */}
           <div style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 20px 28px", scrollbarWidth: "none" as const }}>
-            {events.map((ev, i) => (
-              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
-                <div style={{
-                  transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg) translateZ(0)`,
-                  transition: "transform 0.18s ease",
-                }}>
-                  <Image
-                    src={ev.image_url!}
-                    alt={ev.title}
-                    width={0}
-                    height={0}
-                    sizes="145px"
-                    unoptimized
-                    style={{
-                      width: 145,
-                      height: "auto",
-                      display: "block",
-                      borderRadius: 12,
-                      filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.42)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))",
-                    }}
-                  />
-                </div>
-              </Link>
-            ))}
+            {events.map((ev, i) => {
+              const visual = getEventVisual(ev);
+              if (!visual) return null;
+              return (
+                <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+                  <div style={{
+                    transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg) translateZ(0)`,
+                    transition: "transform 0.18s ease",
+                  }}>
+                    <Image
+                      src={visual}
+                      alt={ev.title}
+                      width={0}
+                      height={0}
+                      sizes="145px"
+                      unoptimized
+                      style={{
+                        width: 145,
+                        height: "auto",
+                        display: "block",
+                        borderRadius: 12,
+                        filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.42)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))",
+                      }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
