@@ -525,7 +525,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
 
         <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.34)" }}>
           Already a member?{" "}
-          <Link href="/member/login" className="font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
+          <Link href="/login" className="font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
             Sign in
           </Link>
         </p>
@@ -877,7 +877,7 @@ export function OnboardFlow() {
             </PinkBtn>
             <p className="text-center text-xs text-gray-400 mt-4">
               Already a member?{" "}
-              <Link href="/member/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
+              <Link href="/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
                 Log in
               </Link>
             </p>

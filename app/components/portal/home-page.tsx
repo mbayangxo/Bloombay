@@ -821,7 +821,7 @@ export function HomePage() {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.16em", color: "rgba(255,255,255,0.95)" }}>THE EDIT</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>This week&apos;s picks</p>
           </div>
-          <Link href="/member/edit" style={{ textDecoration: "none" }}>
+          <Link href="/member/you" style={{ textDecoration: "none" }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>SEE ALL →</span>
           </Link>
         </div>

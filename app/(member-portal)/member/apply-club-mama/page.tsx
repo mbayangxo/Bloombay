@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK = "#FF1F7D";
 
@@ -53,6 +54,40 @@ export default function ApplyClubMamaPage() {
   const [agreeCommit, setAgreeCommit] = useState(false);
 
   const [agreeStandards, setAgreeStandards] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  async function handleSubmit() {
+    if (!canNext()) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from("club_mama_applications").insert({
+        user_id: user?.id ?? null,
+        club_name: clubName.trim(),
+        club_emoji: clubEmoji,
+        category,
+        tagline: tagline.trim() || null,
+        neighborhood: neighborhood.trim() || null,
+        description: description.trim(),
+        frequency,
+        capacity: parseInt(capacity) || null,
+        membership_type: membershipType,
+        why_run: whyRun.trim(),
+        experience: experience.trim(),
+        vision: vision.trim() || null,
+        status: "pending",
+      });
+      if (error) throw new Error(error.message);
+      setSubmitted(true);
+    } catch (e: unknown) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function canNext(): boolean {
     if (step === 1) return clubName.trim().length >= 2 && !!category && neighborhood.trim().length >= 2;
@@ -558,19 +593,23 @@ export default function ApplyClubMamaPage() {
               ← Back
             </button>
           )}
+          {saveError && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#f87171", textAlign: "center", padding: "0 0 8px" }}>{saveError}</p>
+          )}
           <button
             onClick={() => {
               if (!canNext()) return;
               if (step < 4) { setStep(s => s + 1); }
-              else { setSubmitted(true); }
+              else { void handleSubmit(); }
             }}
+            disabled={saving}
             className="flex-1 py-4 rounded-2xl text-sm font-bold transition-all active:scale-[0.97]"
             style={{
-              background: canNext() ? PINK : "rgba(255,255,255,0.08)",
-              color: canNext() ? "white" : "rgba(255,255,255,0.2)",
-              boxShadow: canNext() ? `0 6px 20px ${PINK}44` : "none",
+              background: canNext() && !saving ? PINK : "rgba(255,255,255,0.08)",
+              color: canNext() && !saving ? "white" : "rgba(255,255,255,0.2)",
+              boxShadow: canNext() && !saving ? `0 6px 20px ${PINK}44` : "none",
             }}>
-            {step === 4 ? "Submit Application ✦" : "Continue →"}
+            {step === 4 ? (saving ? "Submitting…" : "Submit Application ✦") : "Continue →"}
           </button>
         </div>
 

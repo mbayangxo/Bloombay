@@ -740,7 +740,7 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
               <p className="text-sm font-bold" style={{ color: "#111" }}>Ticket saved to your wallet</p>
               <p className="text-[10px]" style={{ color: "#bbb" }}>All your events live in My Tickets</p>
             </div>
-            <Link href="/member/tickets"
+            <Link href="/member/happenings"
               className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex-shrink-0"
               style={{ background: "#FF1F7D", color: "white" }}>
               View →
