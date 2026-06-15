@@ -624,6 +624,30 @@ export function HomePage() {
 
       <WeeklyPromptsCard />
 
+      {/* ══ GIRLMATE ════════════════════════════════════════════════════════════ */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <Link href="/member/girlmate" style={{ textDecoration: "none", display: "block" }}>
+          <div style={{
+            borderRadius: 20, overflow: "hidden",
+            background: "linear-gradient(135deg, #1C0018 0%, #38002E 50%, rgba(255,31,125,0.3) 100%)",
+            border: "1px solid rgba(255,31,125,0.2)",
+            padding: "18px 20px",
+            display: "flex", alignItems: "center", gap: 16,
+            boxShadow: "0 4px 24px rgba(255,31,125,0.12)",
+          }}>
+            <div style={{ width: 46, height: 46, borderRadius: 14, background: "rgba(255,31,125,0.2)", border: "1px solid rgba(255,31,125,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 22 }}>🏠</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 3 }}>✦ GIRLMATE</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.9)", lineHeight: 1.2 }}>Find your perfect roommate</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Rooms, apartments & co-searches</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </Link>
+      </div>
+
       {/* ══ MORNING-AFTER ═══════════════════════════════════════════════════════ */}
       {showRecap && (
         <BloomRecapCard onDismiss={() => setShowRecap(false)} />

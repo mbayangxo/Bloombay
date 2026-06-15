@@ -396,6 +396,78 @@ export function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
+          EVERYTHING BLOOMBAY — full feature showcase
+      ══════════════════════════════════════════════════════ */}
+      <section style={{ padding: "80px 22px", background: INK }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 10 }}>EVERYTHING IN ONE PLACE</p>
+            <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(28px,5vw,52px)", color: "white", margin: 0, lineHeight: 1 }}>
+              Your whole social world.
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+            {[
+              {
+                emoji: "🏠", label: "GIRLMATE", name: "Find Your Roommate",
+                desc: "Rooms, apartments, and co-searches — only with women you can trust.",
+                color: PINK, href: "/member/girlmate",
+              },
+              {
+                emoji: "🎉", label: "HOST AN EVENT", name: "Become a Host",
+                desc: "Host dinners, walks, gallery trips, or anything you love. We handle RSVPs, payments, and logistics.",
+                color: "#A855F7", href: "/start-a-club",
+              },
+              {
+                emoji: "🗺️", label: "THE CITY", name: "City Discovery",
+                desc: "Girl Picks, hidden gems, and the best spots in the city — curated by women who actually live here.",
+                color: "#0EA5E9", href: "/member/happenings",
+              },
+              {
+                emoji: "🍽️", label: "GIRL PICKS", name: "Rate & Discover Eats",
+                desc: "Save restaurants, give flowers to your favourites, and see where bloomies are eating right now.",
+                color: "#F97316", href: "/member/happenings",
+              },
+              {
+                emoji: "👗", label: "THE HANGER", name: "Buy & Sell Fashion",
+                desc: "Closet cleanouts, vintage finds, and style swaps. Sell what you don't wear to women who will.",
+                color: "#EC4899", href: "/member/avenue",
+              },
+              {
+                emoji: "📋", label: "PLANS", name: "Social Coordination",
+                desc: "\"Who wants to do this?\" — plan brunches, trips, and group activities without the group chat chaos.",
+                color: "#10B981", href: "/member/plans",
+              },
+              {
+                emoji: "📖", label: "AVENUE", name: "Fashion, Wellness & Culture",
+                desc: "A women's editorial. The magazine, the column, the reading room — all yours.",
+                color: "#D4A853", href: "/member/avenue",
+              },
+              {
+                emoji: "👯", label: "CLUBS", name: "Your People",
+                desc: "Dinner Society, Museum Girls, Book Club, Sunday Walks — join the ones that feel like home.",
+                color: PINK, href: "/member/clubs",
+              },
+            ].map(f => (
+              <Link key={f.name} href={f.href} style={{ textDecoration: "none" }}>
+                <div style={{
+                  borderRadius: 20, padding: "24px 22px", height: "100%", boxSizing: "border-box",
+                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                  transition: "border-color 0.15s", cursor: "pointer",
+                }}>
+                  <div style={{ fontSize: 28, marginBottom: 14 }}>{f.emoji}</div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: f.color, marginBottom: 6 }}>✦ {f.label}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "15px", color: "white", marginBottom: 8, lineHeight: 1.2 }}>{f.name}</p>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>{f.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
           STATEMENT — Women are gathering.
       ══════════════════════════════════════════════════════ */}
       <div style={{ background: IVORY, padding: "48px 22px 40px", borderTop: "1px solid #ecddd4", overflow: "hidden" }}>
