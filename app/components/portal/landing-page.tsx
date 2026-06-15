@@ -117,12 +117,8 @@ export function LandingPage() {
         {/* Main headline */}
         <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 22px" }}>
 
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.36em", color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>
-            ✦ &nbsp;NEW YORK CITY &nbsp;·&nbsp; EST. 2025
-          </p>
-
           {/* Primary — Women are gathering. */}
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(42px, 12vw, 64px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
               Women are
             </div>
@@ -131,10 +127,11 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* Secondary — It's a women's world. We're it. */}
-          <div style={{ paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)", marginBottom: 18 }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(15px, 4.5vw, 20px)", color: "rgba(255,255,255,0.7)", letterSpacing: "-0.01em", margin: 0, lineHeight: 1.3 }}>
-              It&apos;s a women&apos;s world. <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", color: "white" }}>We&apos;re it.</span>
+          {/* Secondary — It's a women's world. We're it. — BIG, not a tagline */}
+          <div style={{ marginBottom: 22 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px, 7.5vw, 38px)", color: "rgba(255,255,255,0.85)", letterSpacing: "-0.02em", margin: 0, lineHeight: 1.15 }}>
+              It&apos;s a women&apos;s world.{" "}
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", fontSize: "clamp(28px, 8vw, 40px)", color: "white" }}>We&apos;re it.</span>
             </p>
           </div>
 
