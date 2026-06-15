@@ -192,7 +192,7 @@ export function VanityPage() {
   const cats = Object.entries(CATEGORY_META) as [VanityCategory, { label: string; color: string }][];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5F0 100%)", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* Header */}
       <div style={{

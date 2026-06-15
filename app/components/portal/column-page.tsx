@@ -199,7 +199,7 @@ export function ColumnPage() {
   const [featured, ...rest] = filtered;
 
   return (
-    <div style={{ background: `${GRAIN}, ${CREAM}`, backgroundSize: "200px 200px, auto", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: `${GRAIN}, ${CREAM}`, backgroundSize: "200px 200px, auto", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
       {/* Header */}
       <div style={{
         padding: "56px 22px 24px",

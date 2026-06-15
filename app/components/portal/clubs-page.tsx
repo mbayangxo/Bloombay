@@ -86,7 +86,22 @@ export function ClubsPage() {
   }, []);
 
   return (
-    <div style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 100 }}>
+    <div style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
+
+      {/* ── Create Club FAB ── */}
+      <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
+        <div style={{
+          position: "fixed", top: 60, right: 16, zIndex: 60,
+          width: 36, height: 36, borderRadius: "50%",
+          background: PINK,
+          boxShadow: `0 3px 14px ${PINK}66`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+      </Link>
 
       {/* ══════════ HERO — bulletin board with headline + polaroid ══════════ */}
       <section style={{ padding: "72px 18px 0", position: "relative" }}>

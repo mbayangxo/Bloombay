@@ -15,9 +15,19 @@ interface AvenueConfig {
   href: string;
   accent: string;
   count: number | null;
+  icon?: "magazine";
 }
 
 const AVENUES: AvenueConfig[] = [
+  {
+    signLine1: "INTRO BLVD.",
+    signLine2: "INTRODUCTIONS AVE.",
+    title: "Introductions",
+    tagline: "Meet your Bloomies.",
+    href: "/member/introductions",
+    accent: "#FF1F7D",
+    count: 89,
+  },
   {
     signLine1: "WALL ST.",
     signLine2: "THE WALL AVE.",
@@ -71,6 +81,7 @@ const AVENUES: AvenueConfig[] = [
     href: "/member/avenue/magazine",
     accent: "#FF1F7D",
     count: null,
+    icon: "magazine" as const,
   },
   {
     signLine1: "WELLNESS ROW",
@@ -141,77 +152,65 @@ function getPostDisplay(post: WallPost, idx: number) {
   };
 }
 
-// ── AvenueSign ─────────────────────────────────────────────────────────────────
-function AvenueSign({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
+// ── AvenueArrow ────────────────────────────────────────────────────────────────
+function AvenueArrow({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
+  const TIP = 32;
+  const clipRight = `polygon(0 0, calc(100% - ${TIP}px) 0, 100% 50%, calc(100% - ${TIP}px) 100%, 0 100%)`;
+  const clipLeft  = `polygon(${TIP}px 0, 100% 0, 100% 100%, ${TIP}px 100%, 0 50%)`;
+
   return (
     <Link href={avenue.href} style={{ textDecoration: "none", display: "block" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+      <div style={{
+        clipPath: flip ? clipLeft : clipRight,
+        background: "rgba(255,255,255,0.2)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: "1px solid rgba(255,255,255,0.28)",
+        padding: flip ? `15px 22px 15px ${TIP + 22}px` : `15px ${TIP + 22}px 15px 22px`,
+        display: "flex",
+        alignItems: "center",
+        gap: 11,
+        flexDirection: flip ? "row-reverse" as const : "row" as const,
+      }}>
 
-        {/* Cross-sign cluster */}
-        <div style={{ position: "relative", width: 148, height: 92, marginBottom: 0 }}>
+        {/* Magazine object icon */}
+        {avenue.icon === "magazine" && (
+          <svg width="20" height="26" viewBox="0 0 20 26" fill="none" style={{ flexShrink: 0 }}>
+            <rect x="1" y="2" width="15" height="20" rx="1" fill="rgba(255,255,255,0.18)" transform="rotate(-4 8 12)"/>
+            <rect x="2" y="1" width="16" height="22" rx="1.5" fill="rgba(255,255,255,0.48)"/>
+            <line x1="5" y1="6"  x2="15" y2="6"  stroke="rgba(255,31,125,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="5" y1="9"  x2="12" y2="9"  stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="5" y1="12" x2="15" y2="12" stroke="rgba(0,0,0,0.14)" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="5" y1="15" x2="11" y2="15" stroke="rgba(0,0,0,0.14)" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="5" y1="18" x2="14" y2="18" stroke="rgba(0,0,0,0.12)" strokeWidth="1" strokeLinecap="round"/>
+          </svg>
+        )}
 
-          {/* Upper crossing sign (street name) */}
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: flip ? "auto" : 8,
-            right: flip ? 8 : "auto",
-            background: avenue.accent,
-            borderRadius: 5,
-            padding: "5px 12px",
-            border: "2.5px solid rgba(255,255,255,0.25)",
-            boxShadow: `3px 3px 0 rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.1)`,
-            transform: `rotate(${flip ? 1.5 : -1.5}deg)`,
-            zIndex: 2,
-            maxWidth: 120,
-          }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white", letterSpacing: "0.08em", whiteSpace: "nowrap" as const }}>{avenue.signLine1}</p>
-          </div>
-
-          {/* Main sign (avenue title) */}
-          <div style={{
-            position: "absolute",
-            top: 28,
-            left: flip ? 8 : "auto",
-            right: flip ? "auto" : 8,
-            background: avenue.accent,
-            borderRadius: 5,
-            padding: "8px 14px",
-            border: "2.5px solid rgba(255,255,255,0.25)",
-            boxShadow: `3px 3px 0 rgba(0,0,0,0.2), 0 4px 16px ${avenue.accent}55`,
-            transform: `rotate(${flip ? -2 : 2}deg)`,
-            zIndex: 3,
-          }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", whiteSpace: "nowrap" as const, lineHeight: 1.1 }}>{avenue.title}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 600, color: "rgba(255,255,255,0.75)", letterSpacing: "0.04em", marginTop: 2 }}>{avenue.tagline}</p>
-          </div>
-
-          {/* Count badge */}
-          {avenue.count !== null && (
-            <div style={{
-              position: "absolute", top: 26, left: flip ? "auto" : 4, right: flip ? 4 : "auto",
-              background: "white", borderRadius: 999, height: 18, minWidth: 18,
-              paddingLeft: 6, paddingRight: 6,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-              zIndex: 5,
-            }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: avenue.accent, lineHeight: 1 }}>{avenue.count}</span>
-            </div>
-          )}
+        <div style={{ flex: 1, textAlign: flip ? "right" as const : "left" as const }}>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900,
+            fontStyle: "italic", color: "white", lineHeight: 1, margin: 0,
+          }}>{avenue.title}</p>
+          <p style={{
+            fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700,
+            color: "rgba(255,255,255,0.65)", letterSpacing: "0.07em", marginTop: 3,
+          }}>{avenue.tagline}</p>
         </div>
 
-        {/* Pole */}
-        <div style={{
-          width: 7,
-          height: 36,
-          background: "linear-gradient(90deg, #aaa 0%, #ddd 35%, #bbb 65%, #999 100%)",
-          boxShadow: "1px 0 3px rgba(0,0,0,0.2)",
-          borderRadius: "0 0 2px 2px",
-        }} />
+        {avenue.count !== null && (
+          <div style={{
+            background: "rgba(255,255,255,0.22)",
+            borderRadius: 999, padding: "2px 9px",
+            border: "1px solid rgba(255,255,255,0.3)",
+            flexShrink: 0,
+          }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "white" }}>{avenue.count}</span>
+          </div>
+        )}
 
-        {/* Base */}
-        <div style={{ width: 18, height: 5, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, #aaa, #888)", boxShadow: "0 2px 4px rgba(0,0,0,0.25)" }} />
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ flexShrink: 0, transform: flip ? "scaleX(-1)" : undefined }}>
+          <path d="M1 1l6 6-6 6" stroke="rgba(255,255,255,0.55)" strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
       </div>
     </Link>
   );
@@ -282,7 +281,7 @@ export function AvenuePage() {
     <div style={{
       background: "linear-gradient(160deg, #FF1F7D 0%, #FF1F7D 45%, #FF5BAD 80%, #FFB3D9 100%)",
       minHeight: "100vh",
-      paddingBottom: 104,
+      paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)",
       overflowX: "hidden",
     }}>
       <style>{`
@@ -324,12 +323,12 @@ export function AvenuePage() {
         </div>
       </div>
 
-      {/* ══ THE AVENUE — sign grid ════════════════════════════════════════ */}
+      {/* ══ THE AVENUE — arrow list ════════════════════════════════════════ */}
       <div style={{ marginTop: 32, paddingBottom: 8 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 20, padding: "0 24px" }}>THE AVENUE</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 8px", padding: "0 20px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "white", letterSpacing: "0.22em", marginBottom: 16, padding: "0 24px" }}>THE AVENUE</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {AVENUES.map((avenue, i) => (
-            <AvenueSign key={avenue.href} avenue={avenue} flip={i % 2 === 1} />
+            <AvenueArrow key={avenue.href} avenue={avenue} flip={i % 2 === 1} />
           ))}
         </div>
       </div>

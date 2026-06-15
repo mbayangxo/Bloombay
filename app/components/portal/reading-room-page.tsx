@@ -150,7 +150,7 @@ export function ReadingRoomPage() {
   const filtered = activeCategory === "all" ? MOCK_POSTS : MOCK_POSTS.filter(p => p.category === activeCategory);
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FAF6F0 0%, #F5EDD8 50%, #FAF6F0 100%)", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FAF6F0 0%, #F5EDD8 50%, #FAF6F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
       <div style={{
         padding: "56px 22px 24px",
         background: `linear-gradient(150deg, #5D4037 0%, #8D6E63 60%, ${GOLD} 100%)`,

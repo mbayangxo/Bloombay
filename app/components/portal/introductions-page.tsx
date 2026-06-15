@@ -768,11 +768,24 @@ export function IntroductionsPage() {
         </section>
 
         <section className="px-5">
-          <SectionHeader
-            eyebrow="COME WITH ME"
-            title="Activity companions."
-            note="Women looking for someone to go with."
-          />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+            <SectionHeader
+              eyebrow="COME WITH ME"
+              title="Activity companions."
+              note="Women looking for someone to go with."
+            />
+            <Link href="/member/introductions/come-with-me/new" style={{ textDecoration: "none", flexShrink: 0, marginTop: -16 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: "50%", background: "#FF1F7D",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 3px 12px rgba(255,31,125,0.4)",
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
+            </Link>
+          </div>
           <div className="flex flex-col gap-3">
             {COME_WITH_ME.map(post => (
               <ComeWithMeCard key={post.id} post={post}
@@ -837,6 +850,32 @@ export function IntroductionsPage() {
                   </span>
                 </div>
               </div>
+            </div>
+          </Link>
+        </section>
+
+        {/* ── Find a Room ─────────────────────────────────────────────────────── */}
+        <section className="px-5">
+          <Link href="/member/girlmate/rooms" style={{ textDecoration: "none", display: "block" }}>
+            <div style={{
+              background: "linear-gradient(135deg, #1A0A2E 0%, #2D1050 100%)",
+              borderRadius: 20, padding: "18px 20px",
+              boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
+              position: "relative", overflow: "hidden",
+              display: "flex", alignItems: "center", gap: 14,
+            }}>
+              <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.25) 0%, transparent 70%)" }} />
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(255,31,125,0.25)" }}>
+                <span style={{ fontSize: 20 }}>🏠</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.7)", marginBottom: 3 }}>ROOMS</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 900, color: "white", lineHeight: 1.1 }}>Find a Room.</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>Look for a room with women you can trust.</p>
+              </div>
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+                <path d="M1 1l8 7-8 7" stroke="rgba(255,31,125,0.6)" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </div>
           </Link>
         </section>

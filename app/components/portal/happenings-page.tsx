@@ -970,7 +970,7 @@ function CreateFAB() {
     <Link href="/member/host" style={{ textDecoration: "none" }}>
       <div style={{
         position: "fixed",
-        bottom: 84,
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 110px)",
         right: 18,
         zIndex: 60,
         width: 52,
@@ -1154,7 +1154,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: 100 }}>
+    <div style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
       <style>{CSS}</style>
 
 
@@ -1231,6 +1231,35 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           </Link>
         </div>
       </div>}
+
+      {/* ── Filter toggle — floating left pill ── */}
+      {standalone && tab === "happenings" && (
+        <button
+          onClick={() => setFilterOpen(o => !o)}
+          aria-label="Toggle filters"
+          style={{
+            position: "fixed", left: 0, top: 70, zIndex: 49,
+            background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
+            backdropFilter: "blur(12px)",
+            border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
+            borderLeft: "none", borderRadius: "0 16px 16px 0",
+            padding: "9px 11px 9px 7px", cursor: "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+            WebkitTapHighlightColor: "transparent",
+            transition: "all 0.18s",
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+            {filterOpen
+              ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+              : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></>
+            }
+          </svg>
+          {!filterOpen && (filter !== "All" || categoryFilter !== "all") && (
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "white" }} />
+          )}
+        </button>
+      )}
 
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
@@ -1373,45 +1402,48 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
 
-            {/* Filter chips — always visible horizontal scroll */}
-            <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 4px", scrollbarWidth: "none" as const }}>
-              {FILTERS.map(f => (
-                <button key={f} onClick={() => setFilter(f)} style={{
-                  flexShrink: 0, padding: "6px 16px", borderRadius: 999,
-                  border: "none",
-                  background: filter === f ? PINK : "rgba(255,255,255,0.1)",
-                  color: filter === f ? "white" : "rgba(255,255,255,0.6)",
-                  fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
-                  letterSpacing: "0.04em", cursor: "pointer",
-                  boxShadow: filter === f ? `0 2px 12px ${PINK}55` : "none",
-                  transition: "all 0.15s",
-                }}>
-                  {f}
-                </button>
-              ))}
-            </div>
+            {/* Filter chips — collapsible, toggled by left pill button */}
+            {filterOpen && (
+              <>
+                <div className="filter-scroll" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "8px 14px 4px", scrollbarWidth: "none" as const }}>
+                  {FILTERS.map(f => (
+                    <button key={f} onClick={() => setFilter(f)} style={{
+                      flexShrink: 0, padding: "6px 16px", borderRadius: 999,
+                      border: "none",
+                      background: filter === f ? PINK : "rgba(255,255,255,0.1)",
+                      color: filter === f ? "white" : "rgba(255,255,255,0.6)",
+                      fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
+                      letterSpacing: "0.04em", cursor: "pointer",
+                      boxShadow: filter === f ? `0 2px 12px ${PINK}55` : "none",
+                      transition: "all 0.15s",
+                    }}>
+                      {f}
+                    </button>
+                  ))}
+                </div>
 
-            {/* Interest category chips — compact secondary row */}
-            <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "4px 14px 10px", scrollbarWidth: "none" as const }}>
-              {CATEGORY_CHIPS.map(c => {
-                const active = categoryFilter === c.id;
-                return (
-                  <button key={c.id} onClick={() => setCategoryFilter(active ? "all" : c.id)} style={{
-                    flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
-                    padding: "4px 10px", borderRadius: 999, border: "none",
-                    background: active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)",
-                    color: active ? "white" : "rgba(255,255,255,0.45)",
-                    fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                    letterSpacing: "0.04em", cursor: "pointer",
-                    outline: active ? `1.5px solid rgba(255,255,255,0.4)` : "none",
-                    transition: "all 0.15s",
-                  }}>
-                    <span style={{ fontSize: 11, lineHeight: 1 }}>{c.emoji}</span>
-                    {c.label}
-                  </button>
-                );
-              })}
-            </div>
+                <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "4px 14px 10px", scrollbarWidth: "none" as const }}>
+                  {CATEGORY_CHIPS.map(c => {
+                    const active = categoryFilter === c.id;
+                    return (
+                      <button key={c.id} onClick={() => setCategoryFilter(active ? "all" : c.id)} style={{
+                        flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
+                        padding: "4px 10px", borderRadius: 999, border: "none",
+                        background: active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)",
+                        color: active ? "white" : "rgba(255,255,255,0.45)",
+                        fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                        letterSpacing: "0.04em", cursor: "pointer",
+                        outline: active ? `1.5px solid rgba(255,255,255,0.4)` : "none",
+                        transition: "all 0.15s",
+                      }}>
+                        <span style={{ fontSize: 11, lineHeight: 1 }}>{c.emoji}</span>
+                        {c.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
 
             {/* Ticker */}
             <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,31,125,0.07)", padding: "7px 0", marginBottom: 12 }}>

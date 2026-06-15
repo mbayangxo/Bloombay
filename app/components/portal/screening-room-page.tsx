@@ -161,7 +161,7 @@ export function ScreeningRoomPage() {
   const filtered = activeCategory === "all" ? MOCK_POSTS : MOCK_POSTS.filter(p => p.category === activeCategory);
 
   return (
-    <div style={{ background: "#0E0C10", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "#0E0C10", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
       {/* Header */}
       <div style={{
         padding: "56px 22px 24px",

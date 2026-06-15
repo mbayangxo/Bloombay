@@ -645,7 +645,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 96 }}>
+    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* ══════════ PROFILE CARD PREVIEW ══════════ */}
       <div style={{

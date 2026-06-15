@@ -155,7 +155,7 @@ export function ShopPage() {
   const cats = Object.entries(CAT_META) as [ShopCategory, { label: string; color: string }][];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5F0 60%, #F0F4FF 100%)", minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5F0 60%, #F0F4FF 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* Header */}
       <div style={{
