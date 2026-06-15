@@ -404,6 +404,32 @@ export function BottomNav({ user }: { user?: NavUser }) {
         {/* SVG flower background */}
         <NavBloom />
 
+        {/* Sliding flower indicator */}
+        {(() => {
+          const activeIndex = Math.max(0, TABS.findIndex(t => isActive(t.href)));
+          return (
+            <div style={{
+              position: "absolute",
+              top: 2,
+              left: `calc(${activeIndex * (100 / TABS.length)}% + ${100 / TABS.length / 2}%)`,
+              transform: "translateX(-50%)",
+              transition: "left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="3" fill="#FF1F7D" />
+                {[0,1,2,3,4].map(i => {
+                  const angle = (i/5)*Math.PI*2 - Math.PI/2;
+                  const cx = 9 + Math.cos(angle)*5.2;
+                  const cy = 9 + Math.sin(angle)*5.2;
+                  return <ellipse key={i} cx={cx} cy={cy} rx="2.2" ry="1.4" fill="#FF1F7D" opacity="0.72" transform={`rotate(${(i/5)*360},${cx},${cy})`}/>;
+                })}
+              </svg>
+            </div>
+          );
+        })()}
+
         {/* Icon + label row */}
         <div style={{
           position: "relative", zIndex: 1,
