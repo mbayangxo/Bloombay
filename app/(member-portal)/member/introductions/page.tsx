@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { getIntros, postIntro, flowerIntro, type IntroPost } from "@/lib/actions/introductions";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -32,79 +33,29 @@ const ARRIVAL_COLORS: Record<string, string> = {
   native:      GOLD,
 };
 
-// Sample intro posts (placeholder until DB)
-const SAMPLE_INTROS = [
-  {
-    id: "i1",
-    name: "Amara J.",
-    initial: "A",
-    color: "#FF1F7D",
-    neighborhood: "Bed-Stuy",
-    arrival_status: "just_moved",
-    bio: "Moved from Atlanta 3 weeks ago. Creative director, looking for my people. Obsessed with brunch spots and gallery openings. Who's doing Sunday walks?",
-    interests: ["Art", "Brunch", "Fashion"],
-    time: "2 days ago",
-    flowers: 14,
-    replies: 8,
-  },
-  {
-    id: "i2",
-    name: "Temi A.",
-    initial: "T",
-    color: "#A855F7",
-    neighborhood: "Crown Heights",
-    arrival_status: "new_6mo",
-    bio: "Six months in from Lagos. Tech PM by day, DJ by night. Still finding the best Nigerian spots — please send recs. Also looking for a reading club!",
-    interests: ["Tech", "Music", "Books"],
-    time: "4 days ago",
-    flowers: 22,
-    replies: 15,
-  },
-  {
-    id: "i3",
-    name: "Zara F.",
-    initial: "Z",
-    color: "#0EA5E9",
-    neighborhood: "Harlem",
-    arrival_status: "fresh_start",
-    bio: "Fresh start after 5 years in LA. Back to my first love — New York. Writer, runner, and recovering overachiever. Looking for women who actually want to slow down sometimes.",
-    interests: ["Writing", "Running", "Wellness"],
-    time: "1 week ago",
-    flowers: 31,
-    replies: 19,
-  },
-  {
-    id: "i4",
-    name: "Naomi B.",
-    initial: "N",
-    color: GOLD,
-    neighborhood: "Fort Greene",
-    arrival_status: "local",
-    bio: "Born and raised BK, never leaving. Love showing newcomers around — I know every good coffee shop and block party. Architects of culture club, anyone?",
-    interests: ["Culture", "Coffee", "Architecture"],
-    time: "2 weeks ago",
-    flowers: 45,
-    replies: 28,
-  },
-];
-
 const INTEREST_COLORS = ["#FF1F7D","#A855F7","#0EA5E9","#83C5A0","#D4A853","#FF69B4"];
 
-function IntroCard({ intro, onFlower }: { intro: typeof SAMPLE_INTROS[0]; onFlower: () => void }) {
-  const [flowered, setFlowered] = useState(false);
+function IntroCard({ intro, onFlower }: { intro: IntroPost; onFlower: (id: string) => void }) {
+  const [flowered, setFlowered] = useState(intro.my_flower);
+  const [count, setCount] = useState(intro.flowers);
   const arrivalColor = ARRIVAL_COLORS[intro.arrival_status] ?? PINK;
   const arrivalEmoji = ARRIVAL_EMOJIS[intro.arrival_status] ?? "🌸";
+
+  function handleFlower() {
+    const next = !flowered;
+    setFlowered(next);
+    setCount(c => c + (next ? 1 : -1));
+    onFlower(intro.id);
+  }
 
   return (
     <div style={{
       background: "white", borderRadius: 20, overflow: "hidden",
       boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 12,
     }}>
-      {/* Color bar */}
       <div style={{ height: 3, background: `linear-gradient(90deg, ${arrivalColor}, ${arrivalColor}66)` }} />
 
       <div style={{ padding: "14px 16px 16px" }}>
-        {/* Header row */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
           <div style={{
             width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
@@ -115,7 +66,9 @@ function IntroCard({ intro, onFlower }: { intro: typeof SAMPLE_INTROS[0]; onFlow
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 700, color: DARK }}>{intro.name}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa", marginTop: 1 }}>📍 {intro.neighborhood} · {intro.time}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa", marginTop: 1 }}>
+              {intro.neighborhood ? `📍 ${intro.neighborhood} · ` : ""}{intro.time}
+            </p>
           </div>
           <div style={{
             flexShrink: 0, background: `${arrivalColor}14`, border: `1px solid ${arrivalColor}30`,
@@ -128,28 +81,27 @@ function IntroCard({ intro, onFlower }: { intro: typeof SAMPLE_INTROS[0]; onFlow
           </div>
         </div>
 
-        {/* Bio */}
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#444", lineHeight: 1.55, marginBottom: 12 }}>
           {intro.bio}
         </p>
 
-        {/* Interests */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
-          {intro.interests.map((tag, i) => (
-            <div key={tag} style={{
-              background: `${INTEREST_COLORS[i % INTEREST_COLORS.length]}12`,
-              border: `1px solid ${INTEREST_COLORS[i % INTEREST_COLORS.length]}25`,
-              borderRadius: 999, padding: "3px 10px",
-            }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: INTEREST_COLORS[i % INTEREST_COLORS.length] }}>{tag}</p>
-            </div>
-          ))}
-        </div>
+        {intro.interests.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
+            {intro.interests.map((tag, i) => (
+              <div key={tag} style={{
+                background: `${INTEREST_COLORS[i % INTEREST_COLORS.length]}12`,
+                border: `1px solid ${INTEREST_COLORS[i % INTEREST_COLORS.length]}25`,
+                borderRadius: 999, padding: "3px 10px",
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: INTEREST_COLORS[i % INTEREST_COLORS.length] }}>{tag}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Action row */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
-            onClick={() => { setFlowered(!flowered); onFlower(); }}
+            onClick={handleFlower}
             style={{
               display: "flex", alignItems: "center", gap: 5,
               padding: "7px 14px", borderRadius: 999, border: "none", cursor: "pointer",
@@ -157,17 +109,7 @@ function IntroCard({ intro, onFlower }: { intro: typeof SAMPLE_INTROS[0]; onFlow
               transition: "all 0.15s",
             }}>
             <span style={{ fontSize: 13 }}>🌸</span>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: flowered ? PINK : "#888" }}>
-              {intro.flowers + (flowered ? 1 : 0)}
-            </p>
-          </button>
-          <button style={{
-            display: "flex", alignItems: "center", gap: 5,
-            padding: "7px 14px", borderRadius: 999, border: "none", cursor: "pointer",
-            background: "rgba(0,0,0,0.05)",
-          }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#888" }}>{intro.replies}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: flowered ? PINK : "#888" }}>{count}</p>
           </button>
           <button style={{
             marginLeft: "auto", padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer",
@@ -183,12 +125,16 @@ function IntroCard({ intro, onFlower }: { intro: typeof SAMPLE_INTROS[0]; onFlow
   );
 }
 
-function PostIntroSheet({ onClose, onPost }: { onClose: () => void; onPost: () => void }) {
+function PostIntroSheet({ onClose, onPost }: {
+  onClose: () => void;
+  onPost: (data: { bio: string; arrival_status: string; neighborhood: string; interests: string[] }) => Promise<void>;
+}) {
   const [bio, setBio] = useState("");
   const [arrivalStatus, setArrival] = useState<string>("just_moved");
   const [neighborhood, setNeighborhood] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
   const [posting, setPosting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const INTEREST_OPTIONS = ["Art","Music","Tech","Books","Fitness","Food","Fashion","Travel","Film","Business","Wellness","Dance"];
 
@@ -199,9 +145,13 @@ function PostIntroSheet({ onClose, onPost }: { onClose: () => void; onPost: () =
   async function handlePost() {
     if (!bio.trim()) return;
     setPosting(true);
-    await new Promise(r => setTimeout(r, 800));
-    setPosting(false);
-    onPost();
+    setErr(null);
+    try {
+      await onPost({ bio, arrival_status: arrivalStatus, neighborhood, interests });
+    } catch {
+      setErr("Something went wrong. Try again.");
+      setPosting(false);
+    }
   }
 
   return (
@@ -222,7 +172,6 @@ function PostIntroSheet({ onClose, onPost }: { onClose: () => void; onPost: () =
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Arrival status */}
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 8 }}>YOUR STORY</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
@@ -243,31 +192,28 @@ function PostIntroSheet({ onClose, onPost }: { onClose: () => void; onPost: () =
             </div>
           </div>
 
-          {/* Neighborhood */}
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 7 }}>YOUR NEIGHBORHOOD</p>
             <input
               value={neighborhood}
               onChange={e => setNeighborhood(e.target.value)}
               placeholder="Bed-Stuy, Harlem, Williamsburg…"
-              style={{ width: "100%", padding: "11px 14px", borderRadius: 14, background: "#FFF5F8", border: "1.5px solid #FFE0EE", fontFamily: "var(--font-jost)", fontSize: 13, color: DARK, outline: "none" }}
+              style={{ width: "100%", padding: "11px 14px", borderRadius: 14, background: "#FFF5F8", border: "1.5px solid #FFE0EE", fontFamily: "var(--font-jost)", fontSize: 13, color: DARK, outline: "none", boxSizing: "border-box" }}
             />
           </div>
 
-          {/* Bio */}
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 7 }}>INTRODUCE YOURSELF</p>
             <textarea
               value={bio}
-              onChange={e => setBio(e.target.value)}
+              onChange={e => setBio(e.target.value.slice(0, 500))}
               placeholder="Tell the community who you are, where you're from, what you're looking for in NYC…"
               rows={4}
-              style={{ width: "100%", padding: "12px 14px", borderRadius: 14, background: "#FFF5F8", border: "1.5px solid #FFE0EE", fontFamily: "var(--font-caveat)", fontSize: 15, color: DARK, outline: "none", resize: "none", lineHeight: 1.5 }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: 14, background: "#FFF5F8", border: "1.5px solid #FFE0EE", fontFamily: "var(--font-caveat)", fontSize: 15, color: DARK, outline: "none", resize: "none", lineHeight: 1.5, boxSizing: "border-box" }}
             />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "#ccc", marginTop: 4, textAlign: "right" }}>{bio.length}/300</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "#ccc", marginTop: 4, textAlign: "right" }}>{bio.length}/500</p>
           </div>
 
-          {/* Interests */}
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 8 }}>YOUR INTERESTS (up to 5)</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
@@ -285,6 +231,8 @@ function PostIntroSheet({ onClose, onPost }: { onClose: () => void; onPost: () =
               })}
             </div>
           </div>
+
+          {err && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#EF4444" }}>{err}</p>}
         </div>
 
         <div style={{ padding: "12px 20px", paddingBottom: "calc(12px + env(safe-area-inset-bottom,0px))", borderTop: "1px solid #F5F5F5", flexShrink: 0 }}>
@@ -307,18 +255,31 @@ type Filter = "all" | "just_moved" | "new_6mo" | "fresh_start" | "local" | "nati
 
 export default function IntroductionsPage() {
   const [filter, setFilter] = useState<Filter>("all");
+  const [intros, setIntros] = useState<IntroPost[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showPost, setShowPost] = useState(false);
   const [posted, setPosted] = useState(false);
-  const [flowers, setFlowers] = useState<Record<string, number>>({});
-  const [arrivalStatus, setArrivalStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    void import("@/lib/supabase/client").then(({ createClient }) =>
-      createClient().from("profiles").select("arrival_status").eq("id", (window as Window & { __userId?: string }).__userId ?? "").maybeSingle()
-    );
+  const fetchIntros = useCallback(async (f: Filter) => {
+    setLoading(true);
+    const data = await getIntros(f === "all" ? undefined : f);
+    setIntros(data);
+    setLoading(false);
   }, []);
 
-  const filtered = filter === "all" ? SAMPLE_INTROS : SAMPLE_INTROS.filter(i => i.arrival_status === filter);
+  useEffect(() => { void fetchIntros(filter); }, [filter, fetchIntros]);
+
+  async function handlePost(data: { bio: string; arrival_status: string; neighborhood: string; interests: string[] }) {
+    const result = await postIntro(data);
+    if (!result.ok) throw new Error(result.error);
+    setShowPost(false);
+    setPosted(true);
+    await fetchIntros(filter);
+  }
+
+  function handleFlower(id: string) {
+    void flowerIntro(id);
+  }
 
   const FILTER_OPTS: { val: Filter; label: string; emoji: string }[] = [
     { val: "all", label: "All", emoji: "🌸" },
@@ -331,7 +292,6 @@ export default function IntroductionsPage() {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: 96 }}>
 
-      {/* Header */}
       <div style={{
         background: `linear-gradient(155deg, ${DARK} 0%, #2A0818 50%, rgba(255,31,125,0.2) 100%)`,
         paddingTop: "calc(env(safe-area-inset-top,0px) + 54px)",
@@ -339,7 +299,6 @@ export default function IntroductionsPage() {
       }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.15) 0%, transparent 70%)" }} />
 
-        {/* Back */}
         <div style={{ padding: "0 20px 14px" }}>
           <Link href="/member/happenings" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -358,7 +317,6 @@ export default function IntroductionsPage() {
             New arrivals, fresh starts, and locals who love this city — introduce yourself and find your people.
           </p>
 
-          {/* Introduce yourself CTA */}
           <button onClick={() => setShowPost(true)} style={{
             display: "flex", alignItems: "center", gap: 8,
             background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)",
@@ -377,13 +335,11 @@ export default function IntroductionsPage() {
         </div>
       </div>
 
-      {/* New in NYC card */}
       <div style={{ margin: "16px 16px 0" }}>
         <div style={{
           borderRadius: 18, overflow: "hidden",
           background: `linear-gradient(135deg, ${PINK}22 0%, rgba(192,0,96,0.28) 100%)`,
-          border: `1px solid ${PINK}30`,
-          padding: "16px 18px",
+          border: `1px solid ${PINK}30`, padding: "16px 18px",
           display: "flex", alignItems: "center", gap: 14,
         }}>
           <span style={{ fontSize: 28 }}>📍</span>
@@ -399,7 +355,6 @@ export default function IntroductionsPage() {
         </div>
       </div>
 
-      {/* Filter chips */}
       <div style={{ display: "flex", gap: 7, padding: "14px 16px 0", overflowX: "auto", scrollbarWidth: "none" }}>
         {FILTER_OPTS.map(opt => {
           const active = filter === opt.val;
@@ -407,8 +362,7 @@ export default function IntroductionsPage() {
             <button key={opt.val} onClick={() => setFilter(opt.val)} style={{
               flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
               padding: "7px 12px", borderRadius: 999, border: "none", cursor: "pointer",
-              background: active ? PINK : "rgba(0,0,0,0.06)",
-              transition: "all 0.15s",
+              background: active ? PINK : "rgba(0,0,0,0.06)", transition: "all 0.15s",
             }}>
               <span style={{ fontSize: 11 }}>{opt.emoji}</span>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: active ? "white" : "#888" }}>{opt.label}</p>
@@ -417,47 +371,39 @@ export default function IntroductionsPage() {
         })}
       </div>
 
-      {/* Success toast */}
       {posted && (
-        <div style={{
-          margin: "14px 16px 0",
-          background: "#F0FDF4", border: "1px solid #86EFAC", borderRadius: 14,
-          padding: "12px 16px", display: "flex", alignItems: "center", gap: 10,
-        }}>
+        <div style={{ margin: "14px 16px 0", background: "#F0FDF4", border: "1px solid #86EFAC", borderRadius: 14, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 18 }}>🌸</span>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#16A34A" }}>Your introduction is live! Women in your area can see it now.</p>
         </div>
       )}
 
-      {/* Section header */}
       <div style={{ padding: "14px 16px 10px" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>
           {filter === "all" ? "ALL INTRODUCTIONS" : `${FILTER_OPTS.find(f => f.val === filter)?.label?.toUpperCase()} INTRODUCTIONS`}
-          <span style={{ color: PINK }}> · {filtered.length}</span>
+          {!loading && <span style={{ color: PINK }}> · {intros.length}</span>}
         </p>
       </div>
 
-      {/* Intro cards */}
       <div style={{ padding: "0 16px" }}>
-        {filtered.map(intro => (
-          <IntroCard
-            key={intro.id}
-            intro={intro}
-            onFlower={() => setFlowers(f => ({ ...f, [intro.id]: (f[intro.id] ?? 0) + 1 }))}
-          />
-        ))}
-        {filtered.length === 0 && (
+        {loading ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,31,125,0.4)" }}>No introductions yet in this category.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,31,125,0.4)" }}>Loading introductions…</p>
+          </div>
+        ) : intros.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 20px" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,31,125,0.4)" }}>No introductions yet.</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#ccc", marginTop: 6 }}>Be the first to introduce yourself!</p>
           </div>
-        )}
+        ) : intros.map(intro => (
+          <IntroCard key={intro.id} intro={intro} onFlower={handleFlower} />
+        ))}
       </div>
 
       {showPost && (
         <PostIntroSheet
           onClose={() => setShowPost(false)}
-          onPost={() => { setShowPost(false); setPosted(true); }}
+          onPost={handlePost}
         />
       )}
     </div>
