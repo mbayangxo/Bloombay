@@ -6,98 +6,30 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
-import { BBLogo } from "./bb-logo";
 import { thumbUrl } from "@/lib/images/supabase-transform";
-import { MorningAfterCard } from "./morning-after-card";
-import { BloomRecapCard } from "./bloom-recap-card";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 import { HostDashCard } from "./host-dash-card";
 import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
+import { EventObjectCard } from "./event-object-cards";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
-function getAccentColor(): string {
+function getAccentColor() {
   const h = new Date().getHours();
-  if (h >= 19 && h < 23) return "#D4336B";  // evening
-  if (h < 6 || h >= 23)  return "#A82050";  // night
-  return "#FF1F7D";                           // day
+  if (h >= 19 && h < 23) return "#D4336B";
+  if (h < 6 || h >= 23)  return "#A82050";
+  return "#FF1F7D";
 }
-function getBg(): string {
+function getBg() {
   const h = new Date().getHours();
   return (h >= 19 || h < 6) ? "#FFF0EE" : "#FFF5F7";
 }
 
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
-type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null };
+type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null; member_count?: number };
 
-// ── Event visual template mapping ─────────────────────────────────────────────
-// Every event type gets the right visual treatment.
-// If the host uploaded their own image (image_url), that's used first.
-// Otherwise we pick the template that matches what kind of event it is.
-function getEventVisual(ev: Event): string | null {
-  if (ev.image_url) return ev.image_url;
-  const t  = (ev.event_type ?? "").toLowerCase();
-  const ti = ev.title.toLowerCase();
-  // Ticketed / museum / cultural events → ticket template
-  if (t.includes("museum") || t.includes("exhibition") || t.includes("gallery") || t.includes("film") || t.includes("cinema") || ti.includes("museum") || ti.includes("film"))
-    return "/tickets templates/Ticket_Museum_Exhibition.png";
-  // Dinner / dining events → dinner ticket
-  if (t.includes("dinner") || t.includes("dining") || t.includes("supper") || ti.includes("dinner") || ti.includes("supper"))
-    return "/tickets templates/Ticket_Dinner_Society.png";
-  // Girls night / party / dance → night out ticket
-  if (t.includes("party") || t.includes("dance") || t.includes("night") || ti.includes("girls night") || ti.includes("dance"))
-    return "/tickets templates/Ticket_Girls_Night.png";
-  // Trip / travel / road
-  if (t.includes("trip") || t.includes("travel") || t.includes("road") || ti.includes("trip"))
-    return "/tickets templates/Ticket_NYC_Marrakech.png";
-  // Club: book / reading
-  if (t.includes("book") || t.includes("reading") || ti.includes("book") || ti.includes("bagel"))
-    return "/club gatherings,casual gatherings templates/Event_Book_Society.png";
-  // Club: outdoor / walk / sunday
-  if (t.includes("walk") || t.includes("outdoor") || t.includes("sunday") || ti.includes("walk") || ti.includes("sunday"))
-    return "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png";
-  // Club: brunch / social
-  if (t.includes("brunch") || t.includes("aperitivo") || t.includes("rooftop") || ti.includes("brunch") || ti.includes("aperitivo") || ti.includes("rooftop"))
-    return "/happenings/posters/02_Save_The_Date_Aperitivo.png";
-  // Vinyl / jazz / music
-  if (t.includes("jazz") || t.includes("vinyl") || t.includes("music") || ti.includes("vinyl") || ti.includes("jazz"))
-    return "/happenings/posters/03_Vinyl_Night_Jazz.png";
-  // Default happenings poster
-  return "/happenings/posters/01_Girls_Night.png";
-}
-
-// Club section template fallbacks
-const CLUB_IMAGES = [
-  { image: "/club gatherings,casual gatherings templates/Event_Museum_Girls.png",   name: "Museum Girls",   href: "/member/clubs" },
-  { image: "/club gatherings,casual gatherings templates/Event_Book_Society.png",   name: "Book Society",   href: "/member/clubs" },
-  { image: "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png",    name: "Sunday Walk",    href: "/member/clubs" },
-  { image: "/club gatherings,casual gatherings templates/Event_Dinner_Society.png", name: "Dinner Society", href: "/member/clubs" },
-];
-
-// Swipeable stat cards — first section
-const STAT_CARDS = [
-  { label: "DINNER",       value: "1", sub: "tonight",    emoji: "🍷" },
-  { label: "DANCE",        value: "1", sub: "tonight",    emoji: "💃" },
-  { label: "ACTIVE CLUBS", value: "3", sub: "joined",     emoji: "✦"  },
-  { label: "PLANS",        value: "2", sub: "this week",  emoji: "📅" },
-  { label: "INVITATIONS",  value: "1", sub: "waiting",    emoji: "💌" },
-  { label: "TRADITIONS",   value: "2", sub: "you follow", emoji: "🌸" },
-];
-
-// 7-day week data (illustrative)
-const WEEK_DATA = [
-  { day: "MON", events: 0 },
-  { day: "TUE", events: 1, label: "Free" },
-  { day: "WED", events: 1, label: "Book Club" },
-  { day: "THU", events: 0 },
-  { day: "FRI", events: 2, label: "Plans" },
-  { day: "SAT", events: 1, label: "Picnic" },
-  { day: "SUN", events: 1, label: "Walk" },
-];
-
-// ── EditProfileSheet ────────────────────────────────────────────────────────────
+// ── EditProfileSheet ───────────────────────────────────────────────────────────
 function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   name: string; neighborhood: string; bio: string;
   onClose: () => void; onSave: (n: string, nb: string, b: string) => void;
@@ -147,31 +79,77 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   );
 }
 
+// ── Club badge — circular enamel pin aesthetic ─────────────────────────────────
+function ClubBadge({ club, index }: { club: Club; index: number }) {
+  const PINK = "#FF1F7D";
+  const colors = ["#FF1F7D","#D4336B","#1A0010","#8B2252","#C4005A","#FF5BAD"];
+  const bg = club.primary_color ?? colors[index % colors.length];
+  const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+  return (
+    <Link href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div style={{
+        width: 80, height: 80, borderRadius: "50%",
+        background: bg,
+        boxShadow: `0 8px 28px ${bg}66, 0 3px 0 rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.22)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        position: "relative",
+        transform: `rotate(${index % 2 === 0 ? -2 : 2}deg)`,
+      }}>
+        {/* Outer ring */}
+        <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.25)" }} />
+        {/* Inner ring */}
+        <div style={{ position: "absolute", inset: 8, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)" }} />
+        {club.cover_url ? (
+          <Image
+            src={thumbUrl(club.cover_url) ?? ""}
+            alt={club.name}
+            width={56} height={56}
+            unoptimized
+            style={{ borderRadius: "50%", objectFit: "cover", width: 56, height: 56 }}
+          />
+        ) : (
+          <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "white", lineHeight: 1, position: "relative" }}>{initials}</span>
+        )}
+        {/* Badge shimmer */}
+        <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25) 0%, transparent 55%)", pointerEvents: "none" }} />
+      </div>
+      <div style={{ textAlign: "center", maxWidth: 72 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", color: "#1A0010", lineHeight: 1.3 }}>
+          {club.name.toUpperCase()}
+        </p>
+        {club.member_count && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.35)", marginTop: 1 }}>{club.member_count} members</p>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+// ── WEEK_DATA util ────────────────────────────────────────────────────────────
+const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export function HomePage() {
   const PINK = getAccentColor();
   const BG   = getBg();
-
   const now   = new Date();
   const month = MONTHS_S[now.getMonth()];
   const day   = now.getDate();
 
-  const [tod,              setTod]              = useState<TimeOfDay>("morning");
-  const [firstName,        setFirstName]        = useState("");
-  const [neighborhood,     setNeighborhood]     = useState("");
-  const [bio,              setBio]              = useState("");
-  const [myClubs,          setMyClubs]          = useState<Club[]>([]);
-  const [loading,          setLoading]          = useState(true);
-  const [showSafety,       setShowSafety]       = useState(false);
-  const [showEdit,         setShowEdit]         = useState(false);
-  const [showRecap,        setShowRecap]        = useState(false);
-  const [showMorningAfter, setShowMorningAfter] = useState(false);
-  const [tonightIdx,       setTonightIdx]       = useState(0);
-  const [events,           setEvents]           = useState<Event[]>([]);
+  const [tod,          setTod]          = useState<TimeOfDay>("morning");
+  const [firstName,    setFirstName]    = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [bio,          setBio]          = useState("");
+  const [myClubs,      setMyClubs]      = useState<Club[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [showSafety,   setShowSafety]   = useState(false);
+  const [showEdit,     setShowEdit]     = useState(false);
+  const [upNextIdx,    setUpNextIdx]    = useState(0);
+  const [events,       setEvents]       = useState<Event[]>([]);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
-    // Load real events — every event gets a visual (own image or matched template)
     getEvents().then(evs => setEvents(evs));
     const supabase = createClient();
     (async () => {
@@ -196,315 +174,297 @@ export function HomePage() {
     })();
   }, []);
 
-  const greeting = getGreeting(tod);
+  const greeting  = getGreeting(tod);
+  const todayIdx  = now.getDay(); // 0=Sun
+  // Build 7-day week starting Monday
+  const weekDays  = [1,2,3,4,5,6,0].map(d => DAY_SHORT[d]);
+  const todayWeek = todayIdx === 0 ? 6 : todayIdx - 1; // Mon=0..Sun=6
 
-  // Map JS day (0=Sun…6=Sat) to WEEK_DATA index (0=Mon…6=Sun)
-  const todayJS = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const todayWeekDataIdx = todayJS === 0 ? 6 : todayJS - 1; // Mon=0 … Sun=6
+  // Stats from events
+  const dinnerCount = events.filter(e => {
+    const t = (e.event_type ?? "").toLowerCase() + e.title.toLowerCase();
+    return t.includes("dinner") || t.includes("supper") || t.includes("dining");
+  }).length;
+  const danceCount = events.filter(e => {
+    const t = (e.event_type ?? "").toLowerCase() + e.title.toLowerCase();
+    return t.includes("dance") || t.includes("night") || t.includes("party");
+  }).length;
+
+  const upNextEvents = events.slice(0, 5);
+  const upNextEv     = upNextEvents[upNextIdx] ?? null;
 
   return (
     <div style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
 
-      {/* ── Inject animations ── */}
       <style>{`
-        @keyframes slideUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes pinkPulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
-        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+        @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+        .bb-scroll-x { -ms-overflow-style:none; scrollbar-width:none; }
+        .bb-scroll-x::-webkit-scrollbar { display:none; }
       `}</style>
 
-      {/* ══════════════════════════════════ HERO / GREETING ════════════════════════════════════ */}
-      <div style={{ padding: "22px 20px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>
-          TODAY&apos;S BLOOM ✦
-        </p>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      {/* ══ TODAY'S BLOOM ══════════════════════════════════════════════════════ */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>TODAY&apos;S BLOOM ✦</p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
+          {/* Left */}
           <div>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 30, color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
               {greeting}{firstName ? `, ${firstName}` : ""}.
             </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(0,0,0,0.35)", marginTop: 4 }}>
-              {WEEK_DAYS[now.getDay()]} &middot; {month} {day}
-            </p>
-          </div>
-          {/* Date chip */}
-          <div style={{ textAlign: "center", background: "white", borderRadius: 14, padding: "8px 14px", boxShadow: "0 4px 16px rgba(255,31,125,0.12)", border: `1.5px solid ${PINK}22`, flexShrink: 0 }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: PINK, lineHeight: 1 }}>{day}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{month}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* ══════════════════════════════════ SWIPEABLE STAT CARDS ════════════════════════════════════ */}
-      <div style={{ marginTop: 18 }}>
-        <div style={{
-          display: "flex", gap: 10, overflowX: "auto",
-          padding: "4px 20px 12px",
-          scrollbarWidth: "none" as const,
-          scrollSnapType: "x mandatory",
-        }}>
-          {STAT_CARDS.map((s, i) => (
-            <div key={i} style={{
-              flexShrink: 0, width: 110,
-              background: "white",
-              borderRadius: 18,
-              padding: "18px 14px 16px",
-              boxShadow: `0 8px 28px rgba(255,31,125,0.10), 0 2px 0 rgba(0,0,0,0.04)`,
-              border: `1.5px solid ${PINK}18`,
-              scrollSnapAlign: "start",
-              animation: `slideUp 0.35s ease ${i * 0.06}s both`,
-            }}>
-              <p style={{ fontSize: 20, marginBottom: 8 }}>{s.emoji}</p>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 40, color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>{s.value}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, letterSpacing: "0.14em", color: "#1A0010", marginTop: 6 }}>{s.label}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.32)", marginTop: 2 }}>{s.sub}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════ HOST + MORNING CARDS ════════════════════════════════════ */}
-      <HostDashCard />
-      <HostRecapCard />
-      {showRecap        && <BloomRecapCard onDismiss={() => setShowRecap(false)} />}
-      {showMorningAfter && <MorningAfterCard happeningTitle="Girls Dinner" happeningVenue="Carbone · West Village" onDismiss={() => setShowMorningAfter(false)} />}
-
-      {/* ══════════════════════════════════ UP NEXT — real event posters ════════════════════════════════════ */}
-      {events.length > 0 && (
-        <div style={{ padding: "24px 20px 0" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
-            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
-          </div>
-          {/* Carousel dots */}
-          {events.length > 1 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 5, marginBottom: 12 }}>
-              {events.slice(0, 5).map((_, i) => (
-                <div key={i} onClick={() => setTonightIdx(i)} style={{ cursor: "pointer", height: 5, borderRadius: 999, background: i === tonightIdx ? PINK : `${PINK}30`, width: i === tonightIdx ? 20 : 5, transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }} />
+            {/* Stat pills */}
+            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: "white", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
+              {[
+                { v: String(Math.max(1, dinnerCount)), label: "DINNER"       },
+                { v: String(Math.max(1, danceCount)),  label: "DANCE"        },
+                { v: String(myClubs.length || 3),      label: "ACTIVE CLUBS" },
+              ].map((s, i, arr) => (
+                <div key={s.label} style={{ flex: 1, textAlign: "center", padding: "10px 4px", borderRight: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none" }}>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.v}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{s.label}</p>
+                </div>
               ))}
             </div>
-          )}
-          {/* Event poster — shown at FULL natural dimensions, no box clipping */}
-          {(() => {
-            const ev = events[Math.min(tonightIdx, events.length - 1)];
-            const accent = ev.accent_color ?? PINK;
-            return (
-              <div
-                style={{ touchAction: "pan-y" }}
-                onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
-                onTouchEnd={e => {
-                  const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
-                  const dx = e.changedTouches[0].clientX - sx;
-                  if (Math.abs(dx) > 40) setTonightIdx(p => dx < 0 ? Math.min(p + 1, events.length - 1) : Math.max(p - 1, 0));
-                }}
-              >
-                <Link href="/member/happenings" style={{ textDecoration: "none", display: "block", position: "relative" }}>
-                  {/* The event image IS the poster — show it at full width, natural height */}
-                  <Image
-                    src={getEventVisual(ev)!}
-                    alt={ev.title}
-                    width={0}
-                    height={0}
-                    sizes="(max-width: 520px) calc(100vw - 40px), 480px"
-                    priority
-                    unoptimized
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      display: "block",
-                      borderRadius: 20,
-                      filter: `drop-shadow(0 28px 56px rgba(0,0,0,0.40)) drop-shadow(0 6px 14px ${accent}44)`,
-                      transform: "translateZ(0)",
-                    }}
-                  />
-                  {/* JOIN pill over the poster */}
-                  <div style={{ position: "absolute", bottom: 20, right: 20 }}>
-                    <div style={{ background: accent, borderRadius: 999, padding: "11px 22px", boxShadow: `0 3px 0 rgba(0,0,0,0.3), 0 8px 22px ${accent}77` }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
-                    </div>
-                  </div>
-                </Link>
+
+            {/* Yande note */}
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+              {tod === "evening" || tod === "night" ? "Tonight is your busiest evening this week." : "Your week is looking lively."}{" "}
+              <span style={{ color: PINK }}>— Yande</span>
+            </p>
+          </div>
+
+          {/* Right — Recommendation card */}
+          <div style={{ width: 118, background: PINK, borderRadius: 16, padding: "12px 10px", boxShadow: `0 12px 36px ${PINK}44, 0 3px 0 rgba(180,0,70,0.4)`, flexShrink: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", marginBottom: 6 }}>RECOMMENDED</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "white", lineHeight: 1.2, marginBottom: 4 }}>
+              {events[0]?.title ?? "Museum Girls"}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", marginBottom: 6 }}>
+              {events[0]?.starts_at ? new Date(events[0].starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "6:30 PM"}
+              {events[0]?.venue ? ` · ${events[0].venue.split(",")[0]}` : " · The Met"}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>
+              Because you&apos;ve attended similar events this month.
+            </p>
+            <div style={{ marginTop: 10 }}>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", display: "inline-block" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.12em" }}>VIEW →</span>
               </div>
-            );
-          })()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Host cards */}
+      <div style={{ padding: "0 16px" }}>
+        <HostDashCard />
+        <HostRecapCard />
+      </div>
+
+      {/* ══ UP NEXT ════════════════════════════════════════════════════════════ */}
+      {upNextEv && (
+        <div style={{ padding: "24px 16px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          </div>
+
+          {/* Two-column: dark moody card + TONIGHT ticket */}
+          <div style={{ display: "flex", gap: 10 }}>
+            {/* Main event card — dark */}
+            <div
+              style={{ flex: 1, minWidth: 0, borderRadius: 20, overflow: "hidden", position: "relative", minHeight: 200, background: "#1A0010", boxShadow: "0 20px 52px rgba(0,0,0,0.38)", cursor: "pointer" }}
+              onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
+              onTouchEnd={e => {
+                const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
+                const dx = e.changedTouches[0].clientX - sx;
+                if (Math.abs(dx) > 40) setUpNextIdx(p => dx < 0 ? Math.min(p + 1, upNextEvents.length - 1) : Math.max(p - 1, 0));
+              }}
+            >
+              <Link href="/member/happenings" style={{ textDecoration: "none", display: "block", position: "relative", height: "100%" }}>
+                {upNextEv.image_url && (
+                  <Image src={upNextEv.image_url} alt={upNextEv.title} fill unoptimized style={{ objectFit: "cover", objectPosition: "center" }} sizes="60vw" />
+                )}
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.82) 90%)" }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "14px 14px" }}>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 20, color: "white", lineHeight: 1.1, marginBottom: 4 }}>
+                    {upNextEv.title} ♡
+                  </p>
+                  {upNextEv.venue && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+                      📍 {upNextEv.venue}
+                    </p>
+                  )}
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: PINK }}>
+                    {new Date(upNextEv.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                  </p>
+                  {/* Attendee count */}
+                  {upNextEv.attending_count > 0 && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                      {upNextEv.attending_count} women going
+                    </p>
+                  )}
+                </div>
+                {/* Carousel dots */}
+                {upNextEvents.length > 1 && (
+                  <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4 }}>
+                    {upNextEvents.map((_, i) => (
+                      <div key={i} style={{ width: i === upNextIdx ? 14 : 4, height: 4, borderRadius: 999, background: i === upNextIdx ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s" }} />
+                    ))}
+                  </div>
+                )}
+              </Link>
+            </div>
+
+            {/* TONIGHT ticket — styled card */}
+            <div style={{ width: 100, flexShrink: 0 }}>
+              <EventObjectCard ev={upNextEv} size="sm" rotation={2} />
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════ YOUR WEEK — mini calendar ════════════════════════════════════ */}
-      <div style={{ padding: "28px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+      {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
+      <div style={{ padding: "24px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
           <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
         </div>
-        <div style={{ background: "white", borderRadius: 20, padding: "16px 12px", boxShadow: "0 6px 24px rgba(255,31,125,0.08), 0 2px 0 rgba(0,0,0,0.04)", border: `1px solid ${PINK}12` }}>
-          {/* Days row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
-            {WEEK_DATA.map((d, i) => {
-              const isToday = i === todayWeekDataIdx;
+        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
+            {weekDays.map((d, i) => {
+              const isToday = i === todayWeek;
+              // Find events on this day (simplified: distribute events across week)
+              const dayEvents = events.filter(ev => {
+                const evDay = new Date(ev.starts_at).getDay();
+                const mapped = evDay === 0 ? 6 : evDay - 1;
+                return mapped === i;
+              });
               return (
-                <div key={d.day} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.1em", color: isToday ? PINK : "rgba(0,0,0,0.32)" }}>{d.day}</p>
+                <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : "rgba(0,0,0,0.3)" }}>{d}</p>
                   <div style={{
-                    width: 32, height: 32, borderRadius: isToday ? 10 : 8,
-                    background: isToday ? PINK : d.events > 0 ? `${PINK}15` : "rgba(0,0,0,0.04)",
-                    border: isToday ? "none" : d.events > 0 ? `1.5px solid ${PINK}30` : "none",
+                    width: 30, height: 30, borderRadius: isToday ? 10 : 8,
+                    background: isToday ? PINK : dayEvents.length > 0 ? `${PINK}18` : "rgba(0,0,0,0.04)",
+                    border: isToday ? "none" : dayEvents.length > 0 ? `1.5px solid ${PINK}35` : "none",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     boxShadow: isToday ? `0 4px 14px ${PINK}44` : "none",
                   }}>
-                    {d.events > 0 && (
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: isToday ? "white" : PINK }}>{d.events}</span>
+                    {dayEvents.length > 0 && (
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, color: isToday ? "white" : PINK }}>{dayEvents.length}</span>
                     )}
                   </div>
-                  {"label" in d && d.label && (
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: isToday ? PINK : "rgba(0,0,0,0.4)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500 }}>
-                      {d.label}
+                  {dayEvents[0] && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : "rgba(0,0,0,0.38)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {dayEvents[0].title.split(" ")[0]}
                     </p>
                   )}
                 </div>
               );
             })}
           </div>
-          {/* Week vibe */}
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)" }}>This week looks balanced ✦</p>
-            <div style={{ display: "flex", gap: 6 }}>
-              {["FRIENDS", "CULTURE", "YOU"].map(tag => (
-                <div key={tag} style={{ padding: "3px 8px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>{tag}</div>
+
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)" }}>This week looks balanced ✦</p>
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              {["FRIENDS","CULTURE","YOU"].map(t => (
+                <div key={t} style={{ padding: "2px 7px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: PINK, letterSpacing: "0.07em" }}>{t}</div>
               ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ══════════════════════════════════ YOUR CLUBS — REAL IMAGES ════════════════════════════════════ */}
-      <div style={{ marginTop: 28 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
+      {/* ══ YOUR CLUBS — circular badge pins ══════════════════════════════════ */}
+      <div style={{ marginTop: 26 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR CLUBS</p>
-            {!loading && myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", marginTop: 2 }}>{myClubs.length} joined</p>}
+            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
         </div>
-        {/* Club images shown as physical cards at natural dimensions — drop-shadow, slight tilt */}
-        <div style={{ display: "flex", gap: 14, overflowX: "auto", padding: "8px 20px 20px", scrollbarWidth: "none" as const }}>
-          {/* Supabase clubs with cover art first */}
-          {myClubs.filter(c => c.cover_url).map((club, i) => (
-            <Link key={club.id} href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
-              <div style={{ transform: `rotate(${i % 2 === 0 ? -1 : 1}deg) translateZ(0)` }}>
-                <Image
-                  src={thumbUrl(club.cover_url!) ?? ""}
-                  alt={club.name}
-                  width={0}
-                  height={0}
-                  sizes="155px"
-                  unoptimized
-                  style={{
-                    width: 155,
-                    height: "auto",
-                    display: "block",
-                    borderRadius: 16,
-                    filter: "drop-shadow(0 18px 44px rgba(0,0,0,0.30)) drop-shadow(0 4px 8px rgba(0,0,0,0.14))",
-                  }}
-                />
-              </div>
+
+        {!loading && myClubs.length === 0 ? (
+          /* Empty state */
+          <div style={{ margin: "0 16px", background: "white", borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: "#1A0010", marginBottom: 8 }}>Find your people.</p>
+            <Link href="/member/clubs" style={{ textDecoration: "none", display: "inline-block", background: "#FF1F7D", color: "white", borderRadius: 999, padding: "8px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900 }}>
+              EXPLORE CLUBS
             </Link>
-          ))}
-          {/* Template fallbacks when no Supabase clubs */}
-          {myClubs.filter(c => c.cover_url).length === 0 && CLUB_IMAGES.map((c, i) => (
-            <Link key={i} href={c.href} style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
-              <div style={{ transform: `rotate(${i % 2 === 0 ? -1 : 1}deg) translateZ(0)` }}>
-                <Image
-                  src={c.image}
-                  alt={c.name}
-                  width={0}
-                  height={0}
-                  sizes="155px"
-                  style={{
-                    width: 155,
-                    height: "auto",
-                    display: "block",
-                    borderRadius: 16,
-                    filter: "drop-shadow(0 18px 44px rgba(0,0,0,0.28)) drop-shadow(0 4px 8px rgba(0,0,0,0.12))",
-                  }}
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
+          </div>
+        ) : (
+          /* Badge carousel */
+          <div className="bb-scroll-x" style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 16px 20px" }}>
+            {myClubs.map((club, i) => (
+              <ClubBadge key={club.id} club={club} index={i} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ══════════════════════════════════ AROUND THE CITY — real event posters ════════════════════════════════════ */}
+      {/* ══ AROUND THE CITY — real event objects ══════════════════════════════ */}
       {events.length > 0 && (
         <div style={{ marginTop: 8 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", marginTop: 2 }}>NYC</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>NYC</p>
             </div>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
           </div>
-          {/* Each event image is the poster — no container box, no text strip, just the real poster with shadow */}
-          <div style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 20px 28px", scrollbarWidth: "none" as const }}>
-            {events.map((ev, i) => {
-              const visual = getEventVisual(ev);
-              if (!visual) return null;
-              return (
-                <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
-                  <div style={{
-                    transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg) translateZ(0)`,
-                    transition: "transform 0.18s ease",
-                  }}>
-                    <Image
-                      src={visual}
-                      alt={ev.title}
-                      width={0}
-                      height={0}
-                      sizes="145px"
-                      unoptimized
-                      style={{
-                        width: 145,
-                        height: "auto",
-                        display: "block",
-                        borderRadius: 12,
-                        filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.42)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))",
-                      }}
-                    />
-                  </div>
-                </Link>
-              );
-            })}
+
+          {/* Each event renders as its matching physical object — no boxes */}
+          <div className="bb-scroll-x" style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 16px 28px", alignItems: "flex-start" }}>
+            {events.map((ev, i) => (
+              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+                <EventObjectCard ev={ev} size="sm" rotation={i % 2 === 0 ? -1.5 : 1.5} />
+              </Link>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════ LAST NIGHT ════════════════════════════════════ */}
-      <div style={{ margin: "8px 20px 0" }}>
+      {/* ══ LAST NIGHT memory card ═════════════════════════════════════════════ */}
+      <div style={{ margin: "8px 16px 0" }}>
         <div style={{
-          borderRadius: 20, overflow: "hidden",
-          background: "#1A0010",
-          border: "1px solid rgba(255,31,125,0.18)",
-          padding: "22px",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+          borderRadius: 20, background: "#1A0010",
+          border: "1px solid rgba(255,31,125,0.15)",
+          padding: "20px",
+          boxShadow: "0 10px 36px rgba(0,0,0,0.22)",
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>LAST NIGHT</p>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, color: "white", lineHeight: 1.15, marginBottom: 16 }}>Carbone Girls Dinner</p>
-          <div style={{ display: "flex", gap: 20 }}>
-            {[["4", "WOMEN"], ["3", "HOURS"], ["1", "FRIENDSHIP"]].map(([n, label]) => (
-              <div key={label}>
-                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 32, color: PINK, lineHeight: 1 }}>{n}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.35)", marginTop: 3 }}>{label}</p>
+
+          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+            {/* Stats */}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
+                {events[0]?.title ?? "Carbone Girls Dinner"} ♡
+              </p>
+              <div style={{ display: "flex", gap: 16 }}>
+                {[["4","WOMEN"],["3","HOURS"],["1","FRIENDSHIP"]].map(([n, lbl]) => (
+                  <div key={lbl}>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>{n}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{lbl}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Memory text */}
+            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 14 }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>
+                &ldquo;Last night felt intimate and alive — the kind of evening you carry home.&rdquo;
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700 }}>— Yande</p>
+            </div>
           </div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.4)", marginTop: 12, lineHeight: 1.5 }}>
-            &ldquo;Last night felt very important and somehow beautiful could be called.&rdquo;
-          </p>
         </div>
       </div>
 
-      {/* Safety sheet */}
+      {/* Safety */}
       {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}
-
-      {/* Edit profile sheet */}
       {showEdit && (
         <EditProfileSheet
           name={firstName} neighborhood={neighborhood} bio={bio}
@@ -512,10 +472,7 @@ export function HomePage() {
           onSave={(n, nb, b) => { setFirstName(n); setNeighborhood(nb); setBio(b); }}
         />
       )}
-
-      {/* Safety FAB */}
       <BloomSafetyButton onOpen={() => setShowSafety(true)} />
-
     </div>
   );
 }

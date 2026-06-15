@@ -58,7 +58,7 @@ function getSlab(): Slab {
   return "tonight";
 }
 const SLAB_LABEL: Record<Slab, string> = {
-  morning: "Morning", afternoon: "Afternoon", evening: "Evening", tonight: "Tonight",
+  morning: "This Morning", afternoon: "This Afternoon", evening: "This Evening", tonight: "Tonight",
 };
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
