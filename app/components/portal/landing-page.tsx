@@ -121,31 +121,22 @@ export function LandingPage() {
             ✦ &nbsp;NEW YORK CITY &nbsp;·&nbsp; EST. 2025
           </p>
 
-          {/* Primary statement — It's a woman's world. We're it. */}
+          {/* Primary — Women are gathering. */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(36px, 10.5vw, 54px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.01em" }}>
-              It&apos;s a woman&apos;s
+            <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(42px, 12vw, 64px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+              Women are
             </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(54px, 15.5vw, 72px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
-              world.
-            </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(54px, 15.5vw, 72px)", lineHeight: 0.88, letterSpacing: "-0.04em", marginTop: 2 }}>
-              <span className="bb-outline">We&apos;re it.</span>
+            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 15vw, 72px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
+              gathering.
             </div>
           </div>
 
-          {/* Secondary — Women are gathering. */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-            <Sparkle color="rgba(255,255,255,0.55)" size={11} />
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(17px, 5vw, 22px)", color: "rgba(255,255,255,0.85)", letterSpacing: "-0.01em", margin: 0 }}>
-              Women are gathering.
+          {/* Secondary — It's a women's world. We're it. */}
+          <div style={{ paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)", marginBottom: 18 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(15px, 4.5vw, 20px)", color: "rgba(255,255,255,0.7)", letterSpacing: "-0.01em", margin: 0, lineHeight: 1.3 }}>
+              It&apos;s a women&apos;s world. <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", color: "white" }}>We&apos;re it.</span>
             </p>
           </div>
-
-          {/* Handwritten accent */}
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "18px", color: "rgba(255,255,255,0.7)", marginBottom: 20, transform: "rotate(-1deg)", display: "inline-block" }}>
-            your table is here ♡
-          </p>
 
           {/* Club pills */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
@@ -159,10 +150,11 @@ export function LandingPage() {
 
         {/* Bottom CTA */}
         <div style={{ position: "relative", zIndex: 1, padding: "0 20px", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 28px)", flexShrink: 0 }}>
+          {/* Single CTA */}
           <Link href="/waitlist" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", borderRadius: 18, padding: "18px 22px", textDecoration: "none", boxShadow: "0 12px 40px rgba(0,0,0,0.22)", marginBottom: 14 }}>
             <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: INK }}>SAVE MY SPOT</p>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "11px", color: "#aaa", marginTop: 1 }}>100 founding mothers — apply now</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: INK }}>ACCEPT INVITATION</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "11px", color: "#aaa", marginTop: 1 }}>Request access · Create your account</p>
             </div>
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" /></svg>
@@ -197,25 +189,17 @@ export function LandingPage() {
             <Sparkle color="rgba(255,255,255,0.55)" size={14} /> EST. 2025 · NEW YORK CITY
           </p>
           <h1 style={{ margin: "0 0 16px", lineHeight: 0.88 }}>
-            <span style={{ display: "block", fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(44px, 7vw, 76px)", color: "white", letterSpacing: "-0.01em", lineHeight: 0.9 }}>It&apos;s a woman&apos;s</span>
-            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 8.5vw, 100px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.84 }}>world.</span>
-            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 8.5vw, 100px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.9 }}>We&apos;re it.</span>
+            <span style={{ display: "block", fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(44px, 7vw, 80px)", color: "white", letterSpacing: "-0.02em", lineHeight: 0.9 }}>Women are</span>
+            <span style={{ display: "block", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 8.5vw, 100px)", color: "white", letterSpacing: "-0.04em", lineHeight: 0.84 }}>gathering.</span>
           </h1>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-            <Sparkle color="rgba(255,255,255,0.55)" size={13} />
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(18px, 2.5vw, 26px)", color: "rgba(255,255,255,0.8)", letterSpacing: "-0.01em", margin: 0 }}>
-              Women are gathering.
+          <div style={{ paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.2)", marginBottom: 28 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px, 2.5vw, 24px)", color: "rgba(255,255,255,0.7)", letterSpacing: "-0.01em", margin: 0, lineHeight: 1.3 }}>
+              It&apos;s a women&apos;s world.{" "}
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", color: "white" }}>We&apos;re it.</span>
             </p>
           </div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "22px", color: "rgba(255,255,255,0.65)", lineHeight: 1, marginBottom: 10, transform: "rotate(-1.5deg)", display: "inline-block" }}>
-            your table is here ♡
-          </p>
-          <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.35)", marginBottom: 18, marginTop: 14 }} />
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "18px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, maxWidth: 320, marginBottom: 36 }}>
-            New York City&apos;s social club for women. Clubs, dinners, museums, and real friendship.
-          </p>
           <div style={{ display: "flex", gap: 12 }}>
-            <Link href="/waitlist" style={{ padding: "16px 36px", borderRadius: 999, fontWeight: 900, fontSize: "12px", letterSpacing: "0.14em", background: "white", color: PINK, textDecoration: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.14)" }}>SAVE MY SPOT</Link>
+            <Link href="/waitlist" style={{ padding: "16px 36px", borderRadius: 999, fontWeight: 900, fontSize: "12px", letterSpacing: "0.14em", background: "white", color: PINK, textDecoration: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.14)" }}>ACCEPT INVITATION</Link>
             <Link href="/portals" style={{ padding: "16px 28px", borderRadius: 999, fontWeight: 600, fontSize: "12px", letterSpacing: "0.1em", border: "2px solid rgba(255,255,255,0.35)", color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>Log in</Link>
           </div>
         </div>
@@ -609,9 +593,9 @@ export function LandingPage() {
             Your place is{" "}
             <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>here.</span>
           </p>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 40 }}>100 founding mothers. New York City.</p>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. New York City.</p>
           <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
-            SAVE MY SPOT
+            ACCEPT INVITATION
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </Link>
         </div>
