@@ -81,7 +81,7 @@ export function LandingPage() {
             <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "14px", letterSpacing: "0.2em", color: INK }}>BLOOMBAY</span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-            {[{ label: "ABOUT", href: "/about" }, { label: "CLUBS", href: "/member/clubs" }, { label: "SAFETY", href: "/safety" }, { label: "CLUB OWNERS", href: "/start-a-club" }].map((item) => (
+            {[{ label: "ABOUT", href: "/about" }, { label: "CLUBS", href: "/member/clubs" }, { label: "SAFETY", href: "/safety" }, { label: "BRING YOUR GROUP", href: "/groups" }].map((item) => (
               <Link key={item.label} href={item.href} style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "#888", textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
