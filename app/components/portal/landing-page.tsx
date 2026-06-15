@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BBLogo } from "./bb-logo";
 
 const PINK  = "#FF1F7D";
@@ -46,6 +47,127 @@ function ClubCard({ name, dark, icon, outline }: { name: string; dark: boolean; 
         <p style={{ fontSize: "10px", color: textColor, letterSpacing: "0.12em", fontWeight: 700, textAlign: "center", whiteSpace: "pre-line", lineHeight: 1.4 }}>{name}</p>
         <div style={{ padding: "2px 10px", borderRadius: 999, background: "rgba(255,255,255,0.15)" }}>
           <span style={{ fontSize: "7px", color: dark ? "#FF69B4" : outline ? PINK : "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.1em" }}>BLOOMBAY</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Envelope invitation ────────────────────────────────────────────────────────
+function EnvelopeInvitation() {
+  const [opening, setOpening] = useState(false);
+  const router = useRouter();
+
+  function handleOpen() {
+    if (opening) return;
+    setOpening(true);
+    setTimeout(() => router.push("/waitlist"), 680);
+  }
+
+  return (
+    <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 20px 40px", maxWidth: 400, margin: "0 auto", width: "100%" }}>
+      {/* YOU'RE INVITED label */}
+      <p style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, letterSpacing: "0.34em", color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>
+        YOU&apos;RE INVITED
+      </p>
+
+      {/* Envelope body */}
+      <div style={{ position: "relative", perspective: "600px" }}>
+
+        {/* Shadow envelope (depth effect) */}
+        <div style={{ position: "absolute", bottom: -6, left: 6, right: -6, height: "90%", background: "#FFB8D4", borderRadius: 16, opacity: 0.4 }} />
+
+        {/* Main envelope */}
+        <div style={{
+          position: "relative",
+          background: "#FFEDF4",
+          borderRadius: 16,
+          overflow: "hidden",
+          boxShadow: "0 20px 56px rgba(0,0,0,0.28), 0 4px 0 rgba(180,0,70,0.15)",
+        }}>
+          {/* Side flap shadows (V shape on left and right) */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(255,180,210,0.35) 0%, transparent 35%, transparent 65%, rgba(255,180,210,0.35) 100%)", pointerEvents: "none" }} />
+
+          {/* Bottom V fold */}
+          <div style={{
+            position: "absolute",
+            bottom: 0, left: 0, right: 0, height: "42%",
+            clipPath: "polygon(0 100%, 50% 0%, 100% 100%)",
+            background: "linear-gradient(to bottom, #FFD4E8, #FFBAD8)",
+            opacity: 0.65,
+          }} />
+
+          {/* TOP FLAP — the opening part */}
+          <div style={{
+            position: "absolute",
+            top: 0, left: 0, right: 0,
+            height: "46%",
+            clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+            background: "linear-gradient(to bottom, #FFD4E8, #FFEDF4)",
+            transformOrigin: "top center",
+            transform: opening ? "perspective(400px) rotateX(-160deg)" : "perspective(400px) rotateX(0deg)",
+            transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
+            zIndex: 4,
+          }} />
+
+          {/* Envelope content */}
+          <div style={{ padding: "44px 24px 40px", position: "relative", zIndex: 2, textAlign: "center" }}>
+            {/* Heart */}
+            <p style={{ fontSize: 18, marginBottom: 6, lineHeight: 1 }}>♡</p>
+
+            {/* BloomBay script */}
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(30px,9vw,42px)", color: PINK, lineHeight: 1, letterSpacing: "-0.01em", marginBottom: 6 }}>
+              BloomBay
+            </p>
+
+            {/* Decorative divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "10px 0" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
+              <span style={{ color: "rgba(255,31,125,0.3)", fontSize: 10 }}>✦</span>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
+            </div>
+
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 6 }}>WHERE YOU BLOOM.</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(0,0,0,0.28)", marginBottom: 6 }}>A NEW KIND OF SOCIAL LIFE.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: PINK, opacity: 0.7, marginBottom: 32 }}>
+              Built for women. By women.
+            </p>
+
+            {/* "Open me ♡" handwritten note */}
+            <div style={{ position: "absolute", bottom: 48, right: 20, textAlign: "right" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.3)", lineHeight: 1.2 }}>
+                Open me ♡
+              </p>
+              <svg width="28" height="16" viewBox="0 0 28 16" fill="none" style={{ display: "block", marginLeft: "auto" }}>
+                <path d="M2 8 Q10 2 24 8" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                <path d="M20 5 L24 8 L21 11" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Wax seal — sits over the envelope bottom fold */}
+        <div style={{
+          position: "absolute",
+          bottom: -22,
+          left: "50%",
+          transform: `translateX(-50%) ${opening ? "scale(0.85) translateY(-4px)" : "scale(1)"}`,
+          transition: "transform 0.4s ease",
+          zIndex: 5,
+        }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: "50%",
+            background: "radial-gradient(circle at 38% 32%, #FF5BAD 0%, #C4005A 60%, #8B0038 100%)",
+            boxShadow: "0 4px 16px rgba(196,0,90,0.55), 0 2px 0 rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.28)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexDirection: "column",
+          }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 16, color: "white", letterSpacing: "-0.02em", lineHeight: 1 }}>BB</span>
+            {/* Leaf detail */}
+            <svg width="18" height="6" viewBox="0 0 18 6" fill="none" style={{ marginTop: 1 }}>
+              <path d="M1 5 Q5 1 9 3 Q13 5 17 1" stroke="rgba(255,255,255,0.45)" strokeWidth="1" strokeLinecap="round" fill="none" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -157,27 +279,21 @@ export function LandingPage() {
           </div>
 
           {/* Club pills */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
             {["Dinner Society", "Museum Girls", "Book Club", "Sunday Walks"].map((name) => (
               <div key={name} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "5px 12px", backdropFilter: "blur(8px)" }}>
                 <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>{name}</span>
               </div>
             ))}
           </div>
+
+          {/* Envelope invitation — tappable, opens and navigates to waitlist */}
+          <EnvelopeInvitation />
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom spacer */}
         <div style={{ position: "relative", zIndex: 1, padding: "0 20px", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 28px)", flexShrink: 0 }}>
-          {/* Single CTA */}
-          <Link href="/waitlist" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", borderRadius: 18, padding: "18px 22px", textDecoration: "none", boxShadow: "0 12px 40px rgba(0,0,0,0.22)", marginBottom: 14 }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: INK }}>ACCEPT INVITATION</p>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "11px", color: "#aaa", marginTop: 1 }}>Request access · Create your account</p>
-            </div>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" /></svg>
-            </div>
-          </Link>
+          {/* Log in link */}
 
           <div style={{ display: "flex", alignItems: "center", paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
             {[
