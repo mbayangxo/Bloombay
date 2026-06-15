@@ -95,6 +95,27 @@ export function LandingPage() {
       </nav>
 
       {/* ══════════════════════════════════════════════════════
+          MOBILE — BLACK STATEMENT — first thing you see
+      ══════════════════════════════════════════════════════ */}
+      <section className="bb-mobile-only" style={{ minHeight: "100svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "center", overflow: "hidden", position: "relative", padding: "0 28px" }}>
+        {/* Subtle pink glow bottom-left */}
+        <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
+            It&apos;s a<br />woman&apos;s<br />world.
+          </p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>
+            We&apos;re it.
+          </p>
+        </div>
+        {/* Scroll hint */}
+        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 1, height: 40, background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.25))" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.25)" }}>SCROLL</p>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
           MOBILE HERO — full editorial cover
       ══════════════════════════════════════════════════════ */}
       <section className="bb-mobile-only" style={{ minHeight: "100svh", background: PINK, flexDirection: "column", overflow: "hidden", position: "relative" }}>
