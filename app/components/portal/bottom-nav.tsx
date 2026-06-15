@@ -315,7 +315,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
     if (key === "clubs")         return "Clubs";
     if (key === "avenue")        return "Avenue";
     if (key === "city")          return "City";
-    if (key === "introductions") return "Meet";
+    if (key === "introductions") return "Intros";
     return key;
   }
 
