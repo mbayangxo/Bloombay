@@ -654,7 +654,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.3)" }}>✦ YOUR PROFILE</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.3)" }}>✦ THE APARTMENT</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
