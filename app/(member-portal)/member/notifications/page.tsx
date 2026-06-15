@@ -371,7 +371,7 @@ export default function NotificationsPage() {
               fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900,
               fontStyle: "italic", color: "#3A2800", lineHeight: 1,
             }}>
-              Pings.
+              Pin Drops.
             </h1>
           </div>
           {unreadCount > 0 && (

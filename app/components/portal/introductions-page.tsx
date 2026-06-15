@@ -784,6 +784,18 @@ export function IntroductionsPage() {
               />
             ))}
           </div>
+          <Link href="/member/pin-drops" style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            marginTop: 14, padding: "12px 18px", borderRadius: 16,
+            background: "rgba(255,31,125,0.06)", border: "1.5px solid rgba(255,31,125,0.14)",
+            textDecoration: "none",
+          }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 2 }}>LIVE FEED</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>See real-time pins from your Bloomies</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </Link>
         </section>
 
         <section className="px-5">
