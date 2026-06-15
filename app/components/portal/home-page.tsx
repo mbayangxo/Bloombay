@@ -11,6 +11,8 @@ import { thumbUrl } from "@/lib/images/supabase-transform";
 import { MorningAfterCard } from "./morning-after-card";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
+import { HostDashCard } from "./host-dash-card";
+import { HostRecapCard } from "./host-recap-card";
 
 // Inject pulse keyframe once
 if (typeof document !== "undefined") {
@@ -647,6 +649,12 @@ export function HomePage() {
           </div>
         </Link>
       </div>
+
+      {/* ══ HOST DASHBOARD ══════════════════════════════════════════════════════ */}
+      <HostDashCard />
+
+      {/* ══ HOST NIGHT RECAP ════════════════════════════════════════════════════ */}
+      <HostRecapCard />
 
       {/* ══ MORNING-AFTER ═══════════════════════════════════════════════════════ */}
       {showRecap && (

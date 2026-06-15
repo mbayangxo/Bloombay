@@ -58,6 +58,231 @@ function Initials({ name, size = 36, color = PINK }: { name: string | null; size
   );
 }
 
+// ── Host tab — polished kind-selector with live preview ───────────────────────
+
+const KIND_GRADIENTS: Record<string, string> = {
+  dinner:      "linear-gradient(145deg,#2A0A18,#4A1428)",
+  brunch:      "linear-gradient(145deg,#FF9060,#FFB080)",
+  coffee:      "linear-gradient(145deg,#4A2C14,#7A4C28)",
+  walk:        "linear-gradient(145deg,#1A3A1A,#2E5C2E)",
+  museum:      "linear-gradient(145deg,#2A2040,#4A3A70)",
+  picnic:      "linear-gradient(145deg,#2A4018,#3A6028)",
+  "open-seat": "linear-gradient(145deg,#1A1A2A,#2A2A4A)",
+  party:       "linear-gradient(145deg,#FF1F7D,#FF5BAD)",
+};
+
+interface HostTabContentProps {
+  showOther: boolean;
+  setShowOther: (v: boolean) => void;
+  otherText: string;
+  setOtherText: (v: string) => void;
+  goCustom: () => void;
+  onTradition: () => void;
+}
+
+function HostTabContent({ showOther, setShowOther, otherText, setOtherText, goCustom, onTradition }: HostTabContentProps) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const chosenKind = HOST_KINDS.find(k => k.kind === selected);
+
+  return (
+    <div style={{ padding: "20px 18px 0" }}>
+
+      {/* ── Step 1 prompt ── */}
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(0,0,0,0.28)", marginBottom: 12 }}>
+        WHAT ARE YOU HOSTING?
+      </p>
+
+      {/* ── Kind grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+        {HOST_KINDS.map(k => {
+          const active = selected === k.kind;
+          return (
+            <button
+              key={k.kind}
+              onClick={() => setSelected(active ? null : k.kind)}
+              style={{
+                background: active
+                  ? KIND_GRADIENTS[k.kind] ?? `linear-gradient(145deg,#1A0010,#2E0020)`
+                  : "white",
+                borderRadius: 18,
+                padding: "16px 14px",
+                border: active ? `2px solid ${PINK}55` : "1.5px solid rgba(0,0,0,0.07)",
+                boxShadow: active
+                  ? `0 6px 24px ${PINK}22, 0 2px 0 rgba(0,0,0,0.12)`
+                  : "0 2px 10px rgba(200,80,120,0.06)",
+                cursor: "pointer",
+                textAlign: "left" as const,
+                transition: "all 0.2s ease",
+                position: "relative" as const,
+                overflow: "hidden" as const,
+              }}
+            >
+              {active && (
+                <div style={{
+                  position: "absolute", top: 8, right: 10,
+                  width: 16, height: 16, borderRadius: "50%",
+                  background: PINK,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                    <path d="M1 3l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              )}
+              <span style={{ fontSize: 26, display: "block", marginBottom: 8, filter: active ? "brightness(1.2)" : "none" }}>
+                {k.emoji}
+              </span>
+              <p style={{
+                fontFamily: "var(--font-playfair)", fontSize: 16,
+                fontWeight: 900, fontStyle: "italic",
+                color: active ? "white" : DARK,
+                transition: "color 0.2s",
+              }}>{k.label}</p>
+              <p style={{
+                fontFamily: "var(--font-caveat)", fontSize: 12,
+                color: active ? "rgba(255,255,255,0.55)" : "#B08A9A",
+                marginTop: 2,
+                transition: "color 0.2s",
+              }}>{k.whisper}</p>
+            </button>
+          );
+        })}
+
+        {/* Something else */}
+        <div style={{ gridColumn: "1 / -1" }}>
+          {!showOther ? (
+            <button
+              onClick={() => { setSelected(null); setShowOther(true); }}
+              style={{
+                width: "100%", background: "white", borderRadius: 18, padding: "16px",
+                border: "1.5px dashed rgba(255,31,125,0.35)", cursor: "pointer",
+                textAlign: "left" as const, display: "flex", alignItems: "center", gap: 12,
+              }}
+            >
+              <span style={{ fontSize: 22 }}>✨</span>
+              <div>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: DARK }}>Something else</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#B08A9A", marginTop: 1 }}>Pottery class. Gallery crawl. Anything.</p>
+              </div>
+            </button>
+          ) : (
+            <div style={{ background: "white", borderRadius: 18, padding: "16px", border: `1.5px solid ${PINK}55` }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "#D4849A", marginBottom: 8 }}>WHAT ARE YOU HOSTING?</p>
+              <input
+                autoFocus value={otherText} onChange={e => setOtherText(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") goCustom(); }}
+                placeholder="Pottery night, gallery crawl, beach day…"
+                style={{
+                  width: "100%", border: "none", outline: "none", background: "transparent",
+                  fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: DARK, marginBottom: 12,
+                }}
+              />
+              <button
+                onClick={goCustom}
+                style={{
+                  width: "100%", background: PINK, color: "white", border: "none",
+                  borderRadius: 999, padding: "12px 0", cursor: "pointer",
+                  fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.14em",
+                }}
+              >KEEP GOING →</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Live preview + CTA ── */}
+      {chosenKind && (
+        <div style={{
+          borderRadius: 20,
+          background: KIND_GRADIENTS[chosenKind.kind] ?? `linear-gradient(145deg,#1A0010,#2E0020)`,
+          border: `1px solid ${PINK}33`,
+          padding: "20px",
+          marginBottom: 16,
+          boxShadow: `0 8px 32px ${PINK}18`,
+          animation: "fadeSlideUp 0.22s ease",
+        }}>
+          <style>{`@keyframes fadeSlideUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }`}</style>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.24em", color: "rgba(255,255,255,0.38)", marginBottom: 10 }}>YOUR EVENT PREVIEW</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+              background: "rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+            }}>{chosenKind.emoji}</div>
+            <div>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, color: "white", lineHeight: 1.1 }}>
+                {chosenKind.label} with friends
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 3 }}>
+                {chosenKind.whisper}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 9 }}>
+            <a
+              href={`/member/happenings/create?kind=${chosenKind.kind}`}
+              style={{
+                flex: 1, textAlign: "center" as const, textDecoration: "none",
+                padding: "13px 0", borderRadius: 999,
+                background: PINK,
+                fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900,
+                color: "white", letterSpacing: "0.06em",
+                boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}55`,
+                display: "block",
+              }}
+            >START PLANNING →</a>
+            <button
+              onClick={() => setSelected(null)}
+              style={{
+                padding: "13px 18px", borderRadius: 999,
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
+                color: "rgba(255,255,255,0.55)", cursor: "pointer", letterSpacing: "0.04em",
+              }}
+            >CHANGE</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tradition promo ── */}
+      <button
+        onClick={onTradition}
+        style={{
+          width: "100%", marginBottom: 16,
+          background: "linear-gradient(145deg, #1A0830, #3D1060)",
+          border: `1.5px solid ${PINK}44`, borderRadius: 20, padding: "18px",
+          cursor: "pointer", textAlign: "left" as const, position: "relative" as const, overflow: "hidden" as const,
+        }}
+      >
+        <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}30 0%, transparent 70%)`, pointerEvents: "none" }} />
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}CC`, marginBottom: 8 }}>✦ BUILD SOMETHING THAT LASTS</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, margin: 0 }}>Start a Tradition.</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 6 }}>First Friday Dinner. Monthly Museum Girls. Sunday Walk Club.</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: PINK, borderRadius: 999, padding: "6px 14px" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>CREATE TRADITION →</span>
+        </div>
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0 14px" }}>
+        <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#C0A0B0" }}>or</p>
+        <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
+      </div>
+
+      <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
+        <div style={{ borderRadius: 20, background: `linear-gradient(145deg, ${DARK} 0%, #2E2230 100%)`, boxShadow: "0 8px 28px rgba(28,27,28,0.3)", padding: "22px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}33 0%, transparent 70%)`, pointerEvents: "none" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}BB`, marginBottom: 8 }}>FOR SOMETHING THAT LASTS</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15 }}>Start a club.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>A crew, traditions, a name. The whole thing.</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginTop: 14 }}>BUILD IT →</p>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
 export function HostPage() {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -208,74 +433,12 @@ export function HostPage() {
 
       {/* ══════════════ HOST TAB ══════════════ */}
       {tab === "host" && (
-        <div style={{ padding: "20px 18px 0" }}>
-
-          {/* Start a Tradition — highlight card */}
-          <button onClick={() => { setTab("traditions"); setShowCreate(true); }} style={{
-            width: "100%", marginBottom: 16, background: `linear-gradient(145deg, #1A0830, #3D1060)`,
-            border: `1.5px solid ${PINK}44`, borderRadius: 20, padding: "18px",
-            cursor: "pointer", textAlign: "left", position: "relative", overflow: "hidden",
-          }}>
-            <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}30 0%, transparent 70%)`, pointerEvents: "none" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}CC`, marginBottom: 8 }}>✦ BUILD SOMETHING THAT LASTS</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, margin: 0 }}>Start a Tradition.</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 6 }}>First Friday Dinner. Monthly Museum Girls. Sunday Walk Club.</p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: PINK, borderRadius: 999, padding: "6px 14px" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>CREATE TRADITION →</span>
-            </div>
-          </button>
-
-          {/* Event kind grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {HOST_KINDS.map(k => (
-              <Link key={k.kind} href={`/member/happenings/create?kind=${k.kind}`} style={{ textDecoration: "none" }}>
-                <div style={{ background: "white", borderRadius: 18, padding: "18px 16px", border: "1.5px solid rgba(0,0,0,0.06)", boxShadow: "0 3px 14px rgba(200,80,120,0.07)" }}>
-                  <span style={{ fontSize: 26, display: "block", marginBottom: 8 }}>{k.emoji}</span>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 17, fontWeight: 900, fontStyle: "italic", color: DARK }}>{k.label}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#B08A9A", marginTop: 2 }}>{k.whisper}</p>
-                </div>
-              </Link>
-            ))}
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              {!showOther ? (
-                <button onClick={() => setShowOther(true)} style={{ width: "100%", background: "white", borderRadius: 18, padding: "16px", border: "1.5px dashed rgba(255,31,125,0.35)", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 22 }}>✨</span>
-                  <div>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: DARK }}>Something else</p>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#B08A9A", marginTop: 1 }}>Pottery class. Gallery crawl. Anything.</p>
-                  </div>
-                </button>
-              ) : (
-                <div style={{ background: "white", borderRadius: 18, padding: "16px", border: `1.5px solid ${PINK}55` }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "#D4849A", marginBottom: 8 }}>WHAT ARE YOU HOSTING?</p>
-                  <input autoFocus value={otherText} onChange={e => setOtherText(e.target.value)} onKeyDown={e => { if (e.key === "Enter") goCustom(); }}
-                    placeholder="Pottery night, gallery crawl, beach day…"
-                    style={{ width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: DARK, marginBottom: 12 }} />
-                  <button onClick={goCustom} style={{ width: "100%", background: PINK, color: "white", border: "none", borderRadius: 999, padding: "12px 0", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.14em" }}>
-                    KEEP GOING →
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 0 14px" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#C0A0B0" }}>or</p>
-            <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
-          </div>
-
-          <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
-            <div style={{ borderRadius: 20, background: `linear-gradient(145deg, ${DARK} 0%, #2E2230 100%)`, boxShadow: "0 8px 28px rgba(28,27,28,0.3)", padding: "22px", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -20, right: -20, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}33 0%, transparent 70%)`, pointerEvents: "none" }} />
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}BB`, marginBottom: 8 }}>FOR SOMETHING THAT LASTS</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15 }}>Start a club.</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>A crew, traditions, a name. The whole thing.</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginTop: 14 }}>BUILD IT →</p>
-            </div>
-          </Link>
-        </div>
+        <HostTabContent
+          showOther={showOther} setShowOther={setShowOther}
+          otherText={otherText} setOtherText={setOtherText}
+          goCustom={goCustom}
+          onTradition={() => { setTab("traditions"); setShowCreate(true); }}
+        />
       )}
 
       {/* ══════════════ DASHBOARD TAB ══════════════ */}
