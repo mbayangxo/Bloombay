@@ -15,6 +15,7 @@ export interface Event {
   event_type: string | null;
   image_url: string | null;
   accent_color: string | null;
+  host_id: string | null;
   host_name: string | null;
   host_note: string | null;
   capacity: number | null;

@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import {
   getHostReputation, getMyHostedGatherings, getGatheringAttendeesForHost,
   type HostReputation, type HostedGathering, type AttendeePreview,
@@ -290,6 +291,11 @@ export function HostPage() {
   const [tab, setTab] = useState<Tab>("host");
   const [showOther, setShowOther] = useState(false);
   const [otherText, setOtherText] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
 
   // Dashboard
   const [stats, setStats]       = useState<HostReputation | null>(null);
@@ -451,6 +457,23 @@ export function HostPage() {
             </div>
           ) : (
             <>
+              {/* View public profile link */}
+              {userId && (
+                <Link href={`/member/host/${userId}`} style={{ textDecoration: "none", display: "block", marginBottom: 16 }}>
+                  <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    background: `linear-gradient(145deg,#1A0010,#2E0020)`,
+                    border: `1px solid ${PINK}33`, borderRadius: 14, padding: "14px 16px",
+                  }}>
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.18em", color: PINK, marginBottom: 3 }}>✦ YOUR HOST PROFILE</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.65)" }}>See how women see you — past events, memories, reviews</p>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </Link>
+              )}
+
               {/* Stats row */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
                 {[

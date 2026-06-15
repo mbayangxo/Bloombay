@@ -103,6 +103,9 @@ async function sendPostEventFollowup(
       flower_count:    flowerCount ?? 0,
     },
   }).catch(() => {});
+
+  // Store event memory on host profile (upsert so safe to re-run)
+  await storeEventMemory(supabase, gatheringId, title, attendingCount, flowerCount ?? 0);
 }
 
 async function generateHostRecapMessage(
@@ -131,6 +134,60 @@ async function generateHostRecapMessage(
     return json.content?.[0]?.text?.trim() ?? `${attendingCount} women showed up for you. You did that.`;
   } catch {
     return `${attendingCount} women showed up for you. You did that.`;
+  }
+}
+
+// ── Store event memory on the host profile ────────────────────────────────────
+
+async function storeEventMemory(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  gatheringId: string,
+  title: string,
+  attendingCount: number,
+  flowerCount: number,
+): Promise<void> {
+  // Check if a memory already exists
+  const { data: existing } = await (supabase as unknown as {
+    from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: unknown }> } } };
+  }).from("event_memories").select("id").eq("gathering_id", gatheringId).maybeSingle();
+  if (existing) return;
+
+  const memoryText = await generateEventMemory(title, attendingCount, flowerCount);
+
+  await (supabase as unknown as {
+    from: (t: string) => { upsert: (row: Record<string, unknown>, opts: Record<string, unknown>) => Promise<unknown> };
+  }).from("event_memories").upsert(
+    { gathering_id: gatheringId, memory_text: memoryText },
+    { onConflict: "gathering_id" },
+  );
+}
+
+async function generateEventMemory(
+  title: string,
+  attendingCount: number,
+  flowerCount: number,
+): Promise<string> {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key":         process.env.ANTHROPIC_API_KEY ?? "",
+        "anthropic-version": "2023-06-01",
+        "content-type":      "application/json",
+      },
+      body: JSON.stringify({
+        model:      "claude-haiku-4-5-20251001",
+        max_tokens: 60,
+        messages: [{
+          role: "user",
+          content: `Write a 1-line atmospheric memory for "${title}" — ${attendingCount} women came, ${flowerCount} flowers given. Evocative, sensory, present-tense. No emojis. Under 60 chars.`,
+        }],
+      }),
+    });
+    const json = await res.json() as { content?: { text: string }[] };
+    return json.content?.[0]?.text?.trim() ?? `${attendingCount} women. One evening.`;
+  } catch {
+    return `${attendingCount} women. One evening.`;
   }
 }
 

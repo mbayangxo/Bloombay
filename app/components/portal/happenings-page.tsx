@@ -524,7 +524,13 @@ function HostReviewSheet({ ev, onClose, onDone }: { ev: Event; onClose: () => vo
       <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1 }} onClick={e => e.stopPropagation()}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)", margin: "0 auto 16px" }}/>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>RATE THE HOST</p>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 4 }}>{ev.host_name ?? "The host"}</p>
+        {ev.host_id ? (
+          <Link href={`/member/host/${ev.host_id}`} style={{ textDecoration: "none" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK, marginBottom: 4 }}>{ev.host_name ?? "The host"} →</p>
+          </Link>
+        ) : (
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 4 }}>{ev.host_name ?? "The host"}</p>
+        )}
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#9A8070", marginBottom: 18 }}>{ev.title}</p>
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
           {[1,2,3,4,5].map(n => (
