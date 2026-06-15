@@ -13,6 +13,7 @@ import { BloomRecapCard } from "./bloom-recap-card";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 import { HostDashCard } from "./host-dash-card";
 import { HostRecapCard } from "./host-recap-card";
+import { getEvents, type Event } from "@/lib/actions/events";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor(): string {
@@ -31,48 +32,12 @@ const WEEK_DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
 type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null };
 
-// ── Real event images ──────────────────────────────────────────────────────────
-const TONIGHT_CARDS = [
-  {
-    image: "/happenings/posters/04_Italian_Dinner_Society.png",
-    time: "TONIGHT · 7:30 PM",
-    venue: "WEST VILLAGE · CARBONE",
-    title: "Girls Dinner.",
-    sub: "4 seats remaining",
-    href: "/member/happenings",
-  },
-  {
-    image: "/happenings/posters/07_Sunday_Brunch_Club.png",
-    time: "SUNDAY · 11:00 AM",
-    venue: "WEST VILLAGE · L'APPART",
-    title: "Sunday Brunch Club.",
-    sub: "12 women going",
-    href: "/member/happenings",
-  },
-  {
-    image: "/happenings/posters/08_Rooftop_Sessions.png",
-    time: "SAT · 7:00 PM",
-    venue: "SECRET LOCATION · NYC",
-    title: "Rooftop Sessions.",
-    sub: "Open doors",
-    href: "/member/happenings",
-  },
-];
-
-const CITY_EVENTS = [
-  { image: "/happenings/posters/01_Girls_Night.png",             title: "Girls Night",            venue: "The DL · LES",            time: "SAT 10PM"  },
-  { image: "/happenings/posters/03_Vinyl_Night_Jazz.png",        title: "Vinyl Night & Jazz",     venue: "The Loft · Bushwick",      time: "FRI 9PM"   },
-  { image: "/happenings/posters/06_Dance_All_Night.png",         title: "Dance All Night",        venue: "Elsewhere · Bushwick",     time: "SAT 10PM"  },
-  { image: "/happenings/posters/09_Bagels_And_Books.png",        title: "Bagels & Books",         venue: "McNally · Nolita",         time: "SUN 10AM"  },
-  { image: "/happenings/posters/10_Ladies_First_Road_Trip.png",  title: "Ladies First Road Trip", venue: "Departs NYC",              time: "SAT 9AM"   },
-  { image: "/happenings/posters/02_Save_The_Date_Aperitivo.png", title: "Aperitivo",              venue: "Acampora · Nolita",        time: "FRI 7PM"   },
-];
-
+// Club section fallback images (real club template designs)
 const CLUB_IMAGES = [
-  { image: "/club gatherings,casual gatherings templates/Event_Museum_Girls.png",   name: "Museum Girls",    href: "/member/clubs", count: 84 },
-  { image: "/club gatherings,casual gatherings templates/Event_Book_Society.png",   name: "Book Society",    href: "/member/clubs", count: 62 },
-  { image: "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png",    name: "Sunday Walk",     href: "/member/clubs", count: 41 },
-  { image: "/club gatherings,casual gatherings templates/Event_Dinner_Society.png", name: "Dinner Society",  href: "/member/clubs", count: 38 },
+  { image: "/club gatherings,casual gatherings templates/Event_Museum_Girls.png",   name: "Museum Girls",   href: "/member/clubs" },
+  { image: "/club gatherings,casual gatherings templates/Event_Book_Society.png",   name: "Book Society",   href: "/member/clubs" },
+  { image: "/club gatherings,casual gatherings templates/Event_Sunday_Walk.png",    name: "Sunday Walk",    href: "/member/clubs" },
+  { image: "/club gatherings,casual gatherings templates/Event_Dinner_Society.png", name: "Dinner Society", href: "/member/clubs" },
 ];
 
 // Swipeable stat cards — first section
@@ -166,9 +131,12 @@ export function HomePage() {
   const [showRecap,        setShowRecap]        = useState(false);
   const [showMorningAfter, setShowMorningAfter] = useState(false);
   const [tonightIdx,       setTonightIdx]       = useState(0);
+  const [events,           setEvents]           = useState<Event[]>([]);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
+    // Load real events
+    getEvents().then(evs => setEvents(evs.filter(e => e.image_url)));
     const supabase = createClient();
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -264,68 +232,66 @@ export function HomePage() {
       {showRecap        && <BloomRecapCard onDismiss={() => setShowRecap(false)} />}
       {showMorningAfter && <MorningAfterCard happeningTitle="Girls Dinner" happeningVenue="Carbone · West Village" onDismiss={() => setShowMorningAfter(false)} />}
 
-      {/* ══════════════════════════════════ UP NEXT — real poster image ════════════════════════════════════ */}
-      <div style={{ padding: "24px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
-          <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
-        </div>
-        {/* Carousel with touch swipe */}
-        <div
-          style={{ position: "relative", touchAction: "pan-y" }}
-          onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
-          onTouchEnd={e => {
-            const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
-            const dx = e.changedTouches[0].clientX - sx;
-            if (Math.abs(dx) > 40) setTonightIdx(p => dx < 0 ? Math.min(p + 1, TONIGHT_CARDS.length - 1) : Math.max(p - 1, 0));
-          }}
-        >
-          <Link href={TONIGHT_CARDS[tonightIdx].href} style={{ textDecoration: "none", display: "block" }}>
-            <div style={{
-              borderRadius: 24, overflow: "hidden",
-              position: "relative", height: 320,
-              boxShadow: "0 24px 64px rgba(0,0,0,0.22), 0 8px 24px rgba(255,31,125,0.14)",
-              transform: "translateZ(0)",
-            }}>
-              <Image
-                src={TONIGHT_CARDS[tonightIdx].image}
-                alt={TONIGHT_CARDS[tonightIdx].title}
-                fill
-                style={{ objectFit: "cover", objectPosition: "center top" }}
-                sizes="(max-width: 520px) 100vw, 480px"
-                priority
-              />
-              {/* Gradient overlay */}
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.72) 80%, rgba(0,0,0,0.92) 100%)" }} />
-              {/* Time chip */}
-              <div style={{ position: "absolute", top: 16, left: 16 }}>
-                <div style={{ background: PINK, borderRadius: 999, padding: "5px 14px", boxShadow: `0 2px 12px ${PINK}66` }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, color: "white", letterSpacing: "0.12em" }}>{TONIGHT_CARDS[tonightIdx].time}</span>
-                </div>
-              </div>
-              {/* Carousel dots */}
-              <div style={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 5 }}>
-                {TONIGHT_CARDS.map((_, i) => (
-                  <div key={i} style={{ height: 5, borderRadius: 999, background: i === tonightIdx ? "white" : "rgba(255,255,255,0.38)", width: i === tonightIdx ? 18 : 5, transition: "all 0.25s" }} />
-                ))}
-              </div>
-              {/* Bottom content */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 20px 22px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.1em", marginBottom: 6 }}>{TONIGHT_CARDS[tonightIdx].venue}</p>
-                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 36, fontWeight: 400, color: "white", lineHeight: 1 }}>{TONIGHT_CARDS[tonightIdx].title}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)", marginTop: 4 }}>{TONIGHT_CARDS[tonightIdx].sub}</p>
-                  </div>
-                  <div style={{ flexShrink: 0, background: PINK, borderRadius: 999, padding: "12px 24px", boxShadow: `0 2px 0 rgba(130,0,55,0.7), 0 6px 18px ${PINK}55` }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white" }}>JOIN →</span>
-                  </div>
-                </div>
-              </div>
+      {/* ══════════════════════════════════ UP NEXT — real event posters ════════════════════════════════════ */}
+      {events.length > 0 && (
+        <div style={{ padding: "24px 20px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          </div>
+          {/* Carousel dots */}
+          {events.length > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 5, marginBottom: 12 }}>
+              {events.slice(0, 5).map((_, i) => (
+                <div key={i} onClick={() => setTonightIdx(i)} style={{ cursor: "pointer", height: 5, borderRadius: 999, background: i === tonightIdx ? PINK : `${PINK}30`, width: i === tonightIdx ? 20 : 5, transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }} />
+              ))}
             </div>
-          </Link>
+          )}
+          {/* Event poster — shown at FULL natural dimensions, no box clipping */}
+          {(() => {
+            const ev = events[Math.min(tonightIdx, events.length - 1)];
+            const accent = ev.accent_color ?? PINK;
+            return (
+              <div
+                style={{ touchAction: "pan-y" }}
+                onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
+                onTouchEnd={e => {
+                  const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
+                  const dx = e.changedTouches[0].clientX - sx;
+                  if (Math.abs(dx) > 40) setTonightIdx(p => dx < 0 ? Math.min(p + 1, events.length - 1) : Math.max(p - 1, 0));
+                }}
+              >
+                <Link href="/member/happenings" style={{ textDecoration: "none", display: "block", position: "relative" }}>
+                  {/* The event image IS the poster — show it at full width, natural height */}
+                  <Image
+                    src={ev.image_url!}
+                    alt={ev.title}
+                    width={0}
+                    height={0}
+                    sizes="(max-width: 520px) calc(100vw - 40px), 480px"
+                    priority
+                    unoptimized
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                      borderRadius: 20,
+                      filter: `drop-shadow(0 28px 56px rgba(0,0,0,0.40)) drop-shadow(0 6px 14px ${accent}44)`,
+                      transform: "translateZ(0)",
+                    }}
+                  />
+                  {/* JOIN pill over the poster */}
+                  <div style={{ position: "absolute", bottom: 20, right: 20 }}>
+                    <div style={{ background: accent, borderRadius: 999, padding: "11px 22px", boxShadow: `0 3px 0 rgba(0,0,0,0.3), 0 8px 22px ${accent}77` }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>JOIN →</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            );
+          })()}
         </div>
-      </div>
+      )}
 
       {/* ══════════════════════════════════ YOUR WEEK — mini calendar ════════════════════════════════════ */}
       <div style={{ padding: "28px 20px 0" }}>
@@ -382,81 +348,93 @@ export function HomePage() {
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
         </div>
-        <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "4px 20px 16px", scrollbarWidth: "none" as const }}>
-          {/* Show real template images first */}
-          {CLUB_IMAGES.map((c, i) => (
-            <Link key={i} href={c.href} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{
-                width: 148, height: 192, borderRadius: 20, overflow: "hidden",
-                position: "relative",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.20), 0 4px 12px rgba(255,31,125,0.12)",
-                transform: "translateZ(0)",
-              }}>
+        {/* Club images shown as physical cards at natural dimensions — drop-shadow, slight tilt */}
+        <div style={{ display: "flex", gap: 14, overflowX: "auto", padding: "8px 20px 20px", scrollbarWidth: "none" as const }}>
+          {/* Supabase clubs with cover art first */}
+          {myClubs.filter(c => c.cover_url).map((club, i) => (
+            <Link key={club.id} href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+              <div style={{ transform: `rotate(${i % 2 === 0 ? -1 : 1}deg) translateZ(0)` }}>
                 <Image
-                  src={c.image}
-                  alt={c.name}
-                  fill
-                  style={{ objectFit: "cover", objectPosition: "center" }}
-                  sizes="148px"
+                  src={thumbUrl(club.cover_url!) ?? ""}
+                  alt={club.name}
+                  width={0}
+                  height={0}
+                  sizes="155px"
+                  unoptimized
+                  style={{
+                    width: 155,
+                    height: "auto",
+                    display: "block",
+                    borderRadius: 16,
+                    filter: "drop-shadow(0 18px 44px rgba(0,0,0,0.30)) drop-shadow(0 4px 8px rgba(0,0,0,0.14))",
+                  }}
                 />
-                {/* Bottom label */}
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.72))", padding: "20px 12px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>{c.count} members</p>
-                </div>
               </div>
             </Link>
           ))}
-          {/* Then any Supabase clubs with cover_url */}
-          {myClubs.filter(c => c.cover_url).map(club => (
-            <Link key={club.id} href="/member/clubs" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{ width: 148, height: 192, borderRadius: 20, overflow: "hidden", position: "relative", boxShadow: "0 16px 48px rgba(0,0,0,0.18)" }}>
-                <Image src={thumbUrl(club.cover_url!) ?? ""} alt={club.name} fill unoptimized style={{ objectFit: "cover" }} sizes="148px" />
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.7))", padding: "20px 12px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white" }}>{club.name}</p>
-                </div>
+          {/* Template fallbacks when no Supabase clubs */}
+          {myClubs.filter(c => c.cover_url).length === 0 && CLUB_IMAGES.map((c, i) => (
+            <Link key={i} href={c.href} style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+              <div style={{ transform: `rotate(${i % 2 === 0 ? -1 : 1}deg) translateZ(0)` }}>
+                <Image
+                  src={c.image}
+                  alt={c.name}
+                  width={0}
+                  height={0}
+                  sizes="155px"
+                  style={{
+                    width: 155,
+                    height: "auto",
+                    display: "block",
+                    borderRadius: 16,
+                    filter: "drop-shadow(0 18px 44px rgba(0,0,0,0.28)) drop-shadow(0 4px 8px rgba(0,0,0,0.12))",
+                  }}
+                />
               </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ══════════════════════════════════ AROUND THE CITY — POSTERS ════════════════════════════════════ */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", marginTop: 2 }}>SoHo, NYC</p>
+      {/* ══════════════════════════════════ AROUND THE CITY — real event posters ════════════════════════════════════ */}
+      {events.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 20px", marginBottom: 14 }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", marginTop: 2 }}>NYC</p>
+            </div>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
           </div>
-          <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
-        </div>
-        <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "4px 20px 20px", scrollbarWidth: "none" as const }}>
-          {CITY_EVENTS.map((ev, i) => (
-            <Link key={i} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{
-                width: 130, borderRadius: 18, overflow: "hidden",
-                boxShadow: "0 20px 52px rgba(0,0,0,0.24), 0 4px 12px rgba(0,0,0,0.12)",
-                transform: `rotate(${i % 2 === 0 ? -1 : 1}deg) translateZ(0)`,
-                transition: "transform 0.2s ease",
-              }}>
-                <div style={{ position: "relative", height: 200 }}>
+          {/* Each event image is the poster — no container box, no text strip, just the real poster with shadow */}
+          <div style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 20px 28px", scrollbarWidth: "none" as const }}>
+            {events.map((ev, i) => (
+              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+                <div style={{
+                  transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg) translateZ(0)`,
+                  transition: "transform 0.18s ease",
+                }}>
                   <Image
-                    src={ev.image}
+                    src={ev.image_url!}
                     alt={ev.title}
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center top" }}
-                    sizes="130px"
+                    width={0}
+                    height={0}
+                    sizes="145px"
+                    unoptimized
+                    style={{
+                      width: 145,
+                      height: "auto",
+                      display: "block",
+                      borderRadius: 12,
+                      filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.42)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))",
+                    }}
                   />
                 </div>
-                <div style={{ background: "white", padding: "10px 10px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, color: "#1A0010", letterSpacing: "0.04em", marginBottom: 2 }}>{ev.title}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(0,0,0,0.4)", marginBottom: 1 }}>{ev.venue}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK }}>{ev.time}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ══════════════════════════════════ LAST NIGHT ════════════════════════════════════ */}
       <div style={{ margin: "8px 20px 0" }}>
