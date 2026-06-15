@@ -37,15 +37,6 @@ const AVENUES: AvenueConfig[] = [
     count: 183,
   },
   {
-    signLine1: "MATCH LANE",
-    signLine2: "INTRODUCTIONS AVE.",
-    title: "Introductions",
-    tagline: "Women who belong in your story.",
-    href: "/member/match",
-    accent: "#FF1F7D",
-    count: 89,
-  },
-  {
     signLine1: "BLOOM BLVD.",
     signLine2: "THE VANITY AVE.",
     title: "The Vanity",
