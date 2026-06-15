@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
+import { welcomeNewMember } from "@/lib/yande/community-coordinator";
 
 // ─── STATIC DATA ────────────────────────────────────────────────────────────
 
@@ -784,6 +785,8 @@ export function OnboardFlow() {
         await supabase.from("invites").insert(valid.map((e) => ({ inviter_id: user.id, email: e })));
       }
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      // Fire-and-forget: Yande sends the welcome message
+      welcomeNewMember(user.id).catch(() => {});
       router.push("/member/home");
     } catch (e: unknown) {
       setError((e as Error).message);
