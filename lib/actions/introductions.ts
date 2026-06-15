@@ -2,6 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 
+const SAMPLE_INTROS: IntroPost[] = [
+  { id: "s1", user_id: "s1", name: "Amara J.", initial: "A", color: "#FF1F7D", neighborhood: "Bed-Stuy", arrival_status: "just_moved", bio: "Moved from Atlanta 3 weeks ago. Creative director, looking for my people. Obsessed with brunch spots and gallery openings. Who's doing Sunday walks?", interests: ["Art","Brunch","Fashion"], time: "2 days ago", flowers: 14, my_flower: false },
+  { id: "s2", user_id: "s2", name: "Temi A.", initial: "T", color: "#A855F7", neighborhood: "Crown Heights", arrival_status: "new_6mo", bio: "Six months in from Lagos. Tech PM by day, DJ by night. Still finding the best Nigerian spots — please send recs. Also looking for a reading club!", interests: ["Tech","Music","Books"], time: "4 days ago", flowers: 22, my_flower: false },
+  { id: "s3", user_id: "s3", name: "Zara F.", initial: "Z", color: "#0EA5E9", neighborhood: "Harlem", arrival_status: "fresh_start", bio: "Fresh start after 5 years in LA. Back to my first love — New York. Writer, runner, and recovering overachiever. Looking for women who actually want to slow down sometimes.", interests: ["Writing","Running","Wellness"], time: "1 week ago", flowers: 31, my_flower: false },
+  { id: "s4", user_id: "s4", name: "Naomi B.", initial: "N", color: "#D4A853", neighborhood: "Fort Greene", arrival_status: "local", bio: "Born and raised BK, never leaving. Love showing newcomers around — I know every good coffee shop and block party. Architects of culture club, anyone?", interests: ["Culture","Coffee","Architecture"], time: "2 weeks ago", flowers: 45, my_flower: false },
+];
+
 const AVATAR_COLORS = ["#FF1F7D","#A855F7","#0EA5E9","#10B981","#F97316","#D4A853","#EC4899","#3B82F6"];
 function colorForId(id: string) {
   let n = 0;
@@ -50,9 +57,13 @@ export async function getIntros(filter?: string): Promise<IntroPost[]> {
     q = q.eq("arrival_status", filter);
   }
 
-  const { data: intros } = await q;
+  const { data: intros, error } = await q;
 
-  if (!intros?.length) return [];
+  // Fall back to sample data when table is empty or not yet created
+  if (error || !intros?.length) {
+    if (!filter || filter === "all") return SAMPLE_INTROS;
+    return SAMPLE_INTROS.filter(i => i.arrival_status === filter);
+  }
 
   // Fetch current user's flowers in one query
   let myFlowers: Set<string> = new Set();

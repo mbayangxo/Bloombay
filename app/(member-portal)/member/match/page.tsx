@@ -110,7 +110,8 @@ export default async function MatchPage() {
     .select("*", { count: "exact", head: true });
 
   const memberCount = count ?? 0;
-  const unlocked = INTROS_MEMBER_THRESHOLD > 0 && memberCount >= INTROS_MEMBER_THRESHOLD;
+  // 0 means no threshold — always open
+  const unlocked = INTROS_MEMBER_THRESHOLD === 0 || memberCount >= INTROS_MEMBER_THRESHOLD;
 
   if (!unlocked) {
     return <IntrosLockedPage currentCount={memberCount} threshold={INTROS_MEMBER_THRESHOLD} />;
