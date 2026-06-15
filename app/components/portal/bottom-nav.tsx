@@ -261,12 +261,11 @@ function IconChatBubble({ c }: SVGProps) {
 
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",   key: "home"          },
-  { href: "/member/plans",  key: "plans"         },
-  { href: "/member/clubs",  key: "clubs"         },
-  { href: "/member/avenue",  key: "avenue"        },
-  { href: "/member/happenings", key: "city"       },
-  { href: "/member/match",  key: "introductions" },
+  { href: "/member/home",       key: "home"  },
+  { href: "/member/plans",      key: "plans" },
+  { href: "/member/clubs",      key: "clubs" },
+  { href: "/member/avenue",     key: "avenue" },
+  { href: "/member/happenings", key: "city"  },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
