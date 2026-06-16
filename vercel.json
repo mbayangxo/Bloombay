@@ -59,7 +59,7 @@
     },
     {
       "path": "/api/cron/post-event",
-      "schedule": "0 */2 * * *"
+      "schedule": "0 10 * * *"
     }
   ],
   "headers": [
