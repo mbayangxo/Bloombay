@@ -44,7 +44,7 @@ export function portalClubToLanding(club: PortalClub): ClubLandingData {
       ? ["Show up as yourself", "Respect every woman's story", "What's shared here stays here"]
       : undefined,
     upcomingSeats: [],
-    photos: [club.coverUrl, club.bannerUrl].filter(Boolean) as string[],
+    photos: [],
     crestSymbol,
     crestAccent,
     coverUrl: club.coverUrl ?? club.bannerUrl ?? undefined,
