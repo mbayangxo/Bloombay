@@ -180,7 +180,7 @@ const DEFAULT_PROFILE: ProfileData = {
   bloomNotes: [],
 };
 
-type Tab = "about" | "moodboard" | "moments" | "reviews";
+type Tab = "about" | "board";
 
 // ── Star rating ────────────────────────────────────────────────────────────────
 function Stars({ n }: { n: number }) {
@@ -440,26 +440,25 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         )}
       </div>
 
-      {/* ── TAB BAR ──────────────────────────────────────────────────────────── */}
+      {/* ── ABOUT / BOARD TOGGLE ─────────────────────────────────────────────── */}
       <div style={{
-        display: "flex", gap: 0,
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        display: "flex", borderBottom: "1px solid rgba(255,255,255,0.07)",
         position: "sticky", top: 0, zIndex: 40,
-        backgroundColor: "rgba(7,0,7,0.94)",
-        backdropFilter: "blur(12px)",
-        paddingLeft: 4,
+        backgroundColor: "rgba(7,0,7,0.94)", backdropFilter: "blur(12px)",
+        padding: "0 20px",
       }}>
-        {(["about", "moodboard", "moments", "reviews"] as Tab[]).map(t => (
+        {(["about", "board"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
-            flex: 1, padding: "12px 0", background: "none", border: "none", cursor: "pointer",
-            borderBottom: `2px solid ${tab === t ? PINK : "transparent"}`,
+            flex: 1, padding: "14px 0 12px", background: "none", border: "none", cursor: "pointer",
+            borderBottom: `2.5px solid ${tab === t ? PINK : "transparent"}`,
+            WebkitTapHighlightColor: "transparent",
           }}>
             <span style={{
-              fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
-              letterSpacing: "0.1em", textTransform: "uppercase" as const,
+              fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+              letterSpacing: "0.12em", textTransform: "uppercase" as const,
               color: tab === t ? PINK : "rgba(255,255,255,0.25)",
             }}>
-              {t === "about" ? "About" : t === "moodboard" ? "Mood Board" : t === "moments" ? "Moments" : "Bloom Notes"}
+              {t === "about" ? "About" : "Her Board"}
             </span>
           </button>
         ))}
@@ -469,19 +468,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         {/* ── ABOUT TAB ────────────────────────────────────────────────────────── */}
         {tab === "about" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1.1 }}>About {profile.name}.</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>{profile.bio}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
-            {/* Location */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>{profile.neighborhood}, {profile.location}</span>
-            </div>
+            {/* Bio */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>{profile.bio}</p>
 
-            {/* Interests */}
+            {/* Vibes */}
             {profile.vibes.length > 0 && (
-              <div style={{ marginTop: 12 }}>
+              <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 10 }}>WHAT SHE'S INTO</p>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
                   {profile.vibes.map(v => (
@@ -493,116 +487,46 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
               </div>
             )}
 
-            {/* Personal details */}
-            {(profile.age || profile.likes || profile.dislikes || profile.hobbies || profile.favoriteMovies || profile.favoriteTVShows) && (
-              <div style={{ marginTop: 18 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER WORLD</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                  {/* Age */}
-                  {profile.age && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 6 }}>AGE</p>
-                      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 22, color: "white" }}>{profile.age}</p>
+            {/* Likes */}
+            {profile.likes && profile.likes.length > 0 && (
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>SHE LOVES</p>
+                <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
+                  {profile.likes.map(l => (
+                    <div key={l} style={{ background: "rgba(255,0,144,0.08)", border: "1px solid rgba(255,0,144,0.18)", borderRadius: 999, padding: "5px 12px" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: PINK }}>✦ {l}</span>
                     </div>
-                  )}
-
-                  {/* Likes */}
-                  {profile.likes && profile.likes.length > 0 && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>SHE LOVES</p>
-                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
-                        {profile.likes.map(l => (
-                          <div key={l} style={{ background: "rgba(255,0,144,0.1)", border: "1px solid rgba(255,0,144,0.22)", borderRadius: 999, padding: "5px 12px" }}>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: PINK }}>✦ {l}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Dislikes */}
-                  {profile.dislikes && profile.dislikes.length > 0 && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>NOT HER THING</p>
-                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
-                        {profile.dislikes.map(d => (
-                          <div key={d} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "5px 12px" }}>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.38)" }}>— {d}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Hobbies */}
-                  {profile.hobbies && profile.hobbies.length > 0 && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>HOBBIES</p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                        {profile.hobbies.map((h, i) => (
-                          <div key={h} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,0,144,0.5)", minWidth: 12, textAlign: "right" as const }}>{String(i + 1).padStart(2, "0")}</span>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{h}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Favorite movies */}
-                  {profile.favoriteMovies && profile.favoriteMovies.length > 0 && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>FAVORITE FILMS</p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                        {profile.favoriteMovies.map(m => (
-                          <div key={m} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ color: "rgba(255,255,255,0.18)", fontSize: 10 }}>🎬</span>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{m}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Favorite TV shows */}
-                  {profile.favoriteTVShows && profile.favoriteTVShows.length > 0 && (
-                    <div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.22)", marginBottom: 8 }}>WATCHING</p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                        {profile.favoriteTVShows.map(s => (
-                          <div key={s} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ color: "rgba(255,255,255,0.18)", fontSize: 10 }}>📺</span>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{s}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Social links full */}
+            {/* Hobbies */}
+            {profile.hobbies && profile.hobbies.length > 0 && (
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>HOBBIES</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  {profile.hobbies.map((h, i) => (
+                    <div key={h} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,0,144,0.5)", minWidth: 14, textAlign: "right" as const }}>{String(i + 1).padStart(2, "0")}</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Social links */}
             {profile.socials.length > 0 && (
-              <div style={{ marginTop: 12 }}>
+              <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 10 }}>FIND HER</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {profile.socials.map(s => (
                     <a key={s.platform} href={s.url} style={{ textDecoration: "none" }}>
-                      <div style={{
-                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                        backgroundImage: DARK_GRAIN, backgroundSize: "160px 160px",
-                        backgroundColor: "#130810",
-                        borderRadius: 14, padding: "13px 16px",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                      }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", backgroundImage: DARK_GRAIN, backgroundSize: "160px 160px", backgroundColor: "#130810", borderRadius: 14, padding: "13px 16px", border: "1px solid rgba(255,255,255,0.06)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{ width: 28, height: 28, borderRadius: "50%", background: `${s.color === "#000000" ? "#222" : s.color}22`, border: `1px solid ${s.color === "#000000" ? "#444" : s.color}44`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <span style={{ fontSize: 11 }}>
-                              {s.platform === "Instagram" ? "📸" : s.platform === "TikTok" ? "🎵" : s.platform === "Substack" ? "✍️" : "🔗"}
-                            </span>
+                            <span style={{ fontSize: 11 }}>{s.platform === "Instagram" ? "📸" : s.platform === "TikTok" ? "🎵" : s.platform === "Substack" ? "✍️" : "🔗"}</span>
                           </div>
                           <div>
                             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(255,255,255,0.28)", letterSpacing: "0.1em" }}>{s.platform.toUpperCase()}</p>
@@ -619,15 +543,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
           </div>
         )}
 
-        {/* ── MOOD BOARD TAB ───────────────────────────────────────────────────── */}
-        {tab === "moodboard" && (
-          <>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
-              <div>
-                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1 }}>Her World.</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.3)", marginTop: 4 }}>Photos, quotes & voice notes</p>
-              </div>
-            </div>
+        {/* ── BOARD TAB — mood board on the same page ───────────────────────── */}
+        {tab === "board" && (
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER BOARD · PHOTOS · QUOTES · VOICE NOTES</p>
             {profile.moodBoard.length > 0 ? (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {profile.moodBoard.map((item, i) => <MoodItem key={i} item={item} />)}
@@ -637,102 +556,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "rgba(255,255,255,0.2)" }}>Nothing here yet.</p>
               </div>
             )}
-          </>
-        )}
-
-        {/* ── MOMENTS TAB ─────────────────────────────────────────────────────── */}
-        {tab === "moments" && (
-          <>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1, marginBottom: 18 }}>Her Moments.</p>
-            {profile.moments.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {profile.moments.map((m, i) => (
-                  <div key={i} style={{
-                    backgroundImage: PAPER_TEX,
-                    backgroundSize: "200px 200px",
-                    backgroundColor: m.bgColor,
-                    borderRadius: 20,
-                    padding: "16px 16px 14px",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                      <div>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(0,0,0,0.4)" }}>{m.neighborhood.toUpperCase()}</p>
-                        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 18, color: "#1A0010", lineHeight: 1.1, marginTop: 2 }}>{m.location}</p>
-                      </div>
-                      <span style={{ fontSize: 22 }}>{m.emoji}</span>
-                    </div>
-                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.6)", lineHeight: 1.4, marginBottom: 12 }}>{m.caption}</p>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.3)" }}>{m.timeAgo} ago</span>
-                      <button
-                        onClick={() => toggleFlower(i)}
-                        style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, padding: 0 }}
-                      >
-                        <span style={{ fontSize: 14 }}>🌸</span>
-                        <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK }}>{m.flowers + (flowered.has(i) ? 1 : 0)}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "48px 0" }}>No moments yet.</p>
-            )}
-          </>
-        )}
-
-        {/* ── BLOOM NOTES TAB ─────────────────────────────────────────────────── */}
-        {tab === "reviews" && (
-          <>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 26, color: "white", lineHeight: 1 }}>Bloom Notes.</p>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.25)" }}>{profile.bloomNotes.length} places</span>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.28)", marginBottom: 20 }}>Eateries &amp; places she&apos;s left notes for</p>
-            {profile.bloomNotes.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {profile.bloomNotes.map((note, i) => {
-                  const categoryIcon: Record<string, string> = {
-                    restaurant: "🍽", bar: "🍷", café: "☕", shop: "🛍",
-                    park: "🌿", bookshop: "📚", gallery: "🖼",
-                  };
-                  const icon = categoryIcon[note.category] ?? "📍";
-                  return (
-                    <div key={i} style={{
-                      backgroundImage: DARK_GRAIN,
-                      backgroundSize: "160px 160px",
-                      backgroundColor: "#130810",
-                      borderRadius: 18,
-                      padding: "16px 16px 14px",
-                      border: "1px solid rgba(255,255,255,0.05)",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                    }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
-                            <span style={{ fontSize: 13 }}>{icon}</span>
-                            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 18, color: "white", lineHeight: 1.1 }}>{note.place}</p>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.28)" }}>{note.neighborhood.toUpperCase()}</p>
-                            <div style={{ background: "rgba(255,0,144,0.12)", borderRadius: 999, padding: "2px 7px" }}>
-                              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.08em", color: PINK }}>{note.category.toUpperCase()}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <Stars n={note.rating} />
-                      </div>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginTop: 10 }}>&ldquo;{note.note}&rdquo;</p>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.18)", marginTop: 10 }}>{note.timeAgo} ago</p>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "48px 0" }}>No bloom notes yet.</p>
-            )}
-          </>
+          </div>
         )}
       </div>
     </div>
