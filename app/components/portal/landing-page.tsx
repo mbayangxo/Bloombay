@@ -272,9 +272,9 @@ export function LandingPage() {
 
           {/* Secondary — It's a women's world. We're it. — BIG */}
           <div style={{ marginBottom: 22 }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(36px, 10vw, 52px)", color: "rgba(255,255,255,0.9)", letterSpacing: "-0.02em", margin: 0, lineHeight: 1.08 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(42px, 12vw, 64px)", color: "rgba(255,255,255,0.9)", letterSpacing: "-0.02em", margin: 0, lineHeight: 0.95 }}>
               It&apos;s a women&apos;s world.{" "}
-              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", fontSize: "clamp(38px, 11vw, 56px)", color: "white" }}>We&apos;re it.</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", fontSize: "clamp(52px, 15vw, 72px)", color: "white" }}>We&apos;re it.</span>
             </p>
           </div>
 
