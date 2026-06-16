@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>BloomBay — The Memory Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,300;1,400;1,700;1,900&family=Jost:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 390px;
+    min-height: 844px;
+    background-color: #FAF7F0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 24px, rgba(180,160,130,0.07) 24px, rgba(180,160,130,0.07) 25px),
+      repeating-linear-gradient(90deg, transparent, transparent 24px, rgba(180,160,130,0.04) 24px, rgba(180,160,130,0.04) 25px);
+    font-family: 'Jost', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+
+  .header {
+    padding: 52px 28px 0 28px;
+    position: relative;
+  }
+
+  .good-evening {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    color: #FF1F7D;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .day-name {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 58px;
+    color: #1A0010;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+
+  .date-sub {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(26,0,16,0.42);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .sticky-note {
+    position: absolute;
+    top: 44px;
+    right: 22px;
+    width: 110px;
+    background: #FFF5D6;
+    border-radius: 3px;
+    padding: 12px 10px 10px 10px;
+    transform: rotate(2deg);
+    box-shadow: 2px 4px 14px rgba(0,0,0,0.13);
+    z-index: 10;
+  }
+
+  .sticky-note::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD97D, #FFC853);
+    border-radius: 3px 3px 0 0;
+  }
+
+  .sticky-line1 {
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1A0010;
+    line-height: 1.1;
+    display: block;
+  }
+
+  .sticky-line2 {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(26,0,16,0.55);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .polaroid-wall {
+    position: relative;
+    margin-top: 32px;
+    margin-left: 14px;
+    height: 320px;
+    overflow: visible;
+  }
+
+  .polaroid {
+    position: absolute;
+    background: #FFFFFF;
+    padding: 10px 10px 28px 10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    border-radius: 2px;
+  }
+
+  .polaroid img {
+    display: block;
+    width: 152px;
+    height: 160px;
+    object-fit: cover;
+  }
+
+  .caption {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A0010;
+    text-align: center;
+    margin-top: 8px;
+    padding: 0 4px;
+    line-height: 1.2;
+  }
+
+  .washi-tape {
+    position: absolute;
+    width: 62px;
+    height: 18px;
+    background: rgba(255,31,125,0.45);
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    z-index: 5;
+    border-radius: 1px;
+    box-shadow: inset 0 0 0 1px rgba(255,31,125,0.15);
+  }
+
+  .polaroid-1 {
+    left: 0px;
+    top: 10px;
+    transform: rotate(-3deg);
+    z-index: 3;
+  }
+
+  .polaroid-2 {
+    left: 106px;
+    top: 28px;
+    transform: rotate(1.5deg);
+    z-index: 2;
+  }
+
+  .polaroid-3 {
+    left: 208px;
+    top: 14px;
+    transform: rotate(-1deg);
+    z-index: 1;
+  }
+
+  .section-divider {
+    margin: 24px 28px 0 28px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,31,125,0.3) 0%, rgba(255,31,125,0.08) 60%, transparent 100%);
+  }
+
+  .clubs-section {
+    margin: 20px 28px 0 28px;
+  }
+
+  .section-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #FF1F7D;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .clubs-row {
+    display: flex;
+    gap: 14px;
+  }
+
+  .club-badge {
+    width: 78px;
+    height: 78px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .club-badge-1 { background: linear-gradient(135deg, #FF1F7D 0%, #FF6EB0 100%); }
+  .club-badge-2 { background: linear-gradient(135deg, #9B1B5A 0%, #D4547A 100%); }
+  .club-badge-3 { background: linear-gradient(135deg, #2A0030 0%, #7B1FA2 50%, #E91E8C 100%); }
+
+  .club-initial {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 30px;
+    color: rgba(255,255,255,0.95);
+    line-height: 1;
+  }
+
+  .club-name {
+    font-family: 'Jost', sans-serif;
+    font-size: 8px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    text-align: center;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+    padding: 0 4px;
+    line-height: 1.2;
+  }
+
+  .torn-paper {
+    width: 100%;
+    height: 32px;
+    margin-top: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .torn-paper::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -10px;
+    right: -10px;
+    height: 44px;
+    background: #FFFFFF;
+    clip-path: polygon(
+      0% 40%, 2% 18%, 5% 42%, 8% 14%, 11% 38%, 14% 22%, 17% 44%,
+      20% 16%, 23% 40%, 26% 24%, 29% 44%, 32% 14%, 35% 38%,
+      38% 20%, 41% 46%, 44% 16%, 47% 40%, 50% 22%, 53% 44%,
+      56% 14%, 59% 40%, 62% 20%, 65% 46%, 68% 16%, 71% 40%,
+      74% 18%, 77% 44%, 80% 14%, 83% 38%, 86% 20%, 89% 46%,
+      92% 16%, 95% 40%, 98% 20%, 101% 42%,
+      101% 100%, 0% 100%
+    );
+  }
+
+  .quote-strip {
+    background: #FFFFFF;
+    padding: 14px 28px 22px 28px;
+  }
+
+  .quote-text {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(26,0,16,0.35);
+    text-align: center;
+    font-style: italic;
+  }
+
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 390px;
+    height: 72px;
+    background: rgba(250,247,240,0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,31,125,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(26,0,16,0.35);
+  }
+
+  .nav-item.active { color: #FF1F7D; }
+
+  .nav-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="good-evening">Good Evening</div>
+  <div class="day-name">Tuesday.</div>
+  <div class="date-sub">Jun 11 &nbsp;·&nbsp; New York City</div>
+  <div class="sticky-note">
+    <span class="sticky-line1">tonight ✦</span>
+    <span class="sticky-line2">3 happening</span>
+  </div>
+</div>
+
+<div class="polaroid-wall">
+  <div class="polaroid polaroid-1">
+    <div class="washi-tape"></div>
+    <img src="happenings/posters/01_Girls_Night.png" alt="Girls Night">
+    <div class="caption">Girls Night</div>
+  </div>
+  <div class="polaroid polaroid-2">
+    <img src="happenings/posters/03_Vinyl_Night_Jazz.png" alt="Vinyl Night Jazz">
+    <div class="caption">Vinyl Night Jazz</div>
+  </div>
+  <div class="polaroid polaroid-3">
+    <img src="happenings/posters/04_Italian_Dinner_Society.png" alt="Italian Dinner">
+    <div class="caption">Italian Dinner Soc.</div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="clubs-section">
+  <div class="section-label">Your Clubs</div>
+  <div class="clubs-row">
+    <div class="club-badge club-badge-1">
+      <div class="club-initial">F</div>
+      <div class="club-name">Film Society</div>
+    </div>
+    <div class="club-badge club-badge-2">
+      <div class="club-initial">J</div>
+      <div class="club-name">Jazz & Vinyl</div>
+    </div>
+    <div class="club-badge club-badge-3">
+      <div class="club-initial">D</div>
+      <div class="club-name">Dance Collective</div>
+    </div>
+  </div>
+</div>
+
+<div class="torn-paper"></div>
+
+<div class="quote-strip">
+  <div class="quote-text">collect moments, not things. ✦</div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-item active">
+    <span class="nav-icon">⌂</span>
+    HOME
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">✦</span>
+    DISCOVER
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">♡</span>
+    CLUBS
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">◎</span>
+    PROFILE
+  </div>
+</div>
+
+</body>
+</html>

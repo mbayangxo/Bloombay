@@ -1,0 +1,122 @@
+export const YANDE = {
+  city: [
+    "Good morning girl. There are a lot of fun things happening in the city this weekend. A few of them felt like your kind of thing.",
+    "The city is busy this week. Here's what bloomies are talking about.",
+    "A few things caught my eye this morning.",
+    "Here are some places bloomies have been loving lately.",
+    "There are some fun things happening this weekend.",
+    "Let's see what's happening today.",
+    "A few things seemed right up your alley.",
+  ],
+  friends: [
+    "You and Maya seem to have a lot in common. You've both been saving similar cafés lately and you're in a few of the same clubs. I thought you might enjoy knowing each other.",
+    "You and Sarah both seem to love museums, bookstores, and quiet weekends. I figured I'd put her on your radar.",
+    "A lot of your interests overlap. You might have a lot to talk about.",
+    "You keep ending up in the same places. I noticed and thought it was interesting.",
+    "You seem like each other's kind of people.",
+    "You both keep giving flowers to the same places. I had a feeling you might get along.",
+    "You both joined this club for similar reasons. Thought I'd make the introduction.",
+    "This feels like a friendship worth exploring.",
+    "You seem to have similar taste in almost everything. That's usually worth paying attention to.",
+  ],
+  places: [
+    "Bloomies have been talking about this café all week. The atmosphere looks really cozy and it feels like your kind of place.",
+    "This bookstore has been getting a lot of love lately. I immediately thought of you.",
+    "Bloomies keep giving this place flowers. I wanted to make sure you saw it.",
+    "This little spot has been quietly becoming a favorite.",
+    "You've saved a lot of similar places before. I think you'd enjoy this one too.",
+    "This place feels like it belongs on your list.",
+    "A lot of bloomies are calling this one a hidden gem.",
+    "This spot has great reviews, great food, and great vibes. Pretty solid combination.",
+    "This place is becoming a bit of a bloomie local favorite.",
+  ],
+  restaurants: [
+    "Bloomies keep talking about the pasta here.",
+    "Apparently the desserts are the main event. They're decadent and to die for.",
+    "The food looks amazing, but honestly everyone seems more obsessed with the atmosphere and vibes.",
+    "This restaurant has been getting flowers left and right lately.",
+    "This feels like a girls' dinner kind of place.",
+    "You save a lot of places like this.",
+    "This one reminded me of a few restaurants you've already loved and given flowers to.",
+    "Bloomies keep recommending this spot for first meetups and gatherings.",
+    "This place is getting a reputation for being really welcoming and chill.",
+  ],
+  events: [
+    "I think you'd enjoy this event. A lot of the bloomies attending seem to have similar interests.",
+    "This event has been getting a lot of attention lately.",
+    "This feels like your type of vibe.",
+    "You save things like this all the time.",
+    "Thought I'd put this on your radar.",
+    "There are still a few seats left if you're interested.",
+    "A lot of bloomies in your area are planning to go.",
+    "I had a feeling this would catch your eye.",
+    "This happening felt like something you'd really enjoy.",
+  ],
+  clubs: [
+    "I think you'd fit right in here.",
+    "This club has a lot of bloomies with interests similar to yours.",
+    "You have a lot in common with the members.",
+    "This feels like your kind of community.",
+    "I think you'd enjoy the conversations happening here.",
+    "This club has a lot of bloomies you have high compatibility scores with.",
+    "A lot of bloomies are finding friends through this group.",
+    "This seems like a natural fit for you.",
+  ],
+  closet: [
+    "This feels like something you'd like to wear.",
+    "I immediately thought of your style when I saw this.",
+    "This seems very you.",
+    "You've saved similar looks before.",
+    "I think you'd pull this off really well.",
+    "This outfit has your name written all over it.",
+    "I can already picture you wearing this.",
+  ],
+  notifications: [
+    "Someone gave flowers to a place you saved.",
+    "A bloomie saved one of your recommendations.",
+    "A few people have been talking about this place lately.",
+    "A new spot just landed in the city.",
+    "This place has been getting a lot of attention.",
+    "A few bloomies are heading here this weekend.",
+    "This reminded me of you.",
+  ],
+  short: [
+    "This feels very you.",
+    "Thought you'd like this.",
+    "Had a feeling this would catch your eye.",
+    "This reminded me of you.",
+    "This seems right up your alley.",
+    "The bloomies have spoken.",
+    "This one's getting a lot of love lately.",
+    "Pretty sure you'd enjoy this.",
+    "Worth a look.",
+  ],
+  wellness: [
+    "You had a good day. Protein, water, greens. Your body noticed.",
+    "Today was busy. It happens. What's one thing tomorrow?",
+    "You've been consistent this week. That's the only thing that actually matters.",
+    "How are you feeling? Not for anyone else. Just for you.",
+    "You've been saving a lot lately. What's one thing you actually want to do this week?",
+  ],
+  habitNudge: [
+    "Water. You haven't logged it yet today.",
+    "You went to sleep late two nights in a row. Tonight might be a good night to wind down early.",
+    "That dentist appointment has been on your list for a while. Just you and me knowing that.",
+    "You haven't journaled in a few days. No pressure — just noticed.",
+  ],
+  bloomRequest: [
+    "She sees something in you. And she'd love to get to know the real you.",
+    "The right connections don't just happen, they're chosen. You bring the intention, we bring the women.",
+    "This feels like a friendship worth exploring.",
+    "You both keep ending up in the same places. I noticed and thought it was interesting.",
+  ],
+} as const;
+
+export type YandeCategory = keyof typeof YANDE;
+
+export function yandeRandom(category: YandeCategory): string {
+  const lines = YANDE[category] as readonly string[];
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+export const YANDE_SIGNATURE = "— Yande ✦";

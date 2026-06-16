@@ -1,5 +1,10 @@
-import { CreateHappeningStudio } from "@/app/components/portal/create-happening-studio";
+import { EventCreatePage } from "@/app/components/portal/event-create-page";
 
-export default function CreateHappeningPage() {
-  return <CreateHappeningStudio />;
+export default async function CreateEventRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string; title?: string }>;
+}) {
+  const { kind, title } = await searchParams;
+  return <EventCreatePage initialKind={kind} initialTitle={title} />;
 }

@@ -1,74 +1,390 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { logout } from "@/lib/auth/actions";
-import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
-import { MediaUpload } from "./media-upload";
-import { MEDIA_BUCKETS } from "@/lib/media/buckets";
-import type { MemberMemory, ProfilePhoto } from "@/lib/media/types";
+import { updateProfile } from "@/lib/auth/actions";
+import { createClient } from "@/lib/supabase/client";
 
-const TABS = ["Bouquet", "Memories", "My Link", "Profile"];
+// ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
-const BOUQUET_MEMBERS = [
+const PINK   = "#FF1F7D";
+
+// ── PURCHASE HISTORY ──────────────────────────────────────────────────────────
+
+interface Purchase {
+  id: string;
+  type: string;
+  item_name: string | null;
+  amount_cents: number | null;
+  currency: string;
+  status: string;
+  created_at: string;
+}
+
+const PURCHASE_META: Record<string, { icon: string; label: string }> = {
+  membership:          { icon: "🌺", label: "BloomBay Membership" },
+  platform_membership: { icon: "🌺", label: "BloomBay Membership" },
+  event_ticket:        { icon: "🎟️", label: "Event Ticket" },
+  club_membership:     { icon: "💎", label: "Club Membership" },
+  hanger_purchase:     { icon: "👗", label: "The Hanger" },
+};
+
+function formatCurrency(cents: number | null, currency = "gbp") {
+  if (!cents) return "—";
+  const sym = currency === "gbp" ? "£" : "$";
+  return `${sym}${(cents / 100).toFixed(2)}`;
+}
+
+function PurchaseHistorySection() {
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("purchases")
+          .select("id, type, item_name, amount_cents, currency, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(20);
+        setPurchases((data as Purchase[]) ?? []);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div style={{ padding: "28px 20px 0" }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>
+        ✦ PURCHASE HISTORY
+      </p>
+
+      {loading ? (
+        <div style={{ background: "white", borderRadius: 16, padding: "20px", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb" }}>Loading…</p>
+        </div>
+      ) : purchases.length === 0 ? (
+        <div style={{ background: "white", borderRadius: 16, padding: "20px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.06)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#bbb", textAlign: "center" }}>No purchases yet</p>
+        </div>
+      ) : (
+        <div style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
+          {purchases.map((p, i) => {
+            const meta = PURCHASE_META[p.type] ?? { icon: "✦", label: p.type };
+            const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: i < purchases.length - 1 ? "1px solid #FFF0F5" : "none" }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#FFF0F5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                  {meta.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                    {p.item_name ?? meta.label}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>{date}</p>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: PINK }}>
+                    {formatCurrency(p.amount_cents, p.currency)}
+                  </p>
+                  {p.status !== "completed" && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#F59E0B", fontWeight: 700 }}>{p.status}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+const DARK   = "#1C1B1C";
+const PAPER  = "#FEFCF7";
+const GOLD   = "#D4A853";
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const ALL_FLOWERS = [
+  { id: "host",      emoji: "🌹", label: "Host",      color: "#E63946", bg: "#FFF0F0" },
+  { id: "connector", emoji: "🌸", label: "Connector", color: "#FF69B4", bg: "#FFF0F8" },
+  { id: "community", emoji: "🌺", label: "Community", color: "#FF1F7D", bg: "#FFF0F5" },
+  { id: "explorer",  emoji: "🌷", label: "Explorer",  color: "#E8006A", bg: "#FFF0F3" },
+  { id: "culture",   emoji: "🌼", label: "Culture",   color: "#C80060", bg: "#FFF0F3" },
+  { id: "adventure", emoji: "🌻", label: "Adventure", color: "#FF5BAD", bg: "#FFF0F8" },
+  { id: "wisdom",    emoji: "🪷", label: "Wisdom",    color: "#A8004C", bg: "#FFF0F4" },
+  { id: "founding",  emoji: "🌺", label: "Founding",  color: "#FF1F7D", bg: "#FFF0F5" },
+  { id: "bloombay",  emoji: "💮", label: "BloomBay",  color: "#FF1F7D", bg: "#FFF0F5" },
+] as const;
+
+type FlowerId = typeof ALL_FLOWERS[number]["id"];
+
+const USER_EARNED_FLOWER_IDS: FlowerId[] = ["founding", "connector", "culture", "explorer"];
+
+const BLOOMIE_FLOWER_IDS: Record<string, FlowerId[]> = {
+  "Aaliyah M.": ["host", "community"],
+  "Sofia K.":   ["connector", "adventure"],
+  "Kelechi O.": ["culture", "wisdom"],
+  "Naomi B.":   ["explorer"],
+  "Temi A.":    ["community"],
+  "Zara F.":    ["adventure", "connector"],
+};
+
+const ALL_BLOOMIES = [
   { name: "Aaliyah M.", neighborhood: "Crown Heights", color: "#FF1F7D", initial: "A", since: "Jan 2026" },
-  { name: "Sofia K.", neighborhood: "Williamsburg", color: "#FF69B4", initial: "S", since: "Feb 2026" },
-  { name: "Kelechi O.", neighborhood: "Flatbush", color: "#FF69B4", initial: "K", since: "Mar 2026" },
+  { name: "Sofia K.",   neighborhood: "Williamsburg",  color: "#FF69B4", initial: "S", since: "Feb 2026" },
+  { name: "Kelechi O.", neighborhood: "Flatbush",      color: "#FF69B4", initial: "K", since: "Mar 2026" },
+  { name: "Naomi B.",   neighborhood: "SoHo",          color: "#FF69B4", initial: "N", since: "Apr 2026" },
+  { name: "Temi A.",    neighborhood: "Crown Heights", color: "#FF1F7D", initial: "T", since: "Apr 2026" },
+  { name: "Zara F.",    neighborhood: "DUMBO",         color: "#FF69B4", initial: "Z", since: "May 2026" },
 ];
-
-const YANDE_MEMORIES = [
-  {
-    quote: '"You showed up for Aaliyah\'s birthday even when you were tired. That\'s love."',
-    date: "May 2026",
-  },
-  {
-    quote: '"You\'ve been to 4 events this month. Your city is noticing you."',
-    date: "May 2026",
-  },
-];
-
-const MEMORIES = [
-  { emoji: "🌅", title: "Williamsburg morning", date: "May 12", bg: "#FFF0F5" },
-  { emoji: "🍷", title: "Rooftop wine hour", date: "May 8", bg: "#FFE0EE" },
-  { emoji: "🎨", title: "Paint + sip night", date: "Apr 30", bg: "#FFF5F8" },
-  { emoji: "🏃‍♀️", title: "Run club Sunday", date: "Apr 27", bg: "#FFE0EE" },
-  { emoji: "🧘", title: "Pilates morning", date: "Apr 20", bg: "#FFF0F5" },
-  { emoji: "☕", title: "Matcha café crawl", date: "Apr 14", bg: "#FFF5F8" },
-];
-
-// Left-border accent colors cycling for Bloomies list
-const BORDER_COLORS = ["#FF1F7D", "#FF69B4", "#FFB6D0"];
-
-const BOUQUET_MAX = 12;
 
 const BLOOMIE_UPDATES: Record<string, { emoji: string; text: string; time: string }[]> = {
   "Aaliyah M.": [
     { emoji: "🌅", text: "Just got back from that Williamsburg matcha spot. It's everything.", time: "2h ago" },
-    { emoji: "🎨", text: "Paint & sip night was so good. Already planning the next one.", time: "Yesterday" },
+    { emoji: "🎨", text: "Paint & sip night was so good. Already planning the next one.",       time: "Yesterday" },
   ],
-  "Sofia K.": [
-    { emoji: "🏃‍♀️", text: "Sunday run done. Pastries were mandatory.", time: "3h ago" },
-    { emoji: "✈️", text: "Thinking Morocco in October. Who's in?", time: "2 days ago" },
+  "Sofia K.":   [
+    { emoji: "🏃‍♀️", text: "Sunday run done. Pastries were mandatory.",       time: "3h ago"     },
+    { emoji: "✈️",  text: "Thinking Morocco in October. Who's in?",            time: "2 days ago" },
   ],
   "Kelechi O.": [
-    { emoji: "📚", text: "Book club pick just dropped. Cannot wait.", time: "5h ago" },
-    { emoji: "🍷", text: "That rooftop spot in Flatbush is unreal. Telling everyone.", time: "3 days ago" },
+    { emoji: "📚", text: "Book club pick just dropped. Cannot wait.",                   time: "5h ago"     },
+    { emoji: "🍷", text: "That rooftop spot in Flatbush is unreal. Telling everyone.",  time: "3 days ago" },
   ],
 };
 
-interface LoungeUser {
-  id?: string;
-  name: string;
-  initial: string;
-  neighborhood: string;
-  bio?: string;
-  avatarUrl?: string | null;
+const MEMORIES = [
+  { emoji: "🌅", title: "Williamsburg morning", date: "May 12", color: "#FFF0F5", rotate: "-2.5deg" },
+  { emoji: "🍷", title: "Rooftop wine hour",    date: "May 8",  color: "#FFE8F3", rotate:  "2deg"   },
+  { emoji: "🎨", title: "Paint + sip night",    date: "Apr 30", color: "#FFF5F8", rotate: "-1.5deg" },
+  { emoji: "🏃‍♀️", title: "Run club Sunday",  date: "Apr 27", color: "#FFE0EE", rotate:  "3deg"   },
+  { emoji: "🧘", title: "Pilates morning",      date: "Apr 20", color: "#FFF0F5", rotate: "-2deg"   },
+  { emoji: "☕", title: "Matcha café crawl",    date: "Apr 14", color: "#FFF5F8", rotate:  "1.5deg" },
+];
+
+const INTEREST_TAGS = ["Soft Life", "Art", "Wellness", "Food", "Music", "Travel"];
+
+const WITNESS_ENTRIES = [
+  { initial: "A", color: "#FF1F7D", text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
+  { initial: "Z", color: "#FF69B4", text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
+  { initial: "N", color: "#C084FC", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
+  { initial: "M", color: "#FB923C", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
+];
+
+function getMemberNumber(name: string) {
+  const s = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return (((s * 31 + 17) % 900) + 100).toString().padStart(4, "0");
+}
+function getReferralCode(name: string) {
+  const s = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return `BB-NYC-${((s * 17 + 23) % 9000) + 1000}`;
 }
 
-interface BloomieProfile {
-  name: string; neighborhood: string; color: string; initial: string; since: string;
+// ── TYPES ─────────────────────────────────────────────────────────────────────
+
+interface LoungeUser { name: string; initial: string; neighborhood: string; bio?: string; }
+interface BloomieProfile { name: string; neighborhood: string; color: string; initial: string; since: string; }
+
+// ── MEMBERSHIP CARD ───────────────────────────────────────────────────────────
+
+function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
+  name: string; memberNum: string; tier?: string;
+}) {
+  return (
+    <div style={{
+      width: "100%",
+      maxWidth: 340,
+      margin: "0 auto",
+      aspectRatio: "85.6 / 54",
+      borderRadius: 14,
+      position: "relative",
+      overflow: "hidden",
+      background: "linear-gradient(138deg, #0D0008 0%, #2A0820 28%, #580035 58%, #A40050 82%, #C4005A 100%)",
+      boxShadow: "0 24px 60px rgba(0,0,0,0.55), 0 8px 24px rgba(196,0,90,0.22), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
+    }}>
+      {/* Holographic shimmer stripe */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg, transparent 5%, #FF1F7D 25%, #FF69B4 45%, #FFB3D9 60%, #FF5BAD 78%, #FF1F7D 88%, transparent 98%)",
+      }} />
+
+      {/* Light streak */}
+      <div style={{
+        position: "absolute", top: 0, left: "15%", width: "38%", height: "100%",
+        background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.035) 50%, transparent 72%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Paper grain texture */}
+      <div style={{
+        position: "absolute", inset: 0, opacity: 0.04,
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
+        pointerEvents: "none",
+      }} />
+
+      {/* Large bloom watermark */}
+      <div style={{ position: "absolute", right: -10, bottom: -10, width: 110, height: 110, opacity: 0.08, pointerEvents: "none" }}>
+        <svg viewBox="0 0 100 100" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="22" rx="11" ry="22"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(60 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(120 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(180 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(240 50 50)"/>
+          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(300 50 50)"/>
+          <circle cx="50" cy="50" r="12"/>
+        </svg>
+      </div>
+
+      {/* Card content */}
+      <div style={{
+        position: "relative", zIndex: 1,
+        display: "flex", flexDirection: "column", justifyContent: "space-between",
+        height: "100%", padding: "14px 18px 12px",
+        boxSizing: "border-box",
+      }}>
+        {/* Top row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "white", lineHeight: 1 }}>BloomBay</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.28em", color: "rgba(255,255,255,0.32)", marginTop: 2 }}>NEW YORK CITY</p>
+          </div>
+          <div style={{
+            background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.48)",
+            borderRadius: 3, padding: "2px 8px",
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: GOLD }}>{tier}</p>
+          </div>
+        </div>
+
+        {/* Gold chip */}
+        <div style={{
+          width: 30, height: 21, borderRadius: 3,
+          background: "linear-gradient(135deg, #D4A853 0%, #F4D03F 38%, #D4A853 65%, #B8860B 100%)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.28)",
+          position: "relative", overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute", inset: "3px 3px",
+            border: "0.5px solid rgba(0,0,0,0.18)", borderRadius: 1,
+            background: "linear-gradient(90deg, rgba(0,0,0,0.08) 0%, transparent 30%, rgba(0,0,0,0.04) 70%, transparent 100%)",
+          }} />
+        </div>
+
+        {/* Name + number */}
+        <div>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700,
+            fontSize: 16, color: "white", letterSpacing: "0.03em", marginBottom: 5,
+            textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+          }}>{name || "Member"}</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)" }}>
+              ●●●● ●●●● ●●●● {memberNum}
+            </p>
+            <div style={{ textAlign: "right" as const }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.28)" }}>SINCE</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>2026</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
+
+// ── APARTMENT DOOR ────────────────────────────────────────────────────────────
+
+function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
+  label: string; icon: string; href: string; num: string; accentColor?: string;
+}) {
+  const doorWood = "#B5724A";
+  const doorPanel = "#C9895A";
+  const frameColor = "#7A4A28";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
+      <div style={{ position: "relative", display: "inline-block" }}>
+        {/* Drop shadow */}
+        <div style={{
+          position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)",
+          width: 50, height: 10, borderRadius: "50%",
+          background: "rgba(0,0,0,0.2)", filter: "blur(5px)",
+        }} />
+
+        {/* Door SVG */}
+        <svg width="58" height="82" viewBox="0 0 58 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Frame */}
+          <rect x="0" y="24" width="58" height="58" rx="1" fill={frameColor}/>
+          <path d={`M0 24 Q0 0 29 0 Q58 0 58 24 Z`} fill={frameColor}/>
+
+          {/* Door body */}
+          <rect x="2" y="24" width="54" height="56" rx="1" fill={doorWood}/>
+          <path d={`M2 24 Q2 2 29 2 Q56 2 56 24 Z`} fill={doorWood}/>
+
+          {/* Door surface lighter */}
+          <rect x="4" y="25" width="50" height="54" rx="1" fill={doorPanel}/>
+          <path d={`M4 25 Q4 4 29 4 Q54 4 54 25 Z`} fill={doorPanel}/>
+
+          {/* Top panel */}
+          <rect x="8" y="28" width="42" height="20" rx="2.5" fill="rgba(0,0,0,0.12)" stroke="rgba(0,0,0,0.14)" strokeWidth="0.8"/>
+
+          {/* Bottom panel */}
+          <rect x="8" y="56" width="42" height="18" rx="2.5" fill="rgba(0,0,0,0.12)" stroke="rgba(0,0,0,0.14)" strokeWidth="0.8"/>
+
+          {/* Highlight on arch */}
+          <path d={`M6 24 Q6 6 29 6 Q48 6 52 18`} stroke="rgba(255,255,255,0.14)" strokeWidth="2" fill="none" strokeLinecap="round"/>
+
+          {/* Gold number plate */}
+          <rect x="19" y="14" width="20" height="12" rx="2" fill={GOLD} opacity="0.9"/>
+          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#7B4A1A">{num}</text>
+
+          {/* Door knob */}
+          <circle cx="44" cy="44" r="4.5" fill={GOLD} opacity="0.9"/>
+          <circle cx="44" cy="44" r="3" fill="url(#knobGrad)"/>
+          <circle cx="43" cy="43" r="1.2" fill="rgba(255,255,255,0.5)"/>
+
+          <defs>
+            <radialGradient id="knobGrad" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stopColor="#F4D03F"/>
+              <stop offset="100%" stopColor="#B8860B"/>
+            </radialGradient>
+          </defs>
+        </svg>
+
+        {/* Room icon overlay */}
+        <div style={{
+          position: "absolute", top: "36%", left: "38%", transform: "translate(-50%, -50%)",
+          fontSize: 18, lineHeight: 1, pointerEvents: "none",
+        }}>{icon}</div>
+
+        {/* Accent dot */}
+        <div style={{
+          position: "absolute", top: -4, right: -4, width: 12, height: 12,
+          borderRadius: "50%", background: accentColor,
+          boxShadow: `0 2px 8px ${accentColor}66`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "white" }} />
+        </div>
+      </div>
+
+      {/* Threshold */}
+      <div style={{ width: 64, height: 4, borderRadius: "0 0 4px 4px", background: frameColor, boxShadow: "0 2px 6px rgba(0,0,0,0.22)", marginTop: -8 }} />
+
+      <p style={{
+        fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800,
+        letterSpacing: "0.1em", color: "#888",
+        textAlign: "center" as const, textTransform: "uppercase" as const,
+        lineHeight: 1.4, maxWidth: 68,
+      }}>{label}</p>
+    </Link>
+  );
+}
+
+// ── BLOOMIE SHEET ─────────────────────────────────────────────────────────────
 
 function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: () => void }) {
   const [message, setMessage] = useState("");
@@ -77,102 +393,52 @@ function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: 
 
   function sendMessage() {
     if (!message.trim()) return;
-    setSent(true);
-    setMessage("");
+    setSent(true); setMessage("");
     setTimeout(() => setSent(false), 2500);
   }
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40"
-        style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
-        onClick={onClose}
-      />
-      {/* Sheet */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
-        style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "85vh", overflowY: "auto" }}
-      >
-        {/* Handle bar */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
-        </div>
-
-        {/* Profile hero */}
-        <div className="px-6 pb-5 flex items-start gap-4 relative">
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
-            style={{ background: `linear-gradient(135deg, ${bloomie.color} 0%, ${bloomie.color}BB 100%)`, boxShadow: `0 4px 16px ${bloomie.color}44` }}
-          >
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: PAPER, boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "85vh", overflowY: "auto" }}>
+        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
+        <div className="px-6 pb-5 flex items-start gap-4">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
+            style={{ background: `linear-gradient(135deg,${bloomie.color},${bloomie.color}BB)`, boxShadow: `0 4px 16px ${bloomie.color}44` }}>
             {bloomie.initial}
           </div>
           <div className="flex-1 pt-1">
-            <h3 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>
-              {bloomie.name}
-            </h3>
+            <h3 className="text-xl font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{bloomie.name}</h3>
             <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{bloomie.neighborhood} · since {bloomie.since}</p>
-            <span
-              className="inline-block mt-2 text-[9px] font-bold px-2.5 py-1 rounded-full tracking-wider"
-              style={{ background: "#111111", color: "#FF69B4" }}
-            >
-              ✦ YOUR BLOOMIE
-            </span>
+            <span className="inline-block mt-2 text-[9px] font-bold px-2.5 py-1 rounded-full tracking-wider" style={{ background: PINK, color: "white" }}>✦ YOUR BLOOMIE</span>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
-            style={{ background: "rgba(0,0,0,0.07)" }}
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M1 1l8 8M9 1l-8 8"/>
-            </svg>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: "rgba(0,0,0,0.07)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
           </button>
         </div>
-
-        {/* Message */}
         <div className="px-6 pb-5">
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#FF1F7D" }}>SEND A MESSAGE</p>
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1.5px solid #F0E0E8" }}
-          >
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={`Write to ${bloomie.name.split(" ")[0]}…`}
-              rows={3}
-              className="w-full resize-none text-sm outline-none px-4 py-3"
-              style={{ background: "transparent", color: "#111", lineHeight: 1.6 }}
-            />
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: PINK }}>SEND A MESSAGE</p>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "white", border: "1.5px solid #F0E0E8" }}>
+            <textarea value={message} onChange={e => setMessage(e.target.value)}
+              placeholder={`Write to ${bloomie.name.split(" ")[0]}…`} rows={3}
+              className="w-full resize-none text-sm outline-none px-4 py-3" style={{ background: "transparent", color: "#111", lineHeight: 1.6 }} />
             <div className="px-4 pb-3 flex justify-end">
-              <button
-                onClick={sendMessage}
-                disabled={!message.trim()}
-                className="px-5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                style={sent
-                  ? { background: "#111111", color: "#FF69B4" }
-                  : message.trim()
-                    ? { background: "#FF1F7D", color: "white", boxShadow: "0 3px 10px rgba(255,31,125,0.3)" }
-                    : { background: "#F0E0E8", color: "#C8A0B0" }}
-              >
+              <button onClick={sendMessage} disabled={!message.trim()} className="px-5 py-2 rounded-full text-xs font-bold"
+                style={sent ? { background: "#111", color: PINK } : message.trim() ? { background: PINK, color: "white" } : { background: "#F0E0E8", color: "#C8A0B0" }}>
                 {sent ? "Sent ✓" : "Send →"}
               </button>
             </div>
           </div>
         </div>
-
-        {/* Her updates */}
         {updates.length > 0 && (
-          <div className="px-6 pb-8">
+          <div className="px-6 pb-5">
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>HER UPDATES</p>
             <div className="flex flex-col gap-2.5">
               {updates.map((u, i) => (
                 <div key={i} className="rounded-2xl px-4 py-3.5" style={{ background: "white", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
                   <div className="flex items-start gap-3">
                     <span className="text-xl flex-shrink-0">{u.emoji}</span>
-                    <div className="flex-1">
+                    <div>
                       <p className="text-sm leading-relaxed" style={{ color: "#444" }}>{u.text}</p>
                       <p className="text-xs mt-1" style={{ color: "#bbb" }}>{u.time}</p>
                     </div>
@@ -182,699 +448,504 @@ function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: 
             </div>
           </div>
         )}
+        {(BLOOMIE_FLOWER_IDS[bloomie.name]?.length ?? 0) > 0 && (
+          <div className="px-6 pb-8">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "rgba(0,0,0,0.3)" }}>HER FLOWERS</p>
+            <div className="flex gap-2 flex-wrap">
+              {BLOOMIE_FLOWER_IDS[bloomie.name].map(fid => {
+                const f = ALL_FLOWERS.find(fl => fl.id === fid);
+                if (!f) return null;
+                return (
+                  <div key={fid} className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: f.bg, border: `1px solid ${f.color}44` }}>
+                    <span style={{ fontSize: 14 }}>{f.emoji}</span>
+                    <span className="text-[10px] font-bold" style={{ color: f.color }}>{f.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-const TAB_KEYS = ["bouquet", "memories", "link", "profile"] as const;
+// ── BLOOMIES LIST SHEET ───────────────────────────────────────────────────────
 
-export function LoungePage({ user }: { user?: LoungeUser }) {
-  const searchParams = useSearchParams();
-  const displayName = user?.name ?? "May";
-  const displayInitial = user?.initial ?? "M";
-  const displayNeighborhood = user?.neighborhood ?? "NYC";
-  const displayBio = user?.bio ?? "Part of the world made for women.";
-  const displayHandle = (user?.name?.split(" ")[0] ?? "member").toLowerCase();
-  const userId = user?.id ?? "member";
-  const [activeTab, setActiveTab] = useState(0);
-  const [flowered, setFlowered] = useState<Set<string>>(new Set());
-  const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const [tod, setTod] = useState<TimeOfDay>("morning");
-  const [memories, setMemories] = useState<MemberMemory[]>([]);
-  const [profilePhotos, setProfilePhotos] = useState<ProfilePhoto[]>([]);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl ?? null);
-  const [mediaLoading, setMediaLoading] = useState(true);
-
-  const refreshMedia = useCallback(async () => {
-    setMediaLoading(true);
-    try {
-      const [memRes, photoRes] = await Promise.all([
-        fetch("/api/member/memories"),
-        fetch("/api/member/profile-photos"),
-      ]);
-      if (memRes.ok) {
-        const memJson = await memRes.json();
-        if (memJson.memories?.length) setMemories(memJson.memories);
-      }
-      if (photoRes.ok) {
-        const photoJson = await photoRes.json();
-        if (photoJson.photos) setProfilePhotos(photoJson.photos.filter((p: ProfilePhoto) => p.kind === "gallery"));
-        if (photoJson.avatarUrl) setAvatarUrl(photoJson.avatarUrl);
-      }
-    } finally {
-      setMediaLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    setTod(getTimeOfDay(new Date().getHours()));
-    void refreshMedia();
-  }, [refreshMedia]);
-
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (!tab) return;
-    const idx = TAB_KEYS.indexOf(tab as (typeof TAB_KEYS)[number]);
-    if (idx >= 0) setActiveTab(idx);
-  }, [searchParams]);
-
-  const isNight      = tod === "evening" || tod === "night";
-  const isEvening    = tod === "evening";
-  const headingColor = isNight ? "rgba(255,238,220,0.92)" : "#0A0A0A";
-  const mutedColor   = isNight ? "rgba(215,175,155,0.58)"  : "#aaa";
-  const cardBg       = isNight ? (isEvening ? "#1E1612" : "#15100C") : "white";
-  const darkCard     = isNight ? (isEvening ? "#1A1410" : "#120E0A") : "#111111";
-  const tabActiveBg  = "#FF1F7D";
-  const tabInactive  = isNight
-    ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)", border: "none" }
-    : { background: "white", color: "#0A0A0A", border: "1.5px solid #E0E0E0" };
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2400);
-  }
-
-  function sendFlowers(name: string, e: React.MouseEvent) {
-    e.stopPropagation();
-    setFlowered((prev) => new Set([...prev, name]));
-    showToast("Flowers sent 🌸");
-  }
-
-  function copyLink() {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-  }
-
-  const emptySlots = BOUQUET_MAX - BOUQUET_MEMBERS.length;
-
+function BloomiesListSheet({ onClose, onSelect }: { onClose: () => void; onSelect: (b: BloomieProfile) => void }) {
   return (
-    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="md:max-w-[1000px] md:mx-auto">
-      {/* Header */}
-      <div className="px-5 pt-14 pb-5 md:px-8 md:pt-10">
-        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#FF1F7D" }}>
-          YOUR SPACE
-        </p>
-        <h1
-          className="font-bold italic leading-none mb-2"
-          style={{ color: headingColor, fontFamily: "var(--font-playfair)", fontSize: "clamp(52px, 12vw, 72px)" }}
-        >
-          Apt
-        </h1>
-        <p className="italic text-sm" style={{ fontFamily: "var(--font-playfair)", color: mutedColor }}>
-          Your private world
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="px-5 mb-6 overflow-x-auto md:px-8" style={{ scrollbarWidth: "none" }}>
-        <div className="flex gap-2 w-max pb-1">
-          {TABS.map((tab, i) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(i)}
-              className="px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95"
-              style={activeTab === i ? { background: tabActiveBg, color: "white", boxShadow: "0 2px 8px rgba(255,31,125,0.3)" } : tabInactive}
-            >
-              {tab}
+    <>
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: PAPER, maxHeight: "80vh", overflowY: "auto" }}>
+        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
+        <div className="px-6 pb-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>YOUR BLOOMIES</p>
+            <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{ALL_BLOOMIES.length} friends</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.07)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
+        </div>
+        <div className="px-6 pb-8 flex flex-col gap-2.5">
+          {ALL_BLOOMIES.map(m => (
+            <button key={m.name} onClick={() => { onClose(); setTimeout(() => onSelect(m), 100); }}
+              className="rounded-2xl p-4 flex items-center gap-3 text-left active:scale-[0.98] transition-transform w-full"
+              style={{ background: "white", boxShadow: "0 2px 10px rgba(255,31,125,0.07)", borderLeft: `3px solid ${m.color}` }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
+                style={{ background: `linear-gradient(135deg,${m.color},${m.color}AA)` }}>{m.initial}</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: "#111" }}>{m.name}</p>
+                <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood} · since {m.since}</p>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           ))}
         </div>
       </div>
+    </>
+  );
+}
 
-      <div className="px-5 md:px-8">
+// ── EDIT PROFILE SHEET ────────────────────────────────────────────────────────
 
-        {/* ── Bouquet Tab ── */}
-        {activeTab === 0 && (
-          <div className="flex flex-col gap-6">
-            {/* Banner with bloom pattern overlay */}
-            <div
-              className="rounded-3xl p-6 relative overflow-hidden"
-              style={{ background: darkCard, minHeight: "120px" }}
-            >
-              {/* Large bloom orbs for visual drama */}
-              <div
-                className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle, #FF1F7D 0%, transparent 65%)",
-                  opacity: 0.18,
-                  transform: "translate(35%, -35%)",
-                }}
-              />
-              <div
-                className="absolute bottom-0 left-0 w-40 h-40 rounded-full pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle, #FF69B4 0%, transparent 70%)",
-                  opacity: 0.14,
-                  transform: "translate(-30%, 30%)",
-                }}
-              />
-              <div
-                className="absolute top-1/2 left-1/2 w-28 h-28 rounded-full pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-                  opacity: 0.07,
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-              <div className="relative">
-                <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "var(--mid-pink)" }}>
-                  YOUR BOUQUET
-                </p>
-                <p
-                  className="text-white font-bold italic mb-2"
-                  style={{ fontFamily: "var(--font-playfair)", fontSize: "28px" }}
-                >
-                  {BOUQUET_MEMBERS.length} of {BOUQUET_MAX} Bloomies
-                </p>
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  Your intimate inner circle. Max 12. Invite-only.
-                </p>
-              </div>
-            </div>
+function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
+  name: string; neighborhood: string; bio: string;
+  onClose: () => void; onSave: (n: string, nb: string, b: string) => void;
+}) {
+  const [editName, setEditName] = useState(name);
+  const [editNbhd, setEditNbhd] = useState(neighborhood);
+  const [editBio,  setEditBio]  = useState(bio);
+  const [pending,  setPending]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
 
-            {/* Flower grid — 12 slots, larger (w-16 h-16) */}
-            <div>
-              <p
-                className="text-sm font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
-              >
-                Your Circle
-              </p>
-              <div className="grid grid-cols-6 gap-2 mb-4">
-                {BOUQUET_MEMBERS.map((m) => (
-                  <div key={m.name} className="flex flex-col items-center gap-1.5">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                      style={{
-                        background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}BB 100%)`,
-                        boxShadow: `0 4px 12px ${m.color}44`,
-                      }}
-                    >
-                      {m.initial}
-                    </div>
-                    <p className="text-[10px] text-center text-gray-500 leading-tight w-16 truncate">
-                      {m.name.split(" ")[0]}
-                    </p>
-                  </div>
-                ))}
-                {Array.from({ length: emptySlots }).map((_, i) => (
-                  <div key={`empty-${i}`} className="flex flex-col items-center gap-1.5">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center border border-dashed"
-                      style={{ borderColor: "#E0D0D8" }}
-                    >
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C8B0BC" strokeWidth="1.5">
-                        <path d="M12 2l1.7 5.3H19l-4.4 3.2 1.7 5.3L12 13l-4.3 2.8 1.7-5.3L5 7.3h5.3z" />
-                      </svg>
-                    </div>
-                    <p className="text-[10px] text-center text-gray-300 leading-tight">open</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+  async function handleSave() {
+    setPending(true); setError(null);
+    const fd = new FormData();
+    fd.set("first_name", editName.trim());
+    fd.set("neighborhood", editNbhd.trim());
+    fd.set("bio", editBio.trim());
+    const result = await updateProfile(fd);
+    setPending(false);
+    if (result.error) setError(result.error);
+    else { onSave(editName.trim(), editNbhd.trim(), editBio.trim()); onClose(); }
+  }
 
-            {/* Bloomies list — colored left border accents, tappable */}
-            <div>
-              <p
-                className="text-sm font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
-              >
-                Your Bloomies
-              </p>
-              <div className="flex flex-col gap-2.5">
-                {BOUQUET_MEMBERS.map((m, idx) => (
-                  <div
-                    key={m.name}
-                    onClick={() => setSelectedBloomie(m)}
-                    className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
-                    style={{
-                      background: cardBg,
-                      boxShadow: "0 2px 12px rgba(255,31,125,0.07)",
-                      borderLeft: `3px solid ${BORDER_COLORS[idx % BORDER_COLORS.length]}`,
-                    }}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${m.color} 0%, ${m.color}AA 100%)`,
-                        boxShadow: `0 2px 8px ${m.color}44`,
-                      }}
-                    >
-                      {m.initial}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: headingColor }}>{m.name}</p>
-                      <p className="text-xs mt-0.5 text-gray-400">{m.neighborhood} · since {m.since}</p>
-                    </div>
-                    <button
-                      onClick={(e) => sendFlowers(m.name, e)}
-                      className="px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-90 flex-shrink-0"
-                      style={
-                        flowered.has(m.name)
-                          ? { background: m.color, color: "white", boxShadow: `0 2px 8px ${m.color}44` }
-                          : { background: "var(--light-pink)", color: "var(--bb-pink)" }
-                      }
-                    >
-                      {flowered.has(m.name) ? "Sent 🌸" : "Send Flowers"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* How Bouquet works */}
-            <div
-              className="rounded-3xl p-5"
-              style={{ background: "var(--light-pink)" }}
-            >
-              <p
-                className="text-xs font-bold tracking-widest uppercase mb-2"
-                style={{ color: "var(--bb-pink)" }}
-              >
-                HOW IT WORKS
-              </p>
-              <p className="text-sm leading-relaxed" style={{ color: headingColor }}>
-                Your Bouquet is your inner circle — the women you&apos;ve genuinely connected with through BloomBay.
-                Connect through Match first, then invite to your Bouquet. Max 12. No exceptions.
-              </p>
-              <Link
-                href="/member/match"
-                className="mt-4 block w-full py-3.5 rounded-full text-sm font-bold text-center transition-all active:scale-[0.98]"
-                style={{
-                  background: "var(--bb-pink)",
-                  color: "white",
-                  boxShadow: "0 4px 14px rgba(255,31,125,0.30)",
-                }}
-              >
-                Invite to Bouquet →
-              </Link>
-            </div>
+  return (
+    <>
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: PAPER, maxHeight: "85vh", overflowY: "auto" }}>
+        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
+        <div className="px-6 pb-2 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>EDIT PROFILE</p>
+            <p className="text-lg font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Your details.</p>
           </div>
-        )}
-
-        {/* ── Memories Tab ── */}
-        {activeTab === 1 && (
-          <div className="flex flex-col gap-6">
-            {/* YANDE REMEMBERS — glowing pink text */}
-            <div>
-              <p
-                className="text-xs font-bold tracking-widest uppercase mb-4"
-                style={{ color: "var(--bb-pink)" }}
-              >
-                YANDE REMEMBERS
-              </p>
-              <div className="flex flex-col gap-3">
-                {YANDE_MEMORIES.map((m, i) => (
-                  <div
-                    key={i}
-                    className="rounded-2xl p-5 relative overflow-hidden"
-                    style={{ background: darkCard }}
-                  >
-                    {/* Glowing orb */}
-                    <div
-                      className="absolute top-0 right-0 w-32 h-32 rounded-full pointer-events-none"
-                      style={{
-                        background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-                        opacity: 0.12,
-                        transform: "translate(30%, -30%)",
-                      }}
-                    />
-                    <p
-                      className="text-sm italic leading-relaxed relative"
-                      style={{
-                        fontFamily: "var(--font-playfair)",
-                        color: "#FF69B4",
-                        textShadow: "0 0 20px rgba(255,105,180,0.5)",
-                      }}
-                    >
-                      {m.quote}
-                    </p>
-                    <p className="text-xs mt-3 relative" style={{ color: "rgba(255,255,255,0.35)" }}>{m.date}</p>
-                  </div>
-                ))}
-              </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.07)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
+        </div>
+        <div className="px-6 pb-8 flex flex-col gap-4 mt-4">
+          {[
+            { label: "NAME",         value: editName, set: setEditName, placeholder: "Your first name"   },
+            { label: "NEIGHBORHOOD", value: editNbhd, set: setEditNbhd, placeholder: "Your neighborhood" },
+          ].map(f => (
+            <div key={f.label}>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>{f.label}</p>
+              <input value={f.value} onChange={e => f.set(e.target.value)} placeholder={f.placeholder}
+                className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+                style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
             </div>
-
-            {/* My Moments — real uploads from database */}
-            <div>
-              <p
-                className="text-base font-bold italic mb-3"
-                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
-              >
-                My Moments
-              </p>
-              <div className="mb-4">
-                <MediaUpload
-                  bucket={MEDIA_BUCKETS.memberMemories}
-                  storagePath={`${userId}/memory-${Date.now()}`}
-                  label="Add a memory photo"
-                  aspect="polaroid"
-                  onUploaded={async (url) => {
-                    const res = await fetch("/api/member/memories", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ imageUrl: url, title: "New moment" }),
-                    });
-                    if (res.ok) {
-                      showToast("Memory saved");
-                      void refreshMedia();
-                    } else {
-                      showToast("Could not save — run migration 013");
-                    }
-                  }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {memories.length > 0
-                  ? memories.map((mem) => (
-                      <div
-                        key={mem.id}
-                        className="rounded-2xl overflow-hidden"
-                        style={{ background: "#FFF5F8", boxShadow: "0 2px 10px rgba(255,31,125,0.07)" }}
-                      >
-                        <div
-                          className="h-28 bg-cover bg-center"
-                          style={{ backgroundImage: `url(${mem.image_url})` }}
-                        />
-                        <div className="p-3">
-                          <p className="font-semibold text-sm leading-snug" style={{ color: headingColor }}>
-                            {mem.title ?? "Moment"}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            {new Date(mem.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  : MEMORIES.map((mem, i) => (
-                      <div key={i} className="rounded-2xl overflow-hidden" style={{ background: mem.bg, boxShadow: "0 2px 10px rgba(255,31,125,0.07)" }}>
-                        <div className="h-28 flex items-center justify-center text-5xl">{mem.emoji}</div>
-                        <div className="p-3">
-                          <p className="font-semibold text-sm leading-snug" style={{ color: headingColor }}>{mem.title}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{mem.date}</p>
-                        </div>
-                      </div>
-                    ))}
-              </div>
-              {mediaLoading && memories.length === 0 ? (
-                <p className="text-xs text-gray-400 mt-2">Loading your moments…</p>
-              ) : null}
-            </div>
+          ))}
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
+            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
+              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
           </div>
-        )}
-
-        {/* ── My Link Tab ── */}
-        {activeTab === 2 && (
-          <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <p
-                className="text-base font-bold italic mb-1"
-                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
-              >
-                My BloomBay Link
-              </p>
-              <p className="text-xs text-gray-400 mb-4">Share your profile. Invite women you trust.</p>
-              <div
-                className="rounded-2xl px-4 py-3 flex items-center justify-between mb-4"
-                style={{ background: "var(--pale-pink-bg)" }}
-              >
-                <p className="text-sm font-bold" style={{ color: headingColor }}>
-                  bloombay.app/{displayHandle}
-                </p>
-                <button
-                  onClick={copyLink}
-                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-90"
-                  style={copied ? { background: "#111111", color: "white" } : { background: "var(--bb-pink)", color: "white" }}
-                >
-                  {copied ? "Copied ✓" : "Copy"}
-                </button>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    const url = `https://bloombay.app/${displayHandle}`;
-                    if (typeof navigator !== "undefined" && navigator.share) {
-                      navigator.share({ title: "BloomBay", url });
-                    } else {
-                      navigator.clipboard?.writeText(url);
-                      showToast("Link copied!");
-                    }
-                  }}
-                  className="flex-1 py-3 rounded-full text-sm font-bold border-2 transition-all active:scale-95"
-                  style={{ borderColor: "var(--bb-pink)", color: "var(--bb-pink)" }}
-                >
-                  Share to Instagram
-                </button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`);
-                    showToast("Invite link copied!");
-                  }}
-                  className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all active:scale-95"
-                  style={{ background: "#FF1F7D", color: "white" }}
-                >
-                  Invite Girls
-                </button>
-              </div>
-            </div>
-            <div
-              className="rounded-3xl p-5 relative overflow-hidden"
-              style={{ background: "#111111" }}
-            >
-              <div
-                className="absolute top-0 right-0 w-32 h-32 rounded-full pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-                  opacity: 0.15,
-                  transform: "translate(30%, -30%)",
-                }}
-              />
-              <p className="text-xs font-bold tracking-widest uppercase mb-2 relative" style={{ color: "var(--bb-pink)" }}>
-                REFERRAL CODE
-              </p>
-              <p className="text-white text-2xl font-bold mb-1 relative">GF-NYC-7842</p>
-              <p className="text-xs relative" style={{ color: "rgba(255,255,255,0.45)" }}>
-                Invite women you actually know. Quality over quantity.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Profile Tab ── */}
-        {activeTab === 3 && (
-          <div className="flex flex-col gap-5">
-            <div className="bg-white rounded-3xl p-6 flex flex-col items-center text-center" style={{ boxShadow: "0 2px 16px rgba(255,31,125,0.08)" }}>
-              {avatarUrl ? (
-                <div
-                  className="w-24 h-24 rounded-full mb-4 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `url(${avatarUrl})`,
-                    boxShadow: "0 8px 24px rgba(255,31,125,0.35)",
-                  }}
-                />
-              ) : (
-                <div
-                  className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white mb-4"
-                  style={{
-                    background: "linear-gradient(135deg, #FF1F7D 0%, #FF69B4 100%)",
-                    boxShadow: "0 8px 24px rgba(255,31,125,0.35)",
-                    fontFamily: "var(--font-playfair)",
-                    fontStyle: "italic",
-                  }}
-                >
-                  {displayInitial}
-                </div>
-              )}
-              <h2
-                className="text-2xl font-bold italic mb-1"
-                style={{ fontFamily: "var(--font-playfair)", color: headingColor }}
-              >
-                {displayName}
-              </h2>
-              <p className="text-sm text-gray-400 mb-2">{displayNeighborhood} · NYC</p>
-              {/* Founding Mother badge */}
-              <span
-                className="text-xs font-bold px-3.5 py-1.5 rounded-full mb-4"
-                style={{ background: "#111111", color: "#FF69B4", letterSpacing: "0.04em" }}
-              >
-                ✦ Founding Mother
-              </span>
-              {/* Stats row — pink numbers */}
-              <div className="flex gap-6 w-full justify-center">
-                <div className="text-center">
-                  <p
-                    className="font-bold text-2xl"
-                    style={{ color: "var(--bb-pink)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
-                  >
-                    12
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">Events</p>
-                </div>
-                <div className="w-px bg-gray-100" />
-                <div className="text-center">
-                  <p
-                    className="font-bold text-2xl"
-                    style={{ color: "var(--bb-pink)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
-                  >
-                    3
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">Clubs</p>
-                </div>
-                <div className="w-px bg-gray-100" />
-                <div className="text-center">
-                  <p
-                    className="font-bold text-2xl"
-                    style={{ color: "var(--bb-pink)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
-                  >
-                    3
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">Bloomies</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-4" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <p className="font-bold text-sm mb-2" style={{ color: headingColor }}>About {displayName.split(" ")[0]}</p>
-              <p
-                className="italic text-sm text-gray-500 leading-relaxed"
-                style={{ fontFamily: "var(--font-playfair)" }}
-              >
-                &quot;{displayBio}&quot;
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {["Soft Life", "Art", "Wellness", "Food", "Music"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs px-3 py-1 rounded-full font-medium"
-                    style={{ background: "var(--light-pink)", color: "var(--bb-pink)" }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-5" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <p className="font-bold text-sm mb-3" style={{ color: headingColor }}>Photos on your page</p>
-              <div className="flex justify-center mb-4">
-                <MediaUpload
-                  bucket={MEDIA_BUCKETS.profilePhotos}
-                  storagePath={`${userId}/avatar`}
-                  currentUrl={avatarUrl}
-                  label="Main profile photo"
-                  aspect="avatar"
-                  onUploaded={async (url) => {
-                    const res = await fetch("/api/member/profile-photos", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ imageUrl: url, kind: "avatar" }),
-                    });
-                    if (res.ok) {
-                      setAvatarUrl(url);
-                      showToast("Profile photo updated");
-                    }
-                  }}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                {profilePhotos.map((photo) => (
-                  <div
-                    key={photo.id}
-                    className="aspect-square rounded-xl bg-cover bg-center"
-                    style={{ backgroundImage: `url(${photo.image_url})` }}
-                  />
-                ))}
-              </div>
-              <MediaUpload
-                bucket={MEDIA_BUCKETS.profilePhotos}
-                storagePath={`${userId}/gallery-${Date.now()}`}
-                label="Add gallery photo"
-                aspect="polaroid"
-                onUploaded={async (url) => {
-                  const res = await fetch("/api/member/profile-photos", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ imageUrl: url, kind: "gallery" }),
-                  });
-                  if (res.ok) {
-                    showToast("Photo added to your page");
-                    void refreshMedia();
-                  }
-                }}
-              />
-            </div>
-
-            <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
-              <Link
-                href="/member/pin-drops"
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors block"
-                style={{ borderBottom: "1px solid #F5F5F5" }}
-              >
-                <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>Pin drops</p>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-              {["Edit profile", "Privacy & Safety", "BloomBay Premium"].map((label) => (
-                <button
-                  key={label}
-                  onClick={() => showToast("Coming soon")}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors"
-                  style={{ borderBottom: "1px solid #F5F5F5" }}
-                >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: headingColor }}>{label}</p>
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "#ccc" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              ))}
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-red-50 transition-colors"
-                >
-                  <p className="flex-1 text-sm font-semibold" style={{ color: "#FF1F7D" }}>Sign out</p>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                  </svg>
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <button onClick={handleSave} disabled={pending}
+            className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+            style={{ background: pending ? "#F0E0E8" : PINK, color: pending ? "#C8A0B0" : "white" }}>
+            {pending ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
       </div>
-      </div>{/* md:max-w wrapper */}
+    </>
+  );
+}
 
-      {/* Bloomie profile sheet */}
-      {selectedBloomie && (
-        <BloomieSheet bloomie={selectedBloomie} onClose={() => setSelectedBloomie(null)} />
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
+
+export function LoungePage({ user }: { user?: LoungeUser }) {
+  const [localName, setLocalName] = useState(user?.name         ?? "");
+  const [localNbhd, setLocalNbhd] = useState(user?.neighborhood ?? "NYC");
+  const [localBio,  setLocalBio]  = useState(user?.bio          ?? "Part of the world made for women.");
+  const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
+  const [showBloomies,    setShowBloomies]    = useState(false);
+  const [showEdit,        setShowEdit]        = useState(false);
+  const [copied,          setCopied]          = useState(false);
+  const [toast,           setToast]           = useState<string | null>(null);
+  const [clubCount,       setClubCount]       = useState<number | null>(null);
+  const [gatheringCount,  setGatheringCount]  = useState<number | null>(null);
+  const [ownedClub,       setOwnedClub]       = useState<{ slug: string; name: string } | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (!u) return;
+      supabase.from("club_memberships").select("club_slug", { count: "exact", head: true })
+        .eq("user_id", u.id)
+        .then(({ count }) => setClubCount(count ?? 0));
+      supabase.from("gathering_attendance").select("gathering_id", { count: "exact", head: true })
+        .eq("user_id", u.id)
+        .then(({ count }) => setGatheringCount(count ?? 0));
+      supabase.from("clubs").select("slug, name").eq("owner_id", u.id).limit(1).single()
+        .then(({ data }) => { if (data) setOwnedClub({ slug: (data as { slug: string; name: string }).slug, name: (data as { slug: string; name: string }).name }); });
+    });
+  }, []);
+
+  const displayName    = localName || user?.name || "";
+  const displayInitial = displayName[0]?.toUpperCase() ?? "✦";
+  const displayHandle  = localName.split(" ")[0].toLowerCase();
+  const memberNum      = getMemberNumber(localName);
+  const referralCode   = getReferralCode(localName);
+  const earnedFlowers  = ALL_FLOWERS.filter(f => (USER_EARNED_FLOWER_IDS as readonly string[]).includes(f.id));
+
+  void displayInitial;
+
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2400); }
+  function copyLink() {
+    navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`);
+    setCopied(true); setTimeout(() => setCopied(false), 1800);
+    showToast("Link copied!");
+  }
+
+  const [isFoundingMother, setIsFoundingMother] = useState(false);
+  const [contentTab, setContentTab] = useState<"about" | "scrapbook">("about");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (!u) return;
+      supabase.from("profiles").select("is_founding_mother").eq("id", u.id).single()
+        .then(({ data }) => {
+          if ((data as { is_founding_mother?: boolean } | null)?.is_founding_mother) {
+            setIsFoundingMother(true);
+          }
+        });
+    });
+  }, []);
+
+  const ROOMS = [
+    { label: "Bloom Trails",   icon: "🎈", href: "/member/lounge/memories",       num: "01", accentColor: "#FF69B4" },
+    { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",         num: "02", accentColor: PINK      },
+    { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",        num: "03", accentColor: "#E8006A" },
+    { label: "Clubs",          icon: "🌺", href: "/member/clubs",                 num: "04", accentColor: "#C4005A" },
+    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
+  ];
+
+  return (
+    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+
+      {/* ══════════ PROFILE PHOTO HERO ══════════ */}
+      <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
+        {/* Background — richly styled like a chosen profile template */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)",
+        }} />
+        {/* Texture glow circles */}
+        <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.35) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: 20, right: -30, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,180,200,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        {/* Avatar — large photo placeholder */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{
+            width: 140, height: 140, borderRadius: "50%",
+            background: "rgba(255,255,255,0.12)", border: "3px solid rgba(255,255,255,0.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+          }}>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 58, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>
+              {displayInitial}
+            </span>
+          </div>
+        </div>
+
+        {/* Top bar — apt label + action buttons */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0,
+          padding: "calc(env(safe-area-inset-top, 0px) + 14px) 16px 0",
+          display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10,
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
+          <div style={{ display: "flex", gap: 7 }}>
+            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
+              <div style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999, padding: "6px 12px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Style ✦</p>
+              </div>
+            </Link>
+            <button onClick={() => setShowEdit(true)} style={{
+              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
+              padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Edit</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Founding Mother — tiny badge, upper-right corner of photo area */}
+        {isFoundingMother && (
+          <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
+            <div style={{ background: GOLD, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(212,168,83,0.6)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</p>
+            </div>
+          </div>
+        )}
+
+        {/* Name + info overlay at bottom of photo */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          background: "linear-gradient(to top, rgba(20,4,32,0.82) 0%, rgba(20,4,32,0.4) 60%, transparent 100%)",
+          padding: "48px 20px 18px",
+        }}>
+          <h1 style={{
+            fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900,
+            fontSize: "clamp(36px, 10vw, 52px)", color: "white",
+            lineHeight: 0.95, margin: 0,
+          }}>{displayName.split(" ")[0] || "You"}.</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{localNbhd} · NYC</p>
+            <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.06em" }}>#{memberNum}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════ ABOUT / SCRAPBOOK TOGGLE ══════════ */}
+      <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
+        {(["about", "scrapbook"] as const).map(tab => (
+          <button key={tab} onClick={() => setContentTab(tab)} style={{
+            flex: 1, background: "none", border: "none", cursor: "pointer",
+            padding: "14px 0 12px",
+            borderBottom: contentTab === tab ? `2.5px solid ${PINK}` : "2.5px solid transparent",
+            WebkitTapHighlightColor: "transparent",
+          }}>
+            <span style={{
+              fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em",
+              color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
+              textTransform: "uppercase" as const,
+            }}>{tab === "about" ? "About" : "Scrapbook"}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ══════════ ABOUT TAB ══════════ */}
+      {contentTab === "about" && (
+        <div style={{ padding: "22px 20px 0" }}>
+          {/* Stats row */}
+          <div style={{ display: "flex", gap: 0, background: "white", borderRadius: 18, overflow: "hidden", marginBottom: 18, boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
+            {[
+              { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
+              { num: clubCount !== null ? String(clubCount) : "—", label: "Clubs" },
+              { num: String(ALL_BLOOMIES.length), label: "Bloomies" },
+            ].map((s, i, arr) => (
+              <div key={s.label} style={{ flex: 1, textAlign: "center" as const, padding: "16px 8px", borderRight: i < arr.length - 1 ? "1px solid rgba(255,31,125,0.08)" : "none" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.num}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(0,0,0,0.3)", marginTop: 3 }}>{s.label.toUpperCase()}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Bio */}
+          {localBio && (
+            <div style={{ background: "white", borderRadius: 18, padding: "16px 18px", marginBottom: 14, boxShadow: "0 2px 12px rgba(255,31,125,0.06)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 8 }}>ABOUT</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#222", lineHeight: 1.6 }}>{localBio}</p>
+            </div>
+          )}
+
+          {/* Interest tags */}
+          <div style={{ marginBottom: 18 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+              {INTEREST_TAGS.map(t => (
+                <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Witness entries */}
+          {WITNESS_ENTRIES.length > 0 && (
+            <div style={{ marginBottom: 4 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>WHAT THEY SAY</p>
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
+                {WITNESS_ENTRIES.map((w, i) => (
+                  <div key={i} style={{ background: "white", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 8px rgba(255,31,125,0.06)", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: w.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 900, color: "white" }}>{w.initial}</span>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#333", lineHeight: 1.5, fontStyle: "italic" }}>&ldquo;{w.text}&rdquo;</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#bbb", marginTop: 4 }}>{w.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* Toast — bottom-center, smooth slide-up animation */}
+      {/* ══════════ SCRAPBOOK TAB ══════════ */}
+      {contentTab === "scrapbook" && (
+        <div style={{ padding: "20px 20px 0" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>MEMORIES</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {MEMORIES.map((m, i) => (
+              <div key={i} style={{
+                background: m.color, borderRadius: 16, padding: "18px 14px",
+                transform: `rotate(${m.rotate})`, transformOrigin: "center",
+                boxShadow: "0 3px 12px rgba(0,0,0,0.09)",
+                minHeight: 100, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
+              }}>
+                <span style={{ fontSize: 26 }}>{m.emoji}</span>
+                <div>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>{m.title}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{m.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 16, background: "rgba(255,31,125,0.04)", border: "1.5px dashed rgba(255,31,125,0.2)", borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: "rgba(255,31,125,0.5)" }}>+ add a memory</p>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ ROOMS ══════════ */}
+      <div style={{ padding: "32px 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)" }}>✦ YOUR ROOMS</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: DARK, marginTop: 2 }}>The Apartment.</p>
+          </div>
+          <Link href="/member/you" style={{ textDecoration: "none" }}>
+            <div style={{ background: "#FFF0F5", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.15)", display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>Settings</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* Floor */}
+        <div style={{
+          background: "white",
+          borderRadius: 24,
+          padding: "28px 12px 20px",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(255,31,125,0.05)",
+          border: "1px solid rgba(0,0,0,0.05)",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Wall paper top strip */}
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: 8,
+            background: "repeating-linear-gradient(90deg, #FFE4EF 0px, #FFE4EF 18px, #FFF0F5 18px, #FFF0F5 36px)",
+          }} />
+          {/* Baseboard bottom strip */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 10,
+            background: "linear-gradient(180deg, #E8D8CC 0%, #D4C0B0 100%)",
+          }} />
+
+          {/* Hallway floor */}
+          <div style={{
+            position: "absolute", bottom: 10, left: 0, right: 0, height: 18,
+            background: "linear-gradient(180deg, #C8A888 0%, #B89878 100%)",
+            opacity: 0.4,
+          }} />
+
+          {/* Doors row */}
+          <div style={{ display: "flex", justifyContent: "space-around", alignItems: "flex-end", gap: 4, position: "relative", zIndex: 1 }}>
+            {ROOMS.map(r => (
+              <ApartmentDoor key={r.href} label={r.label} icon={r.icon} href={r.href} num={r.num} accentColor={r.accentColor} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════ FLOWERS ══════════ */}
+      <div style={{ padding: "28px 20px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>✦ YOUR FLOWERS · {earnedFlowers.length} EARNED</p>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const, margin: "0 -20px", paddingLeft: 20, paddingRight: 20 }}>
+          {ALL_FLOWERS.map(flower => {
+            const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
+            return (
+              <div key={flower.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 10px", borderRadius: 14, background: earned ? flower.bg : "#F8F8F8", border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`, opacity: earned ? 1 : 0.3, minWidth: 58 }}>
+                <span style={{ fontSize: 20 }}>{flower.emoji}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, textAlign: "center" as const, color: earned ? flower.color : "#bbb", lineHeight: 1.3, maxWidth: 50 }}>{flower.label}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ══════════ PURCHASE HISTORY ══════════ */}
+      <PurchaseHistorySection />
+
+      {/* ══════════ SHARE ══════════ */}
+      <div style={{ padding: "24px 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOMBAY LINK</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
+          </div>
+          <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
+            {copied ? "Copied ✓" : "Copy"}
+          </button>
+        </div>
+
+        <div style={{ background: DARK, borderRadius: 20, padding: "14px 18px", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>REFERRAL CODE</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
+          </div>
+          <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
+            style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
+            Copy
+          </button>
+        </div>
+      </div>
+
+      {/* ══════════ TOAST ══════════ */}
       {toast && (
-        <div
-          className="fixed bottom-24 left-1/2 z-50 px-6 py-3.5 rounded-full text-sm font-semibold text-white"
-          style={{
-            background: "#FF1F7D",
-            transform: "translateX(-50%)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.22)",
-            animation: "slideUpToast 0.25s ease-out",
-          }}
-        >
+        <div style={{ position: "fixed", bottom: 110, left: "50%", transform: "translateX(-50%)", zIndex: 60, background: DARK, color: "white", borderRadius: 999, padding: "10px 20px", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" as const, boxShadow: "0 4px 16px rgba(0,0,0,0.25)", pointerEvents: "none" }}>
           {toast}
         </div>
       )}
 
-      <style>{`
-        @keyframes slideUpToast {
-          from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-      `}</style>
+      {/* ══════════ SHEETS ══════════ */}
+      {selectedBloomie && <BloomieSheet bloomie={selectedBloomie} onClose={() => setSelectedBloomie(null)} />}
+      {showBloomies && (
+        <BloomiesListSheet
+          onClose={() => setShowBloomies(false)}
+          onSelect={b => { setShowBloomies(false); setTimeout(() => setSelectedBloomie(b), 100); }}
+        />
+      )}
+      {showEdit && (
+        <EditProfileSheet
+          name={localName} neighborhood={localNbhd} bio={localBio}
+          onClose={() => setShowEdit(false)}
+          onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
+        />
+      )}
     </div>
   );
 }

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>BloomBay — The Magazine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,300;1,400;1,700;1,900&family=Jost:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 390px;
+    min-height: 844px;
+    background: #FFFFFF;
+    font-family: 'Jost', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 72px;
+  }
+
+  /* HERO IMAGE — top 58% of 844px = ~490px */
+  .hero {
+    position: relative;
+    width: 390px;
+    height: 490px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.88) 100%);
+  }
+
+  /* BB logo mark */
+  .hero-logo {
+    position: absolute;
+    top: 52px;
+    left: 24px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.3em;
+  }
+
+  /* Pink accent dot */
+  .hero-dot {
+    position: absolute;
+    top: 56px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #FF1F7D;
+    border-radius: 50%;
+  }
+
+  /* Hero text content at bottom of image */
+  .hero-text {
+    position: absolute;
+    bottom: 28px;
+    left: 24px;
+    right: 24px;
+  }
+
+  .hero-date {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .hero-greeting {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.2;
+    display: block;
+  }
+
+  .hero-name {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 64px;
+    color: #FFFFFF;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    display: block;
+  }
+
+  .hero-sub {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    margin-top: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  /* CONTENT BELOW HERO */
+  .content {
+    background: #FFFFFF;
+    padding: 28px 0 0 0;
+  }
+
+  .section-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #FF1F7D;
+    text-transform: uppercase;
+    padding: 0 24px;
+    margin-bottom: 14px;
+  }
+
+  /* HORIZONTAL SCROLL EVENTS */
+  .events-scroll {
+    display: flex;
+    gap: 12px;
+    padding: 0 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .events-scroll::-webkit-scrollbar { display: none; }
+
+  .event-card {
+    flex-shrink: 0;
+    width: 200px;
+    height: 124px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+  }
+
+  .event-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .event-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.72) 100%);
+  }
+
+  .event-card-text {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .event-card-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 15px;
+    color: #FFFFFF;
+    line-height: 1.15;
+    display: block;
+  }
+
+  .event-card-venue {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.58);
+    display: block;
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  /* CLUBS ROW */
+  .clubs-section {
+    margin-top: 28px;
+    padding: 0 24px;
+  }
+
+  .clubs-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 14px;
+    align-items: flex-start;
+  }
+
+  .club-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .club-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .club-circle-1 { background: linear-gradient(135deg, #FF1F7D, #FF6EB0); }
+  .club-circle-2 { background: linear-gradient(135deg, #9B1B5A, #D4547A); }
+  .club-circle-3 { background: linear-gradient(135deg, #2A0030, #7B1FA2, #E91E8C); }
+
+  .club-initial {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 24px;
+    color: #FFFFFF;
+  }
+
+  .club-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(26,0,16,0.55);
+    text-align: center;
+    max-width: 56px;
+    line-height: 1.2;
+  }
+
+  /* BOTTOM BAR */
+  .pink-line {
+    height: 1px;
+    background: #FF1F7D;
+    margin: 28px 0 0 0;
+  }
+
+  .footer-brand {
+    padding: 12px 0 16px 0;
+    text-align: center;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    color: #1A0010;
+    text-transform: uppercase;
+  }
+
+  /* NAV BAR */
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 390px;
+    height: 72px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,31,125,0.14);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(26,0,16,0.32);
+  }
+
+  .nav-item.active { color: #FF1F7D; }
+  .nav-icon { font-size: 18px; line-height: 1; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <img class="hero-img" src="happenings/posters/04_Italian_Dinner_Society.png" alt="Italian Dinner Society">
+  <div class="hero-overlay"></div>
+
+  <div class="hero-logo">BB</div>
+  <div class="hero-dot"></div>
+
+  <div class="hero-text">
+    <div class="hero-date">Wednesday &nbsp;·&nbsp; Jun 11 &nbsp;·&nbsp; New York</div>
+    <span class="hero-greeting">Good evening,</span>
+    <span class="hero-name">Zara.</span>
+    <div class="hero-sub">3 things happening tonight →</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <div class="section-label">Tonight's Picks</div>
+
+  <div class="events-scroll">
+    <div class="event-card">
+      <img class="event-card-img" src="happenings/posters/01_Girls_Night.png" alt="Girls Night">
+      <div class="event-card-overlay"></div>
+      <div class="event-card-text">
+        <span class="event-card-title">Girls Night Out</span>
+        <span class="event-card-venue">Le Bain · Meatpacking</span>
+      </div>
+    </div>
+    <div class="event-card">
+      <img class="event-card-img" src="happenings/posters/03_Vinyl_Night_Jazz.png" alt="Vinyl Night">
+      <div class="event-card-overlay"></div>
+      <div class="event-card-text">
+        <span class="event-card-title">Vinyl Night Jazz</span>
+        <span class="event-card-venue">Blue Note · West Village</span>
+      </div>
+    </div>
+    <div class="event-card">
+      <img class="event-card-img" src="happenings/posters/06_Dance_All_Night.png" alt="Dance All Night">
+      <div class="event-card-overlay"></div>
+      <div class="event-card-text">
+        <span class="event-card-title">Dance All Night</span>
+        <span class="event-card-venue">Elsewhere · Bushwick</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="clubs-section">
+    <div class="section-label" style="padding:0; margin-bottom:0;">Your Clubs</div>
+    <div class="clubs-row">
+      <div class="club-avatar">
+        <div class="club-circle club-circle-1">
+          <span class="club-initial">F</span>
+        </div>
+        <span class="club-label">Film Society</span>
+      </div>
+      <div class="club-avatar">
+        <div class="club-circle club-circle-2">
+          <span class="club-initial">J</span>
+        </div>
+        <span class="club-label">Jazz & Vinyl</span>
+      </div>
+      <div class="club-avatar">
+        <div class="club-circle club-circle-3">
+          <span class="club-initial">D</span>
+        </div>
+        <span class="club-label">Dance Collective</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pink-line"></div>
+  <div class="footer-brand">BloomBay</div>
+
+</div>
+
+<!-- NAV BAR -->
+<div class="nav-bar">
+  <div class="nav-item active">
+    <span class="nav-icon">⌂</span>
+    HOME
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">✦</span>
+    DISCOVER
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">♡</span>
+    CLUBS
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">◎</span>
+    PROFILE
+  </div>
+</div>
+
+</body>
+</html>

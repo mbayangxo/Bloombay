@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>BloomBay — City at Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,300;1,400;1,700;1,900&family=Jost:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 390px;
+    min-height: 844px;
+    background: linear-gradient(160deg, #080008 0%, #140010 25%, #2A0020 50%, #1A000E 75%, #0A0008 100%);
+    font-family: 'Jost', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+
+  /* SVG Grain filter */
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.45;
+  }
+
+  /* Pink glow orb top-right */
+  .glow-orb {
+    position: absolute;
+    top: -40px;
+    right: -60px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(255,31,125,0.18) 0%, rgba(255,31,125,0.06) 50%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 56px 28px 0 28px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .tonight-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    background: #FF1F7D;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(255,31,125,0.22), 0 0 12px rgba(255,31,125,0.6);
+    flex-shrink: 0;
+  }
+
+  .tonight-text {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.35em;
+    color: #FF1F7D;
+    text-transform: uppercase;
+  }
+
+  .greeting-name {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 52px;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+  }
+
+  .greeting-sub {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.42);
+    margin-top: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  /* SEPARATOR */
+  .pink-separator {
+    margin: 24px 28px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #FF1F7D 40%, #FF1F7D 60%, transparent 100%);
+    opacity: 0.5;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    padding: 0 0;
+    margin: 0 0 22px 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .ticker-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 28px;
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .ticker-dot {
+    width: 5px;
+    height: 5px;
+    background: #FF1F7D;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(255,31,125,0.8);
+  }
+
+  .ticker-text {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  /* EVENT CARDS */
+  .events-section {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .event-card {
+    width: 100%;
+    height: 152px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,31,125,0.2);
+  }
+
+  .event-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .event-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+  }
+
+  .event-card-content {
+    position: absolute;
+    inset: 0;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .event-time {
+    font-family: 'Jost', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    color: #FF1F7D;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .event-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 18px;
+    color: #FFFFFF;
+    line-height: 1.15;
+  }
+
+  .event-venue {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.4);
+    margin-top: 3px;
+  }
+
+  .join-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: #FF1F7D;
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* CLUBS */
+  .clubs-section {
+    margin: 26px 20px 0 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .clubs-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.38);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .clubs-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .club-tile {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    backdrop-filter: blur(4px);
+  }
+
+  .club-tile-initial {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 26px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1;
+  }
+
+  .club-tile-name {
+    font-family: 'Jost', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.32);
+    text-align: center;
+    padding: 0 4px;
+    line-height: 1.2;
+  }
+
+  /* QUOTE */
+  .bottom-quote {
+    margin-top: 32px;
+    text-align: center;
+    padding: 0 28px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .bottom-quote-text {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.28);
+  }
+
+  /* NAV BAR */
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 390px;
+    height: 72px;
+    background: rgba(8,0,8,0.92);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,31,125,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 8px;
+    z-index: 200;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Jost', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.28);
+  }
+
+  .nav-item.active { color: #FF1F7D; }
+  .nav-icon { font-size: 18px; line-height: 1; }
+</style>
+</head>
+<body>
+
+<!-- SVG Grain Overlay -->
+<svg class="grain-overlay" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feBlend in="SourceGraphic" mode="overlay"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grain)" opacity="0.3"/>
+</svg>
+
+<!-- GLOW ORB -->
+<div class="glow-orb"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="tonight-label">
+    <div class="pulse-dot"></div>
+    <span class="tonight-text">Tonight</span>
+  </div>
+  <div class="greeting-name">Zara,</div>
+  <div class="greeting-sub">What are you doing tonight?</div>
+</div>
+
+<!-- SEPARATOR -->
+<div class="pink-separator"></div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <div class="ticker-dot"></div>
+    <span class="ticker-text">GIRLS NIGHT &nbsp;·&nbsp; JAZZ VINYL &nbsp;·&nbsp; APERITIVO &nbsp;·&nbsp; DANCE &nbsp;·&nbsp; FILM CLUB &nbsp;·&nbsp; SUNDAY BRUNCH</span>
+  </div>
+</div>
+
+<!-- EVENT CARDS -->
+<div class="events-section">
+  <div class="event-card">
+    <img class="event-card-img" src="happenings/posters/01_Girls_Night.png" alt="Girls Night">
+    <div class="event-card-overlay"></div>
+    <div class="event-card-content">
+      <div class="event-time">Tonight · 9PM</div>
+      <div class="event-title">Girls Night Out</div>
+      <div class="event-venue">Le Bain · Meatpacking District</div>
+    </div>
+    <div class="join-btn">JOIN →</div>
+  </div>
+
+  <div class="event-card">
+    <img class="event-card-img" src="happenings/posters/03_Vinyl_Night_Jazz.png" alt="Vinyl Night Jazz">
+    <div class="event-card-overlay"></div>
+    <div class="event-card-content">
+      <div class="event-time">Tonight · 8PM</div>
+      <div class="event-title">Vinyl Night Jazz</div>
+      <div class="event-venue">Blue Note · West Village</div>
+    </div>
+    <div class="join-btn">JOIN →</div>
+  </div>
+</div>
+
+<!-- CLUBS -->
+<div class="clubs-section">
+  <div class="clubs-label">Your Clubs</div>
+  <div class="clubs-row">
+    <div class="club-tile">
+      <div class="club-tile-initial">F</div>
+      <div class="club-tile-name">Film Society</div>
+    </div>
+    <div class="club-tile">
+      <div class="club-tile-initial">J</div>
+      <div class="club-tile-name">Jazz & Vinyl</div>
+    </div>
+    <div class="club-tile">
+      <div class="club-tile-initial">D</div>
+      <div class="club-tile-name">Dance Collective</div>
+    </div>
+    <div class="club-tile">
+      <div class="club-tile-initial">B</div>
+      <div class="club-tile-name">Book Brunch</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM QUOTE -->
+<div class="bottom-quote">
+  <span class="bottom-quote-text">collect moments.</span>
+</div>
+
+<!-- NAV BAR -->
+<div class="nav-bar">
+  <div class="nav-item active">
+    <span class="nav-icon">⌂</span>
+    HOME
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">✦</span>
+    DISCOVER
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">♡</span>
+    CLUBS
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">◎</span>
+    PROFILE
+  </div>
+</div>
+
+</body>
+</html>

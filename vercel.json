@@ -4,6 +4,64 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "regions": ["iad1"],
+  "crons": [
+    {
+      "path": "/api/cron/weekly-events",
+      "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/cron/avenue-editors",
+      "schedule": "0 7 * * 2"
+    },
+    {
+      "path": "/api/cron/city-intelligence",
+      "schedule": "0 8 * * 3"
+    },
+    {
+      "path": "/api/cron/wall-seeder",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/founder-analyst",
+      "schedule": "0 14 * * 1"
+    },
+    {
+      "path": "/api/cron/memory-layer",
+      "schedule": "0 11 1 * *"
+    },
+    {
+      "path": "/api/cron/friendship-health",
+      "schedule": "0 23 * * 0"
+    },
+    {
+      "path": "/api/cron/club-success",
+      "schedule": "0 10 * * 3"
+    },
+    {
+      "path": "/api/cron/event-intelligence",
+      "schedule": "0 9 * * 2,5"
+    },
+    {
+      "path": "/api/cron/community-coordinator",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/safety-monitor",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/operations",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/scheduling",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/post-event",
+      "schedule": "0 */2 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

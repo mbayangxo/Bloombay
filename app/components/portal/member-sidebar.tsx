@@ -6,7 +6,16 @@ import { usePathname } from "next/navigation";
 import { BBLogo } from "./bb-logo";
 import { logout } from "@/lib/auth/actions";
 import { getTimeOfDay, type TimeOfDay } from "./time-wrapper";
-import { MEMBER_SIDEBAR_NAV } from "@/lib/member-nav";
+
+const NAV = [
+  { href: "/member/home",          label: "THE DAILY",  n: "01" },
+  { href: "/member/clubs",         label: "CLUBS",      n: "02" },
+  { href: "/member/avenue",        label: "AVENUE",      n: "03" },
+  { href: "/member/lounge",        label: "APARTMENT",  n: "04" },
+  { href: "/member/match",         label: "CONNECT",    n: "05" },
+  { href: "/member/city",          label: "THE CITY",   n: "06" },
+  { href: "/member/happenings",    label: "HAPPENINGS", n: "07" },
+];
 
 interface SidebarUser { name: string; initial: string; role: string; }
 
@@ -38,6 +47,7 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
       className="hidden md:flex fixed left-0 top-0 h-full flex-col z-40"
       style={{ width: "160px", background: sidebarBg, borderRight: `1px solid ${borderColor}` }}
     >
+      {/* Brand mark */}
       <div className="px-6 pt-8 pb-5" style={{ borderBottom: `1px solid ${borderColor}` }}>
         <BBLogo size={24} light={isNight} />
         <p className="text-[10px] font-bold tracking-[0.28em] mt-3 uppercase" style={{ color: brandText }}>
@@ -48,16 +58,18 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
         </p>
       </div>
 
+      {/* ✦ marker */}
       <div className="px-6 py-4">
         <span style={{ color: "#FF1F7D", fontSize: "12px" }}>✦</span>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-0 overflow-y-auto">
-        {MEMBER_SIDEBAR_NAV.map((item, i) => {
-          const active = item.match(pathname);
+        {NAV.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
-              key={item.id}
+              key={item.href}
               href={item.href}
               className="flex items-center gap-2.5 py-3.5 transition-all group relative"
               style={{
@@ -69,25 +81,27 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
             >
               <span className="text-[9px] font-mono tabular-nums flex-shrink-0"
                 style={{ color: active ? "#FF1F7D" : navNum }}>
-                {String(i + 1).padStart(2, "0")}
+                {item.n}
               </span>
-              <span className="text-[11px] font-bold tracking-[0.14em] leading-none"
+              <span className="text-[11px] font-bold tracking-[0.18em] leading-none"
                 style={{ color: active ? "#FF1F7D" : navInactive }}>
-                {item.label.toUpperCase()}
+                {item.label}
               </span>
             </Link>
           );
         })}
       </nav>
 
+      {/* Tagline */}
       <div className="px-6 py-4" style={{ borderTop: `1px solid ${divider}` }}>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: tagline, lineHeight: 1.4, fontStyle: "italic" }}>
           A world made<br />for women.
         </p>
       </div>
 
+      {/* User */}
       <div className="px-5 py-4 flex items-center gap-2.5" style={{ borderTop: `1px solid ${borderColor}` }}>
-        <Link href="/member/lounge" aria-label="My apartment">
+        <Link href="/member/lounge">
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
             style={{ background: "#FF1F7D" }}>
             {user.initial}

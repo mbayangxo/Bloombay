@@ -39,19 +39,20 @@
   --color-mid-pink: var(--mid-pink);
   --color-light-pink: var(--light-pink);
   --font-sans: var(--font-jost);
-  --font-display: var(--font-playfair);
-  --font-serif: var(--font-playfair);
+  --font-display: var(--font-fraunces);
+  --font-serif: var(--font-fraunces);
   --font-script: var(--font-caveat);
 }
 
 html {
   height: 100%;
   overflow: auto;
+  background: #FFF0F8;
 }
 
 body {
   min-height: 100%;
-  background: var(--ivory);
+  background: #FFF0F8;
   color: var(--ink);
   font-family: var(--font-jost), system-ui, sans-serif;
 }

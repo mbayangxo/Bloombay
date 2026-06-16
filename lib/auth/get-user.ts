@@ -17,13 +17,10 @@ export interface AuthUser {
   full_name?: string;
   bio?: string;
   avatar_url?: string;
+  phone?: string;
   neighborhood?: string;
   borough?: string;
   city?: string;
-  age?: number;
-  interests?: string[];
-  goals?: string[];
-  era?: string;
   verification_status?: string;
   onboarding_completed?: boolean;
   bloom_points?: number;
@@ -38,12 +35,15 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 
   const { data: p } = await supabase
     .from("profiles")
-    .select("role, first_name, bio, avatar_url, neighborhood, borough, city, age, interests, goals, era, verification_status, onboarding_completed, bloom_points")
+    .select("role, full_name, first_name, bio, avatar_url, phone, neighborhood, borough, city, verification_status, onboarding_completed, bloom_points")
     .eq("id", user.id)
     .single();
 
-  const firstName = p?.first_name ?? "";
-  const fullName = firstName || (user.email?.split("@")[0] ?? "there");
+  // full_name is Cursor's primary field; first_name added later via migration 013
+  const firstName = (p as Record<string, unknown> | null)?.first_name as string | null ?? "";
+  const fullName = ((p as Record<string, unknown> | null)?.full_name as string | null)
+    || firstName
+    || (user.email?.split("@")[0] ?? "there");
 
   return {
     id: user.id,
@@ -53,13 +53,10 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     full_name: fullName,
     bio: p?.bio ?? undefined,
     avatar_url: p?.avatar_url ?? undefined,
+    phone: p?.phone ?? undefined,
     neighborhood: p?.neighborhood ?? undefined,
     borough: p?.borough ?? undefined,
     city: p?.city ?? undefined,
-    age: p?.age ?? undefined,
-    interests: p?.interests ?? [],
-    goals: p?.goals ?? [],
-    era: p?.era ?? undefined,
     verification_status: p?.verification_status ?? "unverified",
     onboarding_completed: p?.onboarding_completed ?? false,
     bloom_points: p?.bloom_points ?? 0,

@@ -119,6 +119,7 @@ export function WaitlistFlow() {
   const [interests, setInterests] = useState<Set<number>>(new Set());
   const [foundingMother, setFoundingMother] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function toggleGoal(i: number) {
     const next = new Set(goals);
@@ -139,7 +140,24 @@ export function WaitlistFlow() {
       )
     : CITIES;
 
-  function submit() {
+  async function submit() {
+    setSubmitting(true);
+    try {
+      await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: firstName,
+          email,
+          phone: phone || undefined,
+          city: selectedCity?.city,
+          goals: Array.from(goals).map(i => GOALS[i]?.label ?? String(i)),
+        }),
+      });
+    } catch {
+      // silent — still show success
+    }
+    setSubmitting(false);
     setSubmitted(true);
     setStep(3);
   }
@@ -691,20 +709,20 @@ export function WaitlistFlow() {
           </div>
 
           <button
-            onClick={submit}
-            disabled={!firstName || !email || !selectedCity}
+            onClick={() => void submit()}
+            disabled={!firstName || !email || !selectedCity || submitting}
             className="w-full py-4 rounded-full text-white font-black text-base transition-all hover:brightness-110 active:scale-95"
             style={{
-              background: firstName && email && selectedCity
+              background: firstName && email && selectedCity && !submitting
                 ? "linear-gradient(135deg,#FF1F7D,#c4005a)"
                 : "#FFB6D0",
-              cursor: firstName && email && selectedCity ? "pointer" : "default",
-              boxShadow: firstName && email && selectedCity
+              cursor: firstName && email && selectedCity && !submitting ? "pointer" : "default",
+              boxShadow: firstName && email && selectedCity && !submitting
                 ? "0 8px 32px rgba(255,31,125,0.4)"
                 : "none",
             }}
           >
-            JOIN THE WAITLIST
+            {submitting ? "Saving…" : "SAVE MY SPOT"}
           </button>
 
           <div className="mt-6 flex justify-center">

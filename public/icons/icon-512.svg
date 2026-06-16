@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Pink app icon background -->
+  <rect width="512" height="512" rx="112" fill="#FF1F7D"/>
+  <rect width="512" height="512" rx="112" fill="url(#shine)" opacity="0.14"/>
+  <defs>
+    <radialGradient id="shine" cx="28%" cy="22%" r="65%">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- BB Petal Mark (white) -->
+  <!-- Left B — spine on left, 3 petal bumps facing right -->
+  <rect x="108" y="104" width="48" height="304" rx="14" fill="white"/>
+  <!-- Petal bumps (outer ring = white, inner = pink to create petal effect) -->
+  <circle cx="204" cy="168" r="58" fill="white"/>
+  <circle cx="216" cy="168" r="35" fill="#FF1F7D"/>
+  <circle cx="204" cy="256" r="58" fill="white"/>
+  <circle cx="216" cy="256" r="35" fill="#FF1F7D"/>
+  <circle cx="204" cy="344" r="58" fill="white"/>
+  <circle cx="216" cy="344" r="35" fill="#FF1F7D"/>
+
+  <!-- Right B — spine on right, 3 petal bumps facing left (mirrored) -->
+  <rect x="356" y="104" width="48" height="304" rx="14" fill="white"/>
+  <!-- Petal bumps mirrored -->
+  <circle cx="308" cy="168" r="58" fill="white"/>
+  <circle cx="296" cy="168" r="35" fill="#FF1F7D"/>
+  <circle cx="308" cy="256" r="58" fill="white"/>
+  <circle cx="296" cy="256" r="35" fill="#FF1F7D"/>
+  <circle cx="308" cy="344" r="58" fill="white"/>
+  <circle cx="296" cy="344" r="35" fill="#FF1F7D"/>
+</svg>

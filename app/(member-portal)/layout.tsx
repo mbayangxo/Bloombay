@@ -1,18 +1,9 @@
 import { BottomNav } from "../components/portal/bottom-nav";
-import { MemberSidebar } from "../components/portal/member-sidebar";
+import { DesktopTopNav } from "../components/portal/desktop-top-nav";
 import { TimeWrapper } from "../components/portal/time-wrapper";
 import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
-import { PortalFixedIcons } from "../components/portal/portal-fixed-icons";
-import { PortalScrollUnlock } from "../components/portal/portal-scroll-unlock";
+import { FeedbackButton } from "../components/portal/feedback-button";
 import { getAuthUser } from "@/lib/auth/get-user";
-import "@/app/styles/portal-scroll.css";
-import "@/app/styles/bb-home-scrapbook.css";
-import "@/app/styles/bb-home-mockup.css";
-import "@/app/styles/bb-home-mockup-mobile.css";
-import "@/app/styles/bb-home-mockup-desktop.css";
-import "@/app/styles/bb-home-collage.css";
-import "@/app/styles/bb-poster-templates.css";
-import "@/app/styles/bb-member-polish.css";
 
 function roleLabel(role: string): string {
   switch (role) {
@@ -35,19 +26,17 @@ export default async function MemberPortalLayout({ children }: { children: React
   };
 
   return (
-    <div data-bb-member-portal>
-      <PortalScrollUnlock />
-      <TimeWrapper>
-        <SeasonalOverlay />
-        <MemberSidebar user={user} />
-        <PortalFixedIcons initial={user.initial} />
-        <div className="md:ml-[160px]">
-          <div className="max-w-none w-full">
-            {children}
-          </div>
+    <TimeWrapper>
+      <SeasonalOverlay />
+      <DesktopTopNav initial={user.initial} />
+      {/* md:mt-[60px] offsets the fixed desktop top nav */}
+      <div className="md:mt-[60px]">
+        <div className="max-w-[430px] mx-auto md:max-w-none">
+          {children}
         </div>
-        <BottomNav user={user} />
-      </TimeWrapper>
-    </div>
+      </div>
+      <BottomNav user={user} />
+      <FeedbackButton />
+    </TimeWrapper>
   );
 }

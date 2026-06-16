@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
+import { welcomeNewMember } from "@/lib/yande/community-coordinator";
 
 // ─── STATIC DATA ────────────────────────────────────────────────────────────
 
@@ -224,6 +226,314 @@ function ToggleRow({ label, on, toggle }: { label: string; on: boolean; toggle: 
   );
 }
 
+
+// ─── SCATTERED BLOB CHIPS (Onboarding interest selector) ─────────────────────
+
+const BLOB_COLORS = [
+  { bg: "#FF1F7D", text: "white" },
+  { bg: "#FF69B4", text: "white" },
+  { bg: "#FFB6D0", text: "#c40060" },
+  { bg: "#FFC2D4", text: "#8B0040" },
+  { bg: "#FF1F7D", text: "white" },
+  { bg: "#FF69B4", text: "white" },
+  { bg: "#FFD6E8", text: "#c40060" },
+  { bg: "#FFB6D0", text: "#8B0040" },
+];
+const BLOB_ROTATIONS = [-4, 3, -6, 5, -2, 7, -5, 2, -3, 6, -1, 4];
+const BLOB_OFFSETS   = [0, 18, -10, 28, -18, 8, -28, 14, -4, 22, -14, 4];
+const BLOB_ICONS     = ["🌸", "✿", "🌷", "✦", "🌺", "✿", "🌸", "✦", "🌷", "🌸", "✿", "🌺"];
+
+function ScatteredBlobs({ items, selected, toggle }: { items: string[]; selected: Set<number>; toggle: (i: number) => void }) {
+  const [shaking, setShaking] = React.useState<number | null>(null);
+
+  function handlePress(i: number) {
+    toggle(i);
+    setShaking(i);
+    setTimeout(() => setShaking(null), 550);
+  }
+
+  return (
+    <>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "4px 0 12px" }}>
+        {items.map((label, i) => {
+          const on = selected.has(i);
+          const col = BLOB_COLORS[i % BLOB_COLORS.length];
+          const rot = BLOB_ROTATIONS[i % BLOB_ROTATIONS.length];
+          const dx  = BLOB_OFFSETS[i % BLOB_OFFSETS.length];
+          const icon = BLOB_ICONS[i % BLOB_ICONS.length];
+          return (
+            <button
+              key={i}
+              onClick={() => handlePress(i)}
+              style={{
+                borderRadius: "100px",
+                padding: "10px 18px",
+                background: on ? col.bg : "white",
+                color: on ? col.text : "#c40060",
+                border: `2px solid ${on ? col.bg : "#FFB6D0"}`,
+                fontWeight: on ? 700 : 500,
+                fontSize: "13px",
+                transform: `rotate(${rot}deg) translateX(${dx}px)`,
+                animation: shaking === i ? "blobShake 0.55s ease-in-out" : "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                boxShadow: on ? `0 4px 16px ${col.bg}55` : "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+                transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: "11px", lineHeight: 1 }}>{icon}</span>
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      <style>{`
+        @keyframes blobShake {
+          0%   { transform: rotate(var(--r, 0deg)) scale(1.0); }
+          12%  { transform: rotate(calc(var(--r, 0deg) + 14deg)) scale(1.18); }
+          25%  { transform: rotate(calc(var(--r, 0deg) - 12deg)) scale(1.18); }
+          38%  { transform: rotate(calc(var(--r, 0deg) + 8deg)) scale(1.12); }
+          50%  { transform: rotate(calc(var(--r, 0deg) - 5deg)) scale(1.07); }
+          65%  { transform: rotate(calc(var(--r, 0deg) + 3deg)) scale(1.04); }
+          80%  { transform: rotate(calc(var(--r, 0deg) - 1deg)) scale(1.02); }
+          100% { transform: rotate(var(--r, 0deg)) scale(1.0); }
+        }
+      `}</style>
+    </>
+  );
+}
+
+function WelcomeSplash({ onStart }: { onStart: () => void }) {
+  const [agreeTerms, setAgreeTerms]     = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeRules, setAgreeRules]     = useState(false);
+  const [agreeAge, setAgreeAge]         = useState(false);
+  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+
+  return (
+    <div className="fixed inset-0 flex flex-col overflow-hidden"
+      style={{ background: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 58%, #FF4D8A 100%)" }}>
+
+      {/* ── BACKGROUND COMPOSITION ── */}
+
+      {/* Film grain */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`,
+        opacity: 0.65,
+      }} />
+
+      {/* Concentric halo rings centred on the hero */}
+      {[90, 70, 52].map((vw, i) => (
+        <div key={i} className="absolute pointer-events-none" style={{
+          left: "50%", top: "42%",
+          width: `${vw}vw`, height: `${vw}vw`,
+          transform: "translate(-50%,-50%)",
+          borderRadius: "50%",
+          border: `1px solid rgba(255,255,255,${[0.09, 0.06, 0.04][i]})`,
+        }} />
+      ))}
+
+      {/* Upper-left abstract petal */}
+      <div className="absolute pointer-events-none" style={{
+        left: "-44px", top: "20%",
+        width: "118px", height: "168px",
+        borderRadius: "55% 45% 65% 35% / 45% 55% 45% 55%",
+        background: "rgba(255,255,255,0.045)",
+        transform: "rotate(-30deg)",
+      }} />
+
+      {/* Lower-right accent petal */}
+      <div className="absolute pointer-events-none" style={{
+        right: "-28px", bottom: "34%",
+        width: "100px", height: "142px",
+        borderRadius: "40% 60% 35% 65% / 65% 35% 65% 35%",
+        background: "rgba(255,255,255,0.032)",
+        transform: "rotate(16deg)",
+      }} />
+
+      {/* Ghost BLOOM — large typographic watermark */}
+      <div className="absolute pointer-events-none select-none" style={{ bottom: "19%", left: "-8px", right: 0, overflow: "hidden", zIndex: 0 }}>
+        <p style={{
+          fontFamily: "var(--font-playfair)", fontWeight: 900,
+          fontSize: "clamp(112px,37vw,215px)", lineHeight: 0.78,
+          color: "rgba(255,255,255,0.078)",
+          letterSpacing: "-0.04em", whiteSpace: "nowrap",
+        }}>BLOOM</p>
+      </div>
+
+      {/* Vertical editorial sidebar text */}
+      <div className="absolute pointer-events-none select-none" style={{
+        right: 16, top: "50%",
+        transform: "translateY(-50%) rotate(90deg)",
+        transformOrigin: "center center",
+        fontFamily: "var(--font-jost)",
+        fontSize: "6.5px", fontWeight: 800,
+        letterSpacing: "0.38em",
+        color: "rgba(255,255,255,0.17)",
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+        zIndex: 1,
+      }}>BLOOMBAY · NEW YORK CITY · 2026</div>
+
+      {/* ── TOP NAV ── */}
+      <div className="relative flex items-center justify-between px-6 pt-14 pb-2" style={{ zIndex: 2 }}>
+        <div className="flex items-center gap-2">
+          <BBLogo size={26} />
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.92)" }}>
+            BloomBay
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.42)" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.3em", color: "rgba(255,255,255,0.46)", textTransform: "uppercase" }}>NYC</p>
+        </div>
+      </div>
+
+      {/* ── HERO ── */}
+      <div className="relative flex-1 flex flex-col justify-center px-6" style={{ paddingBottom: "4px", zIndex: 2 }}>
+
+        {/* Centered kicker with extending ornamental lines */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28))" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.58)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            ✦ a space to bloom ✦
+          </p>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,255,255,0.28), transparent)" }} />
+        </div>
+
+        {/* Primary: Women are / gathering. */}
+        <div style={{ marginBottom: 22 }}>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 300,
+            fontSize: "clamp(30px,9vw,44px)",
+            color: "rgba(255,255,255,0.78)",
+            lineHeight: 1.05, letterSpacing: "-0.01em", margin: 0,
+          }}>Women are</p>
+          <h1 style={{
+            fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic",
+            fontSize: "clamp(64px,19vw,92px)",
+            color: "white",
+            lineHeight: 0.84, letterSpacing: "-0.04em",
+            margin: 0,
+            textShadow: "0 4px 32px rgba(0,0,0,0.16)",
+          }}>gathering.</h1>
+        </div>
+
+        {/* Ornamental divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.18)" }} />
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>✦</span>
+          <div style={{ width: 28, height: 1, background: "rgba(255,255,255,0.18)" }} />
+        </div>
+
+        {/* Secondary: it's a woman's world. we're in it. */}
+        <div style={{ marginBottom: 26 }}>
+          <p style={{ fontWeight: 300, fontSize: "clamp(14px,4vw,19px)", color: "rgba(255,255,255,0.62)", lineHeight: 1.2, margin: "0 0 2px" }}>it&apos;s a</p>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontWeight: 900,
+            fontSize: "clamp(28px,8vw,38px)", lineHeight: 0.9,
+            letterSpacing: "-0.02em",
+            WebkitTextStroke: "1.5px rgba(255,255,255,0.78)",
+            WebkitTextFillColor: "transparent",
+            color: "transparent",
+            margin: "0 0 6px",
+          }}>woman&apos;s world.</p>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic",
+            fontSize: "clamp(14px,3.8vw,18px)",
+            color: "rgba(255,255,255,0.5)", margin: 0, letterSpacing: "0.01em",
+          }}>we&apos;re in it.</p>
+        </div>
+
+        {/* Social proof — avatar stack */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex" }}>
+            {(["#FF69B4","#A855F7","#0EA5E9","#D4A853"] as const).map((c, i) => (
+              <div key={i} style={{
+                width: 26, height: 26, borderRadius: "50%",
+                background: `linear-gradient(135deg,${c},${c}BB)`,
+                border: "2px solid rgba(255,255,255,0.38)",
+                marginLeft: i > 0 ? -9 : 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "9px", fontWeight: 800, color: "white",
+                flexShrink: 0, position: "relative", zIndex: 4 - i,
+              }}>
+                {["A","Z","T","J"][i]}
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.58)", letterSpacing: "0.03em" }}>
+            2,400+ women in NYC
+          </p>
+        </div>
+      </div>
+
+      {/* ── BOTTOM STRIP — glassmorphism CTA ── */}
+      <div className="relative px-6 pt-5 rounded-t-[28px]"
+        style={{
+          background: "rgba(0,0,0,0.36)",
+          backdropFilter: "blur(22px)",
+          WebkitBackdropFilter: "blur(22px)",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)",
+          zIndex: 2,
+        }}>
+
+        {/* 2×2 checkbox grid — compact, not a legal wall */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
+          {[
+            { key: "terms",   label: "Terms of Service",    val: agreeTerms,   set: setAgreeTerms },
+            { key: "privacy", label: "Privacy Policy",       val: agreePrivacy, set: setAgreePrivacy },
+            { key: "rules",   label: "Community Guidelines", val: agreeRules,   set: setAgreeRules },
+            { key: "age",     label: "18 or older",          val: agreeAge,     set: setAgreeAge },
+          ].map(item => (
+            <button key={item.key} onClick={() => item.set(!item.val)}
+              className="flex items-center gap-2.5 text-left py-0.5">
+              <div className="flex-shrink-0 flex items-center justify-center"
+                style={{
+                  width: 18, height: 18, borderRadius: 5,
+                  background: item.val ? "white" : "rgba(255,255,255,0.12)",
+                  border: `1.5px solid ${item.val ? "white" : "rgba(255,255,255,0.28)"}`,
+                }}>
+                {item.val && (
+                  <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onStart}
+          disabled={!allAgreed}
+          className="w-full py-4 rounded-full font-bold text-sm uppercase transition-all active:scale-[0.98]"
+          style={{
+            fontFamily: "var(--font-jost)",
+            background: allAgreed ? "white" : "rgba(255,255,255,0.16)",
+            color: allAgreed ? "#FF1F7D" : "rgba(255,255,255,0.35)",
+            letterSpacing: allAgreed ? "0.14em" : "0.06em",
+            boxShadow: allAgreed ? "0 8px 40px rgba(0,0,0,0.28)" : "none",
+          }}>
+          {allAgreed ? "LET'S START →" : "Agree to all to continue"}
+        </button>
+
+        <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.34)" }}>
+          Already a member?{" "}
+          <Link href="/login" className="font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
 export function OnboardFlow() {
@@ -270,9 +580,18 @@ export function OnboardFlow() {
   // Step 8 – invites
   const [inviteEmails, setInviteEmails] = useState(["", "", ""]);
 
+  // Agreements – required before joining
+  const [agreeTerms,   setAgreeTerms]   = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeRules,   setAgreeRules]   = useState(false);
+  const [agreeAge,     setAgreeAge]     = useState(false);
+  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+
   // ── helpers ──────────────────────────────────────────────────────
   function advance() { setStep((s) => s + 1); setError(null); }
   function goBack()  { setStep((s) => s - 1); setError(null); }
+
+  if (step === 0 && !emailVerificationSent) return <WelcomeSplash onStart={advance} />;
 
   async function getUser() {
     const supabase = createClient();
@@ -466,6 +785,8 @@ export function OnboardFlow() {
         await supabase.from("invites").insert(valid.map((e) => ({ inviter_id: user.id, email: e })));
       }
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      // Fire-and-forget: Yande sends the welcome message
+      welcomeNewMember(user.id).catch(() => {});
       router.push("/member/home");
     } catch (e: unknown) {
       setError((e as Error).message);
@@ -489,76 +810,7 @@ export function OnboardFlow() {
 
         <Progress step={step} />
 
-        {/* ── STEP 0: Welcome ─────────────────────────────────────────── */}
-        {step === 0 && (
-          <div>
-            <div className="flex flex-col items-center text-center mb-8">
-              <BBLogo size={56} />
-              <h1 className="text-4xl font-bold mt-5 leading-tight" style={{ color: "var(--bb-black)" }}>
-                It&apos;s a girl&apos;s world.{" "}
-                <br />
-                <span
-                  className="italic"
-                  style={{ fontFamily: "var(--font-playfair)", color: "var(--bb-pink)", fontWeight: 400 }}
-                >
-                  We&apos;re living in it.
-                </span>
-              </h1>
-              <p className="text-gray-500 text-base leading-relaxed mt-3">
-                BloomBay is where NYC women build real friendships — through real plans, real places, and real people.
-              </p>
-            </div>
 
-            <div className="rounded-3xl p-4 mb-5" style={{ background: "var(--light-pink)" }}>
-              <div className="flex items-center gap-1.5 mb-2">
-                {["A", "S", "P", "K", "M"].map((l, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: ["#FF1F7D", "#FF69B4", "#c40060", "#FF69B4", "#1A0514"][i] }}
-                  >
-                    {l}
-                  </div>
-                ))}
-                <p className="text-xs font-bold ml-1" style={{ color: "var(--bb-pink)" }}>+242 inside</p>
-              </div>
-              <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>
-                247 verified women already inside.{" "}
-                <span className="font-normal text-gray-500">Founding wave — 253 spots left.</span>
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2.5 mb-8">
-              {[
-                { title: "Women only",          sub: "Live selfie verification — every single member" },
-                { title: "Real friendships",    sub: "Girl Match AI finds your people by energy + values" },
-                { title: "Your city is alive",  sub: "Gatherings, clubs, and real things to do together" },
-              ].map((f) => (
-                <div
-                  key={f.title}
-                  className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3"
-                  style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
-                    style={{ background: "var(--light-pink)" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 1v12M1 7h12M2.5 2.5l9 9M11.5 2.5l-9 9" stroke="var(--bb-pink)" strokeWidth="1.6" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm" style={{ color: "var(--bb-black)" }}>{f.title}</p>
-                    <p className="text-xs text-gray-400">{f.sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <PinkBtn onClick={advance}>Join BloomBay →</PinkBtn>
-            <p className="text-center text-xs text-gray-400 mt-3">Free to join · Women only · NYC</p>
-          </div>
-        )}
 
         {/* ── EMAIL VERIFICATION PENDING ──────────────────────────────── */}
         {emailVerificationSent && (
@@ -625,7 +877,7 @@ export function OnboardFlow() {
             </PinkBtn>
             <p className="text-center text-xs text-gray-400 mt-4">
               Already a member?{" "}
-              <Link href="/member/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
+              <Link href="/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
                 Log in
               </Link>
             </p>
@@ -684,7 +936,7 @@ export function OnboardFlow() {
                 onClick={() => avatarInputRef.current?.click()}
               >
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Your photo" className="w-full h-full object-cover" />
+                  <Image src={avatarPreview} alt="Your photo" fill unoptimized style={{ objectFit: "cover" }} />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-1" style={{ background: "var(--light-pink)" }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.5">
@@ -748,7 +1000,7 @@ export function OnboardFlow() {
               onClick={() => selfieInputRef.current?.click()}
             >
               {selfiePreview ? (
-                <img src={selfiePreview} alt="Selfie" className="w-full h-full object-cover" />
+                <Image src={selfiePreview} alt="Selfie" fill unoptimized style={{ objectFit: "cover" }} />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                   <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="1.3">
@@ -834,7 +1086,7 @@ export function OnboardFlow() {
               title="What brings you here?"
               sub="Choose everything that feels right — this is how Yande finds your people."
             />
-            <MultiGrid items={GOALS} selected={goals} toggle={(i) => setGoals(toggleNum(goals, i))} />
+            <ScatteredBlobs items={GOALS} selected={goals} toggle={(i) => setGoals(toggleNum(goals, i))} />
 
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 
@@ -863,7 +1115,7 @@ export function OnboardFlow() {
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 
             <SectionTitle title="What are you into?" sub="Pick everything that feels like you." />
-            <MultiGrid items={INTERESTS} selected={interests} toggle={(i) => setInterests(toggleNum(interests, i))} />
+            <ScatteredBlobs items={INTERESTS} selected={interests} toggle={(i) => setInterests(toggleNum(interests, i))} />
 
             <div className="my-6 h-px" style={{ background: "var(--light-pink)" }} />
 
