@@ -12,6 +12,8 @@ import { HostDashCard } from "./host-dash-card";
 import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
 import { EventObjectCard } from "./event-object-cards";
+import { BloomRecapCard } from "./bloom-recap-card";
+import { MorningAfterCard } from "./morning-after-card";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor() {
@@ -255,6 +257,17 @@ export function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
+      {(tod === "morning") && (
+        <MorningAfterCard
+          happeningTitle={events[0]?.title ?? "Girls Dinner"}
+          happeningVenue={events[0]?.venue ?? "Carbone · West Village"}
+        />
+      )}
+
+      {/* ══ BLOOM RECAP — monthly stats card ═════════════════════════════════ */}
+      <BloomRecapCard />
 
       {/* Host cards */}
       <div style={{ padding: "0 16px" }}>
