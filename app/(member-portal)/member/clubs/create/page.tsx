@@ -21,28 +21,168 @@ const MEMBERSHIP_TYPES = [
   { id: "invite",  label: "Invite-Only",  desc: "You personally invite each woman",       emoji: "🔒" },
 ];
 
-// ─── Auto-generated crest ─────────────────────────────────────────────────────
+// ─── Club Crest Generator ─────────────────────────────────────────────────────
 
-function ClubCrest({ name, color, size = 88 }: { name: string; color: string; size?: number }) {
-  const words = name.trim().split(/\s+/);
-  const initials = words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("") || "✦";
+export type CrestShape   = "shield" | "circle" | "hexagon" | "rounded" | "diamond";
+export type CrestSymbol  = "initials" | "crown" | "star" | "moon" | "diamond" | "rose" | "heart" | "flame";
+export type CrestPattern = "solid" | "gradient" | "split" | "dark";
+
+const CREST_SHAPES: { id: CrestShape; label: string }[] = [
+  { id: "rounded",  label: "Square"  },
+  { id: "circle",   label: "Circle"  },
+  { id: "shield",   label: "Shield"  },
+  { id: "hexagon",  label: "Hexagon" },
+  { id: "diamond",  label: "Diamond" },
+];
+
+const CREST_SYMBOLS: { id: CrestSymbol; glyph: string }[] = [
+  { id: "initials", glyph: "AB" },
+  { id: "crown",    glyph: "♛"  },
+  { id: "star",     glyph: "✦"  },
+  { id: "moon",     glyph: "☾"  },
+  { id: "diamond",  glyph: "◆"  },
+  { id: "rose",     glyph: "❋"  },
+  { id: "heart",    glyph: "♡"  },
+  { id: "flame",    glyph: "🔥" },
+];
+
+const CREST_PATTERNS: { id: CrestPattern; label: string }[] = [
+  { id: "solid",    label: "Solid"    },
+  { id: "gradient", label: "Gradient" },
+  { id: "split",    label: "Split"    },
+  { id: "dark",     label: "Dark"     },
+];
+
+const PRESET_COLORS = [
+  "#FF1F7D", "#C8006A", "#E07040", "#D4A358", "#4A8070",
+  "#5B21B6", "#0EA5E9", "#1C1B1C", "#D97706", "#2D6A4F",
+];
+
+function ClubCrest({
+  name, color, size = 88,
+  shape = "rounded", symbol = "initials", pattern = "solid",
+}: {
+  name: string; color: string; size?: number;
+  shape?: CrestShape; symbol?: CrestSymbol; pattern?: CrestPattern;
+}) {
+  const words  = name.trim().split(/\s+/);
+  const inits  = words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("") || "BB";
+  const glyph  = symbol === "initials" ? (inits || "✦") : (CREST_SYMBOLS.find(s => s.id === symbol)?.glyph ?? inits);
+  const isEmoji = symbol === "flame";
+
+  const bg =
+    pattern === "gradient" ? `linear-gradient(135deg, ${color}, ${color}88)` :
+    pattern === "split"    ? `linear-gradient(135deg, ${color} 50%, ${color}44 50%)` :
+    pattern === "dark"     ? `radial-gradient(circle at 35% 35%, ${color}CC, #0A0008)` :
+    `${color}18`;
+
+  const border =
+    pattern === "dark" ? `2px solid ${color}44` :
+    pattern === "gradient" ? `2px solid ${color}` :
+    `2px solid ${color}55`;
+
+  const textColor =
+    pattern === "gradient" ? "white" :
+    pattern === "dark"     ? color :
+    color;
+
+  const clipPath =
+    shape === "shield"  ? "polygon(50% 0%, 100% 15%, 100% 70%, 50% 100%, 0% 70%, 0% 15%)" :
+    shape === "hexagon" ? "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" :
+    shape === "diamond" ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" :
+    undefined;
+
+  const borderRadius =
+    shape === "circle"  ? "50%" :
+    shape === "rounded" ? Math.round(size * 0.22) :
+    0;
+
   return (
     <div style={{
       width: size, height: size,
-      borderRadius: Math.round(size * 0.22),
-      background: `${color}18`,
-      border: `2.5px solid ${color}44`,
+      borderRadius,
+      clipPath,
+      background: bg,
+      border: clipPath ? "none" : border,
       display: "flex", alignItems: "center", justifyContent: "center",
-      boxShadow: `0 8px 32px ${color}30`,
+      boxShadow: `0 8px 32px ${color}40`,
       flexShrink: 0,
+      position: "relative",
+      overflow: "hidden",
     }}>
+      {pattern === "split" && (
+        <div style={{ position: "absolute", inset: 0, background: `${color}44`, clipPath: "polygon(0 0, 50% 0, 50% 100%, 0 100%)", pointerEvents: "none" }} />
+      )}
       <span style={{
-        fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic",
-        fontSize: Math.round(size * 0.36), color, lineHeight: 1,
-        letterSpacing: "-0.02em", userSelect: "none",
+        fontFamily: isEmoji ? undefined : "var(--font-playfair)",
+        fontWeight: 900, fontStyle: isEmoji ? undefined : "italic",
+        fontSize: isEmoji ? Math.round(size * 0.38) : Math.round(size * 0.34),
+        color: textColor, lineHeight: 1,
+        letterSpacing: symbol === "initials" ? "-0.02em" : 0,
+        userSelect: "none", position: "relative", zIndex: 1,
       }}>
-        {initials}
+        {glyph}
       </span>
+    </div>
+  );
+}
+
+function CrestPicker({
+  name, color, shape, symbol, pattern,
+  onShape, onSymbol, onPattern, onColor,
+}: {
+  name: string; color: string; shape: CrestShape; symbol: CrestSymbol; pattern: CrestPattern;
+  onShape: (s: CrestShape) => void; onSymbol: (s: CrestSymbol) => void;
+  onPattern: (p: CrestPattern) => void; onColor: (c: string) => void;
+}) {
+  const colorInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div style={{ background: "white", borderRadius: 18, padding: "16px 16px 12px", boxShadow: "0 2px 16px rgba(0,0,0,0.08)", marginBottom: 20 }}>
+      {/* Big crest preview */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+        <ClubCrest name={name} color={color} size={96} shape={shape} symbol={symbol} pattern={pattern} />
+      </div>
+
+      {/* Color presets + custom */}
+      <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: "#AAA", marginBottom: 8 }}>COLOR</p>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 14 }}>
+        {PRESET_COLORS.map(c => (
+          <button key={c} onClick={() => onColor(c)} style={{ width: 26, height: 26, borderRadius: "50%", background: c, border: color === c ? `3px solid ${c}` : "2px solid transparent", outline: color === c ? "2px solid white" : "none", cursor: "pointer", boxShadow: color === c ? `0 2px 10px ${c}66` : "none", transition: "all 0.14s" }} />
+        ))}
+        <button onClick={() => colorInputRef.current?.click()} style={{ width: 26, height: 26, borderRadius: "50%", background: "conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)", border: "none", cursor: "pointer" }} />
+        <input ref={colorInputRef} type="color" value={color} onChange={e => onColor(e.target.value)} style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0 }} />
+      </div>
+
+      {/* Shape */}
+      <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: "#AAA", marginBottom: 8 }}>SHAPE</p>
+      <div style={{ display: "flex", gap: 7, marginBottom: 14 }}>
+        {CREST_SHAPES.map(s => (
+          <button key={s.id} onClick={() => onShape(s.id)} style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: `1.5px solid ${shape === s.id ? color : "#E8E4DC"}`, background: shape === s.id ? `${color}12` : "white", color: shape === s.id ? color : "#888", fontSize: 8, fontWeight: 700, cursor: "pointer", transition: "all 0.14s" }}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Symbol */}
+      <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: "#AAA", marginBottom: 8 }}>SYMBOL</p>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 14 }}>
+        {CREST_SYMBOLS.map(s => (
+          <button key={s.id} onClick={() => onSymbol(s.id)} style={{ width: 34, height: 34, borderRadius: 8, border: `1.5px solid ${symbol === s.id ? color : "#E8E4DC"}`, background: symbol === s.id ? `${color}12` : "white", color: symbol === s.id ? color : "#888", fontSize: s.id === "initials" ? 8 : 14, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.14s" }}>
+            {s.id === "initials" ? "Aa" : s.glyph}
+          </button>
+        ))}
+      </div>
+
+      {/* Pattern */}
+      <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: "#AAA", marginBottom: 8 }}>FILL</p>
+      <div style={{ display: "flex", gap: 7 }}>
+        {CREST_PATTERNS.map(p => (
+          <button key={p.id} onClick={() => onPattern(p.id)} style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: `1.5px solid ${pattern === p.id ? color : "#E8E4DC"}`, background: pattern === p.id ? `${color}12` : "white", color: pattern === p.id ? color : "#888", fontSize: 8, fontWeight: 700, cursor: "pointer", transition: "all 0.14s" }}>
+            {p.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -58,6 +198,9 @@ export default function CreateClubPage() {
   // Step 1 — Name & Look
   const [clubName, setClubName] = useState("");
   const [accentColor, setAccentColor] = useState(PINK);
+  const [crestShape,   setCrestShape]   = useState<CrestShape>("rounded");
+  const [crestSymbol,  setCrestSymbol]  = useState<CrestSymbol>("initials");
+  const [crestPattern, setCrestPattern] = useState<CrestPattern>("solid");
   const [clubPhoto, setClubPhoto] = useState<File | null>(null);
   const [clubPhotoPreview, setClubPhotoPreview] = useState<string | null>(null);
   const colorInputRef = useRef<HTMLInputElement>(null);
@@ -214,18 +357,24 @@ export default function CreateClubPage() {
               STEP 1 OF 3 · NAME & LOOK
             </p>
 
-            {/* Visual preview + upload */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
-              <div style={{ position: "relative", marginBottom: 14 }}>
-                {clubPhotoPreview ? (
-                  <div style={{ width: 120, height: 120, borderRadius: 30, overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}>
+            {/* Crest generator */}
+            {!clubPhotoPreview && (
+              <CrestPicker
+                name={clubName} color={accentColor}
+                shape={crestShape} symbol={crestSymbol} pattern={crestPattern}
+                onShape={setCrestShape} onSymbol={setCrestSymbol}
+                onPattern={setCrestPattern} onColor={setAccentColor}
+              />
+            )}
+
+            {/* Photo upload (optional) */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 20 }}>
+              {clubPhotoPreview && (
+                <div style={{ position: "relative", marginBottom: 14 }}>
+                  <div style={{ width: 96, height: 96, borderRadius: 24, overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={clubPhotoPreview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
-                ) : (
-                  <ClubCrest name={clubName} color={accentColor} size={120} />
-                )}
-                {clubPhotoPreview && (
                   <button
                     onClick={() => { setClubPhoto(null); setClubPhotoPreview(null); }}
                     style={{ position: "absolute", top: -8, right: -8, width: 26, height: 26, borderRadius: "50%", background: "#ef4444", border: "2.5px solid #F6F1EB", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
@@ -234,20 +383,14 @@ export default function CreateClubPage() {
                       <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
                     </svg>
                   </button>
-                )}
-              </div>
-
+                </div>
+              )}
               <button
                 onClick={() => photoInputRef.current?.click()}
-                style={{ padding: "9px 20px", borderRadius: 999, background: "white", border: "1.5px solid rgba(0,0,0,0.1)", fontSize: "10px", fontWeight: 700, color: "#555", cursor: "pointer", letterSpacing: "0.06em", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+                style={{ padding: "8px 18px", borderRadius: 999, background: "white", border: "1.5px solid rgba(0,0,0,0.1)", fontSize: "10px", fontWeight: 700, color: "#555", cursor: "pointer", letterSpacing: "0.06em", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
               >
-                {clubPhotoPreview ? "Change Photo" : "Upload Club Photo"}
+                {clubPhotoPreview ? "Change Photo" : "Upload a Photo Instead"}
               </button>
-              {!clubPhotoPreview && (
-                <p style={{ fontSize: "9px", color: "#bbb", marginTop: 6 }}>
-                  Or use the crest above — updates as you type your name
-                </p>
-              )}
             </div>
 
             {/* Club name */}
@@ -270,35 +413,6 @@ export default function CreateClubPage() {
               />
             </div>
 
-            {/* Color */}
-            <div style={{ marginBottom: 8 }}>
-              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.15em", color: "rgba(0,0,0,0.3)", marginBottom: 10 }}>CLUB COLOR</p>
-              <button
-                onClick={() => colorInputRef.current?.click()}
-                style={{
-                  width: "100%", padding: "16px 18px", borderRadius: 18,
-                  border: "none", cursor: "pointer",
-                  background: accentColor,
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  boxShadow: `0 6px 24px ${accentColor}55`,
-                  boxSizing: "border-box",
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 800, color: "white", fontFamily: "monospace", letterSpacing: "0.06em" }}>
-                  {accentColor.toUpperCase()}
-                </span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.65)" }}>
-                  Tap to change
-                </span>
-              </button>
-              <input
-                ref={colorInputRef}
-                type="color"
-                value={accentColor}
-                onChange={e => setAccentColor(e.target.value)}
-                style={{ display: "none" }}
-              />
-            </div>
           </div>
         )}
 

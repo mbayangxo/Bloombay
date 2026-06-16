@@ -51,6 +51,22 @@ const ONBOARDING_STEPS = [
   "Introduce yourself",
 ];
 
+const LIVE_FEED = [
+  { action: "joined",  who: "Amara K.", club: "SUPPER CLUB",    time: "now",   color: "#c9504a" },
+  { action: "posted",  who: "Temi A.",  club: "MUSEUM GIRLS",   time: "2m",    color: "#6b4fa0" },
+  { action: "joined",  who: "Kemi B.",  club: "BOOK GIRLS",     time: "5m",    color: "#3e7c6b" },
+  { action: "shared",  who: "Ife O.",   club: "RUN CLUB",       time: "8m",    color: "#e07b39" },
+  { action: "joined",  who: "Nadia S.", club: "SOFT LIFE CLUB", time: "12m",   color: "#c96b9e" },
+  { action: "posted",  who: "Zara M.",  club: "MUSEUM GIRLS",   time: "15m",   color: "#6b4fa0" },
+  { action: "joined",  who: "Chisom E.","club": "SUPPER CLUB",  time: "18m",   color: "#c9504a" },
+];
+
+const HOT_CLUBS = [
+  { name: "SUPPER CLUB",    fire: 42, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/11111111-1111-1111-1111-111111111111" },
+  { name: "MUSEUM GIRLS",   fire: 38, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/22222222-2222-2222-2222-222222222222" },
+  { name: "SOFT LIFE CLUB", fire: 31, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/44444444-4444-4444-4444-444444444444" },
+];
+
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [clubs, setClubs] = useState<RealClub[]>([]);
@@ -511,6 +527,73 @@ export function ClubsPage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* ── LIVE ACTIVITY ── */}
+      <section style={{ padding: "0 18px 32px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+          <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)", animation: "pinkPulse 1.5s ease-in-out infinite" }} />
+          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>LIVE ACTIVITY</span>
+        </div>
+        <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 14px rgba(0,0,0,0.06)", border: "1px solid rgba(255,31,125,0.08)" }}>
+          {LIVE_FEED.map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", borderBottom: i < LIVE_FEED.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+              <div style={{ width: 30, height: 30, borderRadius: "50%", background: item.color, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 12, color: "white", flexShrink: 0 }}>
+                {item.who[0]}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: DARK, lineHeight: 1.3 }}>
+                  <span style={{ color: item.color }}>{item.who}</span>
+                  {" "}{item.action === "joined" ? "joined" : item.action === "posted" ? "posted in" : "shared from"}{" "}
+                  <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{item.club}</span>
+                </p>
+              </div>
+              <p style={{ fontSize: 9, color: DARK, opacity: 0.3, flexShrink: 0 }}>{item.time}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOT RIGHT NOW ── */}
+      <section style={{ padding: "0 18px 32px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+          <span style={{ fontSize: 14 }}>🔥</span>
+          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>HOT RIGHT NOW</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {HOT_CLUBS.map((club, i) => (
+            <Link key={i} href={club.href} style={{ textDecoration: "none" }}>
+              <div style={{ background: club.grad, borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "white", lineHeight: 1 }}>{club.name}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>🔥 {club.fire} active today</p>
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "8px 16px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white" }}>JOIN →</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── START YOUR OWN CLUB ── */}
+      <section style={{ padding: "0 18px 60px" }}>
+        <div style={{ background: DARK, borderRadius: 20, padding: "24px 20px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: `${PINK}18`, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -10, left: 30, width: 60, height: 60, borderRadius: "50%", background: `${PINK}10`, pointerEvents: "none" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>CAN&apos;T FIND YOUR VIBE?</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 22, color: "white", lineHeight: 1.1, marginBottom: 10 }}>Start your own club.</p>
+          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 20 }}>
+            Every great club started with one woman who said &quot;I wish there was a place for this.&quot;
+          </p>
+          <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
+            <div style={{ background: PINK, borderRadius: 999, padding: "14px 24px", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: `0 4px 20px ${PINK}55` }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>CREATE A CLUB</span>
+              <span style={{ fontSize: 14 }}>✦</span>
+            </div>
+          </Link>
         </div>
       </section>
 
