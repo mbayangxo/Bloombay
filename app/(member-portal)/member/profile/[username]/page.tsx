@@ -316,58 +316,68 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
       paddingBottom: 120,
     }}>
 
-      {/* ── COVER + AVATAR ──────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", height: 300 }}>
-        {/* Cover gradient */}
+      {/* ── PHOTO HERO (matches own-view lounge style, no edit controls) ──── */}
+      <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
+        {/* Cover gradient — uses profile's own gradient */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: `${DARK_GRAIN}, ${profile.coverGradient}`, backgroundSize: "160px 160px, 100% 100%" }} />
-        {/* Bottom fade */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(7,0,7,0.95) 100%)" }} />
+        {/* Texture glow */}
+        <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.22) 0%, transparent 70%)", pointerEvents: "none" }} />
 
         {/* Back button */}
-        <Link href="/member/avenue" style={{ textDecoration: "none" }}>
-          <div style={{
-            position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 14px)", left: 16, zIndex: 10,
-            background: "rgba(0,0,0,0.4)", backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255,255,255,0.14)", borderRadius: 999,
-            padding: "6px 13px", display: "flex", alignItems: "center", gap: 6,
-          }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.07em" }}>BACK</span>
-          </div>
-        </Link>
-
-        {/* Avatar */}
-        <div style={{
-          position: "absolute", bottom: -40, left: 20,
-          width: 84, height: 84, borderRadius: "50%",
-          backgroundImage: `${DARK_GRAIN}, ${profile.avatarGradient}`,
-          backgroundSize: "160px 160px, 100% 100%",
-          border: "3px solid rgba(7,0,7,1)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          zIndex: 5,
-        }}>
-          <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 32, color: "white", fontWeight: 300 }}>{profile.avatarInitials}</span>
+        <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 14px)", left: 16, zIndex: 10, display: "flex", gap: 8 }}>
+          <Link href="/member/avenue" style={{ textDecoration: "none" }}>
+            <div style={{
+              background: "rgba(0,0,0,0.4)", backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.14)", borderRadius: 999,
+              padding: "6px 13px", display: "flex", alignItems: "center", gap: 6,
+            }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "white", letterSpacing: "0.07em" }}>BACK</span>
+            </div>
+          </Link>
         </div>
 
-        {/* Founder badge */}
+        {/* Founding badge — tiny sticker, top-right corner of photo */}
         {profile.isFounder && (
-          <div style={{
-            position: "absolute", bottom: -16, left: 88,
-            background: "#1C1B1C", borderRadius: 999, padding: "4px 10px",
-            border: `1px solid rgba(255,0,144,0.3)`,
-            zIndex: 6,
-          }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.12em", color: PINK }}>✦ FOUNDING MEMBER</span>
+          <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
+            <div style={{ background: "#D4A853", borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(212,168,83,0.6)" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</span>
+            </div>
           </div>
         )}
+
+        {/* Large avatar centered in hero */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{
+            width: 140, height: 140, borderRadius: "50%",
+            backgroundImage: `${DARK_GRAIN}, ${profile.avatarGradient}`,
+            backgroundSize: "160px 160px, 100% 100%",
+            border: "3px solid rgba(255,255,255,0.28)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 56, color: "white", fontWeight: 300 }}>{profile.avatarInitials}</span>
+          </div>
+        </div>
+
+        {/* Name + neighbourhood overlaid at bottom */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          background: "linear-gradient(to top, rgba(7,0,7,0.9) 0%, rgba(7,0,7,0.4) 60%, transparent 100%)",
+          padding: "48px 20px 18px",
+        }}>
+          <h1 style={{
+            fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300,
+            fontSize: "clamp(36px, 10vw, 52px)", color: "white",
+            lineHeight: 0.95, margin: 0, letterSpacing: "-0.01em",
+          }}>{profile.name}.</h1>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.45)", marginTop: 8 }}>{profile.neighborhood.toUpperCase()} · NYC</p>
+        </div>
       </div>
 
-      {/* ── NAME + BIO ───────────────────────────────────────────────────────── */}
-      <div style={{ padding: "56px 20px 0" }}>
-        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 42, color: "white", lineHeight: 0.92, letterSpacing: "-0.02em", marginBottom: 6 }}>{profile.name}.</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>{profile.neighborhood.toUpperCase()} · {profile.location.toUpperCase()}</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, maxWidth: 300, marginBottom: 18 }}>{profile.bio}</p>
+      {/* ── BIO + VIBES (below hero) ─────────────────────────────────────────── */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, maxWidth: 340, marginBottom: 16 }}>{profile.bio}</p>
 
         {/* Vibe chips */}
         <div style={{ display: "flex", gap: 7, flexWrap: "wrap" as const, marginBottom: 20 }}>
