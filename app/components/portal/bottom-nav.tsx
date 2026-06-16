@@ -311,10 +311,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   function tabLabel(key: TabKey): string {
     if (key === "home")          return SLAB_LABEL[slab];
-    if (key === "happenings")    return "City";
+    if (key === "happenings")    return "The City";
     if (key === "plans")         return "Plans";
     if (key === "clubs")         return "Clubs";
-    if (key === "avenue")        return "Avenue";
+    if (key === "avenue")        return "The Avenue";
     if (key === "introductions") return "Intros";
     return key;
   }

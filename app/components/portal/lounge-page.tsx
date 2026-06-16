@@ -612,7 +612,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const referralCode   = getReferralCode(localName);
   const earnedFlowers  = ALL_FLOWERS.filter(f => (USER_EARNED_FLOWER_IDS as readonly string[]).includes(f.id));
 
-  void INTEREST_TAGS; void WITNESS_ENTRIES; void MEMORIES; void displayInitial;
+  void displayInitial;
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2400); }
   function copyLink() {
@@ -622,6 +622,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   }
 
   const [isFoundingMother, setIsFoundingMother] = useState(false);
+  const [contentTab, setContentTab] = useState<"about" | "scrapbook">("about");
 
   useEffect(() => {
     const supabase = createClient();
@@ -647,145 +648,185 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
-      {/* ══════════ PROFILE CARD PREVIEW ══════════ */}
-      <div style={{
-        background: "linear-gradient(160deg, #FFF5F8 0%, #FFFCF7 100%)",
-        padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 0",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.3)" }}>✦ THE APARTMENT</p>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
-              <div style={{ background: "rgba(255,31,125,0.07)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 999, padding: "6px 14px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>Change Style ✦</p>
-              </div>
-            </Link>
-            <Link href="/member/you" style={{ textDecoration: "none" }}>
-              <div style={{ background: PINK, borderRadius: 999, padding: "6px 14px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Edit Profile →</p>
-              </div>
-            </Link>
+      {/* ══════════ PROFILE PHOTO HERO ══════════ */}
+      <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
+        {/* Background — richly styled like a chosen profile template */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)",
+        }} />
+        {/* Texture glow circles */}
+        <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.35) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: 20, right: -30, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,180,200,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        {/* Avatar — large photo placeholder */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{
+            width: 140, height: 140, borderRadius: "50%",
+            background: "rgba(255,255,255,0.12)", border: "3px solid rgba(255,255,255,0.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+          }}>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 58, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>
+              {displayInitial}
+            </span>
           </div>
         </div>
 
-        {/* Profile card — ID card style */}
+        {/* Top bar — apt label + action buttons */}
         <div style={{
-          background: "linear-gradient(135deg, #1A0A2E 0%, #2D1050 100%)",
-          borderRadius: 20, padding: "20px", marginBottom: 2,
-          boxShadow: "0 8px 32px rgba(26,10,46,0.25), 0 2px 8px rgba(255,31,125,0.12)",
-          position: "relative", overflow: "hidden",
+          position: "absolute", top: 0, left: 0, right: 0,
+          padding: "calc(env(safe-area-inset-top, 0px) + 14px) 16px 0",
+          display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10,
         }}>
-          {/* Background glow */}
-          <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 70%)" }} />
-
-          {/* Top row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            {/* Avatar */}
-            <div style={{
-              width: 54, height: 54, borderRadius: "50%", flexShrink: 0,
-              background: "linear-gradient(135deg, #FF1F7D, #c4005a)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              border: "2.5px solid rgba(255,255,255,0.25)",
-              boxShadow: "0 4px 16px rgba(255,31,125,0.4)",
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
+          <div style={{ display: "flex", gap: 7 }}>
+            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
+              <div style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999, padding: "6px 12px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Style ✦</p>
+              </div>
+            </Link>
+            <button onClick={() => setShowEdit(true)} style={{
+              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
+              padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
             }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 900, color: "white" }}>{displayInitial}</span>
-            </div>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Edit</span>
+            </button>
+          </div>
+        </div>
 
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 22, color: "rgba(255,238,220,0.95)", lineHeight: 1.1, marginBottom: 3 }}>
-                {displayName.split(" ")[0] || displayName}.
-              </p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: "0.06em" }}>
-                {localNbhd}
-              </p>
-            </div>
-
-            {/* BloomBay mark / Founding badge */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: "rgba(255,31,125,0.7)", letterSpacing: "0.2em" }}>BLOOMBAY</p>
-              {isFoundingMother ? (
-                <div style={{ background: "rgba(212,168,83,0.2)", border: "1px solid rgba(212,168,83,0.6)", borderRadius: 4, padding: "3px 8px", boxShadow: "0 0 10px rgba(212,168,83,0.25)" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: GOLD, letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING MOTHER</p>
-                </div>
-              ) : (
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em" }}>MEMBER</p>
-              )}
+        {/* Founding Mother — tiny badge, upper-right corner of photo area */}
+        {isFoundingMother && (
+          <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
+            <div style={{ background: GOLD, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(212,168,83,0.6)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</p>
             </div>
           </div>
+        )}
 
-          {/* Bio if exists */}
-          {localBio && (
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 14, lineHeight: 1.5, fontStyle: "italic" }}>
-              &ldquo;{localBio}&rdquo;
-            </p>
-          )}
-
-          {/* Bottom strip */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 16, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: isFoundingMother ? GOLD : "rgba(255,255,255,0.2)", letterSpacing: "0.15em", fontWeight: isFoundingMother ? 800 : 400 }}>
-              {isFoundingMother ? "✦ FOUNDING MOTHER" : "MEMBER"}
-            </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.6)" }}>✦ women are gathering</p>
+        {/* Name + info overlay at bottom of photo */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          background: "linear-gradient(to top, rgba(20,4,32,0.82) 0%, rgba(20,4,32,0.4) 60%, transparent 100%)",
+          padding: "48px 20px 18px",
+        }}>
+          <h1 style={{
+            fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900,
+            fontSize: "clamp(36px, 10vw, 52px)", color: "white",
+            lineHeight: 0.95, margin: 0,
+          }}>{displayName.split(" ")[0] || "You"}.</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{localNbhd} · NYC</p>
+            <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.06em" }}>#{memberNum}</p>
           </div>
         </div>
       </div>
 
-      {/* ══════════ HERO ══════════ */}
-      <div style={{
-        background: `linear-gradient(175deg, ${DARK} 0%, #2A0818 55%, #4A0C28 100%)`,
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
-        paddingBottom: 0, position: "relative", overflow: "hidden",
-      }}>
-        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+      {/* ══════════ ABOUT / SCRAPBOOK TOGGLE ══════════ */}
+      <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
+        {(["about", "scrapbook"] as const).map(tab => (
+          <button key={tab} onClick={() => setContentTab(tab)} style={{
+            flex: 1, background: "none", border: "none", cursor: "pointer",
+            padding: "14px 0 12px",
+            borderBottom: contentTab === tab ? `2.5px solid ${PINK}` : "2.5px solid transparent",
+            WebkitTapHighlightColor: "transparent",
+          }}>
+            <span style={{
+              fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em",
+              color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
+              textTransform: "uppercase" as const,
+            }}>{tab === "about" ? "About" : "Scrapbook"}</span>
+          </button>
+        ))}
+      </div>
 
-        {/* Label */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 6, position: "relative", zIndex: 1 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.32em", color: "rgba(255,255,255,0.28)" }}>✦ &nbsp; YOUR APARTMENT &nbsp; ✦</p>
-        </div>
-
-        {/* Name */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 20px 0", gap: 8, position: "relative", zIndex: 1 }}>
-          <h1 style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
-            fontSize: "clamp(44px, 12vw, 62px)", color: "rgba(255,238,220,0.92)",
-            lineHeight: 0.92, margin: 0,
-          }}>{displayName.split(" ")[0] || "You"}.</h1>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{localNbhd} · NYC</p>
-
-          {/* Badges */}
-          <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" as const, justifyContent: "center" }}>
-            <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 4, padding: "4px 12px" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em" }}>MEMBER #{memberNum}</p>
-            </div>
-            {isFoundingMother && (
-              <div style={{ background: "rgba(212,168,83,0.18)", border: "1px solid rgba(212,168,83,0.5)", borderRadius: 4, padding: "4px 12px", boxShadow: "0 0 12px rgba(212,168,83,0.2)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: GOLD, letterSpacing: "0.12em" }}>✦ FOUNDING MOTHER</p>
-              </div>
-            )}
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: "flex", gap: 20, marginTop: 8, paddingBottom: 24 }}>
+      {/* ══════════ ABOUT TAB ══════════ */}
+      {contentTab === "about" && (
+        <div style={{ padding: "22px 20px 0" }}>
+          {/* Stats row */}
+          <div style={{ display: "flex", gap: 0, background: "white", borderRadius: 18, overflow: "hidden", marginBottom: 18, boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
             {[
               { num: gatheringCount !== null ? String(gatheringCount) : "—", label: "Events" },
               { num: clubCount !== null ? String(clubCount) : "—", label: "Clubs" },
               { num: String(ALL_BLOOMIES.length), label: "Bloomies" },
-            ].map(s => (
-              <div key={s.label} style={{ textAlign: "center" as const }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: PINK, lineHeight: 1 }}>{s.num}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)", marginTop: 2 }}>{s.label.toUpperCase()}</p>
+            ].map((s, i, arr) => (
+              <div key={s.label} style={{ flex: 1, textAlign: "center" as const, padding: "16px 8px", borderRight: i < arr.length - 1 ? "1px solid rgba(255,31,125,0.08)" : "none" }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.num}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(0,0,0,0.3)", marginTop: 3 }}>{s.label.toUpperCase()}</p>
               </div>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* ══════════ MEMBERSHIP CARD ══════════ */}
-      <div style={{ padding: "0 20px", marginTop: -18, position: "relative", zIndex: 2 }}>
-        <MembershipCard name={displayName} memberNum={memberNum} tier="FOUNDING" />
-      </div>
+          {/* Bio */}
+          {localBio && (
+            <div style={{ background: "white", borderRadius: 18, padding: "16px 18px", marginBottom: 14, boxShadow: "0 2px 12px rgba(255,31,125,0.06)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 8 }}>ABOUT</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#222", lineHeight: 1.6 }}>{localBio}</p>
+            </div>
+          )}
+
+          {/* Interest tags */}
+          <div style={{ marginBottom: 18 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+              {INTEREST_TAGS.map(t => (
+                <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Witness entries */}
+          {WITNESS_ENTRIES.length > 0 && (
+            <div style={{ marginBottom: 4 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>WHAT THEY SAY</p>
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
+                {WITNESS_ENTRIES.map((w, i) => (
+                  <div key={i} style={{ background: "white", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 8px rgba(255,31,125,0.06)", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: w.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 900, color: "white" }}>{w.initial}</span>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#333", lineHeight: 1.5, fontStyle: "italic" }}>&ldquo;{w.text}&rdquo;</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#bbb", marginTop: 4 }}>{w.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════════ SCRAPBOOK TAB ══════════ */}
+      {contentTab === "scrapbook" && (
+        <div style={{ padding: "20px 20px 0" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>MEMORIES</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {MEMORIES.map((m, i) => (
+              <div key={i} style={{
+                background: m.color, borderRadius: 16, padding: "18px 14px",
+                transform: `rotate(${m.rotate})`, transformOrigin: "center",
+                boxShadow: "0 3px 12px rgba(0,0,0,0.09)",
+                minHeight: 100, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
+              }}>
+                <span style={{ fontSize: 26 }}>{m.emoji}</span>
+                <div>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>{m.title}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{m.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 16, background: "rgba(255,31,125,0.04)", border: "1.5px dashed rgba(255,31,125,0.2)", borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: "rgba(255,31,125,0.5)" }}>+ add a memory</p>
+          </div>
+        </div>
+      )}
 
       {/* ══════════ ROOMS ══════════ */}
       <div style={{ padding: "32px 20px 0" }}>
@@ -881,18 +922,6 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             Copy
           </button>
         </div>
-      </div>
-
-      {/* ══════════ EDIT BUTTON ══════════ */}
-      <div style={{ position: "fixed", bottom: 88, right: 20, zIndex: 40 }}>
-        <button onClick={() => setShowEdit(true)}
-          style={{ display: "flex", alignItems: "center", gap: 7, padding: "10px 18px 10px 14px", borderRadius: 999, background: PINK, color: "white", border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(255,31,125,0.45)", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.06em" }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Edit
-        </button>
       </div>
 
       {/* ══════════ TOAST ══════════ */}
