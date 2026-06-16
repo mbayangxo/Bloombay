@@ -131,8 +131,8 @@ function DaySkyline({ width = 430, height = 700 }: { width?: number; height?: nu
     idx++;
   }
 
-  // Soft pink/rose/cream palette
-  const colors = ["#FFD6EA","#FFABD4","#FFB3D9","#FFC8E8","#F5C8FF","#FFD6FF","#FFCCE8","#FFB8D4","#FFE0F0","#F8D6FF"];
+  // Uniform dusky-mauve silhouette palette — all similar tones so the skyline reads as one cohesive shape
+  const colors = ["#8B6090","#7A5280","#966898","#7E5888","#8A6092"];
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice"
@@ -620,6 +620,24 @@ const GIRL_FAVS = [
 // ═══════════════════════════════════════════════════════════════════════════════
 function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) => void; onSwipeBack: () => void }) {
   const [hovered, setHovered] = useState<CityCategory | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQ, setSearchQ] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const searchResults = searchQ.trim().length > 0
+    ? HOOD_INDEX.filter(h =>
+        h.name.toLowerCase().includes(searchQ.toLowerCase()) ||
+        h.borough.toLowerCase().includes(searchQ.toLowerCase()) ||
+        h.tags.some(t => t.includes(searchQ.toLowerCase()))
+      )
+    : [];
+
+  function openSearch() {
+    setSearchOpen(true);
+    setSearchQ("");
+    setTimeout(() => searchRef.current?.focus(), 80);
+  }
+
   return (
     <div style={{
       background: "linear-gradient(180deg, #FFB3D9 0%, #FF8FB8 20%, #FFC090 55%, #FFDFC8 100%)", minHeight: "100vh", paddingBottom: 100, position: "relative", overflow: "hidden",
@@ -631,6 +649,76 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
         background: "radial-gradient(ellipse at 50% 90%, rgba(255,31,125,0.12) 0%, transparent 65%)" }}/>
 
       <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Neighborhood search overlay */}
+        {searchOpen && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 100,
+            background: "rgba(20,8,32,0.82)", backdropFilter: "blur(18px)",
+            display: "flex", flexDirection: "column", padding: "calc(env(safe-area-inset-top,0px) + 60px) 20px 32px",
+          }} onClick={(e) => { if (e.target === e.currentTarget) setSearchOpen(false); }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+              <div style={{
+                flex: 1, display: "flex", alignItems: "center", gap: 10,
+                background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.22)",
+                borderRadius: 14, padding: "12px 16px",
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  ref={searchRef}
+                  value={searchQ}
+                  onChange={e => setSearchQ(e.target.value)}
+                  placeholder="Search a neighborhood…"
+                  style={{
+                    flex: 1, background: "none", border: "none", outline: "none",
+                    fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 500, color: "white",
+                  }}
+                />
+              </div>
+              <button onClick={() => setSearchOpen(false)} style={{
+                background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)",
+                borderRadius: 10, padding: "10px 14px", cursor: "pointer", color: "white",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
+              }}>CANCEL</button>
+            </div>
+
+            {searchQ.trim() === "" && (
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>ALL NEIGHBORHOODS</p>
+                {HOOD_INDEX.map(h => (
+                  <button key={h.slug} onClick={() => setSearchOpen(false)}
+                    style={{ width: "100%", background: "none", border: "none", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>{h.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", margin: 0, marginTop: 2 }}>{h.tags.slice(0,3).join(" · ")}</p>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>{h.borough.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {searchResults.length > 0 && (
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>{searchResults.length} RESULT{searchResults.length > 1 ? "S" : ""}</p>
+                {searchResults.map(h => (
+                  <button key={h.slug} onClick={() => setSearchOpen(false)}
+                    style={{ width: "100%", background: "none", border: "none", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>{h.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", margin: 0, marginTop: 2 }}>{h.tags.slice(0,3).join(" · ")}</p>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>{h.borough.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {searchQ.trim() !== "" && searchResults.length === 0 && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 32 }}>No neighborhoods found.</p>
+            )}
+          </div>
+        )}
+
         {/* Header row */}
         <div style={{ padding: "72px 22px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
@@ -640,6 +728,17 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>restaurants, bars &amp; more</p>
             </div>
           </div>
+          {/* Search + back buttons */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, marginTop: 6 }}>
+          <div style={{ display: "flex", gap: 7 }}>
+            <button onClick={openSearch} style={{
+              background: "rgba(255,255,255,0.22)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.4)", borderRadius: 999,
+              width: 34, height: 34, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              WebkitTapHighlightColor: "transparent",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.3" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
           <button onClick={onSwipeBack} style={{
             marginTop: 6, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(8px)",
             border: "1px solid rgba(255,255,255,0.5)", borderRadius: 999,
@@ -648,66 +747,76 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.08em" }}>SIGNS</span>
           </button>
-        </div>
+          </div>{/* end flex row of buttons */}
+          </div>{/* end column wrapper */}
+        </div>{/* end header row */}
 
-        {/* ── GIRL GEMS + GIRL FAVORITES entry tiles ── */}
-        <div style={{ padding: "20px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {/* Girl Gems tile */}
-          <button
-            onClick={() => onSelect("girl_gems")}
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}
-          >
+        {/* ── GIRL GEMS + GIRL FAVORITES — literal object tiles ── */}
+        <div style={{ padding: "6px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {/* Girl Gems — gemstone object */}
+          <button onClick={() => onSelect("girl_gems")}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}>
             <div style={{
-              background: "linear-gradient(145deg, rgba(139,69,19,0.6) 0%, rgba(114,47,55,0.7) 100%)",
-              backdropFilter: "blur(12px)",
-              borderRadius: 20,
-              padding: "18px 16px",
-              border: "1px solid rgba(255,255,255,0.1)",
-              minHeight: 140,
-              display: "flex",
-              flexDirection: "column" as const,
-              justifyContent: "space-between",
-              position: "relative" as const,
-              overflow: "hidden",
+              background: "linear-gradient(145deg, #FDEEF7 0%, #FAD8ED 60%, #F8C8E8 100%)",
+              borderRadius: 20, padding: "16px 16px 14px",
+              border: "1px solid rgba(255,100,160,0.25)",
+              minHeight: 130, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
+              position: "relative" as const, overflow: "hidden",
+              boxShadow: "0 4px 20px rgba(255,31,125,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
             }}>
-              <div style={{ position: "absolute", top: -20, right: -20, fontSize: 64, opacity: 0.12, lineHeight: 1 }}>💎</div>
-              <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>GIRL GEMS</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.1 }}>spots only<br />we know</p>
+              {/* Gemstone SVG */}
+              <div style={{ position: "absolute", bottom: -8, right: -8 }}>
+                <svg width="72" height="64" viewBox="0 0 72 64" fill="none">
+                  <defs>
+                    <linearGradient id="gem1" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="rgba(255,180,220,0.9)"/>
+                      <stop offset="100%" stopColor="rgba(255,100,170,0.6)"/>
+                    </linearGradient>
+                  </defs>
+                  <polygon points="36,4 66,20 58,60 14,60 6,20" fill="url(#gem1)" stroke="rgba(255,31,125,0.2)" strokeWidth="1"/>
+                  <polygon points="36,4 66,20 36,34" fill="rgba(255,220,240,0.7)"/>
+                  <polygon points="36,4 6,20 36,34" fill="rgba(255,200,230,0.5)"/>
+                  <polygon points="36,34 66,20 58,60" fill="rgba(255,160,210,0.4)"/>
+                  <polygon points="36,34 6,20 14,60" fill="rgba(255,140,200,0.3)"/>
+                  <line x1="36" y1="4" x2="36" y2="34" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"/>
+                </svg>
               </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>GIRL GEMS</p>
               <div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{GIRL_GEMS.length} hidden gems ✦</p>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.7)" }}>EXPLORE →</span>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#3A0020", lineHeight: 1.15 }}>spots only<br/>we know</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10, letterSpacing: "0.06em" }}>EXPLORE →</p>
               </div>
             </div>
           </button>
 
-          {/* Girl Favorites tile */}
-          <button
-            onClick={() => onSelect("girl_favs")}
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}
-          >
+          {/* Girl Favs — heart charm object */}
+          <button onClick={() => onSelect("girl_favs")}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}>
             <div style={{
-              background: "linear-gradient(145deg, rgba(180,30,80,0.65) 0%, rgba(200,0,96,0.6) 100%)",
-              backdropFilter: "blur(12px)",
-              borderRadius: 20,
-              padding: "18px 16px",
-              border: "1px solid rgba(255,31,125,0.2)",
-              minHeight: 140,
-              display: "flex",
-              flexDirection: "column" as const,
-              justifyContent: "space-between",
-              position: "relative" as const,
-              overflow: "hidden",
+              background: "linear-gradient(145deg, #FFF0F5 0%, #FFDFEE 60%, #FFD0E8 100%)",
+              borderRadius: 20, padding: "16px 16px 14px",
+              border: "1px solid rgba(255,31,125,0.18)",
+              minHeight: 130, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
+              position: "relative" as const, overflow: "hidden",
+              boxShadow: "0 4px 20px rgba(255,31,125,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
             }}>
-              <div style={{ position: "absolute", top: -20, right: -20, fontSize: 64, opacity: 0.12, lineHeight: 1 }}>♡</div>
-              <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>GIRL FAVS</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.1 }}>most saved<br />this month</p>
+              {/* Heart object SVG */}
+              <div style={{ position: "absolute", bottom: -8, right: -8 }}>
+                <svg width="68" height="62" viewBox="0 0 68 62" fill="none">
+                  <defs>
+                    <radialGradient id="heart1" cx="50%" cy="40%" r="60%">
+                      <stop offset="0%" stopColor="rgba(255,120,170,0.8)"/>
+                      <stop offset="100%" stopColor="rgba(200,0,80,0.5)"/>
+                    </radialGradient>
+                  </defs>
+                  <path d="M34 52 C34 52 4 36 4 18 C4 8 11 2 20 4 C26 5 32 10 34 14 C36 10 42 5 48 4 C57 2 64 8 64 18 C64 36 34 52 34 52Z" fill="url(#heart1)"/>
+                  <path d="M20 10 C16 12 14 16 15 20" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                </svg>
               </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>GIRL FAVS</p>
               <div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Top {GIRL_FAVS.length} picks ♡</p>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.7)" }}>SEE ALL →</span>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#3A0020", lineHeight: 1.15 }}>most saved<br/>this month</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10, letterSpacing: "0.06em" }}>SEE ALL →</p>
               </div>
             </div>
           </button>
