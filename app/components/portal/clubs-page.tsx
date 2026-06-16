@@ -44,11 +44,20 @@ const NEAR_YOU_GRADS = [
   "linear-gradient(135deg,#A8004C,#E8006A)",
 ];
 
+const ONBOARDING_STEPS = [
+  "Join 3 clubs",
+  "Save 5 places",
+  "Attend 1 gathering",
+  "Introduce yourself",
+];
+
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [clubs, setClubs] = useState<RealClub[]>([]);
   const [happenings, setHappenings] = useState<RealGathering[]>([]);
   const [nearYou, setNearYou] = useState(NEAR_YOU_FALLBACK);
+  const [checkedSteps, setCheckedSteps] = useState<boolean[]>([false, false, false, false]);
+  const allDone = checkedSteps.every(Boolean);
 
   useEffect(() => {
     const supabase = createClient();
@@ -332,34 +341,47 @@ export function ClubsPage() {
           </div>
         </div>
 
-        {/* NEW HERE — bright cream card */}
-        <div style={{
-          background: "#FFF8F0",
-          backgroundImage: PAPER_TEX,
-          backgroundSize: "200px 200px",
-          padding: "18px 14px",
-          boxShadow: "3px 5px 22px rgba(0,0,0,0.5)",
-          transform: "rotate(1.2deg)",
-          position: "relative",
-        }}>
-          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>NEW HERE?</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-            {[
-              { n: "1.", text: "join 3 clubs ☆" },
-              { n: "2.", text: "save 5 places ☆" },
-              { n: "3.", text: "attend 1 gathering ✦" },
-              { n: "4.", text: "introduce yourself" },
-            ].map((step, i) => (
-              <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
-                <span style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: PINK, flexShrink: 0, lineHeight: 1.3 }}>{step.n}</span>
-                <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: DARK, opacity: 0.7, lineHeight: 1.4 }}>{step.text}</span>
-              </div>
-            ))}
+        {/* NEW HERE — interactive checklist, disappears when all done */}
+        {!allDone && (
+          <div style={{
+            background: "#FFF8F0",
+            backgroundImage: PAPER_TEX,
+            backgroundSize: "200px 200px",
+            padding: "18px 14px",
+            boxShadow: "3px 5px 22px rgba(0,0,0,0.5)",
+            transform: "rotate(1.2deg)",
+            position: "relative",
+          }}>
+            <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>NEW HERE?</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {ONBOARDING_STEPS.map((text, i) => {
+                const done = checkedSteps[i];
+                return (
+                  <button key={i} onClick={() => setCheckedSteps(prev => { const n=[...prev]; n[i]=!n[i]; return n; })}
+                    style={{ display: "flex", gap: 8, alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}>
+                    <div style={{
+                      width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+                      border: `1.5px solid ${done ? PINK : "rgba(0,0,0,0.2)"}`,
+                      background: done ? PINK : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.18s",
+                    }}>
+                      {done && (
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      )}
+                    </div>
+                    <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: DARK, opacity: done ? 0.35 : 0.7, lineHeight: 1.4, textDecoration: done ? "line-through" : "none" }}>{text}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button style={{ marginTop: 14, fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              START YOUR JOURNEY →
+            </button>
           </div>
-          <button style={{ marginTop: 14, fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-            START YOUR JOURNEY →
-          </button>
-        </div>
+        )}
       </section>
 
       {/* ══════════ CLUB SPOTLIGHT ══════════ */}

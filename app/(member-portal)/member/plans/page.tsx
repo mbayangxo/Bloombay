@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { BloomiesPlanner } from "@/app/components/portal/bloomies-planner";
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
@@ -1481,14 +1481,9 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
 // ── Wallet ─────────────────────────────────────────────────────────────────────
 
 function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typeof THEME; onOpen: (room: PlanRoom) => void }) {
-  const [walletOpen, setWalletOpen] = useState(false);
-  const [filter, setFilter] = useState<"active" | "used" | "expired">("active");
+  const router = useRouter();
   void theme;
 
-  const activeRooms  = rooms;
-  const usedRooms    = RETIRED_ROOMS;
-  const expiredRooms = EXPIRED_ROOMS;
-  const displayRooms = filter === "active" ? activeRooms : filter === "used" ? usedRooms : expiredRooms;
   const allActive    = rooms;
   const stackItems   = allActive.slice(0, 4);
 
@@ -1512,11 +1507,9 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   return (
     <div style={{ paddingBottom: 20 }}>
 
-      {!walletOpen ? (
-
-        /* ── WALLET CLOSED — real leather wallet with tickets tucked inside ── */
+        /* ── WALLET — tapping navigates to /member/plans/tickets ── */
         <button
-          onClick={() => setWalletOpen(true)}
+          onClick={() => router.push("/member/plans/tickets")}
           className="active:scale-[0.985] transition-transform"
           style={{ width: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
         >
@@ -1666,79 +1659,6 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
           </div>
         </button>
 
-      ) : (
-
-        /* ── WALLET OPEN — leather header + filter tabs + ticket list ── */
-        <div>
-
-          {/* Leather wallet header */}
-          <div style={{
-            margin: "0 16px 12px",
-            padding: "13px 16px 14px",
-            borderRadius: 18,
-            background: "linear-gradient(135deg, #FFD0E6 0%, #FFAED4 60%, #FFB8D8 100%)",
-            backgroundImage: GRAIN,
-            boxShadow: "0 4px 24px rgba(255,31,125,0.18), inset 0 1px 0 rgba(255,255,255,0.5)",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 16 }}>🎀</span>
-              </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.55)", marginBottom: 2 }}>BLOOMBAY</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: "rgba(120,0,50,0.8)", lineHeight: 1 }}>My Wallet</p>
-              </div>
-            </div>
-            <button onClick={() => setWalletOpen(false)}
-              style={{ padding: "6px 12px", borderRadius: 10, background: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,31,125,0.2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(120,0,50,0.6)", letterSpacing: "0.06em" }}>CLOSE</p>
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(180,0,70,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
-            </button>
-          </div>
-
-          {/* 3-tab filter */}
-          <div style={{ display: "flex", padding: "0 16px 14px", gap: 6 }}>
-            {([
-              { key: "active",  label: "ACTIVE",  count: activeRooms.length  },
-              { key: "used",    label: "USED",    count: usedRooms.length    },
-              { key: "expired", label: "EXPIRED", count: expiredRooms.length },
-            ] as const).map(t => (
-              <button key={t.key} onClick={() => setFilter(t.key)} style={{
-                flex: 1, padding: "8px 0", borderRadius: 12,
-                background: filter === t.key ? PINK : "rgba(255,31,125,0.07)",
-                border: "none", cursor: "pointer", transition: "all 0.15s",
-                boxShadow: filter === t.key ? `0 2px 0 rgba(150,0,55,0.7), 0 4px 12px ${PINK}44` : "none",
-              }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.1em", color: filter === t.key ? "white" : "#bbb" }}>{t.label}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: filter === t.key ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.25)", marginTop: 1 }}>{t.count}</p>
-              </button>
-            ))}
-          </div>
-
-          {/* Ticket list */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 16px 16px" }}>
-            {displayRooms.length === 0 ? (
-              <div style={{ padding: "28px 0", textAlign: "center" as const }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#ccc" }}>
-                  {filter === "active" ? "No upcoming tickets." : filter === "used" ? "No used tickets yet." : "No expired tickets."}
-                </p>
-              </div>
-            ) : displayRooms.map(room => (
-              <TicketCard key={room.id} room={room} status={filter} onOpen={() => onOpen(room)} />
-            ))}
-
-            {filter === "active" && (
-              <div style={{ width: "100%", height: 64, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.2)`, background: "rgba(255,31,125,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.45)", letterSpacing: "0.08em" }}>JOIN AN EVENT TO GET A TICKET</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -246,33 +246,8 @@ function HostTabContent({ showOther, setShowOther, otherText, setOtherText, goCu
         </div>
       )}
 
-      {/* ── Tradition promo ── */}
-      <button
-        onClick={onTradition}
-        style={{
-          width: "100%", marginBottom: 16,
-          background: "linear-gradient(145deg, #1A0830, #3D1060)",
-          border: `1.5px solid ${PINK}44`, borderRadius: 20, padding: "18px",
-          cursor: "pointer", textAlign: "left" as const, position: "relative" as const, overflow: "hidden" as const,
-        }}
-      >
-        <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}30 0%, transparent 70%)`, pointerEvents: "none" }} />
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}CC`, marginBottom: 8 }}>✦ BUILD SOMETHING THAT LASTS</p>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1, margin: 0 }}>Start a Tradition.</p>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 6 }}>First Friday Dinner. Monthly Museum Girls. Sunday Walk Club.</p>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: PINK, borderRadius: 999, padding: "6px 14px" }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>CREATE TRADITION →</span>
-        </div>
-      </button>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0 14px" }}>
-        <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#C0A0B0" }}>or</p>
-        <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.07)" }} />
-      </div>
-
       <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
-        <div style={{ borderRadius: 20, background: `linear-gradient(145deg, ${DARK} 0%, #2E2230 100%)`, boxShadow: "0 8px 28px rgba(28,27,28,0.3)", padding: "22px", position: "relative", overflow: "hidden" }}>
+        <div style={{ borderRadius: 20, background: `linear-gradient(145deg, ${DARK} 0%, #2E2230 100%)`, boxShadow: "0 8px 28px rgba(28,27,28,0.3)", padding: "22px", position: "relative", overflow: "hidden", marginBottom: 12 }}>
           <div style={{ position: "absolute", top: -20, right: -20, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}33 0%, transparent 70%)`, pointerEvents: "none" }} />
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.3em", color: `${PINK}BB`, marginBottom: 8 }}>FOR SOMETHING THAT LASTS</p>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15 }}>Start a club.</p>
@@ -280,6 +255,21 @@ function HostTabContent({ showOther, setShowOther, otherText, setOtherText, goCu
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.14em", color: PINK, marginTop: 14 }}>BUILD IT →</p>
         </div>
       </Link>
+
+      {/* ── Tradition — smaller secondary link ── */}
+      <button
+        onClick={onTradition}
+        style={{ width: "100%", background: "rgba(255,31,125,0.06)", border: `1px solid ${PINK}22`, borderRadius: 14, padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", WebkitTapHighlightColor: "transparent" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 16 }}>🕯️</span>
+          <div style={{ textAlign: "left" as const }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: DARK }}>Start a Tradition</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.4)" }}>First Friday Dinner. Monthly Museum Girls.</p>
+          </div>
+        </div>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
   );
 }
