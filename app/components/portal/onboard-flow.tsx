@@ -306,6 +306,205 @@ function ScatteredBlobs({ items, selected, toggle }: { items: string[]; selected
   );
 }
 
+// ─── INTRO SLIDES ────────────────────────────────────────────────────────────
+
+const SLIDES = [
+  {
+    bg: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 60%, #FF4D8A 100%)",
+    kicker: "✦ New York City · 2026 ✦",
+    headline: "A world built\nfor women.",
+    body: "BloomBay is the first real social platform just for women in New York City. No algorithms, no noise — just your people.",
+    icon: "🌸",
+  },
+  {
+    bg: "linear-gradient(158deg, #6B003A 0%, #A8004E 20%, #FF1F7D 65%, #FF69B4 100%)",
+    kicker: "✦ FIND YOUR PEOPLE ✦",
+    headline: "Join a club.\nFind your girls.",
+    body: "Dinner Society. Museum Girls. Book Club. Wellness Circle. Small, intimate clubs where real friendships are made.",
+    icon: "✿",
+  },
+  {
+    bg: "linear-gradient(158deg, #7A0040 0%, #B80052 18%, #FF1F7D 58%, #FF8CB3 100%)",
+    kicker: "✦ EVERY WEEK ✦",
+    headline: "Real events.\nCurated for you.",
+    body: "Dinners, walks, brunches, cultural nights. Every gathering is matched to who you are and where you live.",
+    icon: "🌺",
+  },
+  {
+    bg: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 60%, #FF4D8A 100%)",
+    kicker: "✦ YOU BELONG HERE ✦",
+    headline: "2,400+ women\nare waiting.",
+    body: "Your table is already set. Your people are already here. All you have to do is show up.",
+    icon: "✦",
+    isFinal: true,
+  },
+];
+
+function IntroSlides({ onDone }: { onDone: () => void }) {
+  const [slide, setSlide] = React.useState(0);
+  const [exiting, setExiting] = React.useState(false);
+  const touchStart = React.useRef<number | null>(null);
+
+  function next() {
+    if (slide < SLIDES.length - 1) {
+      setExiting(true);
+      setTimeout(() => { setSlide((s) => s + 1); setExiting(false); }, 220);
+    } else {
+      onDone();
+    }
+  }
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStart.current = e.touches[0].clientX;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStart.current === null) return;
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    if (diff > 40) next();
+    touchStart.current = null;
+  }
+
+  const s = SLIDES[slide];
+
+  return (
+    <div
+      className="fixed inset-0 flex flex-col"
+      style={{ background: s.bg, transition: "background 0.5s ease" }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Film grain overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`,
+        opacity: 0.65,
+      }} />
+
+      {/* Concentric rings */}
+      {[88, 66, 46].map((vw, i) => (
+        <div key={i} className="absolute pointer-events-none" style={{
+          left: "50%", top: "38%",
+          width: `${vw}vw`, height: `${vw}vw`,
+          transform: "translate(-50%,-50%)",
+          borderRadius: "50%",
+          border: `1px solid rgba(255,255,255,${[0.08, 0.05, 0.03][i]})`,
+        }} />
+      ))}
+
+      {/* Ghost BLOOM watermark */}
+      <div className="absolute pointer-events-none select-none" style={{ bottom: "18%", left: "-8px", right: 0, overflow: "hidden", zIndex: 0 }}>
+        <p style={{
+          fontFamily: "var(--font-playfair)", fontWeight: 900,
+          fontSize: "clamp(108px,36vw,200px)", lineHeight: 0.78,
+          color: "rgba(255,255,255,0.065)",
+          letterSpacing: "-0.04em", whiteSpace: "nowrap",
+        }}>BLOOM</p>
+      </div>
+
+      {/* Top bar */}
+      <div className="relative flex items-center justify-between px-6 pt-14 pb-2" style={{ zIndex: 2 }}>
+        <div className="flex items-center gap-2">
+          <BBLogo size={26} />
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.92)" }}>BloomBay</p>
+        </div>
+        <button
+          onClick={onDone}
+          style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}
+        >
+          SKIP
+        </button>
+      </div>
+
+      {/* Slide progress dots */}
+      <div className="relative flex items-center justify-center gap-2 pt-3" style={{ zIndex: 2 }}>
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setSlide(i)}
+            style={{
+              width: i === slide ? 22 : 6,
+              height: 6,
+              borderRadius: 99,
+              background: i === slide ? "white" : "rgba(255,255,255,0.3)",
+              transition: "all 0.3s ease",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Slide content */}
+      <div
+        className="relative flex-1 flex flex-col justify-center px-8"
+        style={{ zIndex: 2, opacity: exiting ? 0 : 1, transform: exiting ? "translateX(-20px)" : "translateX(0)", transition: "opacity 0.22s ease, transform 0.22s ease" }}
+      >
+        {/* Kicker */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25))" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.52)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            {s.kicker}
+          </p>
+          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,255,255,0.25), transparent)" }} />
+        </div>
+
+        {/* Large icon */}
+        <p style={{ fontSize: "clamp(52px,16vw,72px)", lineHeight: 1, marginBottom: 20 }}>{s.icon}</p>
+
+        {/* Headline */}
+        <h1 style={{
+          fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic",
+          fontSize: "clamp(44px,13vw,62px)",
+          color: "white", lineHeight: 0.9,
+          letterSpacing: "-0.03em", margin: "0 0 20px",
+          whiteSpace: "pre-line",
+        }}>{s.headline}</h1>
+
+        {/* Body */}
+        <p style={{
+          fontFamily: "var(--font-jost)", fontWeight: 400,
+          fontSize: "clamp(14px,3.8vw,17px)",
+          color: "rgba(255,255,255,0.7)",
+          lineHeight: 1.55, maxWidth: "340px",
+        }}>{s.body}</p>
+      </div>
+
+      {/* Bottom CTA */}
+      <div
+        className="relative px-6 pb-safe"
+        style={{
+          background: "rgba(0,0,0,0.3)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255,255,255,0.09)",
+          paddingTop: 20,
+          paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 24px)",
+          zIndex: 2,
+        }}
+      >
+        <button
+          onClick={next}
+          className="w-full py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all active:scale-[0.98]"
+          style={{
+            fontFamily: "var(--font-jost)",
+            background: "white",
+            color: "#FF1F7D",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.24)",
+            letterSpacing: "0.14em",
+          }}
+        >
+          {slide < SLIDES.length - 1 ? "NEXT →" : "JOIN BLOOMBAY →"}
+        </button>
+
+        <p className="text-center mt-3" style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.38)" }}>
+          Already a member?{" "}
+          <a href="/login" style={{ color: "rgba(255,255,255,0.65)", fontWeight: 700 }}>Sign in</a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function WelcomeSplash({ onStart }: { onStart: () => void }) {
   const [agreeTerms, setAgreeTerms]     = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
@@ -538,6 +737,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
 
 export function OnboardFlow() {
   const router = useRouter();
+  const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -591,6 +791,7 @@ export function OnboardFlow() {
   function advance() { setStep((s) => s + 1); setError(null); }
   function goBack()  { setStep((s) => s - 1); setError(null); }
 
+  if (showIntro) return <IntroSlides onDone={() => setShowIntro(false)} />;
   if (step === 0 && !emailVerificationSent) return <WelcomeSplash onStart={advance} />;
 
   async function getUser() {

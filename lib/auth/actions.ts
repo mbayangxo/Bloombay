@@ -66,15 +66,18 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   });
   if (error) return { error: error.message };
 
-  // Get role from profiles
+  // Get role and onboarding status from profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, onboarding_completed")
     .eq("id", data.user.id)
     .single();
 
   const role = (profile?.role ?? "member") as UserRole;
   revalidatePath("/", "layout");
+  if (role === "member" && !profile?.onboarding_completed) {
+    redirect("/onboard");
+  }
   redirect(getPortalHomeForRole(role));
 }
 

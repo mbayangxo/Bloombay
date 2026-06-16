@@ -138,11 +138,11 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "map" | "city";
-type Filter = "All" | "Tonight" | "This Weekend" | "Invitations" | "Open Seats" | "Gatherings" | "Club Events" | "Parties" | "Dinners";
+type HapTab = "happenings" | "map" | "scene";
+type Filter = "All" | "Parties" | "Dinners" | "Gatherings" | "Club Gatherings" | "Invitations" | "Open Seats" | "Tables" | "Confetti" | "Events";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
-const FILTERS: Filter[] = ["All", "Tonight", "This Weekend", "Invitations", "Open Seats", "Gatherings", "Club Events", "Parties", "Dinners"];
+const FILTERS: Filter[] = ["All", "Parties", "Dinners", "Gatherings", "Club Gatherings", "Invitations", "Open Seats", "Tables", "Confetti", "Events"];
 
 const CATEGORY_CHIPS: { id: CategoryFilter; emoji: string; label: string }[] = [
   { id: "arts",   emoji: "🎨", label: "Arts"   },
@@ -169,16 +169,15 @@ function getBadge(ev: Event): string {
 }
 
 function matchesFilter(ev: Event, filter: Filter): boolean {
-  if (filter === "All") return true;
-  const badge = getBadge(ev);
-  if (filter === "Tonight") return badge === "TONIGHT";
-  if (filter === "This Weekend") return badge === "THIS WEEKEND" || badge === "TONIGHT";
+  if (filter === "All" || filter === "Events") return true;
   if (filter === "Dinners") return ev.event_type === "dinner" || ev.event_type === "brunch";
   if (filter === "Parties") return ev.event_type === "party" || ev.event_type === "rooftop" || ev.event_type === "social";
   if (filter === "Gatherings") return ev.event_type === "gathering" || ev.event_type === "casual" || ev.event_type === "walk";
-  if (filter === "Club Events") return ev.event_type === "club" || ev.event_type === "club_event";
+  if (filter === "Club Gatherings") return ev.event_type === "club" || ev.event_type === "club_event";
   if (filter === "Invitations") return ev.event_type === "invitation" || ev.event_type === "private";
   if (filter === "Open Seats") return ev.event_type === "open_seat";
+  if (filter === "Tables") return ev.event_type === "table" || ev.event_type === "reservation";
+  if (filter === "Confetti") return ev.event_type === "confetti" || ev.event_type === "spontaneous";
   return true;
 }
 
@@ -265,7 +264,7 @@ const TYPE_CARDS = [
     subColor: "rgba(232,0,106,0.45)",
   },
   {
-    label: "Club Events",
+    label: "Club Gatherings",
     emoji: "◆",
     bg: "#FFECF4",
     color: "#B8005A",
@@ -305,6 +304,34 @@ const TYPE_CARDS = [
     spacing: "0.1em",
     sub: "Last spots",
     subColor: "rgba(204,0,88,0.45)",
+  },
+  {
+    label: "Tables",
+    emoji: "🥂",
+    bg: "#F5F8FF",
+    color: "#3A5BBF",
+    border: "1px solid rgba(58,91,191,0.2)",
+    glow: "0 4px 16px rgba(58,91,191,0.1)",
+    font: "var(--font-playfair)",
+    weight: 400,
+    size: 15,
+    spacing: "0em",
+    sub: "reserve your seat",
+    subColor: "rgba(58,91,191,0.5)",
+  },
+  {
+    label: "Confetti",
+    emoji: "🎊",
+    bg: "#FFFBEC",
+    color: "#B87A00",
+    border: "1px solid rgba(184,122,0,0.2)",
+    glow: "0 4px 16px rgba(184,122,0,0.1)",
+    font: "var(--font-caveat)",
+    weight: 700,
+    size: 16,
+    spacing: "0em",
+    sub: "spontaneous joy",
+    subColor: "rgba(184,122,0,0.5)",
   },
   {
     label: "Events",
@@ -964,6 +991,51 @@ function StaticCollage() {
   );
 }
 
+/* ── Scene buildings (city guide categories) ─────────────── */
+const SCENE_CATS = [
+  { label: "EAT",        sub: "tables for one or ten",    color: "#FF1F7D", icon: "🍽",  pct: 88, href: "/member/city/eat" },
+  { label: "GO",         sub: "places to be seen",        color: "#E07040", icon: "🗺",  pct: 76, href: "/member/city/go" },
+  { label: "SOLO",       sub: "her solo scene",           color: "#5070C8", icon: "🎧",  pct: 83, href: "/member/city/solo" },
+  { label: "GIRL GEMS",  sub: "curated by Bloomies",      color: "#C040A8", icon: "💎",  pct: 70, href: "/member/city/gems" },
+  { label: "TRENDING",   sub: "what's hot right now",     color: "#E040B0", icon: "✦",   pct: 79, href: "/member/city/trending" },
+];
+
+function SceneBuilding({ cat, idx }: { cat: typeof SCENE_CATS[number]; idx: number }) {
+  return (
+    <Link href={cat.href} style={{ textDecoration: "none", display: "block" }}>
+      <div style={{
+        width: `${cat.pct}%`,
+        height: 78,
+        background: cat.color,
+        backgroundImage: "radial-gradient(rgba(255,255,255,0.18) 1.5px, transparent 1.5px)",
+        backgroundSize: "10px 10px",
+        borderRadius: "0 18px 18px 0",
+        display: "flex", alignItems: "center",
+        padding: "0 18px 0 20px",
+        gap: 14,
+        boxShadow: `0 5px 22px ${cat.color}44, inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.1)`,
+        position: "relative", overflow: "hidden",
+        transition: "transform 0.18s",
+        cursor: "pointer",
+      }}>
+        {/* Gloss */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "42%", background: "linear-gradient(to bottom, rgba(255,255,255,0.2), transparent)", pointerEvents: "none" }}/>
+        {/* Icon box */}
+        <div style={{ width: 44, height: 44, borderRadius: 11, flexShrink: 0, background: "rgba(0,0,0,0.22)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 21 }}>{cat.icon}</span>
+        </div>
+        {/* Labels */}
+        <div style={{ flex: 1 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 900, color: "white", letterSpacing: "0.07em", lineHeight: 1 }}>{cat.label}</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 3 }}>{cat.sub}</p>
+        </div>
+        {/* Arrow */}
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </Link>
+  );
+}
+
 /* ── FAB ─────────────────────────────────────────────────── */
 function CreateFAB() {
   return (
@@ -1179,7 +1251,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         {/* Center: HAPPENINGS | MAP | CITY toggle */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {([["happenings","HAPPENINGS"],["map","MAP"],["city","CITY"]] as [HapTab, string][]).map(([t, label]) => (
+            {([["happenings","HAPPENINGS"],["map","MAP"],["scene","CITY"]] as [HapTab, string][]).map(([t, label]) => (
               <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
                 padding: "5px 10px", borderRadius: 999, border: "none",
                 background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
@@ -1625,7 +1697,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         )}
 
         {/* ── CITY TAB (standalone only — embedded in CityPage when not standalone) ── */}
-        {standalone && tab === "city" && (
+        {standalone && tab === "scene" && (
           <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)" }}>
             <div style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>

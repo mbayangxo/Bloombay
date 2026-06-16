@@ -69,6 +69,7 @@ function isPublicPath(pathname: string): boolean {
   if (pathname === "/member" || pathname === "/member/") return true;
   if (pathname.startsWith("/api/auth") || pathname.startsWith("/auth/")) return true;
   if (pathname.startsWith("/api/admin/login") || pathname.startsWith("/api/admin/logout")) return true;
+  if (pathname === "/onboard" || pathname === "/onboard/") return true;
   return LOGIN_PATHS.has(pathname) || isCompanyAuthPath(pathname) || pathname === "/member/join";
 }
 
