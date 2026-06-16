@@ -264,11 +264,11 @@ export function LoginPage() {
         </div>
 
         <Link
-          href="/waitlist"
+          href="/onboard"
           className="block text-center w-full py-4 rounded-full border-2 font-bold text-base hover:bg-pink-50 transition-all"
           style={{ borderColor: "var(--bb-pink)", color: "var(--bb-pink)" }}
         >
-          New? Join the Waitlist 🌸
+          New here? Create your account →
         </Link>
 
         {/* Social proof */}
