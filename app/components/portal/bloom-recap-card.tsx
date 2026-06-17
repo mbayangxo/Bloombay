@@ -107,78 +107,107 @@ export function BloomRecapCard({ onDismiss }: { onDismiss?: () => void }) {
   if (dismissed) return null;
 
   function handleView() { setOpen(true); }
-
-  function handleDismiss() {
-    setDismissed(true);
-    onDismiss?.();
-  }
+  function handleDismiss() { setDismissed(true); onDismiss?.(); }
 
   return (
     <>
-      <div style={{ padding: "18px 16px 0" }}>
-        <div style={{
-          position: "relative",
-          borderRadius: 20,
-          overflow: "hidden",
-          background: `linear-gradient(135deg, ${PLUM} 0%, #2E0A1C 100%)`,
-          boxShadow: "0 4px 24px rgba(26,10,46,0.3)",
-        }}>
-          {/* Subtle petal watermark */}
-          <svg style={{ position: "absolute", right: -16, top: -16, opacity: 0.06 }} width="140" height="140" viewBox="0 0 140 140" fill="none">
-            {[0,1,2,3,4].map(i => {
-              const a = (i/5)*Math.PI*2;
-              return <ellipse key={i} cx={70+Math.cos(a)*42} cy={70+Math.sin(a)*42} rx="20" ry="36" fill="white" transform={`rotate(${i*72} ${70+Math.cos(a)*42} ${70+Math.sin(a)*42})`} />;
-            })}
-          </svg>
+      <div style={{ padding: "14px 16px 0" }}>
+        {/* Ghost card behind — gives "stack of cards" depth */}
+        <div style={{ position: "relative" }}>
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(135deg, #120820 0%, #1e0612 100%)",
+            borderRadius: 16,
+            transform: "rotate(1.6deg) translateY(4px)",
+            opacity: 0.55,
+          }} />
 
-          {/* Top row */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "16px 18px 0" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: PINK }}>
-              ✦ BLOOM RECAP · {CURRENT_RECAP.month.toUpperCase()}
-            </p>
-            <button onClick={handleDismiss} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, opacity: 0.3 }} aria-label="Dismiss">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8" /></svg>
-            </button>
-          </div>
+          {/* Main card */}
+          <div style={{
+            position: "relative",
+            borderRadius: 16,
+            overflow: "hidden",
+            background: "linear-gradient(150deg, #1d0828 0%, #2c0a1a 100%)",
+            // Physical card feel: top gloss + bottom edge thickness + drop shadow
+            boxShadow: [
+              "inset 0 1px 0 rgba(255,255,255,0.10)",
+              "0 2px 0 #080006",
+              "0 4px 0 rgba(0,0,0,0.45)",
+              "0 14px 36px rgba(0,0,0,0.55)",
+              "0 0 0 1px rgba(255,255,255,0.05)",
+            ].join(", "),
+            transform: "rotate(-0.5deg)",
+          }}>
+            {/* Pink left-edge spine (like a report card index tab) */}
+            <div style={{
+              position: "absolute", left: 0, top: 0, bottom: 0, width: 3,
+              background: `linear-gradient(to bottom, ${PINK}, #8B0038)`,
+            }} />
 
-          {/* Teaser stat row */}
-          <div style={{ display: "flex", gap: 20, padding: "14px 18px 0" }}>
-            {[
-              { value: CURRENT_RECAP.events,      label: "events" },
-              { value: CURRENT_RECAP.saves,       label: "saves" },
-              { value: CURRENT_RECAP.bloomiesMet, label: "bloomies" },
-              { value: CURRENT_RECAP.flowers,     label: "flowers" },
-            ].map(s => (
-              <div key={s.label}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 900, color: "white", lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{s.label}</p>
+            {/* Watermark flower */}
+            <svg style={{ position: "absolute", right: -10, top: -10, opacity: 0.05, pointerEvents: "none" }} width="110" height="110" viewBox="0 0 110 110" fill="none">
+              {[0,1,2,3,4].map(i => {
+                const a = (i/5)*Math.PI*2;
+                return <ellipse key={i} cx={55+Math.cos(a)*32} cy={55+Math.sin(a)*32} rx="16" ry="28" fill="white" transform={`rotate(${i*72} ${55+Math.cos(a)*32} ${55+Math.sin(a)*32})`} />;
+              })}
+            </svg>
+
+            {/* Content — left padded for the spine */}
+            <div style={{ paddingLeft: 16 }}>
+              {/* Top row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 0 10px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, letterSpacing: "0.22em", color: PINK }}>
+                  ✦ BLOOM RECAP · {CURRENT_RECAP.month.toUpperCase()}
+                </p>
+                <button onClick={handleDismiss} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, opacity: 0.3 }} aria-label="Dismiss">
+                  <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8" /></svg>
+                </button>
               </div>
-            ))}
-          </div>
 
-          {/* Yande teaser line */}
-          <div style={{ padding: "14px 18px 0" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>
-              &ldquo;{CURRENT_RECAP.teaserLine}&rdquo;
-            </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, letterSpacing: "0.06em", marginTop: 4 }}>— Yande ✦</p>
-          </div>
+              {/* Compact stats row */}
+              <div style={{ display: "flex", gap: 14, padding: "10px 14px 0 10px" }}>
+                {[
+                  { value: CURRENT_RECAP.events,      label: "events"   },
+                  { value: CURRENT_RECAP.saves,       label: "saves"    },
+                  { value: CURRENT_RECAP.bloomiesMet, label: "bloomies" },
+                  { value: CURRENT_RECAP.flowers,     label: "flowers"  },
+                ].map(s => (
+                  <div key={s.label}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 19, fontWeight: 900, color: "white", lineHeight: 1 }}>{s.value}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
 
-          {/* CTA */}
-          <div style={{ padding: "16px 18px 18px" }}>
-            <button
-              onClick={handleView}
-              style={{
-                width: "100%", padding: "13px 0",
-                background: PINK, color: "white", border: "none",
-                borderRadius: 12, cursor: "pointer",
-                fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800,
-                letterSpacing: "0.04em",
-                boxShadow: `0 2px 0 rgba(150,0,55,0.7), 0 4px 16px ${PINK}44`,
-              }}
-            >
-              Open your {CURRENT_RECAP.shortMonth} recap →
-            </button>
+              {/* Yande teaser */}
+              <div style={{ padding: "10px 14px 0 10px" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.45 }}>
+                  &ldquo;{CURRENT_RECAP.teaserLine}&rdquo;
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: PINK, letterSpacing: "0.06em", marginTop: 3 }}>— Yande ✦</p>
+              </div>
+
+              {/* Dashed separator — ticket-stub feel */}
+              <div style={{ margin: "10px 14px 0 10px", borderTop: "1px dashed rgba(255,255,255,0.08)" }} />
+
+              {/* CTA */}
+              <div style={{ padding: "10px 14px 14px 10px" }}>
+                <button
+                  onClick={handleView}
+                  style={{
+                    width: "100%", padding: "10px 0",
+                    background: PINK, color: "white", border: "none",
+                    borderRadius: 10, cursor: "pointer",
+                    fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800,
+                    letterSpacing: "0.04em",
+                    boxShadow: `0 2px 0 rgba(130,0,45,0.8), 0 4px 14px ${PINK}44`,
+                  }}
+                >
+                  Open your {CURRENT_RECAP.shortMonth} recap →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

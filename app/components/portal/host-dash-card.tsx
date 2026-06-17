@@ -112,35 +112,72 @@ function NextEventCard({ event }: { event: HostedGathering }) {
 function EmptyHostCard() {
   return (
     <Link href="/member/host" style={{ textDecoration: "none", display: "block" }}>
-      <div style={{
-        borderRadius: 20,
-        background: "linear-gradient(145deg, #0A0008 0%, #1C001A 65%, rgba(255,31,125,0.12) 100%)",
-        border: "1px solid rgba(255,31,125,0.15)",
-        padding: "20px 22px",
-        boxShadow: "0 4px 24px rgba(255,31,125,0.07)",
-      }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 6 }}>✦ HOST SOMETHING</p>
-        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "rgba(255,255,255,0.88)", lineHeight: 1.25, marginBottom: 14 }}>
-          Bring women together<br />this week.
-        </p>
-        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" as const, marginBottom: 16 }}>
-          {["Dinner", "Brunch", "Walk", "Coffee", "Museum"].map(k => (
-            <div key={k} style={{
-              padding: "6px 13px", borderRadius: 999,
-              background: "rgba(255,255,255,0.07)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              fontFamily: "var(--font-jost)", fontSize: "10px",
-              fontWeight: 600, color: "rgba(255,255,255,0.48)",
-            }}>{k}</div>
-          ))}
-        </div>
+      <div style={{ position: "relative" }}>
+        {/* Ghost card behind — slight tilt opposite direction */}
         <div style={{
-          display: "inline-flex", padding: "11px 24px", borderRadius: 999,
-          background: PINK,
-          boxShadow: `0 2px 0 rgba(150,0,55,0.75), 0 6px 18px ${PINK}44`,
-          fontFamily: "var(--font-jost)", fontSize: "10.5px",
-          fontWeight: 900, color: "white", letterSpacing: "0.06em",
-        }}>HOST SOMETHING →</div>
+          position: "absolute", inset: 0,
+          background: "linear-gradient(145deg, #0d0010 0%, #1a0020 100%)",
+          borderRadius: 14,
+          transform: "rotate(-1.2deg) translateY(3px)",
+          opacity: 0.5,
+        }} />
+
+        {/* Main invitation card */}
+        <div style={{
+          position: "relative",
+          borderRadius: 14,
+          background: "linear-gradient(155deg, #0f0012 0%, #1e0030 55%, #160024 100%)",
+          boxShadow: [
+            "inset 0 1px 0 rgba(255,255,255,0.08)",
+            "0 2px 0 #050008",
+            "0 4px 0 rgba(0,0,0,0.4)",
+            "0 12px 32px rgba(0,0,0,0.5)",
+            `0 0 0 1px rgba(255,31,125,0.12)`,
+          ].join(", "),
+          transform: "rotate(0.6deg)",
+          padding: "16px 18px",
+          overflow: "hidden",
+        }}>
+          {/* Decorative corner flower — top right */}
+          <svg style={{ position: "absolute", top: -8, right: -8, opacity: 0.12, pointerEvents: "none" }} width="72" height="72" viewBox="0 0 72 72" fill="none">
+            {[0,1,2,3,4].map(i => {
+              const a = (i/5)*Math.PI*2;
+              return <ellipse key={i} cx={36+Math.cos(a)*22} cy={36+Math.sin(a)*22} rx="10" ry="18" fill={PINK} transform={`rotate(${i*72} ${36+Math.cos(a)*22} ${36+Math.sin(a)*22})`} />;
+            })}
+            <circle cx="36" cy="36" r="9" fill={PINK} />
+          </svg>
+
+          {/* Pink top border line — invitation header rule */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${PINK}88, transparent)` }} />
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.24em", color: PINK, marginBottom: 8 }}>✦ HOST SOMETHING</p>
+
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 17, color: "rgba(255,255,255,0.9)", lineHeight: 1.2, marginBottom: 12 }}>
+            Bring women together<br />this week.
+          </p>
+
+          {/* Activity chips — smaller */}
+          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" as const, marginBottom: 14 }}>
+            {["Dinner", "Brunch", "Walk", "Coffee", "Museum"].map(k => (
+              <div key={k} style={{
+                padding: "4px 10px", borderRadius: 999,
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                fontFamily: "var(--font-jost)", fontSize: "9px",
+                fontWeight: 600, color: "rgba(255,255,255,0.42)",
+              }}>{k}</div>
+            ))}
+          </div>
+
+          {/* CTA — pill button, slightly smaller */}
+          <div style={{
+            display: "inline-flex", padding: "9px 20px", borderRadius: 999,
+            background: PINK,
+            boxShadow: `0 2px 0 rgba(130,0,45,0.8), 0 5px 16px ${PINK}44`,
+            fontFamily: "var(--font-jost)", fontSize: "9.5px",
+            fontWeight: 900, color: "white", letterSpacing: "0.07em",
+          }}>HOST SOMETHING →</div>
+        </div>
       </div>
     </Link>
   );
