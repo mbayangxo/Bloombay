@@ -15,13 +15,38 @@ const INK  = "#1A0010";
 
 function getAccentColor() {
   const h = new Date().getHours();
-  if (h >= 19 && h < 23) return "#D4336B";
-  if (h < 6 || h >= 23)  return "#A82050";
+  if (h >= 19 && h < 23) return "#C4305E";
+  if (h < 6 || h >= 23)  return "#8B1A3A";
   return PINK;
 }
 function getBg() {
   const h = new Date().getHours();
-  return (h >= 19 || h < 6) ? "#FFF0EE" : "#FFF5F7";
+  return (h >= 19 || h < 6) ? "#F5EDE8" : "#F9F5ED";
+}
+
+type WeatherInfo = { temp: number; condition: string; icon: string };
+
+function weatherIcon(code: number) {
+  if (code === 0) return "☀️";
+  if (code <= 2) return "🌤";
+  if (code === 3) return "☁️";
+  if (code <= 48) return "🌫";
+  if (code <= 55) return "🌦";
+  if (code <= 65) return "🌧";
+  if (code <= 77) return "❄️";
+  if (code <= 82) return "🌦";
+  return "⛈";
+}
+function weatherText(code: number) {
+  if (code === 0) return "Clear skies";
+  if (code <= 2) return "Partly cloudy";
+  if (code === 3) return "Overcast";
+  if (code <= 48) return "Foggy";
+  if (code <= 55) return "Drizzle";
+  if (code <= 65) return "Rainy";
+  if (code <= 77) return "Snowy";
+  if (code <= 82) return "Showers";
+  return "Stormy";
 }
 
 const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
@@ -142,10 +167,31 @@ export function HomePage() {
   const [showSafety,   setShowSafety]   = useState(false);
   const [showEdit,     setShowEdit]     = useState(false);
   const [events,       setEvents]       = useState<Event[]>([]);
+  const [weather,      setWeather]      = useState<WeatherInfo | null>(null);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
     getEvents().then(evs => setEvents(evs));
+
+    // Weather — try geolocation, fallback to NYC
+    const fetchWeather = (lat: number, lon: number) => {
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
+        .then(r => r.json())
+        .then((d: { current_weather?: { weathercode?: number; temperature?: number } }) => {
+          const code = d.current_weather?.weathercode ?? 0;
+          const temp = Math.round(d.current_weather?.temperature ?? 70);
+          setWeather({ temp, condition: weatherText(code), icon: weatherIcon(code) });
+        })
+        .catch(() => {});
+    };
+    if (typeof navigator !== "undefined") {
+      navigator.geolocation?.getCurrentPosition(
+        p => fetchWeather(p.coords.latitude, p.coords.longitude),
+        () => fetchWeather(40.7128, -74.006)
+      );
+      if (!navigator.geolocation) fetchWeather(40.7128, -74.006);
+    }
+
     const supabase = createClient();
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -231,26 +277,43 @@ export function HomePage() {
       `}</style>
 
       {/* ══ HEADER ══════════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "20px 16px 16px" }}>
+      <div style={{ padding: "18px 16px 14px" }}>
 
-        {/* Greeting row */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, letterSpacing: "0.22em", color: ACCENT, marginBottom: 5 }}>TODAY&apos;S BLOOM ✦</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(22px,6vw,28px)", color: INK, lineHeight: 1.1 }}>
-              {greeting}{firstName ? `, ${firstName}` : ""}.
+        {/* Location + weather row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: ACCENT, letterSpacing: "0.02em" }}>
+              {neighborhood || "New York"}
             </p>
+            {weather && (
+              <>
+                <span style={{ color: "rgba(0,0,0,0.18)", fontSize: 10 }}>·</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>
+                  {weather.icon} {weather.temp}°F · {weather.condition}
+                </p>
+              </>
+            )}
           </div>
           <button
             onClick={() => setShowEdit(true)}
-            style={{ background: "white", border: "none", borderRadius: "50%", width: 38, height: 38, cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}
+            style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.07)", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
             aria-label="Edit profile"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
           </button>
         </div>
+
+        {/* Greeting */}
+        <p style={{
+          fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700,
+          fontSize: "clamp(30px,9vw,40px)", color: INK, lineHeight: 1.05, marginBottom: 18,
+        }}>
+          {greeting}{firstName ? `,` : "."}{" "}
+          {firstName && <span>{firstName}.</span>}
+        </p>
 
         {/* Week strip */}
         <div style={{ display: "flex", gap: 3, marginBottom: 14 }}>
@@ -419,12 +482,12 @@ export function HomePage() {
       <div style={{ marginTop: 26 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: INK }}>NEAR YOU</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>
-              {neighborhood ? `${neighborhood} · and around` : "NYC · and around"}
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: INK, lineHeight: 1 }}>Near you.</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.38)", marginTop: 3 }}>
+              {neighborhood ? `${neighborhood} & around` : "NYC & around"}
             </p>
           </div>
-          <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: ACCENT }}>See all →</Link>
         </div>
 
         <div style={{
@@ -472,10 +535,10 @@ export function HomePage() {
       <div style={{ marginTop: 8 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: INK }}>YOUR CLUBS</p>
-            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: INK, lineHeight: 1 }}>Your clubs.</p>
+            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.38)", marginTop: 3 }}>{myClubs.length} joined</p>}
           </div>
-          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: ACCENT }}>See all →</Link>
         </div>
 
         {!loading && myClubs.length === 0 ? (
