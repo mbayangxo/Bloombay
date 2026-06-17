@@ -585,57 +585,91 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
 
 // ── TEMPLATE PICKER SHEET ─────────────────────────────────────────────────────
 
-function TemplatePickerSheet({ current, onSelect, onClose }: {
+function TemplatePickerSheet({ current, displayName, onSelect, onClose }: {
   current: string;
+  displayName: string;
   onSelect: (id: string, bgPhoto?: string | null) => void;
   onClose: () => void;
 }) {
+  const firstName = displayName.split(" ")[0] || "You";
+
   return (
-    <>
-      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#0D0010", maxHeight: "72vh", overflowY: "auto" }}>
-        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} /></div>
-        <div style={{ padding: "6px 20px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.7)" }}>✦ PROFILE TEMPLATE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "white", marginTop: 2 }}>Choose your look.</p>
-          </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
-          </button>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#06000E", overflowY: "auto" }}>
+      {/* Header */}
+      <div style={{
+        padding: "calc(env(safe-area-inset-top,0px) + 16px) 20px 12px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.7)", marginBottom: 3 }}>✦ PROFILE TEMPLATES</p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "white", lineHeight: 1 }}>Choose your look.</p>
         </div>
-        <div style={{ padding: "16px 20px 8px", display: "flex", gap: 12, overflowX: "auto", scrollbarWidth: "none" as const }}>
-          {PROFILE_TEMPLATES.map(t => (
-            <button key={t.id} onClick={() => { onSelect(t.id); onClose(); }} style={{ flexShrink: 0, display: "flex", flexDirection: "column" as const, gap: 8, alignItems: "center", border: "none", background: "none", cursor: "pointer", padding: "4px 0" }}>
+        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+        </button>
+      </div>
+
+      {/* Template cards — 2-column grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, padding: "20px 16px 8px" }}>
+        {PROFILE_TEMPLATES.map(t => {
+          const isActive = current === t.id;
+          return (
+            <button key={t.id} onClick={() => { onSelect(t.id); onClose(); }}
+              style={{ border: "none", background: "none", cursor: "pointer", padding: 0, textAlign: "left" as const }}>
+              {/* Full profile mini-preview */}
               <div style={{
-                width: 72, height: 96, borderRadius: 16,
-                background: t.gradient,
-                border: current === t.id ? `2.5px solid ${PINK}` : "2.5px solid rgba(255,255,255,0.12)",
-                boxShadow: current === t.id ? `0 0 0 2px ${PINK}55, 0 8px 24px rgba(255,31,125,0.35)` : "0 4px 16px rgba(0,0,0,0.45)",
+                borderRadius: 20, overflow: "hidden",
+                border: isActive ? `3px solid ${PINK}` : "3px solid rgba(255,255,255,0.08)",
+                boxShadow: isActive ? `0 0 0 3px ${PINK}44, 0 12px 32px rgba(255,31,125,0.3)` : "0 6px 24px rgba(0,0,0,0.5)",
                 position: "relative" as const,
-                overflow: "hidden",
               }}>
-                {current === t.id && (
-                  <div style={{ position: "absolute" as const, top: 6, right: 6, width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="8" height="8" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                {/* Hero area */}
+                <div style={{ height: 140, background: t.gradient, position: "relative" as const, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "flex-end", padding: "0 0 12px" }}>
+                  {/* Glow circle */}
+                  <div style={{ position: "absolute", top: -20, left: -20, width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.4) 0%, transparent 70%)", pointerEvents: "none" }} />
+                  {/* Avatar ring */}
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 6, boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}>
+                    <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, fontWeight: 900, color: "rgba(255,255,255,0.9)" }}>{firstName[0]?.toUpperCase()}</span>
                   </div>
-                )}
-                <div style={{ position: "absolute" as const, bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
-                  <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 24, fontWeight: 900, color: "rgba(255,255,255,0.7)" }}>A</span>
+                  {/* Name overlay */}
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(to top, rgba(20,4,32,0.75) 0%, transparent 100%)", padding: "24px 10px 8px" }}>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 14, color: "white", lineHeight: 1, textAlign: "center" as const }}>{firstName}.</p>
+                  </div>
+                  {/* Selected check */}
+                  {isActive && (
+                    <div style={{ position: "absolute" as const, top: 8, right: 8, width: 22, height: 22, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.5)" }}>
+                      <svg width="9" height="9" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                    </div>
+                  )}
+                </div>
+                {/* Tab bar preview */}
+                <div style={{ background: "white", padding: "8px 10px 9px", display: "flex", gap: 8 }}>
+                  {["About","Vibe","Code"].map((tab, i) => (
+                    <div key={tab} style={{ flex: 1, textAlign: "center" as const, paddingBottom: 3, borderBottom: i === 0 ? `2px solid ${PINK}` : "2px solid transparent" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: i === 0 ? PINK : "#ccc" }}>{tab}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: current === t.id ? PINK : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>{t.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: isActive ? PINK : "rgba(255,255,255,0.5)", marginTop: 8, textAlign: "center" as const }}>{t.name}{isActive ? " ✦" : ""}</p>
             </button>
-          ))}
-        </div>
-        <label style={{ margin: "8px 20px 32px", display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "14px 16px", cursor: "pointer", border: "1.5px dashed rgba(255,255,255,0.12)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          );
+        })}
+      </div>
+
+      {/* Background photo upload */}
+      <div style={{ padding: "12px 16px 24px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>OR ADD YOUR OWN PHOTO</p>
+        <label style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "16px 18px", cursor: "pointer", border: "1.5px dashed rgba(255,255,255,0.14)" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </div>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "white" }}>Add background photo</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Customize your template</p>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white" }}>Upload a background photo</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Replaces the gradient with your image</p>
           </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
           <input type="file" accept="image/*" onChange={e => {
             const file = e.target.files?.[0];
             if (!file) return;
@@ -644,8 +678,10 @@ function TemplatePickerSheet({ current, onSelect, onClose }: {
             reader.readAsDataURL(file);
           }} style={{ display: "none" }} />
         </label>
+        {/* Safe area bottom padding */}
+        <div style={{ height: "calc(env(safe-area-inset-bottom,0px) + 20px)" }} />
       </div>
-    </>
+    </div>
   );
 }
 
@@ -779,11 +815,12 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
           <div style={{ display: "flex", gap: 7 }}>
             <button onClick={() => setShowTemplatePicker(true)} style={{
-              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
-              padding: "6px 14px", cursor: "pointer",
+              background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)",
+              border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 999,
+              padding: "7px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
             }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Template ✦</p>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white", letterSpacing: "0.04em" }}>Templates</p>
             </button>
             <button onClick={() => setShowEdit(true)} style={{
               background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
@@ -1080,6 +1117,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
       {showTemplatePicker && (
         <TemplatePickerSheet
           current={templateId}
+          displayName={displayName}
           onSelect={handleTemplateSelect}
           onClose={() => setShowTemplatePicker(false)}
         />

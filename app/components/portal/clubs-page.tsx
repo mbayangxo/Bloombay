@@ -116,30 +116,30 @@ export function ClubsPage() {
       {/* ── Create Club FAB ── */}
       <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
         <div style={{
-          position: "fixed", top: 60, right: 16, zIndex: 60,
-          width: 36, height: 36, borderRadius: "50%",
+          position: "fixed", bottom: "calc(env(safe-area-inset-bottom,0px) + 88px)", right: 18, zIndex: 50,
+          width: 44, height: 44, borderRadius: "50%",
           background: PINK,
-          boxShadow: `0 3px 14px ${PINK}66`,
+          boxShadow: `0 4px 18px ${PINK}77`,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </div>
       </Link>
 
       {/* ══════════ HERO — bulletin board with headline + polaroid ══════════ */}
-      <section style={{ padding: "72px 18px 0", position: "relative" }}>
+      <section style={{ padding: "64px 18px 0", position: "relative" }}>
 
         {/* Board texture dots */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
 
         {/* Safety pin top-left decoration */}
-        <SafetyPin style={{ position: "absolute", top: 62, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
+        <SafetyPin style={{ position: "absolute", top: 54, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
 
         {/* Gold star decorations */}
-        <GoldStar size={18} style={{ position: "absolute", top: 68, right: 28, zIndex: 4 }} />
-        <GoldStar size={12} style={{ position: "absolute", top: 200, right: 54, zIndex: 4, opacity: 0.7 }} />
+        <GoldStar size={18} style={{ position: "absolute", top: 58, right: 28, zIndex: 4 }} />
+        <GoldStar size={12} style={{ position: "absolute", top: 190, right: 54, zIndex: 4, opacity: 0.7 }} />
 
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 28, position: "relative", zIndex: 2 }}>
 
@@ -159,33 +159,21 @@ export function ClubsPage() {
               position: "relative",
               overflow: "hidden",
             }}>
-              {/* "SEE ALL CLUBS" pill */}
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                <Link href="/member/clubs" style={{ textDecoration: "none" }}>
-                  <div style={{ background: PINK, borderRadius: 20, padding: "6px 14px", boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>SEE ALL CLUBS</p>
-                  </div>
-                </Link>
-              </div>
-
               {/* Big headline */}
-              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 10 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 8 }}>
                 <div style={{ fontSize: "clamp(38px,11vw,50px)", color: DARK }}>Clubs.</div>
               </div>
 
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.55, marginBottom: 0, lineHeight: 1.4 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.55, marginBottom: 14, lineHeight: 1.4 }}>
                 clubs for every side of you.
               </p>
 
-              {/* Stats row */}
-              <div style={{ display: "flex", gap: 14, marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-                {[["500+", "clubs"], ["12K+", "members"], ["48", "cities"]].map(([n, l]) => (
-                  <div key={l}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: PINK, lineHeight: 1 }}>{n}</p>
-                    <p style={{ fontSize: 7, fontWeight: 700, color: "rgba(0,0,0,0.35)", letterSpacing: "0.12em", marginTop: 2 }}>{l.toUpperCase()}</p>
-                  </div>
-                ))}
-              </div>
+              <Link href="/member/clubs/create" style={{ textDecoration: "none", display: "inline-flex" }}>
+                <div style={{ background: DARK, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>START A CLUB</p>
+                </div>
+              </Link>
 
               <TornEdge color={BOARD} height={12} style={{ marginLeft: -16, marginRight: -16, marginBottom: -1 }} />
             </div>
@@ -304,6 +292,51 @@ export function ClubsPage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* ══════════ ALL CLUBS — 2-column grid ══════════ */}
+      <section style={{ padding: "0 18px 28px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, boxShadow: `0 0 8px ${PINK}` }} />
+            <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}>ALL CLUBS</p>
+          </div>
+          <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.7)" }}>{clubs.length} spaces</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {clubs.map((club, idx) => {
+            const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
+            const grad = club.primary_color
+              ? `linear-gradient(145deg, ${club.primary_color}55 0%, ${club.primary_color} 100%)`
+              : GRADS[idx % GRADS.length];
+            return (
+              <Link key={`grid-${club.id}`} href={href} style={{ textDecoration: "none" }}>
+                <div style={{ borderRadius: 18, overflow: "hidden", background: grad, position: "relative", boxShadow: "0 4px 18px rgba(0,0,0,0.35)" }}>
+                  {club.cover_url && (
+                    <div style={{ position: "absolute", inset: 0 }}>
+                      <Image src={thumbUrl(club.cover_url) ?? ""} alt="" fill unoptimized style={{ objectFit: "cover", opacity: 0.5 }} />
+                    </div>
+                  )}
+                  <div style={{ position: "relative", zIndex: 1, padding: "14px 14px 12px" }}>
+                    <div style={{ minHeight: 60 }} />
+                    <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: "white", lineHeight: 1.2, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{club.name}</p>
+                    {club.description && (
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, lineHeight: 1.4 }}>
+                        {club.description.slice(0, 48)}{club.description.length > 48 ? "…" : ""}
+                      </p>
+                    )}
+                    <div style={{ marginTop: 10, display: "inline-flex", background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "4px 12px" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>JOIN →</p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+          {clubs.length === 0 && (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0", gridColumn: "span 2" }}>Clubs loading…</p>
+          )}
         </div>
       </section>
 
