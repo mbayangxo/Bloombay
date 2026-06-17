@@ -326,7 +326,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <TopTile href="/member/lounge" label="Apartment">
               <IconApt c={isDarkPage ? "white" : PINK} />
             </TopTile>
-            <TopTile href="/member/pin-drops" label="City">
+            <TopTile href="/member/notifications" label="Pin Drops">
               <IconPin c={isDarkPage ? "white" : PINK} />
             </TopTile>
             <TopTile href="/member/messages" label="Mailbox" badge="number">
