@@ -259,7 +259,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           Share a recipe
         </h2>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)", margin: "0 0 20px" }}>
-          It goes straight to the Health Bar — and to saved apartments ✦
+          It goes straight to the Girl Fit — and to saved apartments ✦
         </p>
 
         {/* Category */}
@@ -311,7 +311,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           }}
           onClick={onClose}
         >
-          Post to Health Bar →
+          Post to Girl Fit →
         </button>
       </div>
     </>
@@ -366,7 +366,7 @@ export function HealthPage() {
               <h1 style={{
                 fontFamily: "var(--font-playfair)", fontStyle: "italic",
                 fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.1, color: DARK,
-              }}>The Health Bar</h1>
+              }}>The Girl Fit</h1>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, margin: 0, color: "rgba(28,27,28,0.5)", lineHeight: 1.2 }}>
                 recipes, rituals & real wellness ✦
               </p>
