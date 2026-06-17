@@ -218,12 +218,11 @@ function IconChatBubble({ c }: SVGProps) {
 
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",          key: "home"          },
-  { href: "/member/happenings",    key: "happenings"    },
-  { href: "/member/plans",         key: "plans"         },
-  { href: "/member/clubs",         key: "clubs"         },
-  { href: "/member/avenue",        key: "avenue"        },
-  { href: "/member/introductions", key: "introductions" },
+  { href: "/member/home",       key: "home"       },
+  { href: "/member/happenings", key: "happenings" },
+  { href: "/member/plans",      key: "plans"      },
+  { href: "/member/clubs",      key: "clubs"      },
+  { href: "/member/avenue",     key: "avenue"     },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -232,7 +231,8 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname    = usePathname();
   const slab        = getSlab();
-  const isDarkPage  = pathname.startsWith("/member/home") || pathname.startsWith("/member/avenue") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
+  const isDarkPage  = pathname.startsWith("/member/avenue") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
+  const hideTopBar  = pathname.startsWith("/member/lounge") || pathname.startsWith("/member/happenings");
   const [navShrunk, setNavShrunk]   = useState(false);
   const [navTouched, setNavTouched] = useState(false);
   const lastYRef = useRef(0);
@@ -251,28 +251,25 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings");
     if (href === "/member/avenue") return pathname.startsWith("/member/avenue");
-    if (href === "/member/introductions") return pathname.startsWith("/member/introductions") || pathname.startsWith("/member/girlmate");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   function renderIcon(key: TabKey, active: boolean) {
     const c = active ? "white" : "rgba(0,0,0,0.36)";
     const w = active ? 2.2 : 1.7;
-    if (key === "home")          return <IconTime           c={c} w={w} slab={slab} />;
-    if (key === "happenings")    return <IconHappenings     c={c} w={w} />;
-    if (key === "plans")         return <IconPlans          c={c} w={w} />;
-    if (key === "clubs")         return <IconClubs          c={c} />;
-    if (key === "avenue")        return <IconAveSign        c={c} w={w} />;
-    if (key === "introductions") return <IconIntroductions  c={c} w={w} />;
+    if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
+    if (key === "happenings") return <IconHappenings c={c} w={w} />;
+    if (key === "plans")      return <IconPlans      c={c} w={w} />;
+    if (key === "clubs")      return <IconClubs      c={c} />;
+    if (key === "avenue")     return <IconAveSign    c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    if (key === "home")          return SLAB_LABEL[slab];
-    if (key === "happenings")    return "The City";
-    if (key === "plans")         return "Plans";
-    if (key === "clubs")         return "Clubs";
-    if (key === "avenue")        return "The Avenue";
-    if (key === "introductions") return "Intros";
+    if (key === "home")       return SLAB_LABEL[slab];
+    if (key === "happenings") return "The City";
+    if (key === "plans")      return "Plans";
+    if (key === "clubs")      return "Clubs";
+    if (key === "avenue")     return "The Avenue";
     return key;
   }
 
@@ -316,6 +313,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
   return (
     <>
       {/* ══════ TOP BAR ══════ */}
+      {!hideTopBar && (
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
@@ -340,6 +338,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           </div>
         </div>
       </div>
+      )}
 
       {/* ══════ STEM NAV ══════ */}
       <div

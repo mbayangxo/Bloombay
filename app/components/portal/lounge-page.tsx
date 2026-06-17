@@ -105,6 +105,14 @@ const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
 const GOLD   = "#D4A853";
 
+const PROFILE_TEMPLATES = [
+  { id: "bloom",    name: "Bloom",     gradient: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)" },
+  { id: "midnight", name: "Midnight",  gradient: "linear-gradient(160deg, #0A0015 0%, #1A0030 40%, #2D0640 70%, #450D60 100%)" },
+  { id: "sakura",   name: "Sakura",    gradient: "linear-gradient(160deg, #4A0030 0%, #8B1455 35%, #D4406A 60%, #F28090 85%, #FFB8C8 100%)" },
+  { id: "noir",     name: "Noir",      gradient: "linear-gradient(160deg, #0A0A0A 0%, #1A1010 40%, #2D1520 70%, #3A1A25 100%)" },
+  { id: "rose",     name: "Rose Gold", gradient: "linear-gradient(160deg, #1A0010 0%, #5A1830 35%, #A83860 60%, #D4806A 85%, #EAB898 100%)" },
+];
+
 // ── DATA ──────────────────────────────────────────────────────────────────────
 
 const ALL_FLOWERS = [
@@ -575,6 +583,72 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   );
 }
 
+// ── TEMPLATE PICKER SHEET ─────────────────────────────────────────────────────
+
+function TemplatePickerSheet({ current, onSelect, onClose }: {
+  current: string;
+  onSelect: (id: string, bgPhoto?: string | null) => void;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#0D0010", maxHeight: "72vh", overflowY: "auto" }}>
+        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} /></div>
+        <div style={{ padding: "6px 20px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.7)" }}>✦ PROFILE TEMPLATE</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "white", marginTop: 2 }}>Choose your look.</p>
+          </div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
+        </div>
+        <div style={{ padding: "16px 20px 8px", display: "flex", gap: 12, overflowX: "auto", scrollbarWidth: "none" as const }}>
+          {PROFILE_TEMPLATES.map(t => (
+            <button key={t.id} onClick={() => { onSelect(t.id); onClose(); }} style={{ flexShrink: 0, display: "flex", flexDirection: "column" as const, gap: 8, alignItems: "center", border: "none", background: "none", cursor: "pointer", padding: "4px 0" }}>
+              <div style={{
+                width: 72, height: 96, borderRadius: 16,
+                background: t.gradient,
+                border: current === t.id ? `2.5px solid ${PINK}` : "2.5px solid rgba(255,255,255,0.12)",
+                boxShadow: current === t.id ? `0 0 0 2px ${PINK}55, 0 8px 24px rgba(255,31,125,0.35)` : "0 4px 16px rgba(0,0,0,0.45)",
+                position: "relative" as const,
+                overflow: "hidden",
+              }}>
+                {current === t.id && (
+                  <div style={{ position: "absolute" as const, top: 6, right: 6, width: 20, height: 20, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="8" height="8" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                  </div>
+                )}
+                <div style={{ position: "absolute" as const, bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+                  <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 24, fontWeight: 900, color: "rgba(255,255,255,0.7)" }}>A</span>
+                </div>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: current === t.id ? PINK : "rgba(255,255,255,0.45)", whiteSpace: "nowrap" as const }}>{t.name}</p>
+            </button>
+          ))}
+        </div>
+        <label style={{ margin: "8px 20px 32px", display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "14px 16px", cursor: "pointer", border: "1.5px dashed rgba(255,255,255,0.12)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "white" }}>Add background photo</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Customize your template</p>
+          </div>
+          <input type="file" accept="image/*" onChange={e => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => { onSelect(current, reader.result as string); onClose(); };
+            reader.readAsDataURL(file);
+          }} style={{ display: "none" }} />
+        </label>
+      </div>
+    </>
+  );
+}
+
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export function LoungePage({ user }: { user?: LoungeUser }) {
@@ -622,7 +696,27 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   }
 
   const [isFoundingMother, setIsFoundingMother] = useState(false);
-  const [contentTab, setContentTab] = useState<"about" | "scrapbook">("about");
+  const [contentTab, setContentTab] = useState<"about" | "vibes" | "girl_code">("about");
+  const [templateId, setTemplateId] = useState<string>(() => {
+    if (typeof window === "undefined") return "bloom";
+    return localStorage.getItem("bb_template") ?? "bloom";
+  });
+  const [bgPhoto, setBgPhoto] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("bb_bg_photo");
+  });
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+
+  function handleTemplateSelect(id: string, photo?: string | null) {
+    setTemplateId(id);
+    localStorage.setItem("bb_template", id);
+    if (photo !== undefined) {
+      if (photo) { setBgPhoto(photo); localStorage.setItem("bb_bg_photo", photo); }
+      else { setBgPhoto(null); localStorage.removeItem("bb_bg_photo"); }
+    }
+  }
+
+  const currentTemplate = PROFILE_TEMPLATES.find(t => t.id === templateId) ?? PROFILE_TEMPLATES[0];
 
   useEffect(() => {
     const supabase = createClient();
@@ -650,10 +744,13 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
       {/* ══════════ PROFILE PHOTO HERO ══════════ */}
       <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
-        {/* Background — richly styled like a chosen profile template */}
+        {/* Background — selected profile template */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)",
+          ...(bgPhoto
+            ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: currentTemplate.gradient }
+          ),
         }} />
         {/* Texture glow circles */}
         <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.35) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -681,11 +778,13 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
           <div style={{ display: "flex", gap: 7 }}>
-            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
-              <div style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999, padding: "6px 12px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Style ✦</p>
-              </div>
-            </Link>
+            <button onClick={() => setShowTemplatePicker(true)} style={{
+              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
+              padding: "6px 14px", cursor: "pointer",
+            }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Template ✦</p>
+            </button>
             <button onClick={() => setShowEdit(true)} style={{
               background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
               border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
@@ -725,9 +824,27 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      {/* ══════════ ABOUT / SCRAPBOOK TOGGLE ══════════ */}
+      {/* ══════════ FLOWERS — small chips under hero ══════════ */}
+      {earnedFlowers.length > 0 && (
+        <div style={{ background: PAPER, padding: "10px 20px 0" }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" as const, paddingBottom: 2 }}>
+            {earnedFlowers.map(flower => (
+              <div key={flower.id} style={{
+                flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
+                background: flower.bg, border: `1px solid ${flower.color}33`,
+                borderRadius: 999, padding: "4px 9px",
+              }}>
+                <span style={{ fontSize: 11 }}>{flower.emoji}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: flower.color, whiteSpace: "nowrap" as const }}>{flower.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ TABS ══════════ */}
       <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
-        {(["about", "scrapbook"] as const).map(tab => (
+        {(["about", "vibes", "girl_code"] as const).map(tab => (
           <button key={tab} onClick={() => setContentTab(tab)} style={{
             flex: 1, background: "none", border: "none", cursor: "pointer",
             padding: "14px 0 12px",
@@ -735,10 +852,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             WebkitTapHighlightColor: "transparent",
           }}>
             <span style={{
-              fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em",
+              fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.10em",
               color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
               textTransform: "uppercase" as const,
-            }}>{tab === "about" ? "About" : "Scrapbook"}</span>
+            }}>{tab === "about" ? "About" : tab === "vibes" ? "Your Vibe" : "Girl Code"}</span>
           </button>
         ))}
       </div>
@@ -768,18 +885,6 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
           )}
 
-          {/* Interest tags */}
-          <div style={{ marginBottom: 18 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
-            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
-              {INTEREST_TAGS.map(t => (
-                <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Witness entries */}
           {WITNESS_ENTRIES.length > 0 && (
             <div style={{ marginBottom: 4 }}>
@@ -802,31 +907,98 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       )}
 
-      {/* ══════════ SCRAPBOOK TAB ══════════ */}
-      {contentTab === "scrapbook" && (
+      {/* ══════════ YOUR VIBE TAB ══════════ */}
+      {contentTab === "vibes" && (
         <div style={{ padding: "20px 20px 0" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>MEMORIES</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {MEMORIES.map((m, i) => (
-              <div key={i} style={{
-                background: m.color, borderRadius: 16, padding: "18px 14px",
-                transform: `rotate(${m.rotate})`, transformOrigin: "center",
-                boxShadow: "0 3px 12px rgba(0,0,0,0.09)",
-                minHeight: 100, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
-              }}>
-                <span style={{ fontSize: 26 }}>{m.emoji}</span>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 22 }}>
+            {INTEREST_TAGS.map(t => (
+              <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
+              </div>
+            ))}
+            <div style={{ background: "transparent", border: "1.5px dashed rgba(255,31,125,0.25)", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
+            </div>
+          </div>
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>SOUNDS LIKE</p>
+          <div style={{ background: "white", borderRadius: 18, padding: "14px 16px", marginBottom: 22, boxShadow: "0 2px 12px rgba(255,31,125,0.05)" }}>
+            {[
+              { artist: "SZA", track: "Good Days" },
+              { artist: "Solange", track: "Cranes in the Sky" },
+              { artist: "Rihanna", track: "Love on the Brain" },
+            ].map((song, i, arr) => (
+              <div key={song.track} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(255,31,125,0.06)" : "none" }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,rgba(255,31,125,0.12),rgba(255,105,180,0.24))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill={PINK}><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </div>
                 <div>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>{m.title}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{m.date}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111" }}>{song.track}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>{song.artist}</p>
                 </div>
               </div>
             ))}
+            <div style={{ paddingTop: 10, textAlign: "center" as const }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,31,125,0.4)", cursor: "pointer" }}>+ add your sounds</p>
+            </div>
           </div>
-          <div style={{ marginTop: 16, background: "rgba(255,31,125,0.04)", border: "1.5px dashed rgba(255,31,125,0.2)", borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: "rgba(255,31,125,0.5)" }}>+ add a memory</p>
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>YOUR PHOTOS</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 22 }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{ aspectRatio: "1", borderRadius: 14, background: i === 0 ? "rgba(255,31,125,0.06)" : "#F5F5F5", border: i === 0 ? "1.5px dashed rgba(255,31,125,0.25)" : "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {i === 0 ? (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
+                ) : (
+                  <span style={{ fontSize: 20, opacity: 0.15 }}>🌸</span>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
+
+      {/* ══════════ GIRL CODE TAB ══════════ */}
+      {contentTab === "girl_code" && (
+        <div style={{ padding: "24px 20px 0" }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 24 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>YOUR QR CODE</p>
+            <div style={{ width: 180, height: 180, borderRadius: 20, background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.12)", display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid white", overflow: "hidden" }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=174x174&color=1A0010&bgcolor=FFFFFF&data=https://bloombay.app/${displayHandle}&qzone=2`}
+                alt="Your QR Code"
+                width={174} height={174}
+                style={{ borderRadius: 14 }}
+              />
+            </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 10 }}>Scan to find me on BloomBay</p>
+          </div>
+
+          <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", marginBottom: 12, boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOM LINK</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
+            </div>
+            <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
+              {copied ? "Copied ✓" : "Copy"}
+            </button>
+          </div>
+
+          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative" as const, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ position: "absolute" as const, top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>GIRL CODE</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
+            </div>
+            <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
+              style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* ══════════ ROOMS ══════════ */}
       <div style={{ padding: "32px 20px 0" }}>
@@ -880,49 +1052,8 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      {/* ══════════ FLOWERS ══════════ */}
-      <div style={{ padding: "28px 20px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>✦ YOUR FLOWERS · {earnedFlowers.length} EARNED</p>
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const, margin: "0 -20px", paddingLeft: 20, paddingRight: 20 }}>
-          {ALL_FLOWERS.map(flower => {
-            const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
-            return (
-              <div key={flower.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 10px", borderRadius: 14, background: earned ? flower.bg : "#F8F8F8", border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`, opacity: earned ? 1 : 0.3, minWidth: 58 }}>
-                <span style={{ fontSize: 20 }}>{flower.emoji}</span>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, textAlign: "center" as const, color: earned ? flower.color : "#bbb", lineHeight: 1.3, maxWidth: 50 }}>{flower.label}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ══════════ PURCHASE HISTORY ══════════ */}
       <PurchaseHistorySection />
-
-      {/* ══════════ SHARE ══════════ */}
-      <div style={{ padding: "24px 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOMBAY LINK</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
-          </div>
-          <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
-            {copied ? "Copied ✓" : "Copy"}
-          </button>
-        </div>
-
-        <div style={{ background: DARK, borderRadius: 20, padding: "14px 18px", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>REFERRAL CODE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
-          </div>
-          <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
-            style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
-            Copy
-          </button>
-        </div>
-      </div>
 
       {/* ══════════ TOAST ══════════ */}
       {toast && (
@@ -944,6 +1075,13 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           name={localName} neighborhood={localNbhd} bio={localBio}
           onClose={() => setShowEdit(false)}
           onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
+        />
+      )}
+      {showTemplatePicker && (
+        <TemplatePickerSheet
+          current={templateId}
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplatePicker(false)}
         />
       )}
     </div>

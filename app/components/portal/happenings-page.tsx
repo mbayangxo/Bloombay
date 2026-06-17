@@ -13,6 +13,7 @@ import {
 } from "@/lib/actions/happenings";
 import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 import { coverUrl } from "@/lib/images/supabase-transform";
+import { getIntros, postIntro, flowerIntro, type IntroPost } from "@/lib/actions/introductions";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -138,7 +139,7 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "map" | "scene";
+type HapTab = "happenings" | "intros" | "map" | "scene";
 type Filter = "All" | "Parties" | "Dinners" | "Gatherings" | "Club Gatherings" | "Invitations" | "Open Seats" | "Tables" | "Confetti" | "Events";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
@@ -1042,7 +1043,7 @@ function CreateFAB() {
     <Link href="/member/host" style={{ textDecoration: "none" }}>
       <div style={{
         position: "fixed",
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 110px)",
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 155px)",
         right: 18,
         zIndex: 60,
         width: 52,
@@ -1131,6 +1132,11 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   // Review tracking
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
+  // Introductions
+  const [intros,        setIntros]        = useState<IntroPost[]>([]);
+  const [introsLoading, setIntrosLoading] = useState(false);
+  const [showIntroPost, setShowIntroPost] = useState(false);
+
   // Sheets
   const [inviteEv,   setInviteEv]   = useState<Event | null>(null);
   const [witnessEv,  setWitnessEv]  = useState<Event | null>(null);
@@ -1164,6 +1170,12 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (tab !== "intros") return;
+    setIntrosLoading(true);
+    getIntros().then(data => { setIntros(data); setIntrosLoading(false); }).catch(() => setIntrosLoading(false));
+  }, [tab]);
 
   function toggleJoin(eventId: string) {
     const isJoined = joined.has(eventId);
@@ -1236,71 +1248,32 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         background: getNavBg(),
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255,255,255,0.12)",
-        height: 54,
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
         paddingTop: "env(safe-area-inset-top, 0px)",
-        display: "flex", alignItems: "center",
       }}>
-        {/* Left: BB+ · city · slab */}
-        <div style={{ flex: 1, paddingLeft: 18, display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>BB+</span>
-          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
-        </div>
-
-        {/* Center: HAPPENINGS | MAP | CITY toggle */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        {/* Row 1: toggle + search */}
+        <div style={{ height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px" }}>
+          {/* Tab toggle */}
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {([["happenings","HAPPENINGS"],["map","MAP"],["scene","CITY"]] as [HapTab, string][]).map(([t, label]) => (
+            {([["happenings","Happenings"],["intros","Intros"],["map","Map"],["scene","City"]] as [HapTab, string][]).map(([t, label]) => (
               <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
                 padding: "5px 10px", borderRadius: 999, border: "none",
                 background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
                 color: tab === t ? PINK : "rgba(255,255,255,0.85)",
                 fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
-                letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
+                letterSpacing: "0.06em", cursor: "pointer", transition: "all 0.18s",
                 boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
               }}>
                 {label}
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Right: search icon + nav icons */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingRight: 14 }}>
-          {tab === "happenings" && (
-            <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 4, background: "none", border: "none", cursor: "pointer" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-            </button>
-          )}
-          <Link href="/member/lounge" aria-label="Apartment" style={{ display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="2" y1="21" x2="22" y2="21"/>
-              <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
-              <circle cx="14.5" cy="13" r="0.7" fill="rgba(255,255,255,0.75)" stroke="none"/>
+          {/* Search icon */}
+          <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 6, background: searchOpen ? "rgba(255,255,255,0.15)" : "none", border: "none", cursor: "pointer", borderRadius: 999 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-          </Link>
-          <Link href="/member/city" aria-label="City" style={{ display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="rgba(255,255,255,0.75)" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="7.5" r="5" fill="rgba(255,255,255,0.75)"/>
-              <line x1="12" y1="12.5" x2="12" y2="21" stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round"/>
-            </svg>
-          </Link>
-          <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-            <div style={{ position: "absolute", top: 0, right: 0, width: 13, height: 13, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
-          </Link>
-          <Link href="/member/chat" aria-label="Chat" style={{ position: "relative", display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span style={{ position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%", background: "white" }}/>
-          </Link>
+          </button>
         </div>
       </div>}
 
@@ -1310,7 +1283,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           onClick={() => setFilterOpen(o => !o)}
           aria-label="Toggle filters"
           style={{
-            position: "fixed", left: 0, top: 70, zIndex: 49,
+            position: "fixed", left: 0, top: 60, zIndex: 49,
             background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
             backdropFilter: "blur(12px)",
             border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
@@ -1336,7 +1309,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
         <div style={{
-          position: "fixed", top: 54, left: 0, right: 0, zIndex: 50,
+          position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
@@ -1360,7 +1333,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? (searchOpen ? 108 : 54) : 0 }}>
+      <div style={{ paddingTop: standalone ? (searchOpen ? 104 : 50) : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -1634,6 +1607,68 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
           </>
+        )}
+
+        {/* ── INTROS TAB ── */}
+        {standalone && tab === "intros" && (
+          <div style={{ paddingBottom: 96 }}>
+            {/* Header */}
+            <div style={{ padding: "20px 18px 16px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: PINK, marginBottom: 6 }}>🌸 INTRODUCTIONS</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "rgba(255,238,220,0.95)", lineHeight: 0.95, margin: 0, marginBottom: 10 }}>
+                Meet the Women.
+              </h2>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 14 }}>
+                New arrivals, locals & women finding their people
+              </p>
+              <Link href="/member/introductions" style={{ textDecoration: "none", display: "block" }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10,
+                background: "rgba(255,255,255,0.09)", border: "1.5px solid rgba(255,255,255,0.18)",
+                borderRadius: 14, padding: "12px 16px", cursor: "pointer",
+              }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ fontSize: 14 }}>👋</span>
+                </div>
+                <div style={{ flex: 1, textAlign: "left" as const }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.75)" }}>Introduce yourself</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 1 }}>Tap to share your story</p>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              </Link>
+            </div>
+            {/* Intros list */}
+            <div style={{ padding: "0 14px" }}>
+              {introsLoading ? (
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "30px 0" }}>Loading…</p>
+              ) : intros.length === 0 ? (
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "30px 0" }}>No introductions yet — be the first!</p>
+              ) : intros.map(intro => (
+                <div key={intro.id} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 18, padding: "14px 16px", marginBottom: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg,${intro.color},${intro.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: "white" }}>{intro.initial}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white" }}>{intro.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>{intro.neighborhood ? `📍 ${intro.neighborhood} · ` : ""}{intro.time}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, marginBottom: 10 }}>{intro.bio}</p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <button onClick={() => { const next = !intro.my_flower; void flowerIntro(intro.id); setIntros(prev => prev.map(i => i.id === intro.id ? { ...i, my_flower: next, flowers: i.flowers + (next ? 1 : -1) } : i)); }} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, border: "none", cursor: "pointer", background: intro.my_flower ? `${PINK}20` : "rgba(255,255,255,0.08)" }}>
+                      <span style={{ fontSize: 12 }}>🌸</span>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: intro.my_flower ? PINK : "rgba(255,255,255,0.5)" }}>{intro.flowers}</p>
+                    </button>
+                    <button style={{ padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer", background: `linear-gradient(135deg,${PINK},#FF69B4)`, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", boxShadow: `0 2px 10px ${PINK}33` }}>
+                      Connect →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* ── MAP TAB ── */}
