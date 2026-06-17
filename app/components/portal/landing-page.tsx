@@ -54,6 +54,109 @@ function ClubCard({ name, dark, icon, outline }: { name: string; dark: boolean; 
 }
 
 // ── Envelope invitation ────────────────────────────────────────────────────────
+const TESTIMONIALS = [
+  {
+    quote: "I moved to New York knowing nobody. Within three months of joining BloomBay, I had a book club, a dinner table, and five women I actually call friends now.",
+    name: "Sofia M.", location: "Upper East Side", tag: "Founding Member", color: "#FF1F7D",
+  },
+  {
+    quote: "I've lived in NYC for six years and never felt like I belonged. BloomBay changed that in one dinner. These women are my people.",
+    name: "Amara K.", location: "Crown Heights", tag: "Book Club · Museum Girls", color: "#C084FC",
+  },
+  {
+    quote: "As someone who doesn't drink, finding sober social spaces felt impossible. BloomBay has entire clubs built for women like me.",
+    name: "Jade T.", location: "West Village", tag: "Wellness Circle", color: "#34D399",
+  },
+  {
+    quote: "I joined for the dinners. I stayed for the friendships. I have a group chat with these women that is more active than any I've ever had.",
+    name: "Lena W.", location: "Williamsburg", tag: "Dinner Society", color: "#60A5FA",
+  },
+  {
+    quote: "BloomBay gave me a table in this city. Not just a seat — a whole table, full of women who actually show up for each other.",
+    name: "Yemi A.", location: "Harlem", tag: "Founding Member", color: "#F59E0B",
+  },
+  {
+    quote: "I was in my healing era and needed community without pressure. The women I met here felt that immediately. We protect each other's peace.",
+    name: "Zara O.", location: "Fort Greene", tag: "Sunday Walks · Wellness", color: "#FB7185",
+  },
+];
+
+function TestimonialsSection() {
+  const [idx, setIdx] = useState(0);
+  const touchStart = useState<number | null>(null);
+  const tx = { current: null as number | null };
+
+  function onTouchStart(e: React.TouchEvent) { tx.current = e.touches[0].clientX; }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (tx.current === null) return;
+    const diff = tx.current - e.changedTouches[0].clientX;
+    if (diff > 40) setIdx(i => Math.min(i + 1, TESTIMONIALS.length - 1));
+    if (diff < -40) setIdx(i => Math.max(i - 1, 0));
+    tx.current = null;
+  }
+
+  const t = TESTIMONIALS[idx];
+
+  return (
+    <section style={{ padding: "72px 24px 60px", background: INK, position: "relative", overflow: "hidden" }}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div style={{ position: "absolute", top: -60, right: -60, width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 720, margin: "0 auto", position: "relative" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 28 }}>YOUR FRIENDS ARE HERE</p>
+
+        {/* Quote */}
+        <blockquote style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(20px,3.5vw,30px)", color: "white", lineHeight: 1.5, fontWeight: 300, margin: "0 0 40px" }}>
+          &ldquo;{t.quote}&rdquo;
+        </blockquote>
+
+        {/* Attribution with avatar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 36 }}>
+          <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 4px 16px ${t.color}44` }}>
+            <span style={{ color: "white", fontWeight: 800, fontSize: "16px" }}>{t.name[0]}</span>
+          </div>
+          <div>
+            <p style={{ color: "white", fontWeight: 700, fontSize: "14px", margin: 0 }}>{t.name}</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", margin: "2px 0 0" }}>{t.location} · <span style={{ color: t.color }}>{t.tag}</span></p>
+          </div>
+        </div>
+
+        {/* Dots */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 40 }}>
+          {TESTIMONIALS.map((_, i) => (
+            <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 20 : 6, height: 6, borderRadius: 99, background: i === idx ? PINK : "rgba(255,255,255,0.18)", border: "none", cursor: "pointer", padding: 0, transition: "all 0.3s ease" }} />
+          ))}
+        </div>
+
+        {/* Member cards horizontal scroll */}
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
+          {[
+            { name: "Amara", city: "Crown Heights", clubs: ["Book Club", "Museum Girls"], color: "#FF1F7D", bg: "#1e0a18" },
+            { name: "Jade",  city: "West Village",  clubs: ["Dinner Society", "Pilates"], color: "#C084FC", bg: "#0e0a1e" },
+            { name: "Sofia", city: "Upper East",    clubs: ["Gallery Girls", "Jazz Night"], color: "#34D399", bg: "#0a1e14" },
+            { name: "Lena",  city: "Williamsburg",  clubs: ["Sunday Walks", "Book Club"], color: "#60A5FA", bg: "#0a1220" },
+            { name: "Yemi",  city: "Harlem",        clubs: ["Dinner Society", "Travel"], color: "#F59E0B", bg: "#1e140a" },
+            { name: "Zara",  city: "Fort Greene",   clubs: ["Wellness", "Sunday Walks"], color: "#FB7185", bg: "#1e0a10" },
+          ].map((m) => (
+            <div key={m.name} style={{ flexShrink: 0, width: 140, borderRadius: 18, background: m.bg, border: `1px solid ${m.color}22`, padding: "14px 12px", boxShadow: `0 4px 24px ${m.color}18` }}>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg,${m.color},${m.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                <span style={{ color: "white", fontWeight: 900, fontSize: "14px" }}>{m.name[0]}</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "13px", color: "white", marginBottom: 2 }}>{m.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>{m.city}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {m.clubs.map(c => (
+                  <span key={c} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: m.color, background: `${m.color}18`, borderRadius: 999, padding: "2px 7px", letterSpacing: "0.06em" }}>{c}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function EnvelopeInvitation() {
   const [opening, setOpening] = useState(false);
   const router = useRouter();
@@ -97,7 +200,7 @@ function EnvelopeInvitation() {
             opacity: 0.65,
           }} />
 
-          {/* TOP FLAP — the opening part */}
+          {/* TOP FLAP — words on the flap, small */}
           <div style={{
             position: "absolute",
             top: 0, left: 0, right: 0,
@@ -108,30 +211,30 @@ function EnvelopeInvitation() {
             transform: opening ? "perspective(400px) rotateX(-160deg)" : "perspective(400px) rotateX(0deg)",
             transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
             zIndex: 4,
-          }} />
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop: 14,
+            gap: 3,
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.26em", color: "rgba(196,0,90,0.55)", textAlign: "center" }}>WHERE YOU BLOOM</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(0,0,0,0.25)", textAlign: "center" }}>A NEW KIND OF SOCIAL LIFE</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, opacity: 0.55, textAlign: "center" }}>built for women. by women.</p>
+          </div>
 
-          {/* Envelope content */}
-          <div style={{ padding: "44px 24px 40px", position: "relative", zIndex: 2, textAlign: "center" }}>
-            {/* Heart */}
-            <p style={{ fontSize: 18, marginBottom: 6, lineHeight: 1 }}>♡</p>
-
-            {/* BloomBay script */}
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(30px,9vw,42px)", color: PINK, lineHeight: 1, letterSpacing: "-0.01em", marginBottom: 6 }}>
+          {/* Envelope content — starts below the flap */}
+          <div style={{ padding: "110px 24px 40px", position: "relative", zIndex: 2, textAlign: "center" }}>
+            {/* BloomBay script — safely below the flap */}
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(28px,8vw,38px)", color: PINK, lineHeight: 1, letterSpacing: "-0.01em", marginBottom: 8 }}>
               BloomBay
             </p>
 
             {/* Decorative divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "10px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "10px 0 16px" }}>
               <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
               <span style={{ color: "rgba(255,31,125,0.3)", fontSize: 10 }}>✦</span>
               <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
             </div>
-
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 6 }}>WHERE YOU BLOOM.</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(0,0,0,0.28)", marginBottom: 6 }}>A NEW KIND OF SOCIAL LIFE.</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: PINK, opacity: 0.7, marginBottom: 32 }}>
-              Built for women. By women.
-            </p>
 
             {/* "Open me ♡" handwritten note */}
             <div style={{ position: "absolute", bottom: 48, right: 20, textAlign: "right" }}>
@@ -268,14 +371,6 @@ export function LandingPage() {
             <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 15vw, 72px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
               gathering.
             </div>
-          </div>
-
-          {/* Secondary — It's a women's world. We're it. — BIG */}
-          <div style={{ marginBottom: 22 }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(42px, 12vw, 64px)", color: "rgba(255,255,255,0.9)", letterSpacing: "-0.02em", margin: 0, lineHeight: 0.95 }}>
-              It&apos;s a women&apos;s world.{" "}
-              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "normal", fontSize: "clamp(52px, 15vw, 72px)", color: "white" }}>We&apos;re it.</span>
-            </p>
           </div>
 
           {/* Club pills */}
@@ -615,55 +710,9 @@ export function LandingPage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════
-          YOUR FRIENDS ARE HERE — Testimonial + profile cards
+          YOUR FRIENDS ARE HERE — Swipeable testimonials
       ══════════════════════════════════════════════════════ */}
-      <section style={{ padding: "80px 22px", background: INK, position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -60, right: -60, width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -40, left: -40, width: 250, height: 250, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,105,180,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-        <div style={{ maxWidth: 900, margin: "0 auto", position: "relative" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 16 }}>YOUR FRIENDS ARE HERE</p>
-
-          {/* Testimonial */}
-          <blockquote style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(20px,3.5vw,32px)", color: "white", lineHeight: 1.5, fontWeight: 300, margin: "0 0 32px", maxWidth: 680 }}>
-            &ldquo;I moved to New York knowing nobody. Within three months of joining BloomBay, I had a book club, a dinner table, and five women I actually call friends now.&rdquo;
-          </blockquote>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 48 }}>
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#FF69B4)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: "white", fontWeight: 700, fontSize: "15px" }}>S</span>
-            </div>
-            <div>
-              <p style={{ color: "white", fontWeight: 600, fontSize: "14px" }}>Sofia M.</p>
-              <p style={{ color: "#FF69B4", fontSize: "12px", fontWeight: 500 }}>Upper East Side · Founding Member</p>
-            </div>
-          </div>
-
-          {/* Member profile cards horizontal scroll */}
-          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
-            {[
-              { name: "Amara", city: "Crown Heights", clubs: ["Book Club", "Museum Girls"], color: "#FF1F7D", bg: "#1e0a18" },
-              { name: "Jade",  city: "West Village",  clubs: ["Dinner Society", "Pilates"], color: "#C084FC", bg: "#0e0a1e" },
-              { name: "Sofia", city: "Upper East",    clubs: ["Gallery Girls", "Jazz Night"], color: "#34D399", bg: "#0a1e14" },
-              { name: "Lena",  city: "Williamsburg",  clubs: ["Sunday Walks", "Book Club"], color: "#60A5FA", bg: "#0a1220" },
-              { name: "Yemi",  city: "Harlem",        clubs: ["Dinner Society", "Travel"], color: "#F59E0B", bg: "#1e140a" },
-            ].map((m) => (
-              <div key={m.name} style={{ flexShrink: 0, width: 140, borderRadius: 18, background: m.bg, border: `1px solid ${m.color}22`, padding: "14px 12px", boxShadow: `0 4px 24px ${m.color}18` }}>
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg,${m.color},${m.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <span style={{ color: "white", fontWeight: 900, fontSize: "14px" }}>{m.name[0]}</span>
-                </div>
-                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "13px", color: "white", marginBottom: 2 }}>{m.name}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>{m.city}</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  {m.clubs.map(c => (
-                    <span key={c} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: m.color, background: `${m.color}18`, borderRadius: 999, padding: "2px 7px", letterSpacing: "0.06em" }}>{c}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* ══════════════════════════════════════════════════════
           YOUR SOCIAL LIFE STARTS HERE — CLUBS
@@ -687,13 +736,21 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           STATEMENT — It's a woman's world.
       ══════════════════════════════════════════════════════ */}
-      <div style={{ background: INK, padding: "52px 22px 44px", overflow: "hidden" }}>
+      <div style={{ background: INK, padding: "64px 22px 56px", overflow: "hidden" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 9vw, 92px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.03em", margin: 0 }}>
           It&apos;s a woman&apos;s world.
         </p>
-        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(32px, 8vw, 80px)", color: PINK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: "8px 0 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(40px, 10vw, 100px)", color: PINK, lineHeight: 0.9, letterSpacing: "-0.04em", margin: "6px 0 40px" }}>
           We&apos;re it.
         </p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <Link href="/onboard" style={{ display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "14px 32px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", boxShadow: "0 8px 32px rgba(255,31,125,0.4)" }}>
+            JOIN NOW →
+          </Link>
+          <Link href="/login" style={{ display: "inline-block", background: "transparent", color: "rgba(255,255,255,0.7)", borderRadius: 999, padding: "14px 28px", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.25)" }}>
+            LOG IN
+          </Link>
+        </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════
@@ -834,10 +891,10 @@ export function LandingPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 16px", marginBottom: 40 }}>
             {[
-              { title: "ABOUT",       links: [{ l: "Our Story", h: "/about" }, { l: "Safety", h: "/safety" }, { l: "Careers", h: "/careers" }] },
-              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }] },
-              { title: "CLUB OWNERS", links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }] },
-              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }] },
+              { title: "ABOUT",       links: [{ l: "Our Story", h: "/about" }, { l: "Safety", h: "/safety" }, { l: "Girl Rights", h: "/girl-rights" }, { l: "Careers", h: "/careers" }] },
+              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }] },
+              { title: "CLUB OWNERS", links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }, { l: "Partners", h: "/partner" }] },
+              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Press", h: "/contact" }] },
             ].map((col) => (
               <div key={col.title}>
                 <p style={{ fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: INK, marginBottom: 14 }}>{col.title}</p>
