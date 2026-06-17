@@ -74,16 +74,6 @@ const AVENUES: AvenueConfig[] = [
     count: 38,
   },
   {
-    signLine1: "PRESS ROW",
-    signLine2: "MAGAZINE AVE.",
-    title: "Magazine",
-    tagline: "BloomBay Editorial.",
-    href: "/member/avenue/magazine",
-    accent: "#FF1F7D",
-    count: null,
-    icon: "magazine" as const,
-  },
-  {
     signLine1: "WELLNESS ROW",
     signLine2: "HEALTH BAR AVE.",
     title: "The Health Bar",
@@ -100,15 +90,6 @@ const AVENUES: AvenueConfig[] = [
     href: "/member/avenue/working",
     accent: "#1A0A2E",
     count: 94,
-  },
-  {
-    signLine1: "PRESS LANE",
-    signLine2: "THE COLUMN AVE.",
-    title: "The Column",
-    tagline: "Zuri writes every Sunday.",
-    href: "/member/avenue/column",
-    accent: "#C4005A",
-    count: null,
   },
 ];
 
@@ -297,9 +278,68 @@ export function AvenuePage() {
           <BBLogo size={22} light />
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em" }}>WHERE WOMEN CONNECT</p>
         </div>
-        <div style={{ marginTop: 20 }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 58, color: "white", lineHeight: 0.9 }}>The Avenue.</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.55)", marginTop: 8 }}>every block has something for you ♡</p>
+
+        {/* Title row — small title + publication objects side by side */}
+        <div style={{ marginTop: 18, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 28, color: "white", lineHeight: 1, margin: 0 }}>The Avenue.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5 }}>every block has something for you ♡</p>
+          </div>
+
+          {/* Publication objects — Magazine + The Column */}
+          <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 2 }}>
+            {/* BloomBay Magazine */}
+            <Link href="/member/avenue/magazine" style={{ textDecoration: "none" }}>
+              <div style={{
+                width: 56, height: 74,
+                background: "rgba(255,255,255,0.14)",
+                border: "1px solid rgba(255,255,255,0.28)",
+                borderRadius: 5,
+                display: "flex", flexDirection: "column",
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
+                position: "relative",
+              }}>
+                {/* Spine */}
+                <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 5, background: "rgba(0,0,0,0.22)" }} />
+                <div style={{ flex: 1, background: "linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 100%)", padding: "6px 6px 4px 10px", display: "flex", flexDirection: "column", gap: 3 }}>
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.5)", marginBottom: 2 }} />
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 6, fontStyle: "italic", fontWeight: 700, color: "white", lineHeight: 1.1 }}>BloomBay</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 4.5, fontWeight: 900, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>MAG</p>
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.22)", marginTop: 2 }} />
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.12)", marginTop: 2 }} />
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)", marginTop: 2 }} />
+                </div>
+                <div style={{ padding: "3px 5px 4px 10px", background: "rgba(255,31,125,0.35)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "4px", fontWeight: 900, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>EDITORIAL</p>
+                </div>
+              </div>
+            </Link>
+
+            {/* The Column */}
+            <Link href="/member/avenue/column" style={{ textDecoration: "none" }}>
+              <div style={{
+                width: 56, height: 74,
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                borderRadius: 5,
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.14)",
+                display: "flex", flexDirection: "column",
+              }}>
+                {/* Lined paper look */}
+                <div style={{ flex: 1, padding: "6px 7px 4px", display: "flex", flexDirection: "column", gap: 4, background: "rgba(255,255,255,0.08)" }}>
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} style={{ height: 1, background: i === 0 ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.14)" }} />
+                  ))}
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 7, color: "rgba(255,255,255,0.65)", lineHeight: 1.2, marginTop: 2 }}>Zuri writes every Sunday.</p>
+                </div>
+                <div style={{ padding: "3px 7px 4px", background: "rgba(196,0,90,0.4)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "4px", fontWeight: 900, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>THE COLUMN</p>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
 
