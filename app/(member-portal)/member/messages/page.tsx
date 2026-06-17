@@ -235,29 +235,17 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <button
-                        onClick={() => setResponse("accepted")}
-                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
-                      >ACCEPT →</button>
-                      <button
-                        onClick={() => setResponse("declined")}
-                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
-                      >DECLINE</button>
-                    </div>
-                    <button
-                      onClick={() => setShowNote(n => !n)}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-caveat)", fontSize: 15, color: "#C07080", textDecoration: "underline", textDecorationStyle: "dotted", padding: "4px 0" }}
-                    >
-                      {showNote ? "Cancel note" : "Write a note to her..."}
-                    </button>
 
+                    {/* Note textarea — shown above action buttons when open */}
                     {showNote && (
                       <div style={{ animation: "noteIn 0.25s ease both" }}>
+                        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#C07080", marginBottom: 6 }}>
+                          Write a note — accept, decline, or just explain ♡
+                        </p>
                         <textarea
                           value={note}
                           onChange={e => setNote(e.target.value)}
-                          placeholder="Say something nice..."
+                          placeholder="e.g. I can't make it but I'd love to next time..."
                           rows={3}
                           style={{
                             width: "100%", boxSizing: "border-box",
@@ -266,13 +254,28 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                             background: "#FFFBFD", resize: "none", outline: "none",
                           }}
                         />
-                        <button
-                          onClick={() => { setNoteSent(true); setShowNote(false); setResponse("accepted"); }}
-                          disabled={!note.trim()}
-                          style={{ marginTop: 8, width: "100%", background: note.trim() ? PINK : "rgba(0,0,0,0.08)", color: note.trim() ? "white" : "#bbb", border: "none", borderRadius: 999, padding: "12px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: note.trim() ? "pointer" : "default", transition: "background 0.2s" }}
-                        >SEND NOTE + ACCEPT →</button>
                       </div>
                     )}
+
+                    {/* Primary actions */}
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button
+                        onClick={() => { setResponse("accepted"); if (note.trim()) setNoteSent(true); }}
+                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
+                      >{note.trim() ? "ACCEPT + SEND NOTE →" : "ACCEPT →"}</button>
+                      <button
+                        onClick={() => { setResponse("declined"); if (note.trim()) setNoteSent(true); }}
+                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
+                      >{note.trim() ? "DECLINE + SEND NOTE" : "DECLINE"}</button>
+                    </div>
+
+                    {/* Toggle note */}
+                    <button
+                      onClick={() => setShowNote(n => !n)}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-caveat)", fontSize: 15, color: "#C07080", textDecoration: "underline", textDecorationStyle: "dotted", padding: "2px 0" }}
+                    >
+                      {showNote ? "Remove note" : "Write a note to her..."}
+                    </button>
                   </div>
                 )}
               </div>
