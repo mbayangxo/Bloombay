@@ -8,7 +8,7 @@ import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { thumbUrl } from "@/lib/images/supabase-transform";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
-import { HostDashCard } from "./host-dash-card";
+import { BloomRecapCard } from "./bloom-recap-card";
 import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
 import { EventObjectCard } from "./event-object-cards";
@@ -256,9 +256,11 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Host cards */}
-      <div style={{ padding: "0 16px" }}>
-        <HostDashCard />
+      {/* Bloom Recap card */}
+      <div style={{ padding: "14px 16px 0" }}>
+        <BloomRecapCard />
+      </div>
+      <div style={{ padding: "10px 16px 0" }}>
         <HostRecapCard />
       </div>
 
