@@ -256,8 +256,57 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Bloom Recap card */}
+      {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "14px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
+          <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
+        </div>
+        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
+            {weekDays.map((d, i) => {
+              const isToday = i === todayWeek;
+              const dayEvents = events.filter(ev => {
+                const evDay = new Date(ev.starts_at).getDay();
+                const mapped = evDay === 0 ? 6 : evDay - 1;
+                return mapped === i;
+              });
+              return (
+                <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : "rgba(0,0,0,0.3)" }}>{d}</p>
+                  <div style={{
+                    width: 30, height: 30, borderRadius: isToday ? 10 : 8,
+                    background: isToday ? PINK : dayEvents.length > 0 ? `${PINK}18` : "rgba(0,0,0,0.04)",
+                    border: isToday ? "none" : dayEvents.length > 0 ? `1.5px solid ${PINK}35` : "none",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: isToday ? `0 4px 14px ${PINK}44` : "none",
+                  }}>
+                    {dayEvents.length > 0 && (
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, color: isToday ? "white" : PINK }}>{dayEvents.length}</span>
+                    )}
+                  </div>
+                  {dayEvents[0] && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : "rgba(0,0,0,0.38)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {dayEvents[0].title.split(" ")[0]}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)" }}>This week looks balanced ✦</p>
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              {["FRIENDS","CULTURE","YOU"].map(t => (
+                <div key={t} style={{ padding: "2px 7px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: PINK, letterSpacing: "0.07em" }}>{t}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bloom Recap card — compact */}
+      <div style={{ padding: "10px 16px 0" }}>
         <BloomRecapCard />
       </div>
       <div style={{ padding: "10px 16px 0" }}>
@@ -327,56 +376,6 @@ export function HomePage() {
         </div>
       )}
 
-      {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "24px 16px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
-          <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
-        </div>
-        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
-            {weekDays.map((d, i) => {
-              const isToday = i === todayWeek;
-              // Find events on this day (simplified: distribute events across week)
-              const dayEvents = events.filter(ev => {
-                const evDay = new Date(ev.starts_at).getDay();
-                const mapped = evDay === 0 ? 6 : evDay - 1;
-                return mapped === i;
-              });
-              return (
-                <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : "rgba(0,0,0,0.3)" }}>{d}</p>
-                  <div style={{
-                    width: 30, height: 30, borderRadius: isToday ? 10 : 8,
-                    background: isToday ? PINK : dayEvents.length > 0 ? `${PINK}18` : "rgba(0,0,0,0.04)",
-                    border: isToday ? "none" : dayEvents.length > 0 ? `1.5px solid ${PINK}35` : "none",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: isToday ? `0 4px 14px ${PINK}44` : "none",
-                  }}>
-                    {dayEvents.length > 0 && (
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, color: isToday ? "white" : PINK }}>{dayEvents.length}</span>
-                    )}
-                  </div>
-                  {dayEvents[0] && (
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : "rgba(0,0,0,0.38)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {dayEvents[0].title.split(" ")[0]}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)" }}>This week looks balanced ✦</p>
-            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-              {["FRIENDS","CULTURE","YOU"].map(t => (
-                <div key={t} style={{ padding: "2px 7px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: PINK, letterSpacing: "0.07em" }}>{t}</div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* ══ YOUR CLUBS — circular badge pins ══════════════════════════════════ */}
       <div style={{ marginTop: 26 }}>
@@ -406,7 +405,7 @@ export function HomePage() {
         )}
       </div>
 
-      {/* ══ AROUND THE CITY — real event objects ══════════════════════════════ */}
+      {/* ══ AROUND THE CITY — swipeable event objects ═════════════════════════ */}
       {events.length > 0 && (
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
@@ -417,53 +416,30 @@ export function HomePage() {
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
           </div>
 
-          {/* Each event renders as its matching physical object — no boxes */}
-          <div className="bb-scroll-x" style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 16px 28px", alignItems: "flex-start" }}>
+          <div style={{
+            display: "flex", gap: 16,
+            overflowX: "scroll",
+            WebkitOverflowScrolling: "touch" as never,
+            scrollSnapType: "x mandatory",
+            padding: "8px 16px 28px",
+            alignItems: "flex-start",
+            // hide scrollbar
+            msOverflowStyle: "none" as never,
+            scrollbarWidth: "none" as never,
+          }}>
             {events.map((ev, i) => (
-              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+              <Link key={ev.id} href="/member/happenings" style={{
+                textDecoration: "none", flexShrink: 0, display: "block",
+                scrollSnapAlign: "start",
+                // let touch scroll through the link without navigating
+                touchAction: "pan-x",
+              }}>
                 <EventObjectCard ev={ev} size="sm" rotation={i % 2 === 0 ? -1.5 : 1.5} />
               </Link>
             ))}
           </div>
         </div>
       )}
-
-      {/* ══ LAST NIGHT memory card ═════════════════════════════════════════════ */}
-      <div style={{ margin: "8px 16px 0" }}>
-        <div style={{
-          borderRadius: 20, background: "#1A0010",
-          border: "1px solid rgba(255,31,125,0.15)",
-          padding: "20px",
-          boxShadow: "0 10px 36px rgba(0,0,0,0.22)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>LAST NIGHT</p>
-
-          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-            {/* Stats */}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
-                {events[0]?.title ?? "Carbone Girls Dinner"} ♡
-              </p>
-              <div style={{ display: "flex", gap: 16 }}>
-                {[["4","WOMEN"],["3","HOURS"],["1","FRIENDSHIP"]].map(([n, lbl]) => (
-                  <div key={lbl}>
-                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>{n}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{lbl}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Memory text */}
-            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 14 }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>
-                &ldquo;Last night felt intimate and alive — the kind of evening you carry home.&rdquo;
-              </p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700 }}>— Yande</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Safety */}
       {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}
