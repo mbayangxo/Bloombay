@@ -336,25 +336,43 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE — BLACK STATEMENT — first thing you see
       ══════════════════════════════════════════════════════ */}
-      <section className="bb-mobile-only" style={{ minHeight: "55svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "center", overflow: "hidden", position: "relative", padding: "48px 28px 44px" }}>
+      <section className="bb-mobile-only" style={{ minHeight: "88svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden", position: "relative", padding: "60px 28px 52px" }}>
         {/* Subtle pink glow bottom-left */}
         <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
-        <div style={{ marginBottom: 32 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
-            It&apos;s a<br />woman&apos;s<br />world.
-          </p>
-          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(40px, 12vw, 62px)", color: PINK, lineHeight: 0.9, letterSpacing: "-0.04em" }}>
-            We&apos;re it.
-          </p>
+
+        {/* Stacked headline — solid/outline mix */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(38px, 11vw, 56px)", lineHeight: 0.88, letterSpacing: "-0.03em", color: "white" }}>
+            it&apos;s a
+          </div>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(56px, 16vw, 80px)", lineHeight: 0.88, letterSpacing: "-0.04em", color: PINK }}>
+            woman&apos;s
+          </div>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(56px, 16vw, 80px)", lineHeight: 0.88, letterSpacing: "-0.04em", color: "white" }}>
+            world
+          </div>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(50px, 14vw, 70px)", lineHeight: 0.88, letterSpacing: "-0.04em", WebkitTextStroke: "2.5px white", color: "transparent" }}>
+            we&apos;re
+          </div>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(50px, 14vw, 70px)", lineHeight: 0.88, letterSpacing: "-0.04em", WebkitTextStroke: "2.5px white", color: "transparent" }}>
+            in it.
+          </div>
         </div>
-        {/* CTA buttons */}
-        <div style={{ display: "flex", gap: 10 }}>
-          <Link href="/onboard" style={{ display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "13px 28px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>
-            JOIN NOW →
+
+        {/* Subtitle */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 400, color: "rgba(255,255,255,0.55)", lineHeight: 1.55, marginBottom: 32 }}>
+          a space to connect, feel seen, and<br />build real friendships
+        </p>
+
+        {/* CTA */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <Link href="/onboard" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "white", color: PINK, borderRadius: 999, padding: "17px 28px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "12px", letterSpacing: "0.18em", textDecoration: "none" }}>
+            LET&apos;S START →
           </Link>
-          <Link href="/member/login" style={{ display: "inline-block", background: "transparent", color: "rgba(255,255,255,0.7)", borderRadius: 999, padding: "13px 22px", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.22)" }}>
-            LOG IN
-          </Link>
+          <p style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(255,255,255,0.4)", fontWeight: 400, margin: 0 }}>
+            already a member?{" "}
+            <Link href="/member/login" style={{ color: "rgba(255,255,255,0.85)", fontWeight: 700, textDecoration: "none" }}>sign in</Link>
+          </p>
         </div>
       </section>
 
