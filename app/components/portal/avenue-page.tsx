@@ -20,15 +20,6 @@ interface AvenueConfig {
 
 const AVENUES: AvenueConfig[] = [
   {
-    signLine1: "INTRO BLVD.",
-    signLine2: "INTRODUCTIONS AVE.",
-    title: "Introductions",
-    tagline: "Meet your Bloomies.",
-    href: "/member/introductions",
-    accent: "#FF1F7D",
-    count: 89,
-  },
-  {
     signLine1: "WALL ST.",
     signLine2: "THE WALL AVE.",
     title: "The Wall",
