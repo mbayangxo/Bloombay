@@ -687,7 +687,7 @@ function TemplatePickerSheet({ current, displayName, onSelect, onClose }: {
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
-export function LoungePage({ user }: { user?: LoungeUser }) {
+export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const [localName, setLocalName] = useState(user?.name         ?? "");
   const [localNbhd, setLocalNbhd] = useState(user?.neighborhood ?? "NYC");
   const [localBio,  setLocalBio]  = useState(user?.bio          ?? "Part of the world made for women.");
@@ -1122,6 +1122,278 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           onClose={() => setShowTemplatePicker(false)}
         />
       )}
+    </div>
+  );
+}
+
+// ── LOUNGE CHAT PAGE ──────────────────────────────────────────────────────────
+
+interface Convo {
+  id: string;
+  name: string;
+  initial: string;
+  color: string;
+  lastMessage: string;
+  time: string;
+  unread: number;
+  isGroup?: boolean;
+  members?: string[];
+  neighborhood?: string;
+}
+
+const CONVOS: Convo[] = [
+  {
+    id: "aaliyah",  name: "Aaliyah M.",  initial: "A",  color: "#FF1F7D",
+    lastMessage: "Just got back from that matcha spot. It's everything.",
+    time: "2m", unread: 3, neighborhood: "Crown Heights",
+  },
+  {
+    id: "sofia",    name: "Sofia K.",    initial: "S",  color: "#FF69B4",
+    lastMessage: "Sunday run done 🏃‍♀️ pastries were mandatory",
+    time: "1h", unread: 1, neighborhood: "Williamsburg",
+  },
+  {
+    id: "dinner",   name: "Dinner Society", initial: "DS", color: "#C4005A",
+    lastMessage: "Temi: Carbone reservation locked in for Thursday ✦",
+    time: "3h", unread: 7, isGroup: true,
+    members: ["Aminah", "Temi", "Zara", "Sofia"],
+  },
+  {
+    id: "kelechi",  name: "Kelechi O.", initial: "K",  color: "#EC4899",
+    lastMessage: "Book club pick just dropped. Cannot wait to discuss",
+    time: "5h", unread: 0, neighborhood: "Flatbush",
+  },
+  {
+    id: "museum",   name: "Museum Girls", initial: "MG", color: "#A855F7",
+    lastMessage: "Naomi: MoMA Saturday — who's coming?",
+    time: "Yesterday", unread: 4, isGroup: true,
+    members: ["Naomi", "Kelechi", "Yemi"],
+  },
+  {
+    id: "naomi",    name: "Naomi B.",   initial: "N",  color: "#FF69B4",
+    lastMessage: "That rooftop in SoHo was so good last night ✨",
+    time: "Yesterday", unread: 0, neighborhood: "SoHo",
+  },
+  {
+    id: "temi",     name: "Temi A.",    initial: "T",  color: "#E8007A",
+    lastMessage: "We should do the next one in Crown Heights",
+    time: "2 days", unread: 0, neighborhood: "Crown Heights",
+  },
+];
+
+function NamePill({ name, color, size = "md" }: { name: string; color: string; size?: "sm" | "md" }) {
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center",
+      background: `${color}18`, border: `1px solid ${color}38`,
+      borderRadius: 999,
+      padding: size === "sm" ? "2px 8px" : "4px 10px",
+    }}>
+      <div style={{
+        width: size === "sm" ? 14 : 18, height: size === "sm" ? 14 : 18,
+        borderRadius: "50%",
+        background: `linear-gradient(135deg, ${color}, ${color}BB)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: size === "sm" ? 7 : 8, fontWeight: 800, color: "white",
+        marginRight: 5, flexShrink: 0,
+      }}>{name[0]}</div>
+      <span style={{
+        fontFamily: "var(--font-jost)", fontSize: size === "sm" ? 10 : 11,
+        fontWeight: 700, color,
+      }}>{name.split(" ")[0]}</span>
+    </div>
+  );
+}
+
+export function LoungePage({ user }: { user?: LoungeUser }) {
+  const [active, setActive] = useState<Convo | null>(null);
+  const [msgText, setMsgText] = useState("");
+
+  const PINK_C = "#FF1F7D";
+
+  if (active) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#FBF0F5", display: "flex", flexDirection: "column" }}>
+        <style>{`@keyframes msgIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
+        {/* Chat header */}
+        <div style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)", padding: "calc(env(safe-area-inset-top, 0px) + 12px) 18px 12px", background: "white", borderBottom: "1px solid rgba(255,31,125,0.08)", display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={() => setActive(null)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK_C} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg, ${active.color}, ${active.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: active.initial.length > 1 ? 10 : 15, fontWeight: 800, color: "white", flexShrink: 0 }}>{active.initial}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 15, color: "#111", lineHeight: 1.1 }}>{active.name}</p>
+            {active.isGroup
+              ? <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa" }}>{active.members?.join(", ")}</p>
+              : <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa" }}>{active.neighborhood}</p>
+            }
+          </div>
+        </div>
+
+        {/* Messages area */}
+        <div style={{ flex: 1, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 12, overflowY: "auto" }}>
+          {/* Incoming */}
+          <div style={{ animation: "msgIn 0.28s ease both", maxWidth: "78%", alignSelf: "flex-start" }}>
+            <NamePill name={active.name} color={active.color} size="sm" />
+            <div style={{ marginTop: 5, background: "white", borderRadius: "4px 16px 16px 16px", padding: "11px 14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid rgba(255,31,125,0.07)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#222", lineHeight: 1.5 }}>{active.lastMessage}</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", marginTop: 3, paddingLeft: 4 }}>{active.time} ago</p>
+          </div>
+
+          {/* Sample outgoing */}
+          <div style={{ animation: "msgIn 0.28s ease 0.1s both", maxWidth: "72%", alignSelf: "flex-end" }}>
+            <div style={{ background: `linear-gradient(135deg, ${PINK_C}, #d4006a)`, borderRadius: "16px 16px 4px 16px", padding: "11px 14px", boxShadow: `0 4px 14px ${PINK_C}33` }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "white", lineHeight: 1.5 }}>Yes!! I was literally just thinking about you 🌸</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", marginTop: 3, textAlign: "right", paddingRight: 4 }}>Just now</p>
+          </div>
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: "12px 16px", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 90px)", background: "white", borderTop: "1px solid rgba(255,31,125,0.07)", display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <div style={{ flex: 1, background: "#FBF0F5", borderRadius: 20, padding: "10px 16px", border: "1px solid rgba(255,31,125,0.1)" }}>
+            <input
+              value={msgText}
+              onChange={e => setMsgText(e.target.value)}
+              placeholder="Say something..."
+              style={{ width: "100%", background: "none", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 14, color: "#222" }}
+            />
+          </div>
+          <button
+            style={{ width: 42, height: 42, borderRadius: "50%", background: msgText.trim() ? PINK_C : "rgba(255,31,125,0.12)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.18s" }}
+            onClick={() => setMsgText("")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M22 2L15 22 11 13 2 9l20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const unreadTotal = CONVOS.reduce((s, c) => s + c.unread, 0);
+  const pinned = CONVOS[0];
+  const rest   = CONVOS.slice(1);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#FF1F7D", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)", overflowX: "hidden" }}>
+      <style>{`
+        @keyframes cardSlideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .chat-card { animation: cardSlideIn 0.36s ease both; }
+        .chat-card:active { transform: scale(0.97); transition: transform 0.1s; }
+        .chat-scroll::-webkit-scrollbar { display: none; }
+      `}</style>
+
+      {/* ── Header ── */}
+      <div style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 64px)", padding: "calc(env(safe-area-inset-top, 0px) + 64px) 22px 0" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>THE LOUNGE</p>
+            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 36, color: "white", lineHeight: 1, margin: 0 }}>Chats.</h1>
+          </div>
+          {unreadTotal > 0 && (
+            <div style={{ background: "white", borderRadius: 999, padding: "6px 14px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, color: PINK_C }}>{unreadTotal} new</span>
+            </div>
+          )}
+        </div>
+
+        {/* Active people pills row */}
+        <div className="chat-scroll" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 20, scrollbarWidth: "none" }}>
+          {CONVOS.filter(c => c.unread > 0).map(c => (
+            <button key={c.id} onClick={() => setActive(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0 }}>
+              <NamePill name={c.name} color="white" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Pinned / most recent card ── */}
+      <button
+        onClick={() => setActive(pinned)}
+        className="chat-card"
+        style={{ display: "block", width: "calc(100% - 36px)", margin: "0 18px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0, animationDelay: "0.04s" }}
+      >
+        <div style={{
+          background: "white", borderRadius: 22,
+          boxShadow: "0 16px 48px rgba(0,0,0,0.22), 0 4px 0 rgba(0,0,0,0.08)",
+          overflow: "hidden",
+        }}>
+          {/* Color header strip */}
+          <div style={{ height: 6, background: `linear-gradient(90deg, ${pinned.color}, ${pinned.color}88)` }} />
+          <div style={{ padding: "16px 18px 18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg, ${pinned.color}, ${pinned.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "white", flexShrink: 0 }}>{pinned.initial}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <NamePill name={pinned.name} color={pinned.color} />
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa", marginTop: 3 }}>{pinned.neighborhood ?? `${pinned.members?.length} members`}</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5, flexShrink: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#ccc" }}>{pinned.time}</p>
+                {pinned.unread > 0 && (
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: PINK_C, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, color: "white" }}>{pinned.unread}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#444", lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+              {pinned.lastMessage}
+            </p>
+          </div>
+        </div>
+      </button>
+
+      {/* ── Rest of conversations ── */}
+      <div style={{ padding: "12px 18px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+        {rest.map((convo, idx) => (
+          <button
+            key={convo.id}
+            onClick={() => setActive(convo)}
+            className="chat-card"
+            style={{ display: "block", width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0, animationDelay: `${0.08 + idx * 0.05}s` }}
+          >
+            <div style={{
+              background: "rgba(255,255,255,0.92)",
+              backdropFilter: "blur(12px)",
+              borderRadius: 18,
+              padding: "14px 16px",
+              display: "flex", alignItems: "center", gap: 12,
+              border: "1px solid rgba(255,255,255,0.5)",
+              boxShadow: convo.unread > 0
+                ? "0 8px 24px rgba(0,0,0,0.14), 0 2px 0 rgba(0,0,0,0.06)"
+                : "0 4px 14px rgba(0,0,0,0.08)",
+            }}>
+              {/* Avatar */}
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${convo.color}, ${convo.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: convo.initial.length > 1 ? 10 : 15, fontWeight: 800, color: "white" }}>{convo.initial}</div>
+                {convo.unread > 0 && (
+                  <div style={{ position: "absolute", top: -2, right: -2, width: 16, height: 16, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${PINK_C}` }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: PINK_C }}>{convo.unread}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                  <NamePill name={convo.name} color={convo.color} size="sm" />
+                  {convo.isGroup && (
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "#bbb", letterSpacing: "0.06em" }}>GROUP</span>
+                  )}
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: convo.unread > 0 ? "#333" : "#aaa", fontWeight: convo.unread > 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {convo.lastMessage}
+                </p>
+              </div>
+
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", flexShrink: 0 }}>{convo.time}</p>
+            </div>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
