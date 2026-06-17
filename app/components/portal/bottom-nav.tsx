@@ -10,37 +10,14 @@ const PINK  = "#FF1F7D";
 const GOLD  = "#D4A853";
 const CREAM = "rgba(251,247,241,0.98)";
 
-// 6-petal flower path for nav (viewBox "0 0 360 84")
-// Each petal sits over one tab: x centers at 30, 90, 150, 210, 270, 330
-// Center petals (Clubs x=150, Avenue x=210) peak at y=8; outer petals at y=12
-const BLOOM_PATH =
-  "M 14 84 Q 0 84 0 66 L 0 32 " +
-  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +      // petal 1 (Home)
-  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +   // petal 2 (Plans)
-  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +   // petal 3 (Clubs)
-  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +   // petal 4 (Avenue)
-  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " + // petal 5 (City)
-  "C 307 18 317 12 330 12 C 343 12 353 18 360 32 " + // petal 6 (Introductions)
-  "L 360 66 Q 360 84 346 84 Z";
-
-// Scalloped top edge only (for inner highlight stroke)
-const BLOOM_TOP =
-  "M 0 32 " +
-  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +
-  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +
-  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +
-  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +
-  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " +
-  "C 307 18 317 12 330 12 C 343 12 353 18 360 32";
-
 // Inject keyframes once
 if (typeof document !== "undefined") {
   if (!document.getElementById("bb-nav-style")) {
     const s = document.createElement("style");
     s.id = "bb-nav-style";
     s.textContent = `
-      @keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.65;transform:scale(0.88)} }
-      @keyframes bloomPop  { 0%{transform:scale(0.5);opacity:0} 65%{transform:scale(1.14)} 100%{transform:scale(1);opacity:1} }
+      @keyframes pinkPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.65;transform:scale(0.88)} }
+      @keyframes flowerBloom { 0%{opacity:0;transform:scale(0.15) rotate(-40deg)} 65%{transform:scale(1.18) rotate(8deg);opacity:1} 100%{transform:scale(1) rotate(0deg);opacity:1} }
     `;
     document.head.appendChild(s);
   }
@@ -170,56 +147,36 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
   );
 }
 
-// ── Flower-shaped nav background (SVG) ────────────────────────────────────────
-function NavBloom() {
+// ── Stem-shaped nav bar ───────────────────────────────────────────────────────
+function NavStem() {
   return (
     <svg
-      viewBox="0 0 360 84"
+      viewBox="0 0 360 56"
       preserveAspectRatio="none"
       style={{
         position: "absolute",
-        top: -20,       // petals rise 20px above the icon row
-        left: 0, right: 0,
-        width: "100%",
-        height: 84,
+        top: 0, left: 0,
+        width: "100%", height: "100%",
         pointerEvents: "none",
         overflow: "visible",
       }}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <filter id="bb-nav-shadow" x="-8%" y="-30%" width="116%" height="170%">
-          <feDropShadow dx="0" dy="8"  stdDeviation="14" floodColor="rgba(0,0,0,0.10)" floodOpacity="1"/>
-          <feDropShadow dx="0" dy="3"  stdDeviation="5"  floodColor={GOLD}             floodOpacity="0.13"/>
-          <feDropShadow dx="0" dy="-1" stdDeviation="2"  floodColor="rgba(255,255,255,0.6)" floodOpacity="1"/>
+        <filter id="bb-stem-shadow" x="-5%" y="-60%" width="110%" height="240%">
+          <feDropShadow dx="0" dy="-10" stdDeviation="18" floodColor="rgba(0,0,0,0.09)" floodOpacity="1"/>
+          <feDropShadow dx="0" dy="3"   stdDeviation="5"  floodColor={GOLD}             floodOpacity="0.10"/>
         </filter>
-        {/* Grain filter applied to the fill rect */}
-        <filter id="bb-nav-grain" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" result="noise"/>
-          <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-          <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
-          <feComposite in="blended" in2="SourceGraphic" operator="in"/>
-        </filter>
-        <clipPath id="bb-nav-clip">
-          <path d={BLOOM_PATH}/>
-        </clipPath>
       </defs>
-
-      {/* Main cream fill with drop shadow */}
-      <path d={BLOOM_PATH} fill={CREAM} filter="url(#bb-nav-shadow)"/>
-
-      {/* Grain texture clipped to bloom shape */}
-      <rect width="360" height="84" fill="rgba(120,80,40,0.018)" filter="url(#bb-nav-grain)" clipPath="url(#bb-nav-clip)"/>
-
-      {/* Gold border along the bloom outline */}
-      <path d={BLOOM_PATH} fill="none" stroke={GOLD} strokeWidth="1.2" strokeOpacity="0.45"/>
-
-      {/* Inner white highlight along the scalloped top */}
-      <path d={BLOOM_TOP} fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1"/>
-
-      {/* Tiny gold dots at petal valleys (x: 60, 120, 180, 240, 300; y ≈ 30) */}
+      {/* Stem body — rounded pill */}
+      <rect x="0" y="2" width="360" height="54" rx="27" fill={CREAM} filter="url(#bb-stem-shadow)"/>
+      {/* Gold border */}
+      <rect x="1" y="3" width="358" height="52" rx="26" fill="none" stroke={GOLD} strokeWidth="0.9" strokeOpacity="0.32"/>
+      {/* Top highlight strip */}
+      <rect x="8" y="5" width="344" height="9" rx="4.5" fill="rgba(255,255,255,0.58)"/>
+      {/* Subtle valley dots between tabs */}
       {[60, 120, 180, 240, 300].map(x => (
-        <circle key={x} cx={x} cy={30} r="1.8" fill={GOLD} opacity="0.35"/>
+        <circle key={x} cx={x} cy={29} r="1.4" fill={GOLD} opacity="0.22"/>
       ))}
     </svg>
   );
@@ -384,7 +341,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
         </div>
       </div>
 
-      {/* ══════ BLOOM NAV ══════ */}
+      {/* ══════ STEM NAV ══════ */}
       <div
         className="fixed z-50 md:hidden"
         onTouchStart={() => { setNavTouched(true); setNavShrunk(false); }}
@@ -397,36 +354,55 @@ export function BottomNav({ user }: { user?: NavUser }) {
           transformOrigin: "bottom center",
           transition: "all 0.44s cubic-bezier(0.34, 1.56, 0.64, 1)",
           opacity: navShrunk && !navTouched ? 0.68 : 1,
-          // Height for the icon + label row; SVG extends above via top: -20
-          height: 60,
+          height: 56,
           position: "fixed",
+          overflow: "visible",
         }}
       >
-        {/* SVG flower background */}
-        <NavBloom />
+        {/* SVG stem background */}
+        <NavStem />
 
-        {/* Sliding flower indicator */}
+        {/* Flower indicator — slides along the stem, blooms on active tab */}
         {(() => {
           const activeIndex = Math.max(0, TABS.findIndex(t => isActive(t.href)));
+          const tabW = 100 / TABS.length;
           return (
             <div style={{
               position: "absolute",
-              top: 2,
-              left: `calc(${activeIndex * (100 / TABS.length)}% + ${100 / TABS.length / 2}%)`,
+              top: -34,
+              left: `calc(${activeIndex * tabW}% + ${tabW / 2}%)`,
               transform: "translateX(-50%)",
-              transition: "left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              zIndex: 2,
+              transition: "left 0.44s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              zIndex: 4,
               pointerEvents: "none",
             }}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="3" fill="#FF1F7D" />
-                {[0,1,2,3,4].map(i => {
-                  const angle = (i/5)*Math.PI*2 - Math.PI/2;
-                  const cx = 9 + Math.cos(angle)*5.2;
-                  const cy = 9 + Math.sin(angle)*5.2;
-                  return <ellipse key={i} cx={cx} cy={cy} rx="2.2" ry="1.4" fill="#FF1F7D" opacity="0.72" transform={`rotate(${(i/5)*360},${cx},${cy})`}/>;
-                })}
-              </svg>
+              {/* key remounts on tab change → replays flowerBloom animation */}
+              <div key={activeIndex} style={{ animation: "flowerBloom 0.44s cubic-bezier(0.34,1.56,0.64,1) forwards" }}>
+                <svg width="30" height="42" viewBox="0 0 30 42" fill="none">
+                  {/* Stem line connecting flower to the nav bar */}
+                  <line x1="15" y1="24" x2="15" y2="42" stroke={PINK} strokeWidth="1.8" strokeLinecap="round" opacity="0.5"/>
+                  {/* 5 petals */}
+                  {[0,1,2,3,4].map(i => {
+                    const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+                    const cx = 15 + Math.cos(angle) * 8;
+                    const cy = 13 + Math.sin(angle) * 8;
+                    return (
+                      <ellipse
+                        key={i}
+                        cx={cx} cy={cy}
+                        rx="4.8" ry="2.9"
+                        fill={PINK}
+                        opacity="0.9"
+                        transform={`rotate(${i * 72},${cx},${cy})`}
+                      />
+                    );
+                  })}
+                  {/* Center */}
+                  <circle cx="15" cy="13" r="5.8" fill={PINK}/>
+                  <circle cx="15" cy="13" r="3.2" fill="white" opacity="0.40"/>
+                  <circle cx="15" cy="13" r="1.3" fill="white" opacity="0.72"/>
+                </svg>
+              </div>
             </div>
           );
         })()}
@@ -437,10 +413,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
           height: "100%",
           display: "flex", alignItems: "center",
         }}>
-          {TABS.map((tab, i) => {
+          {TABS.map((tab) => {
             const active = isActive(tab.href);
             const label  = tabLabel(tab.key);
-            const isCenter = i === 2 || i === 3;
             return (
               <Link
                 key={tab.href}
@@ -448,30 +423,19 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 className="active:scale-90 transition-transform"
                 style={{ flex: 1, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}
               >
-                {/* Icon bloom */}
+                {/* Icon — no circle bg, flower above handles active state */}
                 <div style={{
-                  width: isCenter ? 42 : 40,
-                  height: isCenter ? 42 : 36,
-                  borderRadius: active
-                    ? "58% 42% 58% 42% / 42% 58% 42% 58%"  // organic petal
-                    : "50%",
+                  width: 36, height: 36,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  background: active
-                    ? `linear-gradient(145deg, ${PINK}, #FF5BAD)`
-                    : "transparent",
-                  boxShadow: active
-                    ? `0 5px 18px ${PINK}55, inset 0 1px 0 rgba(255,255,255,0.28)`
-                    : "none",
-                  transform: active ? "translateY(-6px) scale(1.06)" : "translateY(0) scale(1)",
-                  transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  animation: active ? "bloomPop 0.38s cubic-bezier(0.34,1.56,0.64,1)" : "none",
+                  transition: "opacity 0.2s",
+                  opacity: active ? 1 : 0.72,
                 }}>
                   {renderIcon(tab.key, active)}
                 </div>
 
                 {/* Label */}
                 <span style={{
-                  fontSize: "7px",
+                  fontSize: "6.5px",
                   fontWeight: active ? 900 : 600,
                   letterSpacing: "0.06em",
                   fontFamily: "var(--font-jost)",
