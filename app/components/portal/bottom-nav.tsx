@@ -137,9 +137,17 @@ function IconPin({ c }: SVGProps) {
 }
 function IconMail({ c }: SVGProps) {
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-      <polyline points="22,6 12,13 2,6"/>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Post */}
+      <line x1="12" y1="20" x2="12" y2="15"/>
+      {/* Base */}
+      <line x1="9" y1="20" x2="15" y2="20"/>
+      {/* Mailbox body */}
+      <path d="M5 15h14V10a7 7 0 0 0-14 0v5z"/>
+      {/* Door/slot */}
+      <line x1="5" y1="12" x2="9" y2="12"/>
+      {/* Flag up */}
+      <polyline points="19,10 19,6 22,6 22,10"/>
     </svg>
   );
 }
