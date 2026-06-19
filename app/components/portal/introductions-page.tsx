@@ -1,7 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
+// ── Real data types ───────────────────────────────────────────────────────────
+
+interface RealIntro {
+  id: string;
+  bio: string;
+  arrival_status: string;
+  neighborhood: string | null;
+  interests: string[];
+  flower_count: number;
+  created_at: string;
+  user_id: string;
+  profiles: { first_name: string | null; full_name: string | null; avatar_url: string | null };
+}
+
+interface RealComeWith {
+  id: string;
+  post: string;
+  activity: string;
+  when_text: string | null;
+  emoji: string;
+  spots_left: number;
+  created_at: string;
+  user_id: string;
+  profiles: { first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null };
+}
 
 // ── Logged-in user (replace with real auth context when backend is ready) ─────
 
@@ -598,6 +624,31 @@ export function IntroductionsPage() {
   const [openLetter, setOpenLetter] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
   const [bloomiesOf, setBloomiesOf] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
 
+  // ── Real data state ────────────────────────────────────────────────────────
+  const [realIntros, setRealIntros] = useState<RealIntro[]>([]);
+  const [comeWithPosts, setComeWithPosts] = useState<RealComeWith[]>([]);
+  const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+  const [showPostIntroSheet, setShowPostIntroSheet] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/introductions").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setRealIntros(data);
+    });
+    fetch("/api/come-with-me").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setComeWithPosts(data);
+    });
+  }, []);
+
+  async function sendBloomRequest(recipientId: string) {
+    if (sentRequests.has(recipientId)) return;
+    setSentRequests(prev => new Set([...prev, recipientId]));
+    await fetch("/api/bloom-request", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ recipient_id: recipientId }),
+    });
+  }
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2800);
@@ -732,6 +783,36 @@ export function IntroductionsPage() {
             note="Women who recently moved — looking for people and places."
           />
           <div className="flex flex-col gap-3">
+            {realIntros.map(intro => {
+              const name = intro.profiles.full_name ?? intro.profiles.first_name ?? "Member";
+              const initial = name.charAt(0).toUpperCase();
+              const isSent = sentRequests.has(intro.user_id);
+              return (
+                <div key={intro.id} style={{ background: "white", borderRadius: 16, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF1F7D" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                    <ProfileAvatar initial={initial} color="#FF1F7D" size={44} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 14, color: "#111", margin: 0 }}>{name}</p>
+                      {intro.neighborhood && <p style={{ fontSize: 10, color: "#aaa", marginTop: 2 }}>{intro.neighborhood}</p>}
+                      <span style={{ display: "inline-block", fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 100, marginTop: 6, background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }}>
+                        ✦ {intro.arrival_status.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, color: "#555", marginBottom: 12 }}>
+                    &ldquo;{intro.bio}&rdquo;
+                  </p>
+                  <button
+                    onClick={() => sendBloomRequest(intro.user_id)}
+                    style={isSent
+                      ? { padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#eee", color: "#aaa", border: "none", cursor: "default" }
+                      : { padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#FF1F7D", color: "white", border: "none", cursor: "pointer" }
+                    }>
+                    {isSent ? "Sent ✦" : "Bloom Request →"}
+                  </button>
+                </div>
+              );
+            })}
             {NEW_IN_TOWN.map(girl => (
               <div key={girl.id} className="bg-white rounded-2xl p-4"
                 style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: `3px solid ${girl.color}` }}>
@@ -787,6 +868,38 @@ export function IntroductionsPage() {
             </Link>
           </div>
           <div className="flex flex-col gap-3">
+            {comeWithPosts.map(cwp => {
+              const posterName = cwp.profiles.full_name ?? cwp.profiles.first_name ?? "Member";
+              return (
+                <div key={cwp.id} style={{ background: "white", borderRadius: 16, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF1F7D" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                    <ProfileAvatar initial={posterName.charAt(0).toUpperCase()} color="#FF1F7D" size={40} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <p style={{ fontWeight: 700, fontSize: 14, color: "#111", margin: 0 }}>{posterName}</p>
+                        <span style={{ fontSize: 8, fontWeight: 700, padding: "2px 8px", borderRadius: 100, background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }}>
+                          {cwp.emoji} {cwp.activity}
+                        </span>
+                      </div>
+                      {cwp.profiles.neighborhood && <p style={{ fontSize: 10, color: "#bbb", marginTop: 2 }}>{cwp.profiles.neighborhood}</p>}
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, color: "#444", marginBottom: 12 }}>
+                    &ldquo;{cwp.post}&rdquo;
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    {cwp.when_text && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "6px 12px", borderRadius: 100, background: "rgba(0,0,0,0.04)", color: "#888" }}>
+                        {cwp.when_text}
+                      </span>
+                    )}
+                    <button style={{ padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#111", color: "white", border: "none", cursor: "pointer", marginLeft: "auto" }}>
+                      I&apos;m In →
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
             {COME_WITH_ME.map(post => (
               <ComeWithMeCard key={post.id} post={post}
                 joined={joined.has(post.id)}
@@ -944,6 +1057,93 @@ export function IntroductionsPage() {
           onDone={() => setBloomiesOf(null)}
         />
       )}
+
+      {/* Post Intro FAB */}
+      <div style={{ position: "fixed", bottom: "calc(env(safe-area-inset-bottom, 0px) + 88px)", right: 18, zIndex: 50 }}>
+        <button onClick={() => setShowPostIntroSheet(true)} style={{ width: 52, height: 52, borderRadius: "50%", background: "#FF1F7D", border: "none", boxShadow: "0 4px 18px rgba(255,31,125,0.4)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      {showPostIntroSheet && <PostIntroSheet onClose={() => setShowPostIntroSheet(false)} />}
+    </div>
+  );
+}
+
+// ── Post Intro Sheet ──────────────────────────────────────────────────────────
+
+function PostIntroSheet({ onClose }: { onClose: () => void }) {
+  const [bio, setBio] = useState("");
+  const [arrivalStatus, setArrivalStatus] = useState("local");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function handleSubmit() {
+    if (bio.length < 10) return;
+    setSubmitting(true);
+    const res = await fetch("/api/introductions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ bio, arrival_status: arrivalStatus, neighborhood }),
+    });
+    if (res.ok) setDone(true);
+    setSubmitting(false);
+  }
+
+  if (done) return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ background: "white", borderRadius: 24, padding: "32px 24px", textAlign: "center", maxWidth: 320, width: "100%" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 700, fontStyle: "italic", color: "#FF1F7D", marginBottom: 8 }}>You&apos;re in the room. ✦</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#666", marginBottom: 24 }}>Your introduction is live.</p>
+        <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: 100, background: "#FF1F7D", color: "white", border: "none", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Done</button>
+      </div>
+    </div>
+  );
+
+  const ARRIVAL_OPTIONS = [
+    { value: "just_moved", label: "Just moved here" },
+    { value: "new_6mo", label: "New (< 6 months)" },
+    { value: "fresh_start", label: "Fresh start" },
+    { value: "local", label: "Local" },
+    { value: "native", label: "Native" },
+  ];
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px", borderRadius: 12,
+    border: "1.5px solid #E0D8CF", background: "white",
+    fontFamily: "var(--font-jost)", fontSize: 14, color: "#1C1B1C",
+    outline: "none", boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+      <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "28px 24px 48px", width: "100%", maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 700, fontStyle: "italic", color: "#1C1B1C" }}>Introduce yourself.</h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#999" }}>×</button>
+        </div>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", marginBottom: 20 }}>Tell the community who you are. This appears in the introductions feed.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Who are you? *</label>
+            <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="I just moved to Brooklyn from Lagos. I'm a graphic designer who loves museums, good food, and finding community." rows={4} style={{ ...inputStyle, resize: "none" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: bio.length < 10 ? "#FF6B6B" : "#aaa", marginTop: 4 }}>{bio.length}/500 — at least 10 characters</p>
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Your story *</label>
+            <select value={arrivalStatus} onChange={e => setArrivalStatus(e.target.value)} style={{ ...inputStyle }}>
+              {ARRIVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Neighborhood</label>
+            <input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Williamsburg, Crown Heights, SoHo…" style={inputStyle} />
+          </div>
+        </div>
+        <button onClick={handleSubmit} disabled={submitting || bio.length < 10} style={{ width: "100%", marginTop: 24, padding: "16px", borderRadius: 100, border: "none", background: bio.length < 10 ? "#FFB6D0" : "#FF1F7D", color: "white", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 15, cursor: bio.length < 10 ? "default" : "pointer" }}>
+          {submitting ? "Posting…" : "Post My Introduction →"}
+        </button>
+      </div>
     </div>
   );
 }
