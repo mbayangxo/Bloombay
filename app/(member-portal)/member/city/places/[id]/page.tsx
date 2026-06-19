@@ -25,53 +25,6 @@ interface VenueDetail {
   reviews: { author: string; text: string; rating: number }[];
 }
 
-// ── STATIC VENUE DATA (editorial / fallback) ───────────────────────────────────
-const VENUE_FALLBACK = {
-  name: "Café Lyria",
-  location: "West Village, NYC",
-  tagline: "The kind of place that makes your weekday feel like a soft little secret.",
-  rating: 4.8,
-  womenCount: 843,
-  bloomNotes: 127,
-  heroImg: "/food templates/01_Hero_Product.png",
-  photoCaption: "Sunlight + good coffee = therapy",
-  girlFavorites: [
-    { name: "Pistachio Matcha",  note: "Most ordered",           img: "/food templates/08_New_On_The_Menu.png" },
-    { name: "Almond Croissant",  note: "The classic",            img: "/food templates/04_Menu_Card.png"       },
-    { name: "Window Table",      note: "Best seat in the house", img: "/food templates/07_Mood_Board.png"      },
-  ],
-  noteFrom: {
-    name: "Amina",
-    initial: "A",
-    color: "#FF69B4",
-    text: "Order the pistachio matcha and sit by the front window. Go before 11am. Trust me.",
-  },
-  bloomTips: [
-    "Go before 11am.\nThe light is perfect.",
-    "Ask for the patio in the back!",
-  ],
-  savedTo: [
-    { name: "Mina's World",        initial: "M", color: "#FF69B4", ago: "2 days ago"  },
-    { name: "Aaliyah's Favorites", initial: "A", color: PINK,      ago: "1 week ago"  },
-    { name: "Book Lovers NYC",     initial: "B", color: "#A855F7", ago: "1 month ago" },
-  ],
-  about: "A cozy all-day café with Parisian soul and NYC energy. Perfect for slow mornings, long catch-ups, and solo coffee dates.",
-  moreImgs: [
-    "/food templates/02_Promotion.png",
-    "/food templates/03_Open_Hours.png",
-    "/food templates/05_Founder_Story.png",
-  ],
-  reviews: [
-    { name: "Sara",  initial: "S", color: PINK,      rating: 5, text: "My go-to write, read, overthink, and glow spot. Never misses.",  ago: "3 days ago"  },
-    { name: "Jess",  initial: "J", color: "#FF69B4", rating: 5, text: "Almond croissant is insane. And the playlist? Chef's kiss.",     ago: "1 week ago"  },
-    { name: "Lina",  initial: "L", color: "#A855F7", rating: 5, text: "The girls who work here are angels. Feels like home.",           ago: "2 weeks ago" },
-  ],
-  quickInfo: {
-    address:   "West Village, NYC",
-    hours:     "Daily 7AM – 7PM",
-    instagram: "@cafelyria.nyc",
-  },
-};
 
 const AVATAR_COLORS = ["#FF1F7D", "#FF69B4", "#A855F7", "#E87040", "#2E6B9E", "#D4A853"];
 
@@ -133,25 +86,33 @@ export default function VenuePage() {
       .catch(() => {});
   }, [params.id]);
 
-  // Overlay real data onto the editorial fallback
-  const name       = venue?.name       ?? VENUE_FALLBACK.name;
-  const location   = venue?.location   ?? VENUE_FALLBACK.location;
-  const tagline    = venue?.tagline    ?? VENUE_FALLBACK.tagline;
-  const about      = venue?.about      ?? VENUE_FALLBACK.about;
-  const rating     = venue?.avg_rating ?? VENUE_FALLBACK.rating;
-  const bloomNotes = venue?.bloom_notes ?? VENUE_FALLBACK.bloomNotes;
-  const heroImg    = venue?.cover_url  ?? VENUE_FALLBACK.heroImg;
-  const address    = venue?.address    ?? VENUE_FALLBACK.quickInfo.address;
-  const instagram  = venue?.instagram  ?? VENUE_FALLBACK.quickInfo.instagram;
-  const moreImgs   = venue?.photo_urls?.length
-    ? venue.photo_urls.slice(0, 3)
-    : VENUE_FALLBACK.moreImgs;
-  const displayReviews = venue?.reviews?.length
-    ? venue.reviews.map((r, i) => ({ name: r.author, initial: r.author[0] ?? "?", color: AVATAR_COLORS[i % AVATAR_COLORS.length], rating: r.rating, text: r.text, ago: "" }))
-    : VENUE_FALLBACK.reviews;
+  const name       = venue?.name ?? "";
+  const location   = venue?.location ?? "";
+  const tagline    = venue?.tagline ?? "";
+  const about      = venue?.about ?? "";
+  const rating     = venue?.avg_rating ?? 0;
+  const bloomNotes = venue?.bloom_notes ?? 0;
+  const heroImg    = venue?.cover_url ?? null;
+  const address    = venue?.address ?? "";
+  const instagram  = venue?.instagram ?? "";
+  const moreImgs   = venue?.photo_urls?.slice(0, 3) ?? [];
+  const displayReviews = (venue?.reviews ?? []).map((r, i) => ({
+    name: r.author, initial: r.author[0] ?? "?", color: AVATAR_COLORS[i % AVATAR_COLORS.length], rating: r.rating, text: r.text,
+  }));
 
   const PAPER_TEX = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.04'/></svg>")`;
   const LINED     = "repeating-linear-gradient(transparent, transparent 23px, rgba(0,0,0,0.05) 24px)";
+
+  if (!params.id) return null;
+
+  if (!venue && params.id) {
+    return (
+      <div style={{ minHeight: "100vh", background: CREAM, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        <Link href="/member/city/places" style={{ marginBottom: 20, color: PINK, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700 }}>← Back to places</Link>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "#999" }}>Venue not found.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: CREAM, backgroundImage: PAPER_TEX, minHeight: "100vh", paddingBottom: 104 }}>
@@ -195,11 +156,8 @@ export default function VenuePage() {
       <div style={{ position: "relative" }}>
         <div style={{ height: 230, background: `linear-gradient(155deg, #1A3464 0%, #2650A0 65%, #4476C8 100%)`, overflow: "hidden", position: "relative" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroImg} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.72, mixBlendMode: "luminosity" }} />
+          <img src={heroImg ?? undefined} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.72, mixBlendMode: "luminosity" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(20,48,100,0.25) 0%, rgba(20,48,100,0.6) 100%)" }} />
-          <p style={{ position: "absolute", bottom: 14, left: 18, fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.92)", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
-            {VENUE_FALLBACK.photoCaption} ♡
-          </p>
         </div>
 
         {/* Bloom Notes counter — overlapping card */}
@@ -224,80 +182,6 @@ export default function VenuePage() {
         </div>
       </div>
 
-      {/* ── GIRL FAVORITES ───────────────────────────────────────────── */}
-      <div style={{ margin: "12px 18px 0", background: "white", borderRadius: 20, padding: "14px 16px", boxShadow: "0 2px 14px rgba(0,0,0,0.06)" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>GIRL FAVORITES 🌸</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {VENUE_FALLBACK.girlFavorites.map((fav, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, overflow: "hidden", flexShrink: 0, background: "#FFF0F7" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={fav.img} alt={fav.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{fav.name}</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#aaa", marginTop: 1 }}>{fav.note}</p>
-              </div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.35)" strokeWidth="2" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── NOTE FROM AMINA ──────────────────────────────────────────── */}
-      <div style={{ margin: "14px 18px 0" }}>
-        <div style={{ background: "#FFFCF4", borderRadius: 18, padding: "14px 16px", border: "1px solid rgba(0,0,0,0.06)", backgroundImage: LINED, backgroundSize: "100% 24px", backgroundPosition: "0 14px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#bbb", marginBottom: 10 }}>A NOTE FROM {VENUE_FALLBACK.noteFrom.name.toUpperCase()}</p>
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-            <div style={{ width: 34, height: 34, borderRadius: "50%", background: `linear-gradient(135deg, ${VENUE_FALLBACK.noteFrom.color}, ${VENUE_FALLBACK.noteFrom.color}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, color: "white", fontSize: 13, boxShadow: `0 2px 8px ${VENUE_FALLBACK.noteFrom.color}44` }}>
-              {VENUE_FALLBACK.noteFrom.initial}
-            </div>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#444", lineHeight: 1.55 }}>{VENUE_FALLBACK.noteFrom.text}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── BLOOM TIPS ───────────────────────────────────────────────── */}
-      <div style={{ padding: "14px 18px 0", display: "flex", gap: 10 }}>
-        {VENUE_FALLBACK.bloomTips.map((tip, i) => (
-          <div key={i} style={{
-            flex: 1,
-            background: i === 0 ? "#FFF9C2" : "#FFE8F0",
-            borderRadius: 14,
-            padding: "12px 12px 14px",
-            transform: `rotate(${i === 0 ? -1.2 : 1}deg)`,
-            boxShadow: "2px 4px 12px rgba(0,0,0,0.1)",
-            backgroundImage: LINED,
-            backgroundSize: "100% 20px",
-            backgroundPosition: "0 12px",
-          }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: i === 0 ? "#9A7E0A" : PINK, marginBottom: 7 }}>BLOOM TIP</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#333", lineHeight: 1.45, whiteSpace: "pre-line" }}>{tip}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── SAVED TO ─────────────────────────────────────────────────── */}
-      <div style={{ margin: "14px 18px 0", background: "white", borderRadius: 18, padding: "14px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#bbb", marginBottom: 12 }}>SAVED TO</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {VENUE_FALLBACK.savedTo.map((s, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 30, height: 30, borderRadius: "50%", background: `linear-gradient(135deg, ${s.color}, ${s.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "white", flexShrink: 0, boxShadow: `0 2px 6px ${s.color}33` }}>{s.initial}</div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{s.name}</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb" }}>Saved {s.ago}</p>
-              </div>
-            </div>
-          ))}
-          <button style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 4, background: "none", border: "none", cursor: "pointer" }}>
-            <div style={{ width: 30, height: 30, borderRadius: "50%", border: `1.5px dashed ${PINK}44`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </div>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: `${PINK}BB` }}>Add to a Trail</p>
-          </button>
-        </div>
-      </div>
 
       {/* ── ABOUT ────────────────────────────────────────────────────── */}
       <div style={{ margin: "14px 18px 0", background: "white", borderRadius: 20, padding: "16px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
@@ -373,7 +257,6 @@ export default function VenuePage() {
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111" }}>{rev.name}</p>
                     <Stars n={rev.rating} size={10} />
                   </div>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#bbb", marginTop: 1 }}>{rev.ago}</p>
                 </div>
               </div>
               <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontStyle: "italic", color: "#555", lineHeight: 1.55 }}>{rev.text}</p>
@@ -387,9 +270,8 @@ export default function VenuePage() {
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "#bbb", marginBottom: 14 }}>QUICK INFO</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[
-            { icon: "📍", text: address || VENUE_FALLBACK.quickInfo.address },
-            { icon: "🕐", text: VENUE_FALLBACK.quickInfo.hours },
-            { icon: "📸", text: instagram || VENUE_FALLBACK.quickInfo.instagram },
+            { icon: "📍", text: address },
+            { icon: "📸", text: instagram },
           ].filter(row => row.text).map(({ icon, text }) => (
             <div key={text} style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 17 }}>{icon}</span>

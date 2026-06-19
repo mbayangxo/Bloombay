@@ -377,7 +377,7 @@ function PhotosSection() {
 // ── Section Components ─────────────────────────────────────────────────────
 
 function WomenSection({ showToast, members }: { showToast: (msg: string) => void; members: RealMember[] }) {
-  const displayMembers = members.length > 0 ? members : MEMBERS.map(m => ({ user_id: m.name, name: m.name, neighborhood: m.neighborhood, avatar_url: null, joined_at: "", joined_label: m.joined }));
+  const displayMembers = members;
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -606,8 +606,8 @@ const GATHERING_GRADIENTS = [
 ];
 
 function GatheringsSection({ upcoming, past }: { upcoming: RealGathering[]; past: RealGathering[] }) {
-  const displayUpcoming = upcoming.length > 0 ? upcoming : GATHERINGS_UPCOMING.map((g, i) => ({ id: String(i), title: g.title, date: g.date, venue: g.venue, seats: g.seats }));
-  const displayPast = past.length > 0 ? past : GATHERINGS_PAST.map((g, i) => ({ id: String(i), title: g.title, date: g.date, venue: "" }));
+  const displayUpcoming = upcoming;
+  const displayPast = past;
   return (
     <div className="flex flex-col gap-8">
       {/* Upcoming — editorial poster cards */}

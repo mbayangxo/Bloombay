@@ -389,15 +389,13 @@ function OverviewSection() {
       .catch(() => {});
   }, []);
 
-  const statCards = liveStats
-    ? [
-        { label: "Women Waiting",     value: String(liveStats.members.pending),    sub: "Pending review" },
-        { label: "Total Members",     value: String(liveStats.members.total),      sub: "Active in BloomBay" },
-        { label: "New This Week",     value: String(liveStats.members.new_week),   sub: "New members" },
-        { label: "Active Clubs",      value: String(liveStats.clubs.active),       sub: "Live right now" },
-        { label: "Wall Posts",        value: String(liveStats.wall.total_posts),   sub: `+${liveStats.wall.posts_week} this week` },
-      ]
-    : LIVE_STATS;
+  const statCards = [
+    { label: "Women Waiting",  value: liveStats ? String(liveStats.members.pending)    : "—", sub: liveStats ? "Pending review"              : "Loading…" },
+    { label: "Total Members",  value: liveStats ? String(liveStats.members.total)      : "—", sub: liveStats ? "Active in BloomBay"          : "Loading…" },
+    { label: "New This Week",  value: liveStats ? String(liveStats.members.new_week)   : "—", sub: liveStats ? "New members"                 : "Loading…" },
+    { label: "Active Clubs",   value: liveStats ? String(liveStats.clubs.active)       : "—", sub: liveStats ? "Live right now"              : "Loading…" },
+    { label: "Wall Posts",     value: liveStats ? String(liveStats.wall.total_posts)   : "—", sub: liveStats ? `+${liveStats.wall.posts_week} this week` : "Loading…" },
+  ];
 
   return (
     <div>
@@ -1205,7 +1203,7 @@ function ClubsSection() {
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
-  const displayClubs = realClubs.length > 0 ? realClubs.map(c => ({
+  const displayClubs = realClubs.map(c => ({
     name: c.name,
     city: "NYC",
     curator: c.owner_name,
@@ -1217,7 +1215,7 @@ function ClubsSection() {
     events: c.upcoming_gatherings,
     id: c.id,
     slug: c.slug,
-  })) : CLUBS;
+  }));
 
   const shown = filter === "all" ? displayClubs : displayClubs.filter((c) => c.type === filter);
   const hqCount   = displayClubs.filter((c) => c.type === "hq").length;
@@ -1256,6 +1254,11 @@ function ClubsSection() {
           <span className="text-right">Members</span>
           <span className="text-right">Seats</span>
         </div>
+        {shown.length === 0 && (
+          <div className="px-5 py-10 text-center" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>
+            No clubs yet.
+          </div>
+        )}
         {shown.map((club, i) => (
           <div key={club.name}>
             <div

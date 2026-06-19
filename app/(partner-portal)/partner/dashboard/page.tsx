@@ -696,16 +696,15 @@ function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
 }
 
 function GatheringsSection({ upcoming }: { upcoming: VenueReservation[] }) {
-  const display = upcoming.length > 0 ? upcoming : UPCOMING_GATHERINGS.map((g, i) => ({ id: String(i), guest: g.club, date: g.date, time: g.time, party_size: g.guests, notes: null }));
   return (
     <div>
       <div className="mb-5">
         <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Upcoming Reservations</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{display.length} BloomBay bookings at your venue</p>
+        <p className="text-sm text-gray-400 mt-0.5">{upcoming.length} BloomBay bookings at your venue</p>
       </div>
 
       <div className="flex flex-col gap-3">
-        {display.map((g) => (
+        {upcoming.map((g) => (
           <div
             key={g.id}
             className="bg-white rounded-2xl p-5 flex items-center gap-5"
@@ -724,7 +723,7 @@ function GatheringsSection({ upcoming }: { upcoming: VenueReservation[] }) {
             </div>
           </div>
         ))}
-        {display.length === 0 && (
+        {upcoming.length === 0 && (
           <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <p className="text-sm text-gray-400">No upcoming reservations yet.</p>
           </div>
@@ -735,7 +734,6 @@ function GatheringsSection({ upcoming }: { upcoming: VenueReservation[] }) {
 }
 
 function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: VenueStats | null }) {
-  const display = past.length > 0 ? past : RECENT_VISITORS.map((v, i) => ({ id: String(i), guest: v.name, date: v.date, time: "", party_size: v.guests }));
   const totalGuests = past.reduce((sum, r) => sum + r.party_size, 0);
 
   return (
@@ -744,14 +742,14 @@ function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-6" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
           <p className="text-4xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
-            {past.length > 0 ? totalGuests : 156}
+            {totalGuests}
           </p>
           <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>Total Women Hosted</p>
           <p className="text-xs text-gray-400 mt-0.5">via BloomBay</p>
         </div>
         <div className="bg-white rounded-2xl p-6" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
           <p className="text-4xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
-            {stats ? stats.total_past : 0}
+            {stats?.total_past ?? 0}
           </p>
           <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>Past Visits</p>
           <p className="text-xs text-gray-400 mt-0.5">BloomBay reservations</p>
@@ -762,7 +760,7 @@ function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: 
       <div className="mb-4">
         <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Recent Visits</h3>
         <div className="flex flex-col gap-2">
-          {display.map((v) => (
+          {past.map((v) => (
             <div key={v.id} className="bg-white rounded-2xl px-5 py-3.5 flex items-center gap-4" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
                 {v.guest[0] ?? "?"}
@@ -776,6 +774,11 @@ function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: 
               </div>
             </div>
           ))}
+          {past.length === 0 && (
+            <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+              <p className="text-sm text-gray-400">No past visits yet.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -783,10 +786,6 @@ function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: 
 }
 
 function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueReview[]; avgRating: number; reviewCount: number }) {
-  const displayReviews = reviews.length > 0 ? reviews : REVIEWS.map(r => ({ author: r.author, text: r.text, rating: r.rating }));
-  const displayRating = reviews.length > 0 ? avgRating : 4.8;
-  const displayCount = reviews.length > 0 ? reviewCount : 23;
-
   return (
     <div>
       {/* Overall rating */}
@@ -796,14 +795,14 @@ function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueRevi
       >
         <div className="text-center flex-shrink-0">
           <p className="text-6xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", lineHeight: 1 }}>
-            {displayRating > 0 ? displayRating.toFixed(1) : "—"}
+            {avgRating > 0 ? avgRating.toFixed(1) : "—"}
           </p>
           <p className="text-xs text-gray-400 mt-1">out of 5</p>
         </div>
         <div>
-          {displayRating > 0 && <StarRating rating={displayRating} size={22} />}
+          {avgRating > 0 && <StarRating rating={avgRating} size={22} />}
           <p className="text-sm text-gray-500 mt-2">
-            From <span className="font-semibold" style={{ color: "#111111" }}>{displayCount}</span> BloomBay women
+            From <span className="font-semibold" style={{ color: "#111111" }}>{reviewCount}</span> BloomBay women
           </p>
           <p className="text-xs text-gray-400 mt-0.5">BloomBay Rating — verified visits only</p>
         </div>
@@ -812,7 +811,7 @@ function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueRevi
       {/* Reviews */}
       <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Written Reviews</h3>
       <div className="flex flex-col gap-3">
-        {displayReviews.map((r, i) => (
+        {reviews.map((r, i) => (
           <div key={i} className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-center gap-3">
@@ -830,7 +829,7 @@ function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueRevi
             </p>
           </div>
         ))}
-        {displayReviews.length === 0 && (
+        {reviews.length === 0 && (
           <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <p className="text-sm text-gray-400">No reviews yet. Your first BloomBay visitors will leave reviews here.</p>
           </div>
@@ -842,19 +841,16 @@ function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueRevi
 
 function RequestsSection({ pending_requests }: { pending_requests: VenueReservation[] }) {
   const [handled, setHandled] = useState<Set<string>>(new Set());
-  const display = pending_requests.length > 0
-    ? pending_requests
-    : BOOKING_REQUESTS.map((r, i) => ({ id: String(i), guest: r.contact, date: r.requestedDate, time: "", party_size: r.guests, notes: r.message }));
 
   return (
     <div>
       <div className="mb-5">
         <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Booking Requests</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{display.length - handled.size} pending requests</p>
+        <p className="text-sm text-gray-400 mt-0.5">{pending_requests.length - handled.size} pending requests</p>
       </div>
 
       <div className="flex flex-col gap-4">
-        {display.map((r) => (
+        {pending_requests.map((r) => (
           <div
             key={r.id}
             className="bg-white rounded-2xl p-5"
@@ -901,7 +897,7 @@ function RequestsSection({ pending_requests }: { pending_requests: VenueReservat
             )}
           </div>
         ))}
-        {display.length === 0 && (
+        {pending_requests.length === 0 && (
           <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <p className="text-sm text-gray-400">No pending booking requests.</p>
           </div>

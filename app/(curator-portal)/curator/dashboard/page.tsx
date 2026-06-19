@@ -135,7 +135,7 @@ function Avatar({ initials, size = 40, bg = "#FF1F7D" }: { initials: string; siz
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
 function MyClubs({ showToast, clubs }: { showToast: (msg: string) => void; clubs: RealClub[] }) {
-  const displayClubs = clubs.length > 0 ? clubs : CLUBS.map(c => ({ id: String(c.id), name: c.name, color: c.color, members: c.members, upcoming: 0 }));
+  const displayClubs = clubs;
   return (
     <div>
       <div className="grid gap-5 md:grid-cols-2">
@@ -208,15 +208,14 @@ function MyClubs({ showToast, clubs }: { showToast: (msg: string) => void; clubs
 }
 
 function WomenWelcomed({ welcomed, totalCount }: { welcomed: RealWelcomed[]; totalCount: number }) {
-  const display = welcomed.length > 0 ? welcomed : WELCOMED_WOMEN.map(w => ({ name: w.name, neighborhood: w.neighborhood, club: w.club, dateWelcomed: w.dateWelcomed }));
   return (
     <div>
       {/* Stats header */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total welcomed", value: String(totalCount || display.length) },
-          { label: "Showing", value: String(display.length) },
-          { label: "Clubs", value: String(new Set(display.map(w => w.club)).size) },
+          { label: "Total welcomed", value: String(totalCount || welcomed.length) },
+          { label: "Showing", value: String(welcomed.length) },
+          { label: "Clubs", value: String(new Set(welcomed.map(w => w.club)).size) },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl px-5 py-4 text-center shadow-sm">
             <div className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>
@@ -231,7 +230,7 @@ function WomenWelcomed({ welcomed, totalCount }: { welcomed: RealWelcomed[]; tot
 
       {/* Feed */}
       <div className="flex flex-col gap-3">
-        {display.map((w, i) => (
+        {welcomed.map((w, i) => (
           <div
             key={i}
             className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm"
@@ -252,7 +251,7 @@ function WomenWelcomed({ welcomed, totalCount }: { welcomed: RealWelcomed[]; tot
             </div>
           </div>
         ))}
-        {display.length === 0 && (
+        {welcomed.length === 0 && (
           <div className="bg-white rounded-2xl px-5 py-10 text-center shadow-sm">
             <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No members welcomed yet.</p>
           </div>
@@ -263,10 +262,9 @@ function WomenWelcomed({ welcomed, totalCount }: { welcomed: RealWelcomed[]; tot
 }
 
 function UpcomingGatherings({ gatherings }: { gatherings: RealGathering[] }) {
-  const display = gatherings.length > 0 ? gatherings : GATHERINGS.map(g => ({ id: String(g.id), name: g.name, club: g.club, date: `${g.date} · ${g.time}`, total: g.total }));
   return (
     <div className="flex flex-col gap-4">
-      {display.map((g) => (
+      {gatherings.map((g) => (
         <div key={g.id} className="bg-white rounded-3xl p-6 shadow-sm">
           <div className="flex items-start justify-between mb-3">
             <div>
@@ -287,7 +285,7 @@ function UpcomingGatherings({ gatherings }: { gatherings: RealGathering[] }) {
           </div>
         </div>
       ))}
-      {display.length === 0 && (
+      {gatherings.length === 0 && (
         <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
           <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No upcoming gatherings.</p>
         </div>
@@ -298,9 +296,6 @@ function UpcomingGatherings({ gatherings }: { gatherings: RealGathering[] }) {
 
 function Applications({ applications }: { applications: RealApplication[] }) {
   const [approved, setApproved] = useState<Set<string>>(new Set());
-  const display = applications.length > 0 ? applications : APPLICATIONS.map(a => ({
-    id: String(a.id), name: a.name, neighborhood: a.neighborhood, club: a.club, message: a.quote, appliedAt: "",
-  }));
 
   async function handleApprove(app: RealApplication) {
     setApproved(prev => new Set([...prev, app.id]));
@@ -313,7 +308,7 @@ function Applications({ applications }: { applications: RealApplication[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {display.map((app) => {
+      {applications.map((app) => {
         const isApproved = approved.has(app.id);
         return (
           <div key={app.id} className="bg-white rounded-3xl p-6 shadow-sm">
@@ -362,7 +357,7 @@ function Applications({ applications }: { applications: RealApplication[] }) {
           </div>
         );
       })}
-      {display.length === 0 && (
+      {applications.length === 0 && (
         <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
           <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No pending applications.</p>
         </div>

@@ -627,7 +627,7 @@ function MailboxInner() {
   const [openedItems, setOpenedItems] = useState<Set<string | number>>(
     new Set(MAILBOX_ITEMS.filter(i => i.opened).map(i => i.id))
   );
-  const [allItems, setAllItems] = useState<MailboxItem[]>(MAILBOX_ITEMS);
+  const [allItems, setAllItems] = useState<MailboxItem[]>([]);
 
   useEffect(() => {
     async function loadMessages() {
@@ -663,8 +663,7 @@ function MailboxInner() {
         setOpenedItems(prev => new Set([...prev, ...readIds]));
       }
 
-      // Prepend real messages before hardcoded ones
-      setAllItems([...dbItems, ...MAILBOX_ITEMS]);
+      setAllItems(dbItems);
     }
 
     loadMessages();
