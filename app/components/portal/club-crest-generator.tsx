@@ -1,570 +1,425 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
+import { useState, useRef } from "react";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
-const PAPER = "#FEFCF7";
 const GOLD  = "#D4A853";
+const PAPER = "#FEFCF7";
 
-const PRESET_SWATCHES = [
-  "#FF1F7D", "#FF6BAE", "#FFB3D6",  // pinks
-  "#D4A853", "#F5D080",              // golds
-  "#3DAA6E", "#A8DFBB",             // greens
-  "#2563EB", "#93C5FD",             // blues
-  "#1C1B1C", "#5A585A",             // blacks
-  "#FEFCF7", "#F0EDE6",             // whites/creams
-  "#1E3A5F", "#264F79",             // navies
-  "#F6F1EB", "#E8E0D5",             // creams
-];
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface CrestConfig {
-  shape: "shield" | "circle" | "arch" | "diamond";
-  symbol: "flower" | "star" | "leaf" | "crown" | "book" | "flame" | "moon" | "sun";
-  colorPrimary: string;
+  shape:          "shield" | "oval" | "circle" | "arch" | "banner";
+  symbol:         "flower" | "star" | "leaf" | "crown" | "book" | "flame" | "moon" | "sun" | "rose" | "diamond";
+  font:           "serif" | "condensed" | "script" | "slab";
+  colorPrimary:   string;
   colorSecondary: string;
-  colorAccent: string;
+  colorAccent:    string;
+  showBannerText: boolean;
+  bannerText:     string;
+  memberCount?:   number;
+  foundedYear?:   number;
 }
 
 interface Props {
-  clubName: string;
-  initialConfig?: CrestConfig;
-  onSave: (config: CrestConfig, svgString: string) => void;
+  clubName:       string;
+  initialConfig?: Partial<CrestConfig>;
+  memberCount?:   number;
+  foundedYear?:   number;
+  onSave:         (config: CrestConfig, svgString: string) => void;
 }
 
-// ─── SVG Shape Paths ──────────────────────────────────────────────────────────
+const DEFAULTS: CrestConfig = {
+  shape:          "oval",
+  symbol:         "flower",
+  font:           "serif",
+  colorPrimary:   DARK,
+  colorSecondary: PAPER,
+  colorAccent:    GOLD,
+  showBannerText: true,
+  bannerText:     "EST. 2026",
+};
 
-function ShieldPath({ primary, secondary }: { primary: string; secondary: string }) {
-  return (
-    <>
-      {/* Classic heraldic shield */}
-      <path
-        d="M100 12 L188 40 L188 110 Q188 160 100 195 Q12 160 12 110 L12 40 Z"
-        fill={primary}
-        stroke={secondary}
-        strokeWidth="4"
-      />
-      {/* Inner shield highlight */}
-      <path
-        d="M100 24 L176 48 L176 112 Q176 155 100 185 Q24 155 24 112 L24 48 Z"
-        fill="none"
-        stroke={secondary}
-        strokeWidth="1.5"
-        opacity="0.4"
-      />
-    </>
-  );
-}
+// ── Color palettes ────────────────────────────────────────────────────────────
 
-function CirclePath({ primary, secondary }: { primary: string; secondary: string }) {
-  return (
-    <>
-      {/* Outer ring */}
-      <circle cx="100" cy="105" r="88" fill={primary} stroke={secondary} strokeWidth="4" />
-      {/* Inner ring */}
-      <circle cx="100" cy="105" r="74" fill="none" stroke={secondary} strokeWidth="2" opacity="0.5" />
-    </>
-  );
-}
+const SWATCHES = [
+  "#1C1B1C","#2D1B33","#0E0C0A","#1A2744",
+  "#FF1F7D","#C00055","#FF69B4","#FFB6D0",
+  "#D4A853","#B8860B","#F5DEB3","#FFF8EE",
+  "#2E5C3E","#4A7C59","#8FBC8F","#E8F5E9",
+  "#FEFCF7","#F5F0E8","#EDE8DF","#D6CCB8",
+];
 
-function ArchPath({ primary, secondary }: { primary: string; secondary: string }) {
-  return (
-    <>
-      {/* Rounded arch / banner shape */}
-      <path
-        d="M15 85 Q15 12 100 12 Q185 12 185 85 L185 170 Q185 192 100 192 Q15 192 15 170 Z"
-        fill={primary}
-        stroke={secondary}
-        strokeWidth="4"
-      />
-      {/* Inner arch line */}
-      <path
-        d="M27 87 Q27 26 100 26 Q173 26 173 87 L173 168 Q173 180 100 180 Q27 180 27 168 Z"
-        fill="none"
-        stroke={secondary}
-        strokeWidth="1.5"
-        opacity="0.4"
-      />
-    </>
-  );
-}
+const FONT_LABEL: Record<CrestConfig["font"], string> = {
+  serif:     "Playfair",
+  condensed: "Jost",
+  script:    "Caveat",
+  slab:      "Fraunces",
+};
 
-function DiamondPath({ primary, secondary }: { primary: string; secondary: string }) {
-  return (
-    <>
-      {/* Rotated square with cut corners */}
-      <path
-        d="M100 10 L172 55 L190 105 L172 155 L100 190 L28 155 L10 105 L28 55 Z"
-        fill={primary}
-        stroke={secondary}
-        strokeWidth="4"
-      />
-      {/* Inner diamond */}
-      <path
-        d="M100 24 L162 62 L178 105 L162 148 L100 176 L38 148 L22 105 L38 62 Z"
-        fill="none"
-        stroke={secondary}
-        strokeWidth="1.5"
-        opacity="0.4"
-      />
-    </>
-  );
-}
+const FONT_CSS: Record<CrestConfig["font"], string> = {
+  serif:     "var(--font-playfair, Georgia, serif)",
+  condensed: "var(--font-jost, Arial Narrow, sans-serif)",
+  script:    "var(--font-caveat, cursive)",
+  slab:      "var(--font-fraunces, Palatino Linotype, serif)",
+};
 
-// ─── SVG Symbol Icons ─────────────────────────────────────────────────────────
+// ── Shape geometry ────────────────────────────────────────────────────────────
 
-function FlowerSymbol({ color, accent }: { color: string; accent: string }) {
-  // 5 rounded petals using ellipses rotated around center
-  const petals = [0, 72, 144, 216, 288];
-  return (
-    <g transform="translate(100,104)">
-      {petals.map((angle) => (
-        <ellipse
-          key={angle}
-          cx="0"
-          cy="-18"
-          rx="8"
-          ry="16"
-          fill={color}
-          transform={`rotate(${angle})`}
-          opacity="0.9"
-        />
-      ))}
-      <circle cx="0" cy="0" r="9" fill={accent} />
-    </g>
-  );
-}
-
-function StarSymbol({ color }: { color: string }) {
-  // 5-pointed star
-  const points: string[] = [];
-  for (let i = 0; i < 5; i++) {
-    const outerAngle = (i * 72 - 90) * (Math.PI / 180);
-    const innerAngle = ((i * 72 + 36) - 90) * (Math.PI / 180);
-    points.push(`${100 + 30 * Math.cos(outerAngle)},${104 + 30 * Math.sin(outerAngle)}`);
-    points.push(`${100 + 13 * Math.cos(innerAngle)},${104 + 13 * Math.sin(innerAngle)}`);
+function getShapeMeta(shape: CrestConfig["shape"]): {
+  viewBox: string; textY: number; symbolY: number;
+} {
+  switch (shape) {
+    case "shield":  return { viewBox: "0 0 200 210", textY: 52,  symbolY: 120 };
+    case "oval":    return { viewBox: "0 0 200 240", textY: 52,  symbolY: 132 };
+    case "circle":  return { viewBox: "0 0 200 200", textY: 50,  symbolY: 110 };
+    case "arch":    return { viewBox: "0 0 200 210", textY: 56,  symbolY: 124 };
+    case "banner":  return { viewBox: "0 0 200 215", textY: 56,  symbolY: 124 };
   }
-  return <polygon points={points.join(" ")} fill={color} />;
 }
 
-function LeafSymbol({ color, accent }: { color: string; accent: string }) {
-  return (
-    <g transform="translate(100,104)">
-      {/* Curved leaf shape */}
-      <path
-        d="M0,-30 C20,-15 20,10 0,30 C-20,10 -20,-15 0,-30 Z"
-        fill={color}
-      />
-      {/* Center vein */}
-      <line x1="0" y1="-26" x2="0" y2="26" stroke={accent} strokeWidth="1.5" opacity="0.7" />
-    </g>
-  );
-}
-
-function CrownSymbol({ color, accent }: { color: string; accent: string }) {
-  return (
-    <g transform="translate(100,104)">
-      {/* 3-point crown */}
-      <path
-        d="M-28,12 L-28,-8 L-12,-24 L0,-10 L12,-24 L28,-8 L28,12 Z"
-        fill={color}
-        stroke={accent}
-        strokeWidth="1.5"
-      />
-      {/* Crown band */}
-      <rect x="-28" y="8" width="56" height="8" fill={accent} rx="1" />
-      {/* Gem dots */}
-      <circle cx="-14" cy="3" r="3" fill={accent} />
-      <circle cx="0" cy="1" r="3" fill={accent} />
-      <circle cx="14" cy="3" r="3" fill={accent} />
-    </g>
-  );
-}
-
-function BookSymbol({ color, accent }: { color: string; accent: string }) {
-  return (
-    <g transform="translate(100,104)">
-      {/* Open book left page */}
-      <path
-        d="M-2,-20 L-28,-20 Q-30,-20 -30,-18 L-30,20 Q-30,22 -28,22 L-2,22 Z"
-        fill={color}
-        stroke={accent}
-        strokeWidth="1"
-      />
-      {/* Open book right page */}
-      <path
-        d="M2,-20 L28,-20 Q30,-20 30,-18 L30,20 Q30,22 28,22 L2,22 Z"
-        fill={color}
-        stroke={accent}
-        strokeWidth="1"
-      />
-      {/* Spine */}
-      <rect x="-2" y="-20" width="4" height="42" fill={accent} rx="1" />
-      {/* Lines on left page */}
-      <line x1="-24" y1="-8" x2="-6" y2="-8" stroke={accent} strokeWidth="1" opacity="0.5" />
-      <line x1="-24" y1="-1" x2="-6" y2="-1" stroke={accent} strokeWidth="1" opacity="0.5" />
-      <line x1="-24" y1="6" x2="-6" y2="6" stroke={accent} strokeWidth="1" opacity="0.5" />
-      {/* Lines on right page */}
-      <line x1="6" y1="-8" x2="24" y2="-8" stroke={accent} strokeWidth="1" opacity="0.5" />
-      <line x1="6" y1="-1" x2="24" y2="-1" stroke={accent} strokeWidth="1" opacity="0.5" />
-      <line x1="6" y1="6" x2="24" y2="6" stroke={accent} strokeWidth="1" opacity="0.5" />
-    </g>
-  );
-}
-
-function FlameSymbol({ color, accent }: { color: string; accent: string }) {
-  return (
-    <g transform="translate(100,104)">
-      {/* Outer flame */}
-      <path
-        d="M0,-32 C8,-20 22,-14 18,0 C14,14 22,16 16,28 C8,38 -8,38 -16,28 C-22,16 -14,14 -18,0 C-22,-14 -8,-20 0,-32 Z"
-        fill={color}
-      />
-      {/* Inner flame highlight */}
-      <path
-        d="M0,-16 C4,-8 10,-4 8,4 C6,12 10,14 6,20 C2,26 -2,26 -6,20 C-10,14 -6,12 -8,4 C-10,-4 -4,-8 0,-16 Z"
-        fill={accent}
-        opacity="0.7"
-      />
-    </g>
-  );
-}
-
-function MoonSymbol({ color, accent }: { color: string; accent: string }) {
-  return (
-    <g transform="translate(100,104)">
-      {/* Crescent moon using two circles */}
-      <circle cx="0" cy="0" r="26" fill={color} />
-      <circle cx="12" cy="-6" r="20" fill="transparent" />
-      {/* Use clip technique with a path instead */}
-      <path
-        d="M0,-26 A26,26 0 1,1 0,26 A18,20 0 1,0 0,-26 Z"
-        fill={color}
-      />
-      {/* Star dot */}
-      <circle cx="14" cy="-14" r="3" fill={accent} />
-    </g>
-  );
-}
-
-function SunSymbol({ color, accent }: { color: string; accent: string }) {
-  const rays = [0, 45, 90, 135, 180, 225, 270, 315];
-  return (
-    <g transform="translate(100,104)">
-      {/* Rays */}
-      {rays.map((angle) => {
-        const rad = (angle - 90) * (Math.PI / 180);
-        return (
-          <line
-            key={angle}
-            x1={16 * Math.cos(rad)}
-            y1={16 * Math.sin(rad)}
-            x2={28 * Math.cos(rad)}
-            y2={28 * Math.sin(rad)}
-            stroke={color}
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-        );
-      })}
-      {/* Center circle */}
-      <circle cx="0" cy="0" r="14" fill={color} />
-      <circle cx="0" cy="0" r="8" fill={accent} />
-    </g>
-  );
-}
-
-// ─── Crest SVG Renderer ───────────────────────────────────────────────────────
-
-function renderCrestSVG(config: CrestConfig, clubName: string): string {
-  const { shape, symbol, colorPrimary, colorSecondary, colorAccent } = config;
-
-  const shapeMap: Record<string, string> = {
-    shield: `<path d="M100 12 L188 40 L188 110 Q188 160 100 195 Q12 160 12 110 L12 40 Z" fill="${colorPrimary}" stroke="${colorSecondary}" stroke-width="4"/>
-             <path d="M100 24 L176 48 L176 112 Q176 155 100 185 Q24 155 24 112 L24 48 Z" fill="none" stroke="${colorSecondary}" stroke-width="1.5" opacity="0.4"/>`,
-    circle: `<circle cx="100" cy="105" r="88" fill="${colorPrimary}" stroke="${colorSecondary}" stroke-width="4"/>
-             <circle cx="100" cy="105" r="74" fill="none" stroke="${colorSecondary}" stroke-width="2" opacity="0.5"/>`,
-    arch:   `<path d="M15 85 Q15 12 100 12 Q185 12 185 85 L185 170 Q185 192 100 192 Q15 192 15 170 Z" fill="${colorPrimary}" stroke="${colorSecondary}" stroke-width="4"/>
-             <path d="M27 87 Q27 26 100 26 Q173 26 173 87 L173 168 Q173 180 100 180 Q27 180 27 168 Z" fill="none" stroke="${colorSecondary}" stroke-width="1.5" opacity="0.4"/>`,
-    diamond:`<path d="M100 10 L172 55 L190 105 L172 155 L100 190 L28 155 L10 105 L28 55 Z" fill="${colorPrimary}" stroke="${colorSecondary}" stroke-width="4"/>
-             <path d="M100 24 L162 62 L178 105 L162 148 L100 176 L38 148 L22 105 L38 62 Z" fill="none" stroke="${colorSecondary}" stroke-width="1.5" opacity="0.4"/>`,
-  };
-
-  const petalAngles = [0, 72, 144, 216, 288];
-  const flowerPetals = petalAngles.map(a =>
-    `<ellipse cx="0" cy="-18" rx="8" ry="16" fill="${colorSecondary}" transform="rotate(${a})" opacity="0.9"/>`
-  ).join("");
-  const starPoints: string[] = [];
-  for (let i = 0; i < 5; i++) {
-    const oA = (i * 72 - 90) * (Math.PI / 180);
-    const iA = ((i * 72 + 36) - 90) * (Math.PI / 180);
-    starPoints.push(`${100 + 30 * Math.cos(oA)},${104 + 30 * Math.sin(oA)}`);
-    starPoints.push(`${100 + 13 * Math.cos(iA)},${104 + 13 * Math.sin(iA)}`);
+function ShapeOutline({ shape, fill, stroke }: { shape: CrestConfig["shape"]; fill: string; stroke: string }) {
+  switch (shape) {
+    case "oval":
+      return (
+        <>
+          <ellipse cx="100" cy="122" rx="88" ry="108" fill={fill} />
+          <ellipse cx="100" cy="122" rx="79" ry="99"  fill="none" stroke={stroke} strokeWidth="1.5" />
+          <ellipse cx="100" cy="122" rx="73" ry="93"  fill="none" stroke={stroke} strokeWidth="0.5" opacity="0.5" />
+        </>
+      );
+    case "shield":
+      return (
+        <>
+          <path d="M100,12 L184,42 L184,112 Q184,172 100,196 Q16,172 16,112 L16,42 Z" fill={fill} />
+          <path d="M100,22 L174,48 L174,114 Q174,164 100,184 Q26,164 26,114 L26,48 Z" fill="none" stroke={stroke} strokeWidth="1.5" />
+        </>
+      );
+    case "circle":
+      return (
+        <>
+          <circle cx="100" cy="100" r="88"  fill={fill} />
+          <circle cx="100" cy="100" r="79"  fill="none" stroke={stroke} strokeWidth="1.5" />
+          <circle cx="100" cy="100" r="73"  fill="none" stroke={stroke} strokeWidth="0.5" opacity="0.5" />
+        </>
+      );
+    case "arch":
+      return (
+        <>
+          <path d="M18,196 L18,80 Q18,12 100,12 Q182,12 182,80 L182,196 Z" fill={fill} />
+          <path d="M28,190 L28,82 Q28,24 100,24 Q172,24 172,82 L172,190 Z" fill="none" stroke={stroke} strokeWidth="1.5" />
+        </>
+      );
+    case "banner":
+      return (
+        <>
+          <path d="M12,52 L12,164 L100,198 L188,164 L188,52 Q188,12 100,12 Q12,12 12,52 Z" fill={fill} />
+          <path d="M22,58 L22,158 L100,186 L178,158 L178,58 Q178,24 100,24 Q22,24 22,58 Z" fill="none" stroke={stroke} strokeWidth="1.5" />
+        </>
+      );
   }
-  const rayAngles = [0, 45, 90, 135, 180, 225, 270, 315];
-  const sunRays = rayAngles.map(a => {
-    const r = (a - 90) * (Math.PI / 180);
-    return `<line x1="${16*Math.cos(r)}" y1="${16*Math.sin(r)}" x2="${28*Math.cos(r)}" y2="${28*Math.sin(r)}" stroke="${colorSecondary}" stroke-width="4" stroke-linecap="round"/>`;
-  }).join("");
-
-  const symbolMap: Record<string, string> = {
-    flower: `<g transform="translate(100,104)">${flowerPetals}<circle cx="0" cy="0" r="9" fill="${colorAccent}"/></g>`,
-    star:   `<polygon points="${starPoints.join(" ")}" fill="${colorSecondary}"/>`,
-    leaf:   `<g transform="translate(100,104)"><path d="M0,-30 C20,-15 20,10 0,30 C-20,10 -20,-15 0,-30 Z" fill="${colorSecondary}"/><line x1="0" y1="-26" x2="0" y2="26" stroke="${colorAccent}" stroke-width="1.5" opacity="0.7"/></g>`,
-    crown:  `<g transform="translate(100,104)"><path d="M-28,12 L-28,-8 L-12,-24 L0,-10 L12,-24 L28,-8 L28,12 Z" fill="${colorSecondary}" stroke="${colorAccent}" stroke-width="1.5"/><rect x="-28" y="8" width="56" height="8" fill="${colorAccent}" rx="1"/><circle cx="-14" cy="3" r="3" fill="${colorAccent}"/><circle cx="0" cy="1" r="3" fill="${colorAccent}"/><circle cx="14" cy="3" r="3" fill="${colorAccent}"/></g>`,
-    book:   `<g transform="translate(100,104)"><path d="M-2,-20 L-28,-20 Q-30,-20 -30,-18 L-30,20 Q-30,22 -28,22 L-2,22 Z" fill="${colorSecondary}" stroke="${colorAccent}" stroke-width="1"/><path d="M2,-20 L28,-20 Q30,-20 30,-18 L30,20 Q30,22 28,22 L2,22 Z" fill="${colorSecondary}" stroke="${colorAccent}" stroke-width="1"/><rect x="-2" y="-20" width="4" height="42" fill="${colorAccent}" rx="1"/><line x1="-24" y1="-8" x2="-6" y2="-8" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/><line x1="-24" y1="-1" x2="-6" y2="-1" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/><line x1="-24" y1="6" x2="-6" y2="6" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/><line x1="6" y1="-8" x2="24" y2="-8" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/><line x1="6" y1="-1" x2="24" y2="-1" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/><line x1="6" y1="6" x2="24" y2="6" stroke="${colorAccent}" stroke-width="1" opacity="0.5"/></g>`,
-    flame:  `<g transform="translate(100,104)"><path d="M0,-32 C8,-20 22,-14 18,0 C14,14 22,16 16,28 C8,38 -8,38 -16,28 C-22,16 -14,14 -18,0 C-22,-14 -8,-20 0,-32 Z" fill="${colorSecondary}"/><path d="M0,-16 C4,-8 10,-4 8,4 C6,12 10,14 6,20 C2,26 -2,26 -6,20 C-10,14 -6,12 -8,4 C-10,-4 -4,-8 0,-16 Z" fill="${colorAccent}" opacity="0.7"/></g>`,
-    moon:   `<g transform="translate(100,104)"><path d="M0,-26 A26,26 0 1,1 0,26 A18,20 0 1,0 0,-26 Z" fill="${colorSecondary}"/><circle cx="14" cy="-14" r="3" fill="${colorAccent}"/></g>`,
-    sun:    `<g transform="translate(100,104)">${sunRays}<circle cx="0" cy="0" r="14" fill="${colorSecondary}"/><circle cx="0" cy="0" r="8" fill="${colorAccent}"/></g>`,
-  };
-
-  const nameFontSize = clubName.length > 16 ? 9 : clubName.length > 10 ? 11 : 13;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  ${shapeMap[shape] ?? shapeMap.shield}
-  ${symbolMap[symbol] ?? symbolMap.flower}
-  <text x="100" y="210" text-anchor="middle" font-family="serif" font-size="${nameFontSize}" fill="${colorSecondary}" font-weight="600" letter-spacing="1">${clubName.toUpperCase()}</text>
-</svg>`;
 }
 
-// ─── Color Picker Row ─────────────────────────────────────────────────────────
-
-function ColorPickerRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (c: string) => void;
+function SymbolSVG({ symbol, color, accent, cx = 100, cy = 110, s = 1 }: {
+  symbol: CrestConfig["symbol"]; color: string; accent: string; cx?: number; cy?: number; s?: number;
 }) {
+  switch (symbol) {
+    case "flower":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          {[0,72,144,216,288].map((deg, i) => (
+            <ellipse key={i} cx="0" cy={-18 * s} rx={7 * s} ry={12 * s}
+              fill={color} opacity="0.9" transform={`rotate(${deg})`} />
+          ))}
+          <circle cx="0" cy="0" r={9 * s} fill={accent} />
+          <circle cx="0" cy="0" r={5 * s} fill={color} />
+        </g>
+      );
+    case "rose":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          {[0,45,90,135,180,225,270,315].map((deg, i) => (
+            <ellipse key={i} cx="0" cy={-14 * s} rx={5 * s} ry={9 * s}
+              fill={color} opacity={i < 4 ? 0.65 : 0.85} transform={`rotate(${deg})`} />
+          ))}
+          {[0,60,120,180,240,300].map((deg, i) => (
+            <ellipse key={i} cx="0" cy={-7 * s} rx={3.5 * s} ry={6 * s}
+              fill={accent} opacity="0.8" transform={`rotate(${deg + 30})`} />
+          ))}
+          <circle cx="0" cy="0" r={5 * s} fill={color} />
+        </g>
+      );
+    case "star":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          <polygon fill={color}
+            points={Array.from({ length: 5 }, (_, i) => {
+              const a1 = (i * 72 - 90) * Math.PI / 180;
+              const a2 = ((i * 72 + 36) - 90) * Math.PI / 180;
+              return `${Math.cos(a1)*22*s},${Math.sin(a1)*22*s} ${Math.cos(a2)*10*s},${Math.sin(a2)*10*s}`;
+            }).join(" ")} />
+          <circle cx="0" cy="0" r={5 * s} fill={accent} />
+        </g>
+      );
+    case "crown":
+      return (
+        <g transform={`translate(${cx - 22*s},${cy - 16*s})`}>
+          <path d={`M0,${28*s} L0,${14*s} L${10*s},${22*s} L${22*s},0 L${34*s},${22*s} L${44*s},${14*s} L${44*s},${28*s} Z`} fill={color} />
+          <rect x={0} y={28*s} width={44*s} height={6*s} rx={2} fill={accent} />
+          {[8,22,36].map(x => <circle key={x} cx={x*s} cy={28*s} r={3*s} fill={accent} />)}
+        </g>
+      );
+    case "leaf":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          <path d={`M0,${-24*s} Q${20*s},${-10*s} ${18*s},${10*s} Q${10*s},${22*s} 0,${24*s} Q${-10*s},${22*s} ${-18*s},${10*s} Q${-20*s},${-10*s} 0,${-24*s} Z`} fill={color} />
+          <line x1="0" y1={-22*s} x2="0" y2={22*s} stroke={accent} strokeWidth={1.5*s} />
+        </g>
+      );
+    case "book":
+      return (
+        <g transform={`translate(${cx-20*s},${cy-16*s})`}>
+          <rect x={0} y={0} width={40*s} height={32*s} rx={3} fill={color} />
+          <line x1={20*s} y1={0} x2={20*s} y2={32*s} stroke={accent} strokeWidth={2*s} />
+          {[6,12,18,24].map(y => <line key={y} x1={3*s} y1={y*s} x2={17*s} y2={y*s} stroke={accent} strokeWidth={s} opacity="0.5" />)}
+          {[6,12,18,24].map(y => <line key={y} x1={23*s} y1={y*s} x2={37*s} y2={y*s} stroke={accent} strokeWidth={s} opacity="0.5" />)}
+        </g>
+      );
+    case "flame":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          <path d={`M0,${24*s} Q${-18*s},${6*s} ${-10*s},${-10*s} Q${-4*s},${-22*s} 0,${-26*s} Q${4*s},${-14*s} ${2*s},${-4*s} Q${12*s},${-18*s} ${8*s},${-28*s} Q${22*s},${-8*s} ${18*s},${6*s} Q${18*s},${22*s} 0,${24*s} Z`} fill={color} />
+          <path d={`M0,${16*s} Q${-8*s},${4*s} ${-3*s},${-4*s} Q0,${-10*s} 0,${-12*s} Q${1*s},${-6*s} 0,${-2*s} Q${6*s},${-8*s} ${4*s},${0} Q${8*s},${10*s} 0,${16*s} Z`} fill={accent} opacity="0.8" />
+        </g>
+      );
+    case "moon":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          <path d={`M${8*s},${-22*s} A${24*s},${24*s} 0 1 0 ${8*s},${22*s} A${16*s},${16*s} 0 1 1 ${8*s},${-22*s} Z`} fill={color} />
+          <circle cx={14*s} cy={-14*s} r={3*s} fill={accent} />
+          <circle cx={18*s} cy={0}      r={2*s} fill={accent} opacity="0.6" />
+        </g>
+      );
+    case "sun":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          {Array.from({length:8},(_,i) => {
+            const a = (i*45-90)*Math.PI/180;
+            return <line key={i} x1={Math.cos(a)*13*s} y1={Math.sin(a)*13*s} x2={Math.cos(a)*22*s} y2={Math.sin(a)*22*s} stroke={color} strokeWidth={2.5*s} strokeLinecap="round"/>;
+          })}
+          <circle cx="0" cy="0" r={12*s} fill={color} />
+          <circle cx="0" cy="0" r={7*s}  fill={accent} />
+        </g>
+      );
+    case "diamond":
+      return (
+        <g transform={`translate(${cx},${cy})`}>
+          <polygon points={`0,${-22*s} ${17*s},0 0,${22*s} ${-17*s},0`} fill={color} />
+          <polygon points={`0,${-13*s} ${10*s},0 0,${13*s} ${-10*s},0`} fill={accent} opacity="0.8" />
+        </g>
+      );
+  }
+}
+
+// ── Rendered crest (React) ────────────────────────────────────────────────────
+
+export function CrestSVG({ config, clubName, size = 200 }: {
+  config: CrestConfig; clubName: string; size?: number;
+}) {
+  const { shape, symbol, font, colorPrimary, colorSecondary, colorAccent, showBannerText, bannerText } = config;
+  const meta = getShapeMeta(shape);
+  const fontFamily = FONT_CSS[font];
+  const short = clubName.length > 14 ? clubName.slice(0,14).toUpperCase() : clubName.toUpperCase();
+  const fontSize = short.length > 10 ? 11 : short.length > 7 ? 12 : 13;
+
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 12, fontFamily: "var(--font-jost)", color: DARK, fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-        {label}
-      </div>
-      {/* Swatch scroll */}
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
-        {PRESET_SWATCHES.map((swatch) => (
-          <button
-            key={swatch}
-            onClick={() => onChange(swatch)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: swatch,
-              border: value === swatch ? `3px solid ${PINK}` : "2px solid rgba(0,0,0,0.1)",
-              cursor: "pointer",
-              flexShrink: 0,
-              boxShadow: value === swatch ? `0 0 0 2px ${PAPER}` : "none",
-              transition: "transform 0.15s",
-              outline: "none",
-            }}
-            aria-label={swatch}
-          />
+    <svg viewBox={meta.viewBox} width={size} height={size} xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+      <defs>
+        <filter id="cs">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="rgba(0,0,0,0.3)" />
+        </filter>
+      </defs>
+
+      <g filter="url(#cs)">
+        <ShapeOutline shape={shape} fill={colorPrimary} stroke={colorAccent} />
+      </g>
+
+      {/* Decorative divider */}
+      <line x1="52" y1={meta.textY+12} x2="148" y2={meta.textY+12} stroke={colorAccent} strokeWidth="0.8" opacity="0.7" />
+      <polygon points={`100,${meta.textY+9} 104,${meta.textY+12} 100,${meta.textY+15} 96,${meta.textY+12}`} fill={colorAccent} />
+
+      {/* Club name */}
+      <text x="100" y={meta.textY} textAnchor="middle" dominantBaseline="middle"
+        fontFamily={fontFamily} fontWeight="700" fontSize={fontSize}
+        letterSpacing={font === "condensed" ? "0.18em" : "0.09em"} fill={colorSecondary}>
+        {short}
+      </text>
+
+      {/* Symbol */}
+      <SymbolSVG symbol={symbol} color={colorSecondary} accent={colorAccent} cx={100} cy={meta.symbolY} s={0.82} />
+
+      {/* Banner */}
+      {showBannerText && bannerText && (
+        <text x="100" y={meta.symbolY+34} textAnchor="middle" dominantBaseline="middle"
+          fontFamily={fontFamily} fontWeight="400" fontSize="8"
+          letterSpacing="0.22em" fill={colorAccent} opacity="0.85">
+          {bannerText.toUpperCase()}
+        </text>
+      )}
+
+      {/* Living crest milestone ring */}
+      {(config.memberCount ?? 0) >= 50 && (
+        <circle cx="100" cy="100" r="65" fill="none" stroke={colorAccent} strokeWidth="0.6" strokeDasharray="3 3" opacity="0.4" />
+      )}
+    </svg>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function ColorPicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 10 }}>{label}</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        {SWATCHES.map(s => (
+          <button key={s} onClick={() => onChange(s)} style={{
+            width: 28, height: 28, borderRadius: "50%", background: s, cursor: "pointer", flexShrink: 0,
+            border: value === s ? `3px solid ${PINK}` : "2px solid rgba(0,0,0,0.1)",
+            boxShadow: value === s ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "none",
+            transition: "all 0.15s",
+          }} />
         ))}
-        {/* Custom color input */}
-        <label style={{ width: 32, height: 32, borderRadius: "50%", border: "2px dashed #ccc", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
-          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
-          <input
-            type="color"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", cursor: "pointer" }}
-          />
-        </label>
-      </div>
-      {/* Active color display */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-        <div style={{ width: 20, height: 20, borderRadius: 4, background: value, border: "1px solid rgba(0,0,0,0.1)" }} />
-        <span style={{ fontSize: 12, fontFamily: "var(--font-jost)", color: "#777" }}>{value}</span>
+        <button onClick={() => ref.current?.click()} style={{
+          width: 28, height: 28, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
+          background: "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",
+          border: "2px solid rgba(0,0,0,0.12)",
+        }} />
+        <input ref={ref} type="color" value={value} onChange={e => onChange(e.target.value)}
+          style={{ position: "absolute", opacity: 0, width: 1, height: 1 }} />
       </div>
     </div>
   );
 }
 
-// ─── Shape Chip ───────────────────────────────────────────────────────────────
+function ChipRow<T extends string>({ label, options, value, onChange }: {
+  label: string; options: { value: T; label: string }[]; value: T; onChange: (v: T) => void;
+}) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 10 }}>{label}</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {options.map(o => (
+          <button key={o.value} onClick={() => onChange(o.value)} style={{
+            padding: "8px 16px", borderRadius: "100px", cursor: "pointer",
+            border: value === o.value ? `2px solid ${PINK}` : "1.5px solid #E0D8CF",
+            background: value === o.value ? PINK : "white",
+            color: value === o.value ? "white" : DARK,
+            fontFamily: "var(--font-jost)", fontSize: 13,
+            fontWeight: value === o.value ? 700 : 400, transition: "all 0.15s",
+          }}>{o.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-const SHAPE_LABELS: Record<string, string> = {
-  shield: "Shield",
-  circle: "Circle",
-  arch: "Arch",
-  diamond: "Diamond",
-};
+// ── Main export ───────────────────────────────────────────────────────────────
 
-const SYMBOL_LABELS: Record<string, string> = {
-  flower: "Flower",
-  star: "Star",
-  leaf: "Leaf",
-  crown: "Crown",
-  book: "Book",
-  flame: "Flame",
-  moon: "Moon",
-  sun: "Sun",
-};
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-export function ClubCrestGenerator({ clubName, initialConfig, onSave }: Props) {
-  const [config, setConfig] = useState<CrestConfig>({
-    shape: initialConfig?.shape ?? "shield",
-    symbol: initialConfig?.symbol ?? "flower",
-    colorPrimary: initialConfig?.colorPrimary ?? PINK,
-    colorSecondary: initialConfig?.colorSecondary ?? DARK,
-    colorAccent: initialConfig?.colorAccent ?? GOLD,
+export function ClubCrestGenerator({ clubName, initialConfig, memberCount, foundedYear, onSave }: Props) {
+  const [cfg, setCfg] = useState<CrestConfig>({
+    ...DEFAULTS, ...initialConfig, memberCount, foundedYear,
+    bannerText: foundedYear ? `EST. ${foundedYear}` : DEFAULTS.bannerText,
   });
 
-  const svgRef = useRef<SVGSVGElement>(null);
+  const set = <K extends keyof CrestConfig>(key: K, val: CrestConfig[K]) =>
+    setCfg(p => ({ ...p, [key]: val }));
 
-  const update = useCallback(<K extends keyof CrestConfig>(key: K, val: CrestConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: val }));
-  }, []);
-
-  function handleSave() {
-    const svgString = renderCrestSVG(config, clubName);
-    onSave(config, svgString);
-  }
-
-  const { shape, symbol, colorPrimary, colorSecondary, colorAccent } = config;
+  const handleSave = () => {
+    // Build a minimal SVG string for storage
+    const meta = getShapeMeta(cfg.shape);
+    const short = clubName.length > 14 ? clubName.slice(0,14).toUpperCase() : clubName.toUpperCase();
+    const svgStr = `<svg viewBox="${meta.viewBox}" xmlns="http://www.w3.org/2000/svg"><text x="100" y="${meta.textY}" text-anchor="middle" font-size="13" fill="${cfg.colorSecondary}">${short}</text></svg>`;
+    onSave(cfg, svgStr);
+  };
 
   return (
-    <div style={{ fontFamily: "var(--font-jost)", color: DARK, background: PAPER }}>
-      {/* ── Live Preview ── */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
-        <div style={{ position: "relative" }}>
-          <svg
-            ref={svgRef}
-            viewBox="0 0 200 200"
-            width={200}
-            height={200}
-            style={{ display: "block", filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.13))" }}
-          >
-            {shape === "shield"  && <ShieldPath  primary={colorPrimary} secondary={colorSecondary} />}
-            {shape === "circle"  && <CirclePath  primary={colorPrimary} secondary={colorSecondary} />}
-            {shape === "arch"    && <ArchPath    primary={colorPrimary} secondary={colorSecondary} />}
-            {shape === "diamond" && <DiamondPath primary={colorPrimary} secondary={colorSecondary} />}
+    <div style={{ background: PAPER, minHeight: "100svh", paddingBottom: 40 }}>
+      {/* Live preview */}
+      <div style={{
+        padding: "40px 0 28px", display: "flex", flexDirection: "column", alignItems: "center",
+        background: `linear-gradient(160deg, ${cfg.colorPrimary}18, ${cfg.colorAccent}0A)`,
+        borderBottom: "1px solid #F0EBE3",
+      }}>
+        <CrestSVG config={cfg} clubName={clubName} size={190} />
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#bbb", marginTop: 14, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+          Live preview
+        </p>
+      </div>
 
-            {symbol === "flower" && <FlowerSymbol color={colorSecondary} accent={colorAccent} />}
-            {symbol === "star"   && <StarSymbol   color={colorSecondary} />}
-            {symbol === "leaf"   && <LeafSymbol   color={colorSecondary} accent={colorAccent} />}
-            {symbol === "crown"  && <CrownSymbol  color={colorSecondary} accent={colorAccent} />}
-            {symbol === "book"   && <BookSymbol   color={colorSecondary} accent={colorAccent} />}
-            {symbol === "flame"  && <FlameSymbol  color={colorSecondary} accent={colorAccent} />}
-            {symbol === "moon"   && <MoonSymbol   color={colorSecondary} accent={colorAccent} />}
-            {symbol === "sun"    && <SunSymbol    color={colorSecondary} accent={colorAccent} />}
-          </svg>
-          {/* Club name below */}
-          <div style={{
-            textAlign: "center",
-            marginTop: 8,
-            fontSize: 11,
-            fontFamily: "var(--font-playfair)",
-            letterSpacing: "0.12em",
-            fontWeight: 700,
-            color: DARK,
-            textTransform: "uppercase",
-          }}>
-            {clubName}
+      <div style={{ padding: "28px 20px 0" }}>
+        <ChipRow label="Shape"
+          options={[{value:"oval",label:"Oval"},{value:"shield",label:"Shield"},{value:"circle",label:"Circle"},{value:"arch",label:"Arch"},{value:"banner",label:"Banner"}]}
+          value={cfg.shape} onChange={v => set("shape", v)} />
+
+        <ChipRow label="Symbol"
+          options={[{value:"flower",label:"Flower"},{value:"rose",label:"Rose"},{value:"star",label:"Star"},{value:"crown",label:"Crown"},{value:"leaf",label:"Leaf"},{value:"book",label:"Book"},{value:"flame",label:"Flame"},{value:"moon",label:"Moon"},{value:"sun",label:"Sun"},{value:"diamond",label:"Diamond"}]}
+          value={cfg.symbol} onChange={v => set("symbol", v)} />
+
+        <ChipRow label="Font"
+          options={(["serif","condensed","script","slab"] as CrestConfig["font"][]).map(f => ({ value: f, label: FONT_LABEL[f] }))}
+          value={cfg.font} onChange={v => set("font", v)} />
+
+        <ColorPicker label="Badge color"     value={cfg.colorPrimary}   onChange={v => set("colorPrimary", v)} />
+        <ColorPicker label="Text & symbol"   value={cfg.colorSecondary} onChange={v => set("colorSecondary", v)} />
+        <ColorPicker label="Accent & detail" value={cfg.colorAccent}    onChange={v => set("colorAccent", v)} />
+
+        {/* Banner text toggle */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 10 }}>Banner text</div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button onClick={() => set("showBannerText", !cfg.showBannerText)} style={{
+              padding: "8px 16px", borderRadius: "100px", cursor: "pointer",
+              border: cfg.showBannerText ? `2px solid ${PINK}` : "1.5px solid #E0D8CF",
+              background: cfg.showBannerText ? PINK : "white",
+              color: cfg.showBannerText ? "white" : DARK,
+              fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600,
+            }}>{cfg.showBannerText ? "On" : "Off"}</button>
+            {cfg.showBannerText && (
+              <input value={cfg.bannerText}
+                onChange={e => set("bannerText", e.target.value.slice(0,16))}
+                placeholder="EST. 2026"
+                style={{
+                  flex: 1, padding: "10px 14px", borderRadius: 12,
+                  border: "1.5px solid #E0D8CF", background: "white",
+                  fontFamily: "var(--font-jost)", fontSize: 14, color: DARK, outline: "none",
+                }} />
+            )}
           </div>
         </div>
-      </div>
 
-      {/* ── Shape Selector ── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, color: DARK }}>
-          Shape
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {(["shield", "circle", "arch", "diamond"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => update("shape", s)}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 24,
-                border: shape === s ? `2px solid ${PINK}` : "2px solid #ddd",
-                background: shape === s ? `${PINK}15` : "#fff",
-                color: shape === s ? PINK : DARK,
-                fontFamily: "var(--font-jost)",
-                fontSize: 13,
-                fontWeight: shape === s ? 700 : 400,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                outline: "none",
-              }}
-            >
-              {SHAPE_LABELS[s]}
-            </button>
-          ))}
-        </div>
-      </div>
+        {(memberCount ?? 0) >= 50 && (
+          <div style={{ padding: "14px 16px", background: "#FFF0F6", borderRadius: 14, marginBottom: 24, border: `1px solid #FFD6E8` }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: PINK, margin: 0 }}>
+              ✦ Your crest has earned a milestone ring — {memberCount} members strong.
+            </p>
+          </div>
+        )}
 
-      {/* ── Symbol Selector ── */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, color: DARK }}>
-          Symbol
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {(["flower", "star", "leaf", "crown", "book", "flame", "moon", "sun"] as const).map((sym) => (
-            <button
-              key={sym}
-              onClick={() => update("symbol", sym)}
-              style={{
-                padding: "8px 14px",
-                borderRadius: 24,
-                border: symbol === sym ? `2px solid ${PINK}` : "2px solid #ddd",
-                background: symbol === sym ? `${PINK}15` : "#fff",
-                color: symbol === sym ? PINK : DARK,
-                fontFamily: "var(--font-jost)",
-                fontSize: 13,
-                fontWeight: symbol === sym ? 700 : 400,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                outline: "none",
-              }}
-            >
-              {SYMBOL_LABELS[sym]}
-            </button>
-          ))}
-        </div>
-      </div>
+        <button onClick={handleSave} style={{
+          width: "100%", padding: "18px", borderRadius: "100px", border: "none",
+          background: PINK, color: "white", fontFamily: "var(--font-jost)",
+          fontWeight: 700, fontSize: 15, letterSpacing: "0.06em", cursor: "pointer",
+        }}>
+          Save Crest →
+        </button>
 
-      {/* ── Color Pickers ── */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14, color: DARK }}>
-          Colors
-        </div>
-        <ColorPickerRow label="Primary" value={colorPrimary} onChange={(c) => update("colorPrimary", c)} />
-        <ColorPickerRow label="Secondary" value={colorSecondary} onChange={(c) => update("colorSecondary", c)} />
-        <ColorPickerRow label="Accent" value={colorAccent} onChange={(c) => update("colorAccent", c)} />
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#aaa", textAlign: "center", marginTop: 24, lineHeight: 1.6 }}>
+          "Every great women's club started with two women who felt exactly the same way about something." — Yande ✦
+        </p>
       </div>
-
-      {/* ── Save Button ── */}
-      <button
-        onClick={handleSave}
-        style={{
-          width: "100%",
-          padding: "16px 0",
-          borderRadius: 50,
-          background: PINK,
-          color: "#fff",
-          fontFamily: "var(--font-jost)",
-          fontSize: 16,
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 4px 16px rgba(255,31,125,0.3)",
-          transition: "opacity 0.15s",
-        }}
-      >
-        Save Crest →
-      </button>
     </div>
   );
 }

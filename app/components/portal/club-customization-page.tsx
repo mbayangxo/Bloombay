@@ -190,9 +190,12 @@ export function ClubCustomizationPage({ clubId, clubName, ownerId: _ownerId }: P
   const [crestConfig, setCrestConfig] = useState<CrestConfig>({
     shape: "shield",
     symbol: "flower",
+    font: "serif",
     colorPrimary: PINK,
     colorSecondary: DARK,
     colorAccent: GOLD,
+    showBannerText: true,
+    bannerText: "EST. 2026",
   });
   const [crestUrl, setCrestUrl] = useState<string | null>(null);
   const [crestSaving, setCrestSaving] = useState(false);
@@ -229,13 +232,14 @@ export function ClubCustomizationPage({ clubId, clubName, ownerId: _ownerId }: P
         if (!res.ok) return;
         const data = await res.json();
         if (!data || !data.club_id) return;
-        setCrestConfig({
-          shape:        data.crest_shape        ?? "shield",
-          symbol:       data.crest_symbol       ?? "flower",
-          colorPrimary: data.crest_color_primary   ?? PINK,
+        setCrestConfig(prev => ({
+          ...prev,
+          shape:          data.crest_shape           ?? "shield",
+          symbol:         data.crest_symbol          ?? "flower",
+          colorPrimary:   data.crest_color_primary   ?? PINK,
           colorSecondary: data.crest_color_secondary ?? DARK,
-          colorAccent:  data.crest_color_accent  ?? GOLD,
-        });
+          colorAccent:    data.crest_color_accent    ?? GOLD,
+        }));
         if (data.crest_url)  setCrestUrl(data.crest_url);
         if (data.layout)     setLayout(data.layout as Layout);
         if (data.accent_color) setAccentColor(data.accent_color);
