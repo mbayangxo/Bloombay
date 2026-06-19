@@ -9,7 +9,8 @@ export default async function ClubPortalLayout({ children }: { children: React.R
   return (
     <div className="min-h-screen flex" style={{ background: "#FFF5F8" }}>
       <ClubSidebar />
-      <main className="flex-1 md:ml-64 min-h-screen overflow-auto">
+      {/* club desktop sidebar is 168px not 256px */}
+      <main className="flex-1 pt-14 md:pt-0 md:ml-16 lg:ml-[168px] min-h-screen overflow-auto">
         {children}
       </main>
     </div>
