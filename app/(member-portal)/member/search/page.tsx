@@ -379,6 +379,7 @@ export default function SearchPage() {
       style={{
         background: PAPER,
         minHeight: "100dvh",
+        paddingBottom: 120,
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         color: DARK,

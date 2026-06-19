@@ -11,7 +11,7 @@ export function DiscoverPage() {
   const [tab, setTab] = useState<Tab>("happenings");
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh" }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* Sticky tab toggle — sits flush under the fixed top bar */}
       <div style={{
