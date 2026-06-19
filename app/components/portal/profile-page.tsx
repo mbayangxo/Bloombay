@@ -808,6 +808,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
   // Socials state
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
+  const [showSocials, setShowSocials] = useState(false);
   const [socialsSaved, setSocialsSaved] = useState(false);
 
   // Notification preferences
@@ -891,6 +892,27 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
         setSocials(prev => ({ ...prev, ...parsed }));
       } catch {}
     }
+  }, [user.id]);
+
+  // Load socials from DB (authoritative source, overrides localStorage)
+  useEffect(() => {
+    createClient()
+      .from("profiles")
+      .select("instagram, tiktok, twitter, pinterest, spotify, website, show_socials")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        setSocials({
+          instagram: (data as Record<string, unknown>).instagram as string ?? "",
+          tiktok:    (data as Record<string, unknown>).tiktok    as string ?? "",
+          twitter:   (data as Record<string, unknown>).twitter   as string ?? "",
+          pinterest: (data as Record<string, unknown>).pinterest as string ?? "",
+          spotify:   (data as Record<string, unknown>).spotify   as string ?? "",
+          website:   (data as Record<string, unknown>).website   as string ?? "",
+        });
+        setShowSocials(Boolean((data as Record<string, unknown>).show_socials));
+      });
   }, [user.id]);
 
   // Save template to localStorage
@@ -1019,10 +1041,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
     setTimeout(() => setExtraSaved(false), 2000);
   }
 
-  function handleSaveSocials() {
+  async function handleSaveSocials() {
     if (typeof window !== "undefined") {
       localStorage.setItem(`bb_socials_${user.id}`, JSON.stringify(socials));
     }
+    await fetch("/api/member/socials", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...socials, show_socials: showSocials }),
+    });
     setSocialsSaved(true);
     setTimeout(() => setSocialsSaved(false), 2000);
   }
@@ -1530,6 +1557,31 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             ))}
+
+            {/* Show socials publicly toggle */}
+            <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C", marginBottom: 3 }}>Show on my profile</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#999", lineHeight: 1.4 }}>Let other members find you on your socials</p>
+              </div>
+              <button
+                onClick={() => setShowSocials(v => !v)}
+                style={{
+                  width: 46, height: 26, borderRadius: 999, border: "none", cursor: "pointer",
+                  background: showSocials ? PINK : "#E5E5E5",
+                  position: "relative", flexShrink: 0,
+                  transition: "background 0.2s",
+                }}
+              >
+                <span style={{
+                  position: "absolute", top: 3,
+                  left: showSocials ? 23 : 3,
+                  width: 20, height: 20, borderRadius: "50%",
+                  background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                  transition: "left 0.2s",
+                }} />
+              </button>
+            </div>
 
             <button
               onClick={handleSaveSocials}
