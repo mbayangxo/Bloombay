@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { CrestSVG } from "./club-crest-generator";
+import type { CrestConfig } from "./club-crest-generator";
 
 const PINK = "#FF1F7D";
 const CRIMSON = "#C8003C";
 const BG = "#FFF5F8";
+
+export interface BloomClubContext {
+  name: string;
+  crestConfig?: CrestConfig;
+  accentColor?: string;
+}
 
 const COMPAT_POINTS = [
   "Values aligned",
@@ -108,8 +116,9 @@ function BarcodeSVG() {
   );
 }
 
-export function BloomRequestPage() {
+export function BloomRequestPage({ clubContext }: { clubContext?: BloomClubContext } = {}) {
   const [opened, setOpened] = useState(false);
+  const accentColor = clubContext?.accentColor ?? CRIMSON;
 
   if (opened) {
     return (
@@ -132,7 +141,7 @@ export function BloomRequestPage() {
             fontFamily: "var(--font-playfair), Georgia, serif",
             fontSize: 28,
             fontWeight: 700,
-            color: CRIMSON,
+            color: accentColor,
             marginBottom: 10,
           }}
         >
@@ -324,15 +333,15 @@ export function BloomRequestPage() {
           style={{
             background: "#fff",
             borderRadius: 18,
-            border: "1.5px solid #ffd6e5",
+            border: `1.5px solid ${accentColor}33`,
             padding: "28px 24px 24px",
             boxShadow:
-              "0 4px 24px rgba(200,0,60,0.07), 0 1.5px 6px rgba(0,0,0,0.07)",
+              `0 4px 24px ${accentColor}12, 0 1.5px 6px rgba(0,0,0,0.07)`,
             position: "relative",
             zIndex: 2,
           }}
         >
-          {/* Flower icon */}
+          {/* Club crest or flower icon */}
           <div
             style={{
               display: "flex",
@@ -340,10 +349,14 @@ export function BloomRequestPage() {
               marginBottom: 10,
             }}
           >
-            <FlowerSVG />
+            {clubContext?.crestConfig ? (
+              <CrestSVG config={clubContext.crestConfig} clubName={clubContext.name} size={80} />
+            ) : (
+              <FlowerSVG />
+            )}
           </div>
 
-          {/* "YOU JUST RECEIVED A" */}
+          {/* Club name or "YOU JUST RECEIVED A" */}
           <div
             style={{
               textAlign: "center",
@@ -356,7 +369,7 @@ export function BloomRequestPage() {
               marginBottom: 4,
             }}
           >
-            YOU JUST RECEIVED A
+            {clubContext ? `VIA ${clubContext.name.toUpperCase()}` : "YOU JUST RECEIVED A"}
           </div>
 
           {/* BLOOM */}
@@ -367,7 +380,7 @@ export function BloomRequestPage() {
               fontSize: 54,
               fontWeight: 700,
               fontStyle: "italic",
-              color: CRIMSON,
+              color: accentColor,
               lineHeight: 1,
               marginBottom: 0,
               letterSpacing: "-0.01em",
@@ -382,7 +395,7 @@ export function BloomRequestPage() {
               textAlign: "center",
               fontFamily: "var(--font-caveat), cursive",
               fontSize: 34,
-              color: CRIMSON,
+              color: accentColor,
               lineHeight: 1.1,
               marginBottom: 14,
             }}
@@ -395,7 +408,7 @@ export function BloomRequestPage() {
             style={{
               width: 48,
               height: 1,
-              background: "#ffd6e5",
+              background: `${accentColor}44`,
               margin: "0 auto 14px",
             }}
           />
@@ -616,12 +629,12 @@ export function BloomRequestPage() {
             marginTop: 18,
             background: "#fff",
             borderRadius: 16,
-            border: "1.5px solid #ffd6e5",
+            border: `1.5px solid ${accentColor}33`,
             padding: "18px 20px",
             display: "flex",
             alignItems: "center",
             gap: 20,
-            boxShadow: "0 2px 10px rgba(200,0,60,0.05)",
+            boxShadow: `0 2px 10px ${accentColor}0D`,
           }}
         >
           {/* Left: percentage */}
@@ -657,7 +670,7 @@ export function BloomRequestPage() {
             style={{
               width: 1,
               height: 72,
-              background: "#ffd6e5",
+              background: `${accentColor}33`,
               flexShrink: 0,
             }}
           />
@@ -708,7 +721,7 @@ export function BloomRequestPage() {
           onClick={() => setOpened(true)}
           style={{
             width: "100%",
-            background: PINK,
+            background: accentColor,
             color: "#fff",
             border: "none",
             borderRadius: 16,
@@ -718,7 +731,7 @@ export function BloomRequestPage() {
             fontWeight: 600,
             letterSpacing: "0.03em",
             cursor: "pointer",
-            boxShadow: "0 4px 20px rgba(255,31,125,0.35)",
+            boxShadow: `0 4px 20px ${accentColor}55`,
             marginBottom: 14,
           }}
         >

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
 import { applyToClub } from "@/lib/actions/clubs";
+import { CrestSVG } from "./club-crest-generator";
+import type { CrestConfig } from "./club-crest-generator";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -787,7 +789,17 @@ function LeaveClubButton({ clubName }: { clubName: string }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean }) {
+export interface ClubCustomization {
+  crest_shape?: string;
+  crest_symbol?: string;
+  crest_color_primary?: string;
+  crest_color_secondary?: string;
+  crest_color_accent?: string;
+  accent_color?: string;
+  cover_url?: string;
+}
+
+export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false, customization }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
   const [applied, setApplied] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
@@ -796,6 +808,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [introText, setIntroText] = useState("");
   const [, startT] = useTransition();
 
+  const brandColor = customization?.accent_color ?? club.color;
   const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
   const ctaLabel = isPaid ? "JOIN · CHECKOUT →" : (club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN");
 
@@ -1168,7 +1181,24 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               <BBLogo size={26} />
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginTop: 8 }}>
-              <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={60} />
+              {customization?.crest_shape ? (
+                <CrestSVG
+                  config={{
+                    shape: (customization.crest_shape as CrestConfig["shape"]),
+                    symbol: ((customization.crest_symbol ?? "flower") as CrestConfig["symbol"]),
+                    font: "serif",
+                    colorPrimary: customization.crest_color_primary ?? club.color,
+                    colorSecondary: customization.crest_color_secondary ?? "#FEFCF7",
+                    colorAccent: customization.crest_color_accent ?? "#D4A853",
+                    showBannerText: true,
+                    bannerText: "EST. 2026",
+                  }}
+                  clubName={club.name}
+                  size={60}
+                />
+              ) : (
+                <ClubCrest name={club.name} color={club.color} crestBg={club.crestBg} size={60} />
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)", borderRadius: 20, padding: "2px 8px", marginBottom: 6 }}>
                   <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK }}>club mama ♡</span>
@@ -1182,7 +1212,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           {/* Tab bar */}
           <div style={{ display: "flex", borderBottom: "1px solid rgba(0,0,0,0.07)", background: "white", overflowX: "auto", scrollbarWidth: "none" }}>
             {(["about", "chat", "zones", "events", "members"] as ClubTab[]).map(t => (
-              <button key={t} onClick={() => setClubTab(t)} style={{ flex: 1, padding: "13px 12px", fontSize: 12, fontWeight: 600, border: "none", background: "none", cursor: "pointer", borderBottom: clubTab === t ? `2.5px solid ${club.color}` : "2.5px solid transparent", color: clubTab === t ? club.color : "rgba(0,0,0,0.35)", whiteSpace: "nowrap", minWidth: 64 }}>
+              <button key={t} onClick={() => setClubTab(t)} style={{ flex: 1, padding: "13px 12px", fontSize: 12, fontWeight: 600, border: "none", background: "none", cursor: "pointer", borderBottom: clubTab === t ? `2.5px solid ${brandColor}` : "2.5px solid transparent", color: clubTab === t ? brandColor : "rgba(0,0,0,0.35)", whiteSpace: "nowrap", minWidth: 64 }}>
                 {t === "about" ? "About" : t === "chat" ? "Chat" : t === "zones" ? "Zones" : t === "events" ? "Events" : "Members"}
               </button>
             ))}
