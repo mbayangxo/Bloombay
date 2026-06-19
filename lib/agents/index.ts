@@ -2,6 +2,7 @@
 export { eligibilityAgent } from "./eligibility";
 export { deadlineAgent } from "./deadline";
 export { applicationCoachAgent } from "./application-coach";
+export { pathBuilderAgent } from "./path-builder";
 export type {
   AgentResult,
   EligibilityAssessment,
@@ -17,3 +18,4 @@ export type {
   DeadlineAgent,
   FounderBriefingAgent,
 } from "./types";
+export type { PathStep, OpportunityPath, PathBuilderAgent } from "./path-builder";
