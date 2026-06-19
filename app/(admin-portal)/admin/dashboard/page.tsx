@@ -405,14 +405,11 @@ function OverviewSection() {
         category="Overview"
       />
 
-      {/* Live stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 px-0 md:px-0">
-        {statCards.slice(0, 4).map((s) => (
+      {/* Live stat cards — on xl desktop all 5 show in one row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
+        {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
         ))}
-      </div>
-      <div className="mb-8">
-        <StatCard label={statCards[4].label} value={statCards[4].value} sub={statCards[4].sub} />
       </div>
 
       {/* Curator Leaderboard */}
