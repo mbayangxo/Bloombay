@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK = "#FF1F7D";
 const GOLD = "#D4A853";
@@ -9,7 +10,7 @@ const GOLD = "#D4A853";
 type MailboxItemType = "letter" | "invitation" | "founders-invitation";
 
 interface MailboxItem {
-  id: number;
+  id: string | number;
   type: MailboxItemType;
   from: string;
   initial: string;
@@ -19,6 +20,15 @@ interface MailboxItem {
   date: string;
   opened: boolean;
   body?: string;
+}
+
+function formatMessageDate(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 const MAILBOX_ITEMS: MailboxItem[] = [
@@ -313,7 +323,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
 // ── Invitation List ────────────────────────────────────────────────────────────
 function InvitationListView({ items, openedItems, onOpen, onBack }: {
   items: MailboxItem[];
-  openedItems: Set<number>;
+  openedItems: Set<string | number>;
   onOpen: (item: MailboxItem) => void;
   onBack: () => void;
 }) {
@@ -397,7 +407,7 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
 // ── Letter List ────────────────────────────────────────────────────────────────
 function LetterListView({ items, openedItems, onOpen, onBack }: {
   items: MailboxItem[];
-  openedItems: Set<number>;
+  openedItems: Set<string | number>;
   onOpen: (item: MailboxItem) => void;
   onBack: () => void;
 }) {
@@ -456,7 +466,7 @@ function MailboxHub({
 }: {
   invitations: MailboxItem[];
   letters: MailboxItem[];
-  openedItems: Set<number>;
+  openedItems: Set<string | number>;
   setSection: (s: HubSection) => void;
   openItem: (item: MailboxItem) => void;
 }) {
@@ -614,14 +624,65 @@ function MailboxInner() {
 
   const [section, setSection]       = useState<HubSection>(initial);
   const [activeItem, setActiveItem] = useState<MailboxItem | null>(null);
-  const [openedItems, setOpenedItems] = useState<Set<number>>(
+  const [openedItems, setOpenedItems] = useState<Set<string | number>>(
     new Set(MAILBOX_ITEMS.filter(i => i.opened).map(i => i.id))
   );
+  const [allItems, setAllItems] = useState<MailboxItem[]>(MAILBOX_ITEMS);
 
-  function openItem(item: MailboxItem) {
+  useEffect(() => {
+    async function loadMessages() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("yande_messages")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (error || !data) return;
+
+      const dbItems: MailboxItem[] = data.map((row) => ({
+        id: row.id as string,
+        type: row.message_type === "introduction" ? "invitation" : "letter",
+        from: "Yande",
+        initial: "Y",
+        color: PINK,
+        subject: row.subject ?? "A message from Yande",
+        preview: (row.body ?? "").slice(0, 100),
+        body: row.body,
+        date: formatMessageDate(row.created_at),
+        opened: row.is_read ?? false,
+      }));
+
+      // Mark already-read DB messages in openedItems
+      const readIds = dbItems.filter(i => i.opened).map(i => i.id);
+      if (readIds.length > 0) {
+        setOpenedItems(prev => new Set([...prev, ...readIds]));
+      }
+
+      // Prepend real messages before hardcoded ones
+      setAllItems([...dbItems, ...MAILBOX_ITEMS]);
+    }
+
+    loadMessages();
+  }, []);
+
+  async function openItem(item: MailboxItem) {
     setOpenedItems(p => new Set([...p, item.id]));
     setActiveItem(item);
     setSection("letter");
+
+    // Mark read in DB if this is a real DB message (string id)
+    if (typeof item.id === "string") {
+      const supabase = createClient();
+      await supabase
+        .from("yande_messages")
+        .update({ is_read: true })
+        .eq("id", item.id);
+    }
   }
 
   function backToSection() {
@@ -633,8 +694,8 @@ function MailboxInner() {
     setSection(target);
   }
 
-  const invitations = MAILBOX_ITEMS.filter(i => i.type === "invitation" || i.type === "founders-invitation");
-  const letters     = MAILBOX_ITEMS.filter(i => i.type === "letter");
+  const invitations = allItems.filter(i => i.type === "invitation" || i.type === "founders-invitation");
+  const letters     = allItems.filter(i => i.type === "letter");
 
   if (section === "letter" && activeItem) {
     return <LetterView item={activeItem} onBack={backToSection} />;

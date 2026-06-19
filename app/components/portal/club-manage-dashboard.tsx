@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/clubs";
 import { uploadClubPhoto } from "@/lib/storage/upload";
 import { avatarUrl } from "@/lib/images/supabase-transform";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -106,6 +107,23 @@ export function ClubManageDashboard({ club }: { club: ClubData }) {
 
 // ── Overview ──────────────────────────────────────────────────────────────────
 function OverviewTab({ club, accent, onTabChange }: { club: ClubData; accent: string; onTabChange: (t: ManageTab) => void }) {
+  const [stats, setStats] = useState({ members: "–", gatherings: "–", applications: "–" });
+
+  useEffect(() => {
+    const supabase = createClient();
+    Promise.all([
+      supabase.from("club_memberships").select("id", { count: "exact", head: true }).eq("club_id", club.id),
+      supabase.from("gatherings").select("id", { count: "exact", head: true }).eq("club_id", club.id).gte("starts_at", new Date().toISOString()),
+      supabase.from("club_applications").select("id", { count: "exact", head: true }).eq("club_id", club.id).eq("status", "pending"),
+    ]).then(([members, gatherings, apps]) => {
+      setStats({
+        members:      String(members.count   ?? 0),
+        gatherings:   String(gatherings.count ?? 0),
+        applications: String(apps.count       ?? 0),
+      });
+    });
+  }, [club.id]);
+
   const actions: { label: string; sub: string; tab: ManageTab; emoji: string }[] = [
     { label: "Review Members",   sub: "Accept or reject applications", tab: "members",   emoji: "👥" },
     { label: "Post an Update",   sub: "Share news with your club",     tab: "updates",   emoji: "📣" },
@@ -118,9 +136,9 @@ function OverviewTab({ club, accent, onTabChange }: { club: ClubData; accent: st
       {/* Quick stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
         {[
-          { label: "Members",    value: "–"   },
-          { label: "Gatherings", value: "–"   },
-          { label: "Applications",value: "–"  },
+          { label: "Members",      value: stats.members      },
+          { label: "Upcoming",     value: stats.gatherings   },
+          { label: "Applications", value: stats.applications },
         ].map(s => (
           <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: "14px 12px", border: `1px solid rgba(255,255,255,0.07)` }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, fontStyle: "italic", color: accent, lineHeight: 1 }}>{s.value}</p>
