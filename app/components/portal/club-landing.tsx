@@ -833,7 +833,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   }
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", fontFamily: "var(--font-jost)" }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
 
       {/* ════════════════════════════════════════════════════════════════════
           NON-MEMBER LANDING

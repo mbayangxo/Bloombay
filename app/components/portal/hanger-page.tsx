@@ -312,6 +312,7 @@ export function HangerPage() {
       style={{
         minHeight: "100dvh",
         background: "#0D0D0D",
+        paddingBottom: 120,
         backgroundImage: PAPER,
         backgroundRepeat: "repeat",
         fontFamily: "var(--font-jost), sans-serif",

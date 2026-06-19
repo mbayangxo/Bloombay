@@ -223,7 +223,7 @@ export function WallPage() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
       {/* ── Header ── */}
       <header style={{ position: "sticky", top: 0, zIndex: 30, background: `linear-gradient(160deg, #C2005A 0%, ${PINK} 55%, #FF6EB4 100%)`, padding: "18px 18px 16px", boxShadow: "0 4px 24px rgba(255,31,125,0.28)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>

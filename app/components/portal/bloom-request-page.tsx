@@ -169,6 +169,7 @@ export function BloomRequestPage({ clubContext }: { clubContext?: BloomClubConte
         background: BG,
         fontFamily: "var(--font-jost), sans-serif",
         overflowX: "hidden",
+        paddingBottom: 120,
       }}
     >
       {/* ── TOP BAR ── */}
@@ -377,7 +378,7 @@ export function BloomRequestPage({ clubContext }: { clubContext?: BloomClubConte
             style={{
               textAlign: "center",
               fontFamily: "var(--font-playfair), Georgia, serif",
-              fontSize: 54,
+              fontSize: "clamp(36px, 13.5vw, 54px)",
               fontWeight: 700,
               fontStyle: "italic",
               color: accentColor,
@@ -394,7 +395,7 @@ export function BloomRequestPage({ clubContext }: { clubContext?: BloomClubConte
             style={{
               textAlign: "center",
               fontFamily: "var(--font-caveat), cursive",
-              fontSize: 34,
+              fontSize: "clamp(24px, 8.5vw, 34px)",
               color: accentColor,
               lineHeight: 1.1,
               marginBottom: 14,
