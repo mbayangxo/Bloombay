@@ -893,16 +893,24 @@ function PendingSection() {
 // ─── Section: Women ───────────────────────────────────────────────────────────
 
 function WomenSection() {
+  const [memberStats, setMemberStats] = useState<{ total: number; pending: number; new_week: number } | null>(null);
+  useEffect(() => {
+    fetch("/api/admin/live-stats")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.members) setMemberStats(d.members); })
+      .catch(() => {});
+  }, []);
+
   return (
     <div>
       <SectionHeader title="Women" sub="Verification queue, applications, and member growth." category="Community" />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 px-0 md:px-0">
         {[
-          { label: "Total Members", value: String(WOMEN_STATS.totalMembers), sub: "Active in BloomBay" },
-          { label: "Verification Queue", value: String(WOMEN_STATS.verificationQueue), sub: "Awaiting review" },
-          { label: "Applications", value: String(WOMEN_STATS.pendingApplications), sub: "Pending approval" },
-          { label: "Growth This Week", value: `+${WOMEN_STATS.memberGrowthThisWeek}`, sub: "New members" },
+          { label: "Total Members", value: memberStats ? String(memberStats.total) : String(WOMEN_STATS.totalMembers), sub: "Active in BloomBay" },
+          { label: "Pending Review", value: memberStats ? String(memberStats.pending) : String(WOMEN_STATS.verificationQueue), sub: "Awaiting approval" },
+          { label: "New This Week", value: memberStats ? `+${memberStats.new_week}` : `+${WOMEN_STATS.memberGrowthThisWeek}`, sub: "New members" },
+          { label: "Club Applications", value: String(WOMEN_STATS.pendingApplications), sub: "Across all clubs" },
         ].map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
         ))}
@@ -1180,19 +1188,44 @@ function HostsSection() {
 
 // ─── Section: Clubs ───────────────────────────────────────────────────────────
 
+interface AdminClub { id: string; slug: string | null; name: string; tagline: string | null; color: string; membership_type: string; category: string | null; owner_name: string; members: number; upcoming_gatherings: number; member_limit: number; }
+
 function ClubsSection() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "hq" | "user">("all");
   const [toast, setToast] = useState<string | null>(null);
+  const [realClubs, setRealClubs] = useState<AdminClub[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/clubs")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (Array.isArray(d) && d.length > 0) setRealClubs(d); })
+      .catch(() => {});
+  }, []);
+
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
-  const shown = filter === "all" ? CLUBS : CLUBS.filter((c) => c.type === filter);
-  const hqCount   = CLUBS.filter((c) => c.type === "hq").length;
-  const userCount = CLUBS.filter((c) => c.type === "user").length;
+  const displayClubs = realClubs.length > 0 ? realClubs.map(c => ({
+    name: c.name,
+    city: "NYC",
+    curator: c.owner_name,
+    members: c.members,
+    seats: c.upcoming_gatherings,
+    type: c.owner_name === "BloomBay" ? "hq" as const : "user" as const,
+    attendance: 0,
+    growth: "",
+    events: c.upcoming_gatherings,
+    id: c.id,
+    slug: c.slug,
+  })) : CLUBS;
+
+  const shown = filter === "all" ? displayClubs : displayClubs.filter((c) => c.type === filter);
+  const hqCount   = displayClubs.filter((c) => c.type === "hq").length;
+  const userCount = displayClubs.filter((c) => c.type === "user").length;
 
   return (
     <div>
-      <SectionHeader title="Clubs" sub={`${CLUBS.length} clubs · ${hqCount} HQ · ${userCount} user-created`} category="Community" />
+      <SectionHeader title="Clubs" sub={`${displayClubs.length} clubs · ${hqCount} HQ · ${userCount} user-created`} category="Community" />
 
       {/* Filter chips */}
       <div className="flex gap-2 mb-5">
