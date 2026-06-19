@@ -157,7 +157,7 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
   return (
     <div style={{ background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
       {/* ── Fixed header ─────────────────────────────────────────────────── */}
-      <div className="md:top-[60px] lg:top-0 lg:left-60" style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         background: CREAM, borderBottom: "1px solid #E8E0D4",
         padding: "calc(env(safe-area-inset-top,0px) + 10px) 16px 10px",

@@ -2892,7 +2892,7 @@ export function CityPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       {/* Fixed top bar */}
-      <div className="md:top-[60px] lg:top-0 lg:left-60" style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         paddingTop: "env(safe-area-inset-top, 0px)",
         background: "rgba(255,252,248,0.97)",

@@ -436,7 +436,7 @@ export function ConfettiPage() {
       <style>{CSS}</style>
 
       {/* ── TOP BAR ── */}
-      <div className="md:top-[60px] lg:top-0 lg:left-60" style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         paddingTop: "env(safe-area-inset-top, 0px)",
         background: "rgba(253,248,242,0.96)",

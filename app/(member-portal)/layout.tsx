@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { BottomNav } from "../components/portal/bottom-nav";
 import { DesktopTopNav } from "../components/portal/desktop-top-nav";
 import { MemberDesktopSidebar } from "../components/portal/member-desktop-sidebar";
+import { MemberDesktopRightPanel } from "../components/portal/member-desktop-right-panel";
 import { TimeWrapper } from "../components/portal/time-wrapper";
 import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
 import { FeedbackButton } from "../components/portal/feedback-button";
@@ -32,38 +33,39 @@ export default async function MemberPortalLayout({ children }: { children: React
     <TimeWrapper>
       <SeasonalOverlay />
 
-      {/* ── TABLET only: top bar (768–1023px) ── */}
+      {/* ── TABLET only: compact top bar (768–1023px) ── */}
       <DesktopTopNav initial={user.initial} />
 
-      {/* ── DESKTOP only: left sidebar (1024px+) ── */}
-      <MemberDesktopSidebar
-        initial={user.initial}
-        name={user.name}
-        role={user.role}
-      />
+      {/* ── DESKTOP only: left sidebar + right panel (1024px+) ── */}
+      <MemberDesktopSidebar initial={user.initial} name={user.name} role={user.role} />
+      <MemberDesktopRightPanel />
 
       {/*
-        Content wrapper — three distinct breakpoints:
-          mobile  (<768px) : max-w-[430px] centered, no top offset
-          tablet  (768–1023px): max-w-[640px] centered, 60px top offset for top bar
-          desktop (1024px+): full-width, 240px left offset for sidebar, no top bar
-      */}
-      {/*
-        Tablet gets a card shadow to make the centered column feel intentional.
-        Desktop gets no shadow — the sidebar is the structural anchor.
+        Three distinct breakpoints for content column:
+
+        MOBILE  (<768px)      max-w-[430px] centered, no top/side offset
+        TABLET  (768–1023px)  max-w-[640px] centered, offset 60px top for bar
+        DESKTOP (1024px+)     left: 240px sidebar · right: 280px panel
+                              center column stays phone-width (max-w-[480px]),
+                              centered in the remaining space between sidebars.
+                              Remaining space at 1024px = 1024-240-280 = 504px.
+                              At 1440px = 1440-240-280 = 920px → max-w-[480px] centered.
       */}
       <div
         className={[
           // mobile
           "max-w-[430px] mx-auto",
-          // tablet: centered card with shadow
-          "md:max-w-[640px] md:mx-auto md:mt-[60px] md:shadow-[0_0_40px_rgba(0,0,0,0.08)]",
-          // desktop: sidebar is 240px = Tailwind ml-60
-          "lg:max-w-none lg:mx-0 lg:ml-60 lg:mt-0 lg:shadow-none",
+          // tablet — wider card, offset for top nav
+          "md:max-w-[640px] md:mx-auto md:mt-[60px] md:shadow-[0_0_40px_rgba(0,0,0,0.07)]",
+          // desktop — fixed margins on both sides (sidebar 240px + right panel 280px)
+          // center the content column (max 480px) in the remaining space
+          "lg:ml-60 lg:mr-[280px] lg:mt-0 lg:shadow-none lg:flex lg:justify-center",
         ].join(" ")}
         style={{ minHeight: "100dvh" }}
       >
-        {children}
+        <div className="lg:w-full lg:max-w-[480px]">
+          {children}
+        </div>
       </div>
 
       <BottomNav user={user} />
