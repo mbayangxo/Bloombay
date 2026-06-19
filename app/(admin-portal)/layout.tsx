@@ -13,7 +13,7 @@ export default async function AdminPortalLayout({ children }: { children: React.
       <AdminSidebar />
       <AdminDesktopRightPanel />
       {/* mobile: pt-14 for fixed top bar | tablet: ml-16 | desktop: ml-64 + lg:mr-[260px] for right panel */}
-      <main className="flex-1 pt-14 md:pt-0 md:ml-16 lg:ml-64 lg:mr-[260px] min-h-screen overflow-auto">
+      <main className="flex-1 pt-14 md:pt-0 md:ml-16 lg:ml-64 xl:mr-[260px] min-h-screen overflow-auto">
         {children}
       </main>
     </div>

@@ -12,7 +12,7 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
     <div className="min-h-screen flex" style={{ background: "#FFF5F8" }}>
       <PartnerSidebar />
       <PartnerDesktopRightPanel />
-      <main className="flex-1 pt-14 md:pt-0 md:ml-16 lg:ml-64 min-h-screen overflow-auto lg:mr-[260px]">
+      <main className="flex-1 pt-14 md:pt-0 md:ml-16 lg:ml-64 xl:mr-[260px] min-h-screen overflow-auto">
         {children}
       </main>
     </div>

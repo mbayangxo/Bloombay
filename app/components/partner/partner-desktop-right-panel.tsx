@@ -65,7 +65,7 @@ export function PartnerDesktopRightPanel() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col fixed right-0 top-0 h-full overflow-y-auto z-40"
+      className="hidden xl:flex flex-col fixed right-0 top-0 h-full overflow-y-auto z-40"
       style={{
         width: 260,
         background: "#FEFCF7",

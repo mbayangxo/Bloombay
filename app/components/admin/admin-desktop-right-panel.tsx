@@ -89,7 +89,7 @@ export function AdminDesktopRightPanel() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col fixed right-0 top-0 h-full overflow-y-auto"
+      className="hidden xl:flex flex-col fixed right-0 top-0 h-full overflow-y-auto"
       style={{
         width: 260,
         background: "#111111",
