@@ -2892,7 +2892,7 @@ export function CityPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       {/* Fixed top bar */}
-      <div style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         paddingTop: "env(safe-area-inset-top, 0px)",
         background: "rgba(255,252,248,0.97)",
@@ -2985,7 +2985,7 @@ export function CityPage() {
       </div>
 
       {/* Content */}
-      <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
+      <div className="md:pt-0" style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))" }}>
         {mode === "guide" && <CityGuide />}
         {mode === "map"   && <CityMapView />}
       </div>

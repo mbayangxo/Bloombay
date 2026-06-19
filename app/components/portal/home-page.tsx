@@ -268,7 +268,7 @@ export function HomePage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
+    <div className="md:pt-0 lg:pt-0" style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
 
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }

@@ -19,7 +19,7 @@ export function DesktopTopNav({ initial = "M" }: { initial?: string }) {
 
   return (
     <header
-      className="hidden md:flex fixed top-0 left-0 right-0 z-50 items-center justify-between"
+      className="hidden md:flex lg:hidden fixed top-0 left-0 right-0 z-50 items-center justify-between"
       style={{
         background: "#FAF7F2",
         borderBottom: "1px solid rgba(0,0,0,0.07)",

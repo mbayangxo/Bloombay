@@ -1243,7 +1243,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
 
       {/* ── Fixed top bar ── */}
-      {standalone && <div style={{
+      {/* tablet: top-[60px] clears the fixed desktop top-nav; desktop: top-0 + left-60 clears the sidebar */}
+      {standalone && <div className="md:top-[60px] lg:top-0 lg:left-60" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         background: getNavBg(),
         backdropFilter: "blur(20px)",
@@ -1308,7 +1309,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
-        <div style={{
+        <div className="md:top-[110px] lg:top-[50px] lg:left-60" style={{
           position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
