@@ -1,7 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ClubPhotoUpload } from "@/app/components/shared/club-photo-upload";
+
+// ── Real data types ────────────────────────────────────────────────────────
+
+interface ClubInfo {
+  id: string;
+  name: string;
+  tagline: string;
+  primary_color: string;
+  member_count: number;
+  pending_applications: number;
+  upcoming_gatherings: number;
+  owner_name: string;
+  owner_avatar: string | null;
+  membership_type: string;
+}
+
+interface RealMember {
+  user_id: string;
+  name: string;
+  neighborhood: string;
+  avatar_url: string | null;
+  joined_at: string;
+  joined_label: string;
+}
+
+interface RealApplication {
+  id: string;
+  user_id: string;
+  status: "pending" | "accepted" | "rejected";
+  message: string | null;
+  created_at: string;
+  profile: { full_name: string | null; first_name: string | null; avatar_url: string | null; neighborhood: string | null; bio: string | null } | null;
+}
+
+interface RealGathering {
+  id: string;
+  title: string;
+  date: string;
+  venue: string;
+  seats?: number;
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -335,14 +376,15 @@ function PhotosSection() {
 
 // ── Section Components ─────────────────────────────────────────────────────
 
-function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
+function WomenSection({ showToast, members }: { showToast: (msg: string) => void; members: RealMember[] }) {
+  const displayMembers = members.length > 0 ? members : MEMBERS.map(m => ({ user_id: m.name, name: m.name, neighborhood: m.neighborhood, avatar_url: null, joined_at: "", joined_label: m.joined }));
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>OUR WOMEN</p>
           <h2 className="text-2xl font-bold leading-none" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>
-            312 women strong
+            {displayMembers.length} {displayMembers.length === 1 ? "woman" : "women"} strong
           </h2>
         </div>
         <button
@@ -358,35 +400,37 @@ function WomenSection({ showToast }: { showToast: (msg: string) => void }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {MEMBERS.map((m, i) => (
+        {displayMembers.map((m, i) => (
           <div
-            key={i}
+            key={m.user_id ?? i}
             className="rounded-2xl p-4 flex items-center gap-4 bg-white"
             style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}
           >
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 overflow-hidden"
               style={{ background: `radial-gradient(circle at 35% 35%, #FF1F7D, #7F0028)`, boxShadow: "0 2px 8px rgba(255,31,125,0.3)" }}
             >
-              {m.name[0]}
+              {m.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={m.avatar_url} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (m.name[0] ?? "?")}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm leading-none" style={{ color: "#111111" }}>{m.name}</p>
-              <p className="text-xs text-gray-400 mt-1">{m.neighborhood} · since {m.joined}</p>
+              <p className="text-xs text-gray-400 mt-1">{m.neighborhood ? `${m.neighborhood} · ` : ""}since {m.joined_label}</p>
             </div>
             <div className="flex-shrink-0 text-right">
-              <p className="text-base font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
-                {m.attendance}%
-              </p>
-              <p
-                className="text-[10px] font-semibold mt-0.5"
-                style={{ color: m.status === "Active" ? "#FF1F7D" : "#bbb" }}
-              >
-                {m.status === "Active" ? "showing up" : "taking it slow"}
-              </p>
+              <p className="text-[10px] font-semibold mt-0.5" style={{ color: "#FF1F7D" }}>member</p>
             </div>
           </div>
         ))}
+        {displayMembers.length === 0 && (
+          <div className="col-span-2 rounded-2xl p-12 text-center" style={{ border: "2px dashed #FFE0EE" }}>
+            <p className="font-bold italic text-base" style={{ color: "#ccc", fontFamily: "var(--font-playfair)" }}>
+              The first women are on their way.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -561,80 +605,88 @@ const GATHERING_GRADIENTS = [
   "linear-gradient(160deg, #111111 0%, #FF69B4 100%)",
 ];
 
-function GatheringsSection() {
+function GatheringsSection({ upcoming, past }: { upcoming: RealGathering[]; past: RealGathering[] }) {
+  const displayUpcoming = upcoming.length > 0 ? upcoming : GATHERINGS_UPCOMING.map((g, i) => ({ id: String(i), title: g.title, date: g.date, venue: g.venue, seats: g.seats }));
+  const displayPast = past.length > 0 ? past : GATHERINGS_PAST.map((g, i) => ({ id: String(i), title: g.title, date: g.date, venue: "" }));
   return (
     <div className="flex flex-col gap-8">
       {/* Upcoming — editorial poster cards */}
       <div>
         <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#FF1F7D" }}>COMING UP</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {GATHERINGS_UPCOMING.map((g, i) => (
-            <div
-              key={i}
-              className="rounded-2xl overflow-hidden relative"
-              style={{
-                height: "140px",
-                background: GATHERING_GRADIENTS[i % GATHERING_GRADIENTS.length],
-                boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-              }}
-            >
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)" }} />
-              <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
-                <span
-                  className="text-[9px] font-bold px-2 py-0.5 rounded-full self-start"
-                  style={{ background: "rgba(255,255,255,0.15)", color: "white", backdropFilter: "blur(6px)" }}
-                >
-                  {g.seats} SEATS
-                </span>
-                <div>
-                  <p className="text-[10px] mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>{g.date}</p>
-                  <p className="font-bold text-white text-xs leading-snug" style={{ fontFamily: "var(--font-playfair)" }}>
-                    {g.title}
-                  </p>
-                  <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{g.venue}</p>
+        {displayUpcoming.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {displayUpcoming.map((g, i) => (
+              <div
+                key={g.id}
+                className="rounded-2xl overflow-hidden relative"
+                style={{
+                  height: "140px",
+                  background: GATHERING_GRADIENTS[i % GATHERING_GRADIENTS.length],
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+                }}
+              >
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)" }} />
+                <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
+                  {(g.seats ?? 0) > 0 && (
+                    <span
+                      className="text-[9px] font-bold px-2 py-0.5 rounded-full self-start"
+                      style={{ background: "rgba(255,255,255,0.15)", color: "white", backdropFilter: "blur(6px)" }}
+                    >
+                      {g.seats} SEATS
+                    </span>
+                  )}
+                  <div>
+                    <p className="text-[10px] mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>{g.date}</p>
+                    <p className="font-bold text-white text-xs leading-snug" style={{ fontFamily: "var(--font-playfair)" }}>
+                      {g.title}
+                    </p>
+                    <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{g.venue}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl p-10 text-center" style={{ border: "2px dashed #FFE0EE" }}>
+            <p className="text-sm text-gray-400">No upcoming gatherings yet. Plan your first one.</p>
+          </div>
+        )}
       </div>
 
       {/* Past — editorial list */}
-      <div>
-        <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "rgba(0,0,0,0.3)" }}>MEMORIES</p>
-        <div className="flex flex-col gap-2">
-          {GATHERINGS_PAST.map((g, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl px-5 py-4 flex items-center justify-between"
-              style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}
-            >
-              <div>
-                <p className="font-bold text-sm" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{g.title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.attendees} women attended</p>
+      {displayPast.length > 0 && (
+        <div>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "rgba(0,0,0,0.3)" }}>MEMORIES</p>
+          <div className="flex flex-col gap-2">
+            {displayPast.map((g) => (
+              <div
+                key={g.id}
+                className="bg-white rounded-2xl px-5 py-4 flex items-center justify-between"
+                style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}
+              >
+                <div>
+                  <p className="font-bold text-sm" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{g.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.venue}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 ml-4 flex-shrink-0">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF1F7D">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-                <span className="text-sm font-bold" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{g.rating}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-function ClubHealthSection() {
+function ClubHealthSection({ memberCount, upcomingGatherings, pendingApps }: {
+  memberCount: number; upcomingGatherings: number; pendingApps: number;
+}) {
   const stats = [
-    { value: "87%", headline: "show up, every month", detail: "attendance rate · last 30 days" },
-    { value: "94%", headline: "keep coming back", detail: "retention rate" },
-    { value: "268", headline: "women truly active", detail: "of 312 in the club" },
-    { value: "8", headline: "gatherings this month", detail: "planned & confirmed" },
-    { value: "2.4h", headline: "to respond to letters", detail: "average review time" },
-    { value: "61%", headline: "accepted to the circle", detail: "application approval rate" },
+    { value: memberCount > 0 ? String(memberCount) : "—", headline: "women in the club", detail: "total members" },
+    { value: upcomingGatherings > 0 ? String(upcomingGatherings) : "—", headline: "gatherings coming up", detail: "planned & confirmed" },
+    { value: pendingApps > 0 ? String(pendingApps) : "0", headline: "letters waiting", detail: "pending applications" },
+    { value: "—", headline: "attendance rate", detail: "coming soon" },
+    { value: "—", headline: "retention rate", detail: "coming soon" },
+    { value: "—", headline: "response time", detail: "coming soon" },
   ];
 
   return (
@@ -799,23 +851,31 @@ function CrestSection() {
 
 // ── Applications Section ───────────────────────────────────────────────────
 
-function ApplicationsSection() {
+function ApplicationsSection({ applications, onStatusChange }: {
+  applications: RealApplication[];
+  onStatusChange: (id: string, status: "accepted" | "rejected") => void;
+}) {
   const [filter, setFilter] = useState<"All" | "Pending" | "Accepted" | "Denied">("Pending");
-  const [statuses, setStatuses] = useState<Record<number, "pending" | "accepted" | "denied">>(
-    Object.fromEntries(APPLICATIONS.map((_, i) => [i, "pending"]))
-  );
-  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [localStatuses, setLocalStatuses] = useState<Record<string, string>>({});
 
-  const filteredIndexes = APPLICATIONS.map((_, i) => i).filter((i) => {
-    const s = statuses[i];
+  const getStatus = (app: RealApplication) => localStatuses[app.id] ?? app.status;
+
+  const filteredApps = applications.filter((app) => {
+    const s = getStatus(app);
     if (filter === "All") return true;
     if (filter === "Pending") return s === "pending";
     if (filter === "Accepted") return s === "accepted";
-    if (filter === "Denied") return s === "denied";
+    if (filter === "Denied") return s === "rejected";
     return true;
   });
 
-  const pendingCount = Object.values(statuses).filter((s) => s === "pending").length;
+  const pendingCount = applications.filter(a => getStatus(a) === "pending").length;
+
+  function handleAction(app: RealApplication, newStatus: "accepted" | "rejected") {
+    setLocalStatuses(prev => ({ ...prev, [app.id]: newStatus }));
+    onStatusChange(app.id, newStatus);
+  }
 
   return (
     <div>
@@ -842,14 +902,16 @@ function ApplicationsSection() {
       </div>
 
       <div className="flex flex-col gap-5">
-        {filteredIndexes.map((realIdx) => {
-          const app = APPLICATIONS[realIdx];
-          const appStatus = statuses[realIdx];
-          const isExpanded = expanded.has(realIdx);
+        {filteredApps.map((app) => {
+          const appStatus = getStatus(app);
+          const isExpanded = expanded.has(app.id);
+          const displayName = (app.profile?.full_name as string | null) ?? (app.profile?.first_name as string | null) ?? "Applicant";
+          const neighborhood = (app.profile?.neighborhood as string | null) ?? "";
+          const appliedAt = app.created_at ? new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
 
           return (
             <div
-              key={realIdx}
+              key={app.id}
               className="rounded-3xl overflow-hidden transition-all"
               style={{
                 background: "#FDFAF5",
@@ -860,23 +922,18 @@ function ApplicationsSection() {
                 opacity: appStatus !== "pending" ? 0.65 : 1,
               }}
             >
-              {/* Top strip — time/status */}
+              {/* Top strip */}
               <div className="px-6 py-2.5 flex items-center justify-between" style={{ background: "#F5EDE5", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                 <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#bbb" }}>
-                  {app.neighborhood} · {app.age} · {app.occupation} · {app.appliedAt}
+                  {[neighborhood, appliedAt].filter(Boolean).join(" · ")}
                 </span>
                 <div className="flex items-center gap-2">
-                  {app.verified && (
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FFE0EE", color: "#FF1F7D" }}>
-                      ✓ VERIFIED
-                    </span>
-                  )}
                   {appStatus === "accepted" && (
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#FF1F7D", color: "white" }}>
                       WELCOMED
                     </span>
                   )}
-                  {appStatus === "denied" && (
+                  {appStatus === "rejected" && (
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#F0F0F0", color: "#aaa" }}>
                       NOT THIS TIME
                     </span>
@@ -888,76 +945,68 @@ function ApplicationsSection() {
               <div className="px-6 pt-5 pb-5">
                 <div className="flex items-start gap-4 mb-4">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white flex-shrink-0"
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white flex-shrink-0 overflow-hidden"
                     style={{ background: `radial-gradient(circle at 35% 35%, #FF1F7D, #7F0028)`, boxShadow: "0 2px 10px rgba(255,31,125,0.3)" }}
                   >
-                    {app.name[0]}
+                    {app.profile?.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={app.profile.avatar_url} alt={displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : displayName[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <p className="font-bold text-base" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{app.name}</p>
-                      <span className="text-xs" style={{ color: "#FF1F7D" }}>{app.instagram}</span>
-                    </div>
-                    {/* First answer as the letter preview */}
-                    {app.answers[0] && (
-                      <p
-                        className="text-sm leading-relaxed mt-2 italic"
-                        style={{ color: "#555", fontFamily: "var(--font-playfair)" }}
-                      >
-                        &ldquo;{app.answers[0].a}&rdquo;
+                    <p className="font-bold text-base" style={{ color: "#111111", fontFamily: "var(--font-playfair)" }}>{displayName}</p>
+                    {app.message && (
+                      <p className="text-sm leading-relaxed mt-2 italic" style={{ color: "#555", fontFamily: "var(--font-playfair)" }}>
+                        &ldquo;{app.message}&rdquo;
+                      </p>
+                    )}
+                    {app.profile?.bio && !app.message && (
+                      <p className="text-sm leading-relaxed mt-2 italic" style={{ color: "#555", fontFamily: "var(--font-playfair)" }}>
+                        &ldquo;{app.profile.bio}&rdquo;
                       </p>
                     )}
                   </div>
-                  <button
-                    onClick={() => {
-                      const next = new Set(expanded);
-                      if (next.has(realIdx)) next.delete(realIdx); else next.add(realIdx);
-                      setExpanded(next);
-                    }}
-                    className="text-[11px] font-bold flex-shrink-0"
-                    style={{ color: "#FF1F7D" }}
-                  >
-                    {isExpanded ? "Less" : "Read all"}
-                  </button>
+                  {(app.message ?? app.profile?.bio) && (
+                    <button
+                      onClick={() => {
+                        const next = new Set(expanded);
+                        if (next.has(app.id)) next.delete(app.id); else next.add(app.id);
+                        setExpanded(next);
+                      }}
+                      className="text-[11px] font-bold flex-shrink-0"
+                      style={{ color: "#FF1F7D" }}
+                    >
+                      {isExpanded ? "Less" : "Read all"}
+                    </button>
+                  )}
                 </div>
 
-                {isExpanded && (
+                {isExpanded && app.profile?.bio && app.message && (
                   <div className="flex flex-col gap-4 mb-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                    {app.answers.slice(1).map((ans, ai) => (
-                      <div key={ai}>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">{ans.q}</p>
-                        <p
-                          className="text-sm leading-relaxed italic"
-                          style={{ color: "#555", fontFamily: "var(--font-playfair)" }}
-                        >
-                          &ldquo;{ans.a}&rdquo;
-                        </p>
-                      </div>
-                    ))}
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">About her</p>
+                      <p className="text-sm leading-relaxed italic" style={{ color: "#555", fontFamily: "var(--font-playfair)" }}>
+                        &ldquo;{app.profile.bio}&rdquo;
+                      </p>
+                    </div>
                   </div>
                 )}
 
                 {appStatus === "pending" && (
                   <div className="flex flex-wrap gap-2 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
                     <button
-                      onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "accepted" }))}
+                      onClick={() => handleAction(app, "accepted")}
                       className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white"
                       style={{ background: "#FF1F7D" }}
                     >
                       <IconCheck size={12} /> Welcome her
                     </button>
                     <button
-                      onClick={() => setStatuses((prev) => ({ ...prev, [realIdx]: "denied" }))}
+                      onClick={() => handleAction(app, "rejected")}
                       className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold"
                       style={{ background: "rgba(0,0,0,0.06)", color: "#888" }}
                     >
                       <IconX size={12} /> Not this time
-                    </button>
-                    <button
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold"
-                      style={{ background: "rgba(0,0,0,0.04)", color: "#888" }}
-                    >
-                      Ask a question
                     </button>
                   </div>
                 )}
@@ -966,7 +1015,7 @@ function ApplicationsSection() {
           );
         })}
 
-        {filteredIndexes.length === 0 && (
+        {filteredApps.length === 0 && (
           <div className="rounded-3xl p-12 text-center" style={{ border: "2px dashed #FFE0EE" }}>
             <p className="text-base font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#ccc" }}>
               The circle is quiet right now.
@@ -1263,12 +1312,72 @@ export default function TheClubhouse() {
   const [activeTab, setActiveTab] = useState<Tab>("women");
   const [toast, setToast] = useState<string | null>(null);
 
+  // Real data
+  const [clubInfo, setClubInfo] = useState<ClubInfo | null>(null);
+  const [realMembers, setRealMembers] = useState<RealMember[]>([]);
+  const [realApplications, setRealApplications] = useState<RealApplication[]>([]);
+  const [upcomingGatherings, setUpcomingGatherings] = useState<RealGathering[]>([]);
+  const [pastGatherings, setPastGatherings] = useState<RealGathering[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+
+  useEffect(() => {
+    async function load() {
+      const [clubRes, membersRes, appsRes, gatheringsRes] = await Promise.all([
+        fetch("/api/club-portal/my-club"),
+        fetch("/api/club-portal/members"),
+        fetch("/api/club-portal/applications"),
+        fetch("/api/club-portal/gatherings"),
+      ]);
+      if (clubRes.ok) {
+        const d = await clubRes.json();
+        setClubInfo(d);
+      }
+      if (membersRes.ok) {
+        const d = await membersRes.json();
+        if (Array.isArray(d)) setRealMembers(d);
+      }
+      if (appsRes.ok) {
+        const d = await appsRes.json();
+        if (Array.isArray(d)) setRealApplications(d);
+      }
+      if (gatheringsRes.ok) {
+        const d = await gatheringsRes.json();
+        if (d.upcoming) setUpcomingGatherings(d.upcoming);
+        if (d.past) setPastGatherings(d.past);
+      }
+      setDataLoaded(true);
+    }
+    load();
+  }, []);
+
+  const handleApplicationStatusChange = useCallback(async (applicationId: string, status: "accepted" | "rejected") => {
+    await fetch("/api/club-portal/applications", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ application_id: applicationId, status }),
+    });
+    // Update local applications state to reflect the change
+    setRealApplications(prev =>
+      prev.map(a => a.id === applicationId ? { ...a, status } : a)
+    );
+    if (clubInfo) {
+      setClubInfo(prev => prev ? { ...prev, pending_applications: Math.max(0, prev.pending_applications - 1) } : prev);
+    }
+    showToast(status === "accepted" ? "She's in. Welcome sent. ✦" : "Application declined.");
+  }, [clubInfo]);
 
   function showToast(message: string) {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
   }
+
+  const clubName = clubInfo?.name ?? "Your Club";
+  const clubTagline = clubInfo?.tagline ?? "";
+  const memberCount = clubInfo?.member_count ?? 0;
+  const pendingApps = clubInfo?.pending_applications ?? 0;
+  const pendingCount = dataLoaded ? pendingApps : (APPLICATIONS.length);
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
@@ -1279,7 +1388,7 @@ export default function TheClubhouse() {
           {/* Crest */}
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "#FF1F7D" }}
+            style={{ background: clubInfo?.primary_color ?? "#FF1F7D" }}
           >
             <ClubCrestSVG symbol="bouquet" color="white" size={64} />
           </div>
@@ -1293,20 +1402,21 @@ export default function TheClubhouse() {
               className="text-2xl font-bold leading-tight text-white"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Soft Life Club NYC
+              {clubName}
             </h1>
-            <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>
-              Choose peace. Choose softness. Choose yourself.
-            </p>
+            {clubTagline && (
+              <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>
+                {clubTagline}
+              </p>
+            )}
           </div>
 
           {/* Quick stats */}
           <div className="hidden md:flex gap-8 flex-shrink-0">
             {[
-              { n: "312", l: "Women" },
-              { n: "8", l: "Upcoming" },
-              { n: "3", l: "Letters" },
-              { n: "87%", l: "Show Up" },
+              { n: dataLoaded ? String(memberCount) : "—", l: "Women" },
+              { n: dataLoaded ? String(clubInfo?.upcoming_gatherings ?? 0) : "—", l: "Upcoming" },
+              { n: dataLoaded ? String(pendingCount) : "—", l: "Letters" },
             ].map((s) => (
               <div key={s.l} className="text-center">
                 <p
@@ -1325,7 +1435,7 @@ export default function TheClubhouse() {
         <div className="flex items-end px-6 gap-0 overflow-x-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
-            const badgeCount = tab.id === "mailbox" ? unreadMessages : tab.badge;
+            const badgeCount = tab.id === "applications" ? (dataLoaded && pendingCount > 0 ? pendingCount : tab.badge) : tab.id === "mailbox" ? unreadMessages : tab.badge;
             return (
               <button
                 key={tab.id}
@@ -1361,14 +1471,32 @@ export default function TheClubhouse() {
 
       {/* ── Content ── */}
       <div className="px-4 md:px-8 py-6">
-        {activeTab === "women" && <WomenSection showToast={showToast} />}
+        {activeTab === "women" && <WomenSection showToast={showToast} members={realMembers} />}
         {activeTab === "open-seats" && <OpenSeatsSection />}
-        {activeTab === "applications" && <ApplicationsSection />}
+        {activeTab === "applications" && (
+          <ApplicationsSection
+            applications={dataLoaded && realApplications.length > 0 ? realApplications : APPLICATIONS.map((a, i) => ({
+              id: String(i),
+              user_id: String(i),
+              status: "pending" as const,
+              message: a.answers[0]?.a ?? null,
+              created_at: new Date().toISOString(),
+              profile: { full_name: a.name, first_name: null, avatar_url: null, neighborhood: a.neighborhood, bio: a.answers[1]?.a ?? null },
+            }))}
+            onStatusChange={handleApplicationStatusChange}
+          />
+        )}
         {activeTab === "settings" && <ClubSettingsSection />}
         {activeTab === "form-builder" && <FormBuilderSection />}
         {activeTab === "mailbox" && <MailboxSection />}
-        {activeTab === "gatherings" && <GatheringsSection />}
-        {activeTab === "club-health" && <ClubHealthSection />}
+        {activeTab === "gatherings" && <GatheringsSection upcoming={upcomingGatherings} past={pastGatherings} />}
+        {activeTab === "club-health" && (
+          <ClubHealthSection
+            memberCount={memberCount}
+            upcomingGatherings={clubInfo?.upcoming_gatherings ?? 0}
+            pendingApps={pendingApps}
+          />
+        )}
         {activeTab === "crest" && <CrestSection />}
         {activeTab === "photos" && <PhotosSection />}
       </div>

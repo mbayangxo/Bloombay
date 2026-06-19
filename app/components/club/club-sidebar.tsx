@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
@@ -18,6 +19,27 @@ const NAV = [
 
 export function ClubSidebar() {
   const pathname = usePathname();
+  const [clubName, setClubName] = useState("YOUR CLUB");
+  const [ownerName, setOwnerName] = useState("CLUB MAMA");
+  const [ownerInitial, setOwnerInitial] = useState("C");
+  const [pendingApps, setPendingApps] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/club-portal/my-club")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        if (d.name) setClubName((d.name as string).toUpperCase());
+        if (d.owner_name) {
+          const n = d.owner_name as string;
+          setOwnerName(n.toUpperCase());
+          setOwnerInitial(n[0]?.toUpperCase() ?? "C");
+        }
+        if (typeof d.pending_applications === "number") setPendingApps(d.pending_applications);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full flex-col z-40"
@@ -53,11 +75,11 @@ export function ClubSidebar() {
           </svg>
         </div>
 
-        <p className="text-[10px] font-bold tracking-[0.28em] uppercase" style={{ color: "rgba(255,255,255,0.9)" }}>
-          SOFT LIFE
+        <p className="text-[10px] font-bold tracking-[0.28em] uppercase truncate" style={{ color: "rgba(255,255,255,0.9)" }}>
+          {clubName}
         </p>
         <p className="text-[9px] tracking-[0.18em] mt-0.5 uppercase" style={{ color: "rgba(255,255,255,0.25)" }}>
-          NYC · CLUB PORTAL
+          CLUB PORTAL
         </p>
       </div>
 
@@ -94,12 +116,12 @@ export function ClubSidebar() {
               >
                 {item.label}
               </span>
-              {"badge" in item && item.badge && (
+              {item.href.includes("requests") && pendingApps > 0 && (
                 <span
                   className="text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
                   style={{ background: "#FF1F7D", color: "white" }}
                 >
-                  {item.badge}
+                  {pendingApps}
                 </span>
               )}
             </Link>
@@ -128,11 +150,11 @@ export function ClubSidebar() {
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
           style={{ background: "radial-gradient(circle at 35% 35%, #FF1F7D, #7F0028)" }}
         >
-          L
+          {ownerInitial}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-bold tracking-wider truncate" style={{ color: "rgba(255,255,255,0.8)" }}>
-            LEILA K.
+            {ownerName}
           </p>
           <p className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>
             CLUB MAMA
