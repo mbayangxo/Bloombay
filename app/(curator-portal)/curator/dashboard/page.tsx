@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = "clubs" | "welcomed" | "gatherings" | "applications" | "growth" | "impact";
+
+interface RealClub { id: string; name: string; color: string; members: number; upcoming: number; }
+interface RealWelcomed { name: string; neighborhood: string; club: string; dateWelcomed: string; }
+interface RealApplication { id: string; name: string; neighborhood: string; club: string; message: string; appliedAt: string; }
+interface RealGathering { id: string; name: string; club: string; date: string; total: number; }
+interface CuratorStats { total_members: number; total_clubs: number; pending_applications: number; upcoming_gatherings: number; }
+interface CuratorInfo { name: string; neighborhood: string; since: string; }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -127,20 +134,18 @@ function Avatar({ initials, size = 40, bg = "#FF1F7D" }: { initials: string; siz
 
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
-function MyClubs({ showToast }: { showToast: (msg: string) => void }) {
+function MyClubs({ showToast, clubs }: { showToast: (msg: string) => void; clubs: RealClub[] }) {
+  const displayClubs = clubs.length > 0 ? clubs : CLUBS.map(c => ({ id: String(c.id), name: c.name, color: c.color, members: c.members, upcoming: 0 }));
   return (
     <div>
       <div className="grid gap-5 md:grid-cols-2">
-        {CLUBS.map((club) => (
+        {displayClubs.map((club) => (
           <div key={club.id} className="bg-white rounded-3xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="font-bold text-lg" style={{ color: "#111111" }}>
                   {club.name}
                 </h3>
-                <p className="text-sm mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
-                  {club.neighborhood}
-                </p>
               </div>
               <div
                 className="w-10 h-10 rounded-2xl flex items-center justify-center"
@@ -168,21 +173,10 @@ function MyClubs({ showToast }: { showToast: (msg: string) => void }) {
                 style={{ background: "#FFF5F8" }}
               >
                 <p className="text-xs" style={{ color: "rgba(26,5,20,0.45)" }}>
-                  Last gathering
-                </p>
-                <p className="text-sm font-semibold mt-0.5" style={{ color: "#111111" }}>
-                  {club.lastGathering}
-                </p>
-              </div>
-              <div
-                className="rounded-2xl px-4 py-3"
-                style={{ background: "#FFF5F8" }}
-              >
-                <p className="text-xs" style={{ color: "rgba(26,5,20,0.45)" }}>
-                  Next gathering
+                  Upcoming
                 </p>
                 <p className="text-sm font-semibold mt-0.5" style={{ color: "#FF1F7D" }}>
-                  {club.nextGathering}
+                  {club.upcoming > 0 ? `${club.upcoming} planned` : "None yet"}
                 </p>
               </div>
             </div>
@@ -213,15 +207,16 @@ function MyClubs({ showToast }: { showToast: (msg: string) => void }) {
   );
 }
 
-function WomenWelcomed() {
+function WomenWelcomed({ welcomed, totalCount }: { welcomed: RealWelcomed[]; totalCount: number }) {
+  const display = welcomed.length > 0 ? welcomed : WELCOMED_WOMEN.map(w => ({ name: w.name, neighborhood: w.neighborhood, club: w.club, dateWelcomed: w.dateWelcomed }));
   return (
     <div>
       {/* Stats header */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total welcomed", value: "42" },
-          { label: "This month", value: "6" },
-          { label: "Active", value: "38" },
+          { label: "Total welcomed", value: String(totalCount || display.length) },
+          { label: "Showing", value: String(display.length) },
+          { label: "Clubs", value: String(new Set(display.map(w => w.club)).size) },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl px-5 py-4 text-center shadow-sm">
             <div className="text-2xl font-bold" style={{ color: "#FF1F7D" }}>
@@ -236,112 +231,94 @@ function WomenWelcomed() {
 
       {/* Feed */}
       <div className="flex flex-col gap-3">
-        {WELCOMED_WOMEN.map((w) => (
+        {display.map((w, i) => (
           <div
-            key={w.id}
+            key={i}
             className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm"
           >
             <Avatar
-              initials={w.initials}
+              initials={w.name[0] ?? "?"}
               size={44}
-              bg={w.attended ? "#FF1F7D" : "rgba(26,5,20,0.15)"}
+              bg="#FF1F7D"
             />
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm" style={{ color: "#111111" }}>
-                You welcomed{" "}
                 <span style={{ color: "#FF1F7D" }}>{w.name}</span>{" "}
-                to {w.club}
+                joined {w.club}
               </p>
               <p className="text-xs mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
-                {w.neighborhood} · {w.dateWelcomed}
+                {[w.neighborhood, w.dateWelcomed].filter(Boolean).join(" · ")}
               </p>
-            </div>
-            <div
-              className="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-              style={
-                w.attended
-                  ? { background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }
-                  : { background: "rgba(26,5,20,0.06)", color: "rgba(26,5,20,0.45)" }
-              }
-            >
-              {w.attended ? "Attended" : "Invited"}
             </div>
           </div>
         ))}
+        {display.length === 0 && (
+          <div className="bg-white rounded-2xl px-5 py-10 text-center shadow-sm">
+            <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No members welcomed yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function UpcomingGatherings() {
+function UpcomingGatherings({ gatherings }: { gatherings: RealGathering[] }) {
+  const display = gatherings.length > 0 ? gatherings : GATHERINGS.map(g => ({ id: String(g.id), name: g.name, club: g.club, date: `${g.date} · ${g.time}`, total: g.total }));
   return (
     <div className="flex flex-col gap-4">
-      {GATHERINGS.map((g) => {
-        const colors = statusColor(g.status);
-        const seatsLeft = g.total - g.confirmed;
-        return (
-          <div key={g.id} className="bg-white rounded-3xl p-6 shadow-sm">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="font-bold text-base" style={{ color: "#111111" }}>
-                  {g.name}
-                </h3>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
-                  {g.club}
-                </p>
-              </div>
-              <span
-                className="px-3 py-1 rounded-full text-xs font-bold"
-                style={{ background: colors.bg, color: colors.text }}
-              >
-                {g.status}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm" style={{ color: "rgba(26,5,20,0.55)" }}>
-              <span className="flex items-center gap-1.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
-                </svg>
-                {g.date}
-              </span>
-              <span>{g.time}</span>
-            </div>
-
-            {/* RSVP bar */}
-            <div className="mt-4">
-              <div className="flex justify-between text-xs mb-1.5" style={{ color: "rgba(26,5,20,0.5)" }}>
-                <span>{g.confirmed} confirmed</span>
-                <span>{seatsLeft} seats left</span>
-              </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(26,5,20,0.08)" }}>
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${(g.confirmed / g.total) * 100}%`,
-                    background: "#FF1F7D",
-                  }}
-                />
-              </div>
+      {display.map((g) => (
+        <div key={g.id} className="bg-white rounded-3xl p-6 shadow-sm">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="font-bold text-base" style={{ color: "#111111" }}>
+                {g.name}
+              </h3>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
+                {g.club}
+              </p>
             </div>
           </div>
-        );
-      })}
+          <div className="flex items-center gap-2 text-sm" style={{ color: "rgba(26,5,20,0.55)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
+            </svg>
+            <span>{g.date}</span>
+            {g.total > 0 && <span>· {g.total} seats</span>}
+          </div>
+        </div>
+      ))}
+      {display.length === 0 && (
+        <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
+          <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No upcoming gatherings.</p>
+        </div>
+      )}
     </div>
   );
 }
 
-function Applications() {
-  const [approved, setApproved] = useState<Set<number>>(new Set());
+function Applications({ applications }: { applications: RealApplication[] }) {
+  const [approved, setApproved] = useState<Set<string>>(new Set());
+  const display = applications.length > 0 ? applications : APPLICATIONS.map(a => ({
+    id: String(a.id), name: a.name, neighborhood: a.neighborhood, club: a.club, message: a.quote, appliedAt: "",
+  }));
+
+  async function handleApprove(app: RealApplication) {
+    setApproved(prev => new Set([...prev, app.id]));
+    await fetch("/api/club-portal/applications", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ application_id: app.id, status: "accepted" }),
+    }).catch(() => {});
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      {APPLICATIONS.map((app) => {
+      {display.map((app) => {
         const isApproved = approved.has(app.id);
         return (
           <div key={app.id} className="bg-white rounded-3xl p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <Avatar initials={app.initials} size={48} />
+              <Avatar initials={app.name[0] ?? "?"} size={48} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <h3 className="font-bold text-base" style={{ color: "#111111" }}>
@@ -352,41 +329,32 @@ function Applications() {
                   </span>
                 </div>
                 <p className="text-xs mb-3" style={{ color: "rgba(26,5,20,0.45)" }}>
-                  {app.neighborhood}
+                  {[app.neighborhood, app.appliedAt].filter(Boolean).join(" · ")}
                 </p>
-                <p
-                  className="text-sm italic leading-relaxed border-l-2 pl-3"
-                  style={{
-                    color: "rgba(26,5,20,0.65)",
-                    borderColor: "rgba(255,31,125,0.25)",
-                  }}
-                >
-                  "{app.quote}"
-                </p>
+                {app.message && (
+                  <p
+                    className="text-sm italic leading-relaxed border-l-2 pl-3"
+                    style={{ color: "rgba(26,5,20,0.65)", borderColor: "rgba(255,31,125,0.25)" }}
+                  >
+                    &ldquo;{app.message}&rdquo;
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="flex gap-3 mt-5">
               <button
-                onClick={() => setApproved((prev) => new Set(prev).add(app.id))}
+                onClick={() => handleApprove(app)}
                 disabled={isApproved}
                 className="flex-1 py-3 rounded-2xl text-sm font-bold transition-all"
-                style={
-                  isApproved
-                    ? { background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }
-                    : { background: "#FF1F7D", color: "white" }
-                }
+                style={isApproved ? { background: "rgba(255,31,125,0.1)", color: "#FF1F7D" } : { background: "#FF1F7D", color: "white" }}
               >
-                {isApproved ? "Welcomed" : "Approve"}
+                {isApproved ? "Welcomed ✦" : "Approve"}
               </button>
               <button
                 disabled={isApproved}
                 className="flex-1 py-3 rounded-2xl text-sm font-bold border transition-all"
-                style={
-                  isApproved
-                    ? { borderColor: "rgba(26,5,20,0.1)", color: "rgba(26,5,20,0.25)" }
-                    : { borderColor: "rgba(26,5,20,0.15)", color: "rgba(26,5,20,0.55)" }
-                }
+                style={isApproved ? { borderColor: "rgba(26,5,20,0.1)", color: "rgba(26,5,20,0.25)" } : { borderColor: "rgba(26,5,20,0.15)", color: "rgba(26,5,20,0.55)" }}
               >
                 Ask later
               </button>
@@ -394,20 +362,25 @@ function Applications() {
           </div>
         );
       })}
+      {display.length === 0 && (
+        <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
+          <p className="text-sm" style={{ color: "rgba(26,5,20,0.4)" }}>No pending applications.</p>
+        </div>
+      )}
     </div>
   );
 }
 
-function ClubGrowth() {
+function ClubGrowth({ stats }: { stats: CuratorStats | null }) {
   return (
     <div>
       {/* Key numbers */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[
-          { label: "Members joined this month", value: "6", sub: "+2 from last month" },
-          { label: "Gatherings this month", value: "3", sub: "2 upcoming" },
-          { label: "Response rate", value: "94%", sub: "Across all clubs" },
-          { label: "Average attendance", value: "87%", sub: "Per gathering" },
+          { label: "Total members", value: stats ? String(stats.total_members) : "—", sub: "Across all clubs" },
+          { label: "Upcoming gatherings", value: stats ? String(stats.upcoming_gatherings) : "—", sub: "Planned & confirmed" },
+          { label: "Pending applications", value: stats ? String(stats.pending_applications) : "—", sub: "Awaiting review" },
+          { label: "Active clubs", value: stats ? String(stats.total_clubs) : "—", sub: "In your network" },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-3xl px-6 py-5 shadow-sm">
             <div className="text-3xl font-bold mb-1" style={{ color: "#FF1F7D" }}>
@@ -455,16 +428,16 @@ function ClubGrowth() {
   );
 }
 
-function MyImpact() {
+function MyImpact({ curator, stats }: { curator: CuratorInfo | null; stats: CuratorStats | null }) {
   return (
     <div>
       {/* Hero stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[
-          { label: "Women welcomed", value: "42" },
-          { label: "Events created", value: "14" },
-          { label: "Attendance rate", value: "91%" },
-          { label: "Trust score", value: "97" },
+          { label: "Women welcomed", value: stats ? String(stats.total_members) : "—" },
+          { label: "Active clubs", value: stats ? String(stats.total_clubs) : "—" },
+          { label: "Pending applications", value: stats ? String(stats.pending_applications) : "—" },
+          { label: "Upcoming gatherings", value: stats ? String(stats.upcoming_gatherings) : "—" },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -489,7 +462,7 @@ function MyImpact() {
           Curator since
         </p>
         <p className="text-xl font-bold" style={{ color: "#111111" }}>
-          January 2025
+          {curator?.since || "—"}
         </p>
         <div className="mt-3 flex items-center gap-2">
           <div
@@ -498,12 +471,14 @@ function MyImpact() {
           >
             Active curator
           </div>
-          <div
-            className="px-3 py-1.5 rounded-full text-xs font-bold"
-            style={{ background: "rgba(26,5,20,0.07)", color: "#111111" }}
-          >
-            Williamsburg
-          </div>
+          {curator?.neighborhood && (
+            <div
+              className="px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ background: "rgba(26,5,20,0.07)", color: "#111111" }}
+            >
+              {curator.neighborhood}
+            </div>
+          )}
         </div>
       </div>
 
@@ -578,6 +553,28 @@ export default function CuratorDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("clubs");
   const [toast, setToast] = useState<string | null>(null);
 
+  const [realClubs, setRealClubs] = useState<RealClub[]>([]);
+  const [realWelcomed, setRealWelcomed] = useState<RealWelcomed[]>([]);
+  const [realApplications, setRealApplications] = useState<RealApplication[]>([]);
+  const [realGatherings, setRealGatherings] = useState<RealGathering[]>([]);
+  const [curatorInfo, setCuratorInfo] = useState<CuratorInfo | null>(null);
+  const [stats, setStats] = useState<CuratorStats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/curator/overview")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        if (d.clubs) setRealClubs(d.clubs);
+        if (d.welcomed) setRealWelcomed(d.welcomed);
+        if (d.applications) setRealApplications(d.applications);
+        if (d.gatherings) setRealGatherings(d.gatherings);
+        if (d.curator) setCuratorInfo(d.curator);
+        if (d.stats) setStats(d.stats);
+      })
+      .catch(() => {});
+  }, []);
+
   function showToast(message: string) {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
@@ -599,10 +596,10 @@ export default function CuratorDashboard() {
             CURATOR
           </p>
           <h1 className="text-2xl font-bold" style={{ color: "#111111" }}>
-            Amanda R.&rsquo;s Culture
+            {curatorInfo?.name ? `${curatorInfo.name}'s Dashboard` : "The Curator Dashboard"}
           </h1>
           <p className="text-sm mt-0.5" style={{ color: "rgba(26,5,20,0.45)" }}>
-            Williamsburg · Trust Score 97
+            {curatorInfo?.neighborhood || "BloomBay Curator"}
           </p>
         </div>
 
@@ -644,12 +641,12 @@ export default function CuratorDashboard() {
 
       {/* Content */}
       <div className="px-8 py-6 max-w-3xl">
-        {activeTab === "clubs" && <MyClubs showToast={showToast} />}
-        {activeTab === "welcomed" && <WomenWelcomed />}
-        {activeTab === "gatherings" && <UpcomingGatherings />}
-        {activeTab === "applications" && <Applications />}
-        {activeTab === "growth" && <ClubGrowth />}
-        {activeTab === "impact" && <MyImpact />}
+        {activeTab === "clubs" && <MyClubs showToast={showToast} clubs={realClubs} />}
+        {activeTab === "welcomed" && <WomenWelcomed welcomed={realWelcomed} totalCount={stats?.total_members ?? 0} />}
+        {activeTab === "gatherings" && <UpcomingGatherings gatherings={realGatherings} />}
+        {activeTab === "applications" && <Applications applications={realApplications} />}
+        {activeTab === "growth" && <ClubGrowth stats={stats} />}
+        {activeTab === "impact" && <MyImpact curator={curatorInfo} stats={stats} />}
       </div>
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-bold text-white z-50" style={{ background: "#FF1F7D", boxShadow: "0 4px 20px rgba(255,31,125,0.4)" }}>
