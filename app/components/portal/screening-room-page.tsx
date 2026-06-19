@@ -186,7 +186,7 @@ export function ScreeningRoomPage() {
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>89 WATCHING NOW</p>
             </div>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "white", lineHeight: 1, marginBottom: 6 }}>Screening Room.</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>Screening Room.</h1>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.4)" }}>Films. Reviews. Watch parties.</p>
         </div>
       </div>

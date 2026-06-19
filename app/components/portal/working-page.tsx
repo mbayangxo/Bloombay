@@ -436,7 +436,7 @@ export function WorkingPage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </Link>
         </div>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 42, color: "white", lineHeight: 1, marginBottom: 6 }}>{activeMeta.label}.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(30px, 10.5vw, 42px)", color: "white", lineHeight: 1, marginBottom: 6 }}>{activeMeta.label}.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.45)" }}>{activeMeta.tagline}</p>
       </div>
 
