@@ -368,7 +368,7 @@ export default function NotificationsPage() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
           }}>
             <h1 style={{
-              fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900,
+              fontFamily: "var(--font-playfair)", fontSize: "clamp(24px, 7.5vw, 30px)", fontWeight: 900,
               fontStyle: "italic", color: "#3A2800", lineHeight: 1,
             }}>
               Pin Drops.

@@ -174,7 +174,7 @@ export default function IntroductionsPage() {
             fontFamily: "var(--font-playfair)",
             fontStyle: "italic",
             fontWeight: 900,
-            fontSize: 42,
+            fontSize: "clamp(30px, 10.5vw, 42px)",
             lineHeight: 1.05,
             color: DARK,
             margin: 0,
