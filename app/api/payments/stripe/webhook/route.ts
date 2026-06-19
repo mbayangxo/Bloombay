@@ -61,7 +61,17 @@ export async function POST(req: NextRequest) {
       }
 
       if (type === "event_ticket") {
-        // TODO: upsert into `tickets` table once schema is migrated
+        // Record the ticket — silently skips if the tickets table isn't migrated yet
+        await supabase.from("tickets").upsert({
+          user_id: meta.user_id,
+          event_id: meta.event_id,
+          stripe_session_id: session.id,
+          amount_paid: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          status: "confirmed",
+          purchased_at: new Date().toISOString(),
+        }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+
         await supabase.from("notifications").insert({
           user_id: meta.user_id,
           type: "ticket_confirmed",

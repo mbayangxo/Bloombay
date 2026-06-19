@@ -1,73 +1,123 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const PLACES = [
-  { id: 1, name: "Sadelle's", neighborhood: "SoHo", blurb: "The smoked fish platter for brunch. Every single time.", womenLoved: 2847, price: "$$$", tags: ["Brunch", "Weekend"], emoji: "🥯", bgColor: "#FFF0F5", featured: true },
-  { id: 2, name: "Bangkok Supper Club", neighborhood: "Lower East Side", blurb: "The tom yum is religious. Go late, go often.", womenLoved: 1432, price: "$$", tags: ["Late Night", "Thai"], emoji: "🍜", bgColor: "#FFF5F8" },
-  { id: 3, name: "La Mercerie", neighborhood: "SoHo", blurb: "Quiet, elegant, the best croissant. Perfect solo lunch.", womenLoved: 1201, price: "$$$", tags: ["French", "Quiet"], emoji: "🥐", bgColor: "#FDFAF5" },
-  { id: 4, name: "Loring Place", neighborhood: "West Village", blurb: "Small plates, big energy. The best girls dinner.", womenLoved: 987, price: "$$$", tags: ["Girls Night"], emoji: "🌿", bgColor: "#FFF0F5" },
-  { id: 5, name: "Russ & Daughters Café", neighborhood: "Lower East Side", blurb: "The OG. Bagels, lox, and history on every wall.", womenLoved: 3102, price: "$$", tags: ["NYC Classic"], emoji: "🥯", bgColor: "#FFF5F8" },
-  { id: 6, name: "Brooklyn Bridge Park", neighborhood: "DUMBO", blurb: "Golden hour from the pier. Bring a blanket.", womenLoved: 4821, price: "Free", tags: ["Golden Hour", "Views"], emoji: "🌉", bgColor: "#F0F8FF" },
-  { id: 7, name: "The Met", neighborhood: "Upper East Side", blurb: "Pay-what-you-wish. No crowds before 10AM.", womenLoved: 6210, price: "Pay-what-you-wish", tags: ["Culture", "Solo"], emoji: "🏛", bgColor: "#FFF8F0" },
-  { id: 8, name: "The High Line", neighborhood: "Chelsea", blurb: "Best morning walk. Go early, beat the crowds.", womenLoved: 3987, price: "Free", tags: ["Morning Walk", "Art"], emoji: "🌿", bgColor: "#F0FFF4" },
-  { id: 9, name: "Smorgasburg", neighborhood: "Williamsburg", blurb: "Saturdays at the waterfront. 100 food vendors.", womenLoved: 5102, price: "$", tags: ["Food", "Outdoor"], emoji: "🌮", bgColor: "#FFFAF0" },
-  { id: 10, name: "MoMA", neighborhood: "Midtown", blurb: "Worth every visit. The Matisse floor never gets old.", womenLoved: 4201, price: "$$$", tags: ["Art", "Culture"], emoji: "🎨", bgColor: "#FFF5F8" },
-  { id: 11, name: "Archway Café", neighborhood: "DUMBO", blurb: "Under the Manhattan Bridge. Best kept secret in Brooklyn.", womenLoved: 893, price: "$", tags: ["Hidden Gem", "Coffee"], emoji: "☕", bgColor: "#F5F0FF" },
-  { id: 12, name: "McNally Jackson Café", neighborhood: "Nolita", blurb: "Good coffee, no rush, nobody bothers you for hours.", womenLoved: 1644, price: "$", tags: ["Books", "Solo"], emoji: "📚", bgColor: "#FFF0F5" },
+// ── Real data type ─────────────────────────────────────────────────────────────
+
+interface VenueItem {
+  id: string;
+  name: string;
+  neighborhood: string;
+  tagline: string;
+  type: string;
+  bloom_notes: number;
+  avg_rating: number;
+  brand_color: string;
+  cover_url: string | null;
+  featured?: boolean;
+}
+
+// ── Mock fallback ──────────────────────────────────────────────────────────────
+
+const PLACES_MOCK: VenueItem[] = [
+  { id: "1", name: "Sadelle's", neighborhood: "SoHo", tagline: "The smoked fish platter for brunch. Every single time.", type: "restaurant", bloom_notes: 2847, avg_rating: 4.8, brand_color: "#FF1F7D", cover_url: null, featured: true },
+  { id: "2", name: "Bangkok Supper Club", neighborhood: "Lower East Side", tagline: "The tom yum is religious. Go late, go often.", type: "restaurant", bloom_notes: 1432, avg_rating: 4.6, brand_color: "#E87040", cover_url: null },
+  { id: "3", name: "La Mercerie", neighborhood: "SoHo", tagline: "Quiet, elegant, the best croissant. Perfect solo lunch.", type: "café", bloom_notes: 1201, avg_rating: 4.7, brand_color: "#D4A853", cover_url: null },
+  { id: "4", name: "Loring Place", neighborhood: "West Village", tagline: "Small plates, big energy. The best girls dinner.", type: "restaurant", bloom_notes: 987, avg_rating: 4.5, brand_color: "#7B5EA7", cover_url: null },
+  { id: "5", name: "Russ & Daughters Café", neighborhood: "Lower East Side", tagline: "The OG. Bagels, lox, and history on every wall.", type: "café", bloom_notes: 3102, avg_rating: 4.9, brand_color: "#FF1F7D", cover_url: null },
+  { id: "6", name: "Brooklyn Bridge Park", neighborhood: "DUMBO", tagline: "Golden hour from the pier. Bring a blanket.", type: "park", bloom_notes: 4821, avg_rating: 4.9, brand_color: "#2E6B9E", cover_url: null },
+  { id: "7", name: "The Met", neighborhood: "Upper East Side", tagline: "Pay-what-you-wish. No crowds before 10AM.", type: "museum", bloom_notes: 6210, avg_rating: 5.0, brand_color: "#C9A27A", cover_url: null },
+  { id: "8", name: "The High Line", neighborhood: "Chelsea", tagline: "Best morning walk. Go early, beat the crowds.", type: "park", bloom_notes: 3987, avg_rating: 4.8, brand_color: "#4CAF50", cover_url: null },
+  { id: "9", name: "Smorgasburg", neighborhood: "Williamsburg", tagline: "Saturdays at the waterfront. 100 food vendors.", type: "market", bloom_notes: 5102, avg_rating: 4.7, brand_color: "#E87040", cover_url: null },
+  { id: "10", name: "MoMA", neighborhood: "Midtown", tagline: "Worth every visit. The Matisse floor never gets old.", type: "museum", bloom_notes: 4201, avg_rating: 4.9, brand_color: "#FF1F7D", cover_url: null },
+  { id: "11", name: "Archway Café", neighborhood: "DUMBO", tagline: "Under the Manhattan Bridge. Best kept secret in Brooklyn.", type: "café", bloom_notes: 893, avg_rating: 4.6, brand_color: "#7B5EA7", cover_url: null },
+  { id: "12", name: "McNally Jackson", neighborhood: "Nolita", tagline: "Good coffee, no rush, nobody bothers you for hours.", type: "bookshop", bloom_notes: 1644, avg_rating: 4.8, brand_color: "#FF1F7D", cover_url: null },
 ];
 
 const FILTERS = ["All", "Eat", "Explore", "Solo"] as const;
 type Filter = typeof FILTERS[number];
 
-function PlaceCard({ p, saved, onSave }: { p: typeof PLACES[0]; saved: boolean; onSave: () => void }) {
+const EAT_TYPES = ["restaurant", "café", "cafe", "bar", "bakery", "market", "food"];
+
+function PlaceCard({ p, saved, onSave }: { p: VenueItem; saved: boolean; onSave: (e: React.MouseEvent) => void }) {
+  const initial = p.brand_color;
+  const bgColor = p.brand_color + "22";
+
   return (
     <Link href={`/member/city/places/${p.id}`} style={{ display: "block", textDecoration: "none" }}>
-    <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 3px 16px rgba(0,0,0,0.07)" }}>
-      <div className="relative flex items-center justify-center" style={{ height: 120, background: `linear-gradient(145deg, ${p.bgColor} 0%, #FFE0EE 100%)` }}>
-        <span style={{ fontSize: 44, opacity: 0.6 }}>{p.emoji}</span>
-        {p.featured && (
-          <span className="absolute top-2 left-3 text-[8px] font-bold tracking-[0.15em] uppercase px-2 py-0.5 rounded-full"
-            style={{ background: "#FF1F7D", color: "white" }}>
-            WOMEN&apos;S PICK
-          </span>
-        )}
-        <button onClick={onSave}
-          className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(255,255,255,0.9)" }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-          </svg>
-        </button>
-      </div>
-      <div className="px-3.5 py-3">
-        <h3 className="font-black text-sm" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h3>
-        <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{p.neighborhood} · {p.price}</p>
-        <p className="text-[11px] mt-1.5 leading-snug" style={{ color: "#666", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{p.blurb}</p>
-        <div className="flex items-center gap-1.5 mt-2">
-          <span style={{ color: "#FF1F7D", fontSize: 10 }}>✿</span>
-          <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>{(p.womenLoved / 1000).toFixed(1)}k women</span>
-          {p.tags.slice(0, 1).map(t => (
-            <span key={t} className="text-[9px] font-bold px-2 py-0.5 rounded-full ml-1"
-              style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{t}</span>
-          ))}
+      <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 3px 16px rgba(0,0,0,0.07)" }}>
+        <div className="relative flex items-center justify-center" style={{ height: 120, background: `linear-gradient(145deg, ${bgColor} 0%, ${initial}33 100%)`, overflow: "hidden" }}>
+          {p.cover_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={p.cover_url} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <span style={{ fontSize: 40, opacity: 0.5, color: p.brand_color }}>✿</span>
+          )}
+          {p.featured && (
+            <span className="absolute top-2 left-3 text-[8px] font-bold tracking-[0.15em] uppercase px-2 py-0.5 rounded-full"
+              style={{ background: "#FF1F7D", color: "white" }}>
+              WOMEN&apos;S PICK
+            </span>
+          )}
+          <button onClick={onSave}
+            className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.9)" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill={saved ? "#FF1F7D" : "none"} stroke="#FF1F7D" strokeWidth="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+        <div className="px-3.5 py-3">
+          <h3 className="font-black text-sm" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>{p.name}</h3>
+          <p className="text-[10px] mt-0.5" style={{ color: "#999" }}>{p.neighborhood}{p.type ? ` · ${p.type}` : ""}</p>
+          <p className="text-[11px] mt-1.5 leading-snug" style={{ color: "#666", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{p.tagline}</p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <span style={{ color: "#FF1F7D", fontSize: 10 }}>✿</span>
+            <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>
+              {p.bloom_notes >= 1000 ? `${(p.bloom_notes / 1000).toFixed(1)}k` : p.bloom_notes} women
+            </span>
+            {p.avg_rating > 0 && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full ml-1"
+                style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{p.avg_rating} ★</span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </Link>
   );
 }
 
 export default function PlacesPage() {
   const [filter, setFilter] = useState<Filter>("All");
-  const [saved, setSaved] = useState<Set<number>>(new Set());
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [venues, setVenues] = useState<VenueItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const shown = filter === "All" ? PLACES : filter === "Eat"
-    ? PLACES.filter(p => ["🥯","🍜","🥐","🌿","🌮"].includes(p.emoji))
-    : filter === "Solo"
-    ? PLACES.filter(p => p.tags.includes("Solo") || p.tags.includes("Coffee") || p.tags.includes("Books"))
-    : PLACES;
+  useEffect(() => {
+    fetch("/api/venues")
+      .then(r => r.ok ? r.json() : [])
+      .then((data: VenueItem[]) => {
+        setVenues(data ?? []);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  const display = loaded && venues.length > 0 ? venues : PLACES_MOCK;
+
+  const shown = filter === "All"
+    ? display
+    : filter === "Eat"
+    ? display.filter(p => EAT_TYPES.some(t => p.type.toLowerCase().includes(t)))
+    : filter === "Explore"
+    ? display.filter(p => !EAT_TYPES.some(t => p.type.toLowerCase().includes(t)))
+    : display;
+
+  function toggleSave(e: React.MouseEvent, id: string) {
+    e.preventDefault();
+    setSaved(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "#FDFAF5" }}>
@@ -102,7 +152,12 @@ export default function PlacesPage() {
         <p className="text-xs mb-4" style={{ color: "#aaa" }}>{shown.length} spots curated by women</p>
         <div className="grid grid-cols-2 gap-3">
           {shown.map(p => (
-            <PlaceCard key={p.id} p={p} saved={saved.has(p.id)} onSave={() => setSaved(s => { const n = new Set(s); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })} />
+            <PlaceCard
+              key={p.id}
+              p={p}
+              saved={saved.has(String(p.id))}
+              onSave={e => toggleSave(e, String(p.id))}
+            />
           ))}
         </div>
       </div>
