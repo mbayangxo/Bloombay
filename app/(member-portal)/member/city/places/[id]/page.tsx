@@ -145,7 +145,7 @@ export default function VenuePage() {
         </div>
 
         {/* Venue name */}
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 46, fontWeight: 900, fontStyle: "italic", color: BLUE, lineHeight: 0.92, letterSpacing: "-0.02em", marginBottom: 7 }}>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(30px, 11.5vw, 46px)", fontWeight: 900, fontStyle: "italic", color: BLUE, lineHeight: 0.92, letterSpacing: "-0.02em", marginBottom: 7 }}>
           {name}
         </h1>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#999", marginBottom: 8 }}>{location}</p>

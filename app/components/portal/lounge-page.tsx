@@ -1292,7 +1292,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>THE LOUNGE</p>
-            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 36, color: "white", lineHeight: 1, margin: 0 }}>Chats.</h1>
+            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(26px, 9vw, 36px)", color: "white", lineHeight: 1, margin: 0 }}>Chats.</h1>
           </div>
           {unreadTotal > 0 && (
             <div style={{ background: "white", borderRadius: 999, padding: "6px 14px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>

@@ -343,7 +343,7 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
           </button>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.65)" }}>THE INVITATION BOX</p>
         </div>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 40, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, marginBottom: 4 }}>Invitations.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px, 10vw, 40px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, marginBottom: 4 }}>Invitations.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Someone saved you a seat.</p>
       </div>
 
@@ -420,7 +420,7 @@ function LetterListView({ items, openedItems, onOpen, onBack }: {
           </button>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.7)" }}>THE LETTER BOX</p>
         </div>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 36, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Letters.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px, 9vw, 36px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Letters.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>Words written just for you.</p>
       </div>
 

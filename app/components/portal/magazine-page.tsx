@@ -233,7 +233,7 @@ export function MagazinePage() {
           </div>
         </div>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: `${GOLD}88`, letterSpacing: "0.3em", marginBottom: 4 }}>BLOOMBAY</p>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "white", lineHeight: 1, marginBottom: 6 }}>Magazine.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>Magazine.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.45)" }}>Her stories. Her voice. Her world.</p>
       </div>
 

@@ -1799,7 +1799,7 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
           <PaperCard rotate={0.6} style={{ padding: "13px 14px" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 6 }}>BLOOMIES RATED</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, color: "#2A1A10", lineHeight: 1 }}>{p.rating}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px, 7.5vw, 30px)", fontWeight: 900, color: "#2A1A10", lineHeight: 1 }}>{p.rating}</p>
               <StarRow/>
             </div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#9A8A7A", letterSpacing: "0.08em", marginTop: 6 }}>LOVED BY {p.lovedBy} WOMEN</p>
@@ -2126,7 +2126,7 @@ function GoPage({ onBack }: { onBack: () => void }) {
         <BackBtn onBack={onBack} label="CITY"/>
         <div style={{ position: "absolute", bottom: 22, left: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "#6BB5F5", marginBottom: 5 }}>GO · NYC</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Get<br />Out There.</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px, 8.5vw, 34px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Get<br />Out There.</p>
         </div>
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, #3A5FCD66, #6BB5F544, transparent)" }}/>
       </div>
@@ -2280,7 +2280,7 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
         {/* TRENDING° neon-style letters */}
         <div style={{ position: "absolute", top: 80, left: 18, right: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "#FF7744", marginBottom: 8 }}>TRENDING · NYC</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 0 30px rgba(255,31,125,0.7), 0 0 60px rgba(255,85,0,0.3)" }}>What&apos;s<br />Hot Right Now.</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(22px, 7.5vw, 30px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, textShadow: "0 0 30px rgba(255,31,125,0.7), 0 0 60px rgba(255,85,0,0.3)" }}>What&apos;s<br />Hot Right Now.</p>
         </div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(8,1,14,0.7) 100%)" }}/>
         <BackBtn onBack={onBack} label="CITY"/>
@@ -2728,7 +2728,7 @@ function NeighborhoodMap() {
     <div style={{ padding: "0 0 32px", minHeight: "calc(100vh - 54px)", background: "linear-gradient(180deg, #D6E8F5 0%, #EAF2F9 35%, #F0EBE4 100%)" }}>
       <div style={{ padding: "20px 20px 8px" }}>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, letterSpacing: "-0.01em" }}>Neighborhoods</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px, 8.5vw, 34px)", fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, letterSpacing: "-0.01em" }}>Neighborhoods</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#888", marginTop: 4 }}>tap one to explore</p>
       </div>
       <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 0 30px", minHeight: 500 }}>

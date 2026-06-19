@@ -218,7 +218,7 @@ export function ColumnPage() {
           </div>
         </div>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.35)", marginBottom: 4 }}>I Couldn't Help But Wonder...</p>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "white", lineHeight: 1, marginBottom: 8 }}>The Column.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 8 }}>The Column.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.4)" }}>Zuri writes. Every Sunday. About all of it.</p>
       </div>
 

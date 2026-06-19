@@ -60,7 +60,7 @@ function Lightbox({
 
       <div
         onClick={e => e.stopPropagation()}
-        style={{ width: "100%", maxWidth: 440, padding: "0 20px", boxSizing: "border-box" }}
+        style={{ width: "100%", maxWidth: "min(440px, calc(100vw - 32px))", padding: "0 16px", boxSizing: "border-box" }}
       >
         <div style={{ position: "relative", width: "100%", maxHeight: "72vh", aspectRatio: "1", overflow: "hidden", borderRadius: 14 }}>
           <Image
