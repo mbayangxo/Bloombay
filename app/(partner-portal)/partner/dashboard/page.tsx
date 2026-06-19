@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// ── Real data types ───────────────────────────────────────────────────────────
+
+interface VenueInfo { id: string; name: string; type: string; neighborhood: string; tagline: string; about: string; brand_color: string; cover_url: string | null; bloom_notes: number; avg_rating: number; review_count: number; }
+interface VenueReservation { id: string; guest: string; date: string; time: string; party_size: number; notes?: string | null; }
+interface VenueReview { author: string; text: string; rating: number; }
+interface VenueStats { total_upcoming: number; total_past: number; pending_requests: number; avg_rating: number; }
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -688,89 +695,66 @@ function ProfileSection({ showToast }: { showToast: (msg: string) => void }) {
   );
 }
 
-function GatheringsSection() {
+function GatheringsSection({ upcoming }: { upcoming: VenueReservation[] }) {
+  const display = upcoming.length > 0 ? upcoming : UPCOMING_GATHERINGS.map((g, i) => ({ id: String(i), guest: g.club, date: g.date, time: g.time, party_size: g.guests, notes: null }));
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Upcoming Gatherings</h2>
-        <p className="text-sm text-gray-400 mt-0.5">3 BloomBay events booked at your venue</p>
+        <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Upcoming Reservations</h2>
+        <p className="text-sm text-gray-400 mt-0.5">{display.length} BloomBay bookings at your venue</p>
       </div>
 
       <div className="flex flex-col gap-3">
-        {UPCOMING_GATHERINGS.map((g, i) => (
+        {display.map((g) => (
           <div
-            key={i}
+            key={g.id}
             className="bg-white rounded-2xl p-5 flex items-center gap-5"
             style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
           >
-            {/* Date block */}
-            <div
-              className="w-14 flex-shrink-0 rounded-xl py-2 text-center"
-              style={{ background: "#FFF0F5" }}
-            >
-              <p className="text-xs font-semibold" style={{ color: "#FF1F7D" }}>
-                {g.date.split(",")[0].split(" ")[0]}
-              </p>
-              <p className="text-xl font-bold" style={{ color: "#111111" }}>
-                {g.date.split(" ")[1].replace(",", "")}
-              </p>
-            </div>
-
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm" style={{ color: "#111111" }}>{g.title}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{g.club} · {g.time}</p>
+              <p className="font-bold text-sm" style={{ color: "#111111" }}>{g.guest}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{g.date} · {g.time}</p>
+              {g.notes && <p className="text-xs text-gray-400 mt-0.5 italic">&ldquo;{g.notes}&rdquo;</p>}
             </div>
-
             <div className="text-right flex-shrink-0">
-              <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.guests} guests</p>
-              <span
-                className="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block"
-                style={
-                  g.status === "Confirmed"
-                    ? { background: "#FFF0F5", color: "#FF1F7D" }
-                    : { background: "#F5F5F5", color: "#999" }
-                }
-              >
-                {g.status}
+              <p className="font-semibold text-sm" style={{ color: "#111111" }}>{g.party_size} guests</p>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+                Confirmed
               </span>
             </div>
           </div>
         ))}
+        {display.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+            <p className="text-sm text-gray-400">No upcoming reservations yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function WomenHostedSection() {
+function WomenHostedSection({ past, stats }: { past: VenueReservation[]; stats: VenueStats | null }) {
+  const display = past.length > 0 ? past : RECENT_VISITORS.map((v, i) => ({ id: String(i), guest: v.name, date: v.date, time: "", party_size: v.guests }));
+  const totalGuests = past.reduce((sum, r) => sum + r.party_size, 0);
+
   return (
     <div>
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div
-          className="bg-white rounded-2xl p-6"
-          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
-        >
-          <p
-            className="text-4xl font-bold"
-            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
-          >
-            156
+        <div className="bg-white rounded-2xl p-6" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-4xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
+            {past.length > 0 ? totalGuests : 156}
           </p>
           <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>Total Women Hosted</p>
           <p className="text-xs text-gray-400 mt-0.5">via BloomBay</p>
         </div>
-        <div
-          className="bg-white rounded-2xl p-6"
-          style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
-        >
-          <p
-            className="text-4xl font-bold"
-            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
-          >
-            12
+        <div className="bg-white rounded-2xl p-6" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+          <p className="text-4xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}>
+            {stats ? stats.total_past : 0}
           </p>
-          <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>This Week</p>
-          <p className="text-xs text-gray-400 mt-0.5">Jun 1 – Jun 7, 2025</p>
+          <p className="font-semibold text-sm mt-1.5" style={{ color: "#111111" }}>Past Visits</p>
+          <p className="text-xs text-gray-400 mt-0.5">BloomBay reservations</p>
         </div>
       </div>
 
@@ -778,25 +762,17 @@ function WomenHostedSection() {
       <div className="mb-4">
         <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Recent Visits</h3>
         <div className="flex flex-col gap-2">
-          {RECENT_VISITORS.map((v, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl px-5 py-3.5 flex items-center gap-4"
-              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
-            >
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                style={{ background: "#FF1F7D" }}
-              >
-                {v.name[0]}
+          {display.map((v) => (
+            <div key={v.id} className="bg-white rounded-2xl px-5 py-3.5 flex items-center gap-4" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
+                {v.guest[0] ?? "?"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{v.name}</p>
-                <p className="text-xs text-gray-400 truncate">{v.club}</p>
+                <p className="font-semibold text-sm" style={{ color: "#111111" }}>{v.guest}</p>
+                <p className="text-xs text-gray-400 truncate">{v.date}</p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-xs font-semibold" style={{ color: "#111111" }}>{v.guests} {v.guests === 1 ? "guest" : "guests"}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{v.date}</p>
+                <p className="text-xs font-semibold" style={{ color: "#111111" }}>{v.party_size} {v.party_size === 1 ? "guest" : "guests"}</p>
               </div>
             </div>
           ))}
@@ -806,9 +782,10 @@ function WomenHostedSection() {
   );
 }
 
-function RatingSection() {
-  const overallRating = 4.8;
-  const totalReviews = 23;
+function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueReview[]; avgRating: number; reviewCount: number }) {
+  const displayReviews = reviews.length > 0 ? reviews : REVIEWS.map(r => ({ author: r.author, text: r.text, rating: r.rating }));
+  const displayRating = reviews.length > 0 ? avgRating : 4.8;
+  const displayCount = reviews.length > 0 ? reviewCount : 23;
 
   return (
     <div>
@@ -818,18 +795,15 @@ function RatingSection() {
         style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
       >
         <div className="text-center flex-shrink-0">
-          <p
-            className="text-6xl font-bold"
-            style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", lineHeight: 1 }}
-          >
-            {overallRating}
+          <p className="text-6xl font-bold" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", lineHeight: 1 }}>
+            {displayRating > 0 ? displayRating.toFixed(1) : "—"}
           </p>
           <p className="text-xs text-gray-400 mt-1">out of 5</p>
         </div>
         <div>
-          <StarRating rating={overallRating} size={22} />
+          {displayRating > 0 && <StarRating rating={displayRating} size={22} />}
           <p className="text-sm text-gray-500 mt-2">
-            From <span className="font-semibold" style={{ color: "#111111" }}>{totalReviews}</span> BloomBay women
+            From <span className="font-semibold" style={{ color: "#111111" }}>{displayCount}</span> BloomBay women
           </p>
           <p className="text-xs text-gray-400 mt-0.5">BloomBay Rating — verified visits only</p>
         </div>
@@ -838,23 +812,15 @@ function RatingSection() {
       {/* Reviews */}
       <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-3">Written Reviews</h3>
       <div className="flex flex-col gap-3">
-        {REVIEWS.map((r, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl p-5"
-            style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
-          >
+        {displayReviews.map((r, i) => (
+          <div key={i} className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                  style={{ background: "#FF1F7D" }}
-                >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF1F7D" }}>
                   {r.author[0]}
                 </div>
                 <div>
                   <p className="font-semibold text-sm" style={{ color: "#111111" }}>{r.author}</p>
-                  <p className="text-xs text-gray-400">{r.club} · {r.date}</p>
                 </div>
               </div>
               <StarRating rating={r.rating} size={13} />
@@ -864,43 +830,51 @@ function RatingSection() {
             </p>
           </div>
         ))}
+        {displayReviews.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+            <p className="text-sm text-gray-400">No reviews yet. Your first BloomBay visitors will leave reviews here.</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function RequestsSection() {
-  const [handled, setHandled] = useState<Set<number>>(new Set());
+function RequestsSection({ pending_requests }: { pending_requests: VenueReservation[] }) {
+  const [handled, setHandled] = useState<Set<string>>(new Set());
+  const display = pending_requests.length > 0
+    ? pending_requests
+    : BOOKING_REQUESTS.map((r, i) => ({ id: String(i), guest: r.contact, date: r.requestedDate, time: "", party_size: r.guests, notes: r.message }));
 
   return (
     <div>
       <div className="mb-5">
         <h2 className="text-lg font-bold" style={{ color: "#111111" }}>Booking Requests</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{BOOKING_REQUESTS.length} pending requests</p>
+        <p className="text-sm text-gray-400 mt-0.5">{display.length - handled.size} pending requests</p>
       </div>
 
       <div className="flex flex-col gap-4">
-        {BOOKING_REQUESTS.map((r, i) => (
+        {display.map((r) => (
           <div
-            key={i}
+            key={r.id}
             className="bg-white rounded-2xl p-5"
             style={{
               boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-              opacity: handled.has(i) ? 0.45 : 1,
+              opacity: handled.has(r.id) ? 0.45 : 1,
               transition: "opacity 0.3s ease",
             }}
           >
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
-                <p className="font-bold text-sm" style={{ color: "#111111" }}>{r.event}</p>
+                <p className="font-bold text-sm" style={{ color: "#111111" }}>{r.guest}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {r.club} · via {r.contact} · {r.requestedDate} · {r.guests} guests
+                  {r.date}{r.time ? ` · ${r.time}` : ""} · {r.party_size} guests
                 </p>
               </div>
-              {!handled.has(i) && (
+              {!handled.has(r.id) && (
                 <div className="flex gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setHandled(prev => new Set([...prev, i]))}
+                    onClick={() => setHandled(prev => new Set([...prev, r.id]))}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
                     style={{ background: "#111111" }}
                   >
@@ -908,7 +882,7 @@ function RequestsSection() {
                     Confirm
                   </button>
                   <button
-                    onClick={() => setHandled(prev => new Set([...prev, i]))}
+                    onClick={() => setHandled(prev => new Set([...prev, r.id]))}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
                     style={{ background: "#F5F5F5", color: "#999" }}
                   >
@@ -917,14 +891,21 @@ function RequestsSection() {
                 </div>
               )}
             </div>
-            <p
-              className="text-sm leading-relaxed rounded-xl px-4 py-3"
-              style={{ background: "#FFF8FB", color: "#555", fontStyle: "italic", borderLeft: "2px solid #FFE0EE" }}
-            >
-              &ldquo;{r.message}&rdquo;
-            </p>
+            {r.notes && (
+              <p
+                className="text-sm leading-relaxed rounded-xl px-4 py-3"
+                style={{ background: "#FFF8FB", color: "#555", fontStyle: "italic", borderLeft: "2px solid #FFE0EE" }}
+              >
+                &ldquo;{r.notes}&rdquo;
+              </p>
+            )}
           </div>
         ))}
+        {display.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+            <p className="text-sm text-gray-400">No pending booking requests.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1128,8 +1109,32 @@ function PerksSection() {
 export default function YourVenue() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [toast, setToast] = useState<string | null>(null);
+  const [venueInfo, setVenueInfo] = useState<VenueInfo | null>(null);
+  const [upcoming, setUpcoming] = useState<VenueReservation[]>([]);
+  const [past, setPast] = useState<VenueReservation[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<VenueReservation[]>([]);
+  const [reviews, setReviews] = useState<VenueReview[]>([]);
+  const [stats, setStats] = useState<VenueStats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/partner-portal/my-venue")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        setVenueInfo(data.venue);
+        setUpcoming(data.upcoming ?? []);
+        setPast(data.past ?? []);
+        setPendingRequests(data.pending_requests ?? []);
+        setReviews(data.reviews ?? []);
+        setStats(data.stats ?? null);
+      })
+      .catch(() => {});
+  }, []);
 
   const unreadMessages = MESSAGES.filter(m => m.unread).length;
+  const venueName = venueInfo?.name ?? "Your Venue";
+  const venueInitial = venueName[0] ?? "V";
+  const totalGuestsHosted = past.reduce((sum, r) => sum + r.party_size, 0);
 
   function showToast(message: string) {
     setToast(message);
@@ -1151,7 +1156,7 @@ export default function YourVenue() {
               className="text-3xl font-bold"
               style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)" }}
             >
-              L
+              {venueInitial}
             </span>
           </div>
 
@@ -1173,19 +1178,19 @@ export default function YourVenue() {
               className="text-2xl font-bold leading-tight text-white"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Ladurée SoHo
+              {venueName}
             </h1>
             <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
-              Parisian patisserie meets NYC girl culture. The perfect brunch spot.
+              {venueInfo?.tagline ?? "Parisian patisserie meets NYC girl culture. The perfect brunch spot."}
             </p>
           </div>
 
           {/* Quick stats */}
           <div className="flex gap-8 flex-shrink-0">
             {[
-              { n: "4.8", l: "Rating" },
-              { n: "156", l: "Women Hosted" },
-              { n: "3", l: "Upcoming" },
+              { n: venueInfo ? (venueInfo.avg_rating > 0 ? venueInfo.avg_rating.toFixed(1) : "—") : "4.8", l: "Rating" },
+              { n: String(past.length > 0 ? totalGuestsHosted : 156), l: "Women Hosted" },
+              { n: String(stats ? stats.total_upcoming : upcoming.length || 3), l: "Upcoming" },
             ].map((s) => (
               <div key={s.l} className="text-center">
                 <p className="text-2xl font-bold text-white">{s.n}</p>
@@ -1234,10 +1239,10 @@ export default function YourVenue() {
       {/* ── Content ── */}
       <div className="px-8 py-6">
         {activeTab === "profile" && <ProfileSection showToast={showToast} />}
-        {activeTab === "gatherings" && <GatheringsSection />}
-        {activeTab === "women-hosted" && <WomenHostedSection />}
-        {activeTab === "rating" && <RatingSection />}
-        {activeTab === "requests" && <RequestsSection />}
+        {activeTab === "gatherings" && <GatheringsSection upcoming={upcoming} />}
+        {activeTab === "women-hosted" && <WomenHostedSection past={past} stats={stats} />}
+        {activeTab === "rating" && <RatingSection reviews={reviews} avgRating={venueInfo?.avg_rating ?? 0} reviewCount={venueInfo?.review_count ?? 0} />}
+        {activeTab === "requests" && <RequestsSection pending_requests={pendingRequests} />}
         {activeTab === "mailbox" && <MailboxSection />}
         {activeTab === "perks" && <PerksSection />}
         {activeTab === "templates" && <TemplatesSection />}
