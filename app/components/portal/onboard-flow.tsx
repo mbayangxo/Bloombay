@@ -988,7 +988,8 @@ export function OnboardFlow() {
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
       // Fire-and-forget: Yande sends the welcome message
       welcomeNewMember(user.id).catch(() => {});
-      router.push("/member/home");
+      // Send to preferences step so Yande can learn who she is
+      router.push("/member/preferences");
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
