@@ -1,9 +1,17 @@
 // Yande Compatibility Matching
 //
-// Scores two members for compatibility using real signals from the memory graph
-// and their shared clubs, neighborhoods, and activity patterns.
-// Used by the Community Intelligence cron for introductions.
-// Also exposed for the Introductions page % score.
+// Scores two members for compatibility. Values, lifestyle, and life stage are
+// the dominant signals — clubs and neighborhood are secondary texture.
+//
+// Scoring breakdown (100 pts total):
+//   Values overlap          — up to 20 pts
+//   Lifestyle alignment     — up to 20 pts  (dealbreaker conflicts apply here)
+//   Life stage match        — up to 15 pts  (age group + mother status)
+//   Activity preferences    — up to 15 pts
+//   Dealbreaker safety      — up to 15 pts  (penalty if someone's avoid_vibes
+//                                             match the other's lifestyle)
+//   Shared clubs            — up to 10 pts
+//   Neighborhood            —      5 pts
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -15,13 +23,27 @@ function admin() {
 }
 
 export interface CompatibilityScore {
-  user_a:           string;
-  user_b:           string;
-  score:            number;   // 0–100
-  shared_clubs:     string[];
-  shared_neighborhood: boolean;
-  activity_match:   number;   // 0–1, how similar their activity levels are
-  reasons:          string[]; // human-readable explanation bullets
+  user_a:               string;
+  user_b:               string;
+  score:                number;        // 0–100
+  shared_clubs:         string[];
+  shared_neighborhood:  boolean;
+  activity_match:       number;        // 0–1
+  reasons:              string[];      // positive signals surfaced to members
+  flags:                string[];      // internal only — potential friction points
+}
+
+interface MemberPrefs {
+  age_group:           string | null;
+  is_mother:           boolean | null;
+  relationship_status: string | null;
+  faith:               string | null;
+  faith_important:     boolean;
+  lifestyle_tags:      string[];
+  activity_types:      string[];
+  core_values:         string[];
+  friendship_style:    string | null;
+  avoid_vibes:         string[];
 }
 
 interface MemberSnapshot {
@@ -34,10 +56,184 @@ interface MemberSnapshot {
   bloom_given:      number;
   clubs_joined:     number;
   friendship_score: number;
+  prefs:            MemberPrefs | null;
 }
 
+const EMPTY_PREFS: MemberPrefs = {
+  age_group: null, is_mother: null, relationship_status: null,
+  faith: null, faith_important: false,
+  lifestyle_tags: [], activity_types: [], core_values: [],
+  friendship_style: null, avoid_vibes: [],
+};
+
+// Lifestyle tags that signal someone avoids alcohol/bars/smoking
+// Used to detect dealbreaker conflicts
+const DRINKING_TAGS   = ["social_drinker"];
+const SOBRIETY_TAGS   = ["sober", "sober_curious"];
+const SMOKING_TAGS    = ["smoker"];
+const NIGHTLIFE_TAGS  = ["night_owl", "nightlife"];
+const AVOID_DRINKING  = ["heavy_drinking", "bar_scene", "nightlife"];
+const AVOID_SMOKING   = ["smoking"];
+
+function sharedCount(a: string[], b: string[]): number {
+  return a.filter(x => b.includes(x)).length;
+}
+
+function sharedItems(a: string[], b: string[]): string[] {
+  return a.filter(x => b.includes(x));
+}
+
+// ── Dealbreaker detection ─────────────────────────────────────────────────────
+// Returns a penalty (negative) and flag messages for friction points.
+// Does NOT hard-exclude — Yande surfaces better matches but never hides people entirely.
+
+function dealbreakersScore(a: MemberPrefs, b: MemberPrefs): { penalty: number; flags: string[] } {
+  let penalty = 0;
+  const flags: string[] = [];
+
+  // A avoids alcohol/bars but B is a social drinker or lists nightlife
+  const aAvoidsDrinking = a.avoid_vibes.some(v => AVOID_DRINKING.includes(v));
+  const bDrinks         = b.lifestyle_tags.some(t => DRINKING_TAGS.includes(t));
+  if (aAvoidsDrinking && bDrinks) {
+    penalty += 10;
+    flags.push("A avoids drinking; B social drinker");
+  }
+
+  // Reverse
+  const bAvoidsDrinking = b.avoid_vibes.some(v => AVOID_DRINKING.includes(v));
+  const aDrinks         = a.lifestyle_tags.some(t => DRINKING_TAGS.includes(t));
+  if (bAvoidsDrinking && aDrinks) {
+    penalty += 10;
+    flags.push("B avoids drinking; A social drinker");
+  }
+
+  // A avoids smoking but B smokes
+  const aAvoidsSmoking = a.avoid_vibes.some(v => AVOID_SMOKING.includes(v));
+  const bSmokes        = b.lifestyle_tags.some(t => SMOKING_TAGS.includes(t));
+  if (aAvoidsSmoking && bSmokes) {
+    penalty += 12;
+    flags.push("A is non-smoker; B smokes");
+  }
+
+  const bAvoidsSmoking = b.avoid_vibes.some(v => AVOID_SMOKING.includes(v));
+  const aSmokes        = a.lifestyle_tags.some(t => SMOKING_TAGS.includes(t));
+  if (bAvoidsSmoking && aSmokes) {
+    penalty += 12;
+    flags.push("B is non-smoker; A smokes");
+  }
+
+  // Late nights: one avoids them, other is a night owl
+  const aAvoidsLateNights = a.avoid_vibes.includes("late_nights");
+  const bNightOwl         = b.lifestyle_tags.some(t => NIGHTLIFE_TAGS.includes(t));
+  if (aAvoidsLateNights && bNightOwl) { penalty += 5; }
+
+  const bAvoidsLateNights = b.avoid_vibes.includes("late_nights");
+  const aNightOwl         = a.lifestyle_tags.some(t => NIGHTLIFE_TAGS.includes(t));
+  if (bAvoidsLateNights && aNightOwl) { penalty += 5; }
+
+  // Faith: if either says faith_important, check alignment
+  if (a.faith_important && b.faith_important) {
+    if (a.faith && b.faith && a.faith.toLowerCase() !== b.faith.toLowerCase()) {
+      penalty += 5;
+      flags.push(`Different faith: ${a.faith} / ${b.faith}`);
+    }
+  }
+  if ((a.faith_important && !b.faith) || (b.faith_important && !a.faith)) {
+    penalty += 3;
+  }
+
+  return { penalty: Math.min(penalty, 25), flags };
+}
+
+// ── Life stage ────────────────────────────────────────────────────────────────
+
+function lifeStageScore(a: MemberPrefs, b: MemberPrefs): { pts: number; reasons: string[] } {
+  let pts = 0;
+  const reasons: string[] = [];
+
+  // Same age group: 8 pts
+  if (a.age_group && b.age_group && a.age_group === b.age_group) {
+    pts += 8;
+    reasons.push(`Both in their ${a.age_group}`);
+  }
+  // Adjacent age groups: 3 pts
+  else if (a.age_group && b.age_group) {
+    const order = ["20s","30s","40s","50+"];
+    const diff  = Math.abs(order.indexOf(a.age_group) - order.indexOf(b.age_group));
+    if (diff === 1) pts += 3;
+  }
+
+  // Both mothers / both non-mothers: 7 pts
+  if (a.is_mother !== null && b.is_mother !== null) {
+    if (a.is_mother === b.is_mother) {
+      pts += 7;
+      reasons.push(a.is_mother ? "Both moms" : "Both child-free");
+    }
+  }
+
+  return { pts, reasons };
+}
+
+// ── Values ────────────────────────────────────────────────────────────────────
+
+function valuesScore(a: MemberPrefs, b: MemberPrefs): { pts: number; reasons: string[] } {
+  const shared = sharedItems(a.core_values, b.core_values);
+  const pts    = Math.min(shared.length * 5, 20);
+  const reasons: string[] = [];
+
+  if (shared.length > 0) {
+    const display = shared
+      .slice(0, 3)
+      .map(v => v.replace(/_/g, " "))
+      .join(", ");
+    reasons.push(`Shared values: ${display}`);
+  }
+
+  return { pts, reasons };
+}
+
+// ── Lifestyle alignment ────────────────────────────────────────────────────────
+
+function lifestyleScore(a: MemberPrefs, b: MemberPrefs): { pts: number; reasons: string[] } {
+  const shared  = sharedItems(a.lifestyle_tags, b.lifestyle_tags);
+  let pts       = Math.min(shared.length * 4, 20);
+  const reasons: string[] = [];
+
+  // Bonus: both sober / sober-curious (strong alignment signal)
+  const aSober = a.lifestyle_tags.some(t => SOBRIETY_TAGS.includes(t));
+  const bSober = b.lifestyle_tags.some(t => SOBRIETY_TAGS.includes(t));
+  if (aSober && bSober) {
+    pts = Math.min(pts + 5, 20);
+    reasons.push("Same energy around drinking");
+  }
+
+  if (shared.length > 0 && !reasons.length) {
+    const display = shared.slice(0, 2).map(v => v.replace(/_/g, " ")).join(", ");
+    reasons.push(`Similar lifestyle: ${display}`);
+  }
+
+  return { pts, reasons };
+}
+
+// ── Activity preferences ──────────────────────────────────────────────────────
+
+function activityScore(a: MemberPrefs, b: MemberPrefs): { pts: number; reasons: string[] } {
+  const shared  = sharedItems(a.activity_types, b.activity_types);
+  const pts     = Math.min(shared.length * 3, 15);
+  const reasons: string[] = [];
+
+  if (shared.length > 0) {
+    const display = shared.slice(0, 3).map(v => v.replace(/_/g, " ")).join(", ");
+    reasons.push(`Both into: ${display}`);
+  }
+
+  return { pts, reasons };
+}
+
+// ── Full snapshot ─────────────────────────────────────────────────────────────
+
 async function fetchMemberSnapshot(supabase: ReturnType<typeof admin>, userId: string): Promise<MemberSnapshot | null> {
-  const [{ data: profile }, { data: graph }, { data: clubs }] = await Promise.all([
+  const [{ data: profile }, { data: graph }, { data: clubs }, { data: prefs }] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, first_name, full_name, neighborhood")
@@ -55,9 +251,17 @@ async function fetchMemberSnapshot(supabase: ReturnType<typeof admin>, userId: s
       .select("club_id")
       .eq("user_id", userId)
       .limit(20),
+
+    supabase
+      .from("member_preferences")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   if (!profile) return null;
+
+  const p = prefs as (MemberPrefs & { id: string; user_id: string; updated_at: string }) | null;
 
   return {
     user_id:          userId,
@@ -69,19 +273,23 @@ async function fetchMemberSnapshot(supabase: ReturnType<typeof admin>, userId: s
     bloom_given:      graph?.bloom_given ?? 0,
     clubs_joined:     graph?.clubs_joined ?? 0,
     friendship_score: graph?.friendship_score ?? 0,
+    prefs: p ? {
+      age_group:           p.age_group,
+      is_mother:           p.is_mother,
+      relationship_status: p.relationship_status,
+      faith:               p.faith,
+      faith_important:     p.faith_important ?? false,
+      lifestyle_tags:      p.lifestyle_tags ?? [],
+      activity_types:      p.activity_types ?? [],
+      core_values:         p.core_values ?? [],
+      friendship_style:    p.friendship_style,
+      avoid_vibes:         p.avoid_vibes ?? [],
+    } : null,
   };
 }
 
-function computeActivitySimilarity(a: MemberSnapshot, b: MemberSnapshot): number {
-  const aScore = a.attendance_count * 3 + a.bloom_given + a.clubs_joined * 2;
-  const bScore = b.attendance_count * 3 + b.bloom_given + b.clubs_joined * 2;
-  if (aScore === 0 && bScore === 0) return 0.5;
-  const max = Math.max(aScore, bScore);
-  const min = Math.min(aScore, bScore);
-  return max > 0 ? min / max : 0;
-}
+// ── Main scoring function ─────────────────────────────────────────────────────
 
-// Score two specific members for compatibility.
 export async function scoreCompatibility(userIdA: string, userIdB: string): Promise<CompatibilityScore | null> {
   const supabase = admin();
 
@@ -92,71 +300,89 @@ export async function scoreCompatibility(userIdA: string, userIdB: string): Prom
 
   if (!a || !b) return null;
 
-  const sharedClubs     = a.clubs.filter(c => b.clubs.includes(c));
-  const sameNeighborhood = !!(a.neighborhood && b.neighborhood && a.neighborhood === b.neighborhood);
-  const activityMatch   = computeActivitySimilarity(a, b);
+  const pa = a.prefs ?? EMPTY_PREFS;
+  const pb = b.prefs ?? EMPTY_PREFS;
 
-  let score = 0;
   const reasons: string[] = [];
+  const flags:   string[] = [];
+  let score = 0;
 
-  // Shared clubs: 15 points each, max 45
-  const clubPoints = Math.min(sharedClubs.length * 15, 45);
-  score += clubPoints;
+  // ── Values (max 20) ────────────────────────────────────────────────────────
+  const values = valuesScore(pa, pb);
+  score += values.pts;
+  reasons.push(...values.reasons);
 
-  // Same neighborhood: 20 points
+  // ── Lifestyle alignment (max 20) ───────────────────────────────────────────
+  const lifestyle = lifestyleScore(pa, pb);
+  score += lifestyle.pts;
+  reasons.push(...lifestyle.reasons);
+
+  // ── Life stage (max 15) ────────────────────────────────────────────────────
+  const lifeStage = lifeStageScore(pa, pb);
+  score += lifeStage.pts;
+  reasons.push(...lifeStage.reasons);
+
+  // ── Activity preferences (max 15) ─────────────────────────────────────────
+  const activities = activityScore(pa, pb);
+  score += activities.pts;
+  reasons.push(...activities.reasons);
+
+  // ── Dealbreaker check (max -25 penalty, +15 if fully clean) ───────────────
+  const dealbreakers = dealbreakersScore(pa, pb);
+  if (dealbreakers.penalty === 0) {
+    score += 15;  // clean signal — no friction
+  } else {
+    score -= dealbreakers.penalty;
+    flags.push(...dealbreakers.flags);
+  }
+
+  // ── Shared clubs (max 10) ─────────────────────────────────────────────────
+  const sharedClubIds  = a.clubs.filter(c => b.clubs.includes(c));
+  const clubPts        = Math.min(sharedClubIds.length * 5, 10);
+  score += clubPts;
+  if (sharedClubIds.length > 0) {
+    reasons.push(`${sharedClubIds.length} shared club${sharedClubIds.length > 1 ? "s" : ""}`);
+  }
+
+  // ── Neighborhood (5 pts) ──────────────────────────────────────────────────
+  const sameNeighborhood = !!(a.neighborhood && b.neighborhood && a.neighborhood === b.neighborhood);
   if (sameNeighborhood) {
-    score += 20;
+    score += 5;
     reasons.push(`Both in ${a.neighborhood}`);
   }
 
-  // Activity similarity: up to 20 points
-  const activityPoints = Math.round(activityMatch * 20);
-  score += activityPoints;
+  // ── Activity level similarity (used as tiebreaker, 0–1) ──────────────────
+  const aLevel = a.attendance_count * 3 + a.bloom_given + a.clubs_joined * 2;
+  const bLevel = b.attendance_count * 3 + b.bloom_given + b.clubs_joined * 2;
+  const activityMatch = (aLevel === 0 && bLevel === 0) ? 0.5
+    : Math.min(aLevel, bLevel) / Math.max(aLevel, bLevel, 1);
 
-  // Both have attended events: 10 bonus
-  if (a.attendance_count > 0 && b.attendance_count > 0) {
-    score += 10;
-    reasons.push("Both attend events");
-  }
+  score = Math.max(0, Math.min(Math.round(score), 100));
 
-  // Both give blooms: 5 bonus (generous people connect well)
-  if (a.bloom_given > 2 && b.bloom_given > 2) {
-    score += 5;
-    reasons.push("Similar energy");
-  }
-
-  if (sharedClubs.length > 0) {
-    reasons.push(`${sharedClubs.length} shared club${sharedClubs.length > 1 ? "s" : ""}`);
-  }
-  if (activityMatch > 0.7) {
-    reasons.push("Similar pace on the platform");
-  }
-
-  score = Math.min(Math.round(score), 100);
-
-  // Resolve club names for display
+  // Resolve club names
   let sharedClubNames: string[] = [];
-  if (sharedClubs.length > 0) {
+  if (sharedClubIds.length > 0) {
     const { data: clubRows } = await supabase
       .from("clubs")
       .select("id, name")
-      .in("id", sharedClubs.slice(0, 3));
+      .in("id", sharedClubIds.slice(0, 3));
     sharedClubNames = (clubRows ?? []).map((c: { name: string }) => c.name);
   }
 
   return {
-    user_a:               userIdA,
-    user_b:               userIdB,
+    user_a:              userIdA,
+    user_b:              userIdB,
     score,
-    shared_clubs:         sharedClubNames,
-    shared_neighborhood:  sameNeighborhood,
-    activity_match:       activityMatch,
-    reasons,
+    shared_clubs:        sharedClubNames,
+    shared_neighborhood: sameNeighborhood,
+    activity_match:      activityMatch,
+    reasons:             reasons.filter(Boolean),
+    flags,
   };
 }
 
-// Find the best matches for a given member from a pool of candidates.
-// Returns candidates ranked by compatibility score, highest first.
+// ── Batch finder ──────────────────────────────────────────────────────────────
+
 export async function findTopMatches(
   userId: string,
   opts: { limit?: number; minScore?: number } = {},
@@ -164,22 +390,19 @@ export async function findTopMatches(
   const { limit = 5, minScore = 30 } = opts;
   const supabase = admin();
 
-  // Get the member's own snapshot
   const self = await fetchMemberSnapshot(supabase, userId);
   if (!self) return [];
 
-  // Pull candidates: active members with at least one shared signal (club)
-  // who haven't already been introduced to this member
-  const { data: candidateIds } = await supabase
+  // Candidate pool: shared-club members first, then recently active
+  const { data: clubCandidates } = await supabase
     .from("club_memberships")
     .select("user_id")
     .in("club_id", self.clubs.length > 0 ? self.clubs : ["__none__"])
     .neq("user_id", userId)
-    .limit(100);
+    .limit(80);
 
-  // Fall back to recently active members if no shared clubs
-  const pool = candidateIds?.length
-    ? [...new Set((candidateIds as { user_id: string }[]).map(c => c.user_id))]
+  const pool: string[] = clubCandidates?.length
+    ? [...new Set((clubCandidates as { user_id: string }[]).map(c => c.user_id))]
     : await (async () => {
         const { data: active } = await supabase
           .from("member_memory_graph")
@@ -201,14 +424,10 @@ export async function findTopMatches(
     alreadyMet.add(intro.sender_id === userId ? intro.receiver_id : intro.sender_id);
   }
 
-  const candidates = pool.filter(id => !alreadyMet.has(id));
+  const candidates = pool.filter(id => !alreadyMet.has(id)).slice(0, 30);
 
-  // Score all candidates
-  const scores = await Promise.all(
-    candidates.slice(0, 30).map(candidateId => scoreCompatibility(userId, candidateId)),
-  );
+  const scores = await Promise.all(candidates.map(id => scoreCompatibility(userId, id)));
 
-  // Fetch names for results
   const results = scores
     .filter((s): s is CompatibilityScore => s !== null && s.score >= minScore)
     .sort((a, b) => b.score - a.score)
