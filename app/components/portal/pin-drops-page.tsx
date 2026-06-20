@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PinIcon } from "./pin-icon";
+import { PinDropCompose } from "./pin-drop-compose";
 import "@/app/styles/bloom-entrance.css";
 
 interface PersonalPin {
@@ -11,6 +12,17 @@ interface PersonalPin {
   caption: string | null;
   expires_at: string;
   created_at: string;
+}
+
+interface ReceivedPin {
+  id: string;
+  location: string;
+  caption: string | null;
+  expires_at: string;
+  sent_at: string;
+  sender_name: string;
+  sender_avatar: string | null;
+  kind: "received";
 }
 
 interface ClubPin {
@@ -24,6 +36,7 @@ interface ClubPin {
 
 type PinItem =
   | ({ kind: "personal" } & PersonalPin)
+  | ({ kind: "received" } & ReceivedPin)
   | ({ kind: "club" } & ClubPin);
 
 function timeAgo(iso: string) {
@@ -45,21 +58,22 @@ function expiresIn(iso: string) {
 }
 
 export function PinDropsPage() {
-  const [pins, setPins]     = useState<PinItem[]>([]);
+  const [pins, setPins]       = useState<PinItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadPins = useCallback(() => {
+    setLoading(true);
     fetch("/api/member/pin-drops")
-      .then((r) => (r.ok ? r.json() : { personal: [], club_pins: [] }))
-      .then(({ personal, club_pins }) => {
+      .then((r) => (r.ok ? r.json() : { mine: [], received: [], club_pins: [] }))
+      .then(({ mine, received, club_pins }) => {
         const all: PinItem[] = [
-          ...(personal as PersonalPin[]).map((p) => ({ kind: "personal" as const, ...p })),
+          ...(mine as PersonalPin[]).map((p) => ({ kind: "personal" as const, ...p })),
+          ...(received as ReceivedPin[]),
           ...(club_pins as ClubPin[]).map((p) => ({ kind: "club" as const, ...p })),
         ];
-        // Sort newest first
         all.sort((a, b) => {
-          const aTime = a.kind === "personal" ? a.created_at : a.sent_at;
-          const bTime = b.kind === "personal" ? b.created_at : b.sent_at;
+          const aTime = a.kind === "personal" ? a.created_at : a.kind === "received" ? a.sent_at : a.sent_at;
+          const bTime = b.kind === "personal" ? b.created_at : b.kind === "received" ? b.sent_at : b.sent_at;
           return new Date(bTime).getTime() - new Date(aTime).getTime();
         });
         setPins(all);
@@ -67,6 +81,8 @@ export function PinDropsPage() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadPins(); }, [loadPins]);
 
   return (
     <div className="bloom-page-enter min-h-screen pb-24" style={{ background: "#FFF8F0" }}>
@@ -91,6 +107,8 @@ export function PinDropsPage() {
         </div>
 
         <div style={{ width: 40, height: 2, borderRadius: 2, background: "#FF1F7D", marginBottom: 24 }} />
+
+        <PinDropCompose onSent={loadPins} />
 
         {loading ? (
           <div style={{ textAlign: "center", paddingTop: 60 }}>
@@ -119,25 +137,29 @@ export function PinDropsPage() {
                   borderRadius: 16,
                   padding: "16px 18px",
                   boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                  borderLeft: pin.kind === "club" ? "3px solid #FF1F7D" : "3px solid #111",
+                  borderLeft: pin.kind === "club" ? "3px solid #FF1F7D" : pin.kind === "received" ? "3px solid #FF1F7D" : "3px solid #111",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 14, color: pin.kind === "club" ? "#FF1F7D" : "#111" }}>📍</span>
+                    <span style={{ fontSize: 14, color: pin.kind === "personal" ? "#111" : "#FF1F7D" }}>📍</span>
                     <span style={{
                       fontFamily: "Jost, sans-serif",
                       fontSize: 9,
                       fontWeight: 700,
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
-                      color: pin.kind === "club" ? "#FF1F7D" : "#666",
+                      color: pin.kind === "personal" ? "#666" : "#FF1F7D",
                     }}>
-                      {pin.kind === "club" ? (pin.club_name ?? "Your club") : "Your pin"}
+                      {pin.kind === "club"
+                        ? (pin.club_name ?? "Your club")
+                        : pin.kind === "received"
+                        ? `${pin.sender_name} dropped a pin`
+                        : "Your pin"}
                     </span>
                   </div>
                   <span style={{ fontFamily: "Jost, sans-serif", fontSize: 10, color: "#bbb" }}>
-                    {pin.kind === "personal" ? expiresIn(pin.expires_at) : timeAgo(pin.sent_at)}
+                    {pin.kind === "personal" ? expiresIn(pin.expires_at) : timeAgo(pin.kind === "received" ? pin.sent_at : pin.sent_at)}
                   </span>
                 </div>
 
@@ -152,9 +174,9 @@ export function PinDropsPage() {
                   {pin.location}
                 </p>
 
-                {(pin.kind === "personal" ? pin.caption : pin.caption) && (
+                {pin.caption && (
                   <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, color: "#555", margin: 0, lineHeight: 1.5 }}>
-                    {pin.kind === "personal" ? pin.caption : pin.caption}
+                    {pin.caption}
                   </p>
                 )}
               </div>

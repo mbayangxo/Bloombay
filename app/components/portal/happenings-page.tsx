@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -889,13 +890,13 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
         <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />
         <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>YOUR EVENTS</span>
       </div>
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
+      <div className="bloom-stagger" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
         {events.map(ev => {
           const isFull = ev.spots_left !== null && ev.spots_left !== undefined && ev.spots_left <= 0;
           const wCount = waitlistCounts[ev.id] ?? 0;
           const onList = myWaitlist.has(ev.id);
           return (
-            <div key={ev.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
+            <div key={ev.id} className="bloom-lift bloom-card-enter" style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
               <EventCard ev={toCardData(ev)} />
               {/* Action row below card */}
               <div style={{ display: "flex", gap: 5, marginTop: 6, alignItems: "center" }}>
@@ -1238,7 +1239,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
+    <div className="bloom-world-enter" style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
       <style>{CSS}</style>
 
 

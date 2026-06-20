@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -114,7 +115,7 @@ export function ClubsPage() {
   }, []);
 
   return (
-    <div style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
+    <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
 
       {/* ── Create Club FAB ── */}
       <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
@@ -247,7 +248,7 @@ export function ClubsPage() {
           <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.8)" }}>tap to peek inside →</span>
         </div>
 
-        <div style={{ display: "flex", gap: 18, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 36, scrollbarWidth: "none" as const }}>
+        <div className="bloom-stagger" style={{ display: "flex", gap: 18, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 36, scrollbarWidth: "none" as const }}>
           {clubs.length === 0 && (
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0" }}>Clubs loading…</p>
           )}
@@ -258,7 +259,7 @@ export function ClubsPage() {
               ? `linear-gradient(145deg, ${club.primary_color}44 0%, ${club.primary_color} 100%)`
               : GRADS[idx % GRADS.length];
             return (
-              <Link key={club.id} href={href} style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
+              <Link key={club.id} href={href} className="bloom-lift bloom-card-enter" style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
                 {idx % 2 === 0 ? (
                   <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1deg)", zIndex: 5 }}>
                     <WashiTape color={idx === 1 ? "pink" : "yellow"} width={54} height={16} />

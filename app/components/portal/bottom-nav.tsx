@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
+import "@/app/styles/bloom-entrance.css";
 
 const PINK  = "#FF1F7D";
 const GOLD  = "#D4A853";
@@ -376,6 +377,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
               <Link
                 key={tab.href}
                 href={tab.href}
+                className="bloom-btn-pop"
                 style={{
                   flex: 1,
                   textDecoration: "none",

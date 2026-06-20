@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { updateProfile } from "@/lib/auth/actions";
@@ -1279,7 +1280,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   const rest   = CONVOS.slice(1);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FF1F7D", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)", overflowX: "hidden" }}>
+    <div className="bloom-world-enter" style={{ minHeight: "100vh", background: "#FF1F7D", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)", overflowX: "hidden" }}>
       <style>{`
         @keyframes cardSlideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .chat-card { animation: cardSlideIn 0.36s ease both; }

@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState } from "react";
 import { BBLogo } from "@/app/components/portal/bb-logo";
 
@@ -76,6 +77,7 @@ export default function IntroductionsPage() {
 
   return (
     <div
+      className="bloom-world-enter"
       style={{
         minHeight: "100vh",
         background: PAPER,

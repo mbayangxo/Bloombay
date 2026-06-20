@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -2890,7 +2891,7 @@ export function CityPage() {
     : [];
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="bloom-world-enter" style={{ minHeight: "100vh" }}>
       {/* Fixed top bar */}
       <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
