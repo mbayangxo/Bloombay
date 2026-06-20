@@ -11,6 +11,7 @@ interface Suggestion {
   neighborhood: string | null;
   shared_context: "gathering" | "event";
   gathering_title: string | null;
+  gathering_id: string | null;
 }
 
 function initials(s: Suggestion) {
@@ -271,16 +272,215 @@ function SendBloomSheet({
   );
 }
 
+// ── Witness Sheet ─────────────────────────────────────────────────────────────
+
+function WitnessSheet({
+  person,
+  onClose,
+  onSent,
+}: {
+  person: Suggestion;
+  onClose: () => void;
+  onSent: () => void;
+}) {
+  const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  async function send() {
+    if (!note.trim()) { setError("Write something you noticed."); return; }
+    if (!person.gathering_id) { setError("No gathering context."); return; }
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch("/api/member/witness", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject_user_id: person.id,
+          gathering_id: person.gathering_id,
+          note: note.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Something went wrong");
+      onSent();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setSending(false);
+    }
+  }
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, backdropFilter: "blur(4px)" }} />
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 201,
+        background: "#fff", borderRadius: "20px 20px 0 0", padding: "20px 20px 48px",
+        boxShadow: "0 -16px 48px rgba(0,0,0,0.15)", animation: "bloomFadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both",
+        maxHeight: "80vh", overflowY: "auto",
+      }}>
+        <div style={{ width: 36, height: 4, background: "#eee", borderRadius: 2, margin: "0 auto 20px" }} />
+
+        {/* Person header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          {person.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={person.avatar_url} alt="" style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,31,125,0.2)" }} />
+          ) : (
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#FF1F7D,#FF9ECA)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Jost,sans-serif", fontSize: 16, fontWeight: 700, color: "#fff" }}>
+              {(person.first_name ?? person.full_name ?? "?")[0]?.toUpperCase() ?? "?"}
+            </div>
+          )}
+          <div>
+            <p style={{ fontFamily: "'Playfair Display',Georgia,serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#111", margin: 0 }}>
+              {person.first_name || person.full_name?.split(" ")[0] || "Her"}
+            </p>
+            <p style={{ fontFamily: "Jost,sans-serif", fontSize: 10, color: "#aaa", margin: "2px 0 0" }}>Something you noticed about her at this event.</p>
+          </div>
+        </div>
+
+        <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontStyle: "italic", fontSize: 20, color: "#111", margin: "0 0 6px" }}>
+          What did you witness?
+        </h2>
+        <p style={{ fontFamily: "Jost,sans-serif", fontSize: 12, color: "#aaa", margin: "0 0 16px", lineHeight: 1.5 }}>
+          A moment, a quality, something true. She&apos;ll see it on her profile. Under 280 characters.
+        </p>
+
+        <div style={{ position: "relative", marginBottom: 20 }}>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder={`She moved the whole room without trying…`}
+            rows={4}
+            maxLength={280}
+            style={{
+              width: "100%", background: "#FFF8F0", border: "1.5px solid rgba(255,31,125,0.2)",
+              borderRadius: 14, padding: "14px 16px", fontFamily: "Jost,sans-serif", fontSize: 14,
+              color: "#333", outline: "none", resize: "none", boxSizing: "border-box", lineHeight: 1.6,
+            }}
+          />
+          <span style={{ position: "absolute", bottom: 10, right: 14, fontFamily: "Jost,sans-serif", fontSize: 10, color: note.length > 240 ? "#FF1F7D" : "#ccc" }}>
+            {note.length}/280
+          </span>
+        </div>
+
+        {error && <p style={{ fontFamily: "Jost,sans-serif", fontSize: 12, color: "#FF1F7D", marginBottom: 12 }}>{error}</p>}
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "14px", borderRadius: 14, border: "1.5px solid #eee", background: "#fff", fontFamily: "Jost,sans-serif", fontSize: 12, fontWeight: 700, color: "#999", cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button onClick={send} disabled={sending} style={{ flex: 2, padding: "14px", borderRadius: 14, border: "none", background: sending ? "#eee" : "#111", fontFamily: "Jost,sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: sending ? "#bbb" : "#fff", cursor: sending ? "not-allowed" : "pointer", transition: "all 0.15s" }}>
+            {sending ? "Sending…" : "Share what you witnessed ✦"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Flower Sheet ──────────────────────────────────────────────────────────────
+
+function FlowerSheet({
+  person,
+  onClose,
+  onSent,
+}: {
+  person: Suggestion;
+  onClose: () => void;
+  onSent: () => void;
+}) {
+  const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  async function send() {
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch("/api/member/flowers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_user_id: person.id,
+          gathering_id: person.gathering_id ?? undefined,
+          note: note.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        if (d.error === "already_sent") { onSent(); return; }
+        throw new Error(d.error ?? "Something went wrong");
+      }
+      onSent();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setSending(false);
+    }
+  }
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, backdropFilter: "blur(4px)" }} />
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 201,
+        background: "#fff", borderRadius: "20px 20px 0 0", padding: "20px 20px 48px",
+        boxShadow: "0 -16px 48px rgba(0,0,0,0.15)", animation: "bloomFadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both",
+      }}>
+        <div style={{ width: 36, height: 4, background: "#eee", borderRadius: 2, margin: "0 auto 20px" }} />
+
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <p style={{ fontSize: 36, margin: "0 0 8px" }}>🌸</p>
+          <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontStyle: "italic", fontSize: 22, color: "#111", margin: "0 0 6px" }}>
+            Send {person.first_name || person.full_name?.split(" ")[0] || "her"} flowers.
+          </h2>
+          <p style={{ fontFamily: "Jost,sans-serif", fontSize: 12, color: "#aaa", lineHeight: 1.5 }}>
+            Optional note — 120 characters max.
+          </p>
+        </div>
+
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="You made tonight feel like something…"
+          rows={3}
+          maxLength={120}
+          style={{
+            width: "100%", background: "#FFF8F0", border: "1.5px solid rgba(255,31,125,0.2)",
+            borderRadius: 14, padding: "14px 16px", fontFamily: "Jost,sans-serif", fontSize: 14,
+            color: "#333", outline: "none", resize: "none", boxSizing: "border-box", lineHeight: 1.6, marginBottom: 16,
+          }}
+        />
+
+        {error && <p style={{ fontFamily: "Jost,sans-serif", fontSize: 12, color: "#FF1F7D", marginBottom: 12 }}>{error}</p>}
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "14px", borderRadius: 14, border: "1.5px solid #eee", background: "#fff", fontFamily: "Jost,sans-serif", fontSize: 12, fontWeight: 700, color: "#999", cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button onClick={send} disabled={sending} style={{ flex: 2, padding: "14px", borderRadius: 14, border: "none", background: sending ? "#eee" : "#FF1F7D", fontFamily: "Jost,sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: sending ? "#bbb" : "#fff", cursor: sending ? "not-allowed" : "pointer", transition: "all 0.15s" }}>
+            {sending ? "Sending…" : "Send flowers 🌸"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Post-event suggestion card ───────────────────────────────────────────────
 
 function SuggestionCard({
   person,
   onBloom,
   onDismiss,
+  onWitness,
+  onFlower,
 }: {
   person: Suggestion;
   onBloom: () => void;
   onDismiss: () => void;
+  onWitness: () => void;
+  onFlower: () => void;
 }) {
   return (
     <div
@@ -289,71 +489,89 @@ function SuggestionCard({
         background: "#fff",
         borderRadius: 16,
         padding: "14px 16px",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
         boxShadow: "0 2px 12px rgba(255,31,125,0.08)",
         border: "1px solid rgba(255,31,125,0.1)",
       }}
     >
-      {/* Avatar */}
-      {person.avatar_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={person.avatar_url}
-          alt={displayName(person)}
-          style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-        />
-      ) : (
-        <div style={{
-          width: 44, height: 44, borderRadius: "50%",
-          background: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "Jost, sans-serif", fontSize: 14, fontWeight: 700, color: "#fff",
-          flexShrink: 0,
-        }}>
-          {initials(person)}
+      {/* Top row: avatar + info + dismiss + bloom */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Avatar */}
+        {person.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={person.avatar_url}
+            alt={displayName(person)}
+            style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+          />
+        ) : (
+          <div style={{
+            width: 44, height: 44, borderRadius: "50%",
+            background: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "Jost, sans-serif", fontSize: 14, fontWeight: 700, color: "#fff",
+            flexShrink: 0,
+          }}>
+            {initials(person)}
+          </div>
+        )}
+
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: "italic", fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>
+            {displayName(person)}
+          </p>
+          <p style={{ fontFamily: "Jost, sans-serif", fontSize: 10, color: "#aaa", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {person.neighborhood ? `${person.neighborhood} · ` : ""}
+            {person.gathering_title ? `met at ${person.gathering_title}` : "you both went"}
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <button
+            onClick={onDismiss}
+            style={{ width: 30, height: 30, borderRadius: "50%", border: "1px solid #eee", background: "#fff", cursor: "pointer", fontSize: 14, color: "#ccc", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            ×
+          </button>
+          <button
+            onClick={onBloom}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 20,
+              border: "none",
+              background: "#FF1F7D",
+              fontFamily: "Jost, sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "#fff",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Bloom her 🌸
+          </button>
+        </div>
+      </div>
+
+      {/* Secondary actions row — only show if gathering context exists */}
+      {person.gathering_id && (
+        <div style={{ display: "flex", gap: 8, paddingTop: 10, borderTop: "1px solid rgba(255,31,125,0.08)", marginTop: 8 }}>
+          <button
+            onClick={onWitness}
+            style={{ flex: 1, padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.08)", background: "#fafafa", fontFamily: "Jost,sans-serif", fontSize: 10, fontWeight: 700, color: "#555", cursor: "pointer", textAlign: "center" as const }}
+          >
+            Say something you noticed ✦
+          </button>
+          <button
+            onClick={onFlower}
+            style={{ flex: 1, padding: "8px 10px", borderRadius: 10, border: "1px solid rgba(255,31,125,0.15)", background: "rgba(255,31,125,0.04)", fontFamily: "Jost,sans-serif", fontSize: 10, fontWeight: 700, color: "#FF1F7D", cursor: "pointer", textAlign: "center" as const }}
+          >
+            Send her flowers 🌸
+          </button>
         </div>
       )}
-
-      {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: "italic", fontSize: 15, fontWeight: 700, color: "#111", margin: 0 }}>
-          {displayName(person)}
-        </p>
-        <p style={{ fontFamily: "Jost, sans-serif", fontSize: 10, color: "#aaa", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {person.neighborhood ? `${person.neighborhood} · ` : ""}
-          {person.gathering_title ? `met at ${person.gathering_title}` : "you both went"}
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-        <button
-          onClick={onDismiss}
-          style={{ width: 30, height: 30, borderRadius: "50%", border: "1px solid #eee", background: "#fff", cursor: "pointer", fontSize: 14, color: "#ccc", display: "flex", alignItems: "center", justifyContent: "center" }}
-        >
-          ×
-        </button>
-        <button
-          onClick={onBloom}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 20,
-            border: "none",
-            background: "#FF1F7D",
-            fontFamily: "Jost, sans-serif",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            color: "#fff",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Bloom her 🌸
-        </button>
-      </div>
     </div>
   );
 }
@@ -366,6 +584,12 @@ export function PostEventBloomiePrompt() {
   const [bloomed, setBloomed]         = useState<Set<string>>(new Set());
   const [composing, setComposing]     = useState<Suggestion | null>(null);
   const [sent, setSent]               = useState<Set<string>>(new Set());
+  const [witnessing, setWitnessing]   = useState<Suggestion | null>(null);
+  const [flowering, setFlowering]     = useState<Suggestion | null>(null);
+  const [witnessed, setWitnessed]     = useState<Set<string>>(new Set());
+  const [flowered, setFlowered]       = useState<Set<string>>(new Set());
+  const [witnessToast, setWitnessToast] = useState(false);
+  const [flowerToast, setFlowerToast]   = useState(false);
 
   useEffect(() => {
     fetch("/api/member/people-you-met")
@@ -412,6 +636,8 @@ export function PostEventBloomiePrompt() {
               person={s}
               onBloom={() => setComposing(s)}
               onDismiss={() => setDismissed((prev) => new Set([...prev, s.id]))}
+              onWitness={() => setWitnessing(s)}
+              onFlower={() => setFlowering(s)}
             />
           ))}
         </div>
