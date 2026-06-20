@@ -1,0 +1,288 @@
+/* BloomBay world — places, not pages */
+
+/* ── City tonight card (you are somewhere) ── */
+.bb-city-tonight {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin: 0 1.25rem 1.25rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, #1a0514 0%, #3d1528 45%, #ff0055 120%);
+  box-shadow: var(--shadow-float), 0 0 48px rgba(255, 0, 85, 0.22);
+  overflow: hidden;
+  max-width: 420px;
+}
+
+.bb-city-tonight__glow {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 70%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255, 183, 206, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bb-city-tonight__eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 245, 248, 0.75);
+  margin: 0 0 0.35rem;
+  position: relative;
+}
+
+.bb-city-tonight__hood {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bb-white);
+  margin: 0 0 0.2rem;
+  position: relative;
+}
+
+.bb-city-tonight__city {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: rgba(255, 245, 248, 0.7);
+  margin: 0 0 0.85rem;
+  position: relative;
+}
+
+.bb-city-tonight__weather {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.bb-city-tonight__temp {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bb-barbie);
+}
+
+.bb-city-tonight__sky {
+  font-family: var(--font-accent);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(255, 245, 248, 0.9);
+}
+
+.bb-city-tonight__pulse {
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--bb-white);
+  margin: 0 0 0.65rem;
+  position: relative;
+}
+
+.bb-city-tonight__enter {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-barbie);
+  position: relative;
+}
+
+@media (min-width: 900px) {
+  .bb-city-tonight {
+    margin-inline: 2rem;
+  }
+}
+
+/* ── Lobby hallway — life above, doors below (~35vh) ── */
+.bb-lobby-hall {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+}
+
+.bb-lobby-hall__life {
+  flex: 1;
+  padding: 0 0 1rem;
+}
+
+.bb-lobby-hall__life .mp-lobby-pulse {
+  padding-top: 0;
+}
+
+.bb-lobby-hall__ambient {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 1.25rem 0.75rem;
+  align-items: center;
+}
+
+.bb-lobby-hall__flower {
+  font-size: 1.1rem;
+  opacity: 0.65;
+  transform: rotate(-12deg);
+}
+
+.bb-lobby-hall__scrap {
+  font-family: var(--font-accent);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--bb-muted);
+  margin: 0;
+  padding: 0 1.25rem 0.5rem;
+}
+
+.bb-lobby-hall__doors {
+  flex-shrink: 0;
+  max-height: 42vh;
+  min-height: 200px;
+}
+
+.bb-lobby-hall__doors .mp-room-interior {
+  min-height: 0;
+  max-height: 42vh;
+  margin-bottom: 0;
+}
+
+.bb-lobby-hall__doors .mp-room-doors {
+  padding: 0.5rem 0.75rem 0.75rem;
+  gap: 0.5rem 0.65rem;
+  justify-content: center;
+}
+
+.bb-lobby-hall__doors .mp-room-door__svg {
+  width: clamp(96px, 22vw, 140px);
+  height: auto;
+}
+
+.bb-lobby-hall__doors .mp-room-door__plate {
+  min-width: 96px;
+  padding: 0.35rem 0.5rem;
+}
+
+.bb-lobby-hall__doors .mp-room-door__plate-label {
+  font-size: 0.72rem;
+}
+
+.bb-lobby-hall__eyebrow-hall {
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--bb-muted);
+  text-align: center;
+  margin: 0 1rem 0.5rem;
+}
+
+/* ── Apartment — objects in a room, not settings list ── */
+.bb-apartment {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0.5rem 1rem 2rem;
+  box-sizing: border-box;
+}
+
+.bb-apartment--legacy {
+  padding: 0 1.25rem 2rem;
+  max-width: var(--bb-canvas-max, 1280px);
+  margin-inline: auto;
+}
+
+.bb-apartment__hero {
+  margin-bottom: 1.25rem;
+}
+
+.bb-apartment__title {
+  font-family: var(--font-accent);
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-style: italic;
+  font-weight: 500;
+  margin: 0 0 0.35rem;
+  color: var(--bb-velvet);
+}
+
+.bb-apartment__sub {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--bb-muted);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.bb-apartment-objects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 160px));
+  gap: 0.85rem;
+  justify-content: start;
+}
+
+.bb-apartment-object {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 1rem 0.65rem;
+  background: var(--bb-white);
+  border: 1px solid var(--bb-line-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bb-apartment-object:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+.bb-apartment-object__label {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.5rem;
+}
+
+.bb-apartment-object__hint {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  color: var(--bb-muted);
+  margin-top: 0.2rem;
+  line-height: 1.3;
+}
+
+/* Happenings — invitation parlor */
+.bb-happenings-parlor {
+  padding: 0 1.25rem 1rem;
+}
+
+.bb-happenings-parlor .bb-artifact-board--invitations {
+  margin-top: 0.5rem;
+}
+
+.bb-happenings-empty {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--bb-muted);
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.bb-happenings-empty strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--bb-velvet);
+  margin-bottom: 0.35rem;
+}

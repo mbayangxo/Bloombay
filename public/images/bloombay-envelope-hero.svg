@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" fill="none" role="img" aria-label="BloomBay sealed invitation envelope">
+  <defs>
+    <filter id="paper" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="3" stitchTiles="stitch" result="n"/>
+      <feColorMatrix type="saturate" values="0" in="n" result="gn"/>
+      <feBlend in="SourceGraphic" in2="gn" mode="multiply"/>
+    </filter>
+    <filter id="grainOverlay" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.05" numOctaves="2" stitchTiles="stitch" result="g"/>
+      <feColorMatrix type="saturate" values="0" in="g" result="gn"/>
+      <feComponentTransfer in="gn" result="gf">
+        <feFuncA type="linear" slope="0.08"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="gf" mode="multiply"/>
+    </filter>
+    <filter id="envShadow" x="-22%" y="-18%" width="144%" height="145%">
+      <feDropShadow dx="0" dy="32" stdDeviation="26" flood-color="#3d0818" flood-opacity="0.32"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#3d0818" flood-opacity="0.16"/>
+    </filter>
+    <linearGradient id="body" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#fffcf8"/>
+      <stop offset="35%" stop-color="#fdf0ea"/>
+      <stop offset="70%" stop-color="#f6e2d8"/>
+      <stop offset="100%" stop-color="#e8d0c4"/>
+    </linearGradient>
+    <linearGradient id="bodySheen" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#d4a898" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="flapTop" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#fffaf6"/>
+      <stop offset="40%" stop-color="#f8ebe4"/>
+      <stop offset="100%" stop-color="#ecd8ce"/>
+    </linearGradient>
+    <linearGradient id="flapLeft" x1="0" y1="0.45" x2="1" y2="0.55">
+      <stop offset="0%" stop-color="#efe0d8"/>
+      <stop offset="100%" stop-color="#dcc4ba"/>
+    </linearGradient>
+    <linearGradient id="flapRight" x1="1" y1="0.45" x2="0" y2="0.55">
+      <stop offset="0%" stop-color="#ebe0d8"/>
+      <stop offset="100%" stop-color="#d8c0b6"/>
+    </linearGradient>
+    <linearGradient id="flapBottom" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#e2ccc2"/>
+      <stop offset="100%" stop-color="#f0e0d8"/>
+    </linearGradient>
+    <radialGradient id="centerWarmth" cx="50%" cy="42%" r="48%">
+      <stop offset="0%" stop-color="#fff8f4" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#fff8f4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="wax" cx="40%" cy="34%" r="58%">
+      <stop offset="0%" stop-color="#a03858"/>
+      <stop offset="55%" stop-color="#7a1a40"/>
+      <stop offset="100%" stop-color="#5c1028"/>
+    </radialGradient>
+    <pattern id="linen" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+      <line x1="0" y1="0" x2="0" y2="24" stroke="rgba(90,30,50,0.025)" stroke-width="0.6"/>
+      <line x1="12" y1="0" x2="12" y2="24" stroke="rgba(90,30,50,0.02)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="emboss" width="56" height="56" patternUnits="userSpaceOnUse">
+      <circle cx="28" cy="28" r="20" fill="none" stroke="rgba(90,30,50,0.035)" stroke-width="0.7"/>
+      <circle cx="28" cy="28" r="9" fill="none" stroke="rgba(90,30,50,0.025)" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <ellipse cx="500" cy="594" rx="470" ry="32" fill="#3d0818" opacity="0.24"/>
+  <ellipse cx="500" cy="600" rx="330" ry="20" fill="#3d0818" opacity="0.12"/>
+
+  <g filter="url(#envShadow)">
+    <!-- Letter base -->
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="url(#body)" filter="url(#paper)"/>
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="url(#linen)" opacity="0.55"/>
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="url(#emboss)" opacity="0.5"/>
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="url(#bodySheen)" opacity="0.9"/>
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="url(#centerWarmth)"/>
+    <rect x="64" y="72" width="872" height="480" rx="1" fill="none" stroke="rgba(158,40,72,0.08)" stroke-width="1"/>
+    <rect x="72" y="80" width="856" height="464" rx="1" fill="none" stroke="rgba(255,252,250,0.55)" stroke-width="0.75"/>
+
+    <!-- Flaps -->
+    <path d="M48 568 L500 312 L952 568 Z" fill="url(#flapBottom)" opacity="0.94" filter="url(#paper)"/>
+    <path d="M48 56 L500 312 L48 568 Z" fill="url(#flapLeft)" opacity="0.93" filter="url(#paper)"/>
+    <path d="M952 56 L500 312 L952 568 Z" fill="url(#flapRight)" opacity="0.91" filter="url(#paper)"/>
+    <path d="M48 56 L952 56 L500 312 Z" fill="url(#flapTop)" filter="url(#paper)"/>
+    <path d="M48 56 L952 56 L500 312 Z" fill="none" stroke="rgba(255,252,248,0.5)" stroke-width="1.25"/>
+
+    <!-- Fold creases -->
+    <path d="M48 56 L500 312 L952 56" fill="none" stroke="rgba(90,30,50,0.09)" stroke-width="1.1"/>
+    <path d="M48 56 L500 312 L952 56" fill="none" stroke="rgba(255,252,250,0.35)" stroke-width="0.6" transform="translate(0,-1)"/>
+    <path d="M48 568 L500 312 L952 568" fill="none" stroke="rgba(70,20,40,0.1)" stroke-width="1.1"/>
+    <path d="M48 56 L48 568 L500 312" fill="none" stroke="rgba(90,30,50,0.07)" stroke-width="0.9"/>
+    <path d="M952 56 L952 568 L500 312" fill="none" stroke="rgba(90,30,50,0.07)" stroke-width="0.9"/>
+
+    <!-- Wax seal -->
+    <g transform="translate(500 312)">
+      <ellipse rx="54" ry="50" fill="url(#wax)"/>
+      <ellipse rx="54" ry="50" fill="none" stroke="#4a0e22" stroke-width="0.9" opacity="0.3"/>
+      <ellipse cx="-10" cy="-14" rx="18" ry="12" fill="rgba(255,230,235,0.08)"/>
+      <g transform="translate(-22 -16) scale(0.62)" fill="#4a0e22" opacity="0.5">
+        <rect x="2" y="2" width="5" height="38" rx="2.5"/>
+        <circle cx="13" cy="10" r="6"/><circle cx="13" cy="20" r="6.5"/><circle cx="13" cy="30" r="6"/>
+        <rect x="32" y="2" width="5" height="38" rx="2.5"/>
+        <circle cx="43" cy="10" r="6"/><circle cx="43" cy="20" r="6.5"/><circle cx="43" cy="30" r="6"/>
+      </g>
+    </g>
+
+    <!-- Outer edge -->
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="none" stroke="rgba(90,30,50,0.12)" stroke-width="1"/>
+    <rect x="48" y="56" width="904" height="512" rx="2" fill="#fce8e2" opacity="0.1" filter="url(#grainOverlay)" style="mix-blend-mode:multiply"/>
+  </g>
+
+  <ellipse cx="88" cy="572" rx="12" ry="16" fill="#e8a0b8" opacity="0.4" transform="rotate(-22 88 572)"/>
+</svg>

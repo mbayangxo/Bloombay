@@ -1,0 +1,139 @@
+/* Club owner portal — visual pass aligned with member BloomBay atmosphere */
+
+.co-app {
+  --font-display: var(--font-unbounded), "Barlow Condensed", system-ui, sans-serif;
+  --font-ui: var(--font-outfit), "DM Sans", system-ui, sans-serif;
+  background: linear-gradient(180deg, #ffe4ec 0%, #ffb7ce 35%, #ffffff 100%);
+}
+
+.co-main-wrap {
+  background: linear-gradient(180deg, #fff8f9 0%, #ffffff 55%);
+}
+
+.co-header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid var(--co-hot);
+  box-shadow: 0 4px 24px rgba(255, 0, 85, 0.08);
+}
+
+.co-header__portal-tag {
+  font-family: var(--font-ui);
+  letter-spacing: 0.14em;
+}
+
+.co-content {
+  background: transparent;
+}
+
+.co-dash-hero {
+  background: linear-gradient(145deg, #1a0514 0%, #3d1228 55%, #ff0055 120%);
+  color: #ffffff;
+  border-radius: 0 0 20px 20px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  margin: 0 0 1rem;
+  box-shadow: 0 12px 40px rgba(255, 0, 85, 0.2);
+}
+
+.co-dash-hero .co-page-head__title,
+.co-dash-club-name {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.co-dash-hero .co-page-head__sub,
+.co-welcome-line {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.co-welcome-line__name {
+  color: var(--co-barbie);
+  font-style: italic;
+}
+
+.co-app-card,
+.co-app-list .co-app-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 0, 85, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(255, 0, 85, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.co-app-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(255, 0, 85, 0.14);
+}
+
+.co-app-card__head strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.co-page-head__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.co-bottom-nav {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 2px solid var(--co-hot);
+  box-shadow: 0 -4px 20px rgba(26, 5, 20, 0.06);
+}
+
+.co-bottom-nav a {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+
+.co-bottom-nav--active,
+.co-bottom-nav a.co-bottom-nav--active {
+  color: var(--co-hot);
+}
+
+.co-attention-pill {
+  background: var(--co-hot);
+  color: #fff;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 3px 0 var(--co-ink);
+}
+
+.co-btn--primary,
+.co-primary-btn {
+  background: linear-gradient(165deg, #ff3d7a 0%, #ff0055 100%);
+  border: none;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 #1a0514;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.co-btn--primary:hover,
+.co-primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1a0514;
+}
+
+.co-stat-card,
+.co-app-card.co-stat-card {
+  border-left: 4px solid var(--co-hot);
+}
+
+@media (min-width: 900px) {
+  .co-content {
+    padding: 1rem 1.5rem 2rem;
+  }
+}

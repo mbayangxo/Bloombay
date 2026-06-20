@@ -1,0 +1,104 @@
+/* Member portal — responsive shell: fit viewport, no horizontal bleed */
+
+:root {
+  --mp-sidebar-w: 4.25rem;
+  --mp-bottom-nav-h: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+.mp-main,
+.mp-content,
+.mp-content--full,
+.bb-mood,
+.bb-mood__body {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mp-main {
+  overflow-x: clip;
+}
+
+.mp-content--full > .bb-mood {
+  width: 100%;
+}
+
+/* Full-bleed pages: flex column fills main column */
+.mp-main--flush .mp-content--full {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.mp-main--flush:has(.bb-mood--room) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mp-main--flush:has(.bb-mood--room) .mp-content--full {
+  flex: 1;
+  min-height: 0;
+}
+
+.mp-input,
+.mp-room-compose textarea,
+.mp-room-compose input {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+img,
+svg,
+.bb-object-icon,
+.mp-room-door__svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Happenings / explore headers — wrap on narrow main column */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .mp-happenings-head__top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mp-happenings-head__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mp-happenings-cover {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .mp-page-head,
+  .mp-page-body,
+  .mp-happenings-head,
+  .mp-happenings-sub,
+  .bb-happenings-parlor {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .mp-happenings-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .mp-happenings-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mp-happenings-tab {
+    flex-shrink: 0;
+  }
+}

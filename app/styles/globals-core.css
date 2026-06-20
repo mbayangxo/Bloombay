@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import "./bloom-brand.css";
+
+:root {
+  /* Surface aliases used across the codebase */
+  --background: var(--bb-ivory);
+  --foreground: var(--bb-velvet);
+}
+
+@theme inline {
+  --color-background:  var(--background);
+  --color-foreground:  var(--foreground);
+  --color-ivory:       var(--bb-ivory);
+  --color-blush:       var(--bb-barbie-soft);
+  --color-hot-pink:    var(--bb-hot);
+  --color-ink:         var(--bb-velvet);
+  --color-rose-gold:   var(--rose-gold);
+  --color-white:       var(--bb-white);
+}
+
+html { height: 100%; }
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bb-ivory);
+  color: var(--bb-velvet);
+}
+
+::selection {
+  background: var(--bb-barbie-soft);
+  color: var(--bb-velvet);
+}
+
+* { box-sizing: border-box; }

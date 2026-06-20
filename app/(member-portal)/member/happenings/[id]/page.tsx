@@ -1,5 +1,10 @@
-import { StandaloneEventDetail } from "@/app/components/portal/event-detail";
+import { HappeningDetailPage } from "@/app/components/portal/happening-detail-page";
 
-export default function EventDetailRoute({ params }: { params: { id: string } }) {
-  return <StandaloneEventDetail eventId={params.id} />;
+export default async function EventDetailRoute({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <HappeningDetailPage slug={id} />;
 }

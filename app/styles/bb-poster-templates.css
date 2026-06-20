@@ -1,0 +1,723 @@
+/**
+ * BloomBay poster template system — physical objects, intentional aspect ratios.
+ */
+
+.bb-poster-demo {
+  padding: 1.25rem 1rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--mp-ink, var(--bb-page-ink, #1a0514));
+}
+
+.bb-poster-demo__eyebrow {
+  margin: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--mp-muted, var(--bb-page-muted, rgba(26, 5, 20, 0.55)));
+}
+
+.bb-poster-demo__title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--mp-ink, var(--bb-page-ink, #1a0514));
+}
+
+.bb-poster-demo__sub {
+  margin: 0.5rem 0 1rem;
+  max-width: 36rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--mp-muted, var(--bb-page-muted, rgba(26, 5, 20, 0.55)));
+}
+
+.bb-poster-demo__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.bb-poster-demo__chip {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--mp-line, #e8d8de);
+  background: var(--mp-surface, #fffaf8);
+}
+
+.bb-poster-demo__note {
+  margin: 1.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--mp-muted, #8a7a82);
+  text-align: center;
+}
+
+/* ─── Grid / swipe ─── */
+.bb-poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.75rem 1.25rem;
+  justify-items: center;
+}
+
+.bb-poster-grid__cell {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bb-poster-grid__label {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mp-muted, #8a7a82);
+}
+
+@media (max-width: 720px) {
+  .bb-poster-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0 0.25rem 1rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+  }
+
+  .bb-poster-grid__cell {
+    flex: 0 0 min(78vw, 260px);
+    scroll-snap-align: center;
+    max-width: 260px;
+  }
+}
+
+/* ─── Shared poster object ─── */
+.bb-pt__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.bb-pt__link:hover {
+  transform: translateY(-4px) rotate(-0.4deg);
+}
+
+.bb-pt__link:focus-visible {
+  outline: 2px solid var(--mp-hot, #e85d8a);
+  outline-offset: 4px;
+}
+
+.bb-pt {
+  --bb-pt-accent: #e85d8a;
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 12px 28px rgba(40, 16, 28, 0.14),
+    0 4px 10px rgba(40, 16, 28, 0.08);
+  background: #1a1214;
+}
+
+.bb-pt__paper {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  z-index: 2;
+}
+
+/* Meta footer shared */
+.bb-pt-meta {
+  margin-top: auto;
+  padding-top: 0.85rem;
+}
+
+.bb-pt-meta__grid {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.bb-pt-meta__grid > div {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  gap: 0.35rem;
+  align-items: baseline;
+}
+
+.bb-pt-meta dt {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.bb-pt-meta dd {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.bb-pt-meta__sep {
+  opacity: 0.45;
+  margin: 0 0.2rem;
+}
+
+.bb-pt-meta__cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+
+.bb-pt-meta--dark {
+  color: rgba(255, 248, 245, 0.92);
+}
+
+.bb-pt-meta--dark .bb-pt-meta__cta {
+  background: var(--bb-pt-accent, #e85d8a);
+  border-color: transparent;
+  color: #fff;
+}
+
+.bb-pt-meta--light {
+  color: #3d2a32;
+}
+
+.bb-pt-meta--light .bb-pt-meta__cta {
+  background: var(--bb-pt-accent, #e85d8a);
+  border-color: transparent;
+  color: #fff;
+}
+
+.bb-pt-meta--minimal {
+  color: #2a2a32;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 1rem;
+}
+
+.bb-pt-meta--minimal .bb-pt-meta__cta {
+  background: transparent;
+  color: var(--bb-pt-accent, #2a2a32);
+  border-color: currentColor;
+}
+
+/* ─── Dinner: 2:3 portrait, photo dominant ─── */
+.bb-pt--dinner {
+  aspect-ratio: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  background: #120c0e;
+}
+
+.bb-pt-dinner__visual {
+  position: relative;
+  flex: 1.15;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bb-pt-dinner__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+
+.bb-pt-dinner__photo--fallback {
+  background: linear-gradient(165deg, #3d2820 0%, #1a100e 100%);
+}
+
+.bb-pt-dinner__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 4, 6, 0.15) 0%,
+    rgba(8, 4, 6, 0.55) 55%,
+    rgba(8, 4, 6, 0.92) 100%
+  );
+}
+
+.bb-pt-dinner__flourish {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  color: rgba(255, 220, 200, 0.5);
+}
+
+.bb-pt-dinner__flourish--tl {
+  top: 10px;
+  left: 10px;
+}
+
+.bb-pt-dinner__flourish--br {
+  bottom: 42%;
+  right: 10px;
+}
+
+.bb-pt-dinner__body {
+  position: relative;
+  z-index: 1;
+  margin-top: -2.5rem;
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+.bb-pt-dinner__category {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--bb-pt-accent) 80%, white);
+}
+
+.bb-pt-dinner__title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(1.55rem, 6vw, 1.85rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: #fff8f5;
+  font-style: italic;
+}
+
+.bb-pt-dinner__flower {
+  width: 22px;
+  height: 22px;
+  margin: 0.5rem 0 0;
+  color: var(--bb-pt-accent);
+  opacity: 0.7;
+}
+
+/* ─── Club: 3:4, crest + strong name ─── */
+.bb-pt--club {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #fff9f7;
+  color: #2d1f24;
+}
+
+.bb-pt-club__crest {
+  display: flex;
+  justify-content: center;
+  padding: 0.85rem 0 0.25rem;
+}
+
+.bb-pt-club__seal {
+  width: 52px;
+  height: 52px;
+  color: var(--bb-pt-accent);
+}
+
+.bb-pt-club__visual {
+  position: relative;
+  margin: 0 0.75rem;
+  border-radius: 2px;
+  overflow: hidden;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}
+
+.bb-pt-club__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-pt-club__photo--fallback {
+  background: linear-gradient(135deg, #f5e8ec, #dcc4d0);
+  min-height: 120px;
+}
+
+.bb-pt-club__band {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--bb-pt-accent);
+}
+
+.bb-pt-club__body {
+  padding: 0.65rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-pt-club__category {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bb-pt-accent);
+}
+
+.bb-pt-club__title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display, "Barlow Condensed", sans-serif);
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.bb-pt-club__members {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: #6a5a62;
+}
+
+.bb-pt-club__members-n {
+  font-weight: 700;
+  color: var(--bb-pt-accent);
+  font-size: 0.95rem;
+}
+
+/* ─── Party: 4:5, color field + drama ─── */
+.bb-pt--party {
+  aspect-ratio: 4 / 5;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-pt-party__field {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    var(--bb-pt-accent) 0%,
+    color-mix(in srgb, var(--bb-pt-accent) 40%, #0a0510) 100%
+  );
+}
+
+.bb-pt-party__stub {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: auto;
+  color: rgba(255, 255, 255, 0.35);
+  z-index: 2;
+}
+
+.bb-pt-party__visual {
+  position: relative;
+  z-index: 1;
+  margin: 1rem 1rem 0;
+  height: 38%;
+  min-height: 100px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  transform: rotate(-1.5deg);
+}
+
+.bb-pt-party__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.1) saturate(1.15);
+}
+
+.bb-pt-party__body {
+  position: relative;
+  z-index: 1;
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.bb-pt-party__ribbon {
+  width: 100px;
+  height: 24px;
+  color: rgba(0, 0, 0, 0.35);
+  margin-bottom: 0.35rem;
+}
+
+.bb-pt-party__category {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.bb-pt-party__title {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-display, "Barlow Condensed", sans-serif);
+  font-size: clamp(1.5rem, 5.5vw, 1.9rem);
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ─── Museum: 3:4, negative space + serif ─── */
+.bb-pt--museum {
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.1rem 1rem;
+  background: #f7f5f2;
+  color: #2a2a32;
+}
+
+.bb-pt-museum__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.bb-pt-museum__mark {
+  width: 28px;
+  height: 28px;
+  color: var(--bb-pt-accent);
+  flex-shrink: 0;
+}
+
+.bb-pt-museum__category {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.bb-pt-museum__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(1.45rem, 5vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.12;
+  max-width: 90%;
+}
+
+.bb-pt-museum__frame {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 1rem;
+  padding: 0.35rem;
+  border: 1px solid rgba(42, 42, 50, 0.12);
+  background: #fff;
+}
+
+.bb-pt-museum__photo {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  max-height: 200px;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+.bb-pt-museum__photo--fallback {
+  min-height: 160px;
+  background: #e8e4df;
+}
+
+/* ─── Walk: 3:4, light sky + gentle type ─── */
+.bb-pt--walk {
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: linear-gradient(180deg, #e8f4f0 0%, #f8faf9 42%, #fff 100%);
+  color: #2d4038;
+  overflow: hidden;
+}
+
+.bb-pt-walk__sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(180deg, #b8ddd4 0%, transparent 100%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.bb-pt-walk__visual {
+  position: relative;
+  margin: 0.85rem 0.85rem 0;
+  border-radius: 999px 999px 8px 8px;
+  overflow: hidden;
+  aspect-ratio: 1 / 0.72;
+  border: 2px solid rgba(126, 184, 164, 0.35);
+}
+
+.bb-pt-walk__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-pt-walk__photo--fallback {
+  min-height: 140px;
+  background: #c5e0d6;
+}
+
+.bb-pt-walk__body {
+  position: relative;
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.bb-pt-walk__flourish {
+  width: 24px;
+  height: 24px;
+  color: var(--bb-pt-accent);
+  opacity: 0.5;
+  margin-bottom: 0.35rem;
+}
+
+.bb-pt-walk__category {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bb-pt-accent);
+  font-weight: 600;
+}
+
+.bb-pt-walk__title {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-ui, "DM Sans", sans-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Wellness: 3:4, pale + soft gradient ─── */
+.bb-pt--wellness {
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  background: #faf6f8;
+  color: #4a3d48;
+  position: relative;
+}
+
+.bb-pt-wellness__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--bb-pt-accent) 25%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.bb-pt-wellness__visual {
+  position: relative;
+  margin: 1rem 1.25rem 0;
+  border-radius: 50%;
+  overflow: hidden;
+  width: calc(100% - 2.5rem);
+  aspect-ratio: 1;
+  align-self: center;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bb-pt-accent) 20%, transparent);
+}
+
+.bb-pt-wellness__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.92) brightness(1.03);
+}
+
+.bb-pt-wellness__photo--fallback {
+  min-height: 160px;
+  background: linear-gradient(160deg, #f0e4ee, #e8d4e4);
+}
+
+.bb-pt-wellness__flower {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 32px;
+  height: 32px;
+  color: var(--bb-pt-accent);
+  opacity: 0.45;
+}
+
+.bb-pt-wellness__body {
+  position: relative;
+  padding: 0.85rem 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: center;
+}
+
+.bb-pt-wellness__category {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bb-pt-accent);
+}
+
+.bb-pt-wellness__title {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: 1.45rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.bb-pt-wellness .bb-pt-meta {
+  text-align: left;
+}
+
+/* Desktop polish */
+@media (min-width: 900px) {
+  .bb-poster-grid {
+    grid-template-columns: repeat(3, minmax(200px, 280px));
+    justify-content: center;
+  }
+}

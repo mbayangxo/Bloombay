@@ -1,0 +1,630 @@
+/**
+ * BloomBay physical world — objects on surfaces, not app cards.
+ * Object > Card · Photo > Illustration · Room > Page
+ */
+
+/* ─── Surfaces (desk, wall, cork) ─── */
+
+.bb-physical-surface {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bb-desk, #f3e8dc);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255, 183, 206, 0.22), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.bb-physical-wall {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: linear-gradient(180deg, #ebe2d6 0%, #e8dfd2 100%);
+}
+
+.bb-physical-desk {
+  position: relative;
+  width: 100%;
+  min-height: 60vh;
+  padding: 1.5rem 0.75rem 3rem;
+  margin: 0;
+  background: transparent;
+}
+
+/* ─── Physical object (PNG is the object) ─── */
+
+.bb-physical-object {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  text-decoration: none;
+  color: inherit;
+  transform: rotate(var(--bb-tilt, 0deg));
+  transform-origin: 50% 20%;
+}
+
+.bb-physical-object--pinned::before {
+  content: "";
+  position: absolute;
+  top: -0.35rem;
+  left: 50%;
+  z-index: 3;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: -0.275rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6b8a, #c9004a 70%);
+  box-shadow: 0 2px 4px rgba(18, 5, 14, 0.35);
+  pointer-events: none;
+}
+
+.bb-physical-object__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  filter: drop-shadow(0 8px 18px rgba(18, 5, 14, 0.18));
+}
+
+.bb-physical-object__overlays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bb-physical-object__overlays > * {
+  pointer-events: auto;
+}
+
+/* Wall row — posters touch edges, slight overlap feel */
+.bb-physical-wall__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.bb-physical-wall__row .bb-physical-object {
+  margin-bottom: -0.35rem;
+}
+
+.bb-physical-wall__row .bb-physical-object:nth-child(odd) {
+  --bb-tilt: -0.8deg;
+}
+
+.bb-physical-wall__row .bb-physical-object:nth-child(even) {
+  --bb-tilt: 0.6deg;
+}
+
+/* Desk scatter — plans, tickets at angles */
+.bb-physical-desk__scatter {
+  position: relative;
+  width: 100%;
+  min-height: 28rem;
+}
+
+.bb-physical-desk__scatter .bb-physical-object {
+  position: absolute;
+  width: min(88vw, 20rem);
+  max-width: none;
+}
+
+.bb-physical-desk__scatter .bb-physical-object:nth-child(1) {
+  top: 0;
+  left: 4%;
+  --bb-tilt: -4deg;
+  z-index: 3;
+}
+
+.bb-physical-desk__scatter .bb-physical-object:nth-child(2) {
+  top: 2.5rem;
+  right: 2%;
+  --bb-tilt: 3deg;
+  z-index: 2;
+}
+
+.bb-physical-desk__scatter .bb-physical-object:nth-child(3) {
+  top: 9rem;
+  left: 18%;
+  --bb-tilt: -1.5deg;
+  z-index: 4;
+}
+
+.bb-physical-desk__scatter .bb-physical-object:nth-child(4) {
+  top: 12rem;
+  right: 12%;
+  --bb-tilt: 2.5deg;
+  z-index: 1;
+}
+
+.bb-physical-desk__scatter .bb-physical-object:nth-child(n + 5) {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin: 1.5rem auto 0;
+  --bb-tilt: calc((var(--bb-i, 0) * 2deg) - 3deg);
+}
+
+/* ─── Profile dossier IS the profile ─── */
+
+.bb-profile-dossier {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.bb-profile-dossier .bb-physical-object {
+  width: 100%;
+}
+
+.bb-profile-dossier__name {
+  position: absolute;
+  bottom: 34%;
+  left: 12%;
+  right: 12%;
+  margin: 0;
+  font-family: "Segoe Script", "Bradley Hand", cursive;
+  font-size: clamp(0.95rem, 4.2vw, 1.15rem);
+  color: #1a0514;
+}
+
+.bb-profile-dossier__location {
+  position: absolute;
+  bottom: 26%;
+  left: 12%;
+  right: 12%;
+  margin: 0;
+  font-family: "Segoe Script", "Bradley Hand", cursive;
+  font-size: clamp(0.7rem, 3vw, 0.85rem);
+  color: #1a0514;
+}
+
+.bb-profile-dossier__edit {
+  position: absolute;
+  bottom: 14%;
+  right: 10%;
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--mp-hot, #ff0055);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Profile desk — scraps below dossier, not app sections */
+.bb-profile-desk {
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bb-desk-scrap {
+  position: relative;
+  padding: 0.85rem 1rem 1rem;
+  margin: 0;
+  background: #faf4ec;
+  border: none;
+  box-shadow: 2px 3px 0 rgba(18, 5, 14, 0.06), 0 8px 20px rgba(18, 5, 14, 0.08);
+  transform: rotate(var(--bb-tilt, -0.6deg));
+}
+
+.bb-desk-scrap::before {
+  content: "";
+  position: absolute;
+  top: -0.4rem;
+  left: 1.2rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6b8a, #c9004a);
+  box-shadow: 0 1px 3px rgba(18, 5, 14, 0.3);
+}
+
+.bb-desk-scrap__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--mp-muted, #8a7a82);
+}
+
+.bb-desk-scrap__line {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--mp-ink, #1a0514);
+}
+
+.bb-desk-scrap__line a {
+  color: var(--mp-hot, #ff0055);
+}
+
+.bb-desk-polaroid {
+  display: block;
+  width: min(72%, 11rem);
+  padding: 0.45rem 0.45rem 1.6rem;
+  margin: 0;
+  background: #fff;
+  border: none;
+  box-shadow: 0 6px 18px rgba(18, 5, 14, 0.14);
+  transform: rotate(var(--bb-tilt, 1.2deg));
+  text-decoration: none;
+  color: inherit;
+}
+
+.bb-desk-polaroid__cap {
+  margin: 0.45rem 0 0;
+  font-family: "Segoe Script", "Bradley Hand", cursive;
+  font-size: 0.78rem;
+  color: #1a0514;
+}
+
+.bb-desk-polaroid-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* ─── Club world objects ─── */
+
+.bb-club-worlds {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0 clamp(1rem, 3vw, 2rem) 2rem;
+}
+
+.bb-club-worlds--grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .bb-club-worlds--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .bb-club-worlds--grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-club-worlds--grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.bb-club-world-object {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-decoration: none;
+  color: #fff;
+  transform: rotate(var(--bb-tilt, 0deg));
+  overflow: visible;
+}
+
+.bb-club-world-object__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center;
+  filter: drop-shadow(0 12px 28px rgba(18, 5, 14, 0.22));
+}
+
+.bb-club-world-object__veil {
+  position: absolute;
+  inset: auto 0 0;
+  height: 55%;
+  background: linear-gradient(0deg, rgba(18, 5, 14, 0.82) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.bb-club-world-object__crest {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  filter: drop-shadow(0 4px 10px rgba(18, 5, 14, 0.35));
+}
+
+.bb-club-world-object__body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 1rem 1rem 1.1rem;
+  pointer-events: none;
+}
+
+.bb-club-world-object__name {
+  margin: 0;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.bb-club-world-object__next {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.92;
+}
+
+.bb-club-world-object__meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.bb-club-world-object__pulse {
+  margin: 0.5rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.72rem;
+  font-style: italic;
+  line-height: 1.35;
+  opacity: 0.9;
+}
+
+.bb-club-world-object__pulse strong {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.bb-club-world-object:nth-child(odd) {
+  --bb-tilt: -0.5deg;
+}
+
+.bb-club-world-object:nth-child(even) {
+  --bb-tilt: 0.4deg;
+}
+
+/* ─── Mailbox letters ─── */
+
+.bb-mail-desk {
+  padding: 0.5rem 0 2rem;
+}
+
+.bb-mail-desk__whisper {
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--mp-ink, #1a0514);
+}
+
+.bb-mail-letters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.bb-mail-letters .bb-physical-object {
+  margin-bottom: -0.5rem;
+}
+
+.bb-mail-letters .bb-physical-object:nth-child(odd) {
+  --bb-tilt: -1.2deg;
+  padding-left: 0.5rem;
+}
+
+.bb-mail-letters .bb-physical-object:nth-child(even) {
+  --bb-tilt: 0.9deg;
+  padding-right: 0.5rem;
+}
+
+.bb-mail-letter__from {
+  position: absolute;
+  top: 16%;
+  left: 9%;
+  margin: 0;
+  font-size: clamp(0.62rem, 2.4vw, 0.74rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1a0514;
+}
+
+.bb-mail-letter__subject {
+  position: absolute;
+  top: 24%;
+  left: 8%;
+  right: 12%;
+  margin: 0;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(0.95rem, 4vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.1;
+  color: #1a0514;
+}
+
+.bb-mail-letter__body {
+  position: absolute;
+  bottom: 14%;
+  left: 9%;
+  right: 10%;
+  margin: 0;
+  font-size: clamp(0.58rem, 2.2vw, 0.68rem);
+  line-height: 1.4;
+  color: #1a0514;
+}
+
+.bb-mail-letter__stamp {
+  position: absolute;
+  top: 10%;
+  right: 8%;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #fff;
+  background: var(--mp-hot, #ff0055);
+  transform: rotate(8deg);
+}
+
+/* ─── City alive ─── */
+
+.bb-city-alive {
+  padding: 0 1rem 1.25rem;
+}
+
+.bb-city-alive__pulse {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.bb-city-alive__wave {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--mp-hot, #ff0055), #c9004a);
+  box-shadow: 0 0 0 4px rgba(255, 45, 138, 0.2);
+  animation: bb-alive-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bb-alive-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.88;
+  }
+}
+
+.bb-city-alive__line {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--mp-ink, #1a0514);
+}
+
+.bb-city-alive__sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  color: var(--mp-muted, #8a7a82);
+}
+
+.bb-city-recs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.bb-city-rec {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  color: inherit;
+  transform: rotate(var(--bb-tilt, 0deg));
+}
+
+.bb-city-rec:nth-child(odd) {
+  --bb-tilt: -0.4deg;
+}
+
+.bb-city-rec:nth-child(even) {
+  --bb-tilt: 0.5deg;
+}
+
+.bb-city-rec__photo {
+  flex: 0 0 4.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  filter: drop-shadow(0 4px 10px rgba(18, 5, 14, 0.15));
+}
+
+.bb-city-rec__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.bb-city-rec__place {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--mp-ink, #1a0514);
+}
+
+.bb-city-rec__who {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--mp-muted, #8a7a82);
+}
+
+.bb-city-rec__quote {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  color: var(--mp-ink, #1a0514);
+}
+
+.bb-city__hero--alive .bb-city__title {
+  font-size: clamp(1.5rem, 6vw, 2rem);
+}
+
+.bb-city-nav--whisper {
+  opacity: 0.85;
+  font-size: 0.68rem;
+}
+
+/* Plans room whisper */
+.bb-plans-room__whisper {
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+  font-family: var(--font-accent, "Cormorant Garamond", Georgia, serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--mp-ink, #1a0514);
+}

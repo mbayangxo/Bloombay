@@ -8,56 +8,28 @@ import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { thumbUrl } from "@/lib/images/supabase-transform";
 import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
+import { HostDashCard } from "./host-dash-card";
+import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
+import { EventObjectCard } from "./event-object-cards";
+import { BloomRecapCard } from "./bloom-recap-card";
+import { MorningAfterCard } from "./morning-after-card";
 
-const PINK = "#FF1F7D";
-const INK  = "#1A0010";
-
+// ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor() {
   const h = new Date().getHours();
-  if (h >= 19 && h < 23) return "#C4305E";
-  if (h < 6 || h >= 23)  return "#8B1A3A";
-  return PINK;
+  if (h >= 19 && h < 23) return "#D4336B";
+  if (h < 6 || h >= 23)  return "#A82050";
+  return "#FF1F7D";
 }
 function getBg() {
   const h = new Date().getHours();
-  return (h >= 19 || h < 6) ? "#F5EDE8" : "#F9F5ED";
+  return (h >= 19 || h < 6) ? "#FFF0EE" : "#FFF5F7";
 }
 
-type WeatherInfo = { temp: number; condition: string; icon: string };
+const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 
-function weatherIcon(code: number) {
-  if (code === 0) return "☀️";
-  if (code <= 2) return "🌤";
-  if (code === 3) return "☁️";
-  if (code <= 48) return "🌫";
-  if (code <= 55) return "🌦";
-  if (code <= 65) return "🌧";
-  if (code <= 77) return "❄️";
-  if (code <= 82) return "🌦";
-  return "⛈";
-}
-function weatherText(code: number) {
-  if (code === 0) return "Clear skies";
-  if (code <= 2) return "Partly cloudy";
-  if (code === 3) return "Overcast";
-  if (code <= 48) return "Foggy";
-  if (code <= 55) return "Drizzle";
-  if (code <= 65) return "Rainy";
-  if (code <= 77) return "Snowy";
-  if (code <= 82) return "Showers";
-  return "Stormy";
-}
-
-const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
-const WEEK_ORDER = [1,2,3,4,5,6,0]; // Mon-first
-
-type Club = {
-  id: string; name: string;
-  primary_color: string | null;
-  cover_url: string | null;
-  member_count?: number;
-};
+type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null; member_count?: number };
 
 // ── EditProfileSheet ───────────────────────────────────────────────────────────
 function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
@@ -94,13 +66,13 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }} />
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 101, background: "#FEFCF7", borderRadius: "24px 24px 0 0", padding: "24px 24px 48px", boxShadow: "0 -8px 40px rgba(0,0,0,0.16)" }}>
         <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)", margin: "0 auto 20px" }} />
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 18 }}>EDIT PROFILE</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.22em", color: "#FF1F7D", marginBottom: 18 }}>EDIT PROFILE</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Display name" style={inputStyle} />
           <input value={editNbhd} onChange={e => setEditNbhd(e.target.value)} placeholder="Neighborhood" style={inputStyle} />
           <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Bio" rows={3} style={{ ...inputStyle, resize: "none" as const }} />
           {error && <p style={{ color: "red", fontSize: 12 }}>{error}</p>}
-          <button onClick={handleSave} disabled={pending} style={{ background: PINK, color: "white", border: "none", borderRadius: 999, padding: "14px 0", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          <button onClick={handleSave} disabled={pending} style={{ background: "#FF1F7D", color: "white", border: "none", borderRadius: 999, padding: "14px 0", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
             {pending ? "Saving…" : "SAVE CHANGES"}
           </button>
         </div>
@@ -109,8 +81,9 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   );
 }
 
-// ── Club badge — circular enamel pin ───────────────────────────────────────────
+// ── Club badge — circular enamel pin aesthetic ─────────────────────────────────
 function ClubBadge({ club, index }: { club: Club; index: number }) {
+  const PINK = "#FF1F7D";
   const colors = ["#FF1F7D","#D4336B","#1A0010","#8B2252","#C4005A","#FF5BAD"];
   const bg = club.primary_color ?? colors[index % colors.length];
   const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
@@ -125,7 +98,9 @@ function ClubBadge({ club, index }: { club: Club; index: number }) {
         position: "relative",
         transform: `rotate(${index % 2 === 0 ? -2 : 2}deg)`,
       }}>
+        {/* Outer ring */}
         <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.25)" }} />
+        {/* Inner ring */}
         <div style={{ position: "absolute", inset: 8, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)" }} />
         {club.cover_url ? (
           <Image
@@ -138,10 +113,11 @@ function ClubBadge({ club, index }: { club: Club; index: number }) {
         ) : (
           <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 28, color: "white", lineHeight: 1, position: "relative" }}>{initials}</span>
         )}
+        {/* Badge shimmer */}
         <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25) 0%, transparent 55%)", pointerEvents: "none" }} />
       </div>
       <div style={{ textAlign: "center", maxWidth: 72 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", color: INK, lineHeight: 1.3 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", color: "#1A0010", lineHeight: 1.3 }}>
           {club.name.toUpperCase()}
         </p>
         {club.member_count && (
@@ -152,11 +128,16 @@ function ClubBadge({ club, index }: { club: Club; index: number }) {
   );
 }
 
+// ── WEEK_DATA util ────────────────────────────────────────────────────────────
+const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export function HomePage() {
-  const ACCENT = getAccentColor();
-  const BG     = getBg();
-  const now    = new Date();
+  const PINK = getAccentColor();
+  const BG   = getBg();
+  const now   = new Date();
+  const month = MONTHS_S[now.getMonth()];
+  const day   = now.getDate();
 
   const [tod,          setTod]          = useState<TimeOfDay>("morning");
   const [firstName,    setFirstName]    = useState("");
@@ -166,32 +147,12 @@ export function HomePage() {
   const [loading,      setLoading]      = useState(true);
   const [showSafety,   setShowSafety]   = useState(false);
   const [showEdit,     setShowEdit]     = useState(false);
+  const [upNextIdx,    setUpNextIdx]    = useState(0);
   const [events,       setEvents]       = useState<Event[]>([]);
-  const [weather,      setWeather]      = useState<WeatherInfo | null>(null);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
     getEvents().then(evs => setEvents(evs));
-
-    // Weather — try geolocation, fallback to NYC
-    const fetchWeather = (lat: number, lon: number) => {
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
-        .then(r => r.json())
-        .then((d: { current_weather?: { weathercode?: number; temperature?: number } }) => {
-          const code = d.current_weather?.weathercode ?? 0;
-          const temp = Math.round(d.current_weather?.temperature ?? 70);
-          setWeather({ temp, condition: weatherText(code), icon: weatherIcon(code) });
-        })
-        .catch(() => {});
-    };
-    if (typeof navigator !== "undefined") {
-      navigator.geolocation?.getCurrentPosition(
-        p => fetchWeather(p.coords.latitude, p.coords.longitude),
-        () => fetchWeather(40.7128, -74.006)
-      );
-      if (!navigator.geolocation) fetchWeather(40.7128, -74.006);
-    }
-
     const supabase = createClient();
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -215,60 +176,27 @@ export function HomePage() {
     })();
   }, []);
 
-  const greeting = getGreeting(tod);
+  const greeting  = getGreeting(tod);
+  const todayIdx  = now.getDay(); // 0=Sun
+  // Build 7-day week starting Monday
+  const weekDays  = [1,2,3,4,5,6,0].map(d => DAY_SHORT[d]);
+  const todayWeek = todayIdx === 0 ? 6 : todayIdx - 1; // Mon=0..Sun=6
 
-  // Week strip — Mon-first
-  const todayIdx  = now.getDay();
-  const todayWeek = todayIdx === 0 ? 6 : todayIdx - 1;
-  const mondayDate = new Date(now);
-  mondayDate.setDate(now.getDate() - todayWeek);
-  const weekDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(mondayDate);
-    d.setDate(mondayDate.getDate() + i);
-    return d.getDate();
-  });
-  const weekDays = WEEK_ORDER.map(d => DAY_SHORT[d]);
+  // Stats from events
+  const dinnerCount = events.filter(e => {
+    const t = (e.event_type ?? "").toLowerCase() + e.title.toLowerCase();
+    return t.includes("dinner") || t.includes("supper") || t.includes("dining");
+  }).length;
+  const danceCount = events.filter(e => {
+    const t = (e.event_type ?? "").toLowerCase() + e.title.toLowerCase();
+    return t.includes("dance") || t.includes("night") || t.includes("party");
+  }).length;
 
-  // Tonight's events
-  const tonightEvents = events.filter(ev => {
-    const d = new Date(ev.starts_at);
-    return d.toDateString() === now.toDateString();
-  });
-
-  // NEAR YOU — group events by neighborhood, fallback to demo data
-  type NbhdGroup = { name: string; count: number; imageUrl?: string };
-  const nbhdMap: Record<string, NbhdGroup> = {};
-  events.forEach(ev => {
-    const n = (ev.neighborhood ?? "NYC").trim();
-    if (!nbhdMap[n]) nbhdMap[n] = { name: n, count: 0 };
-    nbhdMap[n].count++;
-    if (!nbhdMap[n].imageUrl && ev.image_url) nbhdMap[n].imageUrl = ev.image_url;
-  });
-  let neighborhoods = Object.values(nbhdMap).sort((a, b) => b.count - a.count);
-  if (neighborhoods.length === 0) {
-    neighborhoods = [
-      { name: "SoHo",            count: 4 },
-      { name: "West Village",    count: 7 },
-      { name: "Williamsburg",    count: 3 },
-      { name: "Upper East Side", count: 2 },
-      { name: "Lower East Side", count: 5 },
-    ];
-  }
-
-  // AFTER LAST NIGHT — show in the morning or afternoon
-  const showAfterLastNight = tod === "morning" || tod === "afternoon";
-
-  // Neighborhood card gradient pairs
-  const nbhdGrads: [string, string][] = [
-    ["#1A0028","#280020"],
-    ["#0D1A2E","#0A2040"],
-    ["#0F1A0A","#182A10"],
-    ["#1A0A1A","#280A28"],
-    ["#1A1200","#2A1E00"],
-  ];
+  const upNextEvents = events.slice(0, 5);
+  const upNextEv     = upNextEvents[upNextIdx] ?? null;
 
   return (
-    <div className="md:pt-0 lg:pt-0" style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
+    <div style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
 
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
@@ -276,279 +204,211 @@ export function HomePage() {
         .bb-scroll-x::-webkit-scrollbar { display:none; }
       `}</style>
 
-      {/* ══ HEADER ══════════════════════════════════════════════════════════════ */}
-      <div style={{ padding: "18px 16px 14px" }}>
+      {/* ══ TODAY'S BLOOM ══════════════════════════════════════════════════════ */}
+      <div style={{ padding: "20px 16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>TODAY&apos;S BLOOM ✦</p>
 
-        {/* Location + weather row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: ACCENT, letterSpacing: "0.02em" }}>
-              {neighborhood || "New York"}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
+          {/* Left */}
+          <div>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
+              {greeting}{firstName ? `, ${firstName}` : ""}.
             </p>
-            {weather && (
-              <>
-                <span style={{ color: "rgba(0,0,0,0.18)", fontSize: 10 }}>·</span>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>
-                  {weather.icon} {weather.temp}°F · {weather.condition}
-                </p>
-              </>
-            )}
-          </div>
-          <button
-            onClick={() => setShowEdit(true)}
-            style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.07)", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-            aria-label="Edit profile"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-          </button>
-        </div>
 
-        {/* Greeting */}
-        <p style={{
-          fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700,
-          fontSize: "clamp(30px,9vw,40px)", color: INK, lineHeight: 1.05, marginBottom: 18,
-        }}>
-          {greeting}{firstName ? `,` : "."}{" "}
-          {firstName && <span>{firstName}.</span>}
-        </p>
-
-        {/* Week strip */}
-        <div style={{ display: "flex", gap: 3, marginBottom: 14 }}>
-          {weekDays.map((d, i) => {
-            const isToday = i === todayWeek;
-            const dayEvents = events.filter(ev => {
-              const evDay = new Date(ev.starts_at).getDay();
-              const mapped = evDay === 0 ? 6 : evDay - 1;
-              return mapped === i;
-            });
-            const hasEvents = dayEvents.length > 0;
-            return (
-              <div key={d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <p style={{
-                  fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  color: isToday ? ACCENT : "rgba(0,0,0,0.28)",
-                }}>{d}</p>
-                <div style={{
-                  width: "100%", maxWidth: 34, aspectRatio: "1",
-                  borderRadius: isToday ? 10 : 7,
-                  background: isToday ? ACCENT : hasEvents ? `${ACCENT}14` : "rgba(0,0,0,0.04)",
-                  border: !isToday && hasEvents ? `1.5px solid ${ACCENT}30` : "none",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: isToday ? `0 3px 10px ${ACCENT}44` : "none",
-                }}>
-                  <span style={{
-                    fontFamily: "var(--font-jost)",
-                    fontSize: "8.5px",
-                    fontWeight: isToday ? 900 : 600,
-                    color: isToday ? "white" : hasEvents ? ACCENT : "rgba(0,0,0,0.28)",
-                    lineHeight: 1,
-                  }}>{weekDates[i]}</span>
+            {/* Stat pills */}
+            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: "white", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
+              {[
+                { v: String(Math.max(1, dinnerCount)), label: "DINNER"       },
+                { v: String(Math.max(1, danceCount)),  label: "DANCE"        },
+                { v: String(myClubs.length || 3),      label: "ACTIVE CLUBS" },
+              ].map((s, i, arr) => (
+                <div key={s.label} style={{ flex: 1, textAlign: "center", padding: "10px 4px", borderRight: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none" }}>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.v}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{s.label}</p>
                 </div>
-                {hasEvents && !isToday && (
-                  <div style={{ width: 3, height: 3, borderRadius: "50%", background: ACCENT, opacity: 0.45 }} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Quick-action chips */}
-        <div style={{
-          display: "flex", gap: 7,
-          overflowX: "auto",
-          msOverflowStyle: "none" as never,
-          scrollbarWidth: "none" as never,
-        }}>
-          {[
-            { label: "Tonight",      href: "/member/happenings" },
-            { label: "Last Minute",  href: "/member/happenings" },
-            { label: "City Guide",   href: "/member/city"       },
-            { label: "My Plans",     href: "/member/plans"      },
-          ].map(chip => (
-            <Link key={chip.label} href={chip.href} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <div style={{
-                padding: "7px 14px", borderRadius: 999,
-                background: "white",
-                border: "1.5px solid rgba(255,31,125,0.12)",
-                boxShadow: "0 2px 8px rgba(255,31,125,0.06)",
-                fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 700,
-                color: INK, letterSpacing: "0.02em",
-                whiteSpace: "nowrap" as const,
-              }}>{chip.label}</div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ══ TONIGHT ══════════════════════════════════════════════════════════════ */}
-      <div style={{ margin: "0 16px" }}>
-        <div style={{
-          borderRadius: 22,
-          background: "linear-gradient(155deg, #0D0010 0%, #1A0028 60%, #220020 100%)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.12)",
-          overflow: "hidden",
-        }}>
-          {/* Header row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px" }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK }}>✦ TONIGHT</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.38)", marginTop: 3 }}>
-                {tonightEvents.length > 0
-                  ? `${tonightEvents.length} happening${tonightEvents.length > 1 ? "s" : ""} tonight`
-                  : "Your evening awaits"}
-              </p>
-            </div>
-            <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-              <div style={{ padding: "6px 14px", borderRadius: 999, background: "rgba(255,31,125,0.15)", border: "1px solid rgba(255,31,125,0.28)" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.08em", color: PINK }}>SEE ALL →</span>
-              </div>
-            </Link>
-          </div>
-
-          {tonightEvents.length > 0 ? (
-            <div style={{ padding: "0 18px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {tonightEvents.slice(0, 3).map(ev => (
-                <Link key={ev.id} href={`/member/happenings/${ev.id}`} style={{ textDecoration: "none" }}>
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: 14, padding: "10px 12px",
-                  }}>
-                    {ev.image_url ? (
-                      <Image src={ev.image_url} alt={ev.title} width={44} height={44} unoptimized style={{ borderRadius: 10, objectFit: "cover", width: 44, height: 44, flexShrink: 0 }} />
-                    ) : (
-                      <div style={{ width: 44, height: 44, borderRadius: 10, background: `${PINK}22`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ fontSize: 20 }}>🌸</span>
-                      </div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "rgba(255,255,255,0.9)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {ev.title}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", color: "rgba(255,255,255,0.38)", marginTop: 3 }}>
-                        {new Date(ev.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                        {ev.venue ? ` · ${ev.venue.split(",")[0]}` : ""}
-                      </p>
-                    </div>
-                    <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 1l4 4.5-4 4.5"/>
-                    </svg>
-                  </div>
-                </Link>
               ))}
             </div>
-          ) : (
-            <div style={{ padding: "0 18px 20px" }}>
-              {myClubs.length > 0 ? (
-                <>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.28)", marginBottom: 10 }}>YOUR CLUBS TONIGHT</p>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-                    {myClubs.slice(0, 4).map(club => (
-                      <Link key={club.id} href="/member/clubs" style={{ textDecoration: "none" }}>
-                        <div style={{
-                          padding: "6px 14px", borderRadius: 999,
-                          background: `${club.primary_color ?? PINK}20`,
-                          border: `1px solid ${club.primary_color ?? PINK}40`,
-                          fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                          color: "rgba(255,255,255,0.65)",
-                        }}>
-                          {club.name}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div style={{ textAlign: "center", padding: "4px 0 6px" }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.32)", lineHeight: 1.4 }}>
-                    Looks like a quiet evening.
-                  </p>
-                  <Link href="/member/happenings" style={{ textDecoration: "none", display: "inline-block", marginTop: 10, padding: "8px 20px", borderRadius: 999, background: PINK, fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "white", boxShadow: `0 3px 12px ${PINK}44` }}>
-                    FIND SOMETHING →
-                  </Link>
-                </div>
-              )}
+
+            {/* Yande note */}
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+              {tod === "evening" || tod === "night" ? "Tonight is your busiest evening this week." : "Your week is looking lively."}{" "}
+              <span style={{ color: PINK }}>— Yande</span>
+            </p>
+          </div>
+
+          {/* Right — Recommendation card */}
+          <div style={{ width: 118, background: PINK, borderRadius: 16, padding: "12px 10px", boxShadow: `0 12px 36px ${PINK}44, 0 3px 0 rgba(180,0,70,0.4)`, flexShrink: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", marginBottom: 6 }}>RECOMMENDED</p>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "white", lineHeight: 1.2, marginBottom: 4 }}>
+              {events[0]?.title ?? "Museum Girls"}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", marginBottom: 6 }}>
+              {events[0]?.starts_at ? new Date(events[0].starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "6:30 PM"}
+              {events[0]?.venue ? ` · ${events[0].venue.split(",")[0]}` : " · The Met"}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>
+              Because you&apos;ve attended similar events this month.
+            </p>
+            <div style={{ marginTop: 10 }}>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", display: "inline-block" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.12em" }}>VIEW →</span>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* ══ NEAR YOU ══════════════════════════════════════════════════════════════ */}
+      {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
+      {(tod === "morning") && (
+        <MorningAfterCard
+          happeningTitle={events[0]?.title ?? "Girls Dinner"}
+          happeningVenue={events[0]?.venue ?? "Carbone · West Village"}
+        />
+      )}
+
+      {/* ══ BLOOM RECAP — monthly stats card ═════════════════════════════════ */}
+      <BloomRecapCard />
+
+      {/* Host cards */}
+      <div style={{ padding: "0 16px" }}>
+        <HostDashCard />
+        <HostRecapCard />
+      </div>
+
+      {/* ══ UP NEXT ════════════════════════════════════════════════════════════ */}
+      {upNextEv && (
+        <div style={{ padding: "24px 16px 0" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          </div>
+
+          {/* Two-column: dark moody card + TONIGHT ticket */}
+          <div style={{ display: "flex", gap: 10 }}>
+            {/* Main event card — dark */}
+            <div
+              style={{ flex: 1, minWidth: 0, borderRadius: 20, overflow: "hidden", position: "relative", minHeight: 200, background: "#1A0010", boxShadow: "0 20px 52px rgba(0,0,0,0.38)", cursor: "pointer" }}
+              onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
+              onTouchEnd={e => {
+                const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
+                const dx = e.changedTouches[0].clientX - sx;
+                if (Math.abs(dx) > 40) setUpNextIdx(p => dx < 0 ? Math.min(p + 1, upNextEvents.length - 1) : Math.max(p - 1, 0));
+              }}
+            >
+              <Link href="/member/happenings" style={{ textDecoration: "none", display: "block", position: "relative", height: "100%" }}>
+                {upNextEv.image_url && (
+                  <Image src={upNextEv.image_url} alt={upNextEv.title} fill unoptimized style={{ objectFit: "cover", objectPosition: "center" }} sizes="60vw" />
+                )}
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.82) 90%)" }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "14px 14px" }}>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 20, color: "white", lineHeight: 1.1, marginBottom: 4 }}>
+                    {upNextEv.title} ♡
+                  </p>
+                  {upNextEv.venue && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+                      📍 {upNextEv.venue}
+                    </p>
+                  )}
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800, color: PINK }}>
+                    {new Date(upNextEv.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                  </p>
+                  {/* Attendee count */}
+                  {upNextEv.attending_count > 0 && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                      {upNextEv.attending_count} women going
+                    </p>
+                  )}
+                </div>
+                {/* Carousel dots */}
+                {upNextEvents.length > 1 && (
+                  <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4 }}>
+                    {upNextEvents.map((_, i) => (
+                      <div key={i} style={{ width: i === upNextIdx ? 14 : 4, height: 4, borderRadius: 999, background: i === upNextIdx ? "white" : "rgba(255,255,255,0.3)", transition: "all 0.2s" }} />
+                    ))}
+                  </div>
+                )}
+              </Link>
+            </div>
+
+            {/* TONIGHT ticket — styled card */}
+            <div style={{ width: 100, flexShrink: 0 }}>
+              <EventObjectCard ev={upNextEv} size="sm" rotation={2} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
+      <div style={{ padding: "24px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
+          <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
+        </div>
+        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
+            {weekDays.map((d, i) => {
+              const isToday = i === todayWeek;
+              // Find events on this day (simplified: distribute events across week)
+              const dayEvents = events.filter(ev => {
+                const evDay = new Date(ev.starts_at).getDay();
+                const mapped = evDay === 0 ? 6 : evDay - 1;
+                return mapped === i;
+              });
+              return (
+                <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : "rgba(0,0,0,0.3)" }}>{d}</p>
+                  <div style={{
+                    width: 30, height: 30, borderRadius: isToday ? 10 : 8,
+                    background: isToday ? PINK : dayEvents.length > 0 ? `${PINK}18` : "rgba(0,0,0,0.04)",
+                    border: isToday ? "none" : dayEvents.length > 0 ? `1.5px solid ${PINK}35` : "none",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: isToday ? `0 4px 14px ${PINK}44` : "none",
+                  }}>
+                    {dayEvents.length > 0 && (
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, color: isToday ? "white" : PINK }}>{dayEvents.length}</span>
+                    )}
+                  </div>
+                  {dayEvents[0] && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : "rgba(0,0,0,0.38)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {dayEvents[0].title.split(" ")[0]}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)" }}>This week looks balanced ✦</p>
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              {["FRIENDS","CULTURE","YOU"].map(t => (
+                <div key={t} style={{ padding: "2px 7px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: PINK, letterSpacing: "0.07em" }}>{t}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══ YOUR CLUBS — circular badge pins ══════════════════════════════════ */}
       <div style={{ marginTop: 26 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: INK, lineHeight: 1 }}>Near you.</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.38)", marginTop: 3 }}>
-              {neighborhood ? `${neighborhood} & around` : "NYC & around"}
-            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR CLUBS</p>
+            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
           </div>
-          <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: ACCENT }}>See all →</Link>
-        </div>
-
-        <div style={{
-          display: "flex", gap: 12,
-          overflowX: "scroll",
-          WebkitOverflowScrolling: "touch" as never,
-          scrollSnapType: "x mandatory",
-          padding: "4px 16px 24px",
-          msOverflowStyle: "none" as never,
-          scrollbarWidth: "none" as never,
-        }}>
-          {neighborhoods.slice(0, 6).map((nbhd, i) => (
-            <Link
-              key={nbhd.name}
-              href="/member/happenings"
-              style={{ textDecoration: "none", flexShrink: 0, scrollSnapAlign: "start", touchAction: "pan-x", display: "block" }}
-            >
-              <div style={{
-                width: 140, height: 170, borderRadius: 18,
-                background: `linear-gradient(145deg, ${nbhdGrads[i % nbhdGrads.length][0]} 0%, ${nbhdGrads[i % nbhdGrads.length][1]} 100%)`,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.18), 0 2px 0 rgba(0,0,0,0.1)",
-                overflow: "hidden",
-                position: "relative",
-                transform: `rotate(${i % 2 === 0 ? -0.8 : 0.8}deg)`,
-              }}>
-                {nbhd.imageUrl && (
-                  <Image src={nbhd.imageUrl} alt={nbhd.name} fill unoptimized style={{ objectFit: "cover" }} sizes="140px" />
-                )}
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.72) 75%)" }} />
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "14px 14px" }}>
-                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "white", lineHeight: 1.15 }}>
-                    {nbhd.name}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, marginTop: 4, letterSpacing: "0.04em" }}>
-                    {nbhd.count} happening{nbhd.count !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ══ YOUR CLUBS ════════════════════════════════════════════════════════════ */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: INK, lineHeight: 1 }}>Your clubs.</p>
-            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.38)", marginTop: 3 }}>{myClubs.length} joined</p>}
-          </div>
-          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: ACCENT }}>See all →</Link>
+          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
         </div>
 
         {!loading && myClubs.length === 0 ? (
+          /* Empty state */
           <div style={{ margin: "0 16px", background: "white", borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: INK, marginBottom: 8 }}>Find your people.</p>
-            <Link href="/member/clubs" style={{ textDecoration: "none", display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "8px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: "#1A0010", marginBottom: 8 }}>Find your people.</p>
+            <Link href="/member/clubs" style={{ textDecoration: "none", display: "inline-block", background: "#FF1F7D", color: "white", borderRadius: 999, padding: "8px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900 }}>
               EXPLORE CLUBS
             </Link>
           </div>
         ) : (
+          /* Badge carousel */
           <div className="bb-scroll-x" style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 16px 20px" }}>
             {myClubs.map((club, i) => (
               <ClubBadge key={club.id} club={club} index={i} />
@@ -557,50 +417,64 @@ export function HomePage() {
         )}
       </div>
 
-      {/* ══ AFTER LAST NIGHT ══════════════════════════════════════════════════════ */}
-      {showAfterLastNight && (
-        <div style={{ padding: "4px 16px 0" }}>
-          <div style={{
-            borderRadius: 20,
-            background: "linear-gradient(155deg, #FFF0F5 0%, #FFE8EF 100%)",
-            border: "1px solid rgba(255,31,125,0.12)",
-            boxShadow: "0 6px 24px rgba(255,31,125,0.08)",
-            padding: "18px 18px 16px",
-          }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.2em", color: PINK, marginBottom: 8 }}>✦ AFTER LAST NIGHT</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 18, color: INK, lineHeight: 1.2, marginBottom: 6 }}>
-              Last night&apos;s Girls Dinner at Carbone
-            </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.4)", marginBottom: 16, lineHeight: 1.5 }}>
-              📍 West Village · You were in a room with Amara, Bea + Leila
-            </p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <Link href="/member/clubs" style={{ textDecoration: "none", flex: 1 }}>
-                <div style={{
-                  textAlign: "center", padding: "10px 0", borderRadius: 999,
-                  background: PINK,
-                  fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900,
-                  color: "white", letterSpacing: "0.04em",
-                  boxShadow: `0 3px 12px ${PINK}40`,
-                }}>
-                  START A TRADITION →
-                </div>
-              </Link>
-              <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-                <div style={{
-                  padding: "10px 16px", borderRadius: 999,
-                  background: "rgba(255,31,125,0.08)",
-                  border: "1px solid rgba(255,31,125,0.18)",
-                  fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                  color: PINK, whiteSpace: "nowrap" as const,
-                }}>
-                  SEND A FLOWER 🌸
-                </div>
-              </Link>
+      {/* ══ AROUND THE CITY — real event objects ══════════════════════════════ */}
+      {events.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>NYC</p>
             </div>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          </div>
+
+          {/* Each event renders as its matching physical object — no boxes */}
+          <div className="bb-scroll-x" style={{ display: "flex", gap: 16, overflowX: "auto", padding: "8px 16px 28px", alignItems: "flex-start" }}>
+            {events.map((ev, i) => (
+              <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none", flexShrink: 0, display: "block" }}>
+                <EventObjectCard ev={ev} size="sm" rotation={i % 2 === 0 ? -1.5 : 1.5} />
+              </Link>
+            ))}
           </div>
         </div>
       )}
+
+      {/* ══ LAST NIGHT memory card ═════════════════════════════════════════════ */}
+      <div style={{ margin: "8px 16px 0" }}>
+        <div style={{
+          borderRadius: 20, background: "#1A0010",
+          border: "1px solid rgba(255,31,125,0.15)",
+          padding: "20px",
+          boxShadow: "0 10px 36px rgba(0,0,0,0.22)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>LAST NIGHT</p>
+
+          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+            {/* Stats */}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
+                {events[0]?.title ?? "Carbone Girls Dinner"} ♡
+              </p>
+              <div style={{ display: "flex", gap: 16 }}>
+                {[["4","WOMEN"],["3","HOURS"],["1","FRIENDSHIP"]].map(([n, lbl]) => (
+                  <div key={lbl}>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>{n}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{lbl}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Memory text */}
+            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 14 }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>
+                &ldquo;Last night felt intimate and alive — the kind of evening you carry home.&rdquo;
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700 }}>— Yande</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Safety */}
       {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}

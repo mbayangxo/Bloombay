@@ -1,0 +1,133 @@
+/* Shared luxury motion — reduced motion fallbacks */
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-asset-hero.is-landed:not(.is-opening),
+  .invite-petal--drift,
+  .suite-petal--drift {
+    animation: none !important;
+  }
+
+  .invite-asset-hero__seal-glow {
+    opacity: 0 !important;
+  }
+}
+
+/* Slow petal drift (invite + suite backgrounds) */
+@keyframes luxury-petal-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(var(--petal-r, 0deg));
+  }
+
+  33% {
+    transform: translate(6px, 14px) rotate(calc(var(--petal-r, 0deg) + 4deg));
+  }
+
+  66% {
+    transform: translate(-4px, 8px) rotate(calc(var(--petal-r, 0deg) - 3deg));
+  }
+}
+
+.invite-petal--drift {
+  animation: luxury-petal-drift 18s ease-in-out infinite;
+}
+
+.suite-petal--drift {
+  animation: luxury-petal-drift 22s ease-in-out infinite;
+}
+
+/* Envelope flap lift on open */
+@keyframes invite-flap-open {
+  from {
+    opacity: 0.85;
+    transform: perspective(800px) rotateX(0deg);
+  }
+
+  to {
+    opacity: 0;
+    transform: perspective(800px) rotateX(-72deg);
+  }
+}
+
+.invite-asset-hero.is-opening .invite-asset-hero__flap {
+  animation: invite-flap-open 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Idle float after landing */
+@keyframes invite-asset-float-soft {
+  0%,
+  100% {
+    transform: rotate(-1deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(-0.75deg) translateY(-4px);
+  }
+}
+
+.invite-asset-hero.is-landed:not(.is-opening) {
+  animation: invite-asset-float-soft 9s ease-in-out 0.2s infinite;
+}
+
+/* ── Admin dashboard utilities (apply when dashboard ships) ── */
+
+@keyframes luxury-shimmer {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes luxury-pin-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.bb-admin-card {
+  transition:
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-admin-table-row {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-admin-table-row:hover {
+  transform: translateY(-2px);
+}
+
+.bb-admin-status {
+  animation: luxury-shimmer 3.5s ease-in-out infinite;
+}
+
+.bb-admin-map-pin {
+  animation: luxury-pin-pulse 2.8s ease-in-out infinite;
+}
+
+.bb-admin-sidebar-seal--active {
+  box-shadow: 0 0 0 2px rgba(255, 0, 85, 0.35), 0 0 24px rgba(255, 0, 85, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-admin-status,
+  .bb-admin-map-pin {
+    animation: none;
+  }
+
+  .bb-admin-table-row:hover {
+    transform: none;
+  }
+}

@@ -110,24 +110,10 @@ function TestimonialsSection() {
           &ldquo;{t.quote}&rdquo;
         </blockquote>
 
-        {/* Attribution with photo avatar */}
+        {/* Attribution with avatar */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 36 }}>
-          <div style={{ position: "relative", flexShrink: 0 }}>
-            {/* Outer glow ring */}
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: `linear-gradient(135deg,${t.color},${t.color}88)`, padding: 2, boxShadow: `0 6px 20px ${t.color}55` }}>
-              <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#1a0a14" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://api.dicebear.com/9.x/lorelei/svg?seed=${encodeURIComponent(t.name)}&backgroundColor=1a0a14&hairColor=a64a2e,3d2314,591c14,b56429&skinColor=f5cfa0,ecad80,d78774,c97b4b,ae5d29`}
-                  alt={t.name}
-                  width={52}
-                  height={52}
-                  style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-            </div>
-            {/* Small color dot */}
-            <div style={{ position: "absolute", bottom: 2, right: 2, width: 10, height: 10, borderRadius: "50%", background: t.color, border: "2px solid #111" }} />
+          <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 4px 16px ${t.color}44` }}>
+            <span style={{ color: "white", fontWeight: 800, fontSize: "16px" }}>{t.name[0]}</span>
           </div>
           <div>
             <p style={{ color: "white", fontWeight: 700, fontSize: "14px", margin: 0 }}>{t.name}</p>
@@ -336,43 +322,21 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE — BLACK STATEMENT — first thing you see
       ══════════════════════════════════════════════════════ */}
-      <section className="bb-mobile-only" style={{ minHeight: "88svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden", position: "relative", padding: "60px 28px 52px" }}>
+      <section className="bb-mobile-only" style={{ minHeight: "100svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "center", overflow: "hidden", position: "relative", padding: "0 28px" }}>
         {/* Subtle pink glow bottom-left */}
         <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
-
-        {/* Stacked headline — solid/outline mix */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(38px, 11vw, 56px)", lineHeight: 0.88, letterSpacing: "-0.03em", color: "white" }}>
-            it&apos;s a
-          </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(56px, 16vw, 80px)", lineHeight: 0.88, letterSpacing: "-0.04em", color: PINK }}>
-            woman&apos;s
-          </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(56px, 16vw, 80px)", lineHeight: 0.88, letterSpacing: "-0.04em", color: "white" }}>
-            world
-          </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(50px, 14vw, 70px)", lineHeight: 0.88, letterSpacing: "-0.04em", WebkitTextStroke: "2.5px white", color: "transparent" }}>
-            we&apos;re
-          </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(50px, 14vw, 70px)", lineHeight: 0.88, letterSpacing: "-0.04em", WebkitTextStroke: "2.5px white", color: "transparent" }}>
-            in it.
-          </div>
-        </div>
-
-        {/* Subtitle */}
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 400, color: "rgba(255,255,255,0.55)", lineHeight: 1.55, marginBottom: 32 }}>
-          a space to connect, feel seen, and<br />build real friendships
-        </p>
-
-        {/* CTA */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Link href="/onboard" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "white", color: PINK, borderRadius: 999, padding: "17px 28px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "12px", letterSpacing: "0.18em", textDecoration: "none" }}>
-            LET&apos;S START →
-          </Link>
-          <p style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(255,255,255,0.4)", fontWeight: 400, margin: 0 }}>
-            already a member?{" "}
-            <Link href="/member/login" style={{ color: "rgba(255,255,255,0.85)", fontWeight: 700, textDecoration: "none" }}>sign in</Link>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
+            It&apos;s a<br />woman&apos;s<br />world.
           </p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>
+            We&apos;re it.
+          </p>
+        </div>
+        {/* Scroll hint */}
+        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 1, height: 40, background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.25))" }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.25)" }}>SCROLL</p>
         </div>
       </section>
 
@@ -389,8 +353,11 @@ export function LandingPage() {
         <div style={{ position: "absolute", top: 60, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(0,0,0,0.06)", pointerEvents: "none", zIndex: 0 }} />
 
         {/* Top bar */}
-        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", padding: "0 22px", paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 22px", paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)", flexShrink: 0 }}>
           <BBLogo size={22} light />
+          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)", padding: "6px 14px", borderRadius: 999 }}>
+            LOG IN
+          </Link>
         </div>
 
         {/* Main headline */}
@@ -925,9 +892,9 @@ export function LandingPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 16px", marginBottom: 40 }}>
             {[
               { title: "ABOUT",       links: [{ l: "Our Story", h: "/about" }, { l: "Safety", h: "/safety" }, { l: "Girl Rights", h: "/girl-rights" }, { l: "Careers", h: "/careers" }] },
-              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/start-a-club" }] },
+              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }] },
               { title: "CLUB OWNERS", links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }, { l: "Partners", h: "/partner" }] },
-              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Press", h: "/press" }] },
+              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Press", h: "/contact" }] },
             ].map((col) => (
               <div key={col.title}>
                 <p style={{ fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: INK, marginBottom: 14 }}>{col.title}</p>

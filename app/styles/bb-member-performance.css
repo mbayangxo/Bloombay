@@ -1,0 +1,48 @@
+/**
+ * Member portal performance — cut jank on localhost.
+ * Loaded last in member-bundle.css.
+ */
+
+/* Full-screen grain overlay is expensive; static surfaces are enough */
+.mp-app::after,
+.mp-member-root::after {
+  display: none !important;
+}
+
+/* Per-page mood grain layers stack up — off by default */
+.mp-app .bb-mood__grain {
+  display: none !important;
+}
+
+/* Nav icons: animate only when tab is active */
+.mp-app .bb-object-icon[class*="bb-motion--"],
+.mp-app .bb-artifact--ticket-stamp:not(.is-active) {
+  animation: none !important;
+}
+
+/* Happenings poster loops — keep enter, drop infinite pulses */
+.mp-app .bb-hm-soft-pulse,
+.mp-app .bb-hm-rsvp-glow {
+  animation: none !important;
+}
+
+/* Contain scroll repaints to the main column */
+.mp-app .mp-main {
+  contain: layout style;
+}
+
+/* Sidebar + bottom nav stay on their own layer during scroll */
+.mp-app .mp-sidebar,
+.mp-app .mp-bottom-nav {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-app *,
+  .mp-member-root * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

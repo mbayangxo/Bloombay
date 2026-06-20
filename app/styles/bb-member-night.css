@@ -1,0 +1,197 @@
+/**
+ * Night — darker velvet + muted barbie (same family as day, easy on eyes).
+ * Active: data-mp-theme="night" only (auto 8pm–6am or Settings → Night).
+ * See bb-member-readability.css for white-card fixes.
+ */
+
+.mp-app[data-mp-theme="night"] {
+  color-scheme: dark;
+
+  --bb-page-bg: #10080c;
+  --bb-page-bg-soft: #181018;
+  --bb-page-surface: #221018;
+  --bb-page-ink: #f5e8ee;
+  --bb-page-muted: rgba(245, 220, 230, 0.52);
+  --bb-page-accent: #ff6b9d;
+  --bb-page-accent-soft: #5c3040;
+  --bb-page-rose: #a88468;
+
+  --bb-satin: linear-gradient(165deg, #1c1016 0%, #14080c 50%, #10080c 100%);
+  --bb-glass: rgba(28, 14, 20, 0.88);
+  --bb-glass-border: rgba(255, 107, 157, 0.14);
+  --bb-glass-blur: blur(12px);
+  --bb-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.4);
+  --bb-shadow-lift: 0 10px 32px rgba(0, 0, 0, 0.5);
+
+  --mp-barbie-soft: #181018;
+  --mp-white: #221018;
+  --mp-ink: #f5e8ee;
+  --mp-muted: rgba(245, 220, 230, 0.52);
+  --mp-line: rgba(255, 107, 157, 0.2);
+  --mp-hot: #ff6b9d;
+  --bb-hot: #ff6b9d;
+  --bb-muted: var(--bb-page-muted);
+}
+
+.mp-app[data-mp-theme="night"] .mp-header {
+  background: #14080c;
+  border-bottom-color: rgba(255, 107, 157, 0.22);
+}
+
+/* Sidebar icon rail — night palette in bb-member-nav.css */
+
+.mp-app[data-mp-theme="night"] .mp-content,
+.mp-app[data-mp-theme="night"] .mp-mood__body {
+  background: var(--bb-page-bg);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-icon-btn {
+  color: var(--bb-page-ink);
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.15);
+}
+
+.mp-app[data-mp-theme="night"] .mp-pill {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.2);
+  color: var(--bb-page-muted);
+}
+
+.mp-app[data-mp-theme="night"] .mp-pill--active {
+  background: rgba(255, 107, 157, 0.18);
+  border-color: rgba(255, 107, 157, 0.4);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-input,
+.mp-app[data-mp-theme="night"] textarea {
+  background: rgba(20, 8, 12, 0.65);
+  border-color: rgba(255, 107, 157, 0.22);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-card,
+.mp-app[data-mp-theme="night"] .mp-card--soft {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.15);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-list-row,
+.mp-app[data-mp-theme="night"] .mp-mail-row {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.12);
+}
+
+.mp-app[data-mp-theme="night"] .mp-btn--outline {
+  background: transparent;
+  border-color: rgba(255, 107, 157, 0.35);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .bb-apartment--full-pink {
+  background: var(--bb-page-bg-soft);
+}
+
+.mp-app[data-mp-theme="night"] .mp-clubs-top {
+  background: var(--bb-page-bg-soft) !important;
+  border-bottom-color: rgba(255, 107, 157, 0.2) !important;
+}
+
+.mp-app[data-mp-theme="night"] .mp-clubs-top .mp-clubs-search--toolbar {
+  background: rgba(34, 16, 24, 0.9);
+  border-color: rgba(255, 107, 157, 0.3);
+}
+
+.mp-app[data-mp-theme="night"] .bb-connect-girlmates {
+  background: linear-gradient(165deg, #221018 0%, #181018 100%);
+  border-color: rgba(255, 107, 157, 0.2);
+}
+
+.mp-app[data-mp-theme="night"] .bb-connect-girlmates__pin {
+  background: var(--bb-page-surface);
+}
+
+.mp-app[data-mp-theme="night"] .bb-city__hero {
+  background: var(--bb-page-bg-soft);
+  border-bottom-color: rgba(255, 107, 157, 0.15);
+}
+
+.mp-app[data-mp-theme="night"] .bb-city-nav {
+  background: rgba(20, 8, 12, 0.92);
+}
+
+.mp-app[data-mp-theme="night"] .bb-city-nav__link {
+  background: var(--bb-page-surface);
+  color: var(--bb-page-muted);
+}
+
+.mp-app[data-mp-theme="night"] .bb-city-nav__link--active,
+.mp-app[data-mp-theme="night"] .bb-city-nav__link--moments:hover {
+  background: rgba(255, 107, 157, 0.16);
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .bb-girlmates-card,
+.mp-app[data-mp-theme="night"] .bb-girlmates__form {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.14);
+}
+
+.mp-app[data-mp-theme="night"] .bb-club-poster--compact {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.18);
+}
+
+.mp-app[data-mp-theme="night"] .bb-empty {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.15);
+}
+
+.mp-app[data-mp-theme="night"] .bb-happenings-parlor {
+  background: var(--bb-page-bg);
+}
+
+.mp-app[data-mp-theme="night"] .mp-happenings-cover .bb-place-cover__sheet {
+  background: linear-gradient(165deg, #221018 0%, #181018 55%, #14080c 100%) !important;
+}
+
+.mp-app[data-mp-theme="night"] .bb-connect-moment {
+  background: var(--bb-page-surface);
+  border-color: rgba(255, 107, 157, 0.14);
+}
+
+.mp-app[data-mp-theme="night"] .bb-connect-moment__living,
+.mp-app[data-mp-theme="night"] .bb-connect-moment__cast {
+  color: var(--bb-page-muted);
+}
+
+.mp-app[data-mp-theme="night"] .mp-ed-hero__bg::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(16, 8, 12, 0.92) 100%);
+}
+
+.mp-app[data-mp-theme="night"] .mp-btn--hot {
+  background: linear-gradient(145deg, #c91a52 0%, #ff6b9d 100%);
+  border-color: rgba(255, 107, 157, 0.45);
+  color: #fff;
+}
+
+.mp-app[data-mp-theme="night"] .mp-bottom-nav__tab--active .mp-bottom-nav__icon-wrap {
+  background: rgba(255, 107, 157, 0.85);
+}
+
+.mp-app[data-mp-theme="night"] .mp-hero__title,
+.mp-app[data-mp-theme="night"] .mp-page-head__title,
+.mp-app[data-mp-theme="night"] .mp-section__title {
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-settings-row,
+.mp-app[data-mp-theme="night"] .mp-settings-appearance__title {
+  color: var(--bb-page-ink);
+}
+
+.mp-app[data-mp-theme="night"] .mp-sidebar__link--signout {
+  color: var(--bb-page-muted);
+}

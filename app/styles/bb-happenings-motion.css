@@ -1,0 +1,186 @@
+/**
+ * Happenings motion — physical paper on a wall.
+ * One or two details per card. prefers-reduced-motion respected.
+ */
+
+/* ─── Entry: poster pinned to wall ─── */
+
+.bb-hm-motion--enter {
+  animation: bb-hm-poster-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--bb-enter-index, 0) * 95ms);
+}
+
+@keyframes bb-hm-poster-enter {
+  from {
+    opacity: 0;
+    transform: rotate(calc(var(--bb-tilt, 0deg) - 1.2deg)) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--bb-tilt, 0deg)) translateY(0);
+  }
+}
+
+/* ─── Hover / tap lift ─── */
+
+.bb-hm-motion {
+  transform-origin: 50% 12%;
+}
+
+.bb-hm-motion .bb-physical-object__img {
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.bb-hm-motion:hover .bb-physical-object__img,
+.bb-hm-motion:focus-visible .bb-physical-object__img {
+  transform: translateY(-5px) scale(1.014);
+  filter: drop-shadow(0 20px 38px rgba(18, 5, 14, 0.26));
+}
+
+.bb-hm-motion:active .bb-physical-object__img {
+  transform: translateY(-2px) scale(1.006);
+  filter: drop-shadow(0 12px 24px rgba(18, 5, 14, 0.2));
+  transition-duration: 0.12s;
+}
+
+/* Pin settles after entry */
+.bb-hm-motion--enter.bb-physical-object--pinned::before {
+  animation: bb-hm-pin-settle 0.5s ease-out calc(var(--bb-enter-index, 0) * 95ms + 0.55s) both;
+}
+
+@keyframes bb-hm-pin-settle {
+  from {
+    transform: translateY(-3px) scale(0.85);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ─── Soft pulse — seats left, open spots, RSVP meta ─── */
+
+.bb-hm-pulse {
+  animation: bb-hm-soft-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes bb-hm-soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.68;
+  }
+}
+
+.bb-hm-rsvp-pulse {
+  animation: bb-hm-rsvp-glow 2.8s ease-in-out infinite;
+}
+
+@keyframes bb-hm-rsvp-glow {
+  0%,
+  100% {
+    box-shadow: 0 4px 14px rgba(255, 45, 138, 0.18);
+  }
+  50% {
+    box-shadow: 0 6px 22px rgba(255, 45, 138, 0.32);
+  }
+}
+
+/* ─── Handwritten / sticker wiggle once ─── */
+
+.bb-hm-wiggle-once {
+  animation: bb-hm-wiggle-once 0.65s ease-out calc(var(--bb-enter-index, 0) * 95ms + 0.7s) both;
+  transform-origin: left center;
+}
+
+@keyframes bb-hm-wiggle-once {
+  0% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-1.4deg);
+  }
+  55% {
+    transform: rotate(1deg);
+  }
+  80% {
+    transform: rotate(-0.4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* ─── Ticket barcode scan line ─── */
+
+.bb-hm-scan {
+  position: relative;
+  overflow: visible;
+}
+
+.bb-hm-scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 45, 138, 0.15) 20%,
+    rgba(255, 45, 138, 0.55) 50%,
+    rgba(255, 45, 138, 0.15) 80%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: bb-hm-scan-line 1.8s ease-in-out calc(var(--bb-enter-index, 0) * 95ms + 1s) 1;
+}
+
+@keyframes bb-hm-scan-line {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  88% {
+    opacity: 0.45;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* ─── Reduced motion ─── */
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-hm-motion--enter,
+  .bb-hm-motion--enter.bb-physical-object--pinned::before,
+  .bb-hm-pulse,
+  .bb-hm-rsvp-pulse,
+  .bb-hm-wiggle-once,
+  .bb-hm-scan::after {
+    animation: none !important;
+  }
+
+  .bb-hm-motion .bb-physical-object__img {
+    transition: none;
+  }
+
+  .bb-hm-motion:hover .bb-physical-object__img,
+  .bb-hm-motion:focus-visible .bb-physical-object__img,
+  .bb-hm-motion:active .bb-physical-object__img {
+    transform: none;
+    filter: drop-shadow(0 8px 18px rgba(18, 5, 14, 0.18));
+  }
+}

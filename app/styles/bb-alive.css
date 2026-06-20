@@ -1,0 +1,462 @@
+/* BloomBay alive — tactile, quick, not flat SaaS */
+
+:root {
+  --bb-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --bb-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --bb-btn-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 4px 0 #cc0044,
+    0 8px 20px rgba(255, 0, 85, 0.28);
+  --bb-btn-shadow-hover:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 5px 0 #b8003d,
+    0 12px 28px rgba(255, 0, 85, 0.35);
+  --bb-btn-shadow-pressed:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 0 #cc0044,
+    0 4px 12px rgba(255, 0, 85, 0.22);
+}
+
+/* Living surface — warm ivory, not sterile white */
+.mp-app {
+  background: linear-gradient(180deg, #ffffff 0%, #fff8fb 42%, #ffe4ec 100%);
+  background-attachment: fixed;
+}
+
+.mp-app::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: none;
+}
+
+@keyframes bb-grain-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-2%, -1%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.bb-mood__grain {
+  opacity: 0.04;
+  animation: none;
+}
+
+/* Top bar (home / full-bleed) */
+.mp-top-bar {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(255, 0, 85, 0.06);
+}
+
+.bb-header-icons:not(.bb-header-icons--petite) .mp-icon-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Header — frosted satin */
+.mp-header {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid rgba(255, 0, 85, 0.18);
+  box-shadow: 0 4px 24px rgba(255, 0, 85, 0.06);
+}
+
+/* ── Buttons: physical, glossy, fast ── */
+.mp-app .mp-btn,
+.mp-app .bb-btn {
+  position: relative;
+  border: none;
+  transform: translateY(0);
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    box-shadow var(--duration-fast) var(--bb-snap),
+    background var(--duration-fast) var(--bb-snap),
+    color var(--duration-fast) ease,
+    filter var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mp-app .mp-btn--hot,
+.mp-app .bb-btn--hot {
+  background: linear-gradient(165deg, #ff3d7a 0%, #ff0055 48%, #e6004d 100%);
+  color: #ffffff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: var(--bb-btn-shadow);
+}
+
+.mp-app .mp-btn--hot:hover,
+.mp-app .bb-btn--hot:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--bb-btn-shadow-hover);
+  filter: brightness(1.03);
+}
+
+.mp-app .mp-btn--hot:active,
+.mp-app .bb-btn--hot:active {
+  transform: translateY(3px);
+  box-shadow: var(--bb-btn-shadow-pressed);
+  filter: brightness(0.98);
+  transition-duration: 80ms;
+}
+
+.mp-app .mp-btn--outline,
+.mp-app .bb-btn--outline,
+.mp-app .bb-btn--outline-pink {
+  background: linear-gradient(180deg, #ffffff 0%, #fff5f8 100%);
+  border: 2px solid var(--bb-hot);
+  color: var(--bb-hot);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 3px 0 rgba(255, 0, 85, 0.15),
+    0 6px 16px rgba(26, 5, 20, 0.08);
+}
+
+.mp-app .mp-btn--outline:hover,
+.mp-app .bb-btn--outline:hover,
+.mp-app .bb-btn--outline-pink:hover {
+  transform: translateY(-2px);
+  background: #fff0f5;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 4px 0 rgba(255, 0, 85, 0.2),
+    0 10px 22px rgba(255, 0, 85, 0.12);
+}
+
+.mp-app .mp-btn--outline:active,
+.mp-app .bb-btn--outline:active,
+.mp-app .bb-btn--outline-pink:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(255, 0, 85, 0.2);
+  transition-duration: 80ms;
+}
+
+.mp-app .mp-btn--ink {
+  background: linear-gradient(165deg, #2a1218 0%, #1a0514 100%);
+  color: #fff5f8;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 4px 0 #0d0208,
+    0 8px 20px rgba(26, 5, 20, 0.25);
+}
+
+.mp-app .mp-btn--ink:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 5px 0 #0d0208,
+    0 12px 26px rgba(26, 5, 20, 0.3);
+}
+
+.mp-app .mp-btn--ink:active {
+  transform: translateY(2px);
+  transition-duration: 80ms;
+}
+
+/* Icon buttons — glass gems */
+.mp-app .mp-icon-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 228, 236, 0.9) 100%);
+  border: 1px solid rgba(255, 0, 85, 0.18);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 3px 10px rgba(255, 0, 85, 0.1);
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    box-shadow var(--duration-fast) var(--bb-snap),
+    border-color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mp-app .mp-icon-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-color: rgba(255, 0, 85, 0.35);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 6px 16px rgba(255, 0, 85, 0.18);
+}
+
+.mp-app .mp-icon-btn:active {
+  transform: translateY(1px) scale(0.98);
+  transition-duration: 80ms;
+}
+
+/* Pills & tabs — chip depth */
+.mp-app .mp-pill,
+.mp-app .mp-happenings-tab {
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    box-shadow var(--duration-fast) var(--bb-snap),
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+  box-shadow: 0 2px 0 rgba(255, 0, 85, 0.08);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mp-app .mp-pill:hover,
+.mp-app .mp-happenings-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 0, 85, 0.12);
+}
+
+.mp-app .mp-pill--active,
+.mp-app .mp-happenings-tab--active {
+  background: linear-gradient(165deg, #ff3d7a 0%, #ff0055 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 3px 0 #cc0044,
+    0 6px 14px rgba(255, 0, 85, 0.25);
+}
+
+.mp-app .mp-pill:active,
+.mp-app .mp-happenings-tab:active {
+  transform: translateY(1px);
+  transition-duration: 80ms;
+}
+
+/* Links — quick underline bloom */
+.mp-app .mp-link {
+  transition: color var(--duration-fast) ease, opacity var(--duration-fast) ease;
+  text-underline-offset: 3px;
+}
+
+.mp-app .mp-link:hover {
+  color: var(--bb-hot-deep);
+  text-decoration-thickness: 2px;
+}
+
+/* Cards — lift on hover */
+.mp-app .mp-card {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 4px 0 var(--bb-barbie-soft),
+    0 10px 28px rgba(255, 0, 85, 0.1);
+  transition:
+    transform var(--duration-smooth) var(--bb-spring),
+    box-shadow var(--duration-smooth) var(--bb-snap);
+}
+
+.mp-app .mp-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 6px 0 var(--bb-barbie),
+    0 16px 36px rgba(255, 0, 85, 0.16);
+}
+
+/* Bottom nav — spring tabs */
+.mp-app .mp-bottom-nav__tab {
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    color var(--duration-fast) ease;
+}
+
+.mp-app .mp-bottom-nav__tab:active {
+  transform: scale(0.94);
+  transition-duration: 80ms;
+}
+
+.mp-app .mp-bottom-nav__tab--active .mp-bottom-nav__icon-wrap {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 4px 14px rgba(255, 0, 85, 0.4);
+  transform: translateY(-2px);
+  transition: transform var(--duration-fast) var(--bb-spring);
+}
+
+/* Sidebar — icon rail uses bb-member-nav.css (no bounce) */
+
+/* Home place doors */
+.mp-app .bb-home-place {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 3px 0 rgba(255, 183, 206, 0.8),
+    0 8px 20px rgba(26, 5, 20, 0.08);
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    box-shadow var(--duration-fast) var(--bb-snap);
+}
+
+.mp-app .bb-home-place:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 5px 0 rgba(255, 0, 85, 0.25),
+    0 14px 28px rgba(255, 0, 85, 0.18);
+}
+
+.mp-app .bb-home-place:active {
+  transform: translateY(-1px) scale(0.99);
+  transition-duration: 80ms;
+}
+
+.mp-app .bb-home-place__object {
+  transition: transform var(--duration-smooth) var(--bb-spring);
+}
+
+.mp-app .bb-home-place:hover .bb-home-place__object {
+  transform: scale(1.08) translateY(-2px);
+}
+
+/* Artifacts & confetti — always lift */
+.mp-app a.bb-envelope,
+.mp-app a.bb-ticket,
+.mp-app a.bb-event-poster,
+.mp-app a.bb-confetti-hero-tile,
+.mp-app a.bb-confetti-card,
+.mp-app a.bb-city-object,
+.mp-app a.bb-city-pick,
+.mp-app a.bb-city-moment,
+.mp-app a.bb-glass,
+.mp-app .bb-empty__action {
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    box-shadow var(--duration-fast) var(--bb-snap),
+    filter var(--duration-fast) ease;
+}
+
+.mp-app a.bb-confetti-hero-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(255, 0, 85, 0.2);
+}
+
+.mp-app a.bb-envelope:hover,
+.mp-app a.bb-ticket:hover,
+.mp-app a.bb-event-poster:hover {
+  filter: drop-shadow(0 8px 20px rgba(255, 0, 85, 0.15));
+}
+
+/* Bloom objects — gentle float on nav */
+.mp-app .mp-bottom-nav__tab--active .bb-object-icon,
+.mp-app .mp-sidebar__link--active .bb-object-icon {
+  animation: bb-object-float 2.8s ease-in-out infinite;
+}
+
+@keyframes bb-object-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.mp-app .bb-empty__action {
+  display: inline-block;
+  background: linear-gradient(165deg, #ff3d7a 0%, #ff0055 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: var(--bb-btn-shadow);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+}
+
+.mp-app .bb-empty__action:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--bb-btn-shadow-hover);
+  color: #ffffff;
+}
+
+.mp-app .bb-empty__action:active {
+  transform: translateY(2px);
+  box-shadow: var(--bb-btn-shadow-pressed);
+}
+
+/* Inputs — inset paper */
+.mp-app .mp-input,
+.mp-app .bb-input,
+.mp-app textarea.mp-input {
+  background: linear-gradient(180deg, #ffffff 0%, #fff8fb 100%);
+  border: 1.5px solid rgba(255, 0, 85, 0.2);
+  box-shadow: inset 0 2px 6px rgba(26, 5, 20, 0.06);
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    transform var(--duration-fast) var(--bb-spring);
+}
+
+.mp-app .mp-input:focus,
+.mp-app .bb-input:focus,
+.mp-app textarea.mp-input:focus {
+  border-color: var(--bb-hot);
+  box-shadow:
+    inset 0 2px 6px rgba(26, 5, 20, 0.05),
+    0 0 0 3px rgba(255, 0, 85, 0.12);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* Challenge banner — living pulse */
+.mp-app .mp-challenge {
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 228, 236, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.1);
+  animation: bb-challenge-glow 4s ease-in-out infinite;
+}
+
+@keyframes bb-challenge-glow {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(255, 0, 85, 0.1);
+  }
+  50% {
+    box-shadow: 0 10px 32px rgba(255, 0, 85, 0.18);
+  }
+}
+
+/* Confetti preset chips */
+.mp-app .bb-confetti-open__preset {
+  transition:
+    transform var(--duration-fast) var(--bb-spring),
+    border-color var(--duration-fast) ease,
+    background var(--duration-fast) ease;
+}
+
+.mp-app .bb-confetti-open__preset:hover {
+  transform: translateX(4px);
+  border-color: var(--bb-hot);
+}
+
+.mp-app .bb-confetti-open__preset:active {
+  transform: scale(0.98);
+  transition-duration: 80ms;
+}
+
+/* Scene lines — subtle life */
+.mp-app .bb-scene--pulse .bb-scene__line {
+  animation: bb-scene-pulse 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-app::after,
+  .bb-mood__grain,
+  .mp-app .mp-challenge,
+  .mp-app .mp-bottom-nav__tab--active .bb-object-icon,
+  .mp-app .mp-sidebar__link--active .bb-object-icon {
+    animation: none;
+  }
+
+  .mp-app .mp-btn--hot:hover,
+  .mp-app .bb-btn--hot:hover,
+  .mp-app .mp-icon-btn:hover,
+  .mp-app .bb-home-place:hover {
+    transform: none;
+  }
+}

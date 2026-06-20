@@ -1,0 +1,199 @@
+/* /portals — each login world looks distinct */
+
+.bb-portals {
+  min-height: 100dvh;
+  padding: 2rem 1.25rem 2.5rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  font-family: var(--font-ui, system-ui, sans-serif);
+  color: #1a0514;
+  background: linear-gradient(165deg, #fff8fb 0%, #ffe4ec 100%);
+}
+
+.bb-portals__head h1 {
+  font-family: var(--font-display, serif);
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+
+.bb-portals__head p {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(26, 5, 20, 0.72);
+  max-width: 40rem;
+}
+
+.bb-portals__signin-cta,
+.bb-portals__signin-row {
+  margin: 1.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.bb-portals__signin-btn {
+  display: inline-block;
+  padding: 0.75rem 1.35rem;
+  border-radius: 999px;
+  background: #ff0055;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.bb-portals__signin-btn:hover {
+  filter: brightness(1.05);
+}
+
+.bb-portals__signin-btn--member {
+  background: #1a0a2e;
+}
+
+.bb-portals__env-warn {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #ff0055;
+  background: #fff;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #1a0514;
+}
+
+.bb-portals__grid {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.bb-portals__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.15rem 1.1rem 1rem;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+  min-height: 11rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bb-portals__card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(26, 5, 20, 0.12);
+}
+
+.bb-portals__card-kicker {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.bb-portals__card-title {
+  font-family: var(--font-display, serif);
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.bb-portals__card-tagline {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.bb-portals__card-who {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.bb-portals__card-cta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+/* Member — rose / hot pink */
+.bb-portals__card--member {
+  background: linear-gradient(155deg, #ffffff 0%, #ffe4ec 55%, #ffb7ce 100%);
+  border-color: #ff0055;
+  color: #1a0514;
+}
+
+.bb-portals__card--member .bb-portals__card-cta {
+  color: #ff0055;
+}
+
+/* Founder — plum night */
+.bb-portals__card--founder {
+  background: linear-gradient(160deg, #2a1548 0%, #1a0a2e 100%);
+  border-color: #c9a0ff;
+  color: #f5e8ff;
+}
+
+.bb-portals__card--founder .bb-portals__card-cta {
+  color: #e8c4ff;
+}
+
+/* Operations — ink + hot accent */
+.bb-portals__card--admin {
+  background: linear-gradient(160deg, #1a0514 0%, #2d0f1c 100%);
+  border-color: #ff0055;
+  color: #fff5f8;
+}
+
+.bb-portals__card--admin .bb-portals__card-cta {
+  color: #ff6b9d;
+}
+
+/* Clubhouse — ticket gradient */
+.bb-portals__card--clubhouse {
+  background: linear-gradient(165deg, #ffe4ec 0%, #ff0055 45%, #1a0a2e 100%);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.bb-portals__card--clubhouse .bb-portals__card-tagline,
+.bb-portals__card--clubhouse .bb-portals__card-who {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Partner — venue night + pink stamp */
+.bb-portals__card--partner {
+  background: linear-gradient(165deg, #1a0a2e 0%, #3d1028 50%, #ff0055 120%);
+  border-color: #ffb7ce;
+  color: #fff5f8;
+}
+
+.bb-portals__card--partner .bb-portals__card-cta {
+  color: #ffb7ce;
+}
+
+.bb-portals__curator {
+  margin: 1.5rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(26, 5, 20, 0.8);
+}
+
+.bb-portals__curator a {
+  color: #ff0055;
+  font-weight: 700;
+}
+
+.bb-portals__back {
+  margin-top: 2rem;
+}
+
+.bb-portals__back a {
+  color: #ff0055;
+  font-weight: 600;
+  text-decoration: none;
+}

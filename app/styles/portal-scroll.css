@@ -1,0 +1,25 @@
+/* Member portal: marketing root layout locks html/body — unlock for portal routes */
+
+html.bb-portal-scroll,
+html:has([data-bb-member-portal]) {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+  overscroll-behavior-y: auto;
+}
+
+html.bb-portal-scroll body,
+html:has([data-bb-member-portal]) body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-bb-member-portal] {
+  min-height: 100%;
+  background: var(--pale-pink-bg, #fff5f8);
+}

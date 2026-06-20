@@ -1,0 +1,404 @@
+/* Girlmates — Intros board for questions & roommates */
+
+.bb-connect-girlmates {
+  margin: 0 1rem 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: linear-gradient(165deg, #ffffff 0%, #ffe4ec 100%);
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.08);
+}
+
+.bb-connect-girlmates__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.bb-connect-girlmates__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0 0 0.2rem;
+  color: var(--bb-velvet);
+}
+
+.bb-connect-girlmates__sub {
+  font-family: var(--font-accent);
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0;
+  color: var(--bb-muted);
+  max-width: 32ch;
+}
+
+.bb-connect-girlmates__cta {
+  flex-shrink: 0;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bb-hot);
+}
+
+.bb-connect-girlmates__preview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.bb-connect-girlmates__pin {
+  display: block;
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 0, 85, 0.12);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.bb-connect-girlmates__pin:hover {
+  border-color: rgba(255, 0, 85, 0.35);
+  transform: translateX(2px);
+}
+
+.bb-connect-girlmates__pin-kind {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin-bottom: 0.15rem;
+}
+
+.bb-connect-girlmates__pin-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.15rem;
+  color: var(--bb-velvet);
+}
+
+.bb-connect-girlmates__pin-meta {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  color: var(--bb-muted);
+  line-height: 1.35;
+}
+
+.bb-girlmates-page__hero {
+  padding: 0.5rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 0, 85, 0.12);
+}
+
+.bb-girlmates-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0.15rem 0 0.35rem;
+  color: var(--bb-velvet);
+  line-height: 1.05;
+}
+
+.bb-girlmates-page__sub {
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0;
+  color: var(--bb-muted);
+  max-width: 40ch;
+}
+
+.bb-girlmates-page__tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255, 0, 85, 0.1);
+}
+
+.bb-girlmates-page__tab {
+  flex: 1;
+  padding: 0.5rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  background: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--bb-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.bb-girlmates-page__tab--on {
+  background: #ffe4ec;
+  border-color: var(--bb-hot);
+  color: var(--bb-velvet);
+}
+
+.bb-girlmates-page__badge {
+  background: var(--bb-hot);
+  color: #fff;
+  font-size: 0.62rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.bb-girlmates-page__body {
+  padding-bottom: 2rem;
+}
+
+.bb-girlmates-page__matches-note {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--bb-muted);
+  margin: 0 1rem 0.75rem;
+}
+
+.bb-girlmates__compose-bar {
+  padding: 0 1rem 0.65rem;
+}
+
+.bb-girlmates__form {
+  margin: 0 1rem 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--bb-glass, #fff);
+  border: 1px solid rgba(255, 0, 85, 0.18);
+  box-shadow: var(--bb-shadow-soft, 0 6px 20px rgba(26, 5, 20, 0.06));
+}
+
+.bb-girlmates__form-lead {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0 0 0.75rem;
+  color: var(--bb-muted);
+}
+
+.bb-girlmates__kind-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.bb-girlmates__kind-tab {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 0, 85, 0.2);
+  background: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-girlmates__kind-tab--on {
+  background: #ffe4ec;
+  border-color: var(--bb-hot);
+}
+
+.bb-girlmates__field {
+  display: block;
+  margin-bottom: 0.55rem;
+}
+
+.bb-girlmates__field span {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+  margin-bottom: 0.2rem;
+}
+
+.bb-girlmates__form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.bb-girlmates__filters {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0 1rem 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bb-girlmates__filters::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-girlmates__filter {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 0, 85, 0.18);
+  background: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--bb-muted);
+}
+
+.bb-girlmates__filter--on {
+  background: var(--bb-velvet);
+  border-color: var(--bb-velvet);
+  color: #fff5f8;
+}
+
+.bb-girlmates__feed {
+  list-style: none;
+  margin: 0;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.bb-girlmates__empty-cell {
+  grid-column: 1 / -1;
+  list-style: none;
+}
+
+.bb-girlmates__empty-cell .bb-empty {
+  margin: 0.5rem 0;
+}
+
+.bb-girlmates-card {
+  padding: 0.85rem 0.9rem 0.75rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(255, 0, 85, 0.14);
+  box-shadow: 0 6px 18px rgba(26, 5, 20, 0.06);
+}
+
+.bb-girlmates-card--question {
+  border-left: 4px solid var(--bb-hot);
+}
+
+.bb-girlmates-card--roommate {
+  border-left: 4px solid #c9a27a;
+}
+
+.bb-girlmates-card--sublease {
+  border-left: 4px solid #ffb7ce;
+}
+
+.bb-girlmates-card--favor {
+  border-left: 4px solid var(--bb-velvet);
+}
+
+.bb-girlmates-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.bb-girlmates-card__kind {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+}
+
+.bb-girlmates-card__time {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  color: var(--bb-muted);
+}
+
+.bb-girlmates-card__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.15;
+  margin: 0 0 0.25rem;
+  color: var(--bb-velvet);
+}
+
+.bb-girlmates-card__meta {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  color: var(--bb-muted);
+  margin: 0 0 0.4rem;
+}
+
+.bb-girlmates-card__body {
+  font-family: var(--font-accent);
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0 0 0.55rem;
+  color: var(--bb-velvet);
+}
+
+.bb-girlmates-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+}
+
+.bb-girlmates-card__author {
+  font-weight: 700;
+  color: var(--bb-velvet);
+}
+
+.bb-girlmates-card__replies {
+  color: var(--bb-muted);
+}
+
+.bb-girlmates-card__reply {
+  margin-left: auto;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--bb-hot);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.62rem;
+}
+
+@media (min-width: 900px) {
+  .bb-girlmates__feed {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}

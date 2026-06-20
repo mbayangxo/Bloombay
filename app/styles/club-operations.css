@@ -1,0 +1,148 @@
+/* Club operations UI (owner + member) */
+
+.co-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.co-ops-metric {
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--co-barbie-soft);
+  border: 2px solid var(--co-barbie);
+}
+
+.co-ops-metric strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--co-hot);
+}
+
+.co-ops-metric span {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--co-muted);
+}
+
+.co-task-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--co-barbie);
+}
+
+.co-task-row select,
+.co-task-row input {
+  font-size: 0.82rem;
+}
+
+.co-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.co-timeline::before {
+  content: "";
+  position: absolute;
+  left: 0.35rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--co-hot), var(--co-barbie));
+  border-radius: 4px;
+}
+
+.co-timeline__item {
+  position: relative;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid var(--co-barbie);
+  border-radius: 10px;
+}
+
+.co-timeline__item::before {
+  content: "";
+  position: absolute;
+  left: -1.35rem;
+  top: 1rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--co-hot);
+  border: 2px solid #fff;
+}
+
+.co-timeline__item--due {
+  border-color: var(--co-hot);
+  box-shadow: 0 2px 0 var(--co-barbie);
+}
+
+.co-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.5rem;
+}
+
+.co-resource-card {
+  padding: 0.85rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 2px solid var(--co-barbie);
+  font-size: 0.82rem;
+}
+
+.co-resource-card__kind {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--co-hot);
+}
+
+.co-role-pill {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: var(--co-barbie-soft);
+  color: var(--co-ink);
+}
+
+.co-role-pill--owner { background: var(--co-hot); color: #fff; }
+.co-role-pill--admin { background: #121212; color: #fff; }
+.co-role-pill--moderator { background: #ffe4ec; }
+.co-role-pill--volunteer { background: #e8f4ff; }
+
+.mp-discover-section {
+  margin-bottom: 1.5rem;
+}
+
+.mp-discover-row {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+
+.mp-member-dir {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mp-member-dir__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--mp-barbie);
+}

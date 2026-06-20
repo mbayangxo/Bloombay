@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
+import { PinIcon } from "./pin-icon";
 
 export function TopBar({
   location = "Williamsburg",
@@ -19,7 +20,7 @@ export function TopBar({
 
       <p className="text-xs text-gray-400 font-medium">{day} · {location}</p>
 
-      {/* Icon row: Messages · Ping · Plans */}
+      {/* Icon row: Messages · Pin drops · Plans */}
       <div className="flex items-center gap-1.5">
 
         {/* Messages */}
@@ -31,15 +32,11 @@ export function TopBar({
           </svg>
         </Link>
 
-        {/* Ping (notifications) */}
-        <Link href="/member/notifications" aria-label="Ping"
-          className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-105 relative"
+        {/* Pin drops */}
+        <Link href="/member/pin-drops" aria-label="Pin drops"
+          className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-105"
           style={{ background: "var(--pale-pink-bg)" }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--bb-pink)" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          {/* Badge */}
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full border border-white" style={{ background: "#FF1F7D" }} />
+          <PinIcon size={15} stroke="var(--bb-pink)" />
         </Link>
 
         {/* Plans (tickets / events going to) */}

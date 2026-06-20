@@ -1,0 +1,1031 @@
+/* ─────────────────────────────────────────────────────
+   BloomBay Artifact System
+   Physical, tangible UI objects — not generic cards.
+   ───────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════
+   1. BLOOM TICKET
+   Concert/event ticket with perforation + barcode.
+   Use for: seat detail, reserved gatherings.
+   ══════════════════════════════════════════════════════ */
+
+.bb-ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bb-ivory);
+  border: 1px solid rgba(26, 5, 20, 0.1);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  max-width: 340px;
+}
+
+.bb-ticket__header {
+  background: var(--bb-velvet);
+  color: var(--bb-white);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bb-ticket__admit {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.bb-ticket__brand {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.bb-ticket__body {
+  padding: var(--space-5) var(--space-5) var(--space-3);
+}
+
+.bb-ticket__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--bb-velvet);
+  margin: 0 0 var(--space-4);
+}
+
+.bb-ticket__title span {
+  color: var(--bb-hot);
+}
+
+.bb-ticket__meta-row {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.bb-ticket__meta-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bb-ticket__meta-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+}
+
+.bb-ticket__meta-value {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-base);
+  font-weight: 600;
+  color: var(--bb-velvet);
+}
+
+/* Perforation line between body and stub */
+.bb-ticket__perf {
+  position: relative;
+  height: 1px;
+  margin: 0 var(--space-3);
+  background: repeating-linear-gradient(
+    to right,
+    rgba(26, 5, 20, 0.2) 0px,
+    rgba(26, 5, 20, 0.2) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+.bb-ticket__perf::before,
+.bb-ticket__perf::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bb-ivory-deep);
+}
+.bb-ticket__perf::before { left: -24px; }
+.bb-ticket__perf::after  { right: -24px; }
+
+.bb-ticket__stub {
+  padding: var(--space-3) var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bb-ticket__barcode {
+  height: 36px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--bb-velvet) 0px,
+    var(--bb-velvet) 2px,
+    transparent 2px,
+    transparent 4px,
+    var(--bb-velvet) 4px,
+    var(--bb-velvet) 5px,
+    transparent 5px,
+    transparent 8px,
+    var(--bb-velvet) 8px,
+    var(--bb-velvet) 11px,
+    transparent 11px,
+    transparent 13px
+  );
+  border-radius: 2px;
+  opacity: 0.85;
+  margin-top: var(--space-1);
+}
+
+.bb-ticket__code {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  letter-spacing: 0.1em;
+  color: var(--bb-muted);
+  text-align: center;
+}
+
+/* Ticket — horizontal layout variant */
+.bb-ticket--horizontal {
+  flex-direction: row;
+  max-width: 480px;
+}
+.bb-ticket--horizontal .bb-ticket__header {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: var(--space-5) var(--space-3);
+  min-width: 48px;
+}
+.bb-ticket--horizontal .bb-ticket__perf {
+  width: 1px;
+  height: auto;
+  margin: var(--space-3) 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(26, 5, 20, 0.2) 0px,
+    rgba(26, 5, 20, 0.2) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+.bb-ticket--horizontal .bb-ticket__perf::before { top: -24px; left: 50%; transform: translateX(-50%); }
+.bb-ticket--horizontal .bb-ticket__perf::after  { bottom: -24px; top: auto; left: 50%; transform: translateX(-50%); }
+
+/* ══════════════════════════════════════════════════════
+   2. BLOOM INVITATION (Envelope)
+   Sealed envelope with wax seal.
+   Use for: event invitations, gathering invites.
+   ══════════════════════════════════════════════════════ */
+
+.bb-envelope {
+  position: relative;
+  background: var(--bb-ivory);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--bb-line-soft);
+}
+
+.bb-envelope__flap {
+  position: relative;
+  background: var(--bb-barbie);
+  padding: var(--space-3) var(--space-4) var(--space-6);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  text-align: center;
+}
+
+.bb-envelope__body {
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  position: relative;
+}
+
+.bb-envelope__invite-line {
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--bb-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.bb-envelope__event-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--bb-velvet);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.bb-envelope__meta {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  color: var(--bb-muted);
+}
+
+.bb-envelope__date-badge {
+  position: absolute;
+  top: -var(--space-4);
+  right: var(--space-4);
+  background: var(--bb-hot);
+  color: var(--bb-white);
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+}
+
+/* Wax seal */
+.bb-wax-seal {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #c9527a, #8b1a3a);
+  box-shadow: 0 2px 8px rgba(139, 26, 58, 0.5), inset 0 1px 2px rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+.bb-wax-seal--lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1rem;
+}
+
+.bb-wax-seal--sm {
+  width: 36px;
+  height: 36px;
+  font-size: 0.6rem;
+}
+
+/* Stacked envelopes */
+.bb-envelope-stack {
+  position: relative;
+}
+.bb-envelope-stack .bb-envelope:nth-child(1) { z-index: 3; }
+.bb-envelope-stack .bb-envelope:nth-child(2) {
+  position: absolute;
+  top: 8px; left: 6px; right: -6px;
+  z-index: 2;
+  opacity: 0.85;
+}
+.bb-envelope-stack .bb-envelope:nth-child(3) {
+  position: absolute;
+  top: 16px; left: 10px; right: -10px;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* ══════════════════════════════════════════════════════
+   3. BLOOM REQUEST NOTE
+   Folded personal letter with wax seal + receipt.
+   Use for: connection requests, Bloom Requests.
+   ══════════════════════════════════════════════════════ */
+
+.bb-request-note {
+  position: relative;
+  background: var(--bb-ivory);
+  border-radius: var(--radius-md);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  box-shadow: var(--shadow-float);
+  border: 1px solid rgba(26, 5, 20, 0.07);
+  text-align: center;
+}
+
+.bb-request-note__overline {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+  margin-bottom: var(--space-3);
+}
+
+.bb-request-note__headline {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--bb-velvet);
+  margin-bottom: var(--space-1);
+}
+
+.bb-request-note__headline span {
+  color: var(--bb-hot);
+  font-family: var(--font-accent);
+  font-style: italic;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 0.85em;
+}
+
+.bb-request-note__tagline {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+  margin-bottom: var(--space-5);
+}
+
+.bb-request-note__body {
+  font-family: var(--font-accent);
+  font-size: 1.1rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--bb-velvet);
+  margin-bottom: var(--space-4);
+}
+
+.bb-request-note__body em {
+  color: var(--bb-hot);
+  font-style: italic;
+}
+
+/* Receipt strip inside request note */
+.bb-receipt {
+  background: var(--bb-white);
+  border: 1px solid var(--bb-line-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  text-align: left;
+}
+
+.bb-receipt__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  color: var(--bb-muted);
+}
+
+.bb-receipt__barcode {
+  height: 24px;
+  margin-top: var(--space-2);
+  background: repeating-linear-gradient(
+    to right,
+    var(--bb-velvet) 0px,
+    var(--bb-velvet) 1px,
+    transparent 1px,
+    transparent 3px,
+    var(--bb-velvet) 3px,
+    var(--bb-velvet) 4px,
+    transparent 4px,
+    transparent 7px
+  );
+  opacity: 0.25;
+  border-radius: 1px;
+}
+
+/* ══════════════════════════════════════════════════════
+   4. POLAROID
+   White-bordered photo with handwritten caption.
+   Use for: moments, memories, recent captured.
+   ══════════════════════════════════════════════════════ */
+
+.bb-polaroid {
+  background: var(--bb-white);
+  padding: var(--space-2) var(--space-2) var(--space-5);
+  box-shadow: var(--shadow-float);
+  border-radius: 2px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  transform-origin: center bottom;
+  transition: transform var(--duration-smooth) var(--ease-luxury);
+}
+
+.bb-polaroid:hover { transform: rotate(-1deg) scale(1.02); }
+
+.bb-polaroid__img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--bb-barbie-soft);
+  display: block;
+}
+
+.bb-polaroid__caption {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--bb-velvet);
+  text-align: center;
+  padding: var(--space-2) var(--space-1) 0;
+  line-height: 1.3;
+}
+
+/* Strip of polaroids */
+.bb-polaroid-strip {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bb-polaroid-strip::-webkit-scrollbar { display: none; }
+
+.bb-polaroid-strip .bb-polaroid { flex-shrink: 0; width: 120px; }
+.bb-polaroid-strip .bb-polaroid:nth-child(2n)   { transform: rotate(1.5deg); }
+.bb-polaroid-strip .bb-polaroid:nth-child(3n)   { transform: rotate(-2deg); }
+.bb-polaroid-strip .bb-polaroid:nth-child(4n)   { transform: rotate(1deg); }
+
+/* ══════════════════════════════════════════════════════
+   5. ROOM WALL NOTE
+   Pinned note / torn paper for The Room wall.
+   Use for: wall posts, bulletin entries.
+   ══════════════════════════════════════════════════════ */
+
+.bb-wall-note {
+  position: relative;
+  background: var(--bb-white);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--bb-line-soft);
+}
+
+/* Pin */
+.bb-wall-note::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bb-hot);
+  box-shadow: 0 2px 4px rgba(255,0,85,0.4);
+  z-index: 1;
+}
+
+.bb-wall-note--pink {
+  background: #FFF0F5;
+  border-color: rgba(255, 0, 85, 0.12);
+}
+
+.bb-wall-note--yellow {
+  background: #FFFBEB;
+  border-color: rgba(200, 160, 0, 0.15);
+}
+
+.bb-wall-note--ivory {
+  background: var(--bb-ivory);
+  border-color: var(--bb-line-soft);
+}
+
+.bb-wall-note__topic {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin-bottom: var(--space-2);
+}
+
+.bb-wall-note__title {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-base);
+  font-weight: 600;
+  color: var(--bb-velvet);
+  line-height: 1.35;
+  margin-bottom: var(--space-2);
+}
+
+.bb-wall-note__body {
+  font-family: var(--font-accent);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--bb-velvet);
+  line-height: 1.5;
+  margin-bottom: var(--space-3);
+}
+
+.bb-wall-note__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  color: var(--bb-muted);
+  border-top: 1px solid var(--bb-line-soft);
+  padding-top: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* Wall grid */
+.bb-wall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
+  justify-content: start;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-5);
+  background: #F5EDE8;
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+/* ══════════════════════════════════════════════════════
+   6. CLUB POSTER
+   Photo-based editorial poster for clubs.
+   Use for: club browse cards, featured clubs.
+   ══════════════════════════════════════════════════════ */
+
+.bb-club-poster {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: transform var(--duration-smooth) var(--ease-luxury);
+}
+
+.bb-club-poster:hover { transform: translateY(-4px); box-shadow: var(--shadow-float); }
+
+.bb-club-poster__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: linear-gradient(135deg, var(--bb-barbie-soft), var(--bb-barbie));
+}
+
+.bb-club-poster__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(26,5,20,0.85) 0%, rgba(26,5,20,0.3) 50%, transparent 100%);
+}
+
+.bb-club-poster__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-4);
+}
+
+.bb-club-poster__category {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-barbie);
+  margin-bottom: var(--space-1);
+}
+
+.bb-club-poster__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--bb-white);
+  margin-bottom: var(--space-2);
+}
+
+.bb-club-poster__tagline {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.3;
+  margin-bottom: var(--space-3);
+}
+
+.bb-club-poster__meta {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bb-club-poster__join {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: var(--bb-hot);
+  color: var(--bb-white);
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════════
+   7. TORN PAPER NOTE
+   Handwritten-feeling note with torn edges.
+   Use for: Room quotes, Yande says, hints.
+   ══════════════════════════════════════════════════════ */
+
+.bb-torn-note {
+  position: relative;
+  background: var(--bb-ivory);
+  padding: var(--space-4) var(--space-5);
+  border-radius: 2px;
+}
+
+.bb-torn-note::before,
+.bb-torn-note::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background:
+    radial-gradient(circle at 5% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 15% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 25% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 35% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 45% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 55% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 65% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 75% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 85% 50%, transparent 60%, var(--bb-ivory) 60%),
+    radial-gradient(circle at 95% 50%, transparent 60%, var(--bb-ivory) 60%);
+}
+.bb-torn-note::before { top: -8px; transform: rotate(180deg); }
+.bb-torn-note::after  { bottom: -8px; }
+
+.bb-torn-note__text {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--bb-velvet);
+}
+
+/* ══════════════════════════════════════════════════════
+   8. HOME PILLAR CARD (member home nav)
+   ══════════════════════════════════════════════════════ */
+
+.bb-pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--bb-white);
+  border: 1px solid var(--bb-line-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  text-decoration: none;
+  transition: border-color var(--duration-fast), transform var(--duration-smooth) var(--ease-luxury);
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-pillar:hover {
+  border-color: var(--bb-hot);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pink);
+}
+
+.bb-pillar__icon {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-1);
+}
+
+.bb-pillar__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--bb-velvet);
+  line-height: 1;
+}
+
+.bb-pillar__sub {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  color: var(--bb-muted);
+  line-height: 1.3;
+}
+
+.bb-pillar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--bb-hot);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-smooth) var(--ease-luxury);
+}
+.bb-pillar:hover::after { transform: scaleX(1); }
+
+/* ══════════════════════════════════════════════════════
+   9. EVENT POSTER (nightlife / flyer)
+   ══════════════════════════════════════════════════════ */
+
+.bb-event-poster {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bb-velvet);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-float);
+  border: 2px solid var(--bb-velvet);
+  transition: transform var(--duration-smooth) var(--ease-luxury);
+}
+
+.bb-event-poster:hover {
+  transform: translateY(-3px) rotate(-0.5deg);
+}
+
+.bb-event-poster__visual {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-size: cover;
+  background-position: center;
+}
+
+.bb-event-poster__inner {
+  position: relative;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  z-index: 1;
+}
+
+.bb-event-poster__eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-barbie);
+  margin: 0 0 var(--space-2);
+}
+
+.bb-event-poster__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--bb-white);
+  margin: 0 0 var(--space-2);
+}
+
+.bb-event-poster__hot {
+  color: var(--bb-hot);
+}
+
+.bb-event-poster__subtitle {
+  font-family: var(--font-accent);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 var(--space-3);
+  line-height: 1.4;
+}
+
+.bb-event-poster__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.bb-event-poster__tag {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px var(--space-2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  color: var(--bb-white);
+}
+
+.bb-event-poster__meta {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-sm);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.bb-event-poster--compact .bb-event-poster__inner {
+  padding: var(--space-4);
+}
+
+.bb-event-poster--compact .bb-event-poster__title {
+  font-size: clamp(1.35rem, 5vw, 2rem);
+}
+
+/* ══════════════════════════════════════════════════════
+   10. BLOOM NOTICE (pinned board / official)
+   ══════════════════════════════════════════════════════ */
+
+.bb-notice {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bb-white);
+  border: 1px solid var(--bb-line-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+}
+
+.bb-notice::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 28px;
+  height: 8px;
+  background: var(--bb-hot);
+  opacity: 0.85;
+  transform: rotate(8deg);
+  border-radius: 1px;
+}
+
+.bb-notice__eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bb-hot);
+  margin: 0 0 var(--space-2);
+}
+
+.bb-notice__headline {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--bb-velvet);
+  margin: 0 0 var(--space-3);
+  line-height: 1.05;
+  padding-right: 2rem;
+}
+
+.bb-notice__body {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-base);
+  line-height: 1.55;
+  color: var(--bb-velvet);
+  margin: 0;
+}
+
+.bb-notice__footer {
+  font-family: var(--font-ui);
+  font-size: var(--text-ui-xs);
+  color: var(--bb-muted);
+  margin: var(--space-3) 0 0;
+  letter-spacing: 0.04em;
+}
+
+.bb-notice__seal {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+}
+
+/* Handwritten name stamp — replaces circular avatars */
+.bb-hand-label {
+  display: inline-block;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bb-velvet);
+  background: var(--bb-barbie-soft);
+  border: 2px solid var(--bb-hot);
+  padding: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
+  transform: rotate(-3deg);
+  box-shadow: 2px 2px 0 rgba(26, 5, 20, 0.12);
+}
+
+/* Wall object board */
+.bb-wall-board {
+  min-height: 280px;
+  align-items: start;
+}
+
+.bb-wall-board .bb-wall-note {
+  transition: transform var(--duration-smooth) var(--ease-luxury);
+}
+
+.bb-wall-board .bb-wall-note:nth-child(3n + 1) {
+  transform: rotate(-1.5deg);
+}
+
+.bb-wall-board .bb-wall-note:nth-child(3n + 2) {
+  transform: rotate(1.25deg);
+}
+
+.bb-wall-board .bb-wall-note:nth-child(3n) {
+  transform: rotate(-0.5deg);
+}
+
+.bb-wall-board .bb-wall-note:hover {
+  transform: rotate(0deg) scale(1.02);
+  z-index: 2;
+}
+
+/* Artifact stacks in feeds */
+.bb-artifact-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bb-artifact-row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.bb-connect-board {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.bb-clubs-grid-posters:not(.bb-clubs-grid-posters--browse) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 180px));
+  gap: var(--space-4);
+  justify-content: start;
+}
+
+.bb-discovery-artifacts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bb-discovery-artifacts > li {
+  margin: 0;
+}
+
+.bb-polaroid-strip--vault {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 170px));
+  justify-content: start;
+  gap: var(--space-4);
+  padding: 0;
+  overflow: visible;
+}
+
+.bb-ticket--inline {
+  max-width: 100%;
+  margin: 0 auto var(--space-4);
+}

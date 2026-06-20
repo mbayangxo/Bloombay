@@ -1,0 +1,34 @@
+/* Day phase palette — hot pink · barbie · white · black (+ evening/night depth) */
+
+.mp-app[data-bb-phase="morning"],
+.mp-app[data-bb-phase="afternoon"] {
+  --bb-page-bg: #ffffff;
+  --bb-page-bg-soft: #ffe4ec;
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.55);
+  --bb-page-accent: #ff0055;
+  --bb-page-accent-soft: #ffb7ce;
+}
+
+.mp-app[data-bb-phase="evening"] {
+  --bb-page-bg: #fff5f8;
+  --bb-page-bg-soft: #ffd6e4;
+  --bb-page-ink: #1a0514;
+  --bb-page-muted: rgba(26, 5, 20, 0.6);
+  --bb-page-accent: #ff0055;
+  --bb-page-accent-soft: #ff8fb8;
+}
+
+/* Full dark palette only when night theme is on — not clock phase alone */
+.mp-app[data-mp-theme="night"] {
+  --bb-page-bg: #10080c;
+  --bb-page-bg-soft: #181018;
+  --bb-page-ink: #f5e8ee;
+  --bb-page-muted: rgba(245, 220, 230, 0.52);
+  --bb-page-accent: #ff6b9d;
+  --bb-page-accent-soft: #5c3040;
+}
+
+.mp-app {
+  background: var(--bb-page-bg, #ffffff);
+}

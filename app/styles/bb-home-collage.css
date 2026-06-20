@@ -1,0 +1,662 @@
+/* Homepage — single overlapping scrapbook canvas (not dashboard sections) */
+
+.bb-home-collage {
+  --collage-ui: var(--font-jost), system-ui, sans-serif;
+  --collage-display: var(--font-playfair), Georgia, serif;
+  --collage-script: var(--font-caveat), "Segoe Script", cursive;
+  --collage-type: "Courier New", Courier, monospace;
+
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.bb-home-collage .bb-home-layer__img {
+  filter: drop-shadow(0 8px 20px rgba(50, 25, 35, 0.12));
+}
+
+.bb-home-collage .bb-home-layer__content a {
+  pointer-events: auto;
+}
+
+/* ─── Mobile canvas ─── */
+.bb-home-collage--mobile {
+  display: block;
+  max-width: 26.875rem;
+  min-height: 118rem;
+  padding-bottom: 2rem;
+}
+
+.bb-home-collage--desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .bb-home-collage--mobile {
+    display: none;
+  }
+
+  .bb-home-collage--desktop {
+    display: block;
+    max-width: min(68rem, calc(100vw - 12rem));
+    min-height: 52rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* Shared text */
+.bb-home-collage__heart {
+  color: #d4738f;
+}
+
+.bb-home-collage__hero-line {
+  position: absolute;
+  left: 10%;
+  right: 6%;
+  margin: 0;
+  font-family: var(--collage-type);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #1a1210;
+}
+
+.bb-home-collage__hero-line--1 {
+  top: 22%;
+}
+
+.bb-home-collage__hero-line--2 {
+  top: 35%;
+}
+
+.bb-home-collage__hero-line em {
+  font-family: var(--collage-script);
+  font-style: normal;
+  font-size: 1.1em;
+  color: #d4738f;
+}
+
+.bb-home-collage__hero-sub {
+  position: absolute;
+  left: 10%;
+  right: 8%;
+  bottom: 16%;
+  margin: 0;
+  font-family: var(--collage-type);
+  font-size: 0.62rem;
+  color: #444;
+}
+
+.bb-home-collage__belong {
+  position: absolute;
+  right: -8%;
+  top: -6%;
+  padding: 0.2rem 0.45rem;
+  background: #ff1f7d;
+  color: #fff;
+  font-family: var(--collage-ui);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: rotate(6deg);
+  z-index: 5;
+}
+
+.bb-home-collage__polaroid-cap {
+  position: absolute;
+  left: 10%;
+  right: 8%;
+  bottom: 8%;
+  margin: 0;
+  font-family: var(--collage-script);
+  font-size: 0.62rem;
+  color: #1a1210;
+}
+
+.bb-home-collage__photo,
+.bb-home-collage .bb-home-polaroid__photo {
+  position: absolute;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  border-radius: 1px;
+  border: none;
+  padding: 0;
+}
+
+.bb-home-collage .bb-home-polaroid__photo-hint {
+  font-family: var(--collage-script);
+  font-size: 0.55rem;
+  color: rgba(90, 60, 70, 0.7);
+}
+
+.bb-home-collage__club .bb-home-layer,
+.bb-home-collage__near .bb-home-layer {
+  position: relative;
+  width: 100%;
+}
+
+/* ─── Mobile positions (overlapping) ─── */
+.bb-home-collage--mobile .bb-home-collage__hero-paper {
+  left: 0;
+  top: 0.5rem;
+  width: 52%;
+  z-index: 2;
+}
+
+.bb-home-collage--mobile .bb-home-collage__hero-polaroid {
+  right: -2%;
+  top: 0.25rem;
+  width: 54%;
+  z-index: 4;
+}
+
+.bb-home-collage--mobile .bb-home-collage__star {
+  right: 6%;
+  top: 9.5rem;
+  width: 2.75rem;
+  z-index: 11;
+}
+
+.bb-home-collage--mobile .bb-home-collage__tape--featured {
+  left: 38%;
+  top: 8.5rem;
+  width: 4.5rem;
+}
+
+.bb-home-collage--mobile .bb-home-collage__featured-label {
+  left: 2%;
+  top: 11.5rem;
+  width: 58%;
+  z-index: 5;
+}
+
+.bb-home-collage__featured-label-text {
+  position: absolute;
+  left: 12%;
+  top: 28%;
+  font-family: var(--collage-ui);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #1a1210;
+}
+
+.bb-home-collage__featured-whisper {
+  position: absolute;
+  left: 12%;
+  top: 48%;
+  margin: 0;
+  font-family: var(--collage-script);
+  font-size: 0.58rem;
+  color: #666;
+}
+
+.bb-home-collage__see-all {
+  position: absolute;
+  right: 10%;
+  bottom: 18%;
+  font-family: var(--collage-ui);
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #ff1f7d;
+  text-decoration: none;
+}
+
+.bb-home-collage__club {
+  position: absolute;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bb-home-collage--mobile .bb-home-collage__club--1 {
+  left: -3%;
+  top: 15.5rem;
+  width: 42%;
+}
+
+.bb-home-collage--mobile .bb-home-collage__club--2 {
+  left: 32%;
+  top: 16.75rem;
+  width: 40%;
+}
+
+.bb-home-collage--mobile .bb-home-collage__club--3 {
+  right: -4%;
+  top: 15rem;
+  width: 38%;
+}
+
+.bb-home-collage__club-name {
+  position: absolute;
+  left: 8%;
+  right: 6%;
+  bottom: 18%;
+  margin: 0;
+  font-family: var(--collage-ui);
+  font-size: 0.46rem;
+  font-weight: 800;
+  color: #1a1210;
+}
+
+.bb-home-collage__club-vibe {
+  position: absolute;
+  left: 8%;
+  right: 6%;
+  bottom: 10%;
+  margin: 0;
+  font-size: 0.42rem;
+  color: #888;
+}
+
+.bb-home-collage__club-join {
+  position: absolute;
+  left: 8%;
+  bottom: 4%;
+  font-size: 0.44rem;
+  font-weight: 700;
+  color: #ff1f7d;
+}
+
+.bb-home-collage__member-badge {
+  position: absolute;
+  right: 10%;
+  top: 14%;
+  font-size: 0.4rem;
+  font-weight: 700;
+  color: #ff1f7d;
+}
+
+.bb-home-collage__empty {
+  position: absolute;
+  left: 8%;
+  top: 16rem;
+  width: 50%;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
+  color: #5a4a48;
+}
+
+.bb-home-collage__plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: #ff1f7d;
+  color: #fff;
+  font-size: 1.35rem;
+  text-decoration: none;
+}
+
+.bb-home-collage--mobile .bb-home-collage__happenings {
+  left: 0;
+  top: 24.5rem;
+  width: 58%;
+  z-index: 7;
+}
+
+.bb-home-collage--mobile .bb-home-collage__connect {
+  right: -2%;
+  top: 25.5rem;
+  width: 46%;
+  z-index: 8;
+}
+
+.bb-home-collage--mobile .bb-home-collage__new-here {
+  left: 4%;
+  top: 36.5rem;
+  width: 52%;
+  z-index: 9;
+}
+
+.bb-home-collage--mobile .bb-home-collage__spotlight {
+  left: -2%;
+  top: 46rem;
+  width: 96%;
+  z-index: 10;
+}
+
+.bb-home-collage--mobile .bb-home-collage__flower {
+  right: 2%;
+  top: 44.5rem;
+  width: 3.5rem;
+  z-index: 13;
+}
+
+.bb-home-collage--mobile .bb-home-collage__vibes {
+  left: 0;
+  top: 58rem;
+  width: 100%;
+  z-index: 11;
+}
+
+.bb-home-collage--mobile .bb-home-collage__tape--near {
+  left: 12%;
+  top: 68.5rem;
+  width: 5rem;
+}
+
+.bb-home-collage__near-head {
+  position: absolute;
+  left: 6%;
+  top: 67.5rem;
+  display: flex;
+  gap: 0.5rem;
+  font-family: var(--collage-ui);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #1a1210;
+}
+
+.bb-home-collage__near {
+  position: absolute;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bb-home-collage--mobile .bb-home-collage__near--1 {
+  left: 0;
+  top: 70rem;
+  width: 34%;
+}
+
+.bb-home-collage--mobile .bb-home-collage__near--2 {
+  left: 30%;
+  top: 70.75rem;
+  width: 34%;
+}
+
+.bb-home-collage--mobile .bb-home-collage__near--3 {
+  right: 0;
+  top: 70rem;
+  width: 34%;
+}
+
+.bb-home-collage__section-title {
+  position: absolute;
+  left: 10%;
+  top: 14%;
+  margin: 0;
+  font-family: var(--collage-ui);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #1a1210;
+}
+
+.bb-home-collage__happening-list {
+  position: absolute;
+  left: 8%;
+  right: 6%;
+  top: 24%;
+  bottom: 18%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+}
+
+.bb-home-collage__happening-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.35rem;
+  padding: 0.2rem 0;
+  font-size: 0.44rem;
+  color: #1a1210;
+  text-decoration: none;
+}
+
+.bb-home-collage__happening-dot {
+  width: 4px;
+  height: 4px;
+  margin-top: 0.2rem;
+  border-radius: 50%;
+  background: #ff1f7d;
+}
+
+.bb-home-collage__happening-meta {
+  grid-column: 2;
+  font-size: 0.38rem;
+  color: #888;
+}
+
+.bb-home-collage__section-link {
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  font-size: 0.42rem;
+  font-weight: 700;
+  color: #ff1f7d;
+  text-decoration: none;
+}
+
+.bb-home-collage__connect-cap {
+  position: absolute;
+  left: 10%;
+  right: 8%;
+  bottom: 10%;
+  margin: 0;
+  font-family: var(--collage-script);
+  font-size: 0.55rem;
+  color: #1a1210;
+}
+
+.bb-home-collage__new-here-title {
+  position: absolute;
+  left: 12%;
+  top: 18%;
+  margin: 0;
+  font-family: var(--collage-ui);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #fff;
+}
+
+.bb-home-collage__onboard-list {
+  position: absolute;
+  left: 10%;
+  right: 8%;
+  top: 32%;
+  bottom: 12%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bb-home-collage__onboard-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0;
+  font-size: 0.44rem;
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+}
+
+.bb-home-collage__onboard-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 0.42rem;
+  font-weight: 700;
+}
+
+.bb-home-collage__spotlight-eyebrow {
+  position: absolute;
+  left: 6%;
+  top: 10%;
+  margin: 0;
+  font-size: 0.48rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #1a1210;
+}
+
+.bb-home-collage__spotlight-line {
+  position: absolute;
+  left: 6%;
+  right: 42%;
+  top: 18%;
+  margin: 0;
+  font-family: var(--collage-script);
+  font-size: 0.62rem;
+  color: #1a1210;
+}
+
+.bb-home-collage__im-in {
+  position: absolute;
+  left: 6%;
+  bottom: 12%;
+  padding: 0.35rem 0.65rem;
+  background: #ff1f7d;
+  color: #fff;
+  font-size: 0.44rem;
+  font-weight: 800;
+  text-decoration: none;
+  border-radius: 999px;
+}
+
+.bb-home-collage__vibes-title {
+  position: absolute;
+  left: 6%;
+  top: 22%;
+  margin: 0;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #1a1210;
+}
+
+.bb-home-collage__vibe-tags {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 38%;
+  bottom: 18%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.bb-home-collage__vibe-tag {
+  padding: 0.2rem 0.45rem;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  font-size: 0.4rem;
+  font-weight: 600;
+  color: #1a1210;
+  text-decoration: none;
+}
+
+.bb-home-collage__near-name {
+  position: absolute;
+  left: 10%;
+  right: 8%;
+  bottom: 16%;
+  margin: 0;
+  font-family: var(--collage-ui);
+  font-size: 0.48rem;
+  font-weight: 800;
+  color: #1a1210;
+}
+
+.bb-home-collage__near-sub {
+  position: absolute;
+  left: 10%;
+  bottom: 8%;
+  margin: 0;
+  font-size: 0.38rem;
+  color: #888;
+}
+
+/* ─── Desktop spread ─── */
+.bb-home-collage--desktop .bb-home-collage__d-hero-paper {
+  left: 2%;
+  top: 0.5rem;
+  width: 34%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-hero-polaroid {
+  right: 4%;
+  top: 0;
+  width: 30%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-featured-label {
+  left: 36%;
+  top: 1rem;
+  width: 28%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-club {
+  position: absolute;
+  text-decoration: none;
+  color: inherit;
+  width: 16%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-club--1 {
+  left: 2%;
+  top: 14rem;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-club--2 {
+  left: 18%;
+  top: 15rem;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-club--3 {
+  left: 34%;
+  top: 14.5rem;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-club--4 {
+  left: 50%;
+  top: 15.5rem;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-happenings {
+  left: 2%;
+  top: 26rem;
+  width: 36%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-spotlight {
+  right: 2%;
+  top: 12rem;
+  width: 42%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-vibes {
+  left: 2%;
+  top: 38rem;
+  width: 55%;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-flower {
+  right: 8%;
+  top: 36rem;
+  width: 5rem;
+}
+
+.bb-home-collage--desktop .bb-home-collage__d-star {
+  left: 48%;
+  top: 8rem;
+  width: 3.5rem;
+}
