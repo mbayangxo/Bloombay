@@ -16,6 +16,7 @@ import {
   type GatheringCommitment,
 } from "@/lib/member-gathering-plans";
 import { HappeningRsvpConfirmation } from "./happening-rsvp-confirmation";
+import { RoomBriefCard } from "@/app/components/portal/room-brief-card";
 
 type RsvpPhase = "choose" | "confirm" | "done";
 
@@ -125,6 +126,8 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
         <div className="mb-6">
           <PosterRenderer data={{ ...poster, ctaLabel: undefined, href: undefined }} />
         </div>
+
+        <RoomBriefCard gatheringId={gathering.id} />
 
         <div className="rounded-3xl p-5 bg-white mb-4" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
           <p className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: poster.accentColor }}>
