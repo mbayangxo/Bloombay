@@ -4,34 +4,105 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+interface PendingApplicant {
+  id: string;
+  name: string;
+  applied_at?: string;
+  avatar_url?: string;
+}
+
+interface UpcomingGathering {
+  title: string;
+  starts_at: string;
+}
+
 interface OverviewData {
   clubs: unknown[];
   memberships: unknown[];
-  pending_applications: unknown[];
-  upcoming_gatherings: Array<{ title: string; starts_at: string }>;
+  pending_applications: PendingApplicant[];
+  upcoming_gatherings: UpcomingGathering[];
 }
 
-const QUICK_LINKS = [
-  { href: "/curator/dashboard", label: "Dashboard" },
-  { href: "/curator/events", label: "Events" },
-  { href: "/curator/clubs", label: "Clubs" },
-  { href: "/curator/members", label: "Members" },
-  { href: "/curator/analytics", label: "Analytics" },
-  { href: "/curator/promote", label: "Promote" },
+const PINK = "#FF1F7D";
+
+const QUICK_ACCESS = [
+  { href: "/curator/applications", label: "Review Applications", badge: true },
+  { href: "/curator/gatherings/new", label: "New Gathering" },
+  { href: "/curator/updates/new", label: "Post Update" },
+  { href: "/curator/clubs", label: "All Clubs" },
+  { href: "/member", label: "Member Portal" },
 ];
+
+function daysUntil(isoString: string): number {
+  return Math.ceil((new Date(isoString).getTime() - Date.now()) / 86400000);
+}
+
+function timeAgo(isoString?: string): string {
+  if (!isoString) return "";
+  const diffMs = Date.now() - new Date(isoString).getTime();
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "1 day ago";
+  return `${diffDays} days ago`;
+}
 
 function formatGatheringDate(isoString: string): string {
   try {
     const d = new Date(isoString);
-    const month = d.toLocaleString("en-US", { month: "short" });
-    const day = d.getDate();
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
     const hour = d.getHours();
     const ampm = hour >= 12 ? "pm" : "am";
-    const hour12 = hour % 12 || 12;
-    return `${month} ${day} · ${hour12}${ampm}`;
+    const h = hour % 12 || 12;
+    return `${months[d.getMonth()]} ${d.getDate()} · ${h}${ampm}`;
   } catch {
     return "";
   }
+}
+
+function SkeletonBar({ width = "60%", height = 14 }: { width?: string; height?: number }) {
+  return (
+    <div
+      style={{
+        height,
+        width,
+        background: "rgba(255,255,255,0.06)",
+        borderRadius: 3,
+        marginBottom: 4,
+      }}
+    />
+  );
+}
+
+function InitialAvatar({ name }: { name: string }) {
+  const initial = name.trim().charAt(0).toUpperCase();
+  return (
+    <div
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: "50%",
+        background: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Jost', sans-serif",
+          fontSize: 11,
+          fontWeight: 700,
+          color: "white",
+        }}
+      >
+        {initial}
+      </span>
+    </div>
+  );
 }
 
 export function CuratorDesktopRightPanel() {
@@ -41,19 +112,18 @@ export function CuratorDesktopRightPanel() {
 
   useEffect(() => {
     fetch("/api/curator/overview")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        setData(d);
-        setLoading(false);
+        if (d) setData(d);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const clubs = data?.clubs ?? [];
-  const memberships = data?.memberships ?? [];
   const pending = data?.pending_applications ?? [];
   const gatherings = data?.upcoming_gatherings ?? [];
-  const topGatherings = gatherings.slice(0, 3);
+  const nextGathering = gatherings[0] ?? null;
+  const daysAway = nextGathering ? daysUntil(nextGathering.starts_at) : null;
 
   return (
     <aside
@@ -64,15 +134,14 @@ export function CuratorDesktopRightPanel() {
         borderLeft: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      {/* Header */}
+      {/* CURATOR HEADER */}
       <div
-        className="flex-shrink-0"
         style={{
-          padding: "24px",
+          padding: 24,
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <p
+        <div
           style={{
             fontFamily: "'Jost', sans-serif",
             fontSize: 7,
@@ -83,281 +152,171 @@ export function CuratorDesktopRightPanel() {
           }}
         >
           CURATOR
-        </p>
-        <p
+        </div>
+        <div
           style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: "italic",
-            fontSize: 18,
+            fontSize: 17,
             color: "white",
-            margin: 0,
+            lineHeight: 1.2,
           }}
         >
-          Overview
-        </p>
-      </div>
-
-      {/* Live counts */}
-      <div
-        className="flex-shrink-0"
-        style={{
-          padding: "20px 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 12,
-          }}
-        >
-          {loading ? (
-            <>
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-[52px] rounded-lg"
-                  style={{ background: "rgba(255,255,255,0.06)" }}
-                />
-              ))}
-            </>
-          ) : (
-            <>
-              {/* Clubs */}
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 12,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 24,
-                    color: "white",
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {clubs.length}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 7,
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    margin: "4px 0 0",
-                  }}
-                >
-                  CLUBS
-                </p>
-              </div>
-
-              {/* New Members */}
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 12,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 24,
-                    color: "white",
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {memberships.length}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 7,
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    margin: "4px 0 0",
-                  }}
-                >
-                  NEW JOINS
-                </p>
-              </div>
-
-              {/* Pending Apps */}
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 12,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 24,
-                    color: pending.length > 0 ? "#FF1F7D" : "white",
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {pending.length}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 7,
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    margin: "4px 0 0",
-                  }}
-                >
-                  PENDING
-                </p>
-              </div>
-
-              {/* Upcoming Gatherings count */}
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 12,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 24,
-                    color: "white",
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {gatherings.length}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 7,
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    margin: "4px 0 0",
-                  }}
-                >
-                  GATHERINGS
-                </p>
-              </div>
-            </>
-          )}
+          Your clubs.
         </div>
       </div>
 
-      {/* Upcoming gatherings list */}
+      {/* APPLICATIONS */}
       <div
-        className="flex-shrink-0"
         style={{
-          padding: "20px 24px",
+          padding: 24,
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <p
-          style={{
-            fontFamily: "'Jost', sans-serif",
-            fontSize: 7,
-            letterSpacing: "0.2em",
-            color: "rgba(255,255,255,0.25)",
-            textTransform: "uppercase",
-            marginBottom: 12,
-          }}
-        >
-          UPCOMING
-        </p>
-
         {loading ? (
-          <div className="flex flex-col gap-2">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-8 rounded-md"
-                style={{ background: "rgba(255,255,255,0.06)" }}
-              />
-            ))}
-          </div>
-        ) : topGatherings.length === 0 ? (
-          <p
+          <>
+            <SkeletonBar width="65%" height={18} />
+            <SkeletonBar width="80%" height={32} />
+            <SkeletonBar width="80%" height={32} />
+          </>
+        ) : pending.length === 0 ? (
+          <div
             style={{
-              fontFamily: "'Caveat', cursive",
-              fontSize: 13,
-              color: "rgba(255,255,255,0.25)",
-              margin: 0,
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 10,
+              color: "rgba(255,255,255,0.3)",
+              fontStyle: "italic",
             }}
           >
-            Nothing scheduled.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {topGatherings.map((g, i) => (
-              <div key={i}>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 10,
-                    color: "white",
-                    margin: 0,
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {g.title}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    fontSize: 8,
-                    color: "rgba(255,255,255,0.35)",
-                    margin: "3px 0 0",
-                  }}
-                >
-                  {formatGatheringDate(g.starts_at)}
-                </p>
-              </div>
-            ))}
+            All caught up.
           </div>
-        )}
+        ) : (
+          <>
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontSize: 17,
+                color: PINK,
+                marginBottom: 14,
+              }}
+            >
+              {pending.length} women want in.
+            </div>
 
-        <Link
-          href="/curator/dashboard?tab=gatherings"
-          style={{
-            display: "inline-block",
-            marginTop: 14,
-            fontFamily: "'Jost', sans-serif",
-            fontSize: 8,
-            color: "#FF1F7D",
-            letterSpacing: "0.08em",
-            textDecoration: "none",
-          }}
-        >
-          VIEW ALL →
-        </Link>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {pending.slice(0, 3).map((applicant) => (
+                <div
+                  key={applicant.id}
+                  style={{ display: "flex", alignItems: "center", gap: 8 }}
+                >
+                  <InitialAvatar name={applicant.name} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontFamily: "'Jost', sans-serif",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "white",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {applicant.name}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'Jost', sans-serif",
+                        fontSize: 10,
+                        color: "rgba(255,255,255,0.35)",
+                      }}
+                    >
+                      wants to join
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 9,
+                      color: "rgba(255,255,255,0.3)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {timeAgo(applicant.applied_at)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/curator/applications"
+              style={{
+                display: "inline-block",
+                marginTop: 12,
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 8,
+                letterSpacing: "0.12em",
+                color: PINK,
+                textDecoration: "none",
+                textTransform: "uppercase",
+              }}
+            >
+              SEE ALL →
+            </Link>
+          </>
+        )}
       </div>
 
-      {/* Quick links */}
-      <div
-        className="flex-1"
-        style={{ padding: "20px 24px" }}
-      >
-        <p
+      {/* NEXT GATHERING */}
+      {!loading && nextGathering && (
+        <div
+          style={{
+            padding: 24,
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          {daysAway !== null && daysAway >= 0 && (
+            <div
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 8,
+                letterSpacing: "0.18em",
+                color: PINK,
+                textTransform: "uppercase",
+                marginBottom: 8,
+              }}
+            >
+              IN {daysAway} DAYS
+            </div>
+          )}
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 14,
+              color: "white",
+              lineHeight: 1.3,
+              marginBottom: 4,
+            }}
+          >
+            {nextGathering.title}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 10,
+              color: "rgba(255,255,255,0.35)",
+            }}
+          >
+            {formatGatheringDate(nextGathering.starts_at)}
+          </div>
+        </div>
+      )}
+
+      {/* QUICK ACCESS */}
+      <div style={{ padding: 24 }}>
+        <div
           style={{
             fontFamily: "'Jost', sans-serif",
             fontSize: 7,
@@ -367,34 +326,61 @@ export function CuratorDesktopRightPanel() {
             marginBottom: 4,
           }}
         >
-          QUICK NAV
-        </p>
-
-        <div className="flex flex-col">
-          {QUICK_LINKS.map((link) => {
-            const active =
-              pathname === link.href ||
-              pathname.startsWith(link.href + "?");
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  fontFamily: "'Jost', sans-serif",
-                  fontSize: 9,
-                  color: active ? "white" : "rgba(255,255,255,0.35)",
-                  fontWeight: active ? 700 : 400,
-                  padding: "8px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.04)",
-                  textDecoration: "none",
-                  display: "block",
-                }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+          QUICK ACCESS
         </div>
+
+        {QUICK_ACCESS.map((link, i) => {
+          const active =
+            pathname === link.href || pathname.startsWith(link.href + "/");
+          const hasBadge = link.badge && pending.length > 0;
+
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 9,
+                letterSpacing: "0.1em",
+                color: active ? "white" : "rgba(255,255,255,0.3)",
+                fontWeight: active ? 600 : 400,
+                padding: "9px 0",
+                borderBottom:
+                  i === QUICK_ACCESS.length - 1
+                    ? "none"
+                    : "0.5px solid rgba(255,255,255,0.05)",
+                textDecoration: "none",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                {link.label}
+                {hasBadge && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      background: PINK,
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 8,
+                      color: "white",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {pending.length}
+                  </span>
+                )}
+              </span>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>›</span>
+            </Link>
+          );
+        })}
       </div>
     </aside>
   );

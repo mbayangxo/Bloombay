@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 interface ClubData {
   name: string;
   tagline: string;
-  primary_color: string;
   member_count: number;
   member_limit: number;
   pending_applications: number;
@@ -22,197 +21,510 @@ interface Gathering {
   seats: number;
 }
 
-const QUICK_LINKS = [
-  { href: "/club-owner/dashboard",  label: "YOUR CLUB" },
-  { href: "/club-owner/women",      label: "OUR WOMEN" },
-  { href: "/club-owner/happenings", label: "GATHERINGS" },
-  { href: "/club-owner/requests",   label: "APPLICATIONS" },
-  { href: "/club-owner/finances",   label: "TREASURY" },
-  { href: "/club-owner/settings",   label: "SETTINGS" },
+interface PendingApplicant {
+  id: string;
+  name: string;
+  applied_at?: string;
+}
+
+interface GatheringsResponse {
+  upcoming: Gathering[];
+}
+
+const PINK = "#FF1F7D";
+
+const QUICK_ACCESS = [
+  { href: "/club-owner/requests", label: "Applications", badge: true },
+  { href: "/club-owner/happenings/new", label: "New Gathering" },
+  { href: "/club-owner/updates/new", label: "Post Update" },
+  { href: "/club-owner/women", label: "All Members" },
+  { href: "/member", label: "Member Portal" },
 ];
+
+function daysUntil(dateStr: string): number {
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
+}
 
 function formatGatheringDate(dateStr: string): string {
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
-    const month = d.toLocaleString("en-US", { month: "short" });
-    const day = d.getDate();
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
     const hour = d.getHours();
     const ampm = hour >= 12 ? "pm" : "am";
     const h = hour % 12 || 12;
-    return `${month} ${day} · ${h}${ampm}`;
+    return `${months[d.getMonth()]} ${d.getDate()} · ${h}${ampm}`;
   } catch {
     return dateStr;
   }
+}
+
+function daysAgoLabel(isoString?: string): string {
+  if (!isoString) return "";
+  const diffDays = Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000);
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "1 day ago";
+  return `${diffDays} days ago`;
+}
+
+function SkeletonBar({ width = "60%", height = 14 }: { width?: string; height?: number }) {
+  return (
+    <div
+      style={{
+        height,
+        width,
+        background: "rgba(255,255,255,0.06)",
+        borderRadius: 3,
+        marginBottom: 4,
+      }}
+    />
+  );
+}
+
+function AvatarCircle({ size, name }: { size: number; name: string }) {
+  const initial = name.trim().charAt(0).toUpperCase();
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Jost', sans-serif",
+          fontSize: size * 0.4,
+          fontWeight: 700,
+          color: "white",
+        }}
+      >
+        {initial}
+      </span>
+    </div>
+  );
 }
 
 export function ClubDesktopRightPanel() {
   const pathname = usePathname();
   const [club, setClub] = useState<ClubData | null>(null);
   const [gatherings, setGatherings] = useState<Gathering[]>([]);
+  const [pendingApplicants, setPendingApplicants] = useState<PendingApplicant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/club-portal/my-club").then(r => r.ok ? r.json() : null),
-      fetch("/api/club-portal/gatherings").then(r => r.ok ? r.json() : null),
-    ]).then(([clubData, gatheringsData]) => {
-      if (clubData && !clubData.error) setClub(clubData as ClubData);
-      if (gatheringsData?.upcoming) setGatherings(gatheringsData.upcoming as Gathering[]);
-    }).catch(() => {}).finally(() => setLoading(false));
+      fetch("/api/club-portal/my-club").then((r) => (r.ok ? r.json() : null)),
+      fetch("/api/club-portal/gatherings").then((r) => (r.ok ? r.json() : null)),
+    ])
+      .then(([clubData, gatheringsData]) => {
+        const cd = clubData as (ClubData & { error?: string }) | null;
+        if (cd && !cd.error) {
+          setClub(cd);
+        }
+        const gd = gatheringsData as GatheringsResponse | null;
+        if (gd?.upcoming) {
+          setGatherings(gd.upcoming);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  // Fetch pending applicants separately for detail rows
+  useEffect(() => {
+    fetch("/api/club-portal/applications?status=pending")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.applications) setPendingApplicants(d.applications);
+        else if (Array.isArray(d)) setPendingApplicants(d);
+      })
+      .catch(() => {});
+  }, []);
+
+  const nextGathering = gatherings[0] ?? null;
+  const days = nextGathering ? daysUntil(nextGathering.date) : null;
+  const pendingCount = club?.pending_applications ?? 0;
+  const displayApplicants = pendingApplicants.slice(0, 3);
+  const extraApplicants = pendingCount - 3;
+
+  // Newest member proxy: use upcoming_gatherings count as availability signal
+  const hasNewestMember = (club?.member_count ?? 0) > 0;
 
   return (
     <aside
       className="hidden lg:flex flex-col fixed right-0 top-0 h-full overflow-y-auto z-40"
-      style={{ width: 260, background: "#111111", borderLeft: "1px solid rgba(255,255,255,0.06)" }}
+      style={{
+        width: 260,
+        background: "#111111",
+        borderLeft: "1px solid rgba(255,255,255,0.06)",
+      }}
     >
-      {/* Club Header */}
-      <div style={{ padding: "24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", marginBottom: 8 }}>
-          YOUR CLUB
-        </p>
-        <p style={{ fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 18, color: "white", fontStyle: "italic", textTransform: "uppercase", lineHeight: 1.2 }}>
-          {club?.name ?? "YOUR CLUB"}
-        </p>
-        {club?.tagline ? (
-          <p style={{ fontFamily: "var(--font-caveat, cursive)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
-            {club.tagline}
-          </p>
-        ) : null}
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.3)", marginTop: 6 }}>
-          {club?.member_count ?? 0} members
-        </p>
-      </div>
-
-      {/* Stats Tiles */}
-      <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="grid grid-cols-2 gap-2">
-          {loading ? (
-            <>
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="h-[52px] rounded-lg" style={{ background: "rgba(255,255,255,0.06)" }} />
-              ))}
-            </>
-          ) : (
-            <>
-              {/* Members */}
-              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p style={{ fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 24, color: "white", lineHeight: 1 }}>
-                  {club?.member_count ?? 0}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: "0.1em" }}>
-                  MEMBERS
-                </p>
-              </div>
-
-              {/* Capacity */}
-              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p style={{ fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 24, color: "white", lineHeight: 1 }}>
-                  {club?.member_limit === 0 ? "∞" : (club?.member_limit ?? 0)}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: "0.1em" }}>
-                  CAPACITY
-                </p>
-              </div>
-
-              {/* Pending */}
-              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p style={{ fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 24, color: (club?.pending_applications ?? 0) > 0 ? "#FF1F7D" : "white", lineHeight: 1 }}>
-                  {club?.pending_applications ?? 0}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: (club?.pending_applications ?? 0) > 0 ? "#FF1F7D" : "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: "0.1em" }}>
-                  PENDING
-                </p>
-              </div>
-
-              {/* Upcoming Gatherings */}
-              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p style={{ fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 24, color: "white", lineHeight: 1 }}>
-                  {club?.upcoming_gatherings ?? 0}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: "0.1em" }}>
-                  GATHERINGS
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Upcoming Gatherings List */}
-      <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        {/* Pending applications chip */}
-        {(club?.pending_applications ?? 0) > 0 && (
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#FF1F7D", marginBottom: 10 }}>
-            ● {club!.pending_applications} application{club!.pending_applications === 1 ? "" : "s"} waiting
-          </p>
-        )}
-
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", marginBottom: 12 }}>
-          UPCOMING GATHERINGS
-        </p>
-
-        {gatherings.length === 0 ? (
-          <p style={{ fontFamily: "var(--font-caveat, cursive)", fontSize: 13, color: "rgba(255,255,255,0.25)" }}>
-            No gatherings scheduled.
-          </p>
+      {/* CLUB HEADER */}
+      <div
+        style={{
+          padding: 24,
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        {loading ? (
+          <SkeletonBar width="75%" height={20} />
         ) : (
-          <div className="flex flex-col gap-3">
-            {gatherings.slice(0, 3).map(g => (
-              <div key={g.id}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "white", lineHeight: 1.3 }}>
-                  {g.title}
-                </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
-                  {formatGatheringDate(g.date)}
-                </p>
-                {g.venue ? (
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 1 }}>
-                    {g.venue}
-                  </p>
-                ) : null}
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 18,
+              color: "white",
+              lineHeight: 1.2,
+            }}
+          >
+            {club?.name ?? "Your Club"}
+          </div>
+        )}
+      </div>
+
+      {/* NEXT GATHERING */}
+      <div
+        style={{
+          padding: 24,
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'Jost', sans-serif",
+            fontSize: 7,
+            letterSpacing: "0.2em",
+            color: "rgba(255,255,255,0.25)",
+            textTransform: "uppercase",
+            marginBottom: 12,
+          }}
+        >
+          NEXT GATHERING
+        </div>
+
+        {loading ? (
+          <>
+            <SkeletonBar width="30%" height={48} />
+            <SkeletonBar width="60%" height={14} />
+            <SkeletonBar width="80%" height={10} />
+          </>
+        ) : nextGathering && days !== null ? (
+          <>
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontSize: 48,
+                color: PINK,
+                lineHeight: 1,
+                marginBottom: 2,
+              }}
+            >
+              {days >= 0 ? days : 0}
+            </div>
+            <div
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 7,
+                letterSpacing: "0.18em",
+                color: "rgba(255,255,255,0.3)",
+                textTransform: "uppercase",
+                marginBottom: 10,
+              }}
+            >
+              DAYS AWAY
+            </div>
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontSize: 14,
+                color: "white",
+                lineHeight: 1.3,
+                marginBottom: 4,
+              }}
+            >
+              {nextGathering.title}
+            </div>
+            <div
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 10,
+                color: "rgba(255,255,255,0.35)",
+                marginBottom: 2,
+              }}
+            >
+              {formatGatheringDate(nextGathering.date)}
+              {nextGathering.venue ? ` · ${nextGathering.venue}` : ""}
+            </div>
+            <div
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 10,
+                color: "rgba(255,255,255,0.3)",
+                marginBottom: 14,
+              }}
+            >
+              {club?.member_count ?? 0} attending · {nextGathering.seats} open
+            </div>
+
+            {/* Ghost button */}
+            <Link
+              href={`/club-owner/happenings/${nextGathering.id}/remind`}
+              style={{
+                display: "block",
+                textAlign: "center",
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 8,
+                letterSpacing: "0.12em",
+                color: PINK,
+                textDecoration: "none",
+                textTransform: "uppercase",
+                padding: "8px 12px",
+                border: "1px solid rgba(255,31,125,0.3)",
+                background: "rgba(255,31,125,0.08)",
+                borderRadius: 9999,
+              }}
+            >
+              REMIND MEMBERS →
+            </Link>
+          </>
+        ) : (
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 13,
+              color: "rgba(255,255,255,0.25)",
+            }}
+          >
+            No gatherings scheduled.
+          </div>
+        )}
+      </div>
+
+      {/* APPLICATIONS */}
+      {!loading && pendingCount > 0 && (
+        <div
+          style={{
+            padding: 24,
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "white",
+              marginBottom: 12,
+            }}
+          >
+            {pendingCount} want to join
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {displayApplicants.map((a) => (
+              <div
+                key={a.id}
+                style={{ display: "flex", alignItems: "center", gap: 8 }}
+              >
+                <AvatarCircle size={28} name={a.name} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 12,
+                      color: "white",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {a.name}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Jost', sans-serif",
+                    fontSize: 10,
+                    color: "rgba(255,255,255,0.3)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {daysAgoLabel(a.applied_at)}
+                </div>
               </div>
             ))}
           </div>
-        )}
 
-        <Link
-          href="/club-owner/happenings"
-          style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#FF1F7D", display: "inline-block", marginTop: 14, letterSpacing: "0.08em" }}
+          {extraApplicants > 0 && (
+            <div
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 10,
+                color: "rgba(255,255,255,0.3)",
+                marginTop: 8,
+              }}
+            >
+              + {extraApplicants} more
+            </div>
+          )}
+
+          <Link
+            href="/club-owner/requests"
+            style={{
+              display: "inline-block",
+              marginTop: 10,
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 9,
+              letterSpacing: "0.12em",
+              color: PINK,
+              textDecoration: "none",
+              textTransform: "uppercase",
+            }}
+          >
+            REVIEW ALL →
+          </Link>
+        </div>
+      )}
+
+      {/* NEWEST MEMBER */}
+      {!loading && hasNewestMember && (
+        <div
+          style={{
+            padding: 24,
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
         >
-          VIEW ALL →
-        </Link>
-      </div>
-
-      {/* Quick Links */}
-      <div style={{ padding: "20px 24px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", marginBottom: 8 }}>
-          QUICK NAV
-        </p>
-        <div className="flex flex-col">
-          {QUICK_LINKS.map(link => {
-            const active = pathname === link.href || pathname.startsWith(link.href + "/");
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 7,
+              letterSpacing: "0.2em",
+              color: "rgba(255,255,255,0.25)",
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}
+          >
+            NEWEST MEMBER
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <AvatarCircle size={36} name="M" />
+            <div>
+              <div
                 style={{
-                  fontFamily: "var(--font-jost)",
-                  fontSize: 9,
-                  color: active ? "white" : "rgba(255,255,255,0.35)",
-                  fontWeight: active ? 700 : undefined,
-                  padding: "8px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.04)",
-                  display: "block",
-                  letterSpacing: "0.1em",
+                  fontFamily: "'Jost', sans-serif",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "white",
+                  marginBottom: 2,
                 }}
               >
-                {link.label}
-              </Link>
-            );
-          })}
+                New Member
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  fontSize: 10,
+                  color: "rgba(255,255,255,0.35)",
+                }}
+              >
+                Joined recently
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 11,
+              color: PINK,
+              marginTop: 8,
+            }}
+          >
+            Welcome her ♡
+          </div>
         </div>
+      )}
+
+      {/* QUICK ACCESS */}
+      <div style={{ padding: 24 }}>
+        <div
+          style={{
+            fontFamily: "'Jost', sans-serif",
+            fontSize: 7,
+            letterSpacing: "0.2em",
+            color: "rgba(255,255,255,0.25)",
+            textTransform: "uppercase",
+            marginBottom: 4,
+          }}
+        >
+          QUICK ACCESS
+        </div>
+
+        {QUICK_ACCESS.map((link, i) => {
+          const active =
+            pathname === link.href || pathname.startsWith(link.href + "/");
+          const hasBadge = link.badge && pendingCount > 0;
+
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 9,
+                letterSpacing: "0.1em",
+                color: active ? "white" : "rgba(255,255,255,0.3)",
+                fontWeight: active ? 600 : 400,
+                padding: "9px 0",
+                borderBottom:
+                  i === QUICK_ACCESS.length - 1
+                    ? "none"
+                    : "0.5px solid rgba(255,255,255,0.05)",
+                textDecoration: "none",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                {link.label}
+                {hasBadge && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      background: PINK,
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 8,
+                      color: "white",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {pendingCount}
+                  </span>
+                )}
+              </span>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)" }}>›</span>
+            </Link>
+          );
+        })}
       </div>
     </aside>
   );

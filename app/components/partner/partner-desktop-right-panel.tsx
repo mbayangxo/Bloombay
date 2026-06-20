@@ -4,44 +4,72 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface Reservation {
+interface Booking {
   id: string;
   date: string;
   time: string;
   party_size: number;
   status?: string;
+  notes?: string;
+  name?: string;
 }
 
 interface VenueData {
   venue: {
     name: string;
     neighborhood: string;
-    bloom_rating: number;
-    restaurant_type: string;
-    instagram: string;
+    bloom_rating?: number;
   };
-  upcoming: Reservation[];
-  pending: Reservation[];
+  upcoming: Booking[];
+  pending: Booking[];
 }
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
 
-const QUICK_LINKS = [
-  { href: "/partner/dashboard", label: "Dashboard" },
-  { href: "/partner/bookings", label: "Bookings" },
-  { href: "/partner/gallery", label: "Gallery" },
+const QUICK_ACCESS = [
+  { href: "/partner/bookings", label: "Full Schedule" },
+  { href: "/partner/requests", label: "Booking Requests" },
   { href: "/partner/analytics", label: "Analytics" },
-  { href: "/partner/settings", label: "Settings" },
+  { href: "/partner/settings", label: "Venue Settings" },
 ];
 
-function formatDate(dateStr: string): string {
+function isToday(dateStr: string): boolean {
   try {
     const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
   } catch {
-    return dateStr;
+    return false;
   }
+}
+
+function formatTodayLabel(): string {
+  const d = new Date();
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const months = [
+    "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+  ];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function SkeletonBar({ width = "60%", height = 14 }: { width?: string; height?: number }) {
+  return (
+    <div
+      style={{
+        height,
+        width,
+        background: "rgba(0,0,0,0.07)",
+        borderRadius: 3,
+        marginBottom: 4,
+      }}
+    />
+  );
 }
 
 export function PartnerDesktopRightPanel() {
@@ -51,7 +79,7 @@ export function PartnerDesktopRightPanel() {
 
   useEffect(() => {
     fetch("/api/partner-portal/my-venue")
-      .then((r) => r.ok ? r.json() : null)
+      .then((r) => (r.ok ? r.json() : null))
       .then((json) => {
         if (json) setData(json);
       })
@@ -62,6 +90,7 @@ export function PartnerDesktopRightPanel() {
   const venue = data?.venue;
   const upcoming = data?.upcoming ?? [];
   const pending = data?.pending ?? [];
+  const todaysBookings = upcoming.filter((b) => isToday(b.date)).slice(0, 4);
 
   return (
     <aside
@@ -72,16 +101,16 @@ export function PartnerDesktopRightPanel() {
         borderLeft: "1px solid rgba(0,0,0,0.07)",
       }}
     >
-      {/* ── Venue header ── */}
+      {/* VENUE HEADER */}
       <div
         style={{
           padding: 24,
           borderBottom: "1px solid rgba(0,0,0,0.06)",
         }}
       >
-        <p
+        <div
           style={{
-            fontFamily: "var(--font-jost)",
+            fontFamily: "'Jost', sans-serif",
             fontSize: 7,
             letterSpacing: "0.2em",
             color: "rgba(0,0,0,0.3)",
@@ -90,194 +119,286 @@ export function PartnerDesktopRightPanel() {
           }}
         >
           YOUR VENUE
-        </p>
-        <p
-          style={{
-            fontFamily: "var(--font-playfair)",
-            fontStyle: "italic",
-            fontSize: 18,
-            color: DARK,
-            lineHeight: 1.2,
-          }}
-        >
-          {venue?.name ?? "Your Venue"}
-        </p>
-        {venue?.neighborhood && (
-          <p
-            style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: 9,
-              color: "rgba(0,0,0,0.4)",
-              marginTop: 4,
-            }}
-          >
-            {venue.neighborhood}
-          </p>
-        )}
-        {venue?.bloom_rating != null && venue.bloom_rating > 0 && (
-          <p
-            style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: 11,
-              fontWeight: 700,
-              color: PINK,
-              marginTop: 6,
-            }}
-          >
-            ★ {venue.bloom_rating}
-          </p>
+        </div>
+
+        {loading ? (
+          <>
+            <SkeletonBar width="80%" height={18} />
+            <SkeletonBar width="50%" height={10} />
+          </>
+        ) : (
+          <>
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontSize: 18,
+                color: DARK,
+                lineHeight: 1.2,
+                marginBottom: 4,
+              }}
+            >
+              {venue?.name ?? "Your Venue"}
+            </div>
+            {venue?.neighborhood && (
+              <div
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  fontSize: 9,
+                  color: "rgba(0,0,0,0.4)",
+                  marginBottom: 4,
+                }}
+              >
+                {venue.neighborhood}
+              </div>
+            )}
+            {venue?.bloom_rating != null && venue.bloom_rating > 0 && (
+              <div
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: PINK,
+                }}
+              >
+                ✦ {venue.bloom_rating}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* ── Stats tiles ── */}
+      {/* TODAY'S TABLE */}
       <div
         style={{
-          padding: "20px 24px",
+          padding: 24,
           borderBottom: "1px solid rgba(0,0,0,0.06)",
         }}
       >
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 8,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            marginBottom: 14,
           }}
         >
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-[52px] rounded-lg"
-                style={{ background: "rgba(255,31,125,0.06)" }}
-              />
-            ))
-          ) : (
-            <>
-              {/* Upcoming confirmed */}
-              <StatTile
-                value={upcoming.length}
-                label="UPCOMING"
-                pink={false}
-              />
-              {/* Pending requests */}
-              <StatTile
-                value={pending.length}
-                label="PENDING"
-                pink={pending.length > 0}
-              />
-              {/* Rating */}
-              <StatTile
-                value={venue?.bloom_rating ? venue.bloom_rating : "—"}
-                label="BLOOM RATING"
-                pink={false}
-              />
-              {/* Type */}
-              <StatTile
-                value={
-                  venue?.restaurant_type
-                    ? venue.restaurant_type.split(" ")[0]
-                    : "—"
-                }
-                label="TYPE"
-                pink={false}
-              />
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── Upcoming reservations ── */}
-      <div
-        style={{
-          padding: "20px 24px",
-          borderBottom: "1px solid rgba(0,0,0,0.06)",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "var(--font-jost)",
-            fontSize: 7,
-            letterSpacing: "0.2em",
-            color: "rgba(0,0,0,0.3)",
-            textTransform: "uppercase",
-            marginBottom: 12,
-          }}
-        >
-          NEXT RESERVATIONS
-        </p>
-
-        {upcoming.length === 0 ? (
-          <p
+          <div
             style={{
-              fontFamily: "var(--font-caveat)",
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 7,
+              letterSpacing: "0.2em",
+              color: "rgba(0,0,0,0.3)",
+              textTransform: "uppercase",
+            }}
+          >
+            TODAY
+          </div>
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 7,
+              color: "rgba(0,0,0,0.3)",
+              letterSpacing: "0.1em",
+            }}
+          >
+            {formatTodayLabel()}
+          </div>
+        </div>
+
+        {loading ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[0, 1, 2].map((i) => (
+              <SkeletonBar key={i} width="90%" height={32} />
+            ))}
+          </div>
+        ) : todaysBookings.length === 0 ? (
+          <div
+            style={{
+              fontFamily: "'Caveat', cursive",
               fontSize: 13,
               color: "rgba(0,0,0,0.3)",
             }}
           >
-            No confirmed bookings yet.
-          </p>
+            No bookings today.
+          </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {upcoming.slice(0, 3).map((r) => (
-              <div key={r.id}>
-                <p
-                  style={{
-                    fontFamily: "var(--font-jost)",
-                    fontSize: 9,
-                    color: DARK,
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {formatDate(r.date)} · {r.time}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-jost)",
-                    fontSize: 9,
-                    color: "rgba(0,0,0,0.4)",
-                  }}
-                >
-                  · {r.party_size} guests
-                </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {todaysBookings.map((b) => (
+              <div key={b.id}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: PINK,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {b.time}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: DARK,
+                      flex: 1,
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {b.name ?? "Guest"}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 10,
+                      color: "rgba(0,0,0,0.4)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {b.party_size} guests
+                  </div>
+                </div>
+                {b.notes && (
+                  <div
+                    style={{
+                      fontFamily: "'Jost', sans-serif",
+                      fontSize: 10,
+                      fontStyle: "italic",
+                      color: "rgba(0,0,0,0.4)",
+                      marginTop: 2,
+                      paddingLeft: 0,
+                    }}
+                  >
+                    {b.notes}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
-
-        {upcoming.length > 0 && (
-          <Link
-            href="/partner/bookings"
-            style={{
-              display: "inline-block",
-              marginTop: 12,
-              fontFamily: "var(--font-jost)",
-              fontSize: 8,
-              letterSpacing: "0.15em",
-              color: PINK,
-              textTransform: "uppercase",
-              textDecoration: "none",
-            }}
-          >
-            SEE ALL →
-          </Link>
-        )}
       </div>
 
-      {/* ── Quick links ── */}
-      <div style={{ padding: "20px 24px" }}>
-        <p
+      {/* PENDING REQUESTS — only if pending.length > 0 */}
+      {!loading && pending.length > 0 && (
+        <div
           style={{
-            fontFamily: "var(--font-jost)",
+            padding: 24,
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 7,
+              letterSpacing: "0.2em",
+              color: "rgba(0,0,0,0.3)",
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            PENDING REQUESTS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontSize: 14,
+                color: DARK,
+              }}
+            >
+              {pending.length} request{pending.length !== 1 ? "s" : ""} waiting
+            </div>
+            <Link
+              href="/partner/requests"
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                fontSize: 8,
+                letterSpacing: "0.12em",
+                color: PINK,
+                textDecoration: "none",
+                textTransform: "uppercase",
+              }}
+            >
+              REVIEW →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* BLOOM RATING — only if venue has rating */}
+      {!loading && venue?.bloom_rating != null && venue.bloom_rating > 0 && (
+        <div
+          style={{
+            padding: 24,
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 36,
+              color: PINK,
+              lineHeight: 1,
+              marginBottom: 4,
+            }}
+          >
+            {venue.bloom_rating}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 7,
+              letterSpacing: "0.2em",
+              color: "rgba(0,0,0,0.3)",
+              textTransform: "uppercase",
+              marginBottom: 4,
+            }}
+          >
+            YOUR BLOOM RATING
+          </div>
+          <div
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 9,
+              color: "rgba(0,0,0,0.35)",
+              fontStyle: "italic",
+            }}
+          >
+            Based on member reviews
+          </div>
+        </div>
+      )}
+
+      {/* QUICK ACCESS */}
+      <div style={{ padding: 24 }}>
+        <div
+          style={{
+            fontFamily: "'Jost', sans-serif",
             fontSize: 7,
             letterSpacing: "0.2em",
-            color: "rgba(0,0,0,0.3)",
+            color: "rgba(0,0,0,0.25)",
             textTransform: "uppercase",
             marginBottom: 4,
           }}
         >
-          QUICK NAV
-        </p>
-        {QUICK_LINKS.map((link) => {
+          QUICK ACCESS
+        </div>
+
+        {QUICK_ACCESS.map((link, i) => {
           const active =
             pathname === link.href || pathname.startsWith(link.href + "/");
           return (
@@ -285,65 +406,28 @@ export function PartnerDesktopRightPanel() {
               key={link.href}
               href={link.href}
               style={{
-                display: "block",
-                fontFamily: "var(--font-jost)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontFamily: "'Jost', sans-serif",
                 fontSize: 9,
+                letterSpacing: "0.1em",
                 color: active ? DARK : "rgba(0,0,0,0.35)",
-                fontWeight: active ? 700 : 400,
-                padding: "8px 0",
-                borderBottom: "1px solid rgba(0,0,0,0.05)",
+                fontWeight: active ? 600 : 400,
+                padding: "9px 0",
+                borderBottom:
+                  i === QUICK_ACCESS.length - 1
+                    ? "none"
+                    : "0.5px solid rgba(0,0,0,0.05)",
                 textDecoration: "none",
               }}
             >
-              {link.label}
+              <span>{link.label}</span>
+              <span style={{ fontSize: 10, color: "rgba(0,0,0,0.2)" }}>›</span>
             </Link>
           );
         })}
       </div>
     </aside>
-  );
-}
-
-function StatTile({
-  value,
-  label,
-  pink,
-}: {
-  value: string | number;
-  label: string;
-  pink: boolean;
-}) {
-  return (
-    <div
-      style={{
-        background: "rgba(255,31,125,0.04)",
-        borderRadius: 10,
-        padding: 12,
-        border: "1px solid rgba(255,31,125,0.06)",
-      }}
-    >
-      <p
-        style={{
-          fontFamily: "var(--font-playfair)",
-          fontSize: 22,
-          color: pink ? PINK : DARK,
-          lineHeight: 1,
-          marginBottom: 4,
-        }}
-      >
-        {value}
-      </p>
-      <p
-        style={{
-          fontFamily: "var(--font-jost)",
-          fontSize: 7,
-          letterSpacing: "0.15em",
-          color: "rgba(0,0,0,0.3)",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </p>
-    </div>
   );
 }
