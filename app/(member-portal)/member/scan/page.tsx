@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { QRCodeSVG } from "qrcode.react";
 import "@/app/styles/bloom-entrance.css";
 
 const PINK = "#FF1F7D";
@@ -22,7 +23,10 @@ interface ScanResult {
 }
 
 export default function ScanPage() {
-  const [myCode, setMyCode] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fallback text-entry state
   const [input, setInput] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [resolving, setResolving] = useState(false);
@@ -30,16 +34,19 @@ export default function ScanPage() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string>("");
 
-  // Fetch the current user's ID to compute myCode
+  // Fetch the current user's ID on mount
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const code = `BB-${user.id.slice(0, 4).toUpperCase()}`;
-        setMyCode(code);
-      }
+      if (user) setUserId(user.id);
+      setLoading(false);
     });
   }, []);
+
+  const bloomCode = userId ? `BB-${userId.slice(0, 4).toUpperCase()}` : null;
+  const qrValue = userId
+    ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://bloombay.com"}/member/connect?from=${userId}`
+    : "";
 
   // Auto-resolve when input matches BB-XXXX (length 7)
   useEffect(() => {
@@ -112,91 +119,108 @@ export default function ScanPage() {
           color: PINK,
           marginBottom: 10,
         }}>
-          ✦ SCAN
+          ✦ YOUR BLOOM CODE
         </p>
         <p style={{
           fontFamily: "var(--font-playfair)",
           fontStyle: "italic",
-          fontSize: 24,
+          fontSize: 22,
           color: BLACK,
           margin: 0,
         }}>
-          Connect with her bloom code.
+          Show this to connect.
         </p>
       </div>
 
-      <div style={{ flex: 1, padding: "36px 24px 48px", display: "flex", flexDirection: "column", gap: 28, maxWidth: 400, margin: "0 auto", width: "100%" }}>
+      <div style={{ flex: 1, padding: "32px 24px 48px", display: "flex", flexDirection: "column", gap: 28, maxWidth: 400, margin: "0 auto", width: "100%" }}>
 
-        {/* YOUR CODE section */}
+        {/* QR CODE CARD */}
         <div style={{
           background: "#FFFFFF",
-          borderRadius: 20,
-          padding: "24px 24px 20px",
+          borderRadius: 24,
+          padding: 28,
           border: "1px solid rgba(255,31,125,0.12)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          boxShadow: "0 8px 32px rgba(255,31,125,0.1)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
         }}>
+          {/* QR code or loading placeholder */}
+          {loading ? (
+            <div style={{
+              width: 220,
+              height: 220,
+              borderRadius: 12,
+              background: "rgba(255,31,125,0.08)",
+              animation: "pulse 1.5s ease-in-out infinite",
+            }} />
+          ) : (
+            <QRCodeSVG
+              value={qrValue || "https://bloombay.com"}
+              size={220}
+              bgColor="#FFFFFF"
+              fgColor={BLACK}
+              level="M"
+            />
+          )}
+
+          {/* Bloom code text */}
+          {loading ? (
+            <div style={{
+              width: 120,
+              height: 34,
+              borderRadius: 8,
+              background: "rgba(255,31,125,0.08)",
+              animation: "pulse 1.5s ease-in-out infinite",
+            }} />
+          ) : (
+            <p style={{
+              fontFamily: "var(--font-playfair)",
+              fontStyle: "italic",
+              fontSize: 28,
+              color: PINK,
+              margin: 0,
+              letterSpacing: "0.06em",
+            }}>
+              {bloomCode}
+            </p>
+          )}
+
           <p style={{
             fontFamily: "Jost, sans-serif",
-            fontWeight: 700,
-            fontSize: 9,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            color: "rgba(0,0,0,0.3)",
-            marginBottom: 14,
-          }}>
-            YOUR CODE
-          </p>
-          <div className="bloom-card-enter" style={{
-            background: `linear-gradient(135deg, ${PINK} 0%, #FF5FA5 100%)`,
-            borderRadius: 14,
-            padding: "18px 20px",
-            textAlign: "center",
-            boxShadow: `0 8px 28px ${PINK}33`,
-          }}>
-            {myCode ? (
-              <p style={{
-                fontFamily: "Jost, sans-serif",
-                fontWeight: 700,
-                fontSize: 32,
-                letterSpacing: "0.14em",
-                color: "#FFFFFF",
-                margin: 0,
-              }}>
-                {myCode}
-              </p>
-            ) : (
-              <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: "50%",
-                  border: "2px solid rgba(255,255,255,0.3)",
-                  borderTopColor: "#FFFFFF",
-                  animation: "spin 1s linear infinite",
-                }} />
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              </div>
-            )}
-          </div>
-          <p style={{
-            fontFamily: "var(--font-playfair)",
-            fontStyle: "italic",
             fontSize: 11,
-            color: "rgba(0,0,0,0.35)",
+            color: "rgba(0,0,0,0.4)",
+            margin: 0,
             textAlign: "center",
-            marginTop: 12,
           }}>
-            Share this with her to connect.
+            She scans this. You scan hers.
           </p>
         </div>
 
-        {/* SCAN HERS section */}
+        {/* SEPARATOR */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }} />
+          <p style={{
+            fontFamily: "Jost, sans-serif",
+            fontSize: 11,
+            color: "rgba(0,0,0,0.3)",
+            margin: 0,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+          }}>
+            or
+          </p>
+          <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }} />
+        </div>
+
+        {/* SCAN HER CODE — fallback text entry */}
         <div style={{
           background: "#FFFFFF",
           borderRadius: 20,
-          padding: "24px 24px 20px",
-          border: "1px solid rgba(255,31,125,0.12)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          padding: "20px 20px 16px",
+          border: "1px solid rgba(255,31,125,0.10)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
         }}>
           <p style={{
             fontFamily: "Jost, sans-serif",
@@ -204,10 +228,10 @@ export default function ScanPage() {
             fontSize: 9,
             letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: "rgba(0,0,0,0.3)",
-            marginBottom: 14,
+            color: "rgba(0,0,0,0.28)",
+            marginBottom: 12,
           }}>
-            SCAN HERS
+            SCAN HER CODE
           </p>
 
           <div style={{ position: "relative" }}>
@@ -223,12 +247,12 @@ export default function ScanPage() {
               style={{
                 width: "100%",
                 boxSizing: "border-box",
-                padding: "14px 16px",
-                borderRadius: 12,
-                border: `1.5px solid ${preview ? PINK : "rgba(0,0,0,0.1)"}`,
+                padding: "12px 14px",
+                borderRadius: 10,
+                border: `1.5px solid ${preview ? PINK : "rgba(0,0,0,0.09)"}`,
                 fontFamily: "Jost, sans-serif",
                 fontWeight: 600,
-                fontSize: 20,
+                fontSize: 17,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
                 color: BLACK,
@@ -244,8 +268,8 @@ export default function ScanPage() {
                 right: 14,
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: 18,
-                height: 18,
+                width: 16,
+                height: 16,
                 borderRadius: "50%",
                 border: `2px solid ${PINK}40`,
                 borderTopColor: PINK,
@@ -270,26 +294,26 @@ export default function ScanPage() {
           {/* Preview */}
           {preview && !result && (
             <div className="bloom-card-enter" style={{
-              marginTop: 16,
+              marginTop: 14,
               background: "#FFF8F0",
-              borderRadius: 14,
-              padding: "14px 16px",
+              borderRadius: 12,
+              padding: "12px 14px",
               border: `1px solid ${PINK}20`,
               display: "flex",
               alignItems: "center",
-              gap: 12,
+              gap: 10,
             }}>
               {preview.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={preview.avatar_url}
                   alt={preview.name}
-                  style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `2px solid ${PINK}25` }}
+                  style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `2px solid ${PINK}25` }}
                 />
               ) : (
                 <div style={{
-                  width: 44,
-                  height: 44,
+                  width: 40,
+                  height: 40,
                   borderRadius: "50%",
                   background: `linear-gradient(135deg, ${PINK} 0%, #FF5FA5 100%)`,
                   display: "flex",
@@ -297,19 +321,19 @@ export default function ScanPage() {
                   justifyContent: "center",
                   color: "#FFFFFF",
                   fontWeight: 700,
-                  fontSize: 18,
+                  fontSize: 16,
                   flexShrink: 0,
                 }}>
                   {preview.name[0]?.toUpperCase() ?? "?"}
                 </div>
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontWeight: 700, fontSize: 15, color: BLACK, margin: 0 }}>{preview.name}</p>
+                <p style={{ fontWeight: 700, fontSize: 14, color: BLACK, margin: 0 }}>{preview.name}</p>
                 {preview.neighborhood && (
-                  <p style={{ fontSize: 11, color: "rgba(0,0,0,0.4)", margin: "2px 0 0", fontFamily: "Jost, sans-serif" }}>{preview.neighborhood}</p>
+                  <p style={{ fontSize: 10, color: "rgba(0,0,0,0.4)", margin: "2px 0 0", fontFamily: "Jost, sans-serif" }}>{preview.neighborhood}</p>
                 )}
               </div>
-              <span style={{ color: `${PINK}60`, fontSize: 16 }}>✦</span>
+              <span style={{ color: `${PINK}60`, fontSize: 14 }}>✦</span>
             </div>
           )}
 
@@ -319,16 +343,16 @@ export default function ScanPage() {
               onClick={handleConnect}
               disabled={scanning}
               style={{
-                marginTop: 16,
+                marginTop: 14,
                 width: "100%",
-                padding: "15px",
-                borderRadius: 14,
+                padding: "13px",
+                borderRadius: 12,
                 border: "none",
                 background: scanning ? `${PINK}88` : `linear-gradient(135deg, ${PINK} 0%, #FF5FA5 100%)`,
                 color: "#FFFFFF",
                 fontFamily: "Jost, sans-serif",
                 fontWeight: 700,
-                fontSize: 13,
+                fontSize: 12,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
                 cursor: scanning ? "not-allowed" : "pointer",
@@ -336,7 +360,7 @@ export default function ScanPage() {
                 transition: "opacity 0.2s, transform 0.12s",
               }}
             >
-              {scanning ? "Connecting…" : `Connect ✓`}
+              {scanning ? "Connecting…" : "Connect ✓"}
             </button>
           )}
         </div>
@@ -362,6 +386,7 @@ export default function ScanPage() {
               margin: "0 auto 16px",
               boxShadow: `0 8px 24px ${PINK}33`,
               fontSize: 24,
+              color: "#FFFFFF",
             }}>
               ✦
             </div>
@@ -381,8 +406,8 @@ export default function ScanPage() {
               margin: "0 0 16px",
             }}>
               {result.streak === 1
-                ? "First connection — she&apos;s in your Bloom."
-                : `You&apos;ve connected ${result.streak} times. Keep the streak alive.`}
+                ? "First connection — she's in your Bloom."
+                : `You've connected ${result.streak} times. Keep the streak alive.`}
             </p>
             {result.milestone_stamp && (
               <div style={{
@@ -408,7 +433,7 @@ export default function ScanPage() {
               style={{
                 marginTop: 20,
                 background: "none",
-                border: `1px solid rgba(0,0,0,0.1)`,
+                border: "1px solid rgba(0,0,0,0.1)",
                 borderRadius: 10,
                 padding: "10px 20px",
                 fontFamily: "Jost, sans-serif",
@@ -423,6 +448,14 @@ export default function ScanPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   );
 }
