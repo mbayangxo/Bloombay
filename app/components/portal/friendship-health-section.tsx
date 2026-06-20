@@ -218,7 +218,7 @@ function FriendCard({
       {/* Action buttons */}
       {person.kind === "fading" && (
         <Link
-          href={`/member/messages?with=${person.user_id}`}
+          href="/member/lounge"
           style={{ textDecoration: "none", alignSelf: "flex-start" }}
         >
           <div

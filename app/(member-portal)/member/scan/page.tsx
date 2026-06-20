@@ -119,7 +119,7 @@ export default function ScanPage() {
           color: PINK,
           marginBottom: 10,
         }}>
-          ✦ YOUR BLOOM CODE
+          ✦ YOUR BLOOMIES CODE
         </p>
         <p style={{
           fontFamily: "var(--font-playfair)",
@@ -194,7 +194,7 @@ export default function ScanPage() {
             margin: 0,
             textAlign: "center",
           }}>
-            She scans this. You scan hers.
+            She points her camera here. You point yours at hers.
           </p>
         </div>
 
