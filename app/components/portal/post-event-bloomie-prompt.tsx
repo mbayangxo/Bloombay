@@ -22,6 +22,17 @@ function displayName(s: Suggestion) {
   return s.first_name || s.full_name?.split(" ")[0] || "Her";
 }
 
+// ── Bloom request templates ───────────────────────────────────────────────────
+
+const BLOOM_TEMPLATES = [
+  { id: "classic", label: "Classic", swatch: "#FF1F7D", border: "none" },
+  { id: "dark",    label: "Editorial", swatch: "#111111", border: "none" },
+  { id: "cream",   label: "Script",   swatch: "#FFF8F0", border: "1.5px solid #FFB6D9" },
+  { id: "minimal", label: "Minimal",  swatch: "#FFFFFF", border: "1.5px solid #FF1F7D" },
+] as const;
+
+type TemplateId = typeof BLOOM_TEMPLATES[number]["id"];
+
 // ── Send Bloom Request Sheet ─────────────────────────────────────────────────
 
 function SendBloomSheet({
@@ -34,6 +45,7 @@ function SendBloomSheet({
   onSent: (id: string) => void;
 }) {
   const [note, setNote] = useState("");
+  const [template, setTemplate] = useState<TemplateId>("classic");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
@@ -54,6 +66,7 @@ function SendBloomSheet({
           toUserId: person.id,
           context: contextLine,
           note: note.trim() || undefined,
+          template,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Something went wrong");
@@ -133,6 +146,52 @@ function SendBloomSheet({
           <span style={{ fontFamily: "Jost, sans-serif", fontSize: 11, color: "#FF1F7D", fontWeight: 600 }}>
             {contextLine}
           </span>
+        </div>
+
+        {/* Template picker */}
+        <div style={{ marginBottom: 20 }}>
+          <p style={{ fontFamily: "Jost, sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#FF1F7D", marginBottom: 10 }}>
+            Choose your invitation style
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            {BLOOM_TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTemplate(t.id)}
+                style={{
+                  flex: 1,
+                  padding: "10px 4px 8px",
+                  borderRadius: 12,
+                  border: template === t.id ? "2px solid #FF1F7D" : "2px solid transparent",
+                  background: template === t.id ? "#FFF0F5" : "#f8f8f8",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                <div style={{
+                  width: 32,
+                  height: 22,
+                  borderRadius: 5,
+                  background: t.swatch,
+                  border: t.border,
+                  boxShadow: t.id === "classic" ? "0 2px 8px rgba(255,31,125,0.35)" : "0 1px 4px rgba(0,0,0,0.1)",
+                }} />
+                <span style={{
+                  fontFamily: "Jost, sans-serif",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  color: template === t.id ? "#FF1F7D" : "#aaa",
+                }}>
+                  {t.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Heading */}
