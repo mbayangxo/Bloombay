@@ -1257,6 +1257,33 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </div>
             )}
 
+            {/* My Story link */}
+            <Link
+              href="/member/my-story"
+              style={{ textDecoration: "none" }}
+            >
+              <div
+                style={{
+                  background: "#FFF8F0",
+                  borderRadius: 16,
+                  padding: "16px 18px",
+                  border: "1px solid rgba(255,31,125,0.12)",
+                  boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 4 }}>✦ MY STORY</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#111", margin: 0 }}>Your BloomBay life, as Yande remembers it.</p>
+                </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </Link>
+
             <SocialProofSection userId={user.id} />
           </div>
         )}
