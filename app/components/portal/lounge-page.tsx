@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { updateProfile } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/client";
+import { FriendshipHealthSection } from "./friendship-health-section";
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
@@ -1089,6 +1090,25 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
           </div>
         </div>
       </div>
+
+      {/* ══════════ FLOWERS ══════════ */}
+      <div style={{ padding: "28px 20px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>✦ YOUR FLOWERS · {earnedFlowers.length} EARNED</p>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const, margin: "0 -20px", paddingLeft: 20, paddingRight: 20 }}>
+          {ALL_FLOWERS.map(flower => {
+            const earned = (USER_EARNED_FLOWER_IDS as readonly string[]).includes(flower.id);
+            return (
+              <div key={flower.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 10px", borderRadius: 14, background: earned ? flower.bg : "#F8F8F8", border: `1.5px solid ${earned ? flower.color + "44" : "#EEE"}`, opacity: earned ? 1 : 0.3, minWidth: 58 }}>
+                <span style={{ fontSize: 20 }}>{flower.emoji}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, textAlign: "center" as const, color: earned ? flower.color : "#bbb", lineHeight: 1.3, maxWidth: 50 }}>{flower.label}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ══════════ FRIENDSHIP PULSE ══════════ */}
+      <FriendshipHealthSection />
 
       {/* ══════════ PURCHASE HISTORY ══════════ */}
       <PurchaseHistorySection />
