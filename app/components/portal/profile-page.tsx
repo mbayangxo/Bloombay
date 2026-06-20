@@ -8,6 +8,7 @@ import { AvatarUpload } from "@/app/components/shared/avatar-upload";
 import { createClient } from "@/lib/supabase/client";
 import { uploadProfilePhoto } from "@/lib/storage/upload";
 import type { AuthUser } from "@/lib/auth/get-user";
+import { SocialProofSection } from "./social-proof-section";
 
 const PINK = "#FF1F7D";
 
@@ -1255,6 +1256,8 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             )}
+
+            <SocialProofSection userId={user.id} />
           </div>
         )}
 
