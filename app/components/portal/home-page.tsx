@@ -272,6 +272,42 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* ══ PREFERENCES BANNER — shown when preferences are empty ═══════════ */}
+      {showPreferencesBanner && (
+        <div style={{ margin: "16px 16px 0" }}>
+          <div style={{
+            background: "#FFF8F0",
+            border: "1px solid rgba(255,31,125,0.15)",
+            borderRadius: 16,
+            padding: "18px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 6 }}>
+                ✦ YANDE WANTS TO KNOW YOU
+              </p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "#1A0010", lineHeight: 1.3, marginBottom: 10 }}>
+                Tell us who you are. Better matches start here.
+              </p>
+              <Link href="/member/preferences" style={{ textDecoration: "none", display: "inline-block" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: "#FF1F7D" }}>
+                  Complete your profile →
+                </span>
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowPreferencesBanner(false)}
+              style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid rgba(255,31,125,0.15)", background: "rgba(255,31,125,0.04)", cursor: "pointer", fontSize: 14, color: "#FF1F7D", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
       {(tod === "morning") && (
         <MorningAfterCard
