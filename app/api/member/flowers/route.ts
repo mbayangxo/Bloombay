@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     user_id: body.to_user_id,
     type: "flower",
     title: `${senderName} sent you flowers 🌸`,
-    link: "/member/notifications",
+    link: `/member/flowers/${flowers.id}`,
     data: { sender_id: user.id, flower_id: flowers.id },
   });
 
