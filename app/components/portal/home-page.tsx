@@ -139,16 +139,17 @@ export function HomePage() {
   const month = MONTHS_S[now.getMonth()];
   const day   = now.getDate();
 
-  const [tod,          setTod]          = useState<TimeOfDay>("morning");
-  const [firstName,    setFirstName]    = useState("");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [bio,          setBio]          = useState("");
-  const [myClubs,      setMyClubs]      = useState<Club[]>([]);
-  const [loading,      setLoading]      = useState(true);
-  const [showSafety,   setShowSafety]   = useState(false);
-  const [showEdit,     setShowEdit]     = useState(false);
-  const [upNextIdx,    setUpNextIdx]    = useState(0);
-  const [events,       setEvents]       = useState<Event[]>([]);
+  const [tod,                   setTod]                   = useState<TimeOfDay>("morning");
+  const [firstName,             setFirstName]             = useState("");
+  const [neighborhood,          setNeighborhood]          = useState("");
+  const [bio,                   setBio]                   = useState("");
+  const [myClubs,               setMyClubs]               = useState<Club[]>([]);
+  const [loading,               setLoading]               = useState(true);
+  const [showSafety,            setShowSafety]            = useState(false);
+  const [showEdit,              setShowEdit]              = useState(false);
+  const [upNextIdx,             setUpNextIdx]             = useState(0);
+  const [events,                setEvents]                = useState<Event[]>([]);
+  const [showPreferencesBanner, setShowPreferencesBanner] = useState(false);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
@@ -173,6 +174,19 @@ export function HomePage() {
         setMyClubs((clubs ?? []) as Club[]);
       }
       setLoading(false);
+
+      // Secondary fetch: check if preferences are empty
+      fetch("/api/member/preferences")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!d) return;
+          const hasAgeGroup = !!d.age_group;
+          const hasLifestyleTags = Array.isArray(d.lifestyle_tags) && d.lifestyle_tags.length > 0;
+          if (!hasAgeGroup && !hasLifestyleTags) {
+            setShowPreferencesBanner(true);
+          }
+        })
+        .catch(() => undefined);
     })();
   }, []);
 

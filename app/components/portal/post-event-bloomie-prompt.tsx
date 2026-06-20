@@ -643,7 +643,7 @@ export function PostEventBloomiePrompt() {
         </div>
       </div>
 
-      {/* Success toast */}
+      {/* Bloom success toast */}
       {sent.size > 0 && (
         <div
           style={{
@@ -667,6 +667,54 @@ export function PostEventBloomiePrompt() {
         </div>
       )}
 
+      {/* Witness toast */}
+      {witnessToast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 90,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#111",
+            color: "#fff",
+            borderRadius: 20,
+            padding: "10px 20px",
+            fontFamily: "Jost, sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            zIndex: 300,
+            whiteSpace: "nowrap",
+            animation: "bloomFadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both",
+          }}
+        >
+          Witness shared ✦
+        </div>
+      )}
+
+      {/* Flower toast */}
+      {flowerToast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 90,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#FF1F7D",
+            color: "#fff",
+            borderRadius: 20,
+            padding: "10px 20px",
+            fontFamily: "Jost, sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            zIndex: 300,
+            whiteSpace: "nowrap",
+            animation: "bloomFadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both",
+          }}
+        >
+          Flowers sent 🌸
+        </div>
+      )}
+
       {/* Compose sheet */}
       {composing && (
         <SendBloomSheet
@@ -677,6 +725,36 @@ export function PostEventBloomiePrompt() {
             setSent((prev) => new Set([...prev, id]));
             setBloomed((prev) => new Set([...prev, id]));
             setTimeout(() => setSent(new Set()), 3000);
+          }}
+        />
+      )}
+
+      {/* Witness sheet */}
+      {witnessing && (
+        <WitnessSheet
+          person={witnessing}
+          onClose={() => setWitnessing(null)}
+          onSent={() => {
+            const id = witnessing.id;
+            setWitnessing(null);
+            setWitnessed((prev) => new Set([...prev, id]));
+            setWitnessToast(true);
+            setTimeout(() => setWitnessToast(false), 3000);
+          }}
+        />
+      )}
+
+      {/* Flower sheet */}
+      {flowering && (
+        <FlowerSheet
+          person={flowering}
+          onClose={() => setFlowering(null)}
+          onSent={() => {
+            const id = flowering.id;
+            setFlowering(null);
+            setFlowered((prev) => new Set([...prev, id]));
+            setFlowerToast(true);
+            setTimeout(() => setFlowerToast(false), 3000);
           }}
         />
       )}
