@@ -97,18 +97,34 @@ function ObservationLine({ person }: { person: FriendSignal }) {
   }
 
   return (
-    <p
-      style={{
-        fontFamily: "var(--font-playfair)",
-        fontStyle: "italic",
-        fontSize: 12,
-        color: PINK,
-        lineHeight: 1.45,
-        margin: 0,
-      }}
-    >
-      {text}
-    </p>
+    <div>
+      <p
+        style={{
+          fontFamily: "var(--font-playfair)",
+          fontStyle: "italic",
+          fontSize: 12,
+          color: PINK,
+          lineHeight: 1.45,
+          margin: 0,
+        }}
+      >
+        {text}
+      </p>
+      {person.kind === "fading" && (
+        <p
+          style={{
+            fontFamily: "var(--font-playfair)",
+            fontStyle: "italic",
+            fontSize: 11,
+            color: PINK,
+            lineHeight: 1.45,
+            margin: "3px 0 0",
+          }}
+        >
+          Yande thinks you should reach out.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -202,7 +218,7 @@ function FriendCard({
       {/* Action buttons */}
       {person.kind === "fading" && (
         <Link
-          href={`/member/profile/${person.user_id}`}
+          href={`/member/messages?with=${person.user_id}`}
           style={{ textDecoration: "none", alignSelf: "flex-start" }}
         >
           <div
