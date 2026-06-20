@@ -51,6 +51,7 @@ export async function GET() {
     neighborhood: string | null;
     shared_context: string;
     gathering_title: string | null;
+    gathering_id: string | null;
   }>();
 
   // People from shared gatherings
@@ -82,6 +83,7 @@ export async function GET() {
           ...row.profiles,
           shared_context: "gathering",
           gathering_title: row.gatherings?.title ?? null,
+          gathering_id: row.gathering_id,
         });
       }
     }
@@ -116,6 +118,7 @@ export async function GET() {
           ...row.profiles,
           shared_context: "event",
           gathering_title: row.events?.title ?? null,
+          gathering_id: null,
         });
       }
     }
