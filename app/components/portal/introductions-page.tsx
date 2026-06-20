@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { PostEventBloomiePrompt } from "./post-event-bloomie-prompt";
+import "@/app/styles/bloom-entrance.css";
 
 // ── Real data types ───────────────────────────────────────────────────────────
 
@@ -708,6 +710,11 @@ export function IntroductionsPage() {
       </div>
 
       <div className="flex flex-col gap-10 pb-4">
+
+        {/* Post-event: suggest becoming bloomies with people you just met */}
+        <section className="px-5">
+          <PostEventBloomiePrompt />
+        </section>
 
         <section className="px-5">
           <div className="flex items-start justify-between mb-4">
