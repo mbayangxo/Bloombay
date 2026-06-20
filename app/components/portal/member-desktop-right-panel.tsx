@@ -60,14 +60,14 @@ function BloomieAvatar({ bloomie }: { bloomie: ActiveBloomie }) {
         <img
           src={bloomie.avatar_url}
           alt={bloomie.first_name ?? "Bloomie"}
-          style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", border: "2px solid #FEFCF7" }}
+          style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", boxShadow: "0 0 0 2px #FEFCF7" }}
         />
       ) : (
         <div style={{
           width: 36, height: 36, borderRadius: "50%",
           background: `linear-gradient(135deg, ${PINK} 0%, #FF6EB4 100%)`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          border: "2px solid #FEFCF7",
+          boxShadow: "0 0 0 2px #FEFCF7",
         }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "white" }}>
             {initial}
