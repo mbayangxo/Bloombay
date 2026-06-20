@@ -14,7 +14,7 @@ export function PinDropCompose({ onSent }: { onSent: () => void }) {
   const [open, setOpen]               = useState(false);
   const [location, setLocation]       = useState("");
   const [caption, setCaption]         = useState("");
-  const [target, setTarget]           = useState<"public" | "bouquet" | "specific">("bouquet");
+  const [target, setTarget]           = useState<"bouquet" | "specific">("bouquet");
   const [notify, setNotify]           = useState(true);
   const [expiresHours, setExpiresHours] = useState(24);
   const [bouquet, setBouquet]         = useState<BouquetMember[]>([]);
@@ -105,7 +105,7 @@ export function PinDropCompose({ onSent }: { onSent: () => void }) {
         onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
       >
         <span style={{ fontSize: 16 }}>📍</span>
-        Drop a pin
+        Send a pin drop
       </button>
 
       {/* Backdrop */}
@@ -139,7 +139,7 @@ export function PinDropCompose({ onSent }: { onSent: () => void }) {
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: "italic", fontSize: 22, color: "#111", margin: 0 }}>
-              Drop a pin
+              Pin drop
             </h2>
             <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", fontSize: 20, color: "#bbb", cursor: "pointer" }}>×</button>
           </div>
@@ -178,14 +178,13 @@ export function PinDropCompose({ onSent }: { onSent: () => void }) {
           {/* Who sees it */}
           <div style={{ marginBottom: 20 }}>
             <label style={{ fontFamily: "Jost, sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", color: "#999", textTransform: "uppercase", display: "block", marginBottom: 10 }}>
-              Who's invited?
+              Send to
             </label>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {([
-                { value: "bouquet", label: "💐 My bouquet", sub: "Your inner circle" },
-                { value: "specific", label: "👯 Specific girls", sub: "Pick from your bouquet" },
-                { value: "public", label: "🌸 Anyone nearby", sub: "Visible to all bloomies" },
-              ] as { value: "public" | "bouquet" | "specific"; label: string; sub: string }[]).map(({ value, label, sub }) => (
+                { value: "bouquet", label: "💐 My bouquet", sub: "All 12 of your inner circle" },
+                { value: "specific", label: "👯 Specific girls", sub: "Pick who gets notified" },
+              ] as { value: "bouquet" | "specific"; label: string; sub: string }[]).map(({ value, label, sub }) => (
                 <button
                   key={value}
                   onClick={() => setTarget(value)}
@@ -259,7 +258,7 @@ export function PinDropCompose({ onSent }: { onSent: () => void }) {
           )}
 
           {/* Notify toggle */}
-          {target !== "public" && (
+          {(
             <button
               onClick={() => setNotify(!notify)}
               style={{

@@ -1,5 +1,6 @@
 // GET  /api/member/pin-drops — personal drops + club mama pin drops
-// POST /api/member/pin-drops — drop a pin (to bouquet, bloomies, or public)
+// POST /api/member/pin-drops — private pin drop (to bouquet or specific girls)
+//      target='public' reserved for future public drop feature (separate UX)
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
