@@ -1,0 +1,56 @@
+@keyframes bloomFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bloomFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bloomPop {
+  0%   { transform: scale(0.94); opacity: 0; }
+  60%  { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Apply to portal page wrappers */
+.bloom-page-enter {
+  animation: bloomFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.bloom-card-enter {
+  animation: bloomPop 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Stagger children */
+.bloom-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.bloom-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.bloom-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.bloom-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.bloom-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* Pink ripple on tap/click */
+.bloom-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.bloom-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.bloom-ripple:active::after {
+  opacity: 1;
+  transition: opacity 0s;
+}
+/* Button pop on press */
+.bloom-btn-pop {
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s;
+}
+.bloom-btn-pop:active {
+  transform: scale(0.96);
+}
+.bloom-btn-pop:hover {
+  transform: scale(1.02);
+}

@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ClubOwnerShell } from "../components/club-owner-shell";
+import "@/app/styles/bloom-entrance.css";
 
-type BroadcastType = "ping" | "photo" | "poll" | "question" | "event_invite";
+type BroadcastType = "ping" | "photo" | "poll" | "question" | "event_invite" | "pin_drop";
 
 interface Gathering {
   id: string;
@@ -33,6 +34,7 @@ const TYPE_META: Record<BroadcastType, { label: string; icon: string; placeholde
   poll:         { label: "Poll",         icon: "🗳",  placeholder: "Ask your club something…" },
   question:     { label: "Question",     icon: "💬", placeholder: "Open a question to your members…" },
   event_invite: { label: "Event invite", icon: "🎟", placeholder: "Tell them what to expect…" },
+  pin_drop:     { label: "Pin drop",     icon: "📍", placeholder: "Tell them why to come…" },
 };
 
 function timeAgo(iso: string) {
@@ -56,6 +58,7 @@ export default function ClubMamaBroadcastPage() {
   const [photoUrl, setPhotoUrl]       = useState("");
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [gatheringId, setGatheringId] = useState("");
+  const [pinLocation, setPinLocation] = useState("");
   const [gatherings, setGatherings]   = useState<Gathering[]>([]);
   const [broadcasts, setBroadcasts]   = useState<Broadcast[]>([]);
   const [clubName, setClubName]       = useState("");
@@ -102,6 +105,7 @@ export default function ClubMamaBroadcastPage() {
       if (type === "photo") payload.photo_url = photoUrl;
       if (type === "poll") payload.poll_options = pollOptions.filter(Boolean).map((t) => ({ text: t, votes: 0 }));
       if (type === "event_invite") payload.gathering_id = gatheringId;
+      if (type === "pin_drop") payload.pin_location = pinLocation;
 
       const res = await fetch("/api/club-portal/broadcasts", {
         method: "POST",
@@ -120,6 +124,7 @@ export default function ClubMamaBroadcastPage() {
       setPhotoUrl("");
       setPollOptions(["", ""]);
       setGatheringId("");
+      setPinLocation("");
       setSent(true);
       setTimeout(() => setSent(false), 3000);
     } catch (e: unknown) {
@@ -132,11 +137,12 @@ export default function ClubMamaBroadcastPage() {
   const canSend =
     message.trim().length > 0 &&
     (type !== "poll" || pollOptions.filter(Boolean).length >= 2) &&
-    (type !== "event_invite" || gatheringId !== "");
+    (type !== "event_invite" || gatheringId !== "") &&
+    (type !== "pin_drop" || pinLocation.trim().length > 0);
 
   return (
     <ClubOwnerShell title="Broadcast" backHref="/club-owner/dashboard">
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 1rem 6rem" }}>
+      <div className="bloom-page-enter" style={{ maxWidth: 640, margin: "0 auto", padding: "0 1rem 6rem" }}>
 
         {/* Header */}
         <div style={{ paddingTop: "2rem", paddingBottom: "1.5rem" }}>
@@ -237,6 +243,23 @@ export default function ClubMamaBroadcastPage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {type === "pin_drop" && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 16 }}>📍</span>
+                <input
+                  value={pinLocation}
+                  onChange={(e) => setPinLocation(e.target.value)}
+                  placeholder="Where? (e.g. Café Clover, West Village)"
+                  style={{ flex: 1, background: "#1a1a1a", border: "1.5px solid rgba(255,31,125,0.4)", borderRadius: 8, padding: "9px 12px", color: "#fff", fontFamily: "Jost, sans-serif", fontSize: 13, outline: "none" }}
+                />
+              </div>
+              <p style={{ fontFamily: "Jost, sans-serif", fontSize: 10, color: "#666", margin: 0, letterSpacing: "0.05em" }}>
+                This pin will appear in your members' Pin Drops feed.
+              </p>
             </div>
           )}
 

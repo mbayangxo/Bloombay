@@ -6,7 +6,8 @@ CREATE TYPE IF NOT EXISTS broadcast_type AS ENUM (
   'photo',        -- photo drop with optional caption
   'poll',         -- multiple choice poll
   'question',     -- open question (members can reply)
-  'event_invite'  -- invite to an upcoming gathering
+  'event_invite', -- invite to an upcoming gathering
+  'pin_drop'      -- location pin shared to members' pin drops feed
 );
 
 CREATE TABLE IF NOT EXISTS public.club_broadcasts (

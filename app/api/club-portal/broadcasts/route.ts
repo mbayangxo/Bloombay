@@ -71,11 +71,11 @@ export async function POST(req: Request) {
   if (!club) return NextResponse.json({ error: "No club" }, { status: 404 });
 
   const body = await req.json();
-  const { type, title, message, photo_url, poll_options, gathering_id } = body;
+  const { type, title, message, photo_url, poll_options, gathering_id, pin_location } = body;
 
   if (!message?.trim()) return NextResponse.json({ error: "Message required" }, { status: 400 });
 
-  const validTypes = ["ping", "photo", "poll", "question", "event_invite"];
+  const validTypes = ["ping", "photo", "poll", "question", "event_invite", "pin_drop"];
   if (!validTypes.includes(type)) return NextResponse.json({ error: "Invalid type" }, { status: 400 });
 
   // Get member count for this club
@@ -85,13 +85,18 @@ export async function POST(req: Request) {
     .eq("club_id", club.id)
     .eq("status", "active");
 
+  // For pin_drop: title holds the location, body holds the caption
+  const resolvedTitle = type === "pin_drop"
+    ? (pin_location?.trim() || title?.trim() || null)
+    : (title?.trim() || null);
+
   const { data: broadcast, error } = await supabase
     .from("club_broadcasts")
     .insert({
       club_id: club.id,
       sent_by: user.id,
       type,
-      title: title?.trim() || null,
+      title: resolvedTitle,
       body: message.trim(),
       photo_url: photo_url || null,
       poll_options: poll_options || null,
