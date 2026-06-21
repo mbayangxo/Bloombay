@@ -13,7 +13,6 @@ interface PlanRoom {
 }
 interface DayContent { text: string; stickers: string[]; photos: string[]; voiceCount: number; }
 type View = "list" | "room";
-type MainTab = "plans" | "calendar";
 type NewPlanStep = "choose" | "room" | "bloomie" | "club";
 type DayEditorTab = "write" | "sticker" | "photo" | "voice";
 
@@ -39,19 +38,19 @@ const PINK = "#FF1F7D";
 const PLAN_ROOMS: PlanRoom[] = [
   { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7,  members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026",   poster: "/happenings/posters/10_Ladies_First_Road_Trip.png" },
   { id: 2, name: "Afrobeats Night",     emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3,  members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", poster: "/happenings/posters/06_Dance_All_Night.png",          eventId: 6 },
-  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
+  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#FFB3D1", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
   { id: 4, name: "Women in Lens",       emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2,  members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     poster: "/happenings/posters/05_Film_Club.png",                eventId: 1 },
-  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#83C5A0", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
-  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#F59E0B", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
+  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#FFB3D1", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
+  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#FF1F7D", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
 ];
 
 const BLOOMIES_LIST = [
   { id: 1, name: "Aaliyah M.", initial: "A", color: "#FF1F7D", status: "Active now" },
   { id: 2, name: "Zara F.",    initial: "Z", color: "#FF69B4", status: "Online"     },
-  { id: 3, name: "Temi A.",    initial: "T", color: "#A855F7", status: "3h ago"     },
-  { id: 4, name: "Jade K.",    initial: "J", color: "#0EA5E9", status: "Yesterday"  },
-  { id: 5, name: "Sofia W.",   initial: "S", color: "#83C5A0", status: "Online"     },
-  { id: 6, name: "Naomi B.",   initial: "N", color: "#D4A853", status: "2d ago"     },
+  { id: 3, name: "Temi A.",    initial: "T", color: "#FF1F7D", status: "3h ago"     },
+  { id: 4, name: "Jade K.",    initial: "J", color: "#FF5FA5", status: "Yesterday"  },
+  { id: 5, name: "Sofia W.",   initial: "S", color: "#FFB3D1", status: "Online"     },
+  { id: 6, name: "Naomi B.",   initial: "N", color: "#FF1F7D", status: "2d ago"     },
 ];
 
 const CLUBS_LIST = [
@@ -111,10 +110,10 @@ const PLAN_NOTES: Record<number, { id: number; text: string }[]> = {
 };
 
 const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; color: string }[]> = {
-  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",    color: "#83C5A0" }],
-  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",    color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#83C5A0" }],
+  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",    color: "#FFB3D1" }],
+  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",    color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#FFB3D1" }],
   "2026-06-14": [{ emoji: "🎵", name: "Afrobeats Night",     time: "10PM",   color: "#FF69B4" }],
-  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",    color: "#F59E0B" }],
+  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",    color: "#FF1F7D" }],
   "2026-10-10": [{ emoji: "🇲🇦", name: "Morocco October",   time: "10AM",   color: "#FF69B4" }],
 };
 
@@ -271,9 +270,9 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
             <div className="px-6 pb-6 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{ticketCode}</p>
-                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#1A1208,#2D1E08)", border: "1px solid rgba(212,168,83,0.35)" }}>
-                  <span style={{ fontSize: "7px", color: "#D4A853" }}>✦</span>
-                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#D4A853" }}>Founding Mother #47</span>
+                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#111,#1A0010)", border: "1px solid rgba(255,31,125,0.35)" }}>
+                  <span style={{ fontSize: "7px", color: "#FF1F7D" }}>✦</span>
+                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>Founding Mother #47</span>
                 </div>
                 <p className="text-[9px] font-semibold" style={{ color: "#999" }}>{room.members} women · Show at door</p>
               </div>
@@ -348,7 +347,7 @@ function StickerKeyboard({ onAdd }: { onAdd: (s: string) => void }) {
           </div>
           <div style={{ textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 4 }}>Your Sticker Pack</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#aaa", lineHeight: 1.4 }}>Upload PNG images to use as custom stickers on your planner</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#aaa", lineHeight: 1.4 }}>Upload PNG images to use as custom stickers on your planner</p>
           </div>
           <button onClick={() => fileRef.current?.click()} style={{ padding: "10px 24px", borderRadius: 999, background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "white", letterSpacing: "0.06em" }}>UPLOAD STICKER →</p>
@@ -463,16 +462,16 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
                   transform="rotate(-12 36 36)" />
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 38, fontWeight: 700, color: "#1A1A1A", lineHeight: 1 }}>{dayNum}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 38, fontWeight: 700, color: "#1A1A1A", lineHeight: 1 }}>{dayNum}</p>
               </div>
             </div>
 
             {/* Day info */}
             <div style={{ flex: 1, paddingTop: 4 }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, lineHeight: 1 }}>{dayLabel}</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#888", marginBottom: 6 }}>{monthLabel}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: PINK, lineHeight: 1 }}>{dayLabel}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#888", marginBottom: 6 }}>{monthLabel}</p>
               {eventsToday.length > 0 && eventsToday.map((ev, i) => (
-                <p key={i} style={{ fontFamily: "var(--font-caveat)", fontSize: 18, fontStyle: "italic", color: ev.color, lineHeight: 1.3, marginBottom: 2 }}>
+                <p key={i} style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontStyle: "italic", color: ev.color, lineHeight: 1.3, marginBottom: 2 }}>
                   {ev.emoji} {ev.name}
                   <span style={{ fontSize: 13, color: "#aaa" }}> · {ev.time}</span>
                 </p>
@@ -500,7 +499,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
               autoFocus
               style={{
                 width: "100%", minHeight: 200, padding: "12px 24px 16px",
-                fontFamily: "var(--font-caveat)", fontSize: 18, color: "#333",
+                fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#333",
                 background: "repeating-linear-gradient(transparent, transparent 31px, rgba(0,0,0,0.06) 32px)",
                 backgroundSize: "100% 32px", backgroundPosition: "0 12px",
                 border: "none", outline: "none", resize: "none", lineHeight: "32px",
@@ -544,12 +543,12 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
                   <div key={i} style={{ width: 3, borderRadius: 99, height: recording ? undefined : h, background: recording ? PINK : "rgba(255,31,125,0.22)", animation: recording ? `waveBar ${0.4 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate` : "none", minHeight: recording ? 6 : h, maxHeight: recording ? 36 : h }} />
                 ))}
               </div>
-              {recording && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 22, color: PINK, marginBottom: 16 }}>{Math.floor(recSecs/60).toString().padStart(2,"0")}:{(recSecs%60).toString().padStart(2,"0")}</p>}
+              {recording && <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: PINK, marginBottom: 16 }}>{Math.floor(recSecs/60).toString().padStart(2,"0")}:{(recSecs%60).toString().padStart(2,"0")}</p>}
               <button onClick={() => recording ? stopRecording() : setRecording(true)}
                 style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? PINK : "rgba(255,31,125,0.1)", border: `3px solid ${recording ? PINK : "rgba(255,31,125,0.3)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: recording ? "0 0 0 10px rgba(255,31,125,0.1), 0 4px 20px rgba(255,31,125,0.4)" : "none", transition: "all 0.2s" }}>
                 {recording ? <div style={{ width: 22, height: 22, borderRadius: 4, background: "white" }} /> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>}
               </button>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>{recording ? "Tap to stop" : "Tap to record a voice note"}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>{recording ? "Tap to stop" : "Tap to record a voice note"}</p>
               {voiceCount > 0 && (
                 <div style={{ marginTop: 20, width: "100%" }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#aaa", marginBottom: 8 }}>SAVED</p>
@@ -692,11 +691,11 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
                       <ellipse cx="14" cy="14" rx="12" ry="11.5" fill="none" stroke={T.todayRing} strokeWidth="1.8" strokeDasharray="4 1.5" transform="rotate(-12 14 14)" />
                     </svg>
                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: T.todayRing, lineHeight: 1 }}>{day}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, fontWeight: 700, color: T.todayRing, lineHeight: 1 }}>{day}</p>
                     </div>
                   </div>
                 ) : (
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: isSel ? T.accent : "#444", fontWeight: isSel ? 700 : 400, lineHeight: 1 }}>{day}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: isSel ? T.accent : "#444", fontWeight: isSel ? 700 : 400, lineHeight: 1 }}>{day}</p>
                 )}
 
                 {/* Indicators */}
@@ -729,7 +728,7 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
         {[{ color: T.todayRing, label: "Today" }, { color: T.accent, label: "Plans" }, { color: "#999", label: "Notes" }].map(l => (
           <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: l.color, opacity: 0.8 }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: T.textColor, opacity: 0.6 }}>{l.label}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: T.textColor, opacity: 0.6 }}>{l.label}</p>
           </div>
         ))}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
@@ -775,7 +774,7 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
         <div>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.25em", color: T.accent, marginBottom: 4 }}>{dayLabel.toUpperCase()} {T.deco}</p>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: T.textColor, lineHeight: 1 }}>{dayNum} {monthLabel}</p>
-          {events.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: T.accent, opacity: 0.7, marginTop: 3 }}>{events.length} plan{events.length !== 1 ? "s" : ""} today</p>}
+          {events.length > 0 && <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: T.accent, opacity: 0.7, marginTop: 3 }}>{events.length} plan{events.length !== 1 ? "s" : ""} today</p>}
         </div>
         <button onClick={onEdit} style={{ padding: "8px 16px", borderRadius: 999, background: T.accent, border: "none", cursor: "pointer", flexShrink: 0 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.05em" }}>+ NOTES</p>
@@ -834,15 +833,15 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
       {dayContent?.text && (
         <div style={{ background: `${T.accent}07`, padding: "12px 16px 14px", borderTop: `1px solid ${T.accent}12` }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.2em", color: T.accent, opacity: 0.6, marginBottom: 6 }}>✍️ MY NOTES</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#555", lineHeight: 1.55 }}>{dayContent.text}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#555", lineHeight: 1.55 }}>{dayContent.text}</p>
         </div>
       )}
 
       {/* Empty state */}
       {events.length === 0 && !hasContent && (
         <div style={{ padding: "22px 16px 24px", textAlign: "center" as const, background: "white" }}>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#D4CCC8" }}>Nothing planned yet {T.deco}</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#DDD", marginTop: 4 }}>Tap + NOTES to journal, add stickers, photos or voice notes</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: "#D4CCC8" }}>Nothing planned yet {T.deco}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "#DDD", marginTop: 4 }}>Tap + NOTES to journal, add stickers, photos or voice notes</p>
         </div>
       )}
     </div>
@@ -852,11 +851,11 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
 // ── PLAN DOOR CARD ────────────────────────────────────────────────────────────
 
 const DOOR_PAINTS: Record<number, { body: string; bodyLight: string; frame: string; glass: string; knob: string }> = {
-  1: { body: "#B8402A", bodyLight: "#D45038", frame: "#7A2818", glass: "rgba(255,150,80,0.22)",  knob: "#D4A853" },
+  1: { body: "#B8402A", bodyLight: "#D45038", frame: "#7A2818", glass: "rgba(255,150,80,0.22)",  knob: "#FF1F7D" },
   2: { body: "#CC1870", bodyLight: "#E0288A", frame: "#8A0048", glass: "rgba(255,80,180,0.18)",  knob: "#FFD4A0" },
-  3: { body: "#3A7850", bodyLight: "#4A8860", frame: "#1E5830", glass: "rgba(80,200,120,0.18)",  knob: "#D4A853" },
+  3: { body: "#3A7850", bodyLight: "#4A8860", frame: "#1E5830", glass: "rgba(80,200,120,0.18)",  knob: "#FF1F7D" },
   4: { body: "#6A1030", bodyLight: "#8A2040", frame: "#440818", glass: "rgba(200,60,100,0.2)",   knob: "#C8A870" },
-  5: { body: "#C8B8A0", bodyLight: "#DECCA8", frame: "#A09070", glass: "rgba(240,220,180,0.3)",  knob: "#D4A853" },
+  5: { body: "#C8B8A0", bodyLight: "#DECCA8", frame: "#A09070", glass: "rgba(240,220,180,0.3)",  knob: "#FF1F7D" },
   6: { body: "#A07018", bodyLight: "#B88028", frame: "#704E08", glass: "rgba(240,190,60,0.2)",   knob: "#FFD060" },
 };
 
@@ -990,7 +989,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
           <div style={{ width: 38, height: 38, borderRadius: 14, background: `${room.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{room.emoji}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.2 }}>{room.name}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText, marginTop: 1 }}>{room.members} women · {room.time}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText, marginTop: 1 }}>{room.members} women · {room.time}</p>
           </div>
           <button onClick={() => setShowTicket(true)} style={{ padding: "5px 12px", borderRadius: 999, background: `${room.accent}18`, border: `1px solid ${room.accent}44`, cursor: "pointer", flexShrink: 0 }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: room.accent }}>🎟 Ticket</span>
@@ -1041,7 +1040,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
                 <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white", border: "2.5px solid rgba(255,255,255,0.7)", boxShadow: `0 2px 10px ${b.color}44` }}>
                   {b.initial}
                 </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
               </div>
             ))}
           </div>
@@ -1055,7 +1054,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
               <div style={{ width: 60, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
                 <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg,${PINK},#FF69B4)`, borderRadius: 99, transition: "width 0.3s" }} />
               </div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1078,7 +1077,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {notes.map(n => (
                 <div key={n.id} style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 16, padding: "12px 16px", border: `1px solid ${theme.cardBorder}`, borderLeft: `3px solid ${room.accent}` }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: theme.heading, lineHeight: 1.45 }}>{n.text}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: theme.heading, lineHeight: 1.45 }}>{n.text}</p>
                 </div>
               ))}
             </div>
@@ -1268,12 +1267,12 @@ const TICKET_IMAGES: Record<number, string> = {
 // ── MEMORY EVENTS ─────────────────────────────────────────────────────────────
 
 const MEMORY_EVENTS = [
-  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#C8A0FF" },
-  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#83C5A0" },
-  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#D4A853" },
+  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#FF1F7D" },
+  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#FFB3D1" },
+  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#FF1F7D" },
   { id: 21, name: "Rooftop Pilates",  date: "May 15", poster: "/happenings/posters/08_Rooftop_Sessions.png",        note: "girls that slay",  color: "#FF69B4" },
   { id: 22, name: "Film Club Night",  date: "Apr 5",  poster: "/happenings/posters/06_Dance_All_Night.png",         note: "loved this 💕",    color: "#FF1F7D" },
-  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#83C5A0" },
+  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#FFB3D1" },
 ];
 
 const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
@@ -1301,7 +1300,7 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
             <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(17px,5vw,21px)", color: "#1A1A1A", lineHeight: 1.05, marginBottom: 6 }}>{room.name}</h2>
             {room.venue && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 500, color: PINK, marginBottom: 2 }}>📍 {room.venue}</p>}
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 600, color: PINK, marginBottom: 10 }}>{room.time}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
               see you there,<br/>gorgeous ♡
             </p>
           </div>
@@ -1342,11 +1341,11 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
         {/* Middle: dark confirmed bar */}
         <div style={{ background: "#111", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(212,168,83,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>
               {room.members} women
             </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "#666", marginBottom: 5 }}>RSVP STATUS</p>
@@ -1389,13 +1388,13 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
 const RETIRED_ROOMS: PlanRoom[] = [
-  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#C8A0FF", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
-  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#83C5A0", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
+  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#FF1F7D", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
+  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#FFB3D1", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
 ];
 
 const EXPIRED_ROOMS: PlanRoom[] = [
-  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#D4A853", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
-  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#83C5A0", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
+  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#FF1F7D", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
+  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#FFB3D1", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
 ];
 
 // ── Ticket card (shared render) ───────────────────────────────────────────────
@@ -1863,7 +1862,7 @@ function PlansPageInner() {
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
                   <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
                 </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
                 {MEMORY_EVENTS.map((ev, i) => (
@@ -1874,7 +1873,7 @@ function PlansPageInner() {
                         <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 50%, ${ev.color}44 100%)` }} />
                       </div>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
                     </div>
                   </div>

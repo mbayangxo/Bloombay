@@ -6,6 +6,7 @@ import { MemberDesktopRightPanel } from "../components/portal/member-desktop-rig
 import { TimeWrapper } from "../components/portal/time-wrapper";
 import { SeasonalOverlay } from "../components/portal/seasonal-overlay";
 import { FeedbackButton } from "../components/portal/feedback-button";
+import { PWAInstallPrompt } from "../components/portal/pwa-install-prompt";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { ThemeProvider } from "@/lib/theme/theme-context";
 
@@ -72,6 +73,7 @@ export default async function MemberPortalLayout({ children }: { children: React
 
       <BottomNav user={user} />
       <FeedbackButton />
+      <PWAInstallPrompt />
     </TimeWrapper>
     </ThemeProvider>
   );
