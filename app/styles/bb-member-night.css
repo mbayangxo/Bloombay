@@ -4,7 +4,8 @@
  * See bb-member-readability.css for white-card fixes.
  */
 
-.mp-app[data-mp-theme="night"] {
+.mp-app[data-mp-theme="night"],
+[data-theme="night"] {
   color-scheme: dark;
 
   --bb-page-bg: #10080c;

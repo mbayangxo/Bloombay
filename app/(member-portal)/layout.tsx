@@ -1,3 +1,4 @@
+import "@/app/styles/member-bundle.css";
 import { redirect } from "next/navigation";
 import { BottomNav } from "../components/portal/bottom-nav";
 import { DesktopTopNav } from "../components/portal/desktop-top-nav";

@@ -57,12 +57,17 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggle: () => {},
 });
 
+function autoMode(): ThemeMode {
+  const h = new Date().getHours();
+  return h >= 19 || h < 6 ? "night" : "day";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>("day");
 
   useEffect(() => {
     const saved = localStorage.getItem("bb-theme") as ThemeMode | null;
-    const initial = saved === "night" ? "night" : "day";
+    const initial: ThemeMode = saved ?? autoMode();
     setMode(initial);
     document.documentElement.setAttribute("data-theme", initial);
   }, []);
