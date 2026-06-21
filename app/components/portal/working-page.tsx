@@ -417,6 +417,39 @@ function GirlFluencerTab() {
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>Yande helps you put together a rate card and one-pager you can actually send to brands today.</p>
         <button style={{ padding: "12px 22px", borderRadius: 50, background: `linear-gradient(135deg, ${PINK}, #C4005A)`, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: "white", boxShadow: `0 4px 16px ${PINK}44` }}>Build My Media Kit →</button>
       </div>
+
+      {/* ── Bloom AI Team ─────────────────────────────────────────────────── */}
+      <div style={{ margin: "28px 0 0" }}>
+        <div style={{ padding: "0 18px", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "rgba(255,31,125,0.6)", letterSpacing: "0.22em", marginBottom: 4 }}>✦ YOUR BLOOM AI TEAM</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, fontWeight: 900, color: "#1A1A1A", lineHeight: 1 }}>Meet the team.</p>
+        </div>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "4px 18px 20px", scrollbarWidth: "none" as const }}>
+          {([
+            { name: "Zora",  role: "Data Analyst",        desc: "Reads your numbers so you don't have to",        grad: "linear-gradient(135deg, #FF1F7D, #C4005A)", emoji: "📊" },
+            { name: "Lena",  role: "Content Strategist",  desc: "Plans your content calendar start to finish",     grad: "linear-gradient(135deg, #FF69B4, #FF1F7D)", emoji: "🗓" },
+            { name: "Amara", role: "Ideator",             desc: "Sparks ideas when you're blank and blocked",      grad: "linear-gradient(135deg, #C4005A, #8A003A)", emoji: "💡" },
+            { name: "Sade",  role: "Scripter",            desc: "Writes your hooks, captions, and full scripts",   grad: "linear-gradient(135deg, #FF1F7D, #FF69B4)", emoji: "✍️" },
+            { name: "Nadia", role: "Publishing Manager",  desc: "Schedules, tracks, and manages your posts",       grad: "linear-gradient(135deg, #8A003A, #C4005A)", emoji: "📲" },
+          ] as { name: string; role: string; desc: string; grad: string; emoji: string }[]).map(agent => (
+            <button
+              key={agent.name}
+              style={{ flexShrink: 0, width: 152, background: "white", borderRadius: 18, padding: "14px 14px 16px", border: "1px solid rgba(255,31,125,0.1)", boxShadow: "0 3px 16px rgba(255,31,125,0.07)", cursor: "pointer", textAlign: "left" as const }}
+            >
+              {/* Avatar */}
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: agent.grad, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10, boxShadow: "0 4px 14px rgba(255,31,125,0.3)" }}>
+                <span style={{ fontSize: 22 }}>{agent.emoji}</span>
+              </div>
+              {/* Name */}
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "#111", lineHeight: 1, marginBottom: 2 }}>{agent.name}</p>
+              {/* Role */}
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.12em", color: PINK, marginBottom: 6 }}>{agent.role.toUpperCase()}</p>
+              {/* Desc */}
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", lineHeight: 1.45 }}>{agent.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
     </>
   );
 }

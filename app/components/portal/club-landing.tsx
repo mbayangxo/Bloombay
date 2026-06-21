@@ -76,6 +76,7 @@ export interface ClubLandingData {
   memberCount: number;
   color: string;
   crestBg?: string;
+  crestEmoji?: string;
   darkBg: boolean;
   mamaName: string;
   mamaTitle: string;
@@ -208,14 +209,14 @@ const CHAT_MESSAGES: ChatMessage[] = [
 ];
 
 const CLUB_MEMBERS = [
-  { initial: "Y", name: "Yande O.",    color: "#FF1F7D", role: "Club Mama" },
-  { initial: "A", name: "Aminah C.",   color: "#FF69B4", role: "Member" },
-  { initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member" },
-  { initial: "B", name: "Bea T.",      color: "#FF69B4", role: "Member" },
-  { initial: "F", name: "Fatima A.",   color: "#FF1F7D", role: "Member" },
-  { initial: "T", name: "Temi A.",     color: "#6b4fa0", role: "Member" },
-  { initial: "O", name: "Olivia K.",   color: "#3e7c6b", role: "Member" },
-  { initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member" },
+  { id: "m1", initial: "Y", name: "Yande O.",    color: "#FF1F7D", role: "Club Mama" },
+  { id: "m2", initial: "A", name: "Aminah C.",   color: "#FF69B4", role: "Member" },
+  { id: "m3", initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member" },
+  { id: "m4", initial: "B", name: "Bea T.",      color: "#FF69B4", role: "Member" },
+  { id: "m5", initial: "F", name: "Fatima A.",   color: "#FF1F7D", role: "Member" },
+  { id: "m6", initial: "T", name: "Temi A.",     color: "#6b4fa0", role: "Member" },
+  { id: "m7", initial: "O", name: "Olivia K.",   color: "#3e7c6b", role: "Member" },
+  { id: "m8", initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member" },
 ];
 
 type ClubTab = "about" | "chat" | "zones" | "events" | "members";
@@ -787,6 +788,103 @@ function LeaveClubButton({ clubName }: { clubName: string }) {
   );
 }
 
+// ─── Club Membership Card ────────────────────────────────────────────────────
+
+function ClubMembershipCard({ club, memberName = "You", memberSince }: { club: ClubLandingData; memberName?: string; memberSince?: string }) {
+  const cardNumber = `${club.id?.slice(0, 4).toUpperCase() ?? "BB00"}-${memberName.slice(0, 2).toUpperCase()}01`;
+  const qrData = encodeURIComponent(`https://bloombay.app/scan?club=${club.id}&m=${cardNumber}`);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=1A0010&bgcolor=FFFFFF&data=${qrData}&qzone=2`;
+
+  return (
+    <div style={{ width: "100%", maxWidth: 320, margin: "0 auto", borderRadius: 20, overflow: "hidden", background: `linear-gradient(135deg, ${club.color} 0%, ${club.color}CC 60%, ${club.color}88 100%)`, boxShadow: `0 16px 48px ${club.color}44, 0 4px 0 rgba(0,0,0,0.2)`, position: "relative" }}>
+      {/* Noise texture overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E\") repeat", pointerEvents: "none" }} />
+
+      {/* Header */}
+      <div style={{ padding: "20px 20px 14px", position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.6)", marginBottom: 3 }}>BLOOMBAY · CLUB MEMBER</p>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "white", lineHeight: 1 }}>{club.name}</h2>
+          </div>
+          {/* Club crest placeholder */}
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 22 }}>{club.crestEmoji ?? "✦"}</span>
+          </div>
+        </div>
+
+        {/* Member name */}
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 26, fontWeight: 900, color: "white", lineHeight: 1.05 }}>{memberName}</p>
+        {memberSince && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.55)", marginTop: 3 }}>Member since {memberSince}</p>}
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 0, borderTop: "1.5px dashed rgba(255,255,255,0.25)", margin: "0 20px" }} />
+
+      {/* Card body */}
+      <div style={{ padding: "14px 20px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>CARD NUMBER</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white", letterSpacing: "0.12em" }}>{cardNumber}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.45)", marginTop: 6, letterSpacing: "0.08em" }}>SCAN AT DOOR · MEMBERS ONLY</p>
+        </div>
+        {/* QR code */}
+        <div style={{ background: "white", borderRadius: 10, padding: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", flexShrink: 0 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrUrl} alt="Scan" width={80} height={80} style={{ display: "block", borderRadius: 4 }} />
+        </div>
+      </div>
+
+      {/* Bottom accent stripe */}
+      <div style={{ height: 6, background: "rgba(0,0,0,0.2)" }} />
+    </div>
+  );
+}
+
+// ─── Club Kit Sheet ──────────────────────────────────────────────────────────
+
+function ClubKitSheet({ club, onClose }: { club: ClubLandingData; onClose: () => void }) {
+  return (
+    <>
+      <div style={{ position: "fixed", inset: 0, zIndex: 70, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }} onClick={onClose} />
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 71, borderRadius: "24px 24px 0 0", background: "var(--bb-card, #FFF)", maxHeight: "90vh", overflowY: "auto", paddingBottom: "max(24px, env(safe-area-inset-bottom))", boxShadow: "0 -12px 48px rgba(0,0,0,0.2)" }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 8px" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
+        </div>
+        <div style={{ padding: "4px 24px 20px" }}>
+          {/* Header */}
+          <div style={{ marginBottom: 20, textAlign: "center" as const }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: `${club.color}99`, marginBottom: 6 }}>✦ WELCOME TO THE CLUB</p>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "var(--bb-text, #111)", lineHeight: 1, marginBottom: 6 }}>Your Club Kit.</h2>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "var(--bb-text-3, #888)" }}>Everything you need to be part of {club.name}</p>
+          </div>
+          {/* The membership card */}
+          <ClubMembershipCard club={club} memberSince={new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })} />
+          {/* Info items */}
+          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { icon: "✦", label: "Scannable at the door", desc: "Show your card to access members-only events" },
+              { icon: "🌸", label: "Exclusive access", desc: "Club events, zones, and member-only spaces" },
+              { icon: "💌", label: "Card lives in your club", desc: "Always find it in the Members tab" },
+            ].map(item => (
+              <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: `${club.color}08`, borderRadius: 14, border: `1px solid ${club.color}15` }}>
+                <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "var(--bb-text, #111)", marginBottom: 2 }}>{item.label}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "var(--bb-text-3, #888)" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={onClose} style={{ width: "100%", marginTop: 20, padding: "15px", borderRadius: 16, background: club.color, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 14, color: "white", letterSpacing: "0.04em", boxShadow: `0 6px 24px ${club.color}44` }}>
+            Enter the club →
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export interface ClubCustomization {
@@ -807,6 +905,11 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [clubTab, setClubTab] = useState<ClubTab>("about");
   const [introText, setIntroText] = useState("");
   const [, startT] = useTransition();
+  const [kickedIds, setKickedIds] = useState<Set<string>>(new Set());
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
+  const [memberMenu, setMemberMenu] = useState<string | null>(null);
+  const [showMyCard, setShowMyCard] = useState(false);
+  const [showClubKit, setShowClubKit] = useState(false);
 
   const brandColor = customization?.accent_color ?? club.color;
   const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
@@ -1391,23 +1494,100 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
           {/* ── Members tab ── */}
           {clubTab === "members" && (
             <div style={{ padding: "24px 20px 80px" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: club.color, marginBottom: 14 }}>{club.memberCount.toLocaleString()} MEMBERS</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {CLUB_MEMBERS.map(m => (
-                  <div key={m.name} style={{ background: "white", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white", flexShrink: 0 }}>{m.initial}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: DARK }}>{m.name}</p>
-                      {m.role === "Club Mama" && <span style={{ fontSize: 11, fontWeight: 700, color: club.color }}>Club Mama</span>}
-                    </div>
-                    <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: PINK, background: "#FFF0F5", border: "none", cursor: "pointer" }}>Connect</button>
+              {/* My Club Card — shown only if member */}
+              {isMember && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color }}>YOUR MEMBERSHIP CARD</p>
+                    {!showMyCard && (
+                      <button onClick={() => setShowMyCard(true)} style={{ padding: "5px 14px", borderRadius: 999, background: `${club.color}12`, border: `1px solid ${club.color}30`, cursor: "pointer" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: club.color }}>View card</p>
+                      </button>
+                    )}
                   </div>
-                ))}
+                  {showMyCard && (
+                    <div style={{ marginBottom: 14 }}>
+                      <ClubMembershipCard club={club} memberSince={new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })} />
+                      <button onClick={() => setShowMyCard(false)} style={{ width: "100%", marginTop: 8, padding: "10px", borderRadius: 12, background: "rgba(0,0,0,0.05)", border: "none", cursor: "pointer" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#888" }}>Hide card</p>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color, marginBottom: 14 }}>{club.memberCount.toLocaleString()} MEMBERS</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {CLUB_MEMBERS.filter(m => !kickedIds.has(m.id)).map(m => {
+                  const isMenuOpen = memberMenu === m.id;
+                  const isBlocked = blockedIds.has(m.id);
+                  const isMama = m.role === "Club Mama";
+                  return (
+                    <div key={m.name} style={{ background: "white", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", opacity: isBlocked ? 0.45 : 1, position: "relative" as const }}>
+                      <div style={{ width: 40, height: 40, borderRadius: "50%", background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white", flexShrink: 0 }}>{m.initial}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{m.name}{isBlocked ? " (blocked)" : ""}</p>
+                        {isMama && <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: club.color }}>Club Mama</span>}
+                      </div>
+                      {/* Owner actions */}
+                      {isOwner && !isMama && (
+                        <button
+                          onClick={() => { setKickedIds(prev => new Set([...prev, m.id])); }}
+                          style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: "#888", background: "#F5F5F5", border: "none", cursor: "pointer" }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                      {/* Member actions */}
+                      {!isOwner && !isMama && (
+                        <div style={{ position: "relative" as const }}>
+                          <button
+                            onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
+                            style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                          </button>
+                          {isMenuOpen && (
+                            <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 140, zIndex: 20, overflow: "hidden" }}>
+                              <button
+                                onClick={() => { setMemberMenu(null); }}
+                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#111" }}>Connect</p>
+                              </button>
+                              <button
+                                onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
+                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
+                              </button>
+                              <button
+                                onClick={() => { setMemberMenu(null); alert(`Reported ${m.name}`); }}
+                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Report</p>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {!isOwner && isMama && (
+                        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: club.color, background: `${club.color}10`, border: "none", cursor: "pointer" }}>Connect</button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
         </>
       )}
+
+      {/* ── Club Kit Sheet ────────────────────────────────────────────────── */}
+      {showClubKit && <ClubKitSheet club={club} onClose={() => setShowClubKit(false)} />}
 
       {/* ── Application Sheet ──────────────────────────────────────────────── */}
       {showForm && (
@@ -1452,6 +1632,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   await applyToClub(club.id, introText || undefined);
                   setApplied(true);
                   setShowForm(false);
+                  setShowClubKit(true);
                 } catch (err) {
                   setApplyError((err as { message?: string })?.message ?? "Something went wrong. Try again.");
                 } finally {
