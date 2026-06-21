@@ -21,17 +21,39 @@ const DARK   = "#1C1B1C";
 const CREAM  = "#F6F1EB";
 const NAV_BG = "#F6F1EB";
 
-// Map DB event_type string → EventType for template dispatch
+// Map DB event_type + title → EventType for template dispatch
 function inferEventType(ev: Event): EventType {
-  const t = (ev.event_type ?? "").toLowerCase();
-  if (t.includes("concert") || t.includes("music") || t.includes("show") || t.includes("performance")) return "concert";
-  if (t.includes("party") || t.includes("birthday") || t.includes("celebration") || t.includes("social")) return "party";
-  if (t.includes("invitation") || t.includes("invite")) return "invitation";
-  if (t.includes("open_seat") || t.includes("open seat") || t.includes("last seat")) return "open_seats";
-  if (t.includes("table") || t.includes("supper club") || t.includes("private dinner")) return "table";
-  if (t.includes("brunch") || t.includes("dinner") || t.includes("lunch") || t.includes("meal")) return "brunch";
-  if (t.includes("walk") || t.includes("outdoor") || t.includes("hike") || t.includes("run")) return "walk";
-  if (t.includes("museum") || t.includes("gallery") || t.includes("art") || t.includes("exhibition")) return "museum";
+  const t  = (ev.event_type ?? "").toLowerCase();
+  const tt = (ev.title ?? "").toLowerCase();
+  const s  = `${t} ${tt}`;
+  // Ticket / concert
+  if (/concert|live music|vinyl night|jazz night|performance|gig|music show|afrobeats night|dance.*show/.test(s)) return "concert";
+  // Party poster
+  if (/\bparty\b|girls night|birthday bash|girls.night.out|rooftop.*party|dance all night|night out|noche|rave|social night/.test(s)) return "party";
+  // Invitation
+  if (/\binvit(ation|e)\b|private.*invite/.test(s)) return "invitation";
+  // Open seats (last minute)
+  if (/open.?seat|last.?seat|open.?table|seat.?available/.test(s)) return "open_seats";
+  // Private dinner table card
+  if (/private dinner|reserved table|members.table|dinner.*table|table.*dinner/.test(s)) return "table";
+  // Supper club / intimate dinners → handwritten note card
+  if (/supper club|supper|intimate dinner|dinner party|dinner society|italian dinner/.test(s)) return "supper";
+  // Cocktails / drinks / aperitivo → vintage poster card
+  if (/cocktail|aperitivo|wine night|wine.*tasting|bar night|drinks night|happy hour|champagne|rosé|rose|spirits|martini|negroni/.test(s)) return "drinks";
+  // Bakery / patisserie
+  if (/bakery|boulangerie|pastry|croissant|peko|bread|pâtisserie/.test(s)) return "bakery";
+  // Food pop-up / café
+  if (/pop.?up|café|coffee.*event|bites|brunch.*event/.test(s)) return "popup";
+  // Food editorial
+  if (/food.*partner|tasting menu|culinary|feast|dining.*experience/.test(s)) return "food";
+  // Brunch
+  if (/\bbrunch\b|sunday.*brunch|brunch.*club|mimosa|bagels/.test(s)) return "brunch";
+  // Dinner that didn't match above
+  if (/\bdinner\b|\blunch\b|\bmeal\b|restaurant/.test(s)) return "supper";
+  // Walk / outdoor / active
+  if (/\bwalk\b|outdoor|hike|run club|morning.*walk|stroll|trail/.test(s)) return "walk";
+  // Museum / gallery / art
+  if (/museum|gallery|exhibition|moma|the met|\bart show\b|art.*night/.test(s)) return "museum";
   return "gathering";
 }
 
@@ -1251,14 +1273,18 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
   const DEMO_EVENTS: EventCardData[] = [
-    { id: "d1", type: "concert",    title: "Vinyl Night & Jazz",      host: "Girl Creatives", location: "Bushwick",     date: "SAT JUN 14", time: "9 PM",    spotsLeft: 12, accentColor: "#1C1B1C" },
-    { id: "d2", type: "party",      title: "Girls Night Out",          host: "BloomBay",       location: "SoHo",         date: "FRI JUN 13", time: "10 PM",   spotsLeft: 6,  accentColor: PINK },
-    { id: "d3", type: "gathering",  title: "Italian Dinner Society",   host: "Yande",          location: "Carbone",      date: "THU JUN 19", time: "7:30 PM", going: 8 },
-    { id: "d4", type: "invitation", title: "Pilates + Matcha",         host: "Sofia K.",       location: "Williamsburg", date: "SUN JUN 15", time: "9 AM",    spotsLeft: 3 },
-    { id: "d7", type: "open_seats", title: "Sunday Supper",            host: "Natalie M.",     location: "West Village", date: "SUN JUN 15", time: "7 PM",    spotsLeft: 2, going: 6 },
-    { id: "d8", type: "table",      title: "Private Dinner Party",     host: "House of Flora", location: "NoHo",         date: "SAT JUN 21", time: "8 PM",    spotsLeft: 4, accentColor: "#1A3A1A" },
-    { id: "d5", type: "brunch",     title: "Sunday Brunch Club", host: "BloomBay",       location: "Ladurée SoHo", date: "SUN JUN 22", time: "11 AM", going: 14 },
-    { id: "d6", type: "museum",     title: "MoMA + Froyo After", host: "Girl Creatives", location: "Midtown",  date: "SAT JUN 21", time: "2 PM", spotsLeft: 5 },
+    { id: "d1",  type: "concert",    title: "Vinyl Night & Jazz",        host: "Girl Creatives",  location: "Elsewhere, Bushwick",  date: "SAT JUL 12", time: "9 PM",    spotsLeft: 12, accentColor: "#1C1B1C" },
+    { id: "d2",  type: "party",      title: "Girls Night Out",           host: "BloomBay",        location: "SoHo",                 date: "FRI JUL 11", time: "10 PM",   spotsLeft: 6,  accentColor: PINK },
+    { id: "d3",  type: "supper",     title: "Italian Dinner Society",    host: "Yande M.",        location: "Carbone, West Village",date: "THU JUL 17", time: "7:30 PM", going: 8 },
+    { id: "d4",  type: "invitation", title: "Pilates + Matcha Morning",  host: "Sofia K.",        location: "Williamsburg",         date: "SUN JUL 13", time: "9 AM",    spotsLeft: 3 },
+    { id: "d5",  type: "open_seats", title: "Sunday Supper",             host: "Natalie M.",      location: "West Village",         date: "SUN JUL 13", time: "7 PM",    spotsLeft: 2,  going: 6 },
+    { id: "d6",  type: "table",      title: "Private Dinner Party",      host: "House of Flora",  location: "NoHo",                 date: "SAT JUL 19", time: "8 PM",    spotsLeft: 4,  accentColor: "#1A3A1A" },
+    { id: "d7",  type: "drinks",     title: "Aperitivo Hour",            host: "Valentini's",     location: "Nolita",               date: "FRI JUL 18", time: "6 PM",    spotsLeft: 8,  accentColor: "#C84030" },
+    { id: "d8",  type: "museum",     title: "MoMA + Froyo After",        host: "Museum Girls",    location: "Midtown",              date: "SAT JUL 19", time: "2 PM",    spotsLeft: 5 },
+    { id: "d9",  type: "brunch",     title: "Sunday Brunch Club",        host: "BloomBay",        location: "Ladurée SoHo",         date: "SUN JUL 20", time: "11 AM",   going: 14 },
+    { id: "d10", type: "bakery",     title: "Croissant Morning",         host: "Flour & Stone",   location: "Lower East Side",      date: "SAT JUL 12", time: "9 AM",    spotsLeft: 10, accentColor: "#8B3A2A" },
+    { id: "d11", type: "walk",       title: "Brooklyn Bridge Walk",      host: "Walk & Talk Club",location: "Brooklyn Bridge Park", date: "SUN JUL 13", time: "8 AM",    going: 22 },
+    { id: "d12", type: "food",       title: "Wine & Cheese Tasting",     host: "Buvette",         location: "West Village",         date: "WED JUL 16", time: "7 PM",    spotsLeft: 6,  accentColor: "#C8860A" },
   ];
 
   return (

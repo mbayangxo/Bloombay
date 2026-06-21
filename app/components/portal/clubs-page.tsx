@@ -4,7 +4,7 @@ import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { PushPin, GoldStar, TornEdge, WashiTape } from "./scrapbook";
+import { PushPin, GoldStar, SafetyPin, TornEdge, WashiTape } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
 import { thumbUrl } from "@/lib/images/supabase-transform";
 import { ClubCrestSVG } from "./club-crest";
@@ -63,10 +63,29 @@ const LIVE_FEED = [
   { action: "joined",  who: "Chisom E.","club": "SUPPER CLUB",  time: "18m",   color: "#c9504a" },
 ];
 
+// HQ-created clubs — always shown regardless of DB
+const HQ_CLUBS = [
+  { id: "hq-1", name: "Walk & Talk Club",     description: "Morning walks, good conversations, great women. No agenda, just movement and connection.",   primary_color: "#2D6A4F", cover_url: null, slug: "walk-and-talk",     category: "active"   },
+  { id: "hq-2", name: "Supper Club NYC",      description: "Private dinners, shared tables, unforgettable evenings. We eat well and talk better.",       primary_color: "#C9504A", cover_url: null, slug: "supper-club-nyc",  category: "food"     },
+  { id: "hq-3", name: "Museum Girls",         description: "Art, exhibitions, froyo after. Culture runs through us.",                                     primary_color: "#6B4FA0", cover_url: null, slug: "museum-girls",     category: "arts"     },
+  { id: "hq-4", name: "Book Society",         description: "Monthly reads, honest reviews, and the kind of conversations that go until midnight.",         primary_color: "#B5451B", cover_url: null, slug: "book-society",     category: "books"    },
+  { id: "hq-5", name: "Soft Life Club",       description: "Rest is radical. We protect our peace, prioritize joy, and build the life we actually want.", primary_color: "#C96B9E", cover_url: null, slug: "soft-life-club",  category: "wellness" },
+  { id: "hq-6", name: "Aperitivo Girls",      description: "Pre-dinner drinks, golden hour, no bad vibes. Spritz in hand, heels optional.",              primary_color: "#E07040", cover_url: null, slug: "aperitivo-girls",  category: "drinks"   },
+  { id: "hq-7", name: "Run Club NYC",         description: "Early mornings, endorphins, and women who keep showing up. All paces welcome.",               primary_color: "#1A6B8A", cover_url: null, slug: "run-club-nyc",    category: "active"   },
+  { id: "hq-8", name: "Women in Lens",        description: "Photography, film, and seeing the world through her eyes. Shoots, critiques, exhibitions.",   primary_color: "#4A3728", cover_url: null, slug: "women-in-lens",   category: "creative" },
+  { id: "hq-9", name: "Flower Girls",         description: "Floral design, seasonal arrangements, and the art of making things beautiful.",               primary_color: "#D4547A", cover_url: null, slug: "flower-girls",    category: "creative" },
+  { id: "hq-10", name: "Yoga & Mimosas",      description: "Sunday practice, then brunch. Because balance is everything.",                                primary_color: "#7B9E60", cover_url: null, slug: "yoga-and-mimosas", category: "wellness" },
+  { id: "hq-11", name: "Creative Collective", description: "Designers, writers, builders, artists. We make things and we make each other better.",        primary_color: "#3A2D5F", cover_url: null, slug: "creative-collective", category: "creative" },
+  { id: "hq-12", name: "Money Moves",         description: "Investing, negotiating, building wealth. The financial conversations women deserve.",          primary_color: "#2D4A2D", cover_url: null, slug: "money-moves",     category: "career"   },
+] as const;
+
 const HOT_CLUBS = [
-  { name: "SUPPER CLUB",    fire: 42, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/11111111-1111-1111-1111-111111111111" },
-  { name: "MUSEUM GIRLS",   fire: 38, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/22222222-2222-2222-2222-222222222222" },
-  { name: "SOFT LIFE CLUB", fire: 31, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/44444444-4444-4444-4444-444444444444" },
+  { name: "WALK & TALK CLUB", fire: 58, grad: "linear-gradient(135deg,#2D6A4F,#1A3D2C)", href: "/member/clubs/walk-and-talk" },
+  { name: "SUPPER CLUB NYC",  fire: 47, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/supper-club-nyc" },
+  { name: "MUSEUM GIRLS",     fire: 42, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/museum-girls" },
+  { name: "SOFT LIFE CLUB",   fire: 38, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/soft-life-club" },
+  { name: "APERITIVO GIRLS",  fire: 31, grad: "linear-gradient(135deg,#e07040,#8a3810)", href: "/member/clubs/aperitivo-girls" },
+  { name: "BOOK SOCIETY",     fire: 29, grad: "linear-gradient(135deg,#b5451b,#6a2210)", href: "/member/clubs/book-society" },
 ];
 
 export function ClubsPage() {
@@ -86,10 +105,16 @@ export function ClubsPage() {
       .from("clubs")
       .select("id, name, description, primary_color, cover_url, slug, neighborhood")
       .order("created_at", { ascending: false })
-      .limit(50)
+      .limit(100)
       .then(({ data }) => {
-        if (!data) return;
-        setClubs((data as (RealClub & { neighborhood?: string | null })[]).slice(0, 8));
+        // Merge HQ clubs + DB clubs, dedup by slug/name
+        const dbClubs = (data ?? []) as (RealClub & { neighborhood?: string | null })[];
+        const dbSlugs = new Set(dbClubs.map(c => c.slug ?? c.name.toLowerCase()));
+        const hqAsReal: RealClub[] = HQ_CLUBS
+          .filter(h => !dbSlugs.has(h.slug) && !dbSlugs.has(h.name.toLowerCase()))
+          .map(h => ({ id: h.id, name: h.name, description: h.description, primary_color: h.primary_color, cover_url: null, slug: h.slug }));
+        const merged = [...hqAsReal, ...dbClubs];
+        setClubs(merged);
 
         // Compute real neighborhood counts
         const counts: Record<string, number> = {};
@@ -253,7 +278,7 @@ export function ClubsPage() {
           {clubs.length === 0 && (
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0" }}>Clubs loading…</p>
           )}
-          {clubs.map((club, idx) => {
+          {clubs.slice(0, 16).map((club, idx) => {
             const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
             const rot = ROTS[idx % ROTS.length];
             const grad = club.primary_color
@@ -281,9 +306,17 @@ export function ClubsPage() {
                   position: "relative",
                   marginTop: Math.abs(rot) > 1.5 ? 8 : 4,
                 }}>
-                  <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px", overflow: "hidden", position: "relative" }}>
-                    {club.cover_url && (
+                  <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+                    {club.cover_url ? (
                       <Image src={thumbUrl(club.cover_url) ?? ""} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                    ) : (
+                      <ClubCrestSVG
+                        name={club.name}
+                        category={(club as RealClub & { category?: string }).category ?? ""}
+                        color={club.primary_color ?? PINK}
+                        size={82}
+                        shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
+                      />
                     )}
                   </div>
                   <div style={{ marginTop: 10 }}>
@@ -374,7 +407,17 @@ export function ClubsPage() {
                       </div>
                     )}
                     <div style={{ position: "relative", zIndex: 1, padding: "14px 14px 12px" }}>
-                      <div style={{ minHeight: 60 }} />
+                      <div style={{ minHeight: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {!club.cover_url && (
+                          <ClubCrestSVG
+                            name={club.name}
+                            category={(club as RealClub & { category?: string }).category ?? ""}
+                            color={club.primary_color ?? PINK}
+                            size={56}
+                            shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
+                          />
+                        )}
+                      </div>
                       <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: "white", lineHeight: 1.2, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{club.name}</p>
                       {club.description && (
                         <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, lineHeight: 1.4 }}>
