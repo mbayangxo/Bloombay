@@ -8,6 +8,7 @@ import { getHostClubId } from "@/lib/club-host-store";
 import { cancelGathering, listGatherings, logAudit, saveGathering } from "@/lib/club-owner-store";
 import { getClubProfile } from "@/lib/club-world-data";
 import { HostPostMortemCard } from "@/app/components/portal/host-post-mortem-card";
+import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
 
 type PastGathering = { id: string; title: string; date: string; venue: string };
 
@@ -135,6 +136,10 @@ export default function ClubOwnerGatheringsPage() {
           Save gathering
         </button>
       </form>
+
+      <section className="co-section co-section--full">
+        <BloomCardsDeck context="host" />
+      </section>
     </ClubOwnerShell>
   );
 }
