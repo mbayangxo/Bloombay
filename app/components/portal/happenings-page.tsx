@@ -939,6 +939,185 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
   );
 }
 
+/* ── Celebration Invitations View (invitation filter) ────── */
+const CELEB_DEMO = [
+  { id: "c1", type: "Birthday" as const,   name: "Sofia K.",  what: "30th Birthday Dinner",     venue: "Carbone, West Village",  date: "SAT JUL 5",  time: "8 PM",    initials: "SK", color: "#FF1F7D",  confirmed: 12 },
+  { id: "c2", type: "Wins" as const,       name: "Amara T.",  what: "New Job Celebration",      venue: "Ladurée SoHo",           date: "FRI JUL 11", time: "7:30 PM", initials: "AT", color: "#FF69B4",  confirmed: 8  },
+  { id: "c3", type: "Milestones" as const, name: "Nadia O.",  what: "New Apartment Warming",    venue: "Her new place · Tribeca", date: "SUN JUL 13", time: "3 PM",    initials: "NO", color: "#E8006A",  confirmed: 18 },
+  { id: "c4", type: "Birthday" as const,   name: "Lena R.",   what: "Birthday Brunch",          venue: "Sadelle's, SoHo",        date: "SUN JUL 20", time: "11 AM",   initials: "LR", color: "#C80060",  confirmed: 7  },
+  { id: "c5", type: "Wins" as const,       name: "Zora M.",   what: "Book Deal Dinner",         venue: "Via Carota",             date: "THU JUL 24", time: "7 PM",    initials: "ZM", color: "#FF1F7D",  confirmed: 5  },
+  { id: "c6", type: "Milestones" as const, name: "Fatima A.", what: "Engagement Celebration",   venue: "The Jane NYC",           date: "SAT JUL 26", time: "6 PM",    initials: "FA", color: "#A8004C",  confirmed: 22 },
+];
+type CelebType = "All" | "Birthday" | "Wins" | "Milestones";
+
+function CelebrationInvitationsView({ events, joined, onToggle }: {
+  events: Event[];
+  joined: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  const [celebFilter, setCelebFilter] = useState<CelebType>("All");
+  const demo = celebFilter === "All" ? CELEB_DEMO : CELEB_DEMO.filter(c => c.type === celebFilter);
+
+  return (
+    <div style={{ padding: "0 0 24px" }}>
+      {/* Header */}
+      <div style={{ padding: "18px 16px 14px", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>💌 INVITATIONS</p>
+        <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(22px, 7vw, 28px)", color: "rgba(255,238,220,0.96)", lineHeight: 1.0, margin: "0 0 6px" }}>
+          We show up for our girls.
+        </h2>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", lineHeight: 1.5 }}>
+          Celebrate the moments that matter — birthdays, wins & milestones
+        </p>
+      </div>
+
+      {/* Celebration type tabs */}
+      <div style={{ display: "flex", gap: 6, padding: "0 14px 14px", overflowX: "auto", scrollbarWidth: "none" as const }}>
+        {(["All", "Birthday", "Wins", "Milestones"] as CelebType[]).map(t => (
+          <button
+            key={t}
+            onClick={() => setCelebFilter(t)}
+            style={{
+              flexShrink: 0, padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer",
+              background: celebFilter === t ? PINK : "rgba(255,255,255,0.1)",
+              color: celebFilter === t ? "white" : "rgba(255,255,255,0.55)",
+              fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.06em",
+              boxShadow: celebFilter === t ? `0 3px 14px ${PINK}55` : "none",
+              transition: "all 0.15s",
+            }}
+          >
+            {t === "Birthday" ? "🎂 " : t === "Wins" ? "✨ " : t === "Milestones" ? "🌸 " : ""}{t}
+          </button>
+        ))}
+      </div>
+
+      {/* Real invitation events — if any */}
+      {events.length > 0 && (
+        <div style={{ padding: "0 14px 14px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>OPEN INVITATIONS</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {events.map(ev => (
+              <button
+                key={ev.id}
+                onClick={() => onToggle(ev.id)}
+                style={{ width: "100%", padding: "14px 16px", borderRadius: 16, border: "none", cursor: "pointer", background: joined.has(ev.id) ? `${PINK}22` : "rgba(255,255,255,0.08)", borderStyle: "solid", borderWidth: 1, borderColor: joined.has(ev.id) ? `${PINK}55` : "rgba(255,255,255,0.12)", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}
+              >
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: "white" }}>{ev.host_name?.slice(0, 2).toUpperCase() ?? "BB"}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 3 }}>{ev.title}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)" }}>{ev.venue ?? ev.neighborhood} · {new Date(ev.starts_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                </div>
+                <div style={{ background: joined.has(ev.id) ? PINK : "rgba(255,255,255,0.12)", borderRadius: 999, padding: "5px 12px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white" }}>{joined.has(ev.id) ? "IN ✓" : "JOIN →"}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Demo celebration cards */}
+      <div style={{ padding: "0 14px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>CELEBRATING HER</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {demo.map((c) => (
+            <div
+              key={c.id}
+              style={{
+                background: "rgba(255,255,255,0.07)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 18,
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              {/* Accent stripe */}
+              <div style={{ height: 3, background: `linear-gradient(90deg, ${c.color}, ${c.color}55)` }} />
+
+              <div style={{ padding: "14px 16px 14px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  {/* Avatar */}
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <div style={{ width: 50, height: 50, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}, ${c.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.15)" }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 900, color: "white" }}>{c.initials}</span>
+                    </div>
+                    {/* Type badge */}
+                    <div style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", background: c.color, borderRadius: 999, padding: "2px 6px", whiteSpace: "nowrap", border: "1.5px solid rgba(0,0,0,0.2)" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>
+                        {c.type === "Birthday" ? "🎂" : c.type === "Wins" ? "✨" : "🌸"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: `${c.color}CC`, marginBottom: 2 }}>{c.type.toUpperCase()} · {c.date}</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 3 }}>{c.what}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>{c.name}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.38)" }}>{c.venue} · {c.time}</p>
+                  </div>
+
+                  {/* Count */}
+                  <div style={{ flexShrink: 0, textAlign: "center" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 900, color: "white" }}>{c.confirmed}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.06em" }}>showing{"\n"}up</p>
+                  </div>
+                </div>
+
+                {/* Envelope-style footer */}
+                <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {[0,1,2].map(i => (
+                      <div key={i} style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}99, ${c.color}44)`, border: `1.5px solid rgba(255,255,255,0.15)`, marginLeft: i > 0 ? -8 : 0 }} />
+                    ))}
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", marginLeft: 4, display: "flex", alignItems: "center" }}>+{c.confirmed - 3} more</p>
+                  </div>
+                  <button style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: c.color }}>Open invite →</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recently celebrated strip */}
+      <div style={{ margin: "20px 14px 0", padding: "16px", background: "rgba(255,255,255,0.06)", borderRadius: 18, border: "1px solid rgba(255,255,255,0.1)" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>RECENTLY CELEBRATED</p>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
+          {[
+            { name: "Maya B.", what: "Got the job 🎉", color: "#FF1F7D" },
+            { name: "Temi O.", what: "Birthday queen 🎂", color: "#FF69B4" },
+            { name: "Jade R.", what: "New apartment 🏠", color: "#E8006A" },
+            { name: "Sade L.", what: "Book deal 📚", color: "#C80060" },
+          ].map((r, i) => (
+            <div key={i} style={{ flexShrink: 0, width: 110, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${r.color}, ${r.color}77)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.15)" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, color: "white" }}>{r.name[0]}</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,255,255,0.8)", textAlign: "center", lineHeight: 1.2 }}>{r.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>{r.what}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Drop an invite CTA */}
+      <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}30`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 22 }}>💌</span>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Celebrate someone</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Drop an invite · birthdays, wins & everything in between</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  );
+}
+
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
   const DEMO_EVENTS: EventCardData[] = [
@@ -1522,8 +1701,17 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
 
+            {/* Invitations: celebration template */}
+            {!loading && filter === "Invitations" && (
+              <CelebrationInvitationsView
+                events={filtered}
+                joined={joined}
+                onToggle={toggleJoin}
+              />
+            )}
+
             {/* Collage: real events */}
-            {!loading && filtered.length > 0 && (
+            {!loading && filter !== "Invitations" && filtered.length > 0 && (
               <EventTemplatesStrip
                 events={filtered}
                 joined={joined}
@@ -1538,12 +1726,12 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             )}
 
             {/* Collage: static posters when no events */}
-            {!loading && events.length === 0 && (
+            {!loading && filter !== "Invitations" && events.length === 0 && (
               <StaticCollage/>
             )}
 
             {/* No match for filter */}
-            {!loading && events.length > 0 && filtered.length === 0 && (
+            {!loading && filter !== "Invitations" && events.length > 0 && filtered.length === 0 && (
               <div style={{ padding: "40px 24px", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.3)" }}>nothing here yet ✦</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.2)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
