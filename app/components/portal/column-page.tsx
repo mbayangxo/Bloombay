@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
@@ -194,8 +194,36 @@ function ColumnCard({ col }: { col: Column }) {
 
 export function ColumnPage() {
   const [activeTheme, setActiveTheme] = useState<ColTheme>("all");
+  const [columns, setColumns] = useState<Column[]>(MOCK_COLUMNS);
+
+  useEffect(() => {
+    fetch("/api/avenue/column")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setColumns(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): Column => ({
+              id: row.id,
+              title: row.title ?? "",
+              opening: row.meta?.opening ?? "",
+              body: row.meta?.body_text ?? "",
+              theme: (row.meta?.theme ?? "love") as ColTheme,
+              date: "",
+              yande_note: "",
+              cover_a: PINK,
+              cover_b: "#AD1457",
+              featured: false,
+              blooms: 0,
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const themes = Object.entries(THEME_META) as [ColTheme, { label: string; color: string }][];
-  const filtered = activeTheme === "all" ? MOCK_COLUMNS : MOCK_COLUMNS.filter(c => c.theme === activeTheme);
+  const filtered = activeTheme === "all" ? columns : columns.filter(c => c.theme === activeTheme);
   const [featured, ...rest] = filtered;
 
   return (

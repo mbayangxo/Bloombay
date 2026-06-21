@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK   = "#FF1F7D";
@@ -208,8 +208,39 @@ function ArticleCard({ article }: { article: Article }) {
 
 export function MagazinePage() {
   const [activeSection, setActiveSection] = useState<MagSection>("all");
+  const [articles, setArticles] = useState<Article[]>(MOCK_ARTICLES);
+
+  useEffect(() => {
+    fetch("/api/avenue/magazine")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setArticles(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): Article => ({
+              id: row.id,
+              headline: row.title ?? "",
+              dek: row.meta?.dek ?? "",
+              section: (row.meta?.section ?? "culture") as MagSection,
+              readTime: row.meta?.read_time ?? "",
+              author: row.author ?? "",
+              author_initial: (row.author ?? "?")[0],
+              author_color: GOLD,
+              cover_a: row.meta?.cover_a ?? "#333",
+              cover_b: row.meta?.cover_b ?? "#555",
+              featured: row.meta?.featured ?? false,
+              blooms: 0,
+              timeAgo: "",
+              label: undefined,
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const sections = Object.entries(SECTION_META) as [MagSection, { label: string; color: string }][];
-  const filtered = activeSection === "all" ? MOCK_ARTICLES : MOCK_ARTICLES.filter(a => a.section === activeSection);
+  const filtered = activeSection === "all" ? articles : articles.filter(a => a.section === activeSection);
   const [featured, ...rest] = filtered;
 
   return (

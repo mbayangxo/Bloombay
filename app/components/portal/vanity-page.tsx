@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
@@ -180,14 +180,42 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
 
 export function VanityPage() {
   const [activeCategory, setActiveCategory] = useState<VanityCategory>("all");
+  const [posts, setPosts] = useState<VanityPost[]>(MOCK_POSTS);
   const [saved, setSaved] = useState<SavedSet>(new Set());
   const [showCreate, setShowCreate] = useState(false);
   const [newText, setNewText] = useState("");
   const [newCategory, setNewCategory] = useState<VanityCategory>("skincare");
 
+  useEffect(() => {
+    fetch("/api/avenue/vanity")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setPosts(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): VanityPost => ({
+              id: row.id,
+              title: row.title ?? "",
+              text: row.body ?? "",
+              category: (row.meta?.category ?? "skincare") as VanityCategory,
+              products: row.meta?.products ?? [],
+              gradientA: row.meta?.gradient_a ?? "#FF9A9E",
+              gradientB: row.meta?.gradient_b ?? PINK,
+              author_name: row.author ?? "",
+              author_initial: (row.author ?? "?")[0],
+              author_color: PINK,
+              saves: 0,
+              timeAgo: "",
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const filtered = activeCategory === "all"
-    ? MOCK_POSTS
-    : MOCK_POSTS.filter(p => p.category === activeCategory);
+    ? posts
+    : posts.filter(p => p.category === activeCategory);
 
   const cats = Object.entries(CATEGORY_META) as [VanityCategory, { label: string; color: string }][];
 

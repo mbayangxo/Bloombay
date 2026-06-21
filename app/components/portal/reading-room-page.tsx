@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
@@ -146,8 +146,38 @@ function BookCard({ post }: { post: BookPost }) {
 
 export function ReadingRoomPage() {
   const [activeCategory, setActiveCategory] = useState<BookCategory>("all");
+  const [posts, setPosts] = useState<BookPost[]>(MOCK_POSTS);
+
+  useEffect(() => {
+    fetch("/api/avenue/reading")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setPosts(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): BookPost => ({
+              id: row.id,
+              book_title: row.title,
+              book_author: row.meta?.book_author ?? "",
+              category: (row.meta?.category ?? "fiction") as BookCategory,
+              rating: row.meta?.rating ?? 0,
+              spine_color: row.meta?.spine_color ?? "#333",
+              spine_color2: row.meta?.spine_color2 ?? "#555",
+              text: row.body ?? "",
+              author_name: row.author ?? "",
+              author_initial: (row.author ?? "?")[0],
+              author_color: GOLD,
+              blooms: 0,
+              timeAgo: "",
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const cats = Object.entries(CAT_META) as [BookCategory, { label: string; color: string }][];
-  const filtered = activeCategory === "all" ? MOCK_POSTS : MOCK_POSTS.filter(p => p.category === activeCategory);
+  const filtered = activeCategory === "all" ? posts : posts.filter(p => p.category === activeCategory);
 
   return (
     <div style={{ background: "linear-gradient(160deg, #FAF6F0 0%, #F5EDD8 50%, #FAF6F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
