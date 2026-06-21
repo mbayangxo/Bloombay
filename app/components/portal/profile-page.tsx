@@ -838,6 +838,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [deleteConfirm,  setDeleteConfirm]  = useState("");
   const [deleteOpen,     setDeleteOpen]     = useState(false);
 
+  // Character stats
+  const [stats, setStats] = useState<{ clubs: number; events: number } | null>(null);
+
   // Avatar upload ref for template clicks
   const avatarUploadRef = useRef<HTMLDivElement>(null);
 
@@ -930,6 +933,16 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .then(({ data }) => { if (data) setPhotos(data as Photo[]); });
+  }, [user.id]);
+
+  useEffect(() => {
+    const sb = createClient();
+    Promise.all([
+      sb.from("club_memberships").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      sb.from("seat_reservations").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "reserved"),
+    ]).then(([clubs, events]) => {
+      setStats({ clubs: clubs.count ?? 0, events: events.count ?? 0 });
+    });
   }, [user.id]);
 
   function openLightbox(index: number) {
@@ -1135,7 +1148,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </p>
             )}
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
               <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>MEMBER SINCE</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{memberSince}</p>
@@ -1147,6 +1160,19 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </p>
               </div>
             </div>
+
+            {stats !== null && (
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>CLUBS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{stats.clubs}</p>
+                </div>
+                <div style={{ flex: 1, background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 3 }}>EVENTS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>{stats.events}</p>
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#1C1B1C", borderRadius: 999, padding: "6px 14px" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>

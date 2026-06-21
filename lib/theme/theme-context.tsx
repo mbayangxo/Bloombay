@@ -32,16 +32,16 @@ const DAY: ThemePalette = {
 };
 
 const NIGHT: ThemePalette = {
-  pageBg: "#0A0508",
-  card: "#18080F",
-  cardElevated: "#210D16",
-  textPrimary: "rgba(255,235,215,0.95)",
-  textSecondary: "rgba(255,179,209,0.7)",
-  textMuted: "rgba(255,255,255,0.35)",
-  pink: "#FF1F7D",
+  pageBg: "#0E0906",
+  card: "#1B1108",
+  cardElevated: "#221508",
+  textPrimary: "rgba(255,240,218,0.95)",
+  textSecondary: "rgba(255,200,180,0.7)",
+  textMuted: "rgba(255,220,200,0.38)",
+  pink: "#FF4D94",
   babyPink: "#FFB3D1",
-  border: "rgba(255,31,125,0.2)",
-  borderStrong: "rgba(255,31,125,0.4)",
+  border: "rgba(255,77,148,0.2)",
+  borderStrong: "rgba(255,77,148,0.4)",
   isNight: true,
 };
 

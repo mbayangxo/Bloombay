@@ -8,29 +8,30 @@
 [data-theme="night"] {
   color-scheme: dark;
 
-  --bb-page-bg: #10080c;
-  --bb-page-bg-soft: #181018;
-  --bb-page-surface: #221018;
-  --bb-page-ink: #f5e8ee;
-  --bb-page-muted: rgba(245, 220, 230, 0.52);
-  --bb-page-accent: #ff6b9d;
-  --bb-page-accent-soft: #5c3040;
-  --bb-page-rose: #a88468;
+  /* Warm chocolate darks — darker version of daytime cream, no purple/wine */
+  --bb-page-bg: #0E0906;
+  --bb-page-bg-soft: #1B1108;
+  --bb-page-surface: #221508;
+  --bb-page-ink: rgba(255,240,218,0.95);
+  --bb-page-muted: rgba(255,220,190,0.52);
+  --bb-page-accent: #FF4D94;
+  --bb-page-accent-soft: #3D1A10;
+  --bb-page-rose: #C8956A;
 
-  --bb-satin: linear-gradient(165deg, #1c1016 0%, #14080c 50%, #10080c 100%);
-  --bb-glass: rgba(28, 14, 20, 0.88);
-  --bb-glass-border: rgba(255, 107, 157, 0.14);
+  --bb-satin: linear-gradient(165deg, #1E1208 0%, #140C06 50%, #0E0906 100%);
+  --bb-glass: rgba(28, 18, 8, 0.88);
+  --bb-glass-border: rgba(255, 77, 148, 0.14);
   --bb-glass-blur: blur(12px);
   --bb-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.4);
   --bb-shadow-lift: 0 10px 32px rgba(0, 0, 0, 0.5);
 
-  --mp-barbie-soft: #181018;
-  --mp-white: #221018;
-  --mp-ink: #f5e8ee;
-  --mp-muted: rgba(245, 220, 230, 0.52);
-  --mp-line: rgba(255, 107, 157, 0.2);
-  --mp-hot: #ff6b9d;
-  --bb-hot: #ff6b9d;
+  --mp-barbie-soft: #1B1108;
+  --mp-white: #221508;
+  --mp-ink: rgba(255,240,218,0.95);
+  --mp-muted: rgba(255,220,190,0.52);
+  --mp-line: rgba(255, 77, 148, 0.2);
+  --mp-hot: #FF4D94;
+  --bb-hot: #FF4D94;
   --bb-muted: var(--bb-page-muted);
 }
 
