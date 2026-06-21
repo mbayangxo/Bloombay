@@ -4,9 +4,10 @@ import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape, Polaroid } from "./scrapbook";
+import { PushPin, GoldStar, TornEdge, WashiTape } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
 import { thumbUrl } from "@/lib/images/supabase-transform";
+import { ClubCrestSVG } from "./club-crest";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
