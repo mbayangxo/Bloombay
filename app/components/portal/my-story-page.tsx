@@ -3,6 +3,7 @@
 import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "@/lib/theme/theme-context";
 
 const PINK  = "#FF1F7D";
 const BLACK = "#111111";
@@ -68,6 +69,7 @@ function SkeletonCard() {
 }
 
 export function MyStoryPage() {
+  const { palette } = useTheme();
   const [data, setData] = useState<MyStoryData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -94,7 +96,7 @@ export function MyStoryPage() {
   return (
     <div
       style={{
-        background: CREAM,
+        background: palette.pageBg,
         minHeight: "100vh",
         paddingBottom: 100,
       }}
@@ -120,7 +122,7 @@ export function MyStoryPage() {
             fontSize: 26,
             fontStyle: "italic",
             fontWeight: 700,
-            color: BLACK,
+            color: palette.textPrimary,
             lineHeight: 1.25,
             margin: "0 0 8px",
           }}
@@ -171,7 +173,7 @@ export function MyStoryPage() {
                 style={{
                   minWidth: 80,
                   flexShrink: 0,
-                  background: WHITE,
+                  background: palette.card,
                   borderRadius: 14,
                   padding: "14px 12px",
                   border: "1px solid rgba(255,31,125,0.1)",
@@ -198,7 +200,7 @@ export function MyStoryPage() {
                     fontSize: 8,
                     fontWeight: 800,
                     letterSpacing: "0.12em",
-                    color: BLACK,
+                    color: palette.textPrimary,
                     textTransform: "uppercase",
                     margin: 0,
                   }}
@@ -286,7 +288,7 @@ export function MyStoryPage() {
                     height: 18,
                     borderRadius: 9,
                     background: PINK,
-                    border: `3px solid ${CREAM}`,
+                    border: `3px solid ${palette.pageBg}`,
                     flexShrink: 0,
                     zIndex: 1,
                   }}
@@ -298,7 +300,7 @@ export function MyStoryPage() {
                   style={{
                     marginLeft: 36,
                     flex: 1,
-                    background: WHITE,
+                    background: palette.card,
                     borderRadius: 14,
                     padding: "14px 16px",
                     border: "1px solid rgba(255,31,125,0.08)",
@@ -323,7 +325,7 @@ export function MyStoryPage() {
                       fontSize: 15,
                       fontStyle: "italic",
                       fontWeight: 700,
-                      color: BLACK,
+                      color: palette.textPrimary,
                       margin: "0 0 6px",
                       lineHeight: 1.3,
                     }}

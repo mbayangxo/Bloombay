@@ -104,23 +104,6 @@ const INITIAL_EARLIER: Notif[] = [
 /* ── Design ─────────────────────────────────────────────────────── */
 const PINK = "#FF1F7D";
 
-const CSS = ``;
-
-type NoteTheme = {
-  bg: string; pin: string; ruledColor: string;
-  titleColor: string; bodyColor: string; rot: string;
-};
-
-const NOTE_THEMES: Record<Notif["type"], NoteTheme> = {
-  flower:        { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  seat:          { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  event:         { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  celebrate:     { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  intro:         { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  message:       { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  club:          { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-  club_accepted: { bg: "#FFF8F0", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.06)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
-};
 
 /* ── Section label ───────────────────────────────────────────────── */
 function TapeLabel({ text, faint }: { text: string; faint?: boolean }) {

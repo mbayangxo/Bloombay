@@ -15,6 +15,8 @@ import { EventObjectCard } from "./event-object-cards";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { MorningAfterCard } from "./morning-after-card";
 import { ThisOrThatCard } from "./this-or-that-card";
+import { useTheme } from "@/lib/theme/theme-context";
+import { ThemeToggle } from "./theme-toggle";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor() {
@@ -136,6 +138,7 @@ const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 export function HomePage() {
   const PINK = getAccentColor();
   const BG   = getBg();
+  const { palette, toggle, mode } = useTheme();
   const now   = new Date();
   const month = MONTHS_S[now.getMonth()];
   const day   = now.getDate();
@@ -211,7 +214,7 @@ export function HomePage() {
   const upNextEv     = upNextEvents[upNextIdx] ?? null;
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
+    <div style={{ minHeight: "100vh", background: palette.pageBg, paddingBottom: 120, paddingTop: 54 }}>
 
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
@@ -221,17 +224,20 @@ export function HomePage() {
 
       {/* ══ TODAY'S BLOOM ══════════════════════════════════════════════════════ */}
       <div style={{ padding: "20px 16px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>TODAY&apos;S BLOOM ✦</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK }}>TODAY&apos;S BLOOM ✦</p>
+          <ThemeToggle />
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
           {/* Left */}
           <div>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: palette.textPrimary, lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
               {greeting}{firstName ? `, ${firstName}` : ""}.
             </p>
 
             {/* Stat pills */}
-            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: "white", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: palette.card, borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
               {[
                 { v: String(Math.max(1, dinnerCount)), label: "DINNER"       },
                 { v: String(Math.max(1, danceCount)),  label: "DANCE"        },
@@ -245,7 +251,7 @@ export function HomePage() {
             </div>
 
             {/* Yande note */}
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: palette.textMuted, lineHeight: 1.4 }}>
               {tod === "evening" || tod === "night" ? "Tonight is your busiest evening this week." : "Your week is looking lively."}{" "}
               <span style={{ color: PINK }}>— Yande</span>
             </p>
@@ -335,7 +341,7 @@ export function HomePage() {
       {upNextEv && (
         <div style={{ padding: "24px 16px 0" }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>UP NEXT</p>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
           </div>
 
@@ -397,10 +403,10 @@ export function HomePage() {
       {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "24px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR WEEK</p>
           <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
         </div>
-        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
+        <div style={{ background: palette.card, borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
             {weekDays.map((d, i) => {
               const isToday = i === todayWeek;
@@ -449,7 +455,7 @@ export function HomePage() {
       <div style={{ marginTop: 26 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR CLUBS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR CLUBS</p>
             {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
@@ -457,8 +463,8 @@ export function HomePage() {
 
         {!loading && myClubs.length === 0 ? (
           /* Empty state */
-          <div style={{ margin: "0 16px", background: "white", borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: "#1A0010", marginBottom: 8 }}>Find your people.</p>
+          <div style={{ margin: "0 16px", background: palette.card, borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: palette.textPrimary, marginBottom: 8 }}>Find your people.</p>
             <Link href="/member/clubs" style={{ textDecoration: "none", display: "inline-block", background: "#FF1F7D", color: "white", borderRadius: 999, padding: "8px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900 }}>
               EXPLORE CLUBS
             </Link>
@@ -478,7 +484,7 @@ export function HomePage() {
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
             <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>AROUND THE CITY</p>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>NYC</p>
             </div>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>

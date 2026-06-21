@@ -159,10 +159,10 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
     { label: "SIGN",             value: sign || "—" },
   ];
   return (
-    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#F5EDD8", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
-      {/* Top warm-brown bar */}
-      <div style={{ height: 28, background: "linear-gradient(90deg,#8B6914,#A07820,#8B6914)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,248,220,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#FEFCF7", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
+      {/* Top pink bar */}
+      <div style={{ height: 28, background: `linear-gradient(90deg,${PINK},#c4005a,${PINK})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,255,255,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
       </div>
       {/* Clipboard clip */}
       <div style={{ display: "flex", justifyContent: "center", marginTop: -2 }}>
@@ -191,7 +191,7 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
         </div>
         {/* Fields */}
         {rows.map(r => (
-          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(139,105,20,0.18)", paddingBottom: 8 }}>
+          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(255,31,125,0.12)", paddingBottom: 8 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(0,0,0,0.32)", marginBottom: 2 }}>{r.label}</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, fontWeight: 600, color: "#1C1B1C", lineHeight: 1.3 }}>{r.value}</p>
           </div>
@@ -418,7 +418,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
   return (
     <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,0.25)", minHeight: 240 }}>
       {/* Top meta bar */}
-      <div style={{ background: "#F5EDD8", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+      <div style={{ background: "#FFF8F0", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.35)" }}>BB+ CREATIVE STUDIO</p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>(2026)</p>
       </div>
@@ -465,7 +465,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
 // ─── 0. The ID Card (original) ───────────────────────────────────────────────
 function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation, sign, vibe, onAvatarClick }: TemplateProps) {
   return (
-    <div style={{ background: "#F5EDD8", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
+    <div style={{ background: "#FEFCF7", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
       {/* BLOOMBAY MEMBER label top-left */}
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>BLOOMBAY MEMBER</p>
 
@@ -531,7 +531,7 @@ function TemplateBoard({ displayName, initials, avatarUrl, photos, onAvatarClick
   ];
 
   return (
-    <div style={{ background: "#E5E5E5", padding: 20, borderRadius: 16, position: "relative" }}>
+    <div style={{ background: "#FFF8F0", padding: 20, borderRadius: 16, position: "relative" }}>
       {/* Top-left: bold BB + drawn heart */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 900, color: "#1C1B1C", letterSpacing: "-0.02em" }}>BB</p>
@@ -737,11 +737,11 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
   const templates: { id: TemplateId; label: string; bg: string; textColor: string }[] = [
-    { id: "id",           label: "ID",       bg: "#F5EDD8", textColor: "#888" },
-    { id: "board",        label: "BOARD",    bg: "#E5E5E5", textColor: "#555" },
+    { id: "id",           label: "ID",       bg: "#FEFCF7", textColor: "#888" },
+    { id: "board",        label: "BOARD",    bg: "#FFF8F0", textColor: "#555" },
     { id: "zine",         label: "ZINE",     bg: "#FF1F7D", textColor: "white" },
     { id: "collage",      label: "COLLAGE",  bg: "#FAFAFA", textColor: "#888" },
-    { id: "dossier",      label: "DOSSIER",  bg: "#F5EDD8", textColor: "#8B6914" },
+    { id: "dossier",      label: "DOSSIER",  bg: "#FEFCF7", textColor: "#FF1F7D" },
     { id: "beauty_table", label: "BEAUTY",   bg: "#FF5BAD", textColor: "white" },
     { id: "notebook",     label: "NOTEBOOK", bg: "#FEFCF7", textColor: "#555" },
     { id: "magazine",     label: "MAG",      bg: "#1A0010", textColor: "#FF1F7D" },
