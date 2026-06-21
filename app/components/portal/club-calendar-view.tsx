@@ -342,14 +342,6 @@ function ClubEventCard({
                 {event.is_permanent ? "Permanent ♻ ✓" : "Permanent ♻"}
               </button>
             )}
-            <a
-              href={`/api/member/calendar/${event.id}/ics`}
-              download
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95"
-              style={{ background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
-            >
-              + Calendar
-            </a>
           </div>
         </div>
       </div>

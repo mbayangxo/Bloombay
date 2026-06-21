@@ -9,7 +9,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 type EventType = "event" | "plan" | "personal" | "bloomie" | "note" | "todo";
 
 interface CalEvent {
-  id: number;
+  id: number | string;
   date: number;
   month: number;
   year: number;
@@ -20,6 +20,9 @@ interface CalEvent {
   with?: string;
   body?: string;
   checked?: boolean;
+  href?: string;
+  clubName?: string;
+  isClubEvent?: boolean;
 }
 
 interface ClubEvent {
@@ -259,10 +262,22 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm"
-            style={{ color: ev.checked ? "rgba(0,0,0,0.3)" : "#111", textDecoration: ev.checked ? "line-through" : "none" }}>
-            {ev.title}
-          </p>
+          {ev.href ? (
+            <Link href={ev.href}>
+              <p className="font-bold text-sm"
+                style={{ color: ev.checked ? "rgba(0,0,0,0.3)" : "#111", textDecoration: ev.checked ? "line-through" : "none" }}>
+                {ev.title}
+              </p>
+            </Link>
+          ) : (
+            <p className="font-bold text-sm"
+              style={{ color: ev.checked ? "rgba(0,0,0,0.3)" : "#111", textDecoration: ev.checked ? "line-through" : "none" }}>
+              {ev.title}
+            </p>
+          )}
+          {ev.clubName && (
+            <p className="text-[10px] font-bold tracking-[0.08em] mt-0.5" style={{ color: ev.color }}>✦ {ev.clubName}</p>
+          )}
           {ev.time && (
             <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>
               {ev.time} · {TYPE_LABELS[ev.type]}
@@ -271,7 +286,7 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
           {!ev.time && (
             <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.38)" }}>{TYPE_LABELS[ev.type]}</p>
           )}
-          {ev.with && (
+          {ev.with && !ev.clubName && (
             <p className="text-[10px] mt-1 font-medium" style={{ color: ev.color }}>{ev.with}</p>
           )}
           {ev.body && (
@@ -285,7 +300,7 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
 
 // ── Club Events Section ────────────────────────────────────────────────────────
 
-function ClubEventsSection() {
+function ClubEventsSection({ onRsvpToCalendar }: { onRsvpToCalendar: (ev: ClubEvent, joining: boolean) => void }) {
   const [events, setEvents] = useState<ClubEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeClub, setActiveClub] = useState<string | null>(null);
@@ -308,11 +323,14 @@ function ClubEventsSection() {
       body: JSON.stringify({ gathering_id: eventId, action }),
     });
     if (res.ok) {
-      setEvents((prev) =>
-        prev.map((e) => (e.id === eventId ? { ...e, is_rsvpd: !currentlyRsvpd } : e))
-      );
+      setEvents((prev) => {
+        const updated = prev.map((e) => (e.id === eventId ? { ...e, is_rsvpd: !currentlyRsvpd } : e));
+        const target = updated.find((e) => e.id === eventId);
+        if (target) onRsvpToCalendar(target, !currentlyRsvpd);
+        return updated;
+      });
     }
-  }, []);
+  }, [onRsvpToCalendar]);
 
   const handlePermanent = useCallback(async (eventId: string, currentlyPermanent: boolean) => {
     const action = currentlyPermanent ? "remove" : "add";
@@ -491,14 +509,6 @@ function ClubEventsSection() {
                           {ev.is_permanent ? "Permanent ♻ ✓" : "Permanent ♻"}
                         </button>
                       )}
-                      <a
-                        href={`/api/member/calendar/${ev.id}/ics`}
-                        download
-                        className="px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95"
-                        style={{ background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
-                      >
-                        + Calendar
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -551,6 +561,29 @@ export default function CalendarPage() {
     setSelectedDay(ev.date);
   }
 
+  function handleClubRsvp(clubEv: ClubEvent, joining: boolean) {
+    const calId = `club-${clubEv.id}`;
+    if (joining) {
+      const d = new Date(clubEv.starts_at);
+      const calEv: CalEvent = {
+        id: calId,
+        date: d.getDate(),
+        month: d.getMonth(),
+        year: d.getFullYear(),
+        title: clubEv.title,
+        time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }),
+        type: "event",
+        color: clubEv.club_color,
+        clubName: clubEv.club_name,
+        isClubEvent: true,
+        href: `/member/happenings?event=${clubEv.id}`,
+      };
+      setEvents(prev => prev.some(e => e.id === calId) ? prev : [...prev, calEv]);
+    } else {
+      setEvents(prev => prev.filter(e => e.id !== calId));
+    }
+  }
+
   const addDay = selectedDay ?? TODAY_DATE;
 
   return (
@@ -586,7 +619,7 @@ export default function CalendarPage() {
       </div>
 
       {/* MY CLUBS section — appears before the month calendar */}
-      <ClubEventsSection />
+      <ClubEventsSection onRsvpToCalendar={handleClubRsvp} />
 
       {/* Calendar card */}
       <div className="px-5 md:px-10">
