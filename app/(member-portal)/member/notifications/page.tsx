@@ -104,14 +104,7 @@ const INITIAL_EARLIER: Notif[] = [
 /* ── Design ─────────────────────────────────────────────────────── */
 const PINK = "#FF1F7D";
 
-const CSS = `
-@keyframes pinBob {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  30%       { transform: translateY(-2px) rotate(2.5deg); }
-  70%       { transform: translateY(-1px) rotate(-1.5deg); }
-}
-.pin-bob { animation: pinBob 4s ease-in-out infinite; }
-`;
+const CSS = ``;
 
 type NoteTheme = {
   bg: string; pin: string; ruledColor: string;
@@ -119,105 +112,83 @@ type NoteTheme = {
 };
 
 const NOTE_THEMES: Record<Notif["type"], NoteTheme> = {
-  flower:        { bg: "#FFF0F8", pin: "#FF1F7D", ruledColor: "rgba(255,0,144,0.08)", titleColor: "#7A0040", bodyColor: "#9D174D", rot: "-1.5deg" },
-  seat:          { bg: "#FFF0F5", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.08)", titleColor: "#831843", bodyColor: "#9D174D", rot: "1.2deg"  },
-  event:         { bg: "#EEF2FF", pin: "#4F46E5", ruledColor: "rgba(79,70,229,0.1)",   titleColor: "#312E81", bodyColor: "#3730A3", rot: "-0.8deg" },
-  celebrate:     { bg: "#FFF7ED", pin: "#EA580C", ruledColor: "rgba(234,88,12,0.09)",  titleColor: "#7C2D12", bodyColor: "#9A3412", rot: "1.8deg"  },
-  intro:         { bg: "#F0FFF4", pin: "#16A34A", ruledColor: "rgba(22,163,74,0.1)",   titleColor: "#14532D", bodyColor: "#166534", rot: "-1.2deg" },
-  message:       { bg: "#F0F9FF", pin: "#0284C7", ruledColor: "rgba(2,132,199,0.09)",  titleColor: "#0C4A6E", bodyColor: "#075985", rot: "0.7deg"  },
-  club:          { bg: "#FAF5FF", pin: "#7C3AED", ruledColor: "rgba(124,58,237,0.09)", titleColor: "#4C1D95", bodyColor: "#5B21B6", rot: "-0.5deg" },
-  club_accepted: { bg: "#0F0B04", pin: "#D4A853", ruledColor: "rgba(212,168,83,0.12)", titleColor: "#FEF3C7", bodyColor: "#FDE68A", rot: "0.8deg"  },
+  flower:        { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  seat:          { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  event:         { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  celebrate:     { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  intro:         { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  message:       { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  club:          { bg: "#FFFFFF", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.05)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
+  club_accepted: { bg: "#FFF8F0", pin: "#FF1F7D", ruledColor: "rgba(255,31,125,0.06)", titleColor: "#111111", bodyColor: "#111111", rot: "0deg" },
 };
 
-/* ── Pushpin SVG ─────────────────────────────────────────────────── */
-function PushPin({ color }: { color: string }) {
-  return (
-    <svg width="14" height="22" viewBox="0 0 14 22" fill="none">
-      <circle cx="7" cy="6.5" r="5.5" fill={color} stroke="rgba(0,0,0,0.18)" strokeWidth="0.8"/>
-      <ellipse cx="5.2" cy="4.8" rx="1.6" ry="1.1" fill="rgba(255,255,255,0.38)"/>
-      <rect x="6.1" y="12" width="1.8" height="8" rx="0.9" fill={color} opacity="0.8"/>
-      <circle cx="7" cy="20.5" r="0.9" fill={color}/>
-    </svg>
-  );
-}
-
-/* ── Tape label ──────────────────────────────────────────────────── */
+/* ── Section label ───────────────────────────────────────────────── */
 function TapeLabel({ text, faint }: { text: string; faint?: boolean }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{
-        display: "inline-block",
-        background: faint ? "rgba(255,252,195,0.65)" : "rgba(255,252,195,0.88)",
-        padding: "3px 14px 4px",
-        transform: faint ? "rotate(0.3deg)" : "rotate(-0.6deg)",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+      <p style={{
+        fontFamily: "var(--font-jost)",
+        fontSize: "9px",
+        fontWeight: 800,
+        letterSpacing: "0.18em",
+        color: faint ? "rgba(255,31,125,0.45)" : PINK,
+        textTransform: "uppercase" as const,
       }}>
-        <p style={{
-          fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700,
-          color: faint ? "#7A5F00" : "#5A3E00", letterSpacing: "0.01em",
-        }}>
-          {text}
-        </p>
-      </div>
+        {text}
+      </p>
     </div>
   );
 }
 
 /* ── Note card ───────────────────────────────────────────────────── */
 function NoteCard({ n }: { n: Notif }) {
-  const th = NOTE_THEMES[n.type];
-  const isGold = n.type === "club_accepted";
+  const isAccepted = n.type === "club_accepted";
 
   const inner = (
     <div style={{
-      backgroundColor: th.bg,
-      backgroundImage: `repeating-linear-gradient(transparent, transparent 22px, ${th.ruledColor} 22px, ${th.ruledColor} 23px)`,
-      borderRadius: 2,
-      padding: "24px 13px 14px",
+      backgroundColor: "#FFFFFF",
+      borderRadius: 14,
+      padding: "14px 16px",
       position: "relative",
-      transform: `rotate(${th.rot})`,
-      boxShadow: "0 4px 16px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.04)",
-      border: isGold ? "1px solid rgba(212,168,83,0.35)" : "none",
-      minHeight: 110,
+      boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
+      borderLeft: `3px solid ${PINK}`,
+      border: `1px solid rgba(255,31,125,${n.unread ? "0.2" : "0.08"})`,
+      borderLeftWidth: 3,
+      borderLeftColor: PINK,
+      minHeight: 80,
       cursor: "pointer",
     }}>
-      {/* Pushpin */}
-      <div className="pin-bob" style={{
-        position: "absolute", top: -9, left: "50%",
-        transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none",
-      }}>
-        <PushPin color={th.pin}/>
-      </div>
-
       {/* Unread dot */}
-      {n.unread && !isGold && (
+      {n.unread && (
         <div style={{
-          position: "absolute", top: 8, right: 8,
+          position: "absolute", top: 10, right: 12,
           width: 7, height: 7, borderRadius: "50%",
           background: PINK, boxShadow: `0 0 6px ${PINK}88`,
         }}/>
       )}
 
-      <div style={{ position: "relative", zIndex: 2 }}>
-        {isGold && n.clubCrest && (
-          <p style={{ fontSize: 20, marginBottom: 5, lineHeight: 1 }}>{n.clubCrest}</p>
+      <div>
+        {isAccepted && n.clubCrest && (
+          <p style={{ fontSize: 18, marginBottom: 5, lineHeight: 1 }}>{n.clubCrest}</p>
         )}
 
         <p style={{
-          fontFamily: "var(--font-caveat)",
+          fontFamily: "var(--font-playfair)",
           fontSize: 13,
           fontWeight: 700,
-          color: th.titleColor,
-          lineHeight: 1.45,
+          fontStyle: "italic",
+          color: "#111111",
+          lineHeight: 1.4,
           marginBottom: 4,
+          paddingRight: n.unread ? 16 : 0,
         }}>
           {n.title}
         </p>
 
         <p style={{
-          fontFamily: "var(--font-caveat)",
-          fontSize: 11.5,
-          color: th.bodyColor,
+          fontFamily: "var(--font-jost)",
+          fontSize: 11,
+          color: "rgba(0,0,0,0.55)",
           lineHeight: 1.5,
           fontStyle: n.type === "flower" ? "italic" : "normal",
           marginBottom: 7,
@@ -230,27 +201,27 @@ function NoteCard({ n }: { n: Notif }) {
           fontSize: "8px",
           fontWeight: 700,
           letterSpacing: "0.06em",
-          color: isGold ? "rgba(212,168,83,0.45)" : "rgba(0,0,0,0.25)",
+          color: "rgba(0,0,0,0.25)",
         }}>
           {n.time.toUpperCase()}
         </p>
 
-        {isGold && (
+        {isAccepted && (
           <div style={{ display: "flex", gap: 5, marginTop: 10 }}>
             <Link href="/member/messages" style={{
               flex: 1, padding: "7px 0",
               background: PINK, color: "white",
-              borderRadius: 4, textAlign: "center", textDecoration: "none",
+              borderRadius: 8, textAlign: "center", textDecoration: "none",
               fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em",
             }}>
               MAILBOX →
             </Link>
             <Link href="/member/clubs" style={{
               flex: 1, padding: "7px 0",
-              background: "rgba(212,168,83,0.12)", color: "#D4A853",
-              borderRadius: 4, textAlign: "center", textDecoration: "none",
+              background: "rgba(255,31,125,0.08)", color: PINK,
+              borderRadius: 8, textAlign: "center", textDecoration: "none",
               fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em",
-              border: "1px solid rgba(212,168,83,0.25)",
+              border: "1px solid rgba(255,31,125,0.2)",
             }}>
               VIEW CLUB
             </Link>
@@ -329,15 +300,9 @@ export default function NotificationsPage() {
     return (
       <div style={{ padding: "0 16px", marginBottom: 6 }}>
         <TapeLabel text={label} faint={faint}/>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {items.map((n, i) => (
-            <div
-              key={n.id}
-              style={{
-                gridColumn: n.type === "club_accepted" ? "span 2" : undefined,
-                marginTop: n.type !== "club_accepted" && i % 2 !== 0 ? 12 : 0,
-              }}
-            >
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {items.map((n) => (
+            <div key={n.id}>
               <NoteCard n={n}/>
             </div>
           ))}
@@ -351,32 +316,20 @@ export default function NotificationsPage() {
       minHeight: "100vh",
       paddingBottom: 100,
       paddingTop: 70,
-      backgroundColor: "#C0975C",
-      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.35'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23A07040' filter='url(%23n)' opacity='0.2'/%3E%3C/svg%3E")`,
-      backgroundSize: "200px 200px",
+      backgroundColor: "#FFF8F0",
     }}>
-      <style>{CSS}</style>
-
-      {/* Board header */}
+      {/* Header */}
       <div style={{ padding: "0 18px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
         <div>
-          <div style={{
-            display: "inline-block",
-            background: "rgba(255,252,200,0.9)",
-            padding: "4px 16px 5px",
-            transform: "rotate(-0.8deg)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          <h1 style={{
+            fontFamily: "var(--font-playfair)", fontSize: "clamp(24px, 7.5vw, 30px)", fontWeight: 900,
+            fontStyle: "italic", color: "#111111", lineHeight: 1, marginBottom: 6,
           }}>
-            <h1 style={{
-              fontFamily: "var(--font-playfair)", fontSize: "clamp(24px, 7.5vw, 30px)", fontWeight: 900,
-              fontStyle: "italic", color: "#3A2800", lineHeight: 1,
-            }}>
-              Pin Drops.
-            </h1>
-          </div>
+            Notifications.
+          </h1>
           {unreadCount > 0 && (
             <span style={{
-              display: "inline-block", marginLeft: 10, marginBottom: 3,
+              display: "inline-block",
               background: PINK, color: "white", borderRadius: 999,
               padding: "2px 10px",
               fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
@@ -391,7 +344,7 @@ export default function NotificationsPage() {
             style={{
               background: "none", border: "none", cursor: "pointer",
               fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-              letterSpacing: "0.08em", color: "rgba(255,255,255,0.65)",
+              letterSpacing: "0.08em", color: "rgba(0,0,0,0.35)",
               paddingBottom: 6,
             }}
           >
@@ -409,17 +362,18 @@ export default function NotificationsPage() {
       ) : (
         <div style={{ padding: "60px 24px", display: "flex", justifyContent: "center" }}>
           <div style={{
-            background: "rgba(255,252,200,0.88)",
+            background: "#FFFFFF",
             padding: "24px 32px",
-            transform: "rotate(-1deg)",
-            boxShadow: "0 4px 18px rgba(0,0,0,0.22)",
+            borderRadius: 16,
+            border: "1px solid rgba(255,31,125,0.1)",
+            boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
             textAlign: "center",
           }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 20, fontWeight: 700, color: "#5A3E00" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#111111" }}>
               All caught up ✦
             </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#8A6000", marginTop: 4 }}>
-              Nothing new on the board.
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.4)", marginTop: 6 }}>
+              Nothing new right now.
             </p>
           </div>
         </div>

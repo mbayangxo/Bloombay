@@ -161,7 +161,7 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
           <div className="flex flex-col gap-2.5">
             <div
               className="w-full py-4 rounded-2xl text-center font-bold"
-              style={{ background: "#FFF9E6", color: "#b45309" }}
+              style={{ background: "rgba(255,31,125,0.07)", color: "#FF1F7D" }}
             >
               You&apos;re going ✓ — ticket in Plans
             </div>
@@ -184,7 +184,7 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
           <div className="flex flex-col gap-2.5">
             <div
               className="w-full py-4 rounded-2xl text-center font-bold text-sm leading-snug px-4"
-              style={{ background: "#f5f0ff", color: "#6b4c9a" }}
+              style={{ background: "rgba(255,31,125,0.06)", color: "#FF1F7D" }}
             >
               Still debating — we saved your interest. Tap below when you&apos;re ready to go.
             </div>
