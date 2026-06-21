@@ -17,7 +17,7 @@ const PAPER = "#FEFDF8";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null };
+type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null; neighborhood?: string | null; category?: string | null };
 type RealGathering = { id: string; title: string; starts_at: string; venue: string | null; neighborhood: string | null };
 
 const ROTS = [-2, 1.5, -1, 2, -1.5, 0.5, -0.8];
@@ -63,21 +63,6 @@ const LIVE_FEED = [
   { action: "joined",  who: "Chisom E.","club": "SUPPER CLUB",  time: "18m",   color: "#c9504a" },
 ];
 
-// HQ-created clubs — always shown regardless of DB
-const HQ_CLUBS = [
-  { id: "hq-1", name: "Walk & Talk Club",     description: "Morning walks, good conversations, great women. No agenda, just movement and connection.",   primary_color: "#2D6A4F", cover_url: null, slug: "walk-and-talk",     category: "active"   },
-  { id: "hq-2", name: "Supper Club NYC",      description: "Private dinners, shared tables, unforgettable evenings. We eat well and talk better.",       primary_color: "#C9504A", cover_url: null, slug: "supper-club-nyc",  category: "food"     },
-  { id: "hq-3", name: "Museum Girls",         description: "Art, exhibitions, froyo after. Culture runs through us.",                                     primary_color: "#6B4FA0", cover_url: null, slug: "museum-girls",     category: "arts"     },
-  { id: "hq-4", name: "Book Society",         description: "Monthly reads, honest reviews, and the kind of conversations that go until midnight.",         primary_color: "#B5451B", cover_url: null, slug: "book-society",     category: "books"    },
-  { id: "hq-5", name: "Soft Life Club",       description: "Rest is radical. We protect our peace, prioritize joy, and build the life we actually want.", primary_color: "#C96B9E", cover_url: null, slug: "soft-life-club",  category: "wellness" },
-  { id: "hq-6", name: "Aperitivo Girls",      description: "Pre-dinner drinks, golden hour, no bad vibes. Spritz in hand, heels optional.",              primary_color: "#E07040", cover_url: null, slug: "aperitivo-girls",  category: "drinks"   },
-  { id: "hq-7", name: "Run Club NYC",         description: "Early mornings, endorphins, and women who keep showing up. All paces welcome.",               primary_color: "#1A6B8A", cover_url: null, slug: "run-club-nyc",    category: "active"   },
-  { id: "hq-8", name: "Women in Lens",        description: "Photography, film, and seeing the world through her eyes. Shoots, critiques, exhibitions.",   primary_color: "#4A3728", cover_url: null, slug: "women-in-lens",   category: "creative" },
-  { id: "hq-9", name: "Flower Girls",         description: "Floral design, seasonal arrangements, and the art of making things beautiful.",               primary_color: "#D4547A", cover_url: null, slug: "flower-girls",    category: "creative" },
-  { id: "hq-10", name: "Yoga & Mimosas",      description: "Sunday practice, then brunch. Because balance is everything.",                                primary_color: "#7B9E60", cover_url: null, slug: "yoga-and-mimosas", category: "wellness" },
-  { id: "hq-11", name: "Creative Collective", description: "Designers, writers, builders, artists. We make things and we make each other better.",        primary_color: "#3A2D5F", cover_url: null, slug: "creative-collective", category: "creative" },
-  { id: "hq-12", name: "Money Moves",         description: "Investing, negotiating, building wealth. The financial conversations women deserve.",          primary_color: "#2D4A2D", cover_url: null, slug: "money-moves",     category: "career"   },
-] as const;
 
 const HOT_CLUBS = [
   { name: "WALK & TALK CLUB", fire: 58, grad: "linear-gradient(135deg,#2D6A4F,#1A3D2C)", href: "/member/clubs/walk-and-talk" },
@@ -103,23 +88,17 @@ export function ClubsPage() {
     const supabase = createClient();
     supabase
       .from("clubs")
-      .select("id, name, description, primary_color, cover_url, slug, neighborhood")
-      .order("created_at", { ascending: false })
+      .select("id, name, description, primary_color, cover_url, slug, neighborhood, category")
+      .eq("is_active", true)
+      .order("member_count", { ascending: false })
       .limit(100)
       .then(({ data }) => {
-        // Merge HQ clubs + DB clubs, dedup by slug/name
-        const dbClubs = (data ?? []) as (RealClub & { neighborhood?: string | null })[];
-        const dbSlugs = new Set(dbClubs.map(c => c.slug ?? c.name.toLowerCase()));
-        const hqAsReal: RealClub[] = HQ_CLUBS
-          .filter(h => !dbSlugs.has(h.slug) && !dbSlugs.has(h.name.toLowerCase()))
-          .map(h => ({ id: h.id, name: h.name, description: h.description, primary_color: h.primary_color, cover_url: null, slug: h.slug }));
-        const merged = [...hqAsReal, ...dbClubs];
-        setClubs(merged);
+        const rows = (data ?? []) as (RealClub & { neighborhood?: string | null })[];
+        setClubs(rows);
 
-        // Compute real neighborhood counts
         const counts: Record<string, number> = {};
-        for (const c of data) {
-          const n = (c as { neighborhood?: string | null }).neighborhood;
+        for (const c of rows) {
+          const n = c.neighborhood;
           if (n) counts[n] = (counts[n] ?? 0) + 1;
         }
         const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -312,7 +291,7 @@ export function ClubsPage() {
                     ) : (
                       <ClubCrestSVG
                         name={club.name}
-                        category={(club as RealClub & { category?: string }).category ?? ""}
+                        category={club.category ?? ""}
                         color={club.primary_color ?? PINK}
                         size={82}
                         shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
@@ -411,7 +390,7 @@ export function ClubsPage() {
                         {!club.cover_url && (
                           <ClubCrestSVG
                             name={club.name}
-                            category={(club as RealClub & { category?: string }).category ?? ""}
+                            category={club.category ?? ""}
                             color={club.primary_color ?? PINK}
                             size={56}
                             shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
