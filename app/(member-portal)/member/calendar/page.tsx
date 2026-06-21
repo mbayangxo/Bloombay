@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -20,6 +20,25 @@ interface CalEvent {
   with?: string;
   body?: string;
   checked?: boolean;
+}
+
+interface ClubEvent {
+  id: string;
+  slug: string;
+  title: string;
+  starts_at: string;
+  area: string | null;
+  venue: string | null;
+  club_slug: string;
+  club_name: string;
+  club_color: string;
+  is_recurring: boolean;
+  recurrence_type: string | null;
+  description: string | null;
+  event_type: string | null;
+  is_rsvpd: boolean;
+  is_permanent: boolean;
+  spots_left: number | null;
 }
 
 const TODAY = new Date();
@@ -124,7 +143,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {/* Type row — first so it sets context */}
+          {/* Type row */}
           <div className="mb-5">
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(0,0,0,0.3)" }}>What kind?</p>
             <div className="grid grid-cols-3 gap-2">
@@ -157,7 +176,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
               autoFocus />
           </div>
 
-          {/* Body textarea — for notes and todos */}
+          {/* Body textarea */}
           {(type === "note" || type === "todo" || type === "personal") && (
             <div className="mb-5">
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.3)" }}>
@@ -171,7 +190,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
             </div>
           )}
 
-          {/* Time chips — hidden for notes/todos */}
+          {/* Time chips */}
           {hasTime && (
             <div className="mb-5">
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2.5" style={{ color: "rgba(0,0,0,0.3)" }}>Time</p>
@@ -264,6 +283,234 @@ function EventCard({ ev, onToggle }: { ev: CalEvent; onToggle?: () => void }) {
   );
 }
 
+// ── Club Events Section ────────────────────────────────────────────────────────
+
+function ClubEventsSection() {
+  const [events, setEvents] = useState<ClubEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeClub, setActiveClub] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/member/calendar/clubs")
+      .then((r) => r.json())
+      .then((data) => {
+        setEvents(data.events ?? []);
+      })
+      .catch(() => {/* silently fail */})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleRsvp = useCallback(async (eventId: string, currentlyRsvpd: boolean) => {
+    const action = currentlyRsvpd ? "leave" : "join";
+    const res = await fetch("/api/member/calendar/rsvp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gathering_id: eventId, action }),
+    });
+    if (res.ok) {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, is_rsvpd: !currentlyRsvpd } : e))
+      );
+    }
+  }, []);
+
+  const handlePermanent = useCallback(async (eventId: string, currentlyPermanent: boolean) => {
+    const action = currentlyPermanent ? "remove" : "add";
+    const res = await fetch("/api/member/calendar/permanent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gathering_id: eventId, action }),
+    });
+    if (res.ok) {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, is_permanent: !currentlyPermanent } : e))
+      );
+    }
+  }, []);
+
+  // Get unique clubs for pill filter
+  const clubs = Array.from(
+    new Map(events.map((e) => [e.club_slug, { slug: e.club_slug, name: e.club_name, color: e.club_color }])).values()
+  );
+
+  // Filter events by next 30 days and selected club
+  const now = new Date();
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const filtered = events.filter((e) => {
+    const d = new Date(e.starts_at);
+    const inRange = d >= now && d <= in30Days;
+    const matchesClub = activeClub ? e.club_slug === activeClub : true;
+    return inRange && matchesClub;
+  });
+
+  return (
+    <div className="px-5 mb-8 md:px-10">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(0,0,0,0.3)" }}>
+          MY CLUBS
+        </p>
+        <Link
+          href="/member/clubs"
+          className="text-[10px] font-bold tracking-[0.1em] uppercase"
+          style={{ color: "#FF1F7D" }}
+        >
+          All Clubs →
+        </Link>
+      </div>
+
+      {/* Club pills */}
+      {clubs.length > 0 && (
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          <button
+            onClick={() => setActiveClub(null)}
+            className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 transition-all active:scale-95"
+            style={
+              activeClub === null
+                ? { background: "#FF1F7D", color: "white" }
+                : { background: "rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)", border: "1px solid rgba(0,0,0,0.1)" }
+            }
+          >
+            All
+          </button>
+          {clubs.map((c) => (
+            <button
+              key={c.slug}
+              onClick={() => setActiveClub(activeClub === c.slug ? null : c.slug)}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 transition-all active:scale-95 flex items-center gap-1.5"
+              style={
+                activeClub === c.slug
+                  ? { background: c.color, color: "white" }
+                  : { background: "rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.55)", border: "1px solid rgba(0,0,0,0.08)" }
+              }
+            >
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ background: activeClub === c.slug ? "rgba(255,255,255,0.6)" : c.color }}
+              />
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Event list */}
+      {loading ? (
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl p-4 animate-pulse" style={{ background: "#FFF8F5", height: 96 }} />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl p-6 text-center" style={{ background: "#FFF8F5" }}>
+          <p
+            className="text-sm font-medium"
+            style={{ color: "rgba(0,0,0,0.35)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}
+          >
+            {events.length === 0
+              ? "No upcoming club events — join a club to see their schedule."
+              : "No upcoming events for this club in the next 30 days."}
+          </p>
+          {events.length === 0 && (
+            <Link
+              href="/member/clubs"
+              className="inline-block mt-3 px-5 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+              style={{ background: "rgba(255,31,125,0.12)", color: "#FF1F7D" }}
+            >
+              Browse clubs
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {filtered.map((ev) => {
+            const d = new Date(ev.starts_at);
+            const dateLabel = `${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+            const timeLabel = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+            const location = ev.venue ?? ev.area ?? null;
+
+            return (
+              <div
+                key={ev.id}
+                className="rounded-2xl p-4"
+                style={{
+                  background: "white",
+                  borderLeft: `3px solid ${ev.club_color}`,
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+                }}
+              >
+                {/* Club badge */}
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ev.club_color }} />
+                  <span className="text-[10px] font-bold tracking-[0.1em] uppercase" style={{ color: ev.club_color }}>
+                    {ev.club_name}
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="text-center flex-shrink-0 w-10">
+                    <p className="text-[10px] font-bold" style={{ color: ev.club_color }}>
+                      {MONTHS[d.getMonth()].slice(0, 3).toUpperCase()}
+                    </p>
+                    <p className="text-xl font-black leading-none" style={{ color: "#111" }}>{d.getDate()}</p>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/member/happenings?event=${ev.id}`}>
+                      <p className="font-bold text-sm" style={{ color: "#111" }}>{ev.title}</p>
+                    </Link>
+                    <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>
+                      {timeLabel}
+                      {location ? ` · ${location}` : ""}
+                    </p>
+                    {ev.spots_left !== null && ev.spots_left <= 5 && (
+                      <p className="text-[10px] mt-1 font-semibold" style={{ color: "#FF1F7D" }}>
+                        {ev.spots_left === 0 ? "Sold out" : `${ev.spots_left} spots left`}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-3 flex-wrap">
+                      <button
+                        onClick={() => handleRsvp(ev.id, ev.is_rsvpd)}
+                        className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                        style={
+                          ev.is_rsvpd
+                            ? { background: "rgba(255,31,125,0.12)", color: "#FF1F7D", border: "1px solid rgba(255,31,125,0.3)" }
+                            : { background: "#FF1F7D", color: "white", boxShadow: "0 2px 8px rgba(255,31,125,0.35)" }
+                        }
+                      >
+                        {ev.is_rsvpd ? "Going ✓" : "I'm going →"}
+                      </button>
+                      {ev.is_recurring && (
+                        <button
+                          onClick={() => handlePermanent(ev.id, ev.is_permanent)}
+                          className="px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                          style={
+                            ev.is_permanent
+                              ? { background: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.6)", border: "1px solid rgba(0,0,0,0.15)" }
+                              : { background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.45)", border: "1px solid rgba(0,0,0,0.1)" }
+                          }
+                        >
+                          {ev.is_permanent ? "Permanent ♻ ✓" : "Permanent ♻"}
+                        </button>
+                      )}
+                      <a
+                        href={`/api/member/calendar/${ev.id}/ics`}
+                        download
+                        className="px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95"
+                        style={{ background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+                      >
+                        + Calendar
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Calendar Page ─────────────────────────────────────────────────────────
 
 export default function CalendarPage() {
@@ -337,6 +584,9 @@ export default function CalendarPage() {
           </button>
         </div>
       </div>
+
+      {/* MY CLUBS section — appears before the month calendar */}
+      <ClubEventsSection />
 
       {/* Calendar card */}
       <div className="px-5 md:px-10">
