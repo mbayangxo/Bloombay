@@ -14,6 +14,7 @@ import { getEvents, type Event } from "@/lib/actions/events";
 import { EventObjectCard } from "./event-object-cards";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { MorningAfterCard } from "./morning-after-card";
+import { ThisOrThatCard } from "./this-or-that-card";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor() {
@@ -307,6 +308,11 @@ export function HomePage() {
           </div>
         </div>
       )}
+
+      {/* ══ THIS OR THAT — weekly Yande game ══════════════════════════════ */}
+      <div style={{ margin: "16px 16px 0" }}>
+        <ThisOrThatCard />
+      </div>
 
       {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
       {(tod === "morning") && (

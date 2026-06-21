@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadProfilePhoto } from "@/lib/storage/upload";
 import type { AuthUser } from "@/lib/auth/get-user";
 import { SocialProofSection } from "./social-proof-section";
+import { QuestionSheCaries } from "./question-she-carries";
 
 const PINK = "#FF1F7D";
 
@@ -1256,6 +1257,8 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             )}
+
+            <QuestionSheCaries editable />
 
             {/* My Story link */}
             <Link
