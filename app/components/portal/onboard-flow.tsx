@@ -650,7 +650,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
         {/* Social proof — avatar stack */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ display: "flex" }}>
-            {(["#FF69B4","#A855F7","#0EA5E9","#D4A853"] as const).map((c, i) => (
+            {(["#FF69B4","#FF1F7D","#FFB3D1","#C4005A"] as const).map((c, i) => (
               <div key={i} style={{
                 width: 26, height: 26, borderRadius: "50%",
                 background: `linear-gradient(135deg,${c},${c}BB)`,

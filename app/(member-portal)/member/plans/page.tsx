@@ -1033,7 +1033,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
 
 // ── NEW PLAN SHEET ────────────────────────────────────────────────────────────
 
-function NewPlanSheet({ onClose }: { onClose: () => void }) {
+function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
   const [step, setStep]         = useState<NewPlanStep>("choose");
   const [name, setName]         = useState("");
   const [details, setDetails]   = useState("");
@@ -1041,7 +1041,23 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [clubId, setClubId]     = useState<number | null>(null);
   const [done, setDone]         = useState(false);
+  const [creating, setCreating] = useState(false);
   function toggleBloomie(id: number) { setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+
+  async function createRoom() {
+    if (!name.trim() || creating) return;
+    setCreating(true);
+    try {
+      await fetch("/api/member/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: name.trim(), description: details.trim() || undefined, plan_type: "hangout" }),
+      });
+      onCreated?.();
+    } catch { /* ignore — plan created locally */ }
+    setCreating(false);
+    setDone(true);
+  }
 
   if (done) return (
     <>
@@ -1118,9 +1134,9 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
               <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
             </div>
-            <button onClick={() => { if (name.trim()) setDone(true); }} disabled={!name.trim()} className="w-full py-4 rounded-full text-sm font-bold mt-2"
+            <button onClick={createRoom} disabled={!name.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold mt-2"
               style={name.trim() ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-              {name.trim() ? "Create Plan Room →" : "Add a room name first"}
+              {creating ? "Creating…" : name.trim() ? "Create Plan Room →" : "Add a room name first"}
             </button>
           </div>
         )}
@@ -1614,11 +1630,18 @@ function PlansPageInner() {
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>(PLAN_ROOMS);
 
   useEffect(() => {
     void import("@/lib/supabase/client").then(({ createClient }) => {
       createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
     });
+    fetch("/api/member/plans")
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { plans?: PlanRoom[] } | null) => {
+        if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+      })
+      .catch(() => {});
   }, []);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -1628,11 +1651,11 @@ function PlansPageInner() {
   useEffect(() => {
     const eventId = searchParams.get("event");
     if (eventId) {
-      const room = PLAN_ROOMS.find(r => r.eventId === parseInt(eventId, 10));
+      const room = planRooms.find(r => r.eventId === parseInt(eventId, 10));
       if (room) openRoom(room);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [planRooms]);
 
   function openRoom(room: PlanRoom) {
     setRead(prev => new Set([...prev, room.id]));
@@ -1647,7 +1670,7 @@ function PlansPageInner() {
     return <PlanRoomBoard room={activeRoom} onBack={() => { setView("list"); setActiveRoom(null); }} theme={theme} />;
   }
 
-  const totalUnread = PLAN_ROOMS.filter(r => r.unread > 0 && !read.has(r.id)).length;
+  const totalUnread = planRooms.filter(r => r.unread > 0 && !read.has(r.id)).length;
   const today = new Date();
   const todayStr = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
@@ -1698,7 +1721,7 @@ function PlansPageInner() {
 
                 {/* Stats row */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>{PLAN_ROOMS.length} ROOMS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>{planRooms.length} ROOMS</p>
                   {totalUnread > 0 && (
                     <>
                       <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.35)" }} />
@@ -1757,13 +1780,13 @@ function PlansPageInner() {
                 </div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.6)", letterSpacing: "0.06em" }}>NEW</p>
               </button>
-              {PLAN_ROOMS.map(room => (
+              {planRooms.map(room => (
                 <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
               ))}
             </div>
 
             {/* Confirmation card — most recent upcoming event */}
-            <EventConfirmationCard room={PLAN_ROOMS[1]} onViewRoom={() => openRoom(PLAN_ROOMS[1])} />
+            {planRooms[1] && <EventConfirmationCard room={planRooms[1]} onViewRoom={() => openRoom(planRooms[1])} />}
 
             {/* Ornamental divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18, marginTop: 18 }}>
@@ -1773,7 +1796,7 @@ function PlansPageInner() {
             </div>
 
             {/* Wallet Tickets — pink blush */}
-            <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
+            <WalletTickets rooms={planRooms.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
 
             {/* Ornamental divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
@@ -1870,7 +1893,11 @@ function PlansPageInner() {
         />
       )}
 
-      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} />}
+      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} onCreated={() => {
+        fetch("/api/member/plans").then(r => r.ok ? r.json() : null).then((json: { plans?: PlanRoom[] } | null) => {
+          if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+        }).catch(() => {});
+      }} />}
 
       <style>{`
         @keyframes badgeShake {

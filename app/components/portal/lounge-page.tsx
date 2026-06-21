@@ -105,14 +105,13 @@ function PurchaseHistorySection() {
 }
 const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
-const GOLD   = "#D4A853";
 
 const PROFILE_TEMPLATES = [
-  { id: "bloom",    name: "Bloom",     gradient: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)" },
-  { id: "midnight", name: "Midnight",  gradient: "linear-gradient(160deg, #0A0015 0%, #1A0030 40%, #2D0640 70%, #450D60 100%)" },
+  { id: "bloom",    name: "Bloom",     gradient: "linear-gradient(160deg, #3A0020 0%, #6A0035 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)" },
+  { id: "midnight", name: "Midnight",  gradient: "linear-gradient(160deg, #0A0008 0%, #1A0015 40%, #2A0020 70%, #4A0035 100%)" },
   { id: "sakura",   name: "Sakura",    gradient: "linear-gradient(160deg, #4A0030 0%, #8B1455 35%, #D4406A 60%, #F28090 85%, #FFB8C8 100%)" },
   { id: "noir",     name: "Noir",      gradient: "linear-gradient(160deg, #0A0A0A 0%, #1A1010 40%, #2D1520 70%, #3A1A25 100%)" },
-  { id: "rose",     name: "Rose Gold", gradient: "linear-gradient(160deg, #1A0010 0%, #5A1830 35%, #A83860 60%, #D4806A 85%, #EAB898 100%)" },
+  { id: "rose",     name: "Rose Gold", gradient: "linear-gradient(160deg, #1A0010 0%, #5A1830 35%, #A83860 60%, #C4005A 85%, #FF5FA5 100%)" },
 ];
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -180,8 +179,8 @@ const INTEREST_TAGS = ["Soft Life", "Art", "Wellness", "Food", "Music", "Travel"
 const WITNESS_ENTRIES = [
   { initial: "A", color: "#FF1F7D", text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
   { initial: "Z", color: "#FF69B4", text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
-  { initial: "N", color: "#C084FC", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
-  { initial: "M", color: "#FB923C", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
+  { initial: "N", color: "#FFB3D1", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
+  { initial: "M", color: "#C4005A", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
 ];
 
 function getMemberNumber(name: string) {
@@ -262,24 +261,24 @@ function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.28em", color: "rgba(255,255,255,0.32)", marginTop: 2 }}>NEW YORK CITY</p>
           </div>
           <div style={{
-            background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.48)",
+            background: "rgba(255,31,125,0.18)", border: "1px solid rgba(255,31,125,0.5)",
             borderRadius: 3, padding: "2px 8px",
           }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: GOLD }}>{tier}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: "#FFB3D1" }}>{tier}</p>
           </div>
         </div>
 
-        {/* Gold chip */}
+        {/* Chip */}
         <div style={{
           width: 30, height: 21, borderRadius: 3,
-          background: "linear-gradient(135deg, #D4A853 0%, #F4D03F 38%, #D4A853 65%, #B8860B 100%)",
-          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.28)",
+          background: "linear-gradient(135deg, #C4005A 0%, #FF1F7D 38%, #C4005A 65%, #8A003A 100%)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
           position: "relative", overflow: "hidden",
         }}>
           <div style={{
             position: "absolute", inset: "3px 3px",
-            border: "0.5px solid rgba(0,0,0,0.18)", borderRadius: 1,
-            background: "linear-gradient(90deg, rgba(0,0,0,0.08) 0%, transparent 30%, rgba(0,0,0,0.04) 70%, transparent 100%)",
+            border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: 1,
+            background: "linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 30%, rgba(0,0,0,0.06) 70%, transparent 100%)",
           }} />
         </div>
 
@@ -310,9 +309,9 @@ function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
 function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
   label: string; icon: string; href: string; num: string; accentColor?: string;
 }) {
-  const doorWood = "#B5724A";
-  const doorPanel = "#C9895A";
-  const frameColor = "#7A4A28";
+  const doorWood = "#FFF0F5";
+  const doorPanel = "#FFFFFF";
+  const frameColor = "#FF1F7D";
 
   return (
     <Link href={href} style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
@@ -347,19 +346,19 @@ function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
           {/* Highlight on arch */}
           <path d={`M6 24 Q6 6 29 6 Q48 6 52 18`} stroke="rgba(255,255,255,0.14)" strokeWidth="2" fill="none" strokeLinecap="round"/>
 
-          {/* Gold number plate */}
-          <rect x="19" y="14" width="20" height="12" rx="2" fill={GOLD} opacity="0.9"/>
-          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#7B4A1A">{num}</text>
+          {/* Number plate */}
+          <rect x="19" y="14" width="20" height="12" rx="2" fill="#FF1F7D" opacity="0.9"/>
+          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="white">{num}</text>
 
           {/* Door knob */}
-          <circle cx="44" cy="44" r="4.5" fill={GOLD} opacity="0.9"/>
+          <circle cx="44" cy="44" r="4.5" fill="#C4005A" opacity="0.9"/>
           <circle cx="44" cy="44" r="3" fill="url(#knobGrad)"/>
           <circle cx="43" cy="43" r="1.2" fill="rgba(255,255,255,0.5)"/>
 
           <defs>
             <radialGradient id="knobGrad" cx="35%" cy="35%" r="65%">
-              <stop offset="0%" stopColor="#F4D03F"/>
-              <stop offset="100%" stopColor="#B8860B"/>
+              <stop offset="0%" stopColor="#FF5FA5"/>
+              <stop offset="100%" stopColor="#8A003A"/>
             </radialGradient>
           </defs>
         </svg>
@@ -774,7 +773,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
     { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",         num: "02", accentColor: PINK      },
     { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",        num: "03", accentColor: "#E8006A" },
     { label: "Clubs",          icon: "🌺", href: "/member/clubs",                 num: "04", accentColor: "#C4005A" },
-    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
+    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: PINK }] : []),
   ];
 
   return (
@@ -838,7 +837,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         {/* Founding Mother — tiny badge, upper-right corner of photo area */}
         {isFoundingMother && (
           <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
-            <div style={{ background: GOLD, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(212,168,83,0.6)" }}>
+            <div style={{ background: PINK, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(255,31,125,0.5)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</p>
             </div>
           </div>
@@ -1185,7 +1184,7 @@ const CONVOS: Convo[] = [
     time: "5h", unread: 0, neighborhood: "Flatbush",
   },
   {
-    id: "museum",   name: "Museum Girls", initial: "MG", color: "#A855F7",
+    id: "museum",   name: "Museum Girls", initial: "MG", color: "#FF69B4",
     lastMessage: "Naomi: MoMA Saturday — who's coming?",
     time: "Yesterday", unread: 4, isGroup: true,
     members: ["Naomi", "Kelechi", "Yemi"],
