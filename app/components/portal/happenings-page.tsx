@@ -438,7 +438,7 @@ function TonightStrip({ events, joined, onToggle }: { events: Event[]; joined: S
               color: "white", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
               cursor: "pointer",
             }}>
-              {joined.has(ev.id) ? "I'm going ✓" : "I'm going →"}
+              {joined.has(ev.id) ? "Going ✓" : "Going →"}
             </button>
           </div>
         ))}
@@ -665,7 +665,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.05em",
               cursor: "pointer", flexShrink: 0,
             }}>
-              {onWaitlist ? "On the list ✓" : "Join the waitlist"}
+              {onWaitlist ? "You're next ✓" : "Next to attend"}
             </button>
           ) : (
             <button onClick={onToggle} style={{
@@ -676,7 +676,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               cursor: "pointer", flexShrink: 0,
               boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
             }}>
-              {joined ? "I'm going ✓" : "I'm going →"}
+              {joined ? "Going ✓" : "Going →"}
             </button>
           )}
         </div>
@@ -739,7 +739,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {onWaitlist ? "On the list ✓" : "Join the waitlist →"}
+            {onWaitlist ? "You're next ✓" : "Next to sit →"}
           </button>
         ) : (
           <button onClick={onToggle} style={{
@@ -750,7 +750,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {joined ? "Seat saved ✓" : "Save me a seat"}
+            {joined ? "Going ✓" : "Going →"}
           </button>
         )}
       </div>
@@ -795,7 +795,7 @@ function ClubCard({ ev, clubIdx, joined, onToggle }: {
             cursor: "pointer",
             boxShadow: joined ? "none" : `0 2px 10px ${PINK}55`,
           }}>
-            {joined ? "I'm going ✓" : "I'm going →"}
+            {joined ? "Going ✓" : "Going →"}
           </button>
         </div>
       </div>
@@ -845,7 +845,7 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
         fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.07em",
         cursor: "pointer",
       }}>
-        {joined ? "I'm going ✓" : "I'm going →"}
+        {joined ? "Going ✓" : "Going →"}
       </button>
     </div>
   );
@@ -923,11 +923,11 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
                 <div style={{ flex: 1 }} />
                 {isFull ? (
                   <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 10px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
-                    {onList ? "On the list ✓" : "Join the waitlist"}
+                    {onList ? "You're next ✓" : "Next to attend"}
                   </button>
                 ) : (
                   <button onClick={() => onToggle(ev.id)} style={{ background: joined.has(ev.id) ? "rgba(255,255,255,0.1)" : PINK, border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", boxShadow: joined.has(ev.id) ? "none" : `0 2px 10px ${PINK}55` }}>
-                    {joined.has(ev.id) ? "I'm going ✓" : "I'm going →"}
+                    {joined.has(ev.id) ? "Going ✓" : "Going →"}
                   </button>
                 )}
               </div>
@@ -1732,7 +1732,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                               letterSpacing: "0.08em",
                             }}
                           >
-                            {isJoined ? "I'm going ✓" : "I'm going →"}
+                            {isJoined ? "Going ✓" : "Going →"}
                           </button>
                         </div>
                       );
