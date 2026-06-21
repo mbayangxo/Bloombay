@@ -3,20 +3,38 @@ import { useEffect, useState } from "react";
 
 const PINK = "#FF1F7D";
 
+type BloomContext = "club_mama" | "host" | "attendee" | "meetup";
+
 interface Card { id: string; prompt: string; sort_order: number; }
 
-export function BloomCardsDeck() {
+const CONTEXT_LABELS: Record<BloomContext, string> = {
+  club_mama: "✦ CIRCLE CARDS",
+  host: "✦ HOST CARDS",
+  attendee: "✦ BLOOM CARDS",
+  meetup: "✦ BLOOM CARDS",
+};
+
+const CONTEXT_SUBTITLES: Record<BloomContext, string> = {
+  club_mama: "For the Club Mama leading the room.",
+  host: "Open the room. One card at a time.",
+  attendee: "Flip a card at the table. Everyone answers out loud.",
+  meetup: "Pull one. Answer honestly.",
+};
+
+export function BloomCardsDeck({ context = "attendee" }: { context?: BloomContext }) {
   const [cards, setCards] = useState<Card[]>([]);
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
-    // Fetch bloom_card questions directly
-    fetch("/api/member/bloom-cards")
+    setCards([]);
+    setCurrent(0);
+    setFlipped(false);
+    fetch(`/api/member/bloom-cards?context=${context}`)
       .then(r => r.ok ? r.json() : { cards: [] })
       .then(d => { setCards(d.cards ?? []); })
       .catch(() => null);
-  }, []);
+  }, [context]);
 
   if (cards.length === 0) return null;
 
@@ -25,10 +43,10 @@ export function BloomCardsDeck() {
   return (
     <div>
       <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 12 }}>
-        ✦ BLOOM CARDS
+        {CONTEXT_LABELS[context]}
       </p>
       <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", marginBottom: 16, lineHeight: 1.5 }}>
-        Flip a card at the table. Everyone answers out loud.
+        {CONTEXT_SUBTITLES[context]}
       </p>
 
       {/* Card */}

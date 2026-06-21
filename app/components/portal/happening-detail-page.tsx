@@ -131,7 +131,7 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
         <RoomBriefCard gatheringId={gathering.id} />
 
         <div className="rounded-3xl p-5 bg-white mb-4" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
-          <BloomCardsDeck />
+          <BloomCardsDeck context="attendee" />
         </div>
 
         <div className="rounded-3xl p-5 bg-white mb-4" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>

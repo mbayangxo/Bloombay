@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Suspense } from "react";
+import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
 
 const PINK = "#FF1F7D";
 
@@ -212,19 +213,24 @@ function ConnectInner() {
                 {meetupAction === "loading" ? "Logging…" : "Log this meetup ✦"}
               </button>
             ) : (
-              <div style={{ borderRadius: 16, border: `1px solid ${PINK}30`, background: `${PINK}10`, padding: "16px", textAlign: "center" }}>
-                <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, fontWeight: 700, color: PINK, margin: "0 0 4px" }}>
-                  Meetup logged ✦
-                </p>
-                {meetupStreak !== null && (
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
-                    {`You've crossed paths ${meetupStreak} time${meetupStreak === 1 ? "" : "s"}.`}
+              <>
+                <div style={{ borderRadius: 16, border: `1px solid ${PINK}30`, background: `${PINK}10`, padding: "16px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, fontWeight: 700, color: PINK, margin: "0 0 4px" }}>
+                    Meetup logged ✦
                   </p>
-                )}
-                {milestoneStamp && (
-                  <p style={{ fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 700, color: PINK, margin: "8px 0 0" }}>🌸 {milestoneStamp}</p>
-                )}
-              </div>
+                  {meetupStreak !== null && (
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                      {`You've crossed paths ${meetupStreak} time${meetupStreak === 1 ? "" : "s"}.`}
+                    </p>
+                  )}
+                  {milestoneStamp && (
+                    <p style={{ fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 700, color: PINK, margin: "8px 0 0" }}>🌸 {milestoneStamp}</p>
+                  )}
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <BloomCardsDeck context="meetup" />
+                </div>
+              </>
             )}
 
             <Link href="/member/lounge" style={{ textAlign: "center", fontFamily: "Jost, sans-serif", fontSize: 11, color: "rgba(255,255,255,0.25)", textDecoration: "none", letterSpacing: "0.06em", display: "block", marginTop: 4 }}>
