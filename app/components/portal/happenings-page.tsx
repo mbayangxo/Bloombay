@@ -438,7 +438,7 @@ function TonightStrip({ events, joined, onToggle }: { events: Event[]; joined: S
               color: "white", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
               cursor: "pointer",
             }}>
-              {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+              {joined.has(ev.id) ? "I'm going ✓" : "I'm going →"}
             </button>
           </div>
         ))}
@@ -665,7 +665,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.05em",
               cursor: "pointer", flexShrink: 0,
             }}>
-              {onWaitlist ? "WAITLISTED ✓" : "WAITLIST →"}
+              {onWaitlist ? "On the list ✓" : "Join the waitlist"}
             </button>
           ) : (
             <button onClick={onToggle} style={{
@@ -676,7 +676,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               cursor: "pointer", flexShrink: 0,
               boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
             }}>
-              {joined ? "JOINED ✓" : "JOIN →"}
+              {joined ? "I'm going ✓" : "I'm going →"}
             </button>
           )}
         </div>
@@ -739,7 +739,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {onWaitlist ? "WAITLISTED ✓" : "JOIN WAITLIST →"}
+            {onWaitlist ? "On the list ✓" : "Join the waitlist →"}
           </button>
         ) : (
           <button onClick={onToggle} style={{
@@ -750,7 +750,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {joined ? "JOINED ✓" : "GRAB A SEAT"}
+            {joined ? "Seat saved ✓" : "Save me a seat"}
           </button>
         )}
       </div>
@@ -795,7 +795,7 @@ function ClubCard({ ev, clubIdx, joined, onToggle }: {
             cursor: "pointer",
             boxShadow: joined ? "none" : `0 2px 10px ${PINK}55`,
           }}>
-            {joined ? "JOINED ✓" : "JOIN →"}
+            {joined ? "I'm going ✓" : "I'm going →"}
           </button>
         </div>
       </div>
@@ -845,7 +845,7 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
         fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.07em",
         cursor: "pointer",
       }}>
-        {joined ? "JOINED ✓" : "JOIN →"}
+        {joined ? "I'm going ✓" : "I'm going →"}
       </button>
     </div>
   );
@@ -923,11 +923,11 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
                 <div style={{ flex: 1 }} />
                 {isFull ? (
                   <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 10px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
-                    {onList ? "WAITLISTED" : "WAITLIST →"}
+                    {onList ? "On the list ✓" : "Join the waitlist"}
                   </button>
                 ) : (
                   <button onClick={() => onToggle(ev.id)} style={{ background: joined.has(ev.id) ? "rgba(255,255,255,0.1)" : PINK, border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", boxShadow: joined.has(ev.id) ? "none" : `0 2px 10px ${PINK}55` }}>
-                    {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+                    {joined.has(ev.id) ? "I'm going ✓" : "I'm going →"}
                   </button>
                 )}
               </div>
@@ -939,178 +939,308 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
   );
 }
 
-/* ── Celebration Invitations View (invitation filter) ────── */
-const CELEB_DEMO = [
-  { id: "c1", type: "Birthday" as const,   name: "Sofia K.",  what: "30th Birthday Dinner",     venue: "Carbone, West Village",  date: "SAT JUL 5",  time: "8 PM",    initials: "SK", color: "#FF1F7D",  confirmed: 12 },
-  { id: "c2", type: "Wins" as const,       name: "Amara T.",  what: "New Job Celebration",      venue: "Ladurée SoHo",           date: "FRI JUL 11", time: "7:30 PM", initials: "AT", color: "#FF69B4",  confirmed: 8  },
-  { id: "c3", type: "Milestones" as const, name: "Nadia O.",  what: "New Apartment Warming",    venue: "Her new place · Tribeca", date: "SUN JUL 13", time: "3 PM",    initials: "NO", color: "#E8006A",  confirmed: 18 },
-  { id: "c4", type: "Birthday" as const,   name: "Lena R.",   what: "Birthday Brunch",          venue: "Sadelle's, SoHo",        date: "SUN JUL 20", time: "11 AM",   initials: "LR", color: "#C80060",  confirmed: 7  },
-  { id: "c5", type: "Wins" as const,       name: "Zora M.",   what: "Book Deal Dinner",         venue: "Via Carota",             date: "THU JUL 24", time: "7 PM",    initials: "ZM", color: "#FF1F7D",  confirmed: 5  },
-  { id: "c6", type: "Milestones" as const, name: "Fatima A.", what: "Engagement Celebration",   venue: "The Jane NYC",           date: "SAT JUL 26", time: "6 PM",    initials: "FA", color: "#A8004C",  confirmed: 22 },
-];
-type CelebType = "All" | "Birthday" | "Wins" | "Milestones";
+/* ── Invitation RSVP sheet ─────────────────────────────────── */
+function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+  const [choice, setChoice] = useState<"going" | "maybe" | "cant" | null>(null);
+  const [msg, setMsg] = useState("");
+  const [confettiSent, setConfettiSent] = useState(false);
+  const [done, setDone] = useState(false);
+
+  function sendConfetti() {
+    setConfettiSent(true);
+  }
+
+  function submit() {
+    setDone(true);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div style={{ background: "rgba(0,0,0,0.55)", position: "absolute", inset: 0, backdropFilter: "blur(4px)" }} />
+      <div style={{ position: "relative", background: "#FFF8F0", borderRadius: "22px 22px 0 0", padding: "20px 20px calc(env(safe-area-inset-bottom, 0px) + 32px)", zIndex: 1, maxHeight: "88vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.14)", margin: "0 auto 18px" }} />
+
+        {done ? (
+          <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>{confettiSent ? "🎊" : choice === "going" ? "🌸" : choice === "maybe" ? "🤞" : "💌"}</div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "#111", marginBottom: 6 }}>
+              {confettiSent ? "Confetti sent!" : choice === "going" ? "You're going!" : choice === "maybe" ? "Noted!" : "They know you care."}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#999" }}>
+              {choice === "going" ? "She'll see you there." : "You can always send her confetti later."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Event name */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.18em", color: `${PINK}99`, marginBottom: 4 }}>💌 YOU WERE INVITED</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "#111", lineHeight: 1.15, marginBottom: 4 }}>{ev.title}</p>
+            {ev.host_name && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginBottom: 16 }}>Hosted by {ev.host_name}</p>
+            )}
+
+            {/* 3-option picker */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              {([
+                { key: "going",  label: "I'm going",           emoji: "🌸" },
+                { key: "maybe",  label: "I'll try to make it", emoji: "🤞" },
+                { key: "cant",   label: "Can't make it",        emoji: "💌" },
+              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string }[]).map(opt => (
+                <button
+                  key={opt.key}
+                  onClick={() => setChoice(opt.key)}
+                  style={{
+                    flex: 1, padding: "12px 6px", borderRadius: 14, border: "none", cursor: "pointer",
+                    background: choice === opt.key ? `${PINK}18` : "white",
+                    outline: choice === opt.key ? `2px solid ${PINK}` : "1px solid rgba(0,0,0,0.1)",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{opt.emoji}</span>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: choice === opt.key ? PINK : "#555", textAlign: "center", lineHeight: 1.3 }}>{opt.label}</p>
+                </button>
+              ))}
+            </div>
+
+            {/* Message input — always shown */}
+            <div style={{ background: "white", borderRadius: 14, border: "1px solid rgba(0,0,0,0.1)", padding: "12px 14px", marginBottom: 12 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: "#999", marginBottom: 6 }}>SEND A MESSAGE</p>
+              <textarea
+                value={msg}
+                onChange={e => setMsg(e.target.value)}
+                placeholder={choice === "cant" ? "Let her know you're thinking of her…" : choice === "maybe" ? "Let her know you'll try…" : "Can't wait to celebrate you!"}
+                rows={2}
+                style={{ width: "100%", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "#111", resize: "none", background: "transparent" }}
+              />
+            </div>
+
+            {/* Send confetti option */}
+            <button
+              onClick={sendConfetti}
+              style={{ width: "100%", padding: "12px", borderRadius: 14, border: `1.5px solid ${confettiSent ? PINK : "rgba(255,31,125,0.25)"}`, background: confettiSent ? `${PINK}12` : "transparent", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, marginBottom: 12, transition: "all 0.15s" }}
+            >
+              <span style={{ fontSize: 20 }}>🎊</span>
+              <div style={{ flex: 1, textAlign: "left" as const }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: PINK }}>
+                  {confettiSent ? "Confetti sent! 🎊" : "Send her confetti"}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#999", marginTop: 1 }}>A little celebration, whether you&apos;re going or not</p>
+              </div>
+              {confettiSent && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              )}
+            </button>
+
+            {/* Submit */}
+            <button
+              onClick={submit}
+              disabled={!choice}
+              style={{ width: "100%", padding: "15px", borderRadius: 18, background: choice ? PINK : "rgba(0,0,0,0.08)", border: "none", cursor: choice ? "pointer" : "default", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", color: choice ? "white" : "rgba(0,0,0,0.3)", boxShadow: choice ? `0 6px 22px ${PINK}44` : "none", transition: "all 0.15s" }}
+            >
+              {choice === "going" ? "I'm going 🌸" : choice === "maybe" ? "I'll try to make it 🤞" : choice === "cant" ? "Send my love 💌" : "Choose one above"}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Invitation card (envelope look) ───────────────────────── */
+function EnvelopeInviteCard({ c, onOpen }: { c: typeof INVITE_DEMO[0]; onOpen: () => void }) {
+  const [opened, setOpened] = useState(false);
+
+  function handleOpen() {
+    setOpened(true);
+    onOpen();
+  }
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, overflow: "hidden", position: "relative" }}>
+      {/* Top color band */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${c.color}, ${c.color}55)` }} />
+
+      {/* Envelope flap graphic */}
+      {!opened && (
+        <div style={{ padding: "16px 16px 0" }}>
+          <div style={{ position: "relative", height: 54, background: `linear-gradient(145deg, ${c.color}22, ${c.color}08)`, border: `1px solid ${c.color}30`, borderRadius: "14px 14px 0 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* Envelope V flap */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "60%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}18`, borderBottom: `1px solid ${c.color}22` }} />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "50%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}12` }} />
+            <span style={{ fontSize: 18, zIndex: 1 }}>💌</span>
+          </div>
+          <div style={{ height: 32, background: `${c.color}08`, border: `1px solid ${c.color}22`, borderTop: "none", borderRadius: "0 0 10px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: `${c.color}99` }}>SEALED WITH LOVE</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding: opened ? "16px 16px 14px" : "12px 16px 14px" }}>
+        {/* Type + date */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+          <div style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 999, padding: "3px 8px", display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 10 }}>{c.type === "Birthday" ? "🎂" : c.type === "Wins" ? "✨" : "🌸"}</span>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: c.color, letterSpacing: "0.08em" }}>{c.type.toUpperCase()}</p>
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)" }}>{c.date} · {c.time}</p>
+        </div>
+
+        {/* Host + event */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}, ${c.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 900, color: "white" }}>{c.initials}</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.55)", marginBottom: 2 }}>{c.name} is celebrating</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "white", lineHeight: 1.1 }}>{c.what}</p>
+          </div>
+        </div>
+
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.38)", marginBottom: 12 }}>{c.venue}</p>
+
+        {/* Attendees */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+          {[0,1,2].map(i => (
+            <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}AA, ${c.color}55)`, border: "1.5px solid rgba(255,255,255,0.15)", marginLeft: i > 0 ? -10 : 0 }} />
+          ))}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginLeft: 4 }}>{c.confirmed} showing up for her</p>
+        </div>
+
+        {/* Open invite button (triggers RSVP sheet) */}
+        <button
+          onClick={handleOpen}
+          style={{ width: "100%", padding: "11px", borderRadius: 14, background: opened ? `${c.color}22` : c.color, border: opened ? `1.5px solid ${c.color}55` : "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: opened ? c.color : "white", boxShadow: opened ? "none" : `0 4px 18px ${c.color}55`, transition: "all 0.18s" }}
+        >
+          {opened ? "Invitation opened ✓" : "Open the invitation →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const INVITE_DEMO = [
+  { id: "c1", type: "Birthday" as const,   name: "Sofia K.",  what: "30th Birthday Dinner",   venue: "Carbone, West Village",   date: "SAT JUL 5",  time: "8 PM",    initials: "SK", color: "#FF1F7D", confirmed: 12 },
+  { id: "c2", type: "Wins" as const,       name: "Amara T.",  what: "New Job Celebration",     venue: "Ladurée SoHo",            date: "FRI JUL 11", time: "7:30 PM", initials: "AT", color: "#FF69B4", confirmed: 8  },
+  { id: "c3", type: "Milestones" as const, name: "Nadia O.",  what: "New Apartment Warming",   venue: "Her new place · Tribeca", date: "SUN JUL 13", time: "3 PM",    initials: "NO", color: "#E8006A", confirmed: 18 },
+  { id: "c4", type: "Birthday" as const,   name: "Lena R.",   what: "Birthday Brunch",         venue: "Sadelle's, SoHo",         date: "SUN JUL 20", time: "11 AM",   initials: "LR", color: "#C80060", confirmed: 7  },
+  { id: "c5", type: "Wins" as const,       name: "Zora M.",   what: "Book Deal Dinner",        venue: "Via Carota",              date: "THU JUL 24", time: "7 PM",    initials: "ZM", color: "#FF1F7D", confirmed: 5  },
+  { id: "c6", type: "Milestones" as const, name: "Fatima A.", what: "Engagement Dinner",       venue: "The Jane NYC",            date: "SAT JUL 26", time: "6 PM",    initials: "FA", color: "#A8004C", confirmed: 22 },
+] as const;
+type InviteType = "All" | "Birthday" | "Wins" | "Milestones";
 
 function CelebrationInvitationsView({ events, joined, onToggle }: {
   events: Event[];
   joined: Set<string>;
   onToggle: (id: string) => void;
 }) {
-  const [celebFilter, setCelebFilter] = useState<CelebType>("All");
-  const demo = celebFilter === "All" ? CELEB_DEMO : CELEB_DEMO.filter(c => c.type === celebFilter);
+  const [typeFilter, setTypeFilter] = useState<InviteType>("All");
+  const [rsvpEv, setRsvpEv] = useState<Event | null>(null);
+  const [rsvpDemo, setRsvpDemo] = useState<string | null>(null);
+
+  const demo = typeFilter === "All" ? INVITE_DEMO : INVITE_DEMO.filter(c => c.type === typeFilter);
+
+  const demoAsEvent = (c: typeof INVITE_DEMO[0]): Event => ({
+    id: c.id, title: c.what, host_name: c.name, venue: c.venue, starts_at: new Date().toISOString(),
+    event_type: "invitation", attending_count: c.confirmed, spots_left: null, neighborhood: null, city: null,
+    slug: null, badge: null, image_url: null, accent_color: c.color,
+  } as unknown as Event);
 
   return (
     <div style={{ padding: "0 0 24px" }}>
+      {/* RSVP sheet */}
+      {rsvpEv && <InvitationRsvpSheet ev={rsvpEv} onClose={() => setRsvpEv(null)} />}
+      {rsvpDemo && <InvitationRsvpSheet ev={demoAsEvent((INVITE_DEMO.find(c => c.id === rsvpDemo) ?? INVITE_DEMO[0]) as typeof INVITE_DEMO[0])} onClose={() => setRsvpDemo(null)} />}
+
       {/* Header */}
-      <div style={{ padding: "18px 16px 14px", textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>💌 INVITATIONS</p>
-        <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(22px, 7vw, 28px)", color: "rgba(255,238,220,0.96)", lineHeight: 1.0, margin: "0 0 6px" }}>
+      <div style={{ padding: "18px 16px 14px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>💌 INVITATIONS</p>
+        <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(24px, 7vw, 30px)", color: "rgba(255,238,220,0.96)", lineHeight: 1.0, margin: "0 0 6px" }}>
           We show up for our girls.
         </h2>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", lineHeight: 1.5 }}>
-          Celebrate the moments that matter — birthdays, wins & milestones
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)" }}>
+          Birthdays, wins & the moments that matter — open an invite, let her know you&apos;re coming, and send confetti no matter what.
         </p>
       </div>
 
-      {/* Celebration type tabs */}
-      <div style={{ display: "flex", gap: 6, padding: "0 14px 14px", overflowX: "auto", scrollbarWidth: "none" as const }}>
-        {(["All", "Birthday", "Wins", "Milestones"] as CelebType[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setCelebFilter(t)}
-            style={{
-              flexShrink: 0, padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer",
-              background: celebFilter === t ? PINK : "rgba(255,255,255,0.1)",
-              color: celebFilter === t ? "white" : "rgba(255,255,255,0.55)",
-              fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.06em",
-              boxShadow: celebFilter === t ? `0 3px 14px ${PINK}55` : "none",
-              transition: "all 0.15s",
-            }}
-          >
+      {/* Type tabs */}
+      <div style={{ display: "flex", gap: 6, padding: "0 14px 16px", overflowX: "auto", scrollbarWidth: "none" as const }}>
+        {(["All", "Birthday", "Wins", "Milestones"] as InviteType[]).map(t => (
+          <button key={t} onClick={() => setTypeFilter(t)} style={{ flexShrink: 0, padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer", background: typeFilter === t ? PINK : "rgba(255,255,255,0.1)", color: typeFilter === t ? "white" : "rgba(255,255,255,0.55)", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.06em", boxShadow: typeFilter === t ? `0 3px 14px ${PINK}55` : "none", transition: "all 0.15s" }}>
             {t === "Birthday" ? "🎂 " : t === "Wins" ? "✨ " : t === "Milestones" ? "🌸 " : ""}{t}
           </button>
         ))}
       </div>
 
-      {/* Real invitation events — if any */}
+      {/* Real invitation events with RSVP options */}
       {events.length > 0 && (
         <div style={{ padding: "0 14px 14px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>OPEN INVITATIONS</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>YOUR INVITATIONS</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {events.map(ev => (
-              <button
-                key={ev.id}
-                onClick={() => onToggle(ev.id)}
-                style={{ width: "100%", padding: "14px 16px", borderRadius: 16, border: "none", cursor: "pointer", background: joined.has(ev.id) ? `${PINK}22` : "rgba(255,255,255,0.08)", borderStyle: "solid", borderWidth: 1, borderColor: joined.has(ev.id) ? `${PINK}55` : "rgba(255,255,255,0.12)", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}
-              >
-                <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: "white" }}>{ev.host_name?.slice(0, 2).toUpperCase() ?? "BB"}</span>
+              <div key={ev.id} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 18, overflow: "hidden" }}>
+                <div style={{ height: 3, background: `linear-gradient(90deg, ${PINK}, ${PINK}44)` }} />
+                <div style={{ padding: "14px 16px" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 4 }}>{ev.title}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", color: "rgba(255,255,255,0.45)", marginBottom: 14 }}>{ev.venue ?? ev.neighborhood} · {new Date(ev.starts_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => { onToggle(ev.id); }} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: joined.has(ev.id) ? PINK : "rgba(255,255,255,0.12)", color: "white", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      {joined.has(ev.id) ? "I'm going ✓" : "I'm going"}
+                    </button>
+                    <button onClick={() => setRsvpEv(ev)} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      Can&apos;t make it
+                    </button>
+                    <button onClick={() => setRsvpEv(ev)} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      I&apos;ll try 🤞
+                    </button>
+                  </div>
+                  <button onClick={() => setRsvpEv(ev)} style={{ width: "100%", marginTop: 7, padding: "8px", borderRadius: 10, border: `1px solid ${PINK}33`, background: `${PINK}12`, cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: PINK }}>
+                    🎊 Send confetti
+                  </button>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 3 }}>{ev.title}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)" }}>{ev.venue ?? ev.neighborhood} · {new Date(ev.starts_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
-                </div>
-                <div style={{ background: joined.has(ev.id) ? PINK : "rgba(255,255,255,0.12)", borderRadius: 999, padding: "5px 12px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white" }}>{joined.has(ev.id) ? "IN ✓" : "JOIN →"}</p>
-                </div>
-              </button>
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Demo celebration cards */}
+      {/* Demo invitation cards (envelope look) */}
       <div style={{ padding: "0 14px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>CELEBRATING HER</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {demo.map((c) => (
-            <div
-              key={c.id}
-              style={{
-                background: "rgba(255,255,255,0.07)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 18,
-                overflow: "hidden",
-                position: "relative",
-              }}
-            >
-              {/* Accent stripe */}
-              <div style={{ height: 3, background: `linear-gradient(90deg, ${c.color}, ${c.color}55)` }} />
-
-              <div style={{ padding: "14px 16px 14px" }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                  {/* Avatar */}
-                  <div style={{ position: "relative", flexShrink: 0 }}>
-                    <div style={{ width: 50, height: 50, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}, ${c.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.15)" }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 900, color: "white" }}>{c.initials}</span>
-                    </div>
-                    {/* Type badge */}
-                    <div style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", background: c.color, borderRadius: 999, padding: "2px 6px", whiteSpace: "nowrap", border: "1.5px solid rgba(0,0,0,0.2)" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 900, color: "white", letterSpacing: "0.08em" }}>
-                        {c.type === "Birthday" ? "🎂" : c.type === "Wins" ? "✨" : "🌸"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: `${c.color}CC`, marginBottom: 2 }}>{c.type.toUpperCase()} · {c.date}</p>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 3 }}>{c.what}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>{c.name}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.38)" }}>{c.venue} · {c.time}</p>
-                  </div>
-
-                  {/* Count */}
-                  <div style={{ flexShrink: 0, textAlign: "center" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 900, color: "white" }}>{c.confirmed}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.06em" }}>showing{"\n"}up</p>
-                  </div>
-                </div>
-
-                {/* Envelope-style footer */}
-                <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", gap: 4 }}>
-                    {[0,1,2].map(i => (
-                      <div key={i} style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}99, ${c.color}44)`, border: `1.5px solid rgba(255,255,255,0.15)`, marginLeft: i > 0 ? -8 : 0 }} />
-                    ))}
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", marginLeft: 4, display: "flex", alignItems: "center" }}>+{c.confirmed - 3} more</p>
-                  </div>
-                  <button style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: c.color }}>Open invite →</p>
-                  </button>
-                </div>
-              </div>
-            </div>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>OPEN INVITATIONS</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {(demo as typeof INVITE_DEMO[number][]).map(c => (
+            <EnvelopeInviteCard key={c.id} c={c as typeof INVITE_DEMO[0]} onOpen={() => setRsvpDemo(c.id)} />
           ))}
         </div>
       </div>
 
-      {/* Recently celebrated strip */}
+      {/* Confetti strip — recently sent */}
       <div style={{ margin: "20px 14px 0", padding: "16px", background: "rgba(255,255,255,0.06)", borderRadius: 18, border: "1px solid rgba(255,255,255,0.1)" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>RECENTLY CELEBRATED</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>🎊 CONFETTI SENT</p>
         <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
           {[
-            { name: "Maya B.", what: "Got the job 🎉", color: "#FF1F7D" },
-            { name: "Temi O.", what: "Birthday queen 🎂", color: "#FF69B4" },
-            { name: "Jade R.", what: "New apartment 🏠", color: "#E8006A" },
+            { name: "Maya B.", what: "New job 🎉", color: "#FF1F7D" },
+            { name: "Temi O.", what: "Birthday 🎂", color: "#FF69B4" },
+            { name: "Jade R.", what: "New keys 🏠", color: "#E8006A" },
             { name: "Sade L.", what: "Book deal 📚", color: "#C80060" },
           ].map((r, i) => (
-            <div key={i} style={{ flexShrink: 0, width: 110, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${r.color}, ${r.color}77)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.15)" }}>
+            <div key={i} style={{ flexShrink: 0, width: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${r.color}, ${r.color}66)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.12)" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, color: "white" }}>{r.name[0]}</span>
               </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "rgba(255,255,255,0.8)", textAlign: "center", lineHeight: 1.2 }}>{r.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>{r.what}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 1.2 }}>{r.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.38)", textAlign: "center", lineHeight: 1.3 }}>{r.what}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Drop an invite CTA */}
-      <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}30`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ fontSize: 22 }}>💌</span>
+      {/* Drop confetti CTA */}
+      <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}28`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 22 }}>🎊</span>
         <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Celebrate someone</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Drop an invite · birthdays, wins & everything in between</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Drop confetti on her</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Birthdays, wins, new keys, new chapters</p>
         </div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
@@ -1602,7 +1732,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                               letterSpacing: "0.08em",
                             }}
                           >
-                            {isJoined ? "JOINED ✓" : "JOIN NOW →"}
+                            {isJoined ? "I'm going ✓" : "I'm going →"}
                           </button>
                         </div>
                       );
