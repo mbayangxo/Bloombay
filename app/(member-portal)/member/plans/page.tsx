@@ -850,111 +850,51 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
 
 // ── PLAN DOOR CARD ────────────────────────────────────────────────────────────
 
-const DOOR_PAINTS: Record<number, { body: string; bodyLight: string; frame: string; glass: string; knob: string }> = {
-  1: { body: "#B8402A", bodyLight: "#D45038", frame: "#7A2818", glass: "rgba(255,150,80,0.22)",  knob: "#FF1F7D" },
-  2: { body: "#CC1870", bodyLight: "#E0288A", frame: "#8A0048", glass: "rgba(255,80,180,0.18)",  knob: "#FFD4A0" },
-  3: { body: "#3A7850", bodyLight: "#4A8860", frame: "#1E5830", glass: "rgba(80,200,120,0.18)",  knob: "#FF1F7D" },
-  4: { body: "#6A1030", bodyLight: "#8A2040", frame: "#440818", glass: "rgba(200,60,100,0.2)",   knob: "#C8A870" },
-  5: { body: "#C8B8A0", bodyLight: "#DECCA8", frame: "#A09070", glass: "rgba(240,220,180,0.3)",  knob: "#FF1F7D" },
-  6: { body: "#A07018", bodyLight: "#B88028", frame: "#704E08", glass: "rgba(240,190,60,0.2)",   knob: "#FFD060" },
-};
 
 function PlanDoorCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boolean; onPress: () => void }) {
   const hasUnread = room.unread > 0 && !isRead;
-  const paint = DOOR_PAINTS[room.id] ?? DOOR_PAINTS[2];
-  const W = 90, ARCH_R = 45;
-  const BODY_H = 96;
-  const TOTAL_H = ARCH_R + BODY_H;
+  const W = 100;
+  const H = 155;
 
   return (
     <button
       onClick={onPress}
       className="active:scale-[0.95] transition-transform"
-      style={{ width: W + 10, height: TOTAL_H + 20, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative", WebkitTapHighlightColor: "transparent" }}
+      style={{ width: W, height: H, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative", WebkitTapHighlightColor: "transparent", borderRadius: 16, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.28)" }}
     >
-      {/* Floor shadow */}
-      <div style={{ position: "absolute", bottom: 0, left: 8, right: 8, height: 10, borderRadius: "50%", background: `${paint.frame}44`, filter: "blur(5px)" }} />
+      {/* Poster background */}
+      {room.poster ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={room.poster} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
+      ) : (
+        <div style={{ position: "absolute", inset: 0, background: room.bg }} />
+      )}
 
-      {/* Door frame/surround */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, width: W + 10, height: TOTAL_H + 10,
-        borderRadius: `${ARCH_R + 5}px ${ARCH_R + 5}px 8px 8px`,
-        background: `linear-gradient(180deg, ${paint.frame} 0%, ${paint.frame}CC 100%)`,
-        boxShadow: `0 6px 20px ${paint.frame}66`,
-      }} />
+      {/* Dark gradient overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)" }} />
 
-      {/* Door face */}
-      <div style={{
-        position: "absolute", top: 4, left: 4, width: W, height: TOTAL_H,
-        borderRadius: `${ARCH_R}px ${ARCH_R}px 4px 4px`,
-        background: `linear-gradient(175deg, ${paint.bodyLight} 0%, ${paint.body} 40%, ${paint.frame}88 100%)`,
-        boxShadow: `inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.2)`,
-        overflow: "hidden",
-      }}>
-        {/* Arch glass window — shows poster or emoji */}
-        <div style={{
-          position: "absolute", top: 5, left: 8, right: 8, height: ARCH_R - 4,
-          borderRadius: `${ARCH_R - 8}px ${ARCH_R - 8}px 2px 2px`,
-          background: paint.glass,
-          border: "1.5px solid rgba(255,255,255,0.35)",
-          overflow: "hidden",
-        }}>
-          {room.poster ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={room.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%)" }} />
-            </>
-          ) : (
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 16 }}>{room.emoji}</span>
-            </div>
-          )}
-          {/* Glass shine */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%", borderRadius: "50% 50% 0 0", background: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%)", pointerEvents: "none" }} />
+      {/* Content overlay */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 8px 10px" }}>
+        {/* Date chip at top */}
+        <div style={{ position: "absolute", top: 7, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(6px)", whiteSpace: "nowrap" as const }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{room.date}</p>
         </div>
 
-        {/* Center stile (vertical divider) */}
-        <div style={{ position: "absolute", left: "50%", transform: "translateX(-0.5px)", top: ARCH_R + 2, bottom: 4, width: 1, background: `${paint.frame}88` }} />
-
-        {/* Upper panels */}
-        <div style={{ position: "absolute", top: ARCH_R + 4, left: 6, right: 6, height: Math.floor(BODY_H * 0.42), display: "flex", gap: 3 }}>
-          {[0,1].map(i => (
-            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
-          ))}
-        </div>
-
-        {/* Lower panels */}
-        <div style={{ position: "absolute", bottom: 6, left: 6, right: 6, height: Math.floor(BODY_H * 0.45), display: "flex", gap: 3 }}>
-          {[0,1].map(i => (
-            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
-          ))}
-        </div>
-
-        {/* Door knob */}
-        <div style={{
-          position: "absolute", right: 10, top: ARCH_R + Math.floor(BODY_H * 0.55),
-          width: 9, height: 9, borderRadius: "50%",
-          background: `radial-gradient(circle at 38% 35%, ${paint.knob}FF, ${paint.knob}88)`,
-          boxShadow: `0 1px 4px rgba(0,0,0,0.5), 0 0 0 1.5px ${paint.frame}88`,
-        }} />
-
-        {/* Name label at bottom */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.45))", padding: "12px 5px 5px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.92)", textAlign: "center", letterSpacing: "0.05em", lineHeight: 1.2 }}>
-            {room.name.split(" ").slice(0,2).join(" ").toUpperCase()}
+        {/* Room name */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.04em", lineHeight: 1.3, marginBottom: 3, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+          {room.name.toUpperCase()}
+        </p>
+        {/* Venue */}
+        {room.venue && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 400, color: "rgba(255,255,255,0.72)", letterSpacing: "0.02em", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            {room.venue.split(",")[0]}
           </p>
-        </div>
-      </div>
-
-      {/* Date chip */}
-      <div style={{ position: "absolute", top: 2, left: "50%", transform: "translateX(-50%)", background: "white", borderRadius: 999, padding: "1.5px 6px", border: `1px solid ${paint.frame}44`, whiteSpace: "nowrap" as const }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: paint.body, letterSpacing: "0.04em" }}>{room.date}</p>
+        )}
       </div>
 
       {/* Unread badge */}
       {hasUnread && (
-        <div style={{ position: "absolute", top: 6, right: 4, width: 17, height: 17, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
+        <div style={{ position: "absolute", top: 7, right: 7, width: 17, height: 17, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
           <span style={{ fontSize: 7, fontWeight: 900, color: "white" }}>{room.unread}</span>
         </div>
       )}
@@ -1670,10 +1610,10 @@ function PlansPageInner() {
 
   const [userId, setUserId] = useState<string | null>(null);
   const [view, setView]               = useState<View>("list");
-  const [mainTab, setMainTab]         = useState<MainTab>("plans");
   const [activeRoom, setActiveRoom]   = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     void import("@/lib/supabase/client").then(({ createClient }) => {
@@ -1718,25 +1658,22 @@ function PlansPageInner() {
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
         <span style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: PINK }}>BB✿</span>
 
-        <div style={{ display: "flex", background: "rgba(255,31,125,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
-          {(["plans","calendar"] as MainTab[]).map(t => (
-            <button key={t} onClick={() => setMainTab(t)}
-              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? PINK : "transparent", color: mainTab === t ? "white" : theme.subText, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
-              {t === "plans" ? "PLANS" : "CALENDAR"}
-            </button>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Calendar icon button */}
+          <button onClick={() => setShowCalendar(true)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.18)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          {/* New plan button */}
+          <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
-
-        <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
       </div>
 
       <div style={{ paddingTop: 54 }}>
 
-        {/* Plans tab */}
-        {mainTab === "plans" && (
-          <div>
+        {/* Plans content */}
+        <div>
 
             {/* ── EDITORIAL HEADER — full-bleed, no card border ── */}
             <div style={{ position: "relative", overflow: "hidden", paddingBottom: 28 }}>
@@ -1770,7 +1707,7 @@ function PlansPageInner() {
                       </div>
                     </>
                   )}
-                  <button onClick={() => setMainTab("calendar")} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 999, padding: "5px 11px", cursor: "pointer" }}>
+                  <button onClick={() => setShowCalendar(true)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 999, padding: "5px 11px", cursor: "pointer" }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.08em" }}>PLANNER</p>
                   </button>
@@ -1814,7 +1751,7 @@ function PlansPageInner() {
 
             {/* Swipeable door row — no label, flows from header */}
             <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
-              <button onClick={() => setShowNewPlan(true)} style={{ width: 90, height: 145, flexShrink: 0, borderRadius: "45px 45px 6px 6px", border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginTop: 10 }}>
+              <button onClick={() => setShowNewPlan(true)} style={{ width: 100, height: 155, flexShrink: 0, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}>
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </div>
@@ -1880,17 +1817,24 @@ function PlansPageInner() {
                 ))}
               </div>
             </div>
-          </div>
-        )}
+        </div>
+      </div>
 
-        {/* Calendar tab */}
-        {mainTab === "calendar" && (
-          <div style={{ padding: "16px 0" }}>
-            <div style={{ padding: "0 16px 14px" }}>
+      {/* Calendar full-screen overlay */}
+      {showCalendar && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "var(--bb-bg, #FFF0F8)", overflowY: "auto" }}>
+          {/* Header with close button */}
+          <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(255,240,248,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backdropFilter: "blur(12px)" }}>
+            <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.6)", marginBottom: 4 }}>YOUR PLANNER</p>
-              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#aaa", letterSpacing: "0.06em", marginTop: 5 }}>TAP A DATE TO ADD NOTES OR VIEW PLANS</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
             </div>
+            <button onClick={() => setShowCalendar(false)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            </button>
+          </div>
+          <div style={{ padding: "12px 0 32px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#aaa", letterSpacing: "0.06em", marginBottom: 12, paddingLeft: 16 }}>TAP A DATE TO ADD NOTES OR VIEW PLANS</p>
             <div style={{ margin: "0 16px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.14), 0 1px 0 rgba(255,255,255,0.9) inset" }}>
               <PaperCalendarView
                 dayContents={dayContents}
@@ -1906,8 +1850,8 @@ function PlansPageInner() {
               />
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {editorDay && (
         <DayEditorSheet
