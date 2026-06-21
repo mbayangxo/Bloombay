@@ -6,6 +6,7 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
 import { applyToClub } from "@/lib/actions/clubs";
+import { ClubMediaSection } from "./club-media-section";
 import { CrestSVG } from "./club-crest-generator";
 import type { CrestConfig } from "./club-crest-generator";
 
@@ -1154,6 +1155,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               </div>
             </section>
           )}
+
+          {/* ── MEMBER PHOTOS + VOICE NOTES ─────────────────────────────── */}
+          <ClubMediaSection clubId={club.id} color={club.color} isMember={isMember} />
 
           {/* ── WHAT OUR GIRLS SAY ───────────────────────────────────────── */}
           {(club.testimonials ?? []).length > 0 && (
