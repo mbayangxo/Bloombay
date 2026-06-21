@@ -70,12 +70,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const initial: ThemeMode = saved ?? autoMode();
     setMode(initial);
     document.documentElement.setAttribute("data-theme", initial);
+
+    // Re-check every minute; only auto-switch if user hasn't manually overridden
+    const id = setInterval(() => {
+      if (localStorage.getItem("bb-theme-manual")) return;
+      const next = autoMode();
+      setMode(prev => {
+        if (prev === next) return prev;
+        document.documentElement.setAttribute("data-theme", next);
+        return next;
+      });
+    }, 60_000);
+    return () => clearInterval(id);
   }, []);
 
   function toggle() {
     setMode(prev => {
       const next = prev === "day" ? "night" : "day";
       localStorage.setItem("bb-theme", next);
+      localStorage.setItem("bb-theme-manual", "1");
       document.documentElement.setAttribute("data-theme", next);
       return next;
     });
