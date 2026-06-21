@@ -20,6 +20,39 @@
   --pale-pink-bg: #FFF5F8;
   --mid-pink: #FFB6D0;
   --light-pink: #FFE0EE;
+
+  /* Day/night theme tokens — all pages use these */
+  --bb-bg: #FFF8F0;
+  --bb-card: #FFFFFF;
+  --bb-card-2: #FEFCF7;
+  --bb-text: #111111;
+  --bb-text-2: rgba(0,0,0,0.55);
+  --bb-text-3: rgba(0,0,0,0.35);
+  --bb-text-muted: rgba(0,0,0,0.22);
+  --bb-input-bg: #FAFAFA;
+  --bb-separator: rgba(0,0,0,0.08);
+  --bb-nav-bg: rgba(0,0,0,0.05);
+  --bb-nav-border: rgba(0,0,0,0.08);
+  --bb-nav-icon: rgba(0,0,0,0.55);
+  --bb-border: rgba(255,31,125,0.12);
+  --bb-border-strong: rgba(255,31,125,0.3);
+}
+
+[data-theme="night"] {
+  --bb-bg: #0A0508;
+  --bb-card: #18080F;
+  --bb-card-2: #210D16;
+  --bb-text: rgba(255,235,215,0.95);
+  --bb-text-2: rgba(255,179,209,0.7);
+  --bb-text-3: rgba(255,255,255,0.35);
+  --bb-text-muted: rgba(255,255,255,0.2);
+  --bb-input-bg: rgba(255,255,255,0.06);
+  --bb-separator: rgba(255,31,125,0.15);
+  --bb-nav-bg: rgba(255,255,255,0.07);
+  --bb-nav-border: rgba(255,255,255,0.1);
+  --bb-nav-icon: rgba(255,255,255,0.65);
+  --bb-border: rgba(255,31,125,0.2);
+  --bb-border-strong: rgba(255,31,125,0.4);
 }
 
 @theme inline {

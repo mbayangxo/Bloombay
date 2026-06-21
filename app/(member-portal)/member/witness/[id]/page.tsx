@@ -43,28 +43,35 @@ export default function WitnessedNotePage() {
   }, [id]);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#0A0508" }}>
-      {/* Ambient glow */}
-      <div className="fixed inset-0 pointer-events-none" style={{
-        background: "radial-gradient(ellipse at 50% 30%, rgba(255,31,125,0.12) 0%, transparent 65%)",
-      }} />
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bb-bg)" }}>
 
       {/* Top bar */}
-      <div className="relative flex items-center justify-between px-5 pt-14 pb-6 md:pt-10">
-        <Link href="/member/notifications"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity active:opacity-60"
-          style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2.2" strokeLinecap="round">
+      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "56px 20px 24px" }}>
+        <Link
+          href="/member/notifications"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "var(--bb-nav-bg)",
+            border: "1px solid var(--bb-nav-border)",
+            textDecoration: "none",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bb-nav-icon)" strokeWidth="2.2" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </Link>
-        <p className="text-[9px] font-bold tracking-[0.28em] uppercase" style={{ color: "rgba(255,31,125,0.7)" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase", color: `${PINK}99`, margin: 0 }}>
           ✦ WITNESSED
         </p>
-        <div className="w-10" />
+        <div style={{ width: 40 }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
+      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px 80px" }}>
         {loading ? (
           <div style={{ textAlign: "center" }}>
             <div style={{ width: 40, height: 40, borderRadius: "50%", border: "2px solid rgba(255,31,125,0.3)", borderTopColor: PINK, animation: "spin 1s linear infinite", margin: "0 auto" }} />
@@ -72,108 +79,96 @@ export default function WitnessedNotePage() {
           </div>
         ) : notFound || !data ? (
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.4)" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "var(--bb-text-3)" }}>
               This witness note isn&apos;t available.
             </p>
-            <Link href="/member/lounge" style={{ color: PINK, fontSize: 12, fontFamily: "Jost, sans-serif", display: "block", marginTop: 16 }}>
+            <Link href="/member/lounge" style={{ color: PINK, fontSize: 12, fontFamily: "var(--font-jost)", display: "block", marginTop: 16 }}>
               Back to Lounge →
             </Link>
           </div>
         ) : (
-          <div className="w-full max-w-sm relative">
-            {/* Glow */}
-            <div className="absolute inset-0 rounded-3xl pointer-events-none" style={{
-              background: `radial-gradient(ellipse at 50% 0%, ${PINK}22 0%, transparent 70%)`,
-              filter: "blur(20px)",
-              transform: "translateY(-10px) scale(1.05)",
-            }} />
+          <div style={{ width: "100%", maxWidth: 360, position: "relative" }}>
 
-            {/* The note card */}
-            <div className="relative rounded-3xl overflow-hidden"
-              style={{
-                background: "linear-gradient(160deg, #1A0812 0%, #120508 60%, #0D040C 100%)",
-                border: `1px solid ${PINK}25`,
-                boxShadow: `0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px ${PINK}10`,
-              }}>
-              <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${PINK}30, transparent)` }} />
+            {/* Note card */}
+            <div style={{
+              borderRadius: 24,
+              overflow: "hidden",
+              background: "var(--bb-card)",
+              border: `1px solid var(--bb-border-strong)`,
+              boxShadow: `0 12px 40px rgba(255,31,125,0.12)`,
+            }}>
+              <div style={{ height: 3, background: `linear-gradient(90deg, transparent, ${PINK}, transparent)` }} />
 
-              <div className="px-8 pt-10 pb-8">
-                <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-center mb-8"
-                  style={{ color: `${PINK}66` }}>
+              <div style={{ padding: "32px 28px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", textAlign: "center", color: `${PINK}80`, marginBottom: 24 }}>
                   SOMETHING BEAUTIFUL SHE NOTICED
                 </p>
 
-                <p className="text-center leading-snug mb-8"
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontStyle: "italic",
-                    fontWeight: 700,
-                    fontSize: "clamp(20px, 5.5vw, 28px)",
-                    color: "rgba(255,235,215,0.95)",
-                    textShadow: `0 0 40px ${PINK}40`,
-                  }}>
+                <p style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: "clamp(20px, 5.5vw, 26px)",
+                  color: "var(--bb-text)",
+                  textAlign: "center",
+                  lineHeight: 1.4,
+                  marginBottom: 28,
+                }}>
                   &ldquo;{data.note}&rdquo;
                 </p>
 
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="flex-1 h-px" style={{ background: `${PINK}20` }} />
-                  <span style={{ color: `${PINK}40`, fontSize: "10px" }}>✦</span>
-                  <div className="flex-1 h-px" style={{ background: `${PINK}20` }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                  <div style={{ flex: 1, height: 1, background: "var(--bb-border)" }} />
+                  <span style={{ color: `${PINK}50`, fontSize: 10 }}>✦</span>
+                  <div style={{ flex: 1, height: 1, background: "var(--bb-border)" }} />
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   {data.witness.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={data.witness.avatar_url} alt={data.witness.name}
                       style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `2px solid ${PINK}30` }} />
                   ) : (
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                      style={{ background: `linear-gradient(135deg, ${PINK} 0%, ${PINK}99 100%)`, boxShadow: `0 4px 14px ${PINK}44` }}>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK} 0%, ${PINK}99 100%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white", flexShrink: 0 }}>
                       {data.witness.initial}
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm" style={{ color: "rgba(255,235,215,0.9)" }}>{data.witness.name}</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 14, color: "var(--bb-text)", margin: 0 }}>{data.witness.name}</p>
                     {data.witness.neighborhood && (
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{data.witness.neighborhood}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "var(--bb-text-3)", margin: "2px 0 0" }}>{data.witness.neighborhood}</p>
                     )}
                   </div>
-                  <p className="text-[10px] flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>{formatDate(data.created_at)}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "var(--bb-text-muted)", flexShrink: 0 }}>{formatDate(data.created_at)}</p>
                 </div>
 
                 {data.gathering_title && (
-                  <p className="text-[9px] text-center mt-5 tracking-wide"
-                    style={{ color: "rgba(255,255,255,0.18)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 9, color: "var(--bb-text-muted)", textAlign: "center", marginTop: 16, letterSpacing: "0.05em" }}>
                     witnessed at {data.gathering_title}
                   </p>
                 )}
               </div>
 
-              <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${PINK}20, transparent)` }} />
+              <div style={{ height: 1, background: "var(--bb-border)" }} />
 
-              <div className="px-8 py-5 flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] font-bold tracking-[0.22em] uppercase" style={{ color: "rgba(255,255,255,0.18)" }}>
-                    WITNESSED — BLOOMBAY
-                  </p>
-                  <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.1)" }}>
-                    A social artifact. Not a rating.
-                  </p>
-                </div>
-                <span style={{ color: `${PINK}30`, fontSize: "18px" }}>✦</span>
+              <div style={{ padding: "14px 28px", textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "var(--bb-text-muted)", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>
+                  WITNESSED — BLOOMBAY · A social artifact. Not a rating.
+                </p>
               </div>
             </div>
 
-            <p className="text-[10px] text-center mt-5 leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
-              This observation lives on your profile.<br/>
-              <Link href="/member/lounge" style={{ color: "rgba(255,31,125,0.55)", textDecoration: "underline" }}>
-                See your full Witness Stack →
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "var(--bb-text-muted)", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
+              This observation lives on your profile.{" "}
+              <Link href="/member/you" style={{ color: PINK, textDecoration: "underline" }}>
+                See it →
               </Link>
             </p>
           </div>
         )}
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

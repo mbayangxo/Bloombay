@@ -41,7 +41,6 @@ function ConnectInner() {
       if (!user) { setError("Sign in to connect."); setLoading(false); return; }
       if (from === user.id) { setIsSelf(true); setLoading(false); return; }
 
-      // Fetch scanned person's profile
       const { data } = await supabase
         .from("profiles")
         .select("id, first_name, full_name, avatar_url, neighborhood")
@@ -101,15 +100,14 @@ function ConnectInner() {
   const initial = profile?.name?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0508", display: "flex", flexDirection: "column" }}>
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 30%, rgba(255,31,125,0.12) 0%, transparent 65%)" }} />
+    <div style={{ minHeight: "100vh", background: "var(--bb-bg)", display: "flex", flexDirection: "column" }}>
 
       {/* Top bar */}
       <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "52px 20px 0" }}>
-        <Link href="/member/lounge" style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <Link href="/member/lounge" style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--bb-nav-bg)", border: "1px solid var(--bb-nav-border)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bb-nav-icon)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </Link>
-        <p style={{ fontFamily: "Jost, sans-serif", fontSize: 9, fontWeight: 800, letterSpacing: "0.28em", color: `${PINK}99` }}>✦ BLOOMIES CODE</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.28em", color: `${PINK}99` }}>✦ BLOOMIES CODE</p>
         <div style={{ width: 40 }} />
       </div>
 
@@ -123,16 +121,16 @@ function ConnectInner() {
         {/* Self */}
         {!loading && isSelf && (
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>That&apos;s your own code.</p>
-            <Link href="/member/you" style={{ color: PINK, fontSize: 12, fontFamily: "Jost, sans-serif" }}>View your profile →</Link>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "var(--bb-text-3)", marginBottom: 16 }}>That&apos;s your own code.</p>
+            <Link href="/member/you" style={{ color: PINK, fontSize: 12, fontFamily: "var(--font-jost)" }}>View your profile →</Link>
           </div>
         )}
 
         {/* Error */}
         {!loading && error && (
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>{error}</p>
-            <Link href="/member/home" style={{ color: PINK, fontSize: 12, fontFamily: "Jost, sans-serif" }}>Back home →</Link>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "var(--bb-text-3)", marginBottom: 16 }}>{error}</p>
+            <Link href="/member/home" style={{ color: PINK, fontSize: 12, fontFamily: "var(--font-jost)" }}>Back home →</Link>
           </div>
         )}
 
@@ -141,26 +139,27 @@ function ConnectInner() {
           <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 16 }}>
 
             {/* Person card */}
-            <div style={{ position: "relative" }}>
-              <div style={{ position: "absolute", inset: 0, borderRadius: 24, pointerEvents: "none", background: `radial-gradient(ellipse at 50% 0%, ${PINK}22 0%, transparent 70%)`, filter: "blur(20px)", transform: "translateY(-10px) scale(1.05)" }} />
-              <div style={{ position: "relative", borderRadius: 24, overflow: "hidden", background: "linear-gradient(160deg, #1A0812 0%, #120508 60%, #0D040C 100%)", border: `1px solid ${PINK}25`, boxShadow: `0 24px 60px rgba(0,0,0,0.6)` }}>
-                <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${PINK}30, transparent)` }} />
-                <div style={{ padding: "32px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                  {/* Avatar */}
-                  {profile.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={profile.avatar_url} alt={profile.name} style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: `3px solid ${PINK}40` }} />
-                  ) : (
-                    <div style={{ width: 72, height: 72, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", border: `3px solid ${PINK}40` }}>
-                      <span style={{ fontFamily: "Jost, sans-serif", fontWeight: 800, fontSize: 24, color: "white" }}>{initial}</span>
-                    </div>
-                  )}
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 26, color: "rgba(255,235,215,0.95)", margin: "0 0 4px", textShadow: `0 0 40px ${PINK}40` }}>{profile.name}</p>
-                    {profile.neighborhood && <p style={{ fontFamily: "Jost, sans-serif", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{profile.neighborhood}</p>}
+            <div style={{
+              borderRadius: 24,
+              overflow: "hidden",
+              background: "var(--bb-card)",
+              border: `1px solid var(--bb-border-strong)`,
+              boxShadow: `0 8px 32px rgba(255,31,125,0.12)`,
+            }}>
+              <div style={{ height: 3, background: `linear-gradient(90deg, transparent, ${PINK}, transparent)` }} />
+              <div style={{ padding: "32px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                {profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.avatar_url} alt={profile.name} style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: `3px solid ${PINK}40` }} />
+                ) : (
+                  <div style={{ width: 72, height: 72, borderRadius: "50%", background: `linear-gradient(135deg, ${PINK}, #c4005a)`, display: "flex", alignItems: "center", justifyContent: "center", border: `3px solid ${PINK}40` }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 24, color: "white" }}>{initial}</span>
                   </div>
+                )}
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 26, color: "var(--bb-text)", margin: "0 0 4px" }}>{profile.name}</p>
+                  {profile.neighborhood && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "var(--bb-text-3)" }}>{profile.neighborhood}</p>}
                 </div>
-                <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${PINK}20, transparent)` }} />
               </div>
             </div>
 
@@ -173,8 +172,8 @@ function ConnectInner() {
                 padding: "16px",
                 borderRadius: 16,
                 border: "none",
-                background: bloomAction === "done" ? "rgba(255,31,125,0.12)" : PINK,
-                fontFamily: "Jost, sans-serif",
+                background: bloomAction === "done" ? `rgba(255,31,125,0.1)` : PINK,
+                fontFamily: "var(--font-jost)",
                 fontSize: 13,
                 fontWeight: 700,
                 letterSpacing: "0.1em",
@@ -198,14 +197,14 @@ function ConnectInner() {
                   width: "100%",
                   padding: "16px",
                   borderRadius: 16,
-                  border: "1.5px solid rgba(255,255,255,0.12)",
-                  background: "rgba(255,255,255,0.04)",
-                  fontFamily: "Jost, sans-serif",
+                  border: "1.5px solid var(--bb-border-strong)",
+                  background: "transparent",
+                  fontFamily: "var(--font-jost)",
                   fontSize: 13,
                   fontWeight: 700,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
-                  color: meetupAction === "loading" ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.65)",
+                  color: meetupAction === "loading" ? "var(--bb-text-3)" : "var(--bb-text-2)",
                   cursor: meetupAction !== "idle" ? "default" : "pointer",
                   transition: "all 0.2s",
                 }}
@@ -214,17 +213,17 @@ function ConnectInner() {
               </button>
             ) : (
               <>
-                <div style={{ borderRadius: 16, border: `1px solid ${PINK}30`, background: `${PINK}10`, padding: "16px", textAlign: "center" }}>
-                  <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, fontWeight: 700, color: PINK, margin: "0 0 4px" }}>
+                <div style={{ borderRadius: 16, border: `1px solid ${PINK}30`, background: `rgba(255,31,125,0.07)`, padding: "16px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: PINK, margin: "0 0 4px" }}>
                     Meetup logged ✦
                   </p>
                   {meetupStreak !== null && (
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "var(--bb-text-2)", margin: 0 }}>
                       {`You've crossed paths ${meetupStreak} time${meetupStreak === 1 ? "" : "s"}.`}
                     </p>
                   )}
                   {milestoneStamp && (
-                    <p style={{ fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 700, color: PINK, margin: "8px 0 0" }}>🌸 {milestoneStamp}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, margin: "8px 0 0" }}>🌸 {milestoneStamp}</p>
                   )}
                 </div>
                 <div style={{ marginTop: 16 }}>
@@ -233,7 +232,7 @@ function ConnectInner() {
               </>
             )}
 
-            <Link href="/member/lounge" style={{ textAlign: "center", fontFamily: "Jost, sans-serif", fontSize: 11, color: "rgba(255,255,255,0.25)", textDecoration: "none", letterSpacing: "0.06em", display: "block", marginTop: 4 }}>
+            <Link href="/member/lounge" style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: 11, color: "var(--bb-text-muted)", textDecoration: "none", letterSpacing: "0.06em", display: "block", marginTop: 4 }}>
               Back to lounge →
             </Link>
           </div>
@@ -248,7 +247,7 @@ function ConnectInner() {
 export default function ConnectPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", background: "#0A0508", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bb-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: 40, height: 40, borderRadius: "50%", border: "2px solid rgba(255,31,125,0.3)", borderTopColor: "#FF1F7D", animation: "spin 1s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>

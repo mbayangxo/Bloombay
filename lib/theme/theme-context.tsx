@@ -62,13 +62,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("bb-theme") as ThemeMode | null;
-    if (saved === "night") setMode("night");
+    const initial = saved === "night" ? "night" : "day";
+    setMode(initial);
+    document.documentElement.setAttribute("data-theme", initial);
   }, []);
 
   function toggle() {
     setMode(prev => {
       const next = prev === "day" ? "night" : "day";
       localStorage.setItem("bb-theme", next);
+      document.documentElement.setAttribute("data-theme", next);
       return next;
     });
   }
