@@ -209,14 +209,14 @@ const CHAT_MESSAGES: ChatMessage[] = [
 ];
 
 const CLUB_MEMBERS = [
-  { id: "m1", initial: "Y", name: "Yande O.",    color: "#FF1F7D", role: "Club Mama" },
-  { id: "m2", initial: "A", name: "Aminah C.",   color: "#FF69B4", role: "Member" },
-  { id: "m3", initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member" },
-  { id: "m4", initial: "B", name: "Bea T.",      color: "#FF69B4", role: "Member" },
-  { id: "m5", initial: "F", name: "Fatima A.",   color: "#FF1F7D", role: "Member" },
-  { id: "m6", initial: "T", name: "Temi A.",     color: "#6b4fa0", role: "Member" },
-  { id: "m7", initial: "O", name: "Olivia K.",   color: "#3e7c6b", role: "Member" },
-  { id: "m8", initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member" },
+  { id: "m1", initial: "Y", name: "Yande O.",    color: "#FF1F7D", role: "Club Mama", reports: 0 },
+  { id: "m2", initial: "A", name: "Aminah C.",   color: "#FF69B4", role: "Member",    reports: 0 },
+  { id: "m3", initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member",    reports: 0 },
+  { id: "m4", initial: "B", name: "Bea T.",      color: "#FF69B4", role: "Member",    reports: 0 },
+  { id: "m5", initial: "F", name: "Fatima A.",   color: "#FF1F7D", role: "Member",    reports: 3 },
+  { id: "m6", initial: "T", name: "Temi A.",     color: "#6b4fa0", role: "Member",    reports: 1 },
+  { id: "m7", initial: "O", name: "Olivia K.",   color: "#3e7c6b", role: "Member",    reports: 0 },
+  { id: "m8", initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member",    reports: 0 },
 ];
 
 type ClubTab = "about" | "chat" | "zones" | "events" | "members";
@@ -910,6 +910,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [memberMenu, setMemberMenu] = useState<string | null>(null);
   const [showMyCard, setShowMyCard] = useState(false);
   const [showClubKit, setShowClubKit] = useState(false);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [ownerFilter, setOwnerFilter] = useState<"all" | "flagged" | "blocked">("all");
 
   const brandColor = customization?.accent_color ?? club.color;
   const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
@@ -1493,9 +1495,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
 
           {/* ── Members tab ── */}
           {clubTab === "members" && (
-            <div style={{ padding: "24px 20px 80px" }}>
-              {/* My Club Card — shown only if member */}
-              {isMember && (
+            <div style={{ padding: "20px 20px 80px" }}>
+              {/* My Club Card — shown only if non-owner member */}
+              {isMember && !isOwner && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color }}>YOUR MEMBERSHIP CARD</p>
@@ -1516,70 +1518,137 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 </div>
               )}
 
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color, marginBottom: 14 }}>{club.memberCount.toLocaleString()} MEMBERS</p>
+              {/* Search bar */}
+              <div style={{ position: "relative" as const, marginBottom: 12 }}>
+                <svg style={{ position: "absolute" as const, left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  type="text"
+                  placeholder="Search members…"
+                  value={memberSearch}
+                  onChange={e => setMemberSearch(e.target.value)}
+                  style={{ width: "100%", padding: "10px 14px 10px 34px", borderRadius: 14, border: "1.5px solid rgba(0,0,0,0.08)", background: "white", fontFamily: "var(--font-jost)", fontSize: 13, color: "#111", outline: "none", boxSizing: "border-box" as const }}
+                />
+              </div>
+
+              {/* Owner filter tabs: All / Flagged / Blocked */}
+              {isOwner && (() => {
+                const flaggedCount = CLUB_MEMBERS.filter(m => m.reports > 0 && !kickedIds.has(m.id)).length;
+                const blockedCount = CLUB_MEMBERS.filter(m => blockedIds.has(m.id) && !kickedIds.has(m.id)).length;
+                const activeCount = CLUB_MEMBERS.filter(m => !kickedIds.has(m.id)).length;
+                return (
+                  <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                    {([
+                      { id: "all",     label: `All (${activeCount})`,          alert: false },
+                      { id: "flagged", label: `Flagged (${flaggedCount})`,      alert: flaggedCount > 0 },
+                      { id: "blocked", label: `Blocked (${blockedCount})`,      alert: blockedCount > 0 },
+                    ] as { id: "all"|"flagged"|"blocked"; label: string; alert: boolean }[]).map(f => (
+                      <button key={f.id} onClick={() => setOwnerFilter(f.id)}
+                        style={{ padding: "6px 12px", borderRadius: 999, fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: "none", transition: "all 0.15s",
+                          background: ownerFilter === f.id ? (f.id === "flagged" ? "#FEF2F2" : f.id === "blocked" ? "#FFF7ED" : club.color) : "rgba(0,0,0,0.05)",
+                          color: ownerFilter === f.id ? (f.id === "flagged" ? "#ef4444" : f.id === "blocked" ? "#F59E0B" : "white") : (f.alert ? (f.id === "flagged" ? "#ef4444" : "#F59E0B") : "rgba(0,0,0,0.45)"),
+                        }}>
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color, marginBottom: 12 }}>{club.memberCount.toLocaleString()} MEMBERS</p>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {CLUB_MEMBERS.filter(m => !kickedIds.has(m.id)).map(m => {
-                  const isMenuOpen = memberMenu === m.id;
-                  const isBlocked = blockedIds.has(m.id);
-                  const isMama = m.role === "Club Mama";
-                  return (
-                    <div key={m.name} style={{ background: "white", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", opacity: isBlocked ? 0.45 : 1, position: "relative" as const }}>
-                      <div style={{ width: 40, height: 40, borderRadius: "50%", background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white", flexShrink: 0 }}>{m.initial}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{m.name}{isBlocked ? " (blocked)" : ""}</p>
-                        {isMama && <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: club.color }}>Club Mama</span>}
-                      </div>
-                      {/* Owner actions */}
-                      {isOwner && !isMama && (
-                        <button
-                          onClick={() => { setKickedIds(prev => new Set([...prev, m.id])); }}
-                          style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: "#888", background: "#F5F5F5", border: "none", cursor: "pointer" }}
-                        >
-                          Remove
-                        </button>
-                      )}
-                      {/* Member actions */}
-                      {!isOwner && !isMama && (
-                        <div style={{ position: "relative" as const }}>
-                          <button
-                            onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
-                            style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                          </button>
-                          {isMenuOpen && (
-                            <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 140, zIndex: 20, overflow: "hidden" }}>
-                              <button
-                                onClick={() => { setMemberMenu(null); }}
-                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}
-                              >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#111" }}>Connect</p>
-                              </button>
-                              <button
-                                onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
-                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}
-                              >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
-                              </button>
-                              <button
-                                onClick={() => { setMemberMenu(null); alert(`Reported ${m.name}`); }}
-                                style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
-                              >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Report</p>
-                              </button>
+                {CLUB_MEMBERS
+                  .filter(m => !kickedIds.has(m.id))
+                  .filter(m => memberSearch === "" || m.name.toLowerCase().includes(memberSearch.toLowerCase()))
+                  .filter(m => {
+                    if (!isOwner) return true;
+                    if (ownerFilter === "flagged") return m.reports > 0;
+                    if (ownerFilter === "blocked") return blockedIds.has(m.id);
+                    return true;
+                  })
+                  .map(m => {
+                    const isMenuOpen = memberMenu === m.id;
+                    const isBlocked = blockedIds.has(m.id);
+                    const isMama = m.role === "Club Mama";
+                    const hasReports = m.reports > 0;
+                    return (
+                      <div key={m.name} style={{ background: "white", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: isOwner && hasReports ? "0 0 0 1.5px rgba(239,68,68,0.3), 0 2px 12px rgba(239,68,68,0.08)" : "0 1px 6px rgba(0,0,0,0.04)", opacity: isBlocked ? 0.5 : 1, position: "relative" as const }}>
+                        {/* Avatar with report badge */}
+                        <div style={{ position: "relative" as const, flexShrink: 0 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: "50%", background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white" }}>{m.initial}</div>
+                          {isOwner && hasReports && (
+                            <div style={{ position: "absolute" as const, top: -3, right: -3, width: 17, height: 17, borderRadius: "50%", background: "#ef4444", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>{m.reports}</p>
                             </div>
                           )}
                         </div>
-                      )}
-                      {!isOwner && isMama && (
-                        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: club.color, background: `${club.color}10`, border: "none", cursor: "pointer" }}>Connect</button>
-                      )}
-                    </div>
-                  );
-                })}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" as const }}>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{m.name}</p>
+                            {isBlocked && <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#F59E0B", background: "#FFF7ED", padding: "2px 7px", borderRadius: 999 }}>BLOCKED</span>}
+                            {isOwner && hasReports && <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#ef4444", background: "#FEF2F2", padding: "2px 7px", borderRadius: 999 }}>{m.reports} REPORT{m.reports !== 1 ? "S" : ""}</span>}
+                          </div>
+                          {isMama && <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: club.color }}>Club Mama</span>}
+                        </div>
+
+                        {/* Owner ··· menu → Block + Remove */}
+                        {isOwner && !isMama && (
+                          <div style={{ position: "relative" as const }}>
+                            <button onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
+                              style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                            </button>
+                            {isMenuOpen && (
+                              <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 160, zIndex: 20, overflow: "hidden" }}>
+                                <button onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
+                                  style={{ width: "100%", padding: "12px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
+                                </button>
+                                <button onClick={() => { setKickedIds(prev => new Set([...prev, m.id])); setMemberMenu(null); }}
+                                  style={{ width: "100%", padding: "12px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Remove from club</p>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Regular member ··· menu */}
+                        {!isOwner && !isMama && (
+                          <div style={{ position: "relative" as const }}>
+                            <button onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
+                              style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                            </button>
+                            {isMenuOpen && (
+                              <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 140, zIndex: 20, overflow: "hidden" }}>
+                                <button onClick={() => setMemberMenu(null)}
+                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#111" }}>Connect</p>
+                                </button>
+                                <button onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
+                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
+                                </button>
+                                <button onClick={() => setMemberMenu(null)}
+                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Report</p>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {!isOwner && isMama && (
+                          <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: club.color, background: `${club.color}10`, border: "none", cursor: "pointer" }}>Connect</button>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           )}
