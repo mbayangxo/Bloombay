@@ -7,7 +7,6 @@ import { BBLogo } from "./bb-logo";
 import "@/app/styles/bloom-entrance.css";
 
 const PINK  = "#FF1F7D";
-const GOLD  = "#D4A853";
 
 if (typeof document !== "undefined") {
   if (!document.getElementById("bb-nav-style")) {
@@ -185,7 +184,7 @@ function OpenRose() {
       {/* Center disk */}
       <circle cx="20" cy="20" r="5.2" fill="#A8004C"/>
       {/* Stamen */}
-      <circle cx="20" cy="20" r="3" fill={GOLD} opacity="0.82"/>
+      <circle cx="20" cy="20" r="3" fill="#FF5FA5" opacity="0.82"/>
       <circle cx="20" cy="20" r="1.4" fill="rgba(255,255,255,0.62)"/>
     </svg>
   );
