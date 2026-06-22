@@ -4,6 +4,8 @@ import React, { useState, useRef } from "react";
 import { updatePartner, addPartnerPhoto, removePartnerPhoto } from "@/lib/actions/partners";
 import { uploadPartnerPhoto } from "@/lib/storage/upload";
 import type { PartnerData, GirlFavorite, PartnerReview } from "@/lib/actions/partners";
+import { MenuTemplate } from "@/app/components/partner-templates/menu-templates";
+import type { MenuTemplateStyle } from "@/app/components/partner-templates/menu-templates";
 
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
@@ -98,6 +100,9 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
 
   // ── Poster template ──────────────────────────────────────────────────────
   const [posterTemplate, setPosterTemplate] = useState<string>("butter_love");
+
+  // ── Menu display template ─────────────────────────────────────────────────
+  const [menuTemplate, setMenuTemplate] = useState<string>("cafe_board");
 
   // ── Menu highlights ──────────────────────────────────────────────────────
   const [menuItems, setMenuItems] = useState<{ item: string; price: string; note: string }[]>(
@@ -387,6 +392,58 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
               }}>
                 + ADD ITEM
               </button>
+            </Section>
+
+            <Section title="MENU DISPLAY">
+              <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 14 }}>
+                Choose how your menu looks on your storefront.
+              </p>
+              {/* 5 style picker thumbnails in a 2-col grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {([
+                  { id: "chalkboard",      label: "Chalkboard",    bg: "#1C2B1A", textColor: "white",   emoji: "🪟" },
+                  { id: "bistro",          label: "Bistro",        bg: "#FDFAF3", textColor: "#2C1810", emoji: "📜" },
+                  { id: "cafe_board",      label: "Café Board",    bg: "#FBF6EE", textColor: "#8B5E3C", emoji: "☕" },
+                  { id: "weekly_schedule", label: "Weekly",        bg: "#FBF6EE", textColor: PINK,      emoji: "📋" },
+                  { id: "daily_specials",  label: "Daily Specials",bg: "#1A0F08", textColor: "white",   emoji: "🍽️" },
+                ] as const).map(t => {
+                  const selected = menuTemplate === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setMenuTemplate(t.id)} style={{
+                      borderRadius: 14, overflow: "hidden",
+                      border: selected ? `3px solid ${PINK}` : "3px solid transparent",
+                      cursor: "pointer",
+                      boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)",
+                      transition: "all 0.15s", background: "none", padding: 0,
+                    }}>
+                      <div style={{
+                        background: t.bg, height: 90,
+                        display: "flex", flexDirection: "column" as const,
+                        alignItems: "center", justifyContent: "center", gap: 6,
+                      }}>
+                        <span style={{ fontSize: 24 }}>{t.emoji}</span>
+                        <span style={{
+                          fontFamily: FONT_JOST, fontSize: "8px", fontWeight: 800,
+                          letterSpacing: "0.1em", color: t.textColor,
+                          textShadow: (t.bg === "#1C2B1A" || t.bg === "#1A0F08") ? "0 1px 3px rgba(0,0,0,0.4)" : "none",
+                        }}>
+                          {t.label.toUpperCase()}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Live preview */}
+              <div style={{ maxWidth: 320, margin: "0 auto" }}>
+                <MenuTemplate
+                  style={menuTemplate as MenuTemplateStyle}
+                  items={menuItems.filter(m => m.item)}
+                  brandName={name}
+                  accentColor={brandColor}
+                />
+              </div>
             </Section>
           </div>
         )}
