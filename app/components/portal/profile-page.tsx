@@ -931,6 +931,8 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [sigTraits, setSigTraits] = useState("");
   const [luckyCharm, setLuckyCharm] = useState("");
   const [extraSaved, setExtraSaved] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [customizeSaved, setCustomizeSaved] = useState(false);
 
   // Socials state
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
@@ -1347,6 +1349,159 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
         </div>
 
       </div>
+
+      {/* ══════════════════════════ CUSTOMIZE YOUR APARTMENT ══════════════════════════ */}
+      {(() => {
+        const TEMPLATE_FIELDS: Record<string, string[]> = {
+          id:           ["occupation", "sign", "vibe"],
+          board:        ["photos"],
+          zine:         [],
+          collage:      ["vibe", "photos"],
+          dossier:      ["archetype", "sheIs", "sigTraits", "luckyCharm", "sign"],
+          beauty_table: ["occupation", "vibe", "sheIs"],
+          notebook:     ["sheIs", "photos"],
+          magazine:     ["occupation", "vibe"],
+          solo:         ["sheIs", "sigTraits", "vibe", "luckyCharm"],
+          billboard:    ["occupation", "vibe", "sheIs"],
+          lookbook:     ["occupation", "vibe", "sign", "photos"],
+          moodboard:    ["vibe", "photos"],
+          polaroid4:    ["vibe", "photos"],
+        };
+        const FIELD_LABELS: Record<string, string> = {
+          occupation: "WHAT SHE DOES",
+          sign:       "HER SIGN",
+          vibe:       "VIBE / TAGLINE",
+          archetype:  "ARCHETYPE",
+          sheIs:      "SHE IS",
+          sigTraits:  "SIGNATURE TRAITS",
+          luckyCharm: "LUCKY CHARM",
+        };
+        const fieldValueMap: Record<string, { value: string; set: (v: string) => void }> = {
+          occupation: { value: occupation, set: setOccupation },
+          sign:       { value: sign,       set: setSign },
+          vibe:       { value: vibe,       set: setVibe },
+          archetype:  { value: archetype,  set: setArchetype },
+          sheIs:      { value: sheIs,      set: setSheIs },
+          sigTraits:  { value: sigTraits,  set: setSigTraits },
+          luckyCharm: { value: luckyCharm, set: setLuckyCharm },
+        };
+        const activeFields = TEMPLATE_FIELDS[templateId] ?? [];
+        const textFields = activeFields.filter(f => f !== "photos");
+        const usesPhotos = activeFields.includes("photos");
+        const hasFields = usesPhotos || textFields.length > 0;
+
+        return (
+          <div style={{ margin: "0 0 0", padding: "0 16px 12px" }}>
+            {/* Header row */}
+            <button
+              onClick={() => setCustomizeOpen(o => !o)}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                background: "none", border: "none", cursor: "pointer", padding: "10px 0 8px",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.18em", color: "#FF1F7D" }}>
+                ✏ CUSTOMIZE YOUR APARTMENT
+              </span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,31,125,0.5)", letterSpacing: "0.06em" }}>
+                {customizeOpen ? "▲ CLOSE" : "▼ EDIT"}
+              </span>
+            </button>
+
+            {customizeOpen && (
+              <div style={{
+                background: "#FFFBF7",
+                border: "1px solid rgba(255,31,125,0.12)",
+                borderRadius: 20,
+                padding: 16,
+                display: "flex", flexDirection: "column", gap: 12,
+              }}>
+                {!hasFields && (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.35)", textAlign: "center", padding: "8px 0" }}>
+                    This template has no customizable fields.
+                  </p>
+                )}
+
+                {/* Photo slots */}
+                {usesPhotos && (
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                      PHOTOS
+                    </p>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" as const }}>
+                      {photos.slice(0, 4).map(ph => (
+                        <div key={ph.id} style={{ width: 60, height: 60, borderRadius: 10, overflow: "hidden", border: "1.5px solid rgba(255,31,125,0.15)", flexShrink: 0, position: "relative" }}>
+                          <img src={ph.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => addInputRef.current?.click()}
+                        style={{
+                          width: 60, height: 60, borderRadius: 10, flexShrink: 0,
+                          border: "1.5px dashed rgba(255,31,125,0.35)",
+                          background: "rgba(255,31,125,0.04)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: "pointer", color: "#FF1F7D",
+                          fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 300,
+                        }}
+                      >+</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Text fields */}
+                {textFields.map(fieldKey => {
+                  const entry = fieldValueMap[fieldKey];
+                  if (!entry) return null;
+                  return (
+                    <div key={fieldKey}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 5 }}>
+                        {FIELD_LABELS[fieldKey]}
+                      </p>
+                      <input
+                        value={entry.value}
+                        onChange={e => entry.set(e.target.value)}
+                        style={{
+                          width: "100%", boxSizing: "border-box" as const,
+                          padding: "9px 12px",
+                          fontFamily: "var(--font-jost)", fontSize: 13, color: "#1C1B1C",
+                          background: "white", border: "1px solid rgba(255,31,125,0.18)",
+                          borderRadius: 10, outline: "none",
+                        }}
+                        placeholder={`Enter ${FIELD_LABELS[fieldKey].toLowerCase()}…`}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* Save button */}
+                {hasFields && (
+                  <button
+                    onClick={() => {
+                      handleSaveExtra();
+                      setCustomizeSaved(true);
+                      setTimeout(() => setCustomizeSaved(false), 2000);
+                    }}
+                    style={{
+                      marginTop: 4, padding: "11px 0", borderRadius: 12,
+                      background: customizeSaved ? "rgba(255,31,125,0.08)" : "#FF1F7D",
+                      border: customizeSaved ? "1.5px solid rgba(255,31,125,0.25)" : "none",
+                      cursor: "pointer", width: "100%",
+                      fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+                      letterSpacing: "0.14em",
+                      color: customizeSaved ? "#FF1F7D" : "white",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {customizeSaved ? "SAVED ✓" : "SAVE"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ══════════════════════════ TABS ══════════════════════════ */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,240,248,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,31,125,0.08)" }}>
