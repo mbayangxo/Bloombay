@@ -29,6 +29,7 @@ export interface EventCardData {
   accentColor?: string;
   imageUrl?: string;
   href?: string;
+  invitationStyle?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -328,7 +329,7 @@ export function GatheringCard({ ev }: { ev: EventCardData }) {
 // INVITATION CARD  (celebrations, confetti-style)
 // Looks like a mini envelope / fold-out card
 // ─────────────────────────────────────────────────────────────────────────────
-export function InvitationEventCard({ ev }: { ev: EventCardData }) {
+function DefaultEnvelopeCard({ ev }: { ev: EventCardData }) {
   const accent = ev.accentColor ?? PINK;
   const href = ev.href ?? "/member/happenings/confetti";
 
@@ -1022,6 +1023,468 @@ export function SupperNoteCard({ ev }: { ev: EventCardData }) {
       </div>
     </Link>
   );
+}
+
+function EnvelopePhotoInvite({ ev }: { ev: EventCardData }) {
+  const accent = ev.accentColor ?? PINK;
+  const href = ev.href ?? "/member/happenings/confetti";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 240,
+        position: "relative",
+        borderRadius: 14,
+        overflow: "visible",
+      }}>
+        {/* Pink envelope background */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: PINK,
+          borderRadius: 14,
+          boxShadow: "0 8px 28px rgba(255,31,125,0.35), 0 2px 8px rgba(0,0,0,0.14)",
+        }}>
+          {/* Envelope V-flap top */}
+          <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "50%" }} viewBox="0 0 175 100" preserveAspectRatio="none">
+            <path d="M0 0 L87.5 72 L175 0 Z" fill="rgba(255,255,255,0.15)"/>
+            <path d="M0 0 L87.5 72 L175 0" stroke="rgba(255,255,255,0.2)" strokeWidth="1" fill="none"/>
+          </svg>
+        </div>
+
+        {/* White card inset */}
+        <div style={{
+          position: "absolute", top: 10, left: 8, right: 8, bottom: 24,
+          background: "white",
+          borderRadius: 8,
+          padding: "10px 11px 10px",
+          boxShadow: "0 4px 18px rgba(0,0,0,0.18)",
+          display: "flex", flexDirection: "column", gap: 6,
+        }}>
+          {/* Header label */}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, textTransform: "uppercase" as const }}>
+            BLOOMBAY INVITES YOU TO
+          </p>
+
+          {/* Photo slot */}
+          <div style={{ height: 70, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
+            {ev.imageUrl ? (
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+              </div>
+            ) : (
+              <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${accent}99, ${accent}44)`, borderRadius: 6 }} />
+            )}
+          </div>
+
+          {/* Big bold title */}
+          <p style={{
+            fontFamily: "var(--font-jost)", fontWeight: 900,
+            fontSize: ev.title.length > 14 ? 20 : 28,
+            color: accent, lineHeight: 0.95,
+            textTransform: "uppercase" as const, letterSpacing: "-0.01em",
+          }}>
+            {ev.title}
+          </p>
+
+          {/* Handwritten date */}
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, fontStyle: "italic", color: "#555", lineHeight: 1 }}>
+            {ev.date} · {ev.time}
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+            {/* BB stamp circle */}
+            <div style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "#1A3A8F",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative", flexShrink: 0,
+            }}>
+              <svg style={{ position: "absolute", inset: 0 }} width="32" height="32" viewBox="0 0 32 32">
+                <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="3 2"/>
+              </svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "8px", color: "white", position: "relative", zIndex: 1 }}>BB</span>
+            </div>
+
+            {/* Attendee pill */}
+            {ev.going !== undefined && ev.going > 0 && (
+              <div style={{ background: `${PINK}14`, borderRadius: 999, padding: "3px 8px" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK }}>{ev.going} girls attending</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: PINK, textAlign: "center" as const }}>
+            can&apos;t wait! ♡
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function ScallopCelebrationCard({ ev }: { ev: EventCardData }) {
+  const accent = ev.accentColor ?? PINK;
+  const href = ev.href ?? "/member/happenings/confetti";
+  const displayTitle = ev.title.includes("♡") ? ev.title : `${ev.title} ♡`;
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 230,
+        background: "#FFF0F7",
+        borderRadius: 16,
+        border: "3px dotted rgba(255,31,125,0.27)",
+        padding: 3,
+        position: "relative",
+        boxShadow: "0 8px 28px rgba(255,31,125,0.14), 0 2px 8px rgba(0,0,0,0.08)",
+      }}>
+        {/* Bow decoration top-right */}
+        <svg style={{ position: "absolute", top: -8, right: 8, zIndex: 3 }} width="30" height="22" viewBox="0 0 30 22">
+          <ellipse cx="8" cy="11" rx="8" ry="5" fill={PINK} opacity="0.85" transform="rotate(-20 8 11)"/>
+          <ellipse cx="22" cy="11" rx="8" ry="5" fill={PINK} opacity="0.85" transform="rotate(20 22 11)"/>
+          <circle cx="15" cy="11" r="3.5" fill={PINK}/>
+        </svg>
+
+        <div style={{ padding: "10px 12px 10px", display: "flex", flexDirection: "column", gap: 6, height: "100%" }}>
+          {/* Eyebrow */}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.25em", color: PINK, textTransform: "uppercase" as const, textAlign: "center" as const }}>
+            BLOOMBAY CELEBRATES
+          </p>
+
+          {/* Divider */}
+          <div style={{ width: "100%", height: 1, background: "rgba(255,31,125,0.13)" }} />
+
+          {/* Big script title */}
+          <p style={{
+            fontFamily: "var(--font-caveat)", fontWeight: 700,
+            fontSize: displayTitle.length > 18 ? 20 : 26,
+            color: accent, lineHeight: 1.1, textAlign: "center" as const,
+          }}>
+            {displayTitle}
+          </p>
+
+          {/* Photo slot */}
+          <div style={{ width: "100%", aspectRatio: "4/3", borderRadius: 8, overflow: "hidden", flexShrink: 0 }}>
+            {ev.imageUrl ? (
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+              </div>
+            ) : (
+              <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${accent}55, ${accent}22)` }} />
+            )}
+          </div>
+
+          {/* Separator */}
+          <div style={{ width: "100%", height: 1, background: "rgba(255,31,125,0.1)" }} />
+
+          {/* Date and location */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.45)" }}>
+              {ev.date} · {ev.time}
+            </p>
+            {/* Small BB circle */}
+            <div style={{
+              width: 16, height: 16, borderRadius: "50%",
+              background: PINK, display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "5px", fontWeight: 700, color: "white" }}>BB</span>
+            </div>
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.38)" }}>📍 {ev.location}</p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function NewspaperBoldInvite({ ev }: { ev: EventCardData }) {
+  const href = ev.href ?? "/member/happenings/confetti";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 240,
+        background: "#0D1B3E",
+        borderRadius: 12,
+        overflow: "hidden",
+        position: "relative",
+        boxShadow: "0 10px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)",
+      }}>
+        {/* Tape strip left */}
+        <div style={{
+          position: "absolute", top: 6, left: 10, width: 40, height: 10,
+          background: "rgba(255,240,180,0.7)", borderRadius: 2,
+          transform: "rotate(-8deg)", zIndex: 4,
+        }} />
+        {/* Tape strip center */}
+        <div style={{
+          position: "absolute", top: 4, left: "40%", width: 40, height: 10,
+          background: "rgba(255,240,180,0.6)", borderRadius: 2,
+          transform: "rotate(5deg)", zIndex: 4,
+        }} />
+
+        {/* Paper clip SVG top-right */}
+        <svg style={{ position: "absolute", top: 8, right: 10, zIndex: 5 }} width="14" height="28" viewBox="0 0 14 28">
+          <path d="M7 1 C3.5 1 1 3.5 1 7 L1 21 C1 24.5 3.5 27 7 27 C10.5 27 13 24.5 13 21 L13 8 C13 5.5 11.2 4 9 4 C6.8 4 5 5.5 5 8 L5 20 C5 21.6 6 22.5 7 22.5 C8 22.5 9 21.6 9 20 L9 9" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        </svg>
+
+        {/* Big title */}
+        <div style={{ padding: "22px 12px 0" }}>
+          <p style={{
+            fontFamily: "var(--font-jost)", fontWeight: 900,
+            fontSize: ev.title.length > 12 ? 28 : 36,
+            color: "white", lineHeight: 0.9,
+            textTransform: "uppercase" as const, letterSpacing: "-0.02em",
+          }}>
+            {ev.title}
+          </p>
+        </div>
+
+        {/* Pink accent line */}
+        <div style={{ height: 2, background: PINK, margin: "8px 12px 0" }} />
+
+        {/* Photo strip */}
+        <div style={{ height: 80, overflow: "hidden", position: "relative", marginTop: 0 }}>
+          {ev.imageUrl ? (
+            <div style={{ position: "relative", width: "100%", height: "100%" }}>
+              <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(13,27,62,0.2) 0%, rgba(13,27,62,0.1) 100%)" }} />
+            </div>
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, rgba(255,31,125,0.25), rgba(13,27,62,0.8))" }} />
+          )}
+        </div>
+
+        {/* Bottom section */}
+        <div style={{ padding: "8px 12px 10px", position: "relative" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, fontStyle: "italic", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
+            see you there!
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
+            {ev.date.toUpperCase()} · {ev.time} · {ev.location.toUpperCase()}
+          </p>
+
+          {/* Yellow smiley */}
+          <div style={{
+            position: "absolute", bottom: 10, right: 12,
+            width: 22, height: 22, borderRadius: "50%",
+            background: "#FFD700",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 14 14">
+              <circle cx="7" cy="7" r="6.5" fill="#FFD700"/>
+              <circle cx="4.5" cy="5.5" r="1" fill="#333"/>
+              <circle cx="9.5" cy="5.5" r="1" fill="#333"/>
+              <path d="M4 9 Q7 11.5 10 9" stroke="#333" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function FormalEngagementInvite({ ev }: { ev: EventCardData }) {
+  const href = ev.href ?? "/member/happenings/confetti";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 230,
+        background: "#FDFAF3",
+        borderRadius: 12,
+        border: "1px solid rgba(196,168,64,0.53)",
+        margin: 3,
+        boxShadow: "0 8px 28px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        padding: "14px 16px 12px",
+        position: "relative",
+      }}>
+        {/* Top ornament */}
+        <p style={{ fontSize: 12, color: "#C4A840", marginBottom: 6, lineHeight: 1 }}>✦</p>
+
+        {/* Header text */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#B8960E", textAlign: "center" as const, marginBottom: 6 }}>
+          PLEASE JOIN US FOR
+        </p>
+
+        {/* Centered divider */}
+        <div style={{ width: "40%", height: 1, background: "#C4A840", marginBottom: 8 }} />
+
+        {/* Event title */}
+        <p style={{
+          fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+          fontSize: ev.title.length > 18 ? 17 : 22,
+          color: "#2C1A00", lineHeight: 1.1, textAlign: "center" as const, marginBottom: 8,
+        }}>
+          {ev.title}
+        </p>
+
+        {/* Host */}
+        {ev.host && (
+          <div style={{ textAlign: "center" as const, marginBottom: 6 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(0,0,0,0.35)", marginBottom: 2 }}>HOSTED BY</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontStyle: "italic", color: "#2C1A00" }}>{ev.host}</p>
+          </div>
+        )}
+
+        {/* Decorative rule with diamond */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, width: "80%", marginBottom: 8 }}>
+          <div style={{ flex: 1, height: "0.5px", background: "#C4A84055" }} />
+          <span style={{ fontSize: 6, color: "#C4A840" }}>◆</span>
+          <div style={{ flex: 1, height: "0.5px", background: "#C4A84055" }} />
+        </div>
+
+        {/* Date */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "#2C1A00", textAlign: "center" as const, marginBottom: 3 }}>
+          {ev.date}
+        </p>
+
+        {/* Location */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.5)", textAlign: "center" as const, marginBottom: "auto" }}>
+          {ev.location}
+        </p>
+
+        {/* RSVP pill */}
+        <div style={{
+          border: "1px solid #C4A840", borderRadius: 999, padding: "4px 16px",
+          background: "#FDFAF3", marginTop: 8,
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "#B8960E" }}>RSVP</p>
+        </div>
+
+        {/* Wax seal bottom center */}
+        <div style={{
+          position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)",
+          width: 24, height: 24, borderRadius: "50%",
+          background: "linear-gradient(135deg, #D4AF37, #B8960E)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 8px rgba(196,168,64,0.45)",
+          zIndex: 2,
+        }}>
+          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "7px", fontWeight: 700, color: "white" }}>BB</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function DarkLaunchInvite({ ev }: { ev: EventCardData }) {
+  const href = ev.href ?? "/member/happenings/confetti";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 240,
+        borderRadius: 14,
+        overflow: "hidden",
+        position: "relative",
+        background: "linear-gradient(160deg, #3A0808, #1A0404)",
+        boxShadow: "0 12px 36px rgba(0,0,0,0.6), 0 2px 10px rgba(100,0,0,0.4)",
+      }}>
+        {/* Dot texture */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
+          backgroundSize: "4px 4px",
+          pointerEvents: "none",
+        }} />
+
+        {/* Starburst SVG background */}
+        <svg style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.08 }} width="120" height="120" viewBox="0 0 120 120">
+          {Array.from({ length: 16 }, (_, i) => {
+            const angle = (i * 360) / 16;
+            const rad = (angle * Math.PI) / 180;
+            return (
+              <line
+                key={i}
+                x1="60" y1="60"
+                x2={60 + 55 * Math.cos(rad)}
+                y2={60 + 55 * Math.sin(rad)}
+                stroke="white" strokeWidth="1.5" strokeLinecap="round"
+              />
+            );
+          })}
+        </svg>
+
+        {/* Header label */}
+        <div style={{ paddingTop: 16, paddingLeft: 12, paddingRight: 12, position: "relative", zIndex: 2 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", textTransform: "uppercase" as const }}>
+            YOU&apos;RE INVITED TO OUR
+          </p>
+        </div>
+
+        {/* Star accent */}
+        <p style={{ position: "relative", zIndex: 2, paddingLeft: 12, fontSize: 12, color: PINK, lineHeight: 1, marginTop: 2 }}>✦</p>
+
+        {/* Big title */}
+        <div style={{ padding: "2px 12px 0", position: "relative", zIndex: 2 }}>
+          <p style={{
+            fontFamily: "var(--font-jost)", fontWeight: 900,
+            fontSize: ev.title.length > 14 ? 22 : 30,
+            color: "white", lineHeight: 0.9,
+            textTransform: "uppercase" as const, letterSpacing: "-0.02em",
+          }}>
+            {ev.title}
+          </p>
+        </div>
+
+        {/* Photo slot */}
+        <div style={{ height: 80, marginTop: 10, position: "relative", overflow: "hidden", zIndex: 2 }}>
+          {ev.imageUrl ? (
+            <div style={{ position: "relative", width: "100%", height: "100%" }}>
+              <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(58,8,8,0.3), rgba(26,4,4,0.5))" }} />
+            </div>
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, rgba(255,31,125,0.2), rgba(26,4,4,0.8))" }} />
+          )}
+        </div>
+
+        {/* Date / location */}
+        <div style={{ padding: "8px 12px 0", position: "relative", zIndex: 2 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 600, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>
+            {ev.date} · {ev.time} · {ev.location}
+          </p>
+        </div>
+
+        {/* Spots left pill */}
+        {ev.spotsLeft !== undefined && (
+          <div style={{
+            position: "absolute", bottom: 36, right: 12,
+            background: "rgba(255,255,255,0.12)",
+            borderRadius: 999, padding: "3px 9px", zIndex: 3,
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>
+              {ev.spotsLeft} SPOTS LEFT
+            </p>
+          </div>
+        )}
+
+        {/* BB wax seal bottom center */}
+        <div style={{
+          position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
+          width: 28, height: 28, borderRadius: "50%",
+          background: "linear-gradient(135deg, #8B0000, #5C0000)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 10px rgba(139,0,0,0.6)",
+          zIndex: 3,
+        }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "8px", color: "rgba(255,255,255,0.9)" }}>BB</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export function InvitationEventCard({ ev }: { ev: EventCardData }) {
+  if (ev.invitationStyle === "photo")      return <EnvelopePhotoInvite ev={ev} />;
+  if (ev.invitationStyle === "scallop")    return <ScallopCelebrationCard ev={ev} />;
+  if (ev.invitationStyle === "newspaper")  return <NewspaperBoldInvite ev={ev} />;
+  if (ev.invitationStyle === "formal")     return <FormalEngagementInvite ev={ev} />;
+  if (ev.invitationStyle === "launch")     return <DarkLaunchInvite ev={ev} />;
+  return <DefaultEnvelopeCard ev={ev} />;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
