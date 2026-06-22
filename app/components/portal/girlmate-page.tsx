@@ -681,7 +681,7 @@ function apiToListing(r: any): Listing {
   };
 }
 
-export function GirlMatePage() {
+export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
   const [tab, setTab]                       = useState<Tab>("available");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedSeeker, setSelectedSeeker]   = useState<Seeker | null>(null);
@@ -725,10 +725,17 @@ export function GirlMatePage() {
           {[0,1,2,3,4,5].map(i => { const a = (i/6)*Math.PI*2; return <ellipse key={i} cx={110+Math.cos(a)*60} cy={110+Math.sin(a)*60} rx="32" ry="54" fill="white" transform={`rotate(${i*60} ${110+Math.cos(a)*60} ${110+Math.sin(a)*60})`} />; })}
         </svg>
 
-        <Link href="/member/introductions" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, textDecoration: "none" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
-        </Link>
+        {onBack ? (
+          <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
+          </button>
+        ) : (
+          <Link href="/member/introductions" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, textDecoration: "none" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
+          </Link>
+        )}
 
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>✦ GIRLMATE</p>
         <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 28, color: "white", lineHeight: 1.1, marginBottom: 6 }}>
