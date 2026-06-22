@@ -156,10 +156,38 @@ export function HomePage() {
   const [upNextIdx,             setUpNextIdx]             = useState(0);
   const [events,                setEvents]                = useState<Event[]>([]);
   const [showPreferencesBanner, setShowPreferencesBanner] = useState(false);
+  const [weather, setWeather] = useState<{ temp: number; icon: string; desc: string } | null>(null);
 
   useEffect(() => {
-    setTod(getTimeOfDay(new Date().getHours()));
+    const currentTod = getTimeOfDay(new Date().getHours());
+    setTod(currentTod);
     getEvents().then(evs => setEvents(evs));
+
+    // Fetch weather via Open-Meteo (free, no API key)
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async pos => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(2)}&longitude=${longitude.toFixed(2)}&current_weather=true&temperature_unit=fahrenheit`
+          );
+          if (!res.ok) return;
+          const data = await res.json() as { current_weather: { weathercode: number; temperature: number; is_day: number } };
+          const { weathercode: code, temperature, is_day } = data.current_weather;
+          const temp = Math.round(temperature);
+          let icon: string, desc: string;
+          if (code === 0)            { icon = is_day ? "☀️" : "🌙"; desc = is_day ? "Clear skies" : "Clear night"; }
+          else if (code <= 3)        { icon = is_day ? "⛅" : "🌤"; desc = "Partly cloudy"; }
+          else if (code <= 48)       { icon = "🌫"; desc = "Foggy"; }
+          else if (code <= 55)       { icon = "🌦"; desc = "Drizzle"; }
+          else if (code <= 67)       { icon = "🌧"; desc = "Rainy"; }
+          else if (code <= 77)       { icon = "🌨"; desc = "Snowy"; }
+          else if (code <= 82)       { icon = "🌦"; desc = "Showers"; }
+          else                       { icon = "⛈"; desc = "Stormy"; }
+          setWeather({ temp, icon, desc });
+        } catch { /* geolocation denied or network issue — skip silently */ }
+      }, () => { /* permission denied — skip silently */ });
+    }
     const supabase = createClient();
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -257,9 +285,29 @@ export function HomePage() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
           {/* Left */}
           <div>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: palette.textPrimary, lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: palette.textPrimary, lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 10 }}>
               {greeting}{firstName ? `, ${firstName}` : ""}.
             </p>
+
+            {/* Weather + city vibes strip */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" as const }}>
+              {weather && (
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: palette.textMuted, display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: 14 }}>{weather.icon}</span>
+                  <span>{weather.temp}° · {weather.desc}</span>
+                </span>
+              )}
+              {weather && <span style={{ color: "rgba(0,0,0,0.18)", fontSize: 10 }}>·</span>}
+              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: palette.textMuted, fontStyle: "italic" }}>
+                {events.length === 0
+                  ? (tod === "night" ? "Easy evening 🌙" : "Slow day in the city")
+                  : events.length <= 3
+                  ? (tod === "night" || tod === "evening" ? "A few things tonight ✨" : "Light day out there")
+                  : events.length <= 7
+                  ? (tod === "night" || tod === "evening" ? "Good energy tonight ✦" : "Things are picking up today")
+                  : "Packed night in the city 🔥"}
+              </span>
+            </div>
 
             {/* Stat pills */}
             <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: palette.card, borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>

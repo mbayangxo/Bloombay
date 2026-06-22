@@ -16,7 +16,7 @@ export function getGreeting(tod: TimeOfDay): string {
   if (tod === "morning") return "Good morning";
   if (tod === "afternoon") return "Good afternoon";
   if (tod === "evening") return "Good evening";
-  return "Good night";
+  return "Goodnight";
 }
 
 export function TimeWrapper({ children }: { children: React.ReactNode }) {
