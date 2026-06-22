@@ -199,18 +199,30 @@ function IconPin({ c }: SVGProps) {
   );
 }
 function IconMail({ c }: SVGProps) {
-  // Filled US mailbox on post with raised flag
+  // Realistic British-style pillar post box with letter slot and envelope
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <rect x="11" y="16.5" width="2" height="5" rx="1" fill={c}/>
-      <rect x="8.5" y="20.5" width="7" height="1.5" rx="0.75" fill={c}/>
-      <path d="M5 16.5 H19 V13.5 A7 7 0 0 0 5 13.5 Z" fill={c}/>
-      <path d="M5 13.5 A7 7 0 0 1 19 13.5" fill={c} opacity="0.82"/>
-      <ellipse cx="12" cy="10.8" rx="6" ry="1.5" fill="white" opacity="0.2"/>
-      <rect x="5.5" y="14.5" width="5" height="1.3" rx="0.65" fill="white" opacity="0.6"/>
-      <line x1="19" y1="16.5" x2="19" y2="11" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M19 11 L22.5 11 L22.5 14 L19 14Z" fill={c}/>
-      <rect x="19.5" y="11.3" width="2.5" height="1" rx="0.3" fill="white" opacity="0.45"/>
+      {/* Post box body — arched top, rounded sides */}
+      <path d="M4.5 10 Q4.5 3 12 3 Q19.5 3 19.5 10 L19.5 20 Q19.5 21 18.5 21 L5.5 21 Q4.5 21 4.5 20 Z" fill={c}/>
+      {/* 3D dome sheen — top-left arc highlight */}
+      <path d="M6 10 Q6 5 12 5 Q16 5 17.5 8" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.3" fill="none"/>
+      {/* Left-side vertical shine */}
+      <path d="M6 10 L6 18" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.18"/>
+      {/* Letter slot — wide horizontal slit */}
+      <rect x="6.5" y="10.5" width="11" height="2" rx="1" fill="rgba(0,0,0,0.35)"/>
+      <rect x="7" y="10.8" width="10" height="0.8" rx="0.4" fill="rgba(0,0,0,0.25)"/>
+      {/* Envelope peeking out of slot */}
+      <rect x="9" y="9.5" width="6" height="3.5" rx="0.4" fill="white" opacity="0.9"/>
+      <line x1="9" y1="9.5" x2="12" y2="11.5" stroke={c} strokeWidth="0.7" opacity="0.7"/>
+      <line x1="15" y1="9.5" x2="12" y2="11.5" stroke={c} strokeWidth="0.7" opacity="0.7"/>
+      {/* Wax seal dot on envelope */}
+      <circle cx="12" cy="11.5" r="0.9" fill={c} opacity="0.85"/>
+      {/* Royal cypher / circular placard in middle of box */}
+      <circle cx="12" cy="15.5" r="1.8" fill="rgba(0,0,0,0.2)"/>
+      <circle cx="12" cy="15.5" r="1.2" fill="rgba(255,255,255,0.12)"/>
+      {/* Keyhole at base */}
+      <circle cx="12" cy="19" r="0.6" fill="rgba(0,0,0,0.3)"/>
+      <rect x="11.6" y="19" width="0.8" height="0.8" rx="0.1" fill="rgba(0,0,0,0.25)"/>
     </svg>
   );
 }
