@@ -208,9 +208,13 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const isDarkPage = pathname.startsWith("/member/avenue")    ||
                      pathname.startsWith("/member/plans")     ||
                      pathname.startsWith("/member/happenings")||
-                     pathname.startsWith("/member/clubs");
-  const hideTopBar = pathname.startsWith("/member/lounge")    ||
-                     pathname.startsWith("/member/happenings");
+                     pathname.startsWith("/member/clubs")     ||
+                     pathname.startsWith("/member/chat")      ||
+                     pathname.startsWith("/member/lounge")    ||
+                     pathname.startsWith("/member/city");
+  // hideTopBar hides the ACTION icons only (not the logo)
+  const hideTopBarActions = pathname.startsWith("/member/lounge")    ||
+                            pathname.startsWith("/member/happenings");
 
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings");
@@ -278,14 +282,14 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   return (
     <>
-      {/* ══════ TOP BAR ══════ */}
-      {!hideTopBar && (
-        <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
-          style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
-            <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
-              <BBLogo size={26} pinkColor={PINK} />
-            </Link>
+      {/* ══════ TOP BAR — logo always visible ══════ */}
+      <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
+        style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
+          <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
+            <BBLogo size={26} pinkColor={PINK} />
+          </Link>
+          {!hideTopBarActions && (
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <TopTile href="/member/apartment" label="Apartment">
                 <IconApt c={isDarkPage ? "white" : PINK} />
@@ -302,9 +306,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 </span>
               </TopTile>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ══════ ROSE STEM NAVIGATION ══════
           No container. No pill. No background.
@@ -410,15 +414,27 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   {renderIcon(tab.key, active)}
                 </div>
 
-                {/* Branch — connects the icon to the stem below */}
-                <div style={{
-                  width: active ? 2 : 1.5,
-                  height: active ? 15 : 10,
-                  background: active ? PINK : branchC,
-                  borderRadius: 1,
-                  marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
-                  transition: "height 0.22s ease, background 0.18s, width 0.18s",
-                }} />
+                {/* Branch — organic curved stem connecting icon to horizontal stem */}
+                <svg
+                  width="6"
+                  height={active ? 18 : 12}
+                  viewBox={`0 0 6 ${active ? 18 : 12}`}
+                  fill="none"
+                  style={{
+                    marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 23px)",
+                    transition: "height 0.22s ease",
+                    overflow: "visible",
+                  }}
+                >
+                  <path
+                    d={active
+                      ? "M3 0 C1.5 4 4.5 10 3 18"
+                      : "M3 0 C2 3 4 8 3 12"}
+                    stroke={active ? PINK : branchC}
+                    strokeWidth={active ? 2 : 1.5}
+                    strokeLinecap="round"
+                  />
+                </svg>
               </Link>
             );
           })}
