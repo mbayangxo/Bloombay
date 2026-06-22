@@ -14,6 +14,12 @@ import { RooftopPosterTemplate } from "./rooftop-poster-template";
 import { WinePosterTemplate } from "./wine-poster-template";
 import { AfterWorkPosterTemplate } from "./afterwork-poster-template";
 import { CafePosterTemplate } from "./cafe-poster-template";
+import { ButterLoveTemplate } from "./butter-love-template";
+import { BiteCrunchTemplate } from "./bite-crunch-template";
+import { ReceiptMenuTemplate } from "./receipt-menu-template";
+import { FoodGridTemplate } from "./food-grid-template";
+import { SundaySpecialTemplate } from "./sunday-special-template";
+import { BakeryPromoTemplate } from "./bakery-promo-template";
 
 function pickProps(data: PosterTemplateData): PosterTemplateProps {
   const { template: _t, id: _id, ...rest } = data;
@@ -52,6 +58,18 @@ export function renderPosterByType(type: PosterTemplateType, props: PosterTempla
       return <AfterWorkPosterTemplate {...props} />;
     case "cafe":
       return <CafePosterTemplate {...props} />;
+    case "butter_love":
+      return <ButterLoveTemplate {...props} />;
+    case "bite_crunch":
+      return <BiteCrunchTemplate {...props} />;
+    case "receipt_menu":
+      return <ReceiptMenuTemplate {...props} />;
+    case "food_grid":
+      return <FoodGridTemplate {...props} />;
+    case "sunday_special":
+      return <SundaySpecialTemplate {...props} />;
+    case "bakery_promo":
+      return <BakeryPromoTemplate {...props} />;
     default:
       return <DinnerPosterTemplate {...props} />;
   }
