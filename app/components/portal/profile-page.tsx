@@ -15,7 +15,7 @@ const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge" | "about_me";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -964,6 +964,82 @@ function TemplateFridge({ displayName, initials, avatarUrl, vibe, photos, onAvat
   );
 }
 
+// ─── Template: About Me ────────────────────────────────────────────────────────
+
+function TemplateAboutMe({ displayName, occupation, vibe, sheIs, sigTraits, sign, avatarUrl, photos, onAvatarClick }: { displayName: string; occupation: string; vibe: string; sheIs: string; sigTraits: string; sign: string; avatarUrl: string | null; photos: { id: string; url: string }[]; onAvatarClick: () => void }) {
+  const bgPhoto = photos[0]?.url ?? null;
+  const bullets = [
+    displayName || "Your Name",
+    occupation || "What she does",
+    sign || "Her sign",
+    sheIs || "She is…",
+    sigTraits || "Her signature trait",
+    vibe || "Her vibe",
+  ].filter(Boolean);
+
+  return (
+    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", background: "#E8E5DF", minHeight: 340 }}>
+      {/* B&W photo right half */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        {bgPhoto ? (
+          <img src={bgPhoto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) contrast(1.1)" }} />
+        ) : (
+          <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #4A4A4A, #2A2A2A)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} onClick={onAvatarClick}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%)" }} />
+            ) : (
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 48 }}>+</span>
+            )}
+          </div>
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(232,229,223,0.92) 0%, rgba(232,229,223,0.6) 50%, rgba(0,0,0,0) 100%)" }} />
+      </div>
+
+      {/* Torn paper card — left side */}
+      <div style={{ position: "relative", zIndex: 2, padding: "28px 20px 24px 22px", maxWidth: "62%", minHeight: 340, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {/* Paper clip */}
+        <div style={{ position: "absolute", top: 18, left: "50%", transform: "translateX(-50%)", width: 3, height: 26, background: "linear-gradient(180deg, #C0C0C0, #A0A0A0)", borderRadius: 2, boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+
+        {/* Torn paper texture card */}
+        <div style={{
+          background: "#FEFCF7",
+          borderRadius: "2px 6px 4px 2px",
+          padding: "22px 16px 18px",
+          boxShadow: "2px 3px 12px rgba(0,0,0,0.18), -1px -1px 4px rgba(0,0,0,0.06)",
+          position: "relative",
+          clipPath: "polygon(0% 0%, 96% 0%, 100% 4%, 98% 100%, 4% 98%, 0% 96%)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(0,0,0,0.3)", marginBottom: 12, textTransform: "uppercase" }}>ABOUT ME</p>
+          <div style={{ width: 28, height: 1.5, background: "#6B4EFF", marginBottom: 12 }} />
+          <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px", display: "flex", flexDirection: "column" as const, gap: 6 }}>
+            {bullets.map((b, i) => (
+              <li key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "#1C1B1C", letterSpacing: "0.06em", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                <span style={{ color: "#6B4EFF", fontWeight: 900, flexShrink: 0, marginTop: 1 }}>•</span>
+                {b.toUpperCase()}
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", fontStyle: "italic", color: "#6B4EFF", lineHeight: 1.3 }}>
+            and still building…
+          </p>
+        </div>
+
+        {/* Handwritten note below */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#6B4EFF", marginTop: 10, paddingLeft: 4, fontStyle: "italic" }}>
+          stay tuned for more!
+        </p>
+      </div>
+
+      {/* Photo upload tap target */}
+      {!bgPhoto && (
+        <button onClick={onAvatarClick} style={{ position: "absolute", bottom: 14, right: 14, zIndex: 3, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(4px)", borderRadius: 12, padding: "6px 12px", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "#1C1B1C", letterSpacing: "0.1em" }}>
+          + ADD PHOTO
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
@@ -982,6 +1058,7 @@ function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId;
     { id: "moodboard",    label: "MOOD",     bg: "#FAF6F0", textColor: "#555" },
     { id: "polaroid4",    label: "POLAROID", bg: "#F9F7F5", textColor: "#888" },
     { id: "fridge",       label: "FRIDGE",   bg: "#C5D8E4", textColor: "#555" },
+    { id: "about_me",     label: "ABOUT ME", bg: "#E8E5DF", textColor: "#6B4EFF" },
   ];
 
   return (
@@ -1464,6 +1541,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {templateId === "moodboard" && <TemplateMoodboard {...templateProps} />}
           {templateId === "polaroid4" && <TemplatePolaroid4 {...templateProps} />}
           {templateId === "fridge" && <TemplateFridge displayName={templateProps.displayName} initials={templateProps.initials} avatarUrl={templateProps.avatarUrl} vibe={templateProps.vibe} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} isOwn={true} />}
+          {templateId === "about_me" && <TemplateAboutMe displayName={templateProps.displayName} occupation={templateProps.occupation} vibe={templateProps.vibe} sheIs={templateProps.sheIs} sigTraits={templateProps.sigTraits} sign={templateProps.sign} avatarUrl={templateProps.avatarUrl} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} />}
         </div>
 
       </div>
@@ -1485,6 +1563,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           moodboard:    ["vibe", "photos", "voice"],
           polaroid4:    ["vibe", "photos"],
           fridge:       ["photos", "vibe", "voice"],
+          about_me:     ["occupation", "sign", "vibe", "sheIs", "sigTraits", "photos"],
         };
         const FIELD_LABELS: Record<string, string> = {
           occupation: "WHAT SHE DOES",

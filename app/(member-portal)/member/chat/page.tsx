@@ -40,7 +40,18 @@ interface Message {
   text: string;
   time: string;
   isMe?: boolean;
+  imageUrl?: string;
 }
+
+const WALLPAPERS = [
+  { id: "none",    label: "None",      value: CREAM },
+  { id: "bloom",   label: "Bloom",     value: "linear-gradient(160deg,#FFF0F5 0%,#FFE0EE 40%,#F8D7F0 100%)" },
+  { id: "night",   label: "Night",     value: "linear-gradient(160deg,#0F0720 0%,#1A0830 50%,#220A3A 100%)" },
+  { id: "sunset",  label: "Sunset",    value: "linear-gradient(160deg,#FFB347 0%,#FF6B9D 50%,#C9396B 100%)" },
+  { id: "forest",  label: "Forest",    value: "linear-gradient(160deg,#1A3A2A 0%,#2A5040 50%,#1E3D30 100%)" },
+  { id: "sky",     label: "Sky",       value: "linear-gradient(160deg,#89CFF0 0%,#B0E0FF 50%,#D0F0FF 100%)" },
+  { id: "mauve",   label: "Mauve",     value: "linear-gradient(160deg,#C8A0C8 0%,#E0B8E8 50%,#F0D0F8 100%)" },
+];
 
 const PINK  = "#FF1F7D";
 const CREAM = "#FAF6F2";
@@ -262,12 +273,31 @@ function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread
 }
 
 // ── Composer Bar ───────────────────────────────────────────────────────────────
-function ComposerBar({ draft, setDraft, onSend }: { draft: string; setDraft: (v: string) => void; onSend: () => void }) {
+function ComposerBar({ draft, setDraft, onSend, onPhotoSend }: { draft: string; setDraft: (v: string) => void; onSend: () => void; onPhotoSend?: (url: string) => void }) {
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !onPhotoSend) return;
+    const url = URL.createObjectURL(file);
+    onPhotoSend(url);
+    e.target.value = "";
+  }
+
+  const actions = [
+    { icon: "📅", label: "Plan",     onClick: undefined },
+    { icon: "🖼️", label: "Photos",   onClick: () => photoInputRef.current?.click() },
+    { icon: "🎤", label: "Voice",    onClick: undefined },
+    { icon: "📍", label: "Location", onClick: undefined },
+    { icon: "📝", label: "Note",     onClick: undefined },
+  ];
+
   return (
     <div style={{ background: "white", borderTop: "1px solid #F0EBE4", paddingBottom: "max(12px,env(safe-area-inset-bottom))" }}>
+      <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "10px 20px 4px" }}>
-        {[{ icon: "📅", label: "Plan" }, { icon: "🖼️", label: "Photos" }, { icon: "🎤", label: "Voice" }, { icon: "📍", label: "Location" }, { icon: "📝", label: "Note" }].map(({ icon, label }) => (
-          <button key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 6px", background: "transparent", border: "none", cursor: "pointer" }}>
+        {actions.map(({ icon, label, onClick }) => (
+          <button key={label} onClick={onClick} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 6px", background: "transparent", border: "none", cursor: onClick ? "pointer" : "default" }}>
             <span style={{ fontSize: 18 }}>{icon}</span>
             <span style={{ fontSize: "8px", fontWeight: 700, color: "#AAA", letterSpacing: "0.05em" }}>{label}</span>
           </button>
@@ -297,12 +327,43 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
       )}
       <div style={{ maxWidth: "72%", display: "flex", flexDirection: "column", gap: 3, alignItems: msg.isMe ? "flex-end" : "flex-start" }}>
         {showName && !msg.isMe && <span style={{ fontSize: "10px", color: "#B8AFA8", fontWeight: 600, padding: "0 2px" }}>{msg.sender}</span>}
-        <div style={{ padding: "10px 14px", borderRadius: msg.isMe ? "18px 18px 4px 18px / 20px 20px 4px 20px" : "18px 18px 18px 4px / 20px 20px 20px 4px", fontSize: "13px", lineHeight: 1.5, ...(msg.isMe ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" } : { background: "white", color: "#2A2A2A", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", border: "1px solid #F0EBE4" }) }}>
-          {msg.text}
-        </div>
+        {msg.imageUrl ? (
+          <div style={{ borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", maxWidth: 220 }}>
+            <img src={msg.imageUrl} alt="photo" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
+          </div>
+        ) : (
+          <div style={{ padding: "10px 14px", borderRadius: msg.isMe ? "18px 18px 4px 18px / 20px 20px 4px 20px" : "18px 18px 18px 4px / 20px 20px 20px 4px", fontSize: "13px", lineHeight: 1.5, ...(msg.isMe ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" } : { background: "white", color: "#2A2A2A", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", border: "1px solid #F0EBE4" }) }}>
+            {msg.text}
+          </div>
+        )}
         <span style={{ fontSize: "9px", color: "#C8BFB6", padding: "0 2px" }}>{msg.time}</span>
       </div>
     </div>
+  );
+}
+
+// ── Wallpaper Picker Sheet ─────────────────────────────────────────────────────
+function WallpaperPicker({ current, onChange, onClose }: { current: string; onChange: (v: string) => void; onClose: () => void }) {
+  return (
+    <>
+      <div style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.5)" }} onClick={onClose} />
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, borderRadius: "28px 28px 0 0", background: "white", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
+        </div>
+        <div style={{ padding: "8px 20px 24px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 16 }}>CHAT WALLPAPER</p>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {WALLPAPERS.map(w => (
+              <button key={w.id} onClick={() => { onChange(w.value); onClose(); }} style={{ flexShrink: 0, display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}>
+                <div style={{ width: 64, height: 96, borderRadius: 14, background: w.value, border: current === w.value ? `3px solid ${PINK}` : "3px solid transparent", boxShadow: current === w.value ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)", transition: "all 0.15s" }} />
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: current === w.value ? PINK : "#AAA" }}>{w.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -310,6 +371,8 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
 function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messages: Message[]; onBack: () => void }) {
   const [draft, setDraft] = useState("");
   const [msgs, setMsgs] = useState<Message[]>(messages);
+  const [wallpaper, setWallpaper] = useState(CREAM);
+  const [showWallpaper, setShowWallpaper] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
@@ -356,16 +419,19 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
     if (!text) return;
     setMsgs(prev => [...prev, { id: prev.length + 100, sender: "Me", initial: "Y", color: PINK, text, time: "now", isMe: true }]);
     setDraft("");
-    // Persist to DB if real conversation
     if (convo.dbConvoId) {
       dbSendMessage(convo.dbConvoId, text).catch(console.error);
     }
   }
 
+  function sendPhoto(url: string) {
+    setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
+  }
+
   const waveHeights = [10, 18, 8, 26, 14, 10, 30, 12, 22, 8, 20, 16, 10, 28, 14, 8, 18, 12, 24, 14];
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: CREAM }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: wallpaper }}>
       {/* Sticky top bar */}
       <div style={{ padding: "56px 18px 12px", background: "white", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #F0EBE4", boxShadow: "0 1px 10px rgba(0,0,0,0.04)", position: "sticky", top: 0, zIndex: 10 }}>
         <button onClick={onBack} style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#F5EFE9", border: "none", cursor: "pointer", flexShrink: 0 }}>
@@ -382,6 +448,9 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
           )}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setShowWallpaper(true)} style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF0F5", border: "none", cursor: "pointer" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
           {[
             <svg key="call" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 12c1.68 2.83 3.58 4.73 6.41 6.41l.46-.81a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
             <svg key="video" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
@@ -390,6 +459,7 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
           ))}
         </div>
       </div>
+      {showWallpaper && <WallpaperPicker current={wallpaper} onChange={setWallpaper} onClose={() => setShowWallpaper(false)} />}
 
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: "auto", paddingBottom: 148 }}>
@@ -509,7 +579,7 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} />
+        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} />
       </div>
     </div>
   );
@@ -519,6 +589,8 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
 function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: Message[]; onBack: () => void }) {
   const [draft, setDraft] = useState("");
   const [msgs, setMsgs] = useState<Message[]>(messages);
+  const [wallpaper, setWallpaper] = useState(CREAM);
+  const [showWallpaper, setShowWallpaper] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
@@ -530,6 +602,10 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
     setDraft("");
   }
 
+  function sendPhoto(url: string) {
+    setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
+  }
+
   const members = [
     { initial: "J", color: "#FF69B4" }, { initial: "T", color: "#FF1F7D" },
     { initial: "S", color: "#A855F7" }, { initial: "N", color: "#FF69B4" }, { initial: "L", color: "#FF1F7D" },
@@ -537,7 +613,8 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
   const count = convo.memberCount ?? 5;
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: CREAM }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: wallpaper }}>
+      {showWallpaper && <WallpaperPicker current={wallpaper} onChange={setWallpaper} onClose={() => setShowWallpaper(false)} />}
       {/* Top bar */}
       <div style={{ padding: "56px 18px 12px", background: "white", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #F0EBE4", boxShadow: "0 1px 10px rgba(0,0,0,0.04)", position: "sticky", top: 0, zIndex: 10 }}>
         <button onClick={onBack} style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#F5EFE9", border: "none", cursor: "pointer", flexShrink: 0 }}>
@@ -552,9 +629,14 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
           <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "17px", color: "#1A1A1A", lineHeight: 1.1 }}>{convo.name}</p>
           <p style={{ fontSize: "10px", color: "#B8AFA8" }}>{count} women · Group</p>
         </div>
-        <button style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF0F5", border: "none", cursor: "pointer" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => setShowWallpaper(true)} style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF0F5", border: "none", cursor: "pointer" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <button style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF0F5", border: "none", cursor: "pointer" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
       </div>
 
       {/* Scrollable content */}
@@ -600,7 +682,7 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} />
+        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} />
       </div>
     </div>
   );
