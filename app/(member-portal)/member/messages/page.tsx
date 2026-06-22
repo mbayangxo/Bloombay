@@ -486,30 +486,35 @@ function MailboxHub({
       `}</style>
 
       {/* ── Editorial header ── */}
-      <div style={{ background: "#0A0A0A", paddingTop: "calc(env(safe-area-inset-top, 0px) + 64px)", paddingLeft: 22, paddingRight: 22, paddingBottom: 28, position: "relative", overflow: "hidden" }}>
-        {/* Background glow */}
+      <div style={{ background: "#0A0A0A", paddingTop: "calc(env(safe-area-inset-top, 0px) + 64px)", paddingLeft: 22, paddingRight: 22, paddingBottom: 24, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", bottom: -40, left: -40, width: 240, height: 240, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}20 0%, transparent 70%)`, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 0, right: 0, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>YOUR MAILBOX</p>
-            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 42, color: "white", lineHeight: 0.95, margin: 0 }}>The Mailbox.</h1>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>your letters &amp; invitations</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Mailbox icon */}
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 17H2a3 3 0 0 0 3-3V9.6C5 7.1 7.1 5 9.6 5h4.8C16.9 5 19 7.1 19 9.6V14a3 3 0 0 0 3 3z"/>
+                <path d="M6 9l6 4 6-4"/>
+                <path d="M2 17v1a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-1"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.3)", marginBottom: 3 }}>YOUR MAILBOX</p>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "white", lineHeight: 1, margin: 0 }}>The Mailbox.</h1>
+            </div>
           </div>
 
-          {/* Unread badge */}
           {totalUnread > 0 && (
-            <div style={{ marginTop: 8, width: 48, height: 48, borderRadius: "50%", background: PINK, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 6px 20px ${PINK}55` }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 18, color: "white", lineHeight: 1 }}>{totalUnread}</span>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: PINK, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 6px 20px ${PINK}55` }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 16, color: "white", lineHeight: 1 }}>{totalUnread}</span>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.08em" }}>NEW</span>
             </div>
           )}
         </div>
 
-        {/* Most recent preview strip */}
         {recentInvite && (
-          <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.06)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.06)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
             <div style={{ width: 28, height: 28, borderRadius: "50%", background: `linear-gradient(135deg, ${recentInvite.color}, ${recentInvite.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: "white", flexShrink: 0 }}>{recentInvite.initial}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "rgba(255,255,255,0.75)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{recentInvite.subject}</p>
@@ -520,88 +525,73 @@ function MailboxHub({
         )}
       </div>
 
-      {/* ── Rhode editorial bento grid ── */}
-      <div style={{ padding: "20px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* ── Side-by-side cards ── */}
+      <div style={{ padding: "18px 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
 
-        {/* ── LETTERS card — full-width notepad ── */}
+        {/* ── LETTERS — envelope card ── */}
         <button
           onClick={() => setSection("letters")}
           className="hub-card"
-          style={{ display: "block", width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", animationDelay: "0.05s" }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", animationDelay: "0.05s" }}
         >
-          <div style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: 4, background: "#E8D5C4", borderRadius: 18, transform: "rotate(2deg)", zIndex: 0 }} />
-            <div style={{ position: "absolute", inset: 2, background: "#F0DDD0", borderRadius: 18, transform: "rotate(-1.2deg)", zIndex: 1 }} />
-            <div style={{
-              position: "relative", zIndex: 2, borderRadius: 18, overflow: "hidden",
-              background: "#FEFDF8",
-              backgroundImage: "repeating-linear-gradient(transparent, transparent 23px, rgba(200,84,106,0.08) 23px, rgba(200,84,106,0.08) 24px)",
-              backgroundPosition: "0 46px",
-              boxShadow: "0 4px 22px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(200,84,106,0.1)",
-            }}>
-              <div style={{ position: "absolute", top: 0, bottom: 0, left: 38, width: 1.5, background: "rgba(200,84,106,0.22)", zIndex: 3 }} />
-              <div style={{ position: "absolute", top: 24, left: 13, width: 10, height: 10, borderRadius: "50%", background: "#FFF5EE", border: "1.5px solid rgba(200,84,106,0.15)", zIndex: 3 }} />
-              <div style={{ position: "absolute", top: 64, left: 13, width: 10, height: 10, borderRadius: "50%", background: "#FFF5EE", border: "1.5px solid rgba(200,84,106,0.15)", zIndex: 3 }} />
-              <div style={{ padding: "20px 22px 16px 52px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.28em", color: "#C07080", marginBottom: 4 }}>THE LETTER BOX</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 4 }}>Letters.</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#C07080", marginBottom: letterUnread > 0 ? 12 : 0 }}>Words written just for you.</p>
-                {letterUnread > 0 && (
-                  <div style={{ display: "inline-flex", background: "rgba(200,84,106,0.1)", borderRadius: 999, padding: "4px 14px", border: "1px solid rgba(200,84,106,0.18)" }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "#C07080" }}>{letterUnread} unread</span>
-                  </div>
-                )}
-                {recentLetter && (
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", marginTop: 12, fontStyle: "italic", lineHeight: "24px" }}>
-                    &ldquo;{recentLetter.preview}&rdquo;
-                  </p>
-                )}
+          {/* Envelope shape */}
+          <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", background: "#FEFAF4", boxShadow: "0 4px 18px rgba(0,0,0,0.12), inset 0 0 0 1.5px rgba(200,84,106,0.15)" }}>
+            {/* Envelope flap */}
+            <div style={{ position: "relative", height: 52, background: "#F5E8DC", overflow: "hidden" }}>
+              {/* V-fold lines from top corners */}
+              <svg width="100%" height="52" viewBox="0 0 160 52" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, display: "block" }}>
+                <polygon points="0,0 160,0 80,38" fill="#EDD8C8" />
+                <line x1="0" y1="0" x2="80" y2="38" stroke="rgba(200,84,106,0.18)" strokeWidth="1"/>
+                <line x1="160" y1="0" x2="80" y2="38" stroke="rgba(200,84,106,0.18)" strokeWidth="1"/>
+              </svg>
+              {/* Wax seal */}
+              <div style={{ position: "absolute", bottom: -14, left: "50%", transform: "translateX(-50%)", width: 28, height: 28, borderRadius: "50%", background: `radial-gradient(circle at 38% 35%, #FF79AE, #C0185F)`, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 4, boxShadow: "0 2px 8px rgba(192,24,95,0.35)", border: "1.5px solid rgba(255,255,255,0.3)" }}>
+                <span style={{ color: "white", fontSize: 10, fontWeight: 900, lineHeight: 1 }}>✦</span>
               </div>
-              <div style={{ background: "rgba(200,84,106,0.04)", padding: "12px 22px 12px 52px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px dashed rgba(200,84,106,0.15)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#3A2030" }}>
-                  {letters.length} letter{letters.length !== 1 ? "s" : ""}{letterUnread > 0 ? ` · ${letterUnread} unread` : " · all read"}
-                </p>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C07080" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
+            </div>
+            {/* Body */}
+            <div style={{ padding: "22px 14px 12px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.2em", color: "#C07080", marginBottom: 3 }}>LETTERS</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 2 }}>Letters.</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#C07080", lineHeight: 1.3 }}>Words written<br/>just for you.</p>
+            </div>
+            <div style={{ padding: "8px 14px 10px", borderTop: "1px dashed rgba(200,84,106,0.15)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 600, color: "#3A2030" }}>
+                {letters.length}{letterUnread > 0 ? ` · ${letterUnread} unread` : " · all read"}
+              </p>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C07080" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         </button>
 
-        {/* ── INVITATIONS card — envelope ── */}
+        {/* ── INVITATIONS — real invitation card ── */}
         <button
           onClick={() => setSection("invitations")}
           className="hub-card"
-          style={{ display: "block", width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", animationDelay: "0.12s" }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", animationDelay: "0.12s" }}
         >
-          <div style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: 0, background: "#FFB8D8", borderRadius: 20, transform: "rotate(1.5deg)", zIndex: 0 }} />
-            <div style={{ position: "absolute", inset: 0, background: "#FFD0E8", borderRadius: 20, transform: "rotate(-0.8deg)", zIndex: 1 }} />
-            <div style={{ position: "relative", zIndex: 2, borderRadius: 20, overflow: "hidden", background: "white", border: "1.5px solid rgba(255,31,125,0.12)" }}>
-              <div style={{ position: "relative", height: 68, background: `linear-gradient(145deg, ${PINK} 0%, #FF6BA8 100%)`, overflow: "visible" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "50%", background: "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%)", pointerEvents: "none" }} />
-                <svg width="100%" height="32" viewBox="0 0 320 32" preserveAspectRatio="none" style={{ position: "absolute", bottom: -1, left: 0, display: "block" }}>
-                  <polygon points="0,0 320,0 160,32" fill="#FF6BA8" />
-                </svg>
-                <div style={{ position: "absolute", bottom: -20, left: "50%", transform: "translateX(-50%)", width: 40, height: 40, borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #FF79AE, #C0185F)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 5, boxShadow: "0 3px 12px rgba(192,24,95,0.4), inset 0 1px 0 rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.35)" }}>
-                  <span style={{ color: "white", fontSize: 16, fontWeight: 900 }}>✦</span>
-                </div>
+          <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", background: "#FFF8F4", boxShadow: "0 4px 18px rgba(255,31,125,0.15), inset 0 0 0 1.5px rgba(255,31,125,0.18)" }}>
+            {/* Decorative top band */}
+            <div style={{ height: 52, background: `linear-gradient(135deg, ${PINK} 0%, #FF79AE 100%)`, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255,255,255,0.05) 6px, rgba(255,255,255,0.05) 12px)" }} />
+              {/* Corner ornaments */}
+              <svg style={{ position: "absolute", top: 4, left: 4 }} width="12" height="12" viewBox="0 0 12 12"><path d="M1 11 L1 1 L11 1" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>
+              <svg style={{ position: "absolute", top: 4, right: 4 }} width="12" height="12" viewBox="0 0 12 12"><path d="M11 11 L11 1 L1 1" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.9)", fontWeight: 700, letterSpacing: "0.02em" }}>You&apos;re Invited</p>
               </div>
-              <div style={{ padding: "34px 22px 16px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.28em", color: "#D4849A", marginBottom: 4 }}>THE INVITATION BOX</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 30, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 4 }}>Invitations.</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#C07080", marginBottom: inviteUnread > 0 ? 12 : 0 }}>Someone saved you a seat.</p>
-                {inviteUnread > 0 && (
-                  <div style={{ display: "inline-flex", background: PINK, borderRadius: 999, padding: "4px 14px" }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{inviteUnread} new</span>
-                  </div>
-                )}
-              </div>
-              <div style={{ background: "#FFF5F8", padding: "12px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,31,125,0.08)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#3A2030" }}>
-                  {invitations.length} invitation{invitations.length !== 1 ? "s" : ""}{inviteUnread > 0 ? ` · ${inviteUnread} waiting` : " · all opened"}
-                </p>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C07080" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
+            </div>
+            {/* Body */}
+            <div style={{ padding: "14px 14px 10px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.2em", color: "#D4849A", marginBottom: 3 }}>INVITATIONS</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, marginBottom: 2 }}>Invitations.</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#C07080", lineHeight: 1.3 }}>Someone saved<br/>you a seat.</p>
+            </div>
+            <div style={{ padding: "8px 14px 10px", borderTop: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 600, color: "#3A2030" }}>
+                {invitations.length}{inviteUnread > 0 ? ` · ${inviteUnread} waiting` : " · all opened"}
+              </p>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C07080" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         </button>

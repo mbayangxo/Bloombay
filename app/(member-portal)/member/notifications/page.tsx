@@ -308,7 +308,7 @@ export default function NotificationsPage() {
             fontFamily: "var(--font-playfair)", fontSize: "clamp(24px, 7.5vw, 30px)", fontWeight: 900,
             fontStyle: "italic", color: "#111111", lineHeight: 1, marginBottom: 6,
           }}>
-            Notifications.
+            Pin Drops.
           </h1>
           {unreadCount > 0 && (
             <span style={{
