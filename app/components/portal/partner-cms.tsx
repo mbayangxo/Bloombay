@@ -96,6 +96,9 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // ── Poster template ──────────────────────────────────────────────────────
+  const [posterTemplate, setPosterTemplate] = useState<string>("butter_love");
+
   // ── Menu highlights ──────────────────────────────────────────────────────
   const [menuItems, setMenuItems] = useState<{ item: string; price: string; note: string }[]>(
     (partner.girl_favorites ?? []).length > 0
@@ -341,6 +344,32 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
         {/* ── MENU ───────────────────────────────────────────────────────── */}
         {tab === "menu" && (
           <div>
+            <Section title="BRAND TEMPLATES">
+              <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 14 }}>
+                Choose a poster style for your storefront. Each template uses your photos, name, and brand color.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                {([
+                  { id: "butter_love",   label: "Butter & Love",   bg: "#FEFCF7", accent: "#8B1A2E", emoji: "🥐" },
+                  { id: "bite_crunch",   label: "Bite the Crunch", bg: "#C8201A", accent: "#ffffff", emoji: "🍞" },
+                  { id: "receipt_menu",  label: "Receipt Menu",    bg: "#8B5E3C", accent: "#FEFCF7", emoji: "🧾" },
+                  { id: "food_grid",     label: "Food Grid",       bg: "#1A1209", accent: "#F5E8D0", emoji: "☕" },
+                  { id: "sunday_special",label: "Sunday Special",  bg: "#FBF6EE", accent: "#4A90D9", emoji: "🥖" },
+                  { id: "bakery_promo",  label: "Bakery Promo",    bg: "#4A90D9", accent: "#F5E8D0", emoji: "🎁" },
+                ] as const).map(t => {
+                  const selected = posterTemplate === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setPosterTemplate(t.id)} style={{ borderRadius: 14, overflow: "hidden", border: selected ? `3px solid ${PINK}` : "3px solid transparent", cursor: "pointer", boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)", transition: "all 0.15s", background: "none", padding: 0 }}>
+                      <div style={{ background: t.bg, height: 90, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 6 }}>
+                        <span style={{ fontSize: 28 }}>{t.emoji}</span>
+                        <span style={{ fontFamily: FONT_JOST, fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", color: t.accent, textShadow: t.id === "butter_love" ? "none" : "0 1px 3px rgba(0,0,0,0.3)" }}>{t.label.toUpperCase()}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </Section>
+
             <Section title="MENU HIGHLIGHTS">
               <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 16 }}>These appear in the &quot;From the Menu&quot; card on your storefront.</p>
               {menuItems.map((m, i) => (
