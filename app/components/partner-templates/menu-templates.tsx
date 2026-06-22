@@ -41,8 +41,9 @@ function NoiseTexture({ opacity = 0.04 }: { opacity?: number }) {
 
 // ── 1. ChalkboardMenu ──────────────────────────────────────────────────────
 
-function ChalkboardMenu({ items, brandName, tagline, accentColor }: MenuTemplateProps) {
-  const accent = accentColor || PINK;
+function ChalkboardMenu({ items, brandName, tagline, accentColor, fontFamily }: MenuTemplateProps) {
+  const accent = accentColor ?? PINK;
+  const titleFont = fontFamily ?? "var(--font-playfair)";
   return (
     <div style={{
       position: "relative",
@@ -56,7 +57,7 @@ function ChalkboardMenu({ items, brandName, tagline, accentColor }: MenuTemplate
 
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 18 }}>
-        <p style={{ fontSize: 32, fontStyle: "italic", color: "white", margin: 0, lineHeight: 1.1 }}>
+        <p style={{ fontSize: 32, fontStyle: "italic", color: "white", margin: 0, lineHeight: 1.1, fontFamily: titleFont }}>
           {brandName || "Our Menu"}
         </p>
         {tagline && (
@@ -114,8 +115,9 @@ function ChalkboardMenu({ items, brandName, tagline, accentColor }: MenuTemplate
 
 // ── 2. BistroMenu ─────────────────────────────────────────────────────────
 
-function BistroMenu({ items, brandName, tagline, accentColor }: MenuTemplateProps) {
-  const accent = accentColor || PINK;
+function BistroMenu({ items, brandName, tagline, accentColor, fontFamily }: MenuTemplateProps) {
+  const accent = accentColor ?? PINK;
+  const titleFont = fontFamily ?? "var(--font-playfair)";
   return (
     <div style={{
       position: "relative",
@@ -133,7 +135,7 @@ function BistroMenu({ items, brandName, tagline, accentColor }: MenuTemplateProp
       {/* Brand name */}
       <p style={{
         textAlign: "center",
-        fontFamily: "var(--font-playfair), Playfair Display, serif",
+        fontFamily: titleFont,
         fontSize: 28,
         fontStyle: "italic",
         fontWeight: 900,
@@ -168,7 +170,7 @@ function BistroMenu({ items, brandName, tagline, accentColor }: MenuTemplateProp
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             {/* Item name */}
             <span style={{
-              fontFamily: "var(--font-playfair), Playfair Display, serif",
+              fontFamily: titleFont,
               fontSize: 15,
               color: "#2C1810",
               flex: "0 0 auto",
@@ -195,7 +197,7 @@ function BistroMenu({ items, brandName, tagline, accentColor }: MenuTemplateProp
           </div>
           {m.note && (
             <p style={{
-              fontFamily: "var(--font-playfair), Playfair Display, serif",
+              fontFamily: titleFont,
               fontSize: 11,
               fontStyle: "italic",
               color: "#9A8A7A",
@@ -249,8 +251,9 @@ function priceToEmoji(price: string): string {
   return "✦";
 }
 
-function CafeBoardMenu({ items, brandName, tagline, accentColor }: MenuTemplateProps) {
-  const accent = accentColor || "#8B5E3C";
+function CafeBoardMenu({ items, brandName, tagline, accentColor, fontFamily }: MenuTemplateProps) {
+  const accent = accentColor ?? "#8B5E3C";
+  const titleFont = fontFamily ?? "var(--font-playfair)";
   return (
     <div style={{
       background: "#FBF6EE",
@@ -271,7 +274,7 @@ function CafeBoardMenu({ items, brandName, tagline, accentColor }: MenuTemplateP
           TODAY&apos;S
         </p>
         <p style={{
-          fontFamily: "var(--font-playfair), Playfair Display, serif",
+          fontFamily: titleFont,
           fontSize: 38,
           fontStyle: "italic",
           fontWeight: 900,
@@ -319,7 +322,7 @@ function CafeBoardMenu({ items, brandName, tagline, accentColor }: MenuTemplateP
           {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{
-              fontFamily: "var(--font-playfair), Playfair Display, serif",
+              fontFamily: titleFont,
               fontSize: 16,
               fontStyle: "italic",
               color: "#2C1810",
@@ -341,7 +344,7 @@ function CafeBoardMenu({ items, brandName, tagline, accentColor }: MenuTemplateP
           </div>
           {/* Price pill */}
           <span style={{
-            background: PINK,
+            background: accent,
             color: "white",
             borderRadius: 999,
             padding: "4px 10px",
@@ -377,8 +380,9 @@ function CafeBoardMenu({ items, brandName, tagline, accentColor }: MenuTemplateP
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function WeeklyScheduleMenu({ items, brandName, tagline, accentColor }: MenuTemplateProps) {
-  const accent = accentColor || PINK;
+function WeeklyScheduleMenu({ items, brandName, tagline, accentColor, fontFamily }: MenuTemplateProps) {
+  const accent = accentColor ?? PINK;
+  const titleFont = fontFamily ?? "var(--font-playfair)";
   const brandWord = brandName ? brandName.split(" ")[0].toUpperCase() : "BREAD";
   const effectiveItems = items.length > 0 ? items : [
     { item: "Sourdough", price: "$8" },
@@ -407,7 +411,7 @@ function WeeklyScheduleMenu({ items, brandName, tagline, accentColor }: MenuTemp
           {brandWord}
         </p>
         <p style={{
-          fontFamily: "var(--font-playfair), Playfair Display, serif",
+          fontFamily: titleFont,
           fontSize: 28,
           fontStyle: "italic",
           color: accent,
@@ -448,7 +452,7 @@ function WeeklyScheduleMenu({ items, brandName, tagline, accentColor }: MenuTemp
               </span>
               {/* Item */}
               <span style={{
-                fontFamily: "var(--font-playfair), Playfair Display, serif",
+                fontFamily: titleFont,
                 fontSize: 14,
                 fontStyle: "italic",
                 color: "#2C1810",
@@ -496,8 +500,9 @@ const MOCK_ITEMS: MenuItem[] = [
   { item: "Avocado Toast", price: "$12.00", note: "Sourdough, chili flake, lemon" },
 ];
 
-function DailySpecialsMenu({ items, brandName, accentColor }: MenuTemplateProps) {
-  const accent = accentColor || PINK;
+function DailySpecialsMenu({ items, brandName, accentColor, fontFamily }: MenuTemplateProps) {
+  const accent = accentColor ?? PINK;
+  const titleFont = fontFamily ?? "var(--font-playfair)";
   const displayed = (items.length > 0 ? items : MOCK_ITEMS).slice(0, 4);
 
   return (
@@ -508,7 +513,7 @@ function DailySpecialsMenu({ items, brandName, accentColor }: MenuTemplateProps)
     }}>
       {/* TODAY'S pill */}
       <span style={{
-        background: PINK,
+        background: accent,
         color: "white",
         borderRadius: 999,
         padding: "4px 12px",
@@ -524,7 +529,7 @@ function DailySpecialsMenu({ items, brandName, accentColor }: MenuTemplateProps)
 
       {/* Brand name */}
       <p style={{
-        fontFamily: "var(--font-playfair), Playfair Display, serif",
+        fontFamily: titleFont,
         fontSize: 30,
         fontStyle: "italic",
         color: "white",
@@ -545,7 +550,7 @@ function DailySpecialsMenu({ items, brandName, accentColor }: MenuTemplateProps)
           {/* Top row: name + price */}
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
             <span style={{
-              fontFamily: "var(--font-playfair), Playfair Display, serif",
+              fontFamily: titleFont,
               fontSize: 18,
               fontStyle: "italic",
               color: "#1A0F08",

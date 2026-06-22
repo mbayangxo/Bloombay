@@ -103,6 +103,8 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
 
   // ── Menu display template ─────────────────────────────────────────────────
   const [menuTemplate, setMenuTemplate] = useState<string>("cafe_board");
+  const [menuAccent, setMenuAccent] = useState("#FF1F7D");
+  const [menuFont, setMenuFont] = useState("var(--font-playfair)");
 
   // ── Menu highlights ──────────────────────────────────────────────────────
   const [menuItems, setMenuItems] = useState<{ item: string; price: string; note: string }[]>(
@@ -355,19 +357,19 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
                 {([
-                  { id: "butter_love",   label: "Butter & Love",   bg: "#FEFCF7", accent: "#8B1A2E", emoji: "🥐" },
-                  { id: "bite_crunch",   label: "Bite the Crunch", bg: "#C8201A", accent: "#ffffff", emoji: "🍞" },
-                  { id: "receipt_menu",  label: "Receipt Menu",    bg: "#8B5E3C", accent: "#FEFCF7", emoji: "🧾" },
-                  { id: "food_grid",     label: "Food Grid",       bg: "#1A1209", accent: "#F5E8D0", emoji: "☕" },
-                  { id: "sunday_special",label: "Sunday Special",  bg: "#FBF6EE", accent: "#4A90D9", emoji: "🥖" },
-                  { id: "bakery_promo",  label: "Bakery Promo",    bg: "#4A90D9", accent: "#F5E8D0", emoji: "🎁" },
+                  { id: "butter_love",   label: "Butter & Love",   bg: "#FEFCF7", emoji: "🥐" },
+                  { id: "bite_crunch",   label: "Bite the Crunch", bg: "#C8201A", emoji: "🍞" },
+                  { id: "receipt_menu",  label: "Receipt Menu",    bg: "#8B5E3C", emoji: "🧾" },
+                  { id: "food_grid",     label: "Food Grid",       bg: "#1A1209", emoji: "☕" },
+                  { id: "sunday_special",label: "Sunday Special",  bg: "#FBF6EE", emoji: "🥖" },
+                  { id: "bakery_promo",  label: "Bakery Promo",    bg: "#4A90D9", emoji: "🎁" },
                 ] as const).map(t => {
                   const selected = posterTemplate === t.id;
                   return (
                     <button key={t.id} onClick={() => setPosterTemplate(t.id)} style={{ borderRadius: 14, overflow: "hidden", border: selected ? `3px solid ${PINK}` : "3px solid transparent", cursor: "pointer", boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)", transition: "all 0.15s", background: "none", padding: 0 }}>
                       <div style={{ background: t.bg, height: 90, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 6 }}>
                         <span style={{ fontSize: 28 }}>{t.emoji}</span>
-                        <span style={{ fontFamily: FONT_JOST, fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", color: t.accent, textShadow: t.id === "butter_love" ? "none" : "0 1px 3px rgba(0,0,0,0.3)" }}>{t.label.toUpperCase()}</span>
+                        <span style={{ fontFamily: FONT_JOST, fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", color: brandColor, textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{t.label.toUpperCase()}</span>
                       </div>
                     </button>
                   );
@@ -435,13 +437,47 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
                 })}
               </div>
 
+              {/* Color + font pickers */}
+              <div>
+                {/* Color swatches */}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                  {["#FF1F7D","#8B1A2E","#C8201A","#8B5E3C","#4A90D9","#2C7A4B","#7C3AED","#1A0F08","#1C2B1A","#2C1810"].map(c => (
+                    <button key={c} onClick={() => setMenuAccent(c)} style={{
+                      width: 26, height: 26, borderRadius: "50%", background: c, border: "none", cursor: "pointer",
+                      boxShadow: menuAccent === c ? `0 0 0 2.5px white, 0 0 0 4px ${c}` : "none",
+                      transition: "box-shadow 0.15s",
+                    }} />
+                  ))}
+                  <input type="color" value={menuAccent} onChange={e => setMenuAccent(e.target.value)}
+                    style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.12)", padding: 0, cursor: "pointer" }} />
+                </div>
+                {/* Font buttons */}
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  {[
+                    { key: "playfair", family: "var(--font-playfair)", label: "Playfair" },
+                    { key: "fraunces", family: "var(--font-fraunces)", label: "Fraunces" },
+                    { key: "jost",     family: "var(--font-jost)",     label: "Jost" },
+                    { key: "caveat",   family: "var(--font-caveat)",   label: "Caveat" },
+                  ].map(f => (
+                    <button key={f.key} onClick={() => setMenuFont(f.family)}
+                      style={{ padding: "5px 10px", borderRadius: 8, cursor: "pointer",
+                        background: menuFont === f.family ? "#FF1F7D" : "rgba(255,31,125,0.06)",
+                        border: menuFont === f.family ? "none" : "1px solid rgba(255,31,125,0.2)" }}>
+                      <span style={{ fontFamily: f.family, fontSize: 15, color: menuFont === f.family ? "white" : "#1C1B1C", display: "block", lineHeight: 1 }}>Aa</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.1em", color: menuFont === f.family ? "white" : "rgba(0,0,0,0.4)" }}>{f.label.toUpperCase()}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Live preview */}
               <div style={{ maxWidth: 320, margin: "0 auto" }}>
                 <MenuTemplate
                   style={menuTemplate as MenuTemplateStyle}
                   items={menuItems.filter(m => m.item)}
                   brandName={name}
-                  accentColor={brandColor}
+                  accentColor={menuAccent}
+                  fontFamily={menuFont}
                 />
               </div>
             </Section>
