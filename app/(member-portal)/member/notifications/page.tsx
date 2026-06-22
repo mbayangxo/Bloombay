@@ -320,44 +320,68 @@ export default function NotificationsPage() {
         </button>
       </div>
 
-      {/* Pills layout */}
+      {/* Scattered pills — newest at top, truly scattered */}
       {totalItems > 0 ? (
-        <div style={{ padding: "0 16px" }}>
-          {/* RIGHT NOW section */}
+        <div style={{ position: "relative", padding: "0 12px" }}>
+
+          {/* ── RIGHT NOW label ── */}
           {nowItems.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <SectionLabel text="RIGHT NOW" />
-              <div style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 10,
-                padding: "10px 16px",
-              }}>
-                {nowItems.map((n, i) => (
-                  <NotifPill key={n.id} n={n} index={i} />
-                ))}
-              </div>
-            </div>
+            <SectionLabel text="✦ RIGHT NOW" />
           )}
 
-          {/* EARLIER section */}
-          {earlierItems.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <SectionLabel text="EARLIER" faint />
+          {/* Scattered container — absolute positioned pills */}
+          <div style={{
+            position: "relative",
+            width: "100%",
+            height: `${Math.max(480, (nowItems.length + earlierItems.length) * 72 + 80)}px`,
+          }}>
+            {/* Unread pills — scattered across top 55% */}
+            {nowItems.map((n, i) => {
+              const cols = [[4, 0], [48, 14], [16, 78], [54, 88], [6, 155], [46, 162]];
+              const [leftPct, topPx] = cols[i % cols.length];
+              return (
+                <div key={n.id} style={{
+                  position: "absolute",
+                  left: `${leftPct}%`,
+                  top: topPx + Math.floor(i / cols.length) * 230,
+                  zIndex: 2,
+                }}>
+                  <NotifPill n={n} index={i} />
+                </div>
+              );
+            })}
+
+            {/* EARLIER label — sits mid-container */}
+            {earlierItems.length > 0 && (
               <div style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 10,
-                padding: "10px 16px",
+                position: "absolute",
+                left: 0, right: 0,
+                top: nowItems.length > 0 ? Math.ceil(nowItems.length / 2) * 80 + 30 : 0,
+                display: "flex", justifyContent: "center",
+                zIndex: 3,
               }}>
-                {earlierItems.map((n, i) => (
-                  <NotifPill key={n.id} n={n} index={i + nowItems.length} />
-                ))}
+                <SectionLabel text="EARLIER" faint />
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Read pills — scattered in lower section */}
+            {earlierItems.map((n, i) => {
+              const baseTop = (nowItems.length > 0 ? Math.ceil(nowItems.length / 2) * 80 + 60 : 10);
+              const cols = [[8, 0], [44, 12], [20, 72], [52, 80], [10, 148], [48, 155]];
+              const [leftPct, offsetPx] = cols[i % cols.length];
+              return (
+                <div key={n.id} style={{
+                  position: "absolute",
+                  left: `${leftPct}%`,
+                  top: baseTop + offsetPx + Math.floor(i / cols.length) * 220,
+                  zIndex: 1,
+                  opacity: 0.72,
+                }}>
+                  <NotifPill n={n} index={i + nowItems.length} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div style={{ padding: "60px 24px", display: "flex", justifyContent: "center" }}>
