@@ -13,6 +13,7 @@ import { SaturdayPosterTemplate } from "./saturday-poster-template";
 import { RooftopPosterTemplate } from "./rooftop-poster-template";
 import { WinePosterTemplate } from "./wine-poster-template";
 import { AfterWorkPosterTemplate } from "./afterwork-poster-template";
+import { CafePosterTemplate } from "./cafe-poster-template";
 
 function pickProps(data: PosterTemplateData): PosterTemplateProps {
   const { template: _t, id: _id, ...rest } = data;
@@ -49,6 +50,8 @@ export function renderPosterByType(type: PosterTemplateType, props: PosterTempla
       return <WinePosterTemplate {...props} />;
     case "after_work":
       return <AfterWorkPosterTemplate {...props} />;
+    case "cafe":
+      return <CafePosterTemplate {...props} />;
     default:
       return <DinnerPosterTemplate {...props} />;
   }

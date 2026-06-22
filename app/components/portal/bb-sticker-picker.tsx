@@ -173,7 +173,7 @@ export function BBStickerPicker({
       </div>
 
       <div style={{ padding: "0 14px", maxHeight: 200, overflowY: "auto" }}>
-        {(activeTab === "GIRLIE" || (query && filteredGirlie.length > 0 && activeTab === "GIRLIE")) && activeTab === "GIRLIE" && (
+        {activeTab === "GIRLIE" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 46px)", gap: 4 }}>
             {filteredGirlie.map(s => (
               <button

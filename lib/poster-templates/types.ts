@@ -16,7 +16,8 @@ export type PosterTemplateType =
   | "saturday"
   | "rooftop_poster"
   | "wine_poster"
-  | "after_work";
+  | "after_work"
+  | "cafe";
 
 export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "dinner",
@@ -33,6 +34,7 @@ export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "rooftop_poster",
   "wine_poster",
   "after_work",
+  "cafe",
 ];
 
 /** Fields every template accepts (rendered from event / gathering data). */
@@ -75,6 +77,7 @@ export function posterTemplateLabel(type: PosterTemplateType): string {
     rooftop_poster: "Rooftop",
     wine_poster:  "Wine Club",
     after_work:   "After Work",
+    cafe:         "Café",
   };
   return labels[type];
 }

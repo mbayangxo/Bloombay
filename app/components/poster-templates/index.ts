@@ -12,6 +12,7 @@ export { SaturdayPosterTemplate } from "./saturday-poster-template";
 export { RooftopPosterTemplate } from "./rooftop-poster-template";
 export { WinePosterTemplate } from "./wine-poster-template";
 export { AfterWorkPosterTemplate } from "./afterwork-poster-template";
+export { CafePosterTemplate } from "./cafe-poster-template";
 export { PosterRenderer, renderPosterByType } from "./poster-renderer";
 export { PosterDemoGrid, inferPosterTemplate } from "./poster-demo-grid";
 export { PosterFrame } from "./poster-frame";

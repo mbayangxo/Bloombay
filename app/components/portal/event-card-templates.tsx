@@ -14,7 +14,7 @@ import Image from "next/image";
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
 
-export type EventType = "concert" | "party" | "gathering" | "invitation" | "brunch" | "walk" | "museum" | "open_seats" | "table" | "food" | "popup" | "bakery" | "drinks" | "supper";
+export type EventType = "concert" | "party" | "gathering" | "invitation" | "brunch" | "walk" | "museum" | "open_seats" | "table" | "food" | "popup" | "bakery" | "drinks" | "supper" | "paint";
 
 export interface EventCardData {
   id: number | string;
@@ -1488,6 +1488,77 @@ export function InvitationEventCard({ ev }: { ev: EventCardData }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BRUSH & GLASS CARD  (paint & sip bar — crimson/pink postage stamp frame)
+// ─────────────────────────────────────────────────────────────────────────────
+export function BrushGlassCard({ ev }: { ev: EventCardData }) {
+  const accent = ev.accentColor ?? "#B42035";
+  const href = ev.href ?? "#";
+
+  return (
+    <Link href={href} style={{ textDecoration: "none", display: "block", flexShrink: 0 }}>
+      <div style={{
+        width: 175, height: 260,
+        borderRadius: 14, overflow: "hidden",
+        position: "relative",
+        background: accent,
+        boxShadow: "0 10px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.16)",
+      }}>
+        {/* Plus sign decorations scattered */}
+        {[[14, 12], [155, 20], [10, 200], [158, 180], [80, 8], [90, 250]].map(([x, y], i) => (
+          <div key={i} style={{ position: "absolute", left: x, top: y, opacity: 0.2, pointerEvents: "none" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
+              <line x1="5" y1="1" x2="5" y2="9" /><line x1="1" y1="5" x2="9" y2="5" />
+            </svg>
+          </div>
+        ))}
+
+        {/* TOP: eyebrow */}
+        <div style={{ paddingTop: 12, textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>BLOOMBAY PRESENTS</p>
+        </div>
+
+        {/* Martini glass SVG */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+          <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+            <polygon points="10,5 40,5 25,35" stroke="white" fill="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinejoin="round"/>
+            <line x1="25" y1="35" x2="25" y2="52" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="15" y1="52" x2="35" y2="52" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="18" cy="22" r="3" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="32" cy="22" r="3" fill="rgba(255,255,255,0.5)"/>
+          </svg>
+        </div>
+
+        {/* PHOTO — postage stamp frame */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+          <div style={{ width: 120, background: "white", padding: "4px 4px 12px", border: "1px dashed rgba(255,255,255,0.3)", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", height: 70, overflow: "hidden", position: "relative", background: "linear-gradient(135deg, rgba(180,32,53,0.3), rgba(180,32,53,0.1))" }}>
+              {ev.imageUrl ? (
+                <Image src={ev.imageUrl} alt={ev.title} fill unoptimized style={{ objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${accent}55, rgba(0,0,0,0.2))` }} />
+              )}
+            </div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "11px", color: "#B42035", textAlign: "center", marginTop: 4, lineHeight: 1.2 }}>{ev.title}</p>
+          </div>
+        </div>
+
+        {/* BOTTOM section */}
+        <div style={{ padding: "8px 14px 0", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "16px", color: "white", textTransform: "uppercase", lineHeight: 1.1, letterSpacing: "-0.01em" }}>{ev.title}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.7)", marginTop: 4 }}>{ev.date} · {ev.time}</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{ev.location}</p>
+          {ev.spotsLeft !== undefined && (
+            <div style={{ display: "inline-block", background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "3px 10px", marginTop: 5 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>{ev.spotsLeft} SPOTS · JOIN US</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Auto-picker — selects the right card template for an event type
 // ─────────────────────────────────────────────────────────────────────────────
 export function EventCard({ ev }: { ev: EventCardData }) {
@@ -1501,5 +1572,6 @@ export function EventCard({ ev }: { ev: EventCardData }) {
   if (ev.type === "bakery")     return <BakeryReceiptCard ev={ev} />;
   if (ev.type === "drinks")     return <CocktailCard ev={ev} />;
   if (ev.type === "supper")     return <SupperNoteCard ev={ev} />;
+  if (ev.type === "paint")      return <BrushGlassCard ev={ev} />;
   return <GatheringCard ev={ev} />;
 }

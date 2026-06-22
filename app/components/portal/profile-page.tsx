@@ -15,7 +15,7 @@ const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -854,6 +854,116 @@ function TemplatePolaroid4({ displayName, initials, avatarUrl, vibe, photos, onA
   );
 }
 
+// ─── Template: Fridge ────────────────────────────────────────────────────────
+
+function TemplateFridge({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick, isOwn }: { displayName: string; initials: string; avatarUrl: string | null; vibe: string; photos: Photo[]; onAvatarClick: () => void; isOwn?: boolean }) {
+  if (!isOwn && photos.length === 0 && !vibe) return null;
+  const handleStyle: React.CSSProperties = { position: "absolute", left: 12, width: 8, height: 60, borderRadius: 4, background: "linear-gradient(180deg, #E8E8E8, #B0B0B0)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" };
+  return (
+    <div style={{ height: 340, position: "relative", background: "#C5D8E4", borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.14)" }}>
+
+      {/* ── Freezer compartment (top 36%) ── */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "36%", borderBottom: "2px solid rgba(0,0,0,0.12)" }}>
+        <div style={{ position: "absolute", ...handleStyle, top: "50%", transform: "translateY(-50%)" }} />
+        <p style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 300, letterSpacing: "0.45em", color: "rgba(255,255,255,0.55)" }}>SMEG</p>
+
+        {/* Photo booth strip */}
+        <div style={{ position: "absolute", top: 18, left: 45, width: 44, borderRadius: 4, background: "white", padding: "2px 2px 2px", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}>
+          {photos[0] ? (
+            <div style={{ height: 30, overflow: "hidden", position: "relative" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photos[0].url} alt="" style={{ width: "100%", height: 30, objectFit: "cover", display: "block" }} />
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {[0,1,2].map(i => <div key={i} style={{ height: 9, background: "#D0D0D0", borderRadius: 1 }} />)}
+            </div>
+          )}
+        </div>
+
+        {/* Victoria postcard magnet */}
+        <div style={{ position: "absolute", top: 14, right: 55, background: "#FFF8F0", borderRadius: 4, padding: "4px 8px", transform: "rotate(3deg)", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
+          <div style={{ position: "absolute", top: 2, right: 2, width: 8, height: 8, background: "#CC2222", opacity: 0.5, borderRadius: 1 }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#8B4030", letterSpacing: "0.2em" }}>{displayName.toUpperCase().slice(0,8)}</p>
+        </div>
+
+        {/* Pink flower sticker */}
+        <div style={{ position: "absolute", top: 28, right: 14, opacity: 0.7 }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="3" fill="#FF85C8"/>
+            {[0,60,120,180,240,300].map((a,i) => {
+              const rad = a * Math.PI / 180;
+              return <ellipse key={i} cx={9 + 5 * Math.cos(rad)} cy={9 + 5 * Math.sin(rad)} rx="2.5" ry="1.5" fill="#FF85C8" transform={`rotate(${a} ${9 + 5 * Math.cos(rad)} ${9 + 5 * Math.sin(rad)})`}/>;
+            })}
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Main fridge door (lower 64%) ── */}
+      <div style={{ position: "absolute", top: "36%", left: 0, right: 0, bottom: 0 }}>
+        <div style={{ position: "absolute", ...handleStyle, top: "30%" }} />
+
+        {/* 1. Calendar magnet */}
+        <div style={{ position: "absolute", top: 18, left: 18, width: 80, background: "white", borderRadius: 6, padding: "5px 6px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+          <div style={{ height: 14, background: "linear-gradient(90deg,#F87060,#F59E0B)", borderRadius: "4px 4px 0 0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "white" }}>May</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 1.5 }}>
+            {Array.from({length: 21}).map((_,i) => <div key={i} style={{ width: 6, height: 6, background: "#F0E8E8", borderRadius: 1 }} />)}
+          </div>
+        </div>
+
+        {/* 2. Yellow notepad sticky */}
+        <div style={{ position: "absolute", top: 16, left: 110, transform: "rotate(2deg)", background: "#FFE082", padding: "6px 8px", borderRadius: 3, boxShadow: "0 3px 8px rgba(0,0,0,0.15)", maxWidth: 80 }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#3A2A10", lineHeight: 1.3 }}>{vibe ? vibe.slice(0,30) : "Make people FEEL"}</p>
+        </div>
+
+        {/* 3. B&W photo strip */}
+        <div style={{ position: "absolute", top: 14, right: 14, width: 70, background: "white", padding: "3px 3px 3px", boxShadow: "0 3px 10px rgba(0,0,0,0.2)", borderRadius: 3 }}>
+          {photos[1] ? (
+            <div style={{ height: 55, overflow: "hidden", position: "relative" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photos[1].url} alt="" style={{ width: "100%", height: 55, objectFit: "cover", filter: "grayscale(60%)", display: "block" }} />
+            </div>
+          ) : (
+            <div style={{ height: 55, background: "linear-gradient(135deg, #2A2A2A, #555)" }} />
+          )}
+        </div>
+
+        {/* 4. Pink heart sticker */}
+        <div style={{ position: "absolute", bottom: 40, right: 30 }}>
+          <svg width="24" height="22" viewBox="0 0 24 22" fill="#FF1F7D">
+            <path d="M12 21 C12 21 1 13 1 6.5 C1 3.5 3.5 1 6.5 1 C8.8 1 10.7 2.3 12 4.2 C13.3 2.3 15.2 1 17.5 1 C20.5 1 23 3.5 23 6.5 C23 13 12 21 12 21Z"/>
+          </svg>
+        </div>
+
+        {/* 5. Round button magnet */}
+        <div style={{ position: "absolute", bottom: 38, left: 55, width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #F59E0B, #EF4444)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "white" }}>BB</p>
+        </div>
+
+        {/* 6. Orange note */}
+        <div style={{ position: "absolute", bottom: 30, left: 14, background: "#FF9800", padding: "5px 7px", borderRadius: 3, transform: "rotate(-2deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", maxWidth: 72 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "white", lineHeight: 1.3 }}>SAVE WATER DRINK VEUVE CLICQUOT</p>
+        </div>
+
+        {/* 7. Avatar circle */}
+        <button
+          onClick={onAvatarClick}
+          style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", width: 42, height: 42, borderRadius: "50%", overflow: "hidden", cursor: "pointer", border: "2px solid white", boxShadow: "0 3px 10px rgba(0,0,0,0.2)", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 700, color: "white" }}>{initials}</p>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
@@ -871,6 +981,7 @@ function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId;
     { id: "lookbook",     label: "LOOKBOOK", bg: "#1A1A1A", textColor: "#FF1F7D" },
     { id: "moodboard",    label: "MOOD",     bg: "#FAF6F0", textColor: "#555" },
     { id: "polaroid4",    label: "POLAROID", bg: "#F9F7F5", textColor: "#888" },
+    { id: "fridge",       label: "FRIDGE",   bg: "#C5D8E4", textColor: "#555" },
   ];
 
   return (
@@ -1346,6 +1457,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {templateId === "lookbook"  && <TemplateLookbook  {...templateProps} />}
           {templateId === "moodboard" && <TemplateMoodboard {...templateProps} />}
           {templateId === "polaroid4" && <TemplatePolaroid4 {...templateProps} />}
+          {templateId === "fridge" && <TemplateFridge displayName={templateProps.displayName} initials={templateProps.initials} avatarUrl={templateProps.avatarUrl} vibe={templateProps.vibe} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} isOwn={true} />}
         </div>
 
       </div>
@@ -1366,6 +1478,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           lookbook:     ["occupation", "vibe", "sign", "photos"],
           moodboard:    ["vibe", "photos"],
           polaroid4:    ["vibe", "photos"],
+          fridge:       ["photos", "vibe"],
         };
         const FIELD_LABELS: Record<string, string> = {
           occupation: "WHAT SHE DOES",
