@@ -137,7 +137,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
   const envColor = isInvitation ? (item.color ?? PINK) : "#C8546A";
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 100, background: "#FBE8EE" }}>
+    <div style={{ minHeight: "100vh", paddingBottom: 100, background: "#0C0818" }}>
       <style>{`
         @keyframes flapOpen {
           0%   { transform: perspective(700px) rotateX(0deg);    }
@@ -154,10 +154,10 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
       `}</style>
 
       <div style={{ padding: "54px 20px 0", display: "flex", alignItems: "center", gap: 10 }}>
-        <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(0,0,0,0.07)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: "#C07080" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,150,190,0.8)" }}>
           {isInvitation ? "✉ INVITATION" : "✉ LETTER"}
         </p>
       </div>
@@ -328,7 +328,7 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
   onBack: () => void;
 }) {
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 60%, #FFF5F0 100%)", paddingBottom: 100 }}>
+    <div style={{ minHeight: "100vh", background: "#0C0818", paddingBottom: 100 }}>
       <style>{`
         @keyframes cardIn { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .inv-card { animation: cardIn 0.38s cubic-bezier(0.34,1.3,0.64,1) both; }
@@ -375,10 +375,10 @@ function InvitationListView({ items, openedItems, onOpen, onBack }: {
                       {item.initial}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, fontWeight: isUnread ? 700 : 500, color: "#1A1A1A", marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 6 }}>{item.preview}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, fontWeight: isUnread ? 700 : 500, color: "rgba(255,255,255,0.95)", marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.45)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 6 }}>{item.preview}</p>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#C07080" }}>from {item.from} · {item.date}</p>
+                        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,150,190,0.75)" }}>from {item.from} · {item.date}</p>
                         {isUnread
                           ? <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: PINK, letterSpacing: "0.18em", background: `${PINK}12`, borderRadius: 99, padding: "3px 8px" }}>NEW</span>
                           : <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "#ccc", letterSpacing: "0.1em" }}>OPENED</span>

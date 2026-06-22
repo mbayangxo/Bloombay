@@ -283,7 +283,11 @@ export function BottomNav({ user }: { user?: NavUser }) {
                      pathname.startsWith("/member/clubs")     ||
                      pathname.startsWith("/member/chat")      ||
                      pathname.startsWith("/member/lounge")    ||
-                     pathname.startsWith("/member/city");
+                     pathname.startsWith("/member/city")      ||
+                     pathname.startsWith("/member/home")      ||
+                     pathname.startsWith("/member/messages")  ||
+                     pathname.startsWith("/member/notifications") ||
+                     pathname.startsWith("/member/pin-drops");
   // hideTopBar hides the ACTION icons only (not the logo)
   const hideTopBarActions = pathname.startsWith("/member/lounge")    ||
                             pathname.startsWith("/member/happenings");

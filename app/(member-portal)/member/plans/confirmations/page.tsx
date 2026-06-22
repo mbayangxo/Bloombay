@@ -43,17 +43,17 @@ export default function ConfirmationsPage() {
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ minHeight: "100vh", background: "#0C0818", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* Top bar */}
-      <div style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(255,255,255,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", backdropFilter: "blur(16px)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(12,8,24,0.97)", borderBottom: "1px solid rgba(255,31,125,0.18)", backdropFilter: "blur(16px)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div style={{ height: 52, display: "flex", alignItems: "center", gap: 10, padding: "0 16px" }}>
-          <Link href="/member/plans" style={{ display: "flex", alignItems: "center", padding: 6, borderRadius: 999, background: "rgba(255,31,125,0.07)", textDecoration: "none" }}>
+          <Link href="/member/plans" style={{ display: "flex", alignItems: "center", padding: 6, borderRadius: 999, background: "rgba(255,31,125,0.12)", textDecoration: "none" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </Link>
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.55)", lineHeight: 1 }}>YOUR</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "#111", lineHeight: 1.1 }}>Confirmations</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.7)", lineHeight: 1 }}>YOUR</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "rgba(255,255,255,0.95)", lineHeight: 1.1 }}>Confirmations</p>
           </div>
           {!loading && items.length > 0 && (
             <div style={{ background: PINK, borderRadius: 999, padding: "3px 10px" }}>
@@ -69,7 +69,7 @@ export default function ConfirmationsPage() {
         {loading && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[1,2,3].map(i => (
-              <div key={i} style={{ height: 108, borderRadius: 18, background: "linear-gradient(90deg, #fce4f0 25%, #fff0f8 50%, #fce4f0 75%)", backgroundSize: "400px 100%", animation: "shimmer 1.4s ease-in-out infinite" }}/>
+              <div key={i} style={{ height: 108, borderRadius: 18, background: "linear-gradient(90deg, rgba(255,31,125,0.08) 25%, rgba(255,31,125,0.15) 50%, rgba(255,31,125,0.08) 75%)", backgroundSize: "400px 100%", animation: "shimmer 1.4s ease-in-out infinite" }}/>
             ))}
             <style>{`@keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }`}</style>
           </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
-const PAPER = "#FEFCF7";
+const PAPER = "#0C0818";
 
 const BOUQUET = [
   { name: "Aaliyah M.", neighborhood: "Crown Heights", color: "#FF1F7D", initial: "A", since: "Jan 2026", note: "She always knows the right thing to say." },
@@ -75,10 +75,10 @@ export default function BouquetPage() {
         {BOUQUET.map((w, i) => (
           <button key={w.name} onClick={() => setSelected(w)}
             style={{
-              background: "white", borderRadius: 20, padding: "16px",
+              background: "rgba(255,255,255,0.06)", borderRadius: 20, padding: "16px",
               display: "flex", alignItems: "center", gap: 14, textAlign: "left" as const,
               border: "none", cursor: "pointer", width: "100%",
-              boxShadow: "0 3px 14px rgba(255,31,125,0.08), 0 1px 3px rgba(0,0,0,0.04)",
+              boxShadow: "0 3px 14px rgba(0,0,0,0.2)",
               transition: "transform 0.12s",
             }}
             onMouseDown={e => (e.currentTarget.style.transform = "scale(0.98)")}
@@ -96,12 +96,12 @@ export default function BouquetPage() {
 
             {/* Info */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: DARK, marginBottom: 2 }}>{w.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#bbb" }}>{w.neighborhood} · since {w.since}</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#888", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{w.note}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 2 }}>{w.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.4)" }}>{w.neighborhood} · since {w.since}</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,150,190,0.65)", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{w.note}</p>
             </div>
 
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         ))}
 
@@ -126,9 +126,9 @@ export default function BouquetPage() {
       {selected && (
         <>
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: PAPER, borderRadius: "24px 24px 0 0", maxHeight: "75vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "#120A20", borderRadius: "24px 24px 0 0", maxHeight: "75vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 0" }}>
-              <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
+              <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.2)" }} />
             </div>
             <div style={{ padding: "20px 24px 40px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
@@ -136,14 +136,14 @@ export default function BouquetPage() {
                   {selected.initial}
                 </div>
                 <div style={{ flex: 1, paddingTop: 6 }}>
-                  <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: DARK, margin: 0, lineHeight: 1 }}>{selected.name}</h2>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", marginTop: 4 }}>{selected.neighborhood} · since {selected.since}</p>
+                  <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: "rgba(255,255,255,0.95)", margin: 0, lineHeight: 1 }}>{selected.name}</h2>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{selected.neighborhood} · since {selected.since}</p>
                   <span style={{ display: "inline-block", marginTop: 8, fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: "white", background: PINK, borderRadius: 4, padding: "3px 10px" }}>✦ BOUQUET</span>
                 </div>
               </div>
               {selected.note && (
-                <div style={{ background: "#FFF5F8", borderRadius: 16, padding: "14px 16px", borderLeft: `3px solid ${PINK}`, marginBottom: 20 }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#444", lineHeight: 1.6 }}>"{selected.note}"</p>
+                <div style={{ background: "rgba(255,31,125,0.08)", borderRadius: 16, padding: "14px 16px", borderLeft: `3px solid ${PINK}`, marginBottom: 20 }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(255,220,240,0.85)", lineHeight: 1.6 }}>"{selected.note}"</p>
                 </div>
               )}
               <div style={{ display: "flex", gap: 8 }}>
@@ -152,8 +152,8 @@ export default function BouquetPage() {
                     Message →
                   </div>
                 </Link>
-                <button onClick={() => setSelected(null)} style={{ width: 48, borderRadius: 14, background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <button onClick={() => setSelected(null)} style={{ width: 48, borderRadius: 14, background: "rgba(255,255,255,0.08)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>

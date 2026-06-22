@@ -17,31 +17,32 @@ export interface ThemePalette {
   isNight: boolean;
 }
 
+// Both palettes use the unified dark colorway — consistent with all other pages
 const DAY: ThemePalette = {
-  pageBg: "#FFF8F0",
-  card: "#FFFFFF",
-  cardElevated: "#FEFCF7",
-  textPrimary: "#111111",
-  textSecondary: "rgba(0,0,0,0.55)",
-  textMuted: "rgba(0,0,0,0.35)",
+  pageBg: "#0C0818",
+  card: "rgba(255,255,255,0.07)",
+  cardElevated: "rgba(255,255,255,0.10)",
+  textPrimary: "rgba(255,255,255,0.95)",
+  textSecondary: "rgba(255,220,240,0.7)",
+  textMuted: "rgba(255,200,225,0.42)",
   pink: "#FF1F7D",
-  babyPink: "#FFB3D1",
-  border: "rgba(255,31,125,0.12)",
-  borderStrong: "rgba(255,31,125,0.3)",
+  babyPink: "#FF80C0",
+  border: "rgba(255,31,125,0.22)",
+  borderStrong: "rgba(255,31,125,0.45)",
   isNight: false,
 };
 
 const NIGHT: ThemePalette = {
-  pageBg: "#0E0906",
-  card: "#1B1108",
-  cardElevated: "#221508",
-  textPrimary: "rgba(255,240,218,0.95)",
-  textSecondary: "rgba(255,200,180,0.7)",
-  textMuted: "rgba(255,220,200,0.38)",
-  pink: "#FF4D94",
-  babyPink: "#FFB3D1",
-  border: "rgba(255,77,148,0.2)",
-  borderStrong: "rgba(255,77,148,0.4)",
+  pageBg: "#0C0818",
+  card: "rgba(255,255,255,0.06)",
+  cardElevated: "rgba(255,255,255,0.09)",
+  textPrimary: "rgba(255,255,255,0.95)",
+  textSecondary: "rgba(255,220,240,0.7)",
+  textMuted: "rgba(255,200,225,0.38)",
+  pink: "#FF1F7D",
+  babyPink: "#FF80C0",
+  border: "rgba(255,31,125,0.2)",
+  borderStrong: "rgba(255,31,125,0.42)",
   isNight: true,
 };
 

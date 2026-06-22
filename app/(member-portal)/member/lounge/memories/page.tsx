@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 
 const PINK  = "#FF1F7D";
 const PLUM  = "#1A0A2E";
-const IVORY = "#fdf4ec";
-const INK   = "#111111";
+const IVORY = "#0C0818";
+const INK   = "rgba(255,255,255,0.9)";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -441,7 +441,7 @@ export default function BloomTrailsPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {MISSED_LAST_MONTH.map(ev => (
               <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none" }}>
-                <div style={{ background: "white", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)", borderLeft: `3px solid rgba(0,0,0,0.08)` }}>
+                <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", borderLeft: `3px solid rgba(255,31,125,0.3)` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
                     <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: INK, lineHeight: 1.2, flex: 1 }}>{ev.title}</p>
                     {ev.clubName && (
@@ -450,8 +450,8 @@ export default function BloomTrailsPage() {
                       </span>
                     )}
                   </div>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", marginBottom: 6 }}>{ev.venue} · {ev.date}</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#777", lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>{ev.venue} · {ev.date}</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,150,190,0.7)", lineHeight: 1.5 }}>
                     &ldquo;{ev.reasonYouWouldHaveLoved}&rdquo; — Yande ✦
                   </p>
                 </div>
@@ -465,8 +465,8 @@ export default function BloomTrailsPage() {
       {COMING_UP_THIS_MONTH.length > 0 && (
         <div style={{ padding: "28px 20px 0" }}>
           <div style={{ marginBottom: 12 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>THIS MONTH — DON&apos;T MISS</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", marginTop: 3 }}>From your clubs. Yande thinks you&apos;ll want to be there.</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)" }}>THIS MONTH — DON&apos;T MISS</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,150,190,0.6)", marginTop: 3 }}>From your clubs. Yande thinks you&apos;ll want to be there.</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {COMING_UP_THIS_MONTH.map(ev => (
