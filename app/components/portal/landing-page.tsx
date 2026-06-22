@@ -322,21 +322,32 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE — BLACK STATEMENT — first thing you see
       ══════════════════════════════════════════════════════ */}
-      <section className="bb-mobile-only" style={{ minHeight: "100svh", background: "#0A0A0A", flexDirection: "column", justifyContent: "center", overflow: "hidden", position: "relative", padding: "0 28px" }}>
+      <section className="bb-mobile-only" style={{ background: "#0A0A0A", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden", position: "relative", paddingBottom: 52 }}>
         {/* Subtle pink glow bottom-left */}
         <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
-        <div>
+        {/* Top bar with LOG IN + JOIN NOW */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 18px) 22px 0" }}>
+          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.22)", padding: "7px 16px", borderRadius: 999 }}>
+            LOG IN
+          </Link>
+          <Link href="/onboard" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, letterSpacing: "0.14em", color: "white", textDecoration: "none", background: PINK, padding: "7px 18px", borderRadius: 999, boxShadow: `0 4px 18px ${PINK}55` }}>
+            JOIN NOW →
+          </Link>
+        </div>
+        {/* Headline */}
+        <div style={{ padding: "36px 28px 0" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
             It&apos;s a<br />woman&apos;s<br />world.
           </p>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 28 }}>
             We&apos;re it.
           </p>
-        </div>
-        {/* Scroll hint */}
-        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 1, height: 40, background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.25))" }} />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.25)" }}>SCROLL</p>
+          <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(32px, 9vw, 52px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+            Women are
+          </div>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(40px, 12vw, 60px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
+            gathering.
+          </div>
         </div>
       </section>
 
@@ -352,26 +363,13 @@ export function LandingPage() {
         <div style={{ position: "absolute", bottom: -80, left: -80, width: 280, height: 280, borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none", zIndex: 0 }} />
         <div style={{ position: "absolute", top: 60, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(0,0,0,0.06)", pointerEvents: "none", zIndex: 0 }} />
 
-        {/* Top bar */}
-        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 22px", paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)", flexShrink: 0 }}>
+        {/* Top bar — logo only, no LOG IN (that's in the black section above) */}
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", padding: "0 22px", paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)", flexShrink: 0 }}>
           <BBLogo size={22} light />
-          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)", padding: "6px 14px", borderRadius: 999 }}>
-            LOG IN
-          </Link>
         </div>
 
-        {/* Main headline */}
+        {/* Envelope + club pills */}
         <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 22px" }}>
-
-          {/* Primary — Women are gathering. */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(42px, 12vw, 64px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
-              Women are
-            </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(52px, 15vw, 72px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
-              gathering.
-            </div>
-          </div>
 
           {/* Club pills */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
