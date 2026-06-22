@@ -736,14 +736,8 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           STATEMENT — It's a woman's world.
       ══════════════════════════════════════════════════════ */}
-      <div style={{ background: INK, padding: "64px 22px 56px", overflow: "hidden" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 9vw, 92px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.03em", margin: 0 }}>
-          It&apos;s a woman&apos;s world.
-        </p>
-        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(40px, 10vw, 100px)", color: PINK, lineHeight: 0.9, letterSpacing: "-0.04em", margin: "6px 0 40px" }}>
-          We&apos;re it.
-        </p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ background: INK, padding: "40px 22px 56px", overflow: "hidden" }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
           <Link href="/onboard" style={{ display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "14px 32px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", boxShadow: "0 8px 32px rgba(255,31,125,0.4)" }}>
             JOIN NOW →
           </Link>
@@ -751,12 +745,18 @@ export function LandingPage() {
             LOG IN
           </Link>
         </div>
+        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 9vw, 92px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.03em", margin: 0 }}>
+          It&apos;s a woman&apos;s world.
+        </p>
+        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(40px, 10vw, 100px)", color: PINK, lineHeight: 0.9, letterSpacing: "-0.04em", margin: "6px 0 0" }}>
+          We&apos;re it.
+        </p>
       </div>
 
       {/* ══════════════════════════════════════════════════════
           IT'S A WOMAN'S WORLD. WE'RE IT.
       ══════════════════════════════════════════════════════ */}
-      <section style={{ background: PINK, padding: "80px 22px", position: "relative", overflow: "hidden" }}>
+      <section style={{ background: PINK, padding: "36px 22px 80px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.08) 0%, transparent 50%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 900, margin: "0 auto", position: "relative", textAlign: "center" }}>
           <Sparkle color="rgba(255,255,255,0.5)" size={28} />
