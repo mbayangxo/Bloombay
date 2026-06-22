@@ -10,7 +10,13 @@ export type PosterTemplateType =
   | "walk"
   | "wellness"
   | "grid"
-  | "plate";
+  | "plate"
+  | "aperitivo"
+  | "brunch_poster"
+  | "saturday"
+  | "rooftop_poster"
+  | "wine_poster"
+  | "after_work";
 
 export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "dinner",
@@ -21,6 +27,12 @@ export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "wellness",
   "grid",
   "plate",
+  "aperitivo",
+  "brunch_poster",
+  "saturday",
+  "rooftop_poster",
+  "wine_poster",
+  "after_work",
 ];
 
 /** Fields every template accepts (rendered from event / gathering data). */
@@ -49,14 +61,20 @@ export type PosterTemplateData = PosterTemplateProps & {
 
 export function posterTemplateLabel(type: PosterTemplateType): string {
   const labels: Record<PosterTemplateType, string> = {
-    dinner:   "Dinner",
-    club:     "Club",
-    party:    "Party",
-    museum:   "Museum",
-    walk:     "Walk",
-    wellness: "Wellness",
-    grid:     "Grid Poster",
-    plate:    "Plate",
+    dinner:       "Dinner",
+    club:         "Club",
+    party:        "Party",
+    museum:       "Museum",
+    walk:         "Walk",
+    wellness:     "Wellness",
+    grid:         "Grid Poster",
+    plate:        "Plate",
+    aperitivo:    "Aperitivo",
+    brunch_poster: "Sunday Brunch",
+    saturday:     "Saturday Night",
+    rooftop_poster: "Rooftop",
+    wine_poster:  "Wine Club",
+    after_work:   "After Work",
   };
   return labels[type];
 }
