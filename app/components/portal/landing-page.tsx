@@ -322,7 +322,7 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE — BLACK STATEMENT — first thing you see
       ══════════════════════════════════════════════════════ */}
-      <section className="bb-mobile-only" style={{ background: "#0A0A0A", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden", position: "relative", paddingBottom: 52 }}>
+      <section className="bb-mobile-only" style={{ background: "#0A0A0A", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden", position: "relative", paddingBottom: 88 }}>
         {/* Subtle pink glow bottom-left */}
         <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
         {/* Top bar with LOG IN + JOIN NOW */}
@@ -335,17 +335,17 @@ export function LandingPage() {
           </Link>
         </div>
         {/* Headline */}
-        <div style={{ padding: "36px 28px 0" }}>
+        <div style={{ padding: "40px 28px 0" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
             It&apos;s a<br />woman&apos;s<br />world.
           </p>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 28 }}>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 36 }}>
             We&apos;re it.
           </p>
-          <div style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(32px, 9vw, 52px)", color: "white", lineHeight: 0.92, letterSpacing: "-0.02em" }}>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(38px, 11vw, 56px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.035em" }}>
             Women are
           </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(40px, 12vw, 60px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 4 }}>
+          <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(46px, 13.5vw, 70px)", color: PINK, lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 6 }}>
             gathering.
           </div>
         </div>
@@ -369,7 +369,7 @@ export function LandingPage() {
         </div>
 
         {/* Envelope + club pills */}
-        <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 22px" }}>
+        <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", padding: "32px 22px 0" }}>
 
           {/* Club pills */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>

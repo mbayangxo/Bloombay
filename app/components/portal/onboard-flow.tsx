@@ -828,6 +828,10 @@ export function OnboardFlow() {
   // ── STEP 2 – save profile basics ─────────────────────────────────
   async function handleSaveProfile() {
     if (!firstName.trim()) return setError("Enter your first name.");
+    const ageNum = age ? parseInt(age, 10) : null;
+    if (age && (isNaN(ageNum!) || ageNum! < 18 || ageNum! > 100)) {
+      return setError("You must be 18 or older to join BloomBay.");
+    }
     setLoading(true);
     setError(null);
     try {
@@ -836,7 +840,7 @@ export function OnboardFlow() {
       if (!user) throw new Error("Not signed in.");
       const { error: err } = await supabase
         .from("profiles")
-        .update({ first_name: firstName.trim(), bio: bio.trim() || null, age: age ? parseInt(age) : null })
+        .update({ first_name: firstName.trim(), bio: bio.trim() || null, age: ageNum })
         .eq("id", user.id);
       if (err) throw err;
       advance();
