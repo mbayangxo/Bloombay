@@ -48,6 +48,7 @@ export type PosterTemplateProps = {
   hostName?: string;
   imageUrl?: string;
   accentColor?: string;
+  fontFamily?: string;
   ctaLabel?: string;
   /** Club template — membership scale */
   memberCount?: number;

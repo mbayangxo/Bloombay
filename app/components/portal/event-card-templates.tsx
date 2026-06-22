@@ -27,6 +27,7 @@ export interface EventCardData {
   spotsLeft?: number;
   going?: number;
   accentColor?: string;
+  fontFamily?: string;
   imageUrl?: string;
   href?: string;
   invitationStyle?: string;
@@ -178,7 +179,7 @@ export function PosterCard({ ev }: { ev: EventCardData }) {
         {/* Main poster title — big bold */}
         <div style={{ position: "absolute", top: 28, left: 12, right: 12, zIndex: 3 }}>
           <p style={{
-            fontFamily: "var(--font-jost)",
+            fontFamily: ev.fontFamily ?? "var(--font-jost)",
             fontWeight: 900,
             fontSize: ev.title.length > 14 ? 22 : 28,
             color: "white",
@@ -281,7 +282,7 @@ export function GatheringCard({ ev }: { ev: EventCardData }) {
           </div>
 
           {/* Title */}
-          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 19, color: DARK, lineHeight: 1.15, marginBottom: 4 }}>
+          <p style={{ fontFamily: ev.fontFamily ?? "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 19, color: DARK, lineHeight: 1.15, marginBottom: 4 }}>
             {ev.title}
           </p>
 
@@ -379,7 +380,7 @@ function DefaultEnvelopeCard({ ev }: { ev: EventCardData }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: accent, marginBottom: 6 }}>
               YOU ARE INVITED
             </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, fontWeight: 700, color: DARK, lineHeight: 1.2, marginBottom: 4 }}>
+            <p style={{ fontFamily: ev.fontFamily ?? "var(--font-caveat)", fontSize: 18, fontWeight: 700, color: DARK, lineHeight: 1.2, marginBottom: 4 }}>
               {ev.title}
             </p>
             {ev.host && (

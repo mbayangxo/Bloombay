@@ -119,6 +119,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     spotsLeft: 8,
     going: 12,
     accentColor,
+    fontFamily: FONTS.find(f => f.key === fontKey)?.family,
     href: "#",
     invitationStyle: invStyle === "default" ? undefined : invStyle,
   };
@@ -190,6 +191,36 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
             </div>
           </div>
         )}
+
+        {/* ── INLINE COLOR + FONT ── */}
+        <div style={{ marginTop: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 10 }}>COLOR & FONT</p>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginBottom: 10 }}>
+            {COLOR_SWATCHES.map(c => (
+              <button key={c} onClick={() => { setAccent(c); setCustom(c); }} style={{
+                width: 26, height: 26, borderRadius: "50%", background: c, border: `3px solid ${accentColor === c ? DARK : "transparent"}`,
+                cursor: "pointer", padding: 0, boxShadow: accentColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none", transition: "all 0.12s",
+              }} />
+            ))}
+            <input type="color" value={customColor} onChange={e => { setCustom(e.target.value); setAccent(e.target.value); }}
+              style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid rgba(0,0,0,0.12)", cursor: "pointer", padding: 1, background: "white" }} />
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+            {FONTS.map(f => {
+              const active = fontKey === f.key;
+              return (
+                <button key={f.key} onClick={() => setFont(f.key)} style={{
+                  padding: "7px 13px", borderRadius: 10, border: `2px solid ${active ? PINK : "rgba(0,0,0,0.1)"}`,
+                  background: active ? `${PINK}0F` : "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, transition: "all 0.12s",
+                }}>
+                  <span style={{ fontFamily: f.family, fontSize: 18, fontWeight: 700, color: active ? PINK : DARK, lineHeight: 1 }}>{f.preview}</span>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: active ? PINK : "rgba(0,0,0,0.4)", letterSpacing: "0.06em" }}>{f.label.toUpperCase()}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     );
   }

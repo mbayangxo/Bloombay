@@ -1044,6 +1044,12 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [extraSaved, setExtraSaved] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [customizeSaved, setCustomizeSaved] = useState(false);
+  const [templateAccent, setTemplateAccent] = useState("#FF1F7D");
+  const [templateFontKey, setTemplateFontKey] = useState("playfair");
+  const [voiceNotes, setVoiceNotes] = useState<{ id: string; url: string; label: string }[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Socials state
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
@@ -1466,19 +1472,19 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       {(() => {
         const TEMPLATE_FIELDS: Record<string, string[]> = {
           id:           ["occupation", "sign", "vibe"],
-          board:        ["photos"],
-          zine:         [],
-          collage:      ["vibe", "photos"],
+          board:        ["photos", "voice"],
+          zine:         ["voice"],
+          collage:      ["vibe", "photos", "voice"],
           dossier:      ["archetype", "sheIs", "sigTraits", "luckyCharm", "sign"],
           beauty_table: ["occupation", "vibe", "sheIs"],
-          notebook:     ["sheIs", "photos"],
+          notebook:     ["sheIs", "photos", "voice"],
           magazine:     ["occupation", "vibe"],
           solo:         ["sheIs", "sigTraits", "vibe", "luckyCharm"],
           billboard:    ["occupation", "vibe", "sheIs"],
           lookbook:     ["occupation", "vibe", "sign", "photos"],
-          moodboard:    ["vibe", "photos"],
+          moodboard:    ["vibe", "photos", "voice"],
           polaroid4:    ["vibe", "photos"],
-          fridge:       ["photos", "vibe"],
+          fridge:       ["photos", "vibe", "voice"],
         };
         const FIELD_LABELS: Record<string, string> = {
           occupation: "WHAT SHE DOES",
@@ -1499,9 +1505,10 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           luckyCharm: { value: luckyCharm, set: setLuckyCharm },
         };
         const activeFields = TEMPLATE_FIELDS[templateId] ?? [];
-        const textFields = activeFields.filter(f => f !== "photos");
+        const textFields = activeFields.filter(f => f !== "photos" && f !== "voice");
         const usesPhotos = activeFields.includes("photos");
-        const hasFields = usesPhotos || textFields.length > 0;
+        const usesVoice = activeFields.includes("voice");
+        const hasFields = usesPhotos || usesVoice || textFields.length > 0;
 
         return (
           <div style={{ margin: "0 0 0", padding: "0 16px 12px" }}>
@@ -1536,6 +1543,56 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                   </p>
                 )}
 
+                {/* Color + Font picker */}
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                    COLOR &amp; FONT
+                  </p>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginBottom: 10 }}>
+                    {["#FF1F7D","#E8006A","#A855F7","#7C3AED","#F59E0B","#06B6D4","#10B981","#EF4444","#1C1B1C","#4B5563","#C0392B","#2C3E50","#E67E22","#27AE60","#8E44AD"].map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setTemplateAccent(c)}
+                        style={{
+                          width: 24, height: 24, borderRadius: "50%", background: c, border: "none",
+                          cursor: "pointer", flexShrink: 0,
+                          boxShadow: templateAccent === c ? `0 0 0 2.5px white, 0 0 0 4px ${c}` : "none",
+                          transition: "box-shadow 0.15s",
+                        }}
+                      />
+                    ))}
+                    <input
+                      type="color"
+                      value={templateAccent}
+                      onChange={e => setTemplateAccent(e.target.value)}
+                      style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.12)", padding: 0, cursor: "pointer", flexShrink: 0 }}
+                      title="Custom color"
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+                    {[
+                      { key: "playfair", label: "Playfair",  family: "var(--font-playfair)" },
+                      { key: "fraunces", label: "Fraunces",  family: "var(--font-fraunces)" },
+                      { key: "jost",     label: "Jost",      family: "var(--font-jost)" },
+                      { key: "caveat",   label: "Caveat",    family: "var(--font-caveat)" },
+                    ].map(f => (
+                      <button
+                        key={f.key}
+                        onClick={() => setTemplateFontKey(f.key)}
+                        style={{
+                          padding: "5px 10px", borderRadius: 8, cursor: "pointer",
+                          background: templateFontKey === f.key ? "#FF1F7D" : "rgba(255,31,125,0.06)",
+                          border: templateFontKey === f.key ? "none" : "1px solid rgba(255,31,125,0.2)",
+                          display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 2,
+                        }}
+                      >
+                        <span style={{ fontFamily: f.family, fontSize: 16, color: templateFontKey === f.key ? "white" : "#1C1B1C", lineHeight: 1 }}>Aa</span>
+                        <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.1em", color: templateFontKey === f.key ? "white" : "rgba(0,0,0,0.4)" }}>{f.label.toUpperCase()}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Photo slots */}
                 {usesPhotos && (
                   <div>
@@ -1560,6 +1617,71 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                         }}
                       >+</button>
                     </div>
+                  </div>
+                )}
+
+                {/* Voice note recorder */}
+                {usesVoice && (
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                      VOICE NOTES
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <button
+                        onClick={async () => {
+                          if (isRecording) {
+                            mediaRecorderRef.current?.stop();
+                            setIsRecording(false);
+                          } else {
+                            try {
+                              const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                              const mr = new MediaRecorder(stream);
+                              audioChunksRef.current = [];
+                              mr.ondataavailable = e => audioChunksRef.current.push(e.data);
+                              mr.onstop = () => {
+                                const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                                const url = URL.createObjectURL(blob);
+                                setVoiceNotes(prev => [...prev, { id: Date.now().toString(), url, label: `Memo ${prev.length + 1}` }]);
+                                stream.getTracks().forEach(t => t.stop());
+                              };
+                              mr.start();
+                              mediaRecorderRef.current = mr;
+                              setIsRecording(true);
+                            } catch {
+                              /* mic permission denied */
+                            }
+                          }
+                        }}
+                        style={{
+                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
+                          background: isRecording ? "#EF4444" : "#FF1F7D",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0, transition: "background 0.2s",
+                        }}
+                      >
+                        {isRecording ? (
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><rect x="2" y="2" width="10" height="10" rx="1" /></svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="white"><ellipse cx="8" cy="6" rx="3" ry="4" /><path d="M3 8a5 5 0 0 0 10 0" stroke="white" strokeWidth="1.5" fill="none" /><line x1="8" y1="13" x2="8" y2="15" stroke="white" strokeWidth="1.5" /></svg>
+                        )}
+                      </button>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: isRecording ? "#EF4444" : "rgba(0,0,0,0.5)" }}>
+                        {isRecording ? "Recording… tap to stop" : "Tap to record a voice note"}
+                      </span>
+                    </div>
+                    {voiceNotes.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+                        {voiceNotes.map(vn => (
+                          <div key={vn.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,31,125,0.04)", borderRadius: 10, padding: "7px 10px", border: "1px solid rgba(255,31,125,0.12)" }}>
+                            <audio src={vn.url} controls style={{ height: 28, flex: 1, minWidth: 0 }} />
+                            <button
+                              onClick={() => setVoiceNotes(prev => prev.filter(n => n.id !== vn.id))}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(0,0,0,0.3)", fontSize: 16, lineHeight: 1, padding: 0, flexShrink: 0 }}
+                            >×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
