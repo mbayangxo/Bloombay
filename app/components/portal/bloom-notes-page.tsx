@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
+import { BBStickerPicker } from "./bb-sticker-picker";
 import {
   getTopNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
   getPlaceTagCounts, addNoteTags,
@@ -163,10 +164,11 @@ function NoteCard({
 const ALL_TAGS = Object.keys(CITY_TAG_LABELS) as CityTag[];
 
 function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; placeName: string; onPosted: () => void }) {
-  const [draft, setDraft]       = useState("");
-  const [selectedTags, setTags] = useState<CityTag[]>([]);
-  const [posting, setPosting]   = useState(false);
-  const [error, setError]       = useState("");
+  const [draft, setDraft]         = useState("");
+  const [selectedTags, setTags]   = useState<CityTag[]>([]);
+  const [posting, setPosting]     = useState(false);
+  const [error, setError]         = useState("");
+  const [showStickers, setShowStickers] = useState(false);
 
   function toggleTag(tag: CityTag) {
     setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag].slice(0, 3));
@@ -194,18 +196,25 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
       boxShadow: "0 4px 16px rgba(0,0,0,0.14)", transform: "rotate(-0.5deg)", position: "relative",
     }}>
       <PushPin color="gold" size={14} style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
-      <textarea
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        placeholder="Leave a little note for the next girl…"
-        rows={3}
-        maxLength={500}
-        style={{
-          width: "100%", border: "none", outline: "none", background: "transparent",
-          resize: "none", fontFamily: "var(--font-caveat)", fontSize: 17, color: "#3A2A1A", lineHeight: 1.45,
-        }}
-      />
-      {/* City intelligence tag chips */}
+      <div style={{ position: "relative" }}>
+        <textarea
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          placeholder="Leave a little note for the next girl…"
+          rows={3}
+          maxLength={500}
+          style={{
+            width: "100%", border: "none", outline: "none", background: "transparent",
+            resize: "none", fontFamily: "var(--font-caveat)", fontSize: 17, color: "#3A2A1A", lineHeight: 1.45,
+          }}
+        />
+        {showStickers && (
+          <BBStickerPicker
+            onSelect={sticker => { setDraft(prev => prev + sticker); setShowStickers(false); }}
+            onClose={() => setShowStickers(false)}
+          />
+        )}
+      </div>
       {draft.trim().length > 0 && (
         <div style={{ marginBottom: 10, marginTop: 4 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#B0A090", letterSpacing: "0.1em", marginBottom: 6 }}>QUICK TAGS · PICK UP TO 3</p>
@@ -232,7 +241,29 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
       )}
       {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#E53E3E", marginBottom: 6 }}>{error}</p>}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
+          <button
+            onClick={() => setShowStickers(prev => !prev)}
+            style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: showStickers ? PINK : "#FFF0F7",
+              border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: showStickers ? `0 2px 10px ${PINK}55` : "none",
+              transition: "all 0.15s",
+            }}
+            aria-label="Open sticker picker"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={showStickers ? "white" : PINK} strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </button>
+        </div>
         <button
           onClick={post}
           disabled={posting || !draft.trim()}
