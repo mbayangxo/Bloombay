@@ -807,29 +807,29 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
           </div>
         </div>
 
-        {/* Top bar — apt label + action buttons */}
+        {/* Top bar — apt label + icon buttons */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
           padding: "calc(env(safe-area-inset-top, 0px) + 14px) 16px 0",
           display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10,
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
-          <div style={{ display: "flex", gap: 7 }}>
-            <button onClick={() => setShowTemplatePicker(true)} style={{
-              background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)",
-              border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 999,
-              padding: "7px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => setShowTemplatePicker(true)} title="Templates" style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)",
+              border: "1.5px solid rgba(255,255,255,0.3)", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white", letterSpacing: "0.04em" }}>Templates</p>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
             </button>
-            <button onClick={() => setShowEdit(true)} style={{
+            <button onClick={() => setShowEdit(true)} title="Edit profile" style={{
+              width: 34, height: 34, borderRadius: "50%",
               background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
-              padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+              border: "1.5px solid rgba(255,255,255,0.3)", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Edit</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
           </div>
         </div>
@@ -1087,6 +1087,44 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
               <ApartmentDoor key={r.href} label={r.label} icon={r.icon} href={r.href} num={r.num} accentColor={r.accentColor} />
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* ══════════ PROFILE TEMPLATES ══════════ */}
+      <div style={{ padding: "16px 0 0" }}>
+        <div style={{ padding: "0 20px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>✦ PROFILE LOOK</p>
+          <button onClick={() => setShowTemplatePicker(true)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, letterSpacing: "0.04em" }}>see all →</button>
+        </div>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const, paddingLeft: 20, paddingRight: 20, paddingBottom: 4 }}>
+          {PROFILE_TEMPLATES.map(t => {
+            const isActive = templateId === t.id;
+            return (
+              <button key={t.id} onClick={() => handleTemplateSelect(t.id)}
+                style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5 }}>
+                <div style={{
+                  width: 52, height: 74, borderRadius: 12, overflow: "hidden",
+                  background: t.gradient,
+                  border: isActive ? `2.5px solid ${PINK}` : "2.5px solid rgba(0,0,0,0.08)",
+                  boxShadow: isActive ? `0 0 0 2px ${PINK}44, 0 4px 14px rgba(255,31,125,0.3)` : "0 2px 10px rgba(0,0,0,0.1)",
+                  position: "relative" as const,
+                  display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 6,
+                }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.9)" }}>
+                      {displayName[0]?.toUpperCase() ?? "Y"}
+                    </span>
+                  </div>
+                  {isActive && (
+                    <div style={{ position: "absolute" as const, top: 4, right: 4, width: 14, height: 14, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="7" height="7" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                    </div>
+                  )}
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: isActive ? 800 : 600, color: isActive ? PINK : "rgba(0,0,0,0.4)", letterSpacing: "0.04em" }}>{t.name}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
