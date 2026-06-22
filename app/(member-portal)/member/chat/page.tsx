@@ -41,6 +41,7 @@ interface Message {
   time: string;
   isMe?: boolean;
   imageUrl?: string;
+  isSticker?: boolean;
 }
 
 const WALLPAPERS = [
@@ -272,9 +273,58 @@ function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread
   );
 }
 
+const STICKER_CATEGORIES = [
+  {
+    id: "girl_culture", label: "Girl ✦", stickers: [
+      "✨ Main Character Energy", "🌸 Soft Life", "💅 Girl Math",
+      "👑 Rich Aunt Energy", "🚀 Founder Mode", "🥂 Romanticizing My Life",
+      "🔥 Hot Girl Shit", "💫 Delusional & Thriving", "📖 Book It",
+      "✈️ Buy the Ticket", "🌍 Solo Trip", "💖 For the Girls",
+    ],
+  },
+  {
+    id: "lifestyle", label: "Life 🌿", stickers: [
+      "🍵 Matcha", "🥐 Croissant", "👓 Sunglasses", "👜 Tote Bag",
+      "💄 Lipstick", "🌸 Flowers", "📚 Books", "☕ Coffee",
+    ],
+  },
+  {
+    id: "travel", label: "Travel ✈️", stickers: [
+      "🗼 Paris", "🗽 NYC", "🌊 Lisbon", "🌴 Palm Springs",
+      "🎭 Rome", "🌺 Bali", "🏖️ Tulum", "🌃 Tokyo",
+    ],
+  },
+  {
+    id: "wellness", label: "Wellness 🧘", stickers: [
+      "🧘 Pilates Princess", "🏃 Run Club", "🌿 Yoga Therapy",
+      "🥗 Salad Bar", "🛁 Self Care", "🌙 Rest Day",
+    ],
+  },
+  {
+    id: "status", label: "Status 🌟", stickers: [
+      "✅ Bloom Approved", "🔒 Plan Locked", "🛂 Added to Passport",
+      "🎫 Booked It", "🔥 Burning Lots", "💌 Sent Sweet",
+    ],
+  },
+  {
+    id: "expressions", label: "Mood 😌", stickers: [
+      "🫶 IDYKIK", "✔️ okay", "💫 slay the day",
+      "⚡ do it anyway", "🍽️ eat", "🎯 focus",
+    ],
+  },
+];
+
 // ── Composer Bar ───────────────────────────────────────────────────────────────
-function ComposerBar({ draft, setDraft, onSend, onPhotoSend }: { draft: string; setDraft: (v: string) => void; onSend: () => void; onPhotoSend?: (url: string) => void }) {
+function ComposerBar({ draft, setDraft, onSend, onPhotoSend, onStickerSend }: {
+  draft: string;
+  setDraft: (v: string) => void;
+  onSend: () => void;
+  onPhotoSend?: (url: string) => void;
+  onStickerSend?: (text: string) => void;
+}) {
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const [showStickers, setShowStickers] = useState(false);
+  const [stickerTab, setStickerTab] = useState("girl_culture");
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -285,16 +335,43 @@ function ComposerBar({ draft, setDraft, onSend, onPhotoSend }: { draft: string; 
   }
 
   const actions = [
-    { icon: "📅", label: "Plan",     onClick: undefined },
+    { icon: "📅", label: "Plan",     onClick: undefined as (() => void) | undefined },
     { icon: "🖼️", label: "Photos",   onClick: () => photoInputRef.current?.click() },
-    { icon: "🎤", label: "Voice",    onClick: undefined },
-    { icon: "📍", label: "Location", onClick: undefined },
-    { icon: "📝", label: "Note",     onClick: undefined },
+    { icon: "🎤", label: "Voice",    onClick: undefined as (() => void) | undefined },
+    { icon: "📍", label: "Location", onClick: undefined as (() => void) | undefined },
+    { icon: "😊", label: "Stickers", onClick: () => setShowStickers(v => !v) },
   ];
 
   return (
     <div style={{ background: "white", borderTop: "1px solid #F0EBE4", paddingBottom: "max(12px,env(safe-area-inset-bottom))" }}>
       <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
+      {showStickers && (
+        <div style={{ borderBottom: "1px solid #F0EBE4", background: "white" }}>
+          {/* Category tabs */}
+          <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none", padding: "10px 12px 6px" }}>
+            {STICKER_CATEGORIES.map(cat => (
+              <button key={cat.id} onClick={() => setStickerTab(cat.id)} style={{
+                flexShrink: 0, padding: "5px 10px", borderRadius: 999, border: "none",
+                background: stickerTab === cat.id ? PINK : "#F5EFE9",
+                color: stickerTab === cat.id ? "white" : "#888",
+                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
+                cursor: "pointer", letterSpacing: "0.04em",
+              }}>{cat.label}</button>
+            ))}
+          </div>
+          {/* Sticker grid */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "6px 12px 12px", maxHeight: 140, overflowY: "auto" }}>
+            {STICKER_CATEGORIES.find(c => c.id === stickerTab)?.stickers.map(s => (
+              <button key={s} onClick={() => { onStickerSend?.(s); setShowStickers(false); }} style={{
+                padding: "6px 10px", borderRadius: 999,
+                background: "#FFF0F5", border: "1px solid #FFD0E8",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: "#1A1A1A",
+                cursor: "pointer", flexShrink: 0,
+              }}>{s}</button>
+            ))}
+          </div>
+        </div>
+      )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "10px 20px 4px" }}>
         {actions.map(({ icon, label, onClick }) => (
           <button key={label} onClick={onClick} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 6px", background: "transparent", border: "none", cursor: onClick ? "pointer" : "default" }}>
@@ -327,7 +404,11 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
       )}
       <div style={{ maxWidth: "72%", display: "flex", flexDirection: "column", gap: 3, alignItems: msg.isMe ? "flex-end" : "flex-start" }}>
         {showName && !msg.isMe && <span style={{ fontSize: "10px", color: "#B8AFA8", fontWeight: 600, padding: "0 2px" }}>{msg.sender}</span>}
-        {msg.imageUrl ? (
+        {msg.isSticker ? (
+          <div style={{ fontSize: 48, lineHeight: 1.1, padding: "4px 2px" }}>
+            {msg.text}
+          </div>
+        ) : msg.imageUrl ? (
           <div style={{ borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", maxWidth: 220 }}>
             <img src={msg.imageUrl} alt="photo" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
           </div>
@@ -426,6 +507,10 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
 
   function sendPhoto(url: string) {
     setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
+  }
+
+  function sendSticker(text: string) {
+    setMsgs(prev => [...prev, { id: prev.length + 300, sender: "Me", initial: "Y", color: PINK, text, isMe: true, isSticker: true, time: "now" }]);
   }
 
   const waveHeights = [10, 18, 8, 26, 14, 10, 30, 12, 22, 8, 20, 16, 10, 28, 14, 8, 18, 12, 24, 14];
@@ -579,7 +664,7 @@ function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messag
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} />
+        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} onStickerSend={sendSticker} />
       </div>
     </div>
   );
@@ -604,6 +689,10 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
 
   function sendPhoto(url: string) {
     setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
+  }
+
+  function sendSticker(text: string) {
+    setMsgs(prev => [...prev, { id: prev.length + 300, sender: "Me", initial: "Y", color: PINK, text, isMe: true, isSticker: true, time: "now" }]);
   }
 
   const members = [
@@ -682,7 +771,7 @@ function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: 
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} />
+        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} onStickerSend={sendSticker} />
       </div>
     </div>
   );

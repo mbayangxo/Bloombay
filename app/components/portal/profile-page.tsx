@@ -15,7 +15,7 @@ const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge" | "about_me";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge" | "about_me" | "photo_dir";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -1040,6 +1040,68 @@ function TemplateAboutMe({ displayName, occupation, vibe, sheIs, sigTraits, sign
   );
 }
 
+// ─── 16. Photo Direction ─────────────────────────────────────────────────────
+function TemplatePhotoDir({ displayName, occupation, vibe, photos, avatarUrl, onAvatarClick }: TemplateProps) {
+  const look1 = photos[0]?.url ?? avatarUrl ?? null;
+  const look2 = photos[1]?.url ?? null;
+  return (
+    <div style={{ background: "#F7F3EE", borderRadius: 12, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
+      {/* Season label */}
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "14px 16px 8px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", color: "#999", textTransform: "uppercase" as const }}>
+          SPRING / SUMMER 2025 · PHOTO DIRECTION
+        </p>
+      </div>
+      {/* Two photos */}
+      <div style={{ display: "flex", gap: 8, padding: "0 10px", height: 230 }}>
+        {/* Look 01 */}
+        <div
+          onClick={onAvatarClick}
+          style={{ flex: 1.15, position: "relative", borderRadius: 6, overflow: "hidden", background: "linear-gradient(135deg,#E8E0D8,#D8D0C8)", cursor: "pointer" }}
+        >
+          {look1 && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={look1} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          )}
+          <span style={{ position: "absolute", top: 12, left: 14, fontFamily: "var(--font-caveat)", fontSize: 15, color: "white", fontStyle: "italic", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>Look 01</span>
+        </div>
+        {/* Look 02 */}
+        <div
+          onClick={onAvatarClick}
+          style={{ flex: 0.85, position: "relative", borderRadius: 6, overflow: "hidden", background: "linear-gradient(135deg,#D0C8C0,#C0B8B0)", cursor: "pointer" }}
+        >
+          {look2 ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={look2} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          ) : (
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>+ add photo</p>
+            </div>
+          )}
+          <span style={{ position: "absolute", bottom: 14, right: 12, fontFamily: "var(--font-caveat)", fontSize: 15, color: "white", fontStyle: "italic", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>Look 02</span>
+        </div>
+      </div>
+      {/* Caption row */}
+      <div style={{ padding: "14px 16px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: "#1A1A1A", textTransform: "uppercase" as const, marginBottom: 5 }}>
+            {displayName || "YOUR NAME"}
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#888", lineHeight: 1.55, maxWidth: 220 }}>
+            {occupation || vibe || "BloomBay Member"}
+          </p>
+        </div>
+        {/* Pagination dots */}
+        <div style={{ display: "flex", gap: 5, paddingBottom: 4 }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: i === 0 ? "#1A1A1A" : "#CCC" }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
@@ -1058,7 +1120,8 @@ function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId;
     { id: "moodboard",    label: "MOOD",     bg: "#FAF6F0", textColor: "#555" },
     { id: "polaroid4",    label: "POLAROID", bg: "#F9F7F5", textColor: "#888" },
     { id: "fridge",       label: "FRIDGE",   bg: "#C5D8E4", textColor: "#555" },
-    { id: "about_me",     label: "ABOUT ME", bg: "#E8E5DF", textColor: "#6B4EFF" },
+    { id: "about_me",     label: "ABOUT ME",  bg: "#E8E5DF", textColor: "#6B4EFF" },
+    { id: "photo_dir",    label: "PHOTO DIR", bg: "#F7F3EE", textColor: "#1A1A1A" },
   ];
 
   return (
@@ -1542,6 +1605,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {templateId === "polaroid4" && <TemplatePolaroid4 {...templateProps} />}
           {templateId === "fridge" && <TemplateFridge displayName={templateProps.displayName} initials={templateProps.initials} avatarUrl={templateProps.avatarUrl} vibe={templateProps.vibe} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} isOwn={true} />}
           {templateId === "about_me" && <TemplateAboutMe displayName={templateProps.displayName} occupation={templateProps.occupation} vibe={templateProps.vibe} sheIs={templateProps.sheIs} sigTraits={templateProps.sigTraits} sign={templateProps.sign} avatarUrl={templateProps.avatarUrl} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} />}
+          {templateId === "photo_dir" && <TemplatePhotoDir {...templateProps} />}
         </div>
 
       </div>
@@ -1564,6 +1628,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           polaroid4:    ["vibe", "photos"],
           fridge:       ["photos", "vibe", "voice"],
           about_me:     ["occupation", "sign", "vibe", "sheIs", "sigTraits", "photos"],
+          photo_dir:    ["occupation", "vibe", "photos"],
         };
         const FIELD_LABELS: Record<string, string> = {
           occupation: "WHAT SHE DOES",
