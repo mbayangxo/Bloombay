@@ -37,238 +37,196 @@ type SVGProps = { c: string; w?: number };
 
 function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
   if (slab === "morning") return (
-    // Detailed sun with inner glow ring + longer alternating rays
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="3.8" fill={c} opacity="0.22"/>
-      <circle cx="12" cy="12" r="2.6" stroke={c} strokeWidth={w} fill="none"/>
+    // Filled sun with fat alternating rays + 3D highlight sphere
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       {[0,45,90,135,180,225,270,315].map((a,i) => {
-        const len = i % 2 === 0 ? 3 : 2;
-        const r1 = 4.2, r2 = r1 + len;
-        const rad = (a * Math.PI) / 180;
+        const rad = a * Math.PI / 180;
+        const r1 = 6.8, r2 = r1 + (i%2===0 ? 3.6 : 2.4);
         return <line key={a}
-          x1={12 + r1 * Math.cos(rad)} y1={12 + r1 * Math.sin(rad)}
-          x2={12 + r2 * Math.cos(rad)} y2={12 + r2 * Math.sin(rad)}
-          stroke={c} strokeWidth={i % 2 === 0 ? w : w * 0.7} strokeLinecap="round"/>;
+          x1={12 + r1*Math.cos(rad)} y1={12 + r1*Math.sin(rad)}
+          x2={12 + r2*Math.cos(rad)} y2={12 + r2*Math.sin(rad)}
+          stroke={c} strokeWidth={i%2===0 ? 2.4 : 1.6} strokeLinecap="round"/>;
       })}
+      <circle cx="12" cy="12" r="5.4" fill={c}/>
+      <ellipse cx="10.2" cy="10" rx="2.2" ry="1.6" fill="white" opacity="0.38" transform="rotate(-20 10.2 10)"/>
     </svg>
   );
   if (slab === "afternoon") return (
-    // Detailed cloud: stacked circles + sun peeking behind
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <circle cx="17.5" cy="11" r="3.2" stroke={c} strokeWidth={w} fill="none" opacity="0.45"/>
-      <line x1="17.5" y1="7" x2="17.5" y2="5.5" stroke={c} strokeWidth={w * 0.8} strokeLinecap="round" opacity="0.55"/>
-      <line x1="20.6" y1="8.4" x2="21.7" y2="7.3" stroke={c} strokeWidth={w * 0.8} strokeLinecap="round" opacity="0.55"/>
-      <line x1="21.5" y1="11" x2="23" y2="11" stroke={c} strokeWidth={w * 0.8} strokeLinecap="round" opacity="0.55"/>
-      <path d="M7 18.5h10.5a3.5 3.5 0 0 0 0-7H17a5 5 0 0 0-9.8 1H7a3.5 3.5 0 0 0 0 7Z"
-        stroke={c} strokeWidth={w} fill="none" strokeLinejoin="round"/>
+    // Filled cloud silhouette with sun peeking behind + highlight
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <circle cx="17.8" cy="11.5" r="3.5" fill={c} opacity="0.5"/>
+      <line x1="17.8" y1="7.2" x2="17.8" y2="5.5" stroke={c} strokeWidth="1.8" strokeLinecap="round" opacity="0.55"/>
+      <line x1="21" y1="8.6" x2="22.2" y2="7.4" stroke={c} strokeWidth="1.6" strokeLinecap="round" opacity="0.55"/>
+      <line x1="21.5" y1="11.5" x2="23" y2="11.5" stroke={c} strokeWidth="1.6" strokeLinecap="round" opacity="0.55"/>
+      <path d="M7 19 H17.5 a4 4 0 0 0 0-8 H17 a5.5 5.5 0 0 0-10.8 1.5 H6 a3.5 3.5 0 0 0 1 7Z"
+        fill={c}/>
+      <ellipse cx="9.5" cy="14.5" rx="3" ry="1.4" fill="white" opacity="0.22"/>
     </svg>
   );
   if (slab === "evening") return (
-    // Horizon sunset: sun half-set + 3 rays above horizon line
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M2 17h20" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <path d="M12 17a6 6 0 0 0 0-6 6 6 0 0 0 0 6" stroke={c} strokeWidth={w} fill="none" strokeLinecap="round"/>
-      <line x1="12" y1="3" x2="12" y2="5.5" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <line x1="5.5" y1="5.5" x2="7.1" y2="7.1" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <line x1="18.5" y1="5.5" x2="16.9" y2="7.1" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <line x1="3" y1="11" x2="5.5" y2="11" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <line x1="18.5" y1="11" x2="21" y2="11" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      <path d="M5 19.5h14" stroke={c} strokeWidth={w * 0.6} strokeLinecap="round" opacity="0.4"/>
+    // Filled half-sun on horizon + ray lines
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <line x1="2" y1="17" x2="22" y2="17" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+      <path d="M6 17 A6 6 0 0 1 18 17Z" fill={c}/>
+      <ellipse cx="10.5" cy="15" rx="2.5" ry="1.2" fill="white" opacity="0.28"/>
+      <line x1="12" y1="3" x2="12" y2="6.2" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+      <line x1="5.2" y1="5.2" x2="7.3" y2="7.3" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="18.8" y1="5.2" x2="16.7" y2="7.3" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="2.5" y1="11.5" x2="5.5" y2="11.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="18.5" y1="11.5" x2="21.5" y2="11.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
     </svg>
   );
-  // tonight: detailed crescent + 3 stars
+  // tonight: filled crescent + two diamond stars
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-        stroke={c} strokeWidth={w} fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M19 4 L19.5 5.5 L21 6 L19.5 6.5 L19 8 L18.5 6.5 L17 6 L18.5 5.5Z"
-        fill={c} opacity="0.8"/>
-      <path d="M5.5 16 L5.8 17 L6.8 17 L6 17.6 L6.3 18.6 L5.5 18 L4.7 18.6 L5 17.6 L4.2 17 L5.2 17Z"
-        fill={c} opacity="0.5"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill={c}/>
+      <ellipse cx="8.5" cy="7.5" rx="2.2" ry="1.4" fill="white" opacity="0.22" transform="rotate(-25 8.5 7.5)"/>
+      <path d="M19.5 4.5 L20.1 6.2 L21.8 6.2 L20.4 7.2 L20.9 9 L19.5 8 L18.1 9 L18.6 7.2 L17.2 6.2 L18.9 6.2Z"
+        fill={c} opacity="0.85"/>
+      <path d="M4.5 16 L5 17.2 L6.2 17.2 L5.2 18 L5.6 19.2 L4.5 18.4 L3.4 19.2 L3.8 18 L2.8 17.2 L4 17.2Z"
+        fill={c} opacity="0.6"/>
     </svg>
   );
 }
 
-function IconPlans({ c, w = 2 }: SVGProps) {
-  // Detailed open book with page curl + bookmark ribbon
+function IconPlans({ c }: SVGProps) {
+  // Filled open book — left page slightly lighter, 3D spine, bookmark
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      {/* Left page fill */}
+      <path d="M12 5 C9.5 5 5 5.8 4 7.5 L4 20 C5 18.5 9.5 18 12 18Z" fill={c}/>
+      {/* Right page fill (slightly dimmer) */}
+      <path d="M12 5 C14.5 5 19 5.8 20 7.5 L20 20 C19 18.5 14.5 18 12 18Z" fill={c} opacity="0.78"/>
       {/* Spine */}
-      <line x1="12" y1="4" x2="12" y2="20" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      {/* Left page */}
-      <path d="M12 4 C10 4 5 4.5 4 6 L4 19 C5 17.5 9.5 17 12 17Z"
-        stroke={c} strokeWidth={w * 0.9} fill="none" strokeLinejoin="round"/>
-      {/* Right page */}
-      <path d="M12 4 C14 4 19 4.5 20 6 L20 19 C19 17.5 14.5 17 12 17Z"
-        stroke={c} strokeWidth={w * 0.9} fill="none" strokeLinejoin="round"/>
-      {/* Left page lines */}
-      <line x1="6.5" y1="9"  x2="10.5" y2="8.5"  stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      <line x1="6.5" y1="12" x2="10.5" y2="11.5" stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      <line x1="6.5" y1="15" x2="9.5"  y2="14.6" stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      {/* Right page lines */}
-      <line x1="13.5" y1="8.5"  x2="17.5" y2="9"  stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      <line x1="13.5" y1="11.5" x2="17.5" y2="12" stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      <line x1="13.5" y1="14.6" x2="16.5" y2="15" stroke={c} strokeWidth={w * 0.55} strokeLinecap="round" opacity="0.7"/>
-      {/* Bookmark ribbon on right */}
-      <path d="M18 4 L18 9 L16.5 7.8 L15 9 L15 4Z"
-        stroke={c} strokeWidth={w * 0.7} fill="none" strokeLinejoin="round"/>
+      <rect x="11" y="5" width="2" height="13" fill={c}/>
+      {/* Left highlight */}
+      <ellipse cx="8" cy="9.5" rx="2.4" ry="1.4" fill="white" opacity="0.22" transform="rotate(8 8 9.5)"/>
+      {/* Right highlight */}
+      <ellipse cx="16" cy="9.5" rx="2.4" ry="1.4" fill="white" opacity="0.16" transform="rotate(-8 16 9.5)"/>
+      {/* Page lines left */}
+      <line x1="5.8" y1="10.5" x2="10.5" y2="10" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
+      <line x1="5.8" y1="13"   x2="10.5" y2="12.6" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
+      <line x1="5.8" y1="15.5" x2="9.5"  y2="15.2" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
+      {/* Bookmark */}
+      <path d="M17 5 L17 10 L15.5 8.8 L14 10 L14 5Z" fill="white" opacity="0.55"/>
     </svg>
   );
 }
 
 function IconClubs({ c }: SVGProps) {
-  // Three people silhouette — a social club visual
+  // Filled three-person social club silhouette
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      {/* Center person */}
-      <circle cx="12" cy="6.5" r="2.4" stroke={c} strokeWidth="1.8" fill="none"/>
-      <path d="M7.5 19 C7.5 15.5 9.2 13.5 12 13.5 C14.8 13.5 16.5 15.5 16.5 19"
-        stroke={c} strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-      {/* Left person (partial) */}
-      <circle cx="5.5" cy="7.5" r="1.9" stroke={c} strokeWidth="1.5" fill="none" opacity="0.7"/>
-      <path d="M2 19 C2 16 3.5 14.2 5.5 14.2 C7 14.2 8.2 15.2 8.8 16.8"
-        stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7"/>
-      {/* Right person (partial) */}
-      <circle cx="18.5" cy="7.5" r="1.9" stroke={c} strokeWidth="1.5" fill="none" opacity="0.7"/>
-      <path d="M22 19 C22 16 20.5 14.2 18.5 14.2 C17 14.2 15.8 15.2 15.2 16.8"
-        stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="7" r="3.2" fill={c}/>
+      <path d="M6.5 21 C6.5 16.2 9 14 12 14 C15 14 17.5 16.2 17.5 21Z" fill={c}/>
+      <circle cx="11" cy="6" r="1.3" fill="white" opacity="0.3"/>
+      <circle cx="5" cy="8.2" r="2.5" fill={c} opacity="0.72"/>
+      <path d="M1 21 C1 17 2.8 14.8 5 14.8 C6.5 14.8 7.8 15.8 8.5 17.8"
+        stroke={c} strokeWidth="3.2" fill="none" strokeLinecap="round" opacity="0.72"/>
+      <circle cx="19" cy="8.2" r="2.5" fill={c} opacity="0.72"/>
+      <path d="M23 21 C23 17 21.2 14.8 19 14.8 C17.5 14.8 16.2 15.8 15.5 17.8"
+        stroke={c} strokeWidth="3.2" fill="none" strokeLinecap="round" opacity="0.72"/>
     </svg>
   );
 }
 
-function IconAveSign({ c, w = 2 }: SVGProps) {
-  // Two street signs on a pole — an "avenue" intersection sign
+function IconAveSign({ c }: SVGProps) {
+  // Filled street signs on pole with arrow indicators
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      {/* Pole */}
-      <line x1="12" y1="8" x2="12" y2="22" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      {/* Top sign — horizontal, pointing both ways */}
-      <rect x="2" y="3" width="20" height="5.5" rx="1.2" stroke={c} strokeWidth={w * 0.9} fill="none"/>
-      {/* Arrow left */}
-      <polyline points="5,4.5 3.5,5.75 5,7" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      {/* Arrow right */}
-      <polyline points="19,4.5 20.5,5.75 19,7" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      {/* Sign divider line */}
-      <line x1="12" y1="3" x2="12" y2="8.5" stroke={c} strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
-      {/* Bottom sign — angled, pointing right-downward */}
-      <rect x="10.5" y="10" width="12" height="4.5" rx="1" stroke={c} strokeWidth={w * 0.9} fill="none"
-        transform="rotate(12 16.5 12.25)"/>
-      {/* Arrow on lower sign */}
-      <polyline points="21,11.5 22.4,12.5 21,13.5" stroke={c} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"
-        transform="rotate(12 21.7 12.5)"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <line x1="12" y1="8.5" x2="12" y2="22" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+      <rect x="2" y="3" width="20" height="6" rx="1.5" fill={c}/>
+      <rect x="3" y="3.8" width="18" height="2.2" rx="0.8" fill="white" opacity="0.2"/>
+      <polyline points="5.5,4.8 3.8,6 5.5,7.2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <polyline points="18.5,4.8 20.2,6 18.5,7.2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <rect x="8" y="10" width="14" height="5" rx="1.2" fill={c} opacity="0.82" transform="rotate(-10 15 12.5)"/>
+      <rect x="8.5" y="10.6" width="12" height="2" rx="0.6" fill="white" opacity="0.18" transform="rotate(-10 15 12.5)"/>
+      <polyline points="20,11.2 21.6,12.2 20,13.2" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="rotate(-10 20.8 12.2)"/>
     </svg>
   );
 }
 
-function IconHappenings({ c, w = 2 }: SVGProps) {
-  // NYC skyline: several buildings of different heights with windows
+function IconHappenings({ c }: SVGProps) {
+  // Filled NYC skyline silhouette with lit windows
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      {/* Ground line */}
-      <line x1="1" y1="20" x2="23" y2="20" stroke={c} strokeWidth={w} strokeLinecap="round"/>
-      {/* Building 1 — tall center */}
-      <rect x="9" y="5" width="6" height="15" stroke={c} strokeWidth={w * 0.9} fill="none" rx="0.3"/>
-      {/* Windows center tower */}
-      <rect x="10.5" y="7"  width="1.3" height="1.3" fill={c} opacity="0.6" rx="0.2"/>
-      <rect x="12.5" y="7"  width="1.3" height="1.3" fill={c} opacity="0.6" rx="0.2"/>
-      <rect x="10.5" y="10" width="1.3" height="1.3" fill={c} opacity="0.6" rx="0.2"/>
-      <rect x="12.5" y="10" width="1.3" height="1.3" fill={c} opacity="0.6" rx="0.2"/>
-      {/* Antenna */}
-      <line x1="12" y1="5" x2="12" y2="2.5" stroke={c} strokeWidth={w * 0.8} strokeLinecap="round"/>
-      {/* Building 2 — left mid */}
-      <rect x="3" y="10" width="5" height="10" stroke={c} strokeWidth={w * 0.85} fill="none" rx="0.3"/>
-      <rect x="4.2" y="12" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      <rect x="6"   y="12" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      <rect x="4.2" y="15" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      {/* Building 3 — right mid */}
-      <rect x="16" y="9" width="5.5" height="11" stroke={c} strokeWidth={w * 0.85} fill="none" rx="0.3"/>
-      <rect x="17.2" y="11" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      <rect x="19"   y="11" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      <rect x="17.2" y="14" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
-      <rect x="19"   y="14" width="1.2" height="1.2" fill={c} opacity="0.5" rx="0.2"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect x="2"  y="11" width="5.5" height="10" fill={c} opacity="0.8"/>
+      <rect x="9"  y="5"  width="6"   height="16" fill={c}/>
+      <rect x="16.5" y="9" width="5.5" height="12" fill={c} opacity="0.8"/>
+      <line x1="12" y1="5" x2="12" y2="2.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      <rect x="10.5" y="7"   width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
+      <rect x="12.5" y="7"   width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
+      <rect x="10.5" y="10"  width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
+      <rect x="12.5" y="10"  width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
+      <rect x="3.2"  y="13"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
+      <rect x="5.2"  y="13"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
+      <rect x="17.8" y="11"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
+      <rect x="19.8" y="11"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
+      <line x1="1" y1="21" x2="23" y2="21" stroke={c} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
 
 // ── Top bar icons ─────────────────────────────────────────────────────────────
 function IconApt({ c }: SVGProps) {
-  // Apartment building: facade with multiple windows, balcony, door
+  // Filled apartment building with windows + door
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
-      {/* Building facade */}
-      <rect x="3" y="5" width="18" height="16" rx="1" stroke={c} strokeWidth="1.7" fill="none"/>
-      {/* Roof detail */}
-      <path d="M3 7.5 L12 3 L21 7.5" stroke={c} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      {/* Ground line */}
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="6" width="18" height="15" rx="1" fill={c} opacity="0.88"/>
+      <path d="M2 7.5 L12 2.5 L22 7.5" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="4" y="7" width="16" height="3.5" rx="0.5" fill="white" opacity="0.16"/>
+      <rect x="5.5"  y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
+      <rect x="10.5" y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
+      <rect x="15.5" y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
+      <rect x="5.5"  y="15" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.4"/>
+      <rect x="15.5" y="15" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.4"/>
+      <rect x="10"   y="17" width="4"   height="4"   rx="0.5" fill="white" opacity="0.6"/>
+      <circle cx="13.2" cy="19" r="0.5" fill={c}/>
       <line x1="1.5" y1="21" x2="22.5" y2="21" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Windows row 1 */}
-      <rect x="5.5"  y="9"  width="3" height="2.5" rx="0.4" stroke={c} strokeWidth="1.2" fill="none"/>
-      <rect x="10.5" y="9"  width="3" height="2.5" rx="0.4" stroke={c} strokeWidth="1.2" fill="none"/>
-      <rect x="15.5" y="9"  width="3" height="2.5" rx="0.4" stroke={c} strokeWidth="1.2" fill="none"/>
-      {/* Windows row 2 */}
-      <rect x="5.5"  y="13.5" width="3" height="2.5" rx="0.4" stroke={c} strokeWidth="1.2" fill="none"/>
-      <rect x="15.5" y="13.5" width="3" height="2.5" rx="0.4" stroke={c} strokeWidth="1.2" fill="none"/>
-      {/* Door */}
-      <path d="M10 21 L10 16.5 Q12 15.5 14 16.5 L14 21" stroke={c} strokeWidth="1.3" fill="none" strokeLinejoin="round"/>
-      {/* Door knob */}
-      <circle cx="13.2" cy="18.8" r="0.5" fill={c}/>
     </svg>
   );
 }
 function IconPin({ c }: SVGProps) {
-  // Map pin: teardrop shape with inner ring, shadow dot at base
+  // Filled teardrop map pin with 3D highlight
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
-      {/* Pin body */}
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-        stroke={c} strokeWidth="1.7" fill="none" strokeLinejoin="round"/>
-      {/* Inner circle */}
-      <circle cx="12" cy="9" r="2.5" stroke={c} strokeWidth="1.4" fill="none"/>
-      {/* Inner dot */}
-      <circle cx="12" cy="9" r="1" fill={c}/>
-      {/* Drop shadow suggestion */}
-      <ellipse cx="12" cy="22" rx="3" ry="0.8" fill={c} opacity="0.22"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c}/>
+      <circle cx="12" cy="9" r="2.8" fill="white" opacity="0.32"/>
+      <circle cx="12" cy="9" r="1.4" fill="white" opacity="0.5"/>
+      <ellipse cx="9.8" cy="6.5" rx="1.8" ry="1.2" fill="white" opacity="0.3" transform="rotate(-20 9.8 6.5)"/>
+      <ellipse cx="12" cy="22.5" rx="3" ry="0.8" fill={c} opacity="0.2"/>
     </svg>
   );
 }
 function IconMail({ c }: SVGProps) {
-  // Classic mailbox on post with flag up and mail slot
+  // Filled US mailbox on post with raised flag
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
-      {/* Post */}
-      <line x1="12" y1="21" x2="12" y2="16.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
-      {/* Base plate */}
-      <line x1="9.5" y1="21" x2="14.5" y2="21" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
-      {/* Mailbox body — rounded on left end like a classic US mailbox */}
-      <path d="M5 16.5 H19 V12.5 A6.5 6.5 0 0 0 5 12.5 Z"
-        stroke={c} strokeWidth="1.7" fill="none" strokeLinejoin="round"/>
-      {/* Top dome */}
-      <path d="M5 12.5 A6.5 6.5 0 0 1 19 12.5" stroke={c} strokeWidth="1.5" fill="none"/>
-      {/* Mail slot */}
-      <line x1="6" y1="14.2" x2="10.5" y2="14.2" stroke={c} strokeWidth="1.3" strokeLinecap="round"/>
-      {/* Flag pole */}
-      <line x1="19" y1="16.5" x2="19" y2="11.5" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      {/* Flag (up) */}
-      <path d="M19 11.5 L22 11.5 L22 14 L19 14" stroke={c} strokeWidth="1.3" fill="none" strokeLinejoin="round"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect x="11" y="16.5" width="2" height="5" rx="1" fill={c}/>
+      <rect x="8.5" y="20.5" width="7" height="1.5" rx="0.75" fill={c}/>
+      <path d="M5 16.5 H19 V13.5 A7 7 0 0 0 5 13.5 Z" fill={c}/>
+      <path d="M5 13.5 A7 7 0 0 1 19 13.5" fill={c} opacity="0.82"/>
+      <ellipse cx="12" cy="10.8" rx="6" ry="1.5" fill="white" opacity="0.2"/>
+      <rect x="5.5" y="14.5" width="5" height="1.3" rx="0.65" fill="white" opacity="0.6"/>
+      <line x1="19" y1="16.5" x2="19" y2="11" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M19 11 L22.5 11 L22.5 14 L19 14Z" fill={c}/>
+      <rect x="19.5" y="11.3" width="2.5" height="1" rx="0.3" fill="white" opacity="0.45"/>
     </svg>
   );
 }
 function IconChatBubble({ c }: SVGProps) {
-  // Two overlapping speech bubbles — conversation/chat
+  // Filled dual speech bubbles with message dots
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
-      {/* Back bubble */}
-      <path d="M22 13a2 2 0 0 1-2 2h-1l-2 3v-3H9a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2z"
-        stroke={c} strokeWidth="1.6" fill="none" strokeLinejoin="round" opacity="0.55"/>
-      {/* Front bubble */}
-      <path d="M4 16 H14 a2 2 0 0 0 2-2 V9 a2 2 0 0 0-2-2 H4 a2 2 0 0 0-2 2 v5 a2 2 0 0 0 2 2 z"
-        stroke={c} strokeWidth="1.6" fill="none" strokeLinejoin="round"/>
-      {/* Tail */}
-      <path d="M6 16 L4 20" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Dots in front bubble */}
-      <circle cx="6.5"  cy="12.5" r="0.9" fill={c}/>
-      <circle cx="9"    cy="12.5" r="0.9" fill={c}/>
-      <circle cx="11.5" cy="12.5" r="0.9" fill={c}/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M21 13.5 a2 2 0 0 1-2 2 H17 l-2 3.5 v-3.5 H9 a2 2 0 0 1-2-2 V8 a2 2 0 0 1 2-2 h10 a2 2 0 0 1 2 2Z"
+        fill={c} opacity="0.5"/>
+      <path d="M4 16.5 H14 a2 2 0 0 0 2-2 V9 a2 2 0 0 0-2-2 H4 a2 2 0 0 0-2 2 v5.5 a2 2 0 0 0 2 2Z"
+        fill={c}/>
+      <rect x="3" y="9.5" width="10" height="2.5" rx="1.2" fill="white" opacity="0.18"/>
+      <path d="M6 16.5 L4 21" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+      <circle cx="6.5"  cy="13" r="1.05" fill="white" opacity="0.72"/>
+      <circle cx="9"    cy="13" r="1.05" fill="white" opacity="0.72"/>
+      <circle cx="11.5" cy="13" r="1.05" fill="white" opacity="0.72"/>
     </svg>
   );
 }
@@ -337,7 +295,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
   }
 
   function renderIcon(key: TabKey, active: boolean) {
-    const c = active ? PINK : (isDarkPage ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)");
+    const c = active ? PINK : (isDarkPage ? "rgba(255,215,232,0.92)" : "rgba(175,50,98,0.78)");
     const w = active ? 2.2 : 1.7;
     if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
     if (key === "happenings") return <IconHappenings c={c} w={w} />;
