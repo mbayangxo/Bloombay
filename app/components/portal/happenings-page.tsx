@@ -1482,9 +1482,52 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     async function load() {
       setLoading(true);
       const [evs, ids] = await Promise.all([getEvents(), getJoinedEventIds()]);
-      setEvents(evs);
       setJoined(new Set(ids));
-      setLoading(false);
+
+      if (evs.length > 0) {
+        setEvents(evs);
+        setLoading(false);
+      } else {
+        // DB empty — try Eventbrite
+        try {
+          const res = await fetch("/api/member/eventbrite");
+          if (res.ok) {
+            const data = await res.json() as { events: Array<{
+              id: string; title: string; starts_at: string; venue: string | null;
+              city: string; neighborhood: string | null; host_name: string | null;
+              cover_url: string | null; attending_count: number | null;
+              spots_left: number | null; event_type: string; slug: string;
+              accent_color: string | null; badge: string | null;
+              source: "eventbrite"; href: string;
+            }> };
+            const mapped = (data.events ?? []).map(ev => ({
+              id: ev.id,
+              slug: ev.slug,
+              title: ev.title,
+              description: null,
+              venue: ev.venue,
+              neighborhood: ev.neighborhood,
+              area: null,
+              city: ev.city,
+              starts_at: ev.starts_at,
+              event_type: ev.event_type,
+              image_url: ev.cover_url,
+              accent_color: ev.accent_color,
+              host_id: null,
+              host_name: ev.host_name,
+              host_note: null,
+              capacity: ev.spots_left,
+              spots_left: ev.spots_left,
+              attending_count: ev.attending_count ?? 0,
+              price_cents: 0,
+              is_official: false,
+              badge: ev.badge,
+            })) as Event[];
+            setEvents(mapped);
+          }
+        } catch { /* ignore */ }
+        setLoading(false);
+      }
 
       // Load ancillary data in background
       const eventIds = evs.map(e => e.id);
@@ -1588,65 +1631,53 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         borderBottom: "1px solid rgba(255,255,255,0.1)",
         paddingTop: "env(safe-area-inset-top, 0px)",
       }}>
-        {/* Row 1: toggle + search */}
-        <div style={{ height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px" }}>
-          {/* Tab toggle */}
-          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {([["happenings","Happenings"],["intros","Intros"],["map","Map"],["scene","City"]] as [HapTab, string][]).map(([t, label]) => (
-              <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
-                padding: "5px 10px", borderRadius: 999, border: "none",
-                background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
-                color: tab === t ? PINK : "rgba(255,255,255,0.85)",
-                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
-                letterSpacing: "0.06em", cursor: "pointer", transition: "all 0.18s",
-                boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
-              }}>
-                {label}
-              </button>
-            ))}
+        {/* Row 1: BB+ editorial header */}
+        <div style={{ height: 46, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, fontWeight: 900, color: "white", letterSpacing: "-0.01em" }}>BB+</span>
+            <span style={{ width: 4, height: 4, borderRadius: "50%", background: PINK, display: "inline-block" }} />
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.08em" }}>
+              NYC · {new Date().getHours() < 12 ? "THIS MORNING" : new Date().getHours() < 17 ? "THIS AFTERNOON" : new Date().getHours() < 21 ? "TONIGHT" : "LATE NIGHT"}
+            </span>
           </div>
-          {/* Search icon */}
-          <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 6, background: searchOpen ? "rgba(255,255,255,0.15)" : "none", border: "none", cursor: "pointer", borderRadius: 999 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {/* Search */}
+            <button onClick={() => setSearchOpen(o => !o)} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: searchOpen ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.7)"} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </button>
+            {/* Intros tab quick-link */}
+            <button onClick={() => setTab("intros")} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: tab === "intros" ? PINK : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tab === "intros" ? "white" : "rgba(255,255,255,0.7)"} strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Filter tabs */}
+        <div style={{ height: 40, display: "flex", alignItems: "center", gap: 6, padding: "0 14px", overflowX: "auto", scrollbarWidth: "none" as const }}>
+          {(["All", "Tonight", "This Weekend", "Dinners", "Parties", "Gatherings"] as const).map(f => {
+            const filterMap: Record<string, Filter> = { "Tonight": "Parties", "This Weekend": "Parties", "Dinners": "Dinners", "Parties": "Parties", "Gatherings": "Gatherings" };
+            const mapped = (filterMap[f] ?? "All") as Filter;
+            const active = f === "All" ? filter === "All" : filter === mapped;
+            return (
+              <button key={f} onClick={() => setFilter(f === "All" ? "All" : mapped)} style={{
+                flexShrink: 0, padding: "5px 14px", borderRadius: 999, border: "none",
+                background: active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.07)",
+                color: active ? "white" : "rgba(255,255,255,0.5)",
+                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
+                letterSpacing: "0.04em", cursor: "pointer",
+                outline: active ? "1.5px solid rgba(255,255,255,0.25)" : "none",
+              }}>
+                {f === "This Weekend" ? "★ This Weekend" : f}
+              </button>
+            );
+          })}
         </div>
       </div>}
 
-      {/* ── Filter toggle — floating left pill ── */}
-      {standalone && tab === "happenings" && (
-        <button
-          onClick={() => setFilterOpen(o => !o)}
-          aria-label="Toggle filters"
-          style={{
-            position: "fixed", left: 0, top: 60, zIndex: 49,
-            background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
-            backdropFilter: "blur(12px)",
-            border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
-            borderLeft: "none", borderRadius: "0 16px 16px 0",
-            padding: "9px 11px 9px 7px", cursor: "pointer",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-            WebkitTapHighlightColor: "transparent",
-            transition: "all 0.18s",
-          }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
-            {filterOpen
-              ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
-              : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></>
-            }
-          </svg>
-          {!filterOpen && (filter !== "All" || categoryFilter !== "all") && (
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "white" }} />
-          )}
-        </button>
-      )}
-
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
-        <div className="md:top-[110px] lg:top-[50px] lg:left-60 lg:right-[280px]" style={{
-          position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
+        <div className="md:top-[166px] lg:top-[86px] lg:left-60 lg:right-[280px]" style={{
+          position: "fixed", top: 86, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
@@ -1670,7 +1701,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? (searchOpen ? 104 : 50) : 0 }}>
+      <div style={{ paddingTop: standalone ? (searchOpen ? 140 : 86) : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -1931,27 +1962,6 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               <TraditionsStrip traditions={traditions} onFollow={handleFollowTradition} />
             )}
 
-            {/* ── INTRODUCTIONS link ── */}
-            {!loading && (
-              <div style={{ margin: "8px 14px 16px" }}>
-                <Link href="/member/introductions" style={{ textDecoration: "none" }}>
-                  <div style={{
-                    borderRadius: 18, overflow: "hidden",
-                    background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
-                    border: "1px solid rgba(255,31,125,0.22)",
-                    padding: "14px 18px",
-                    display: "flex", alignItems: "center", gap: 14,
-                  }}>
-                    <div style={{ fontSize: 24 }}>👋</div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.1 }}>Introductions</p>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Meet new arrivals, locals & women finding their people</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
-                </Link>
-              </div>
-            )}
           </>
         )}
 
