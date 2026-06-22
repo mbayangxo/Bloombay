@@ -8,6 +8,8 @@ import { AvatarUpload } from "@/app/components/shared/avatar-upload";
 import { createClient } from "@/lib/supabase/client";
 import { uploadProfilePhoto } from "@/lib/storage/upload";
 import type { AuthUser } from "@/lib/auth/get-user";
+import { SocialProofSection } from "./social-proof-section";
+import { QuestionSheCaries } from "./question-she-carries";
 
 const PINK = "#FF1F7D";
 
@@ -60,7 +62,7 @@ function Lightbox({
 
       <div
         onClick={e => e.stopPropagation()}
-        style={{ width: "100%", maxWidth: 440, padding: "0 20px", boxSizing: "border-box" }}
+        style={{ width: "100%", maxWidth: "min(440px, calc(100vw - 32px))", padding: "0 16px", boxSizing: "border-box" }}
       >
         <div style={{ position: "relative", width: "100%", maxHeight: "72vh", aspectRatio: "1", overflow: "hidden", borderRadius: 14 }}>
           <Image
@@ -157,10 +159,10 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
     { label: "SIGN",             value: sign || "—" },
   ];
   return (
-    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#F5EDD8", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
-      {/* Top warm-brown bar */}
-      <div style={{ height: 28, background: "linear-gradient(90deg,#8B6914,#A07820,#8B6914)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,248,220,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#FEFCF7", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
+      {/* Top pink bar */}
+      <div style={{ height: 28, background: `linear-gradient(90deg,${PINK},#c4005a,${PINK})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,255,255,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
       </div>
       {/* Clipboard clip */}
       <div style={{ display: "flex", justifyContent: "center", marginTop: -2 }}>
@@ -189,7 +191,7 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
         </div>
         {/* Fields */}
         {rows.map(r => (
-          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(139,105,20,0.18)", paddingBottom: 8 }}>
+          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(255,31,125,0.12)", paddingBottom: 8 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(0,0,0,0.32)", marginBottom: 2 }}>{r.label}</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, fontWeight: 600, color: "#1C1B1C", lineHeight: 1.3 }}>{r.value}</p>
           </div>
@@ -416,7 +418,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
   return (
     <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,0.25)", minHeight: 240 }}>
       {/* Top meta bar */}
-      <div style={{ background: "#F5EDD8", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+      <div style={{ background: "#FFF8F0", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.35)" }}>BB+ CREATIVE STUDIO</p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>(2026)</p>
       </div>
@@ -463,7 +465,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
 // ─── 0. The ID Card (original) ───────────────────────────────────────────────
 function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation, sign, vibe, onAvatarClick }: TemplateProps) {
   return (
-    <div style={{ background: "#F5EDD8", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
+    <div style={{ background: "#FEFCF7", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
       {/* BLOOMBAY MEMBER label top-left */}
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>BLOOMBAY MEMBER</p>
 
@@ -529,7 +531,7 @@ function TemplateBoard({ displayName, initials, avatarUrl, photos, onAvatarClick
   ];
 
   return (
-    <div style={{ background: "#E5E5E5", padding: 20, borderRadius: 16, position: "relative" }}>
+    <div style={{ background: "#FFF8F0", padding: 20, borderRadius: 16, position: "relative" }}>
       {/* Top-left: bold BB + drawn heart */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 900, color: "#1C1B1C", letterSpacing: "-0.02em" }}>BB</p>
@@ -735,11 +737,11 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
   const templates: { id: TemplateId; label: string; bg: string; textColor: string }[] = [
-    { id: "id",           label: "ID",       bg: "#F5EDD8", textColor: "#888" },
-    { id: "board",        label: "BOARD",    bg: "#E5E5E5", textColor: "#555" },
+    { id: "id",           label: "ID",       bg: "#FEFCF7", textColor: "#888" },
+    { id: "board",        label: "BOARD",    bg: "#FFF8F0", textColor: "#555" },
     { id: "zine",         label: "ZINE",     bg: "#FF1F7D", textColor: "white" },
     { id: "collage",      label: "COLLAGE",  bg: "#FAFAFA", textColor: "#888" },
-    { id: "dossier",      label: "DOSSIER",  bg: "#F5EDD8", textColor: "#8B6914" },
+    { id: "dossier",      label: "DOSSIER",  bg: "#FEFCF7", textColor: "#FF1F7D" },
     { id: "beauty_table", label: "BEAUTY",   bg: "#FF5BAD", textColor: "white" },
     { id: "notebook",     label: "NOTEBOOK", bg: "#FEFCF7", textColor: "#555" },
     { id: "magazine",     label: "MAG",      bg: "#1A0010", textColor: "#FF1F7D" },
@@ -808,6 +810,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
   // Socials state
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
+  const [showSocials, setShowSocials] = useState(false);
   const [socialsSaved, setSocialsSaved] = useState(false);
 
   // Notification preferences
@@ -834,6 +837,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   // Delete account
   const [deleteConfirm,  setDeleteConfirm]  = useState("");
   const [deleteOpen,     setDeleteOpen]     = useState(false);
+
+  // Character stats
+  const [stats, setStats] = useState<{ clubs: number; events: number } | null>(null);
 
   // Avatar upload ref for template clicks
   const avatarUploadRef = useRef<HTMLDivElement>(null);
@@ -893,6 +899,27 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
     }
   }, [user.id]);
 
+  // Load socials from DB (authoritative source, overrides localStorage)
+  useEffect(() => {
+    createClient()
+      .from("profiles")
+      .select("instagram, tiktok, twitter, pinterest, spotify, website, show_socials")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        setSocials({
+          instagram: (data as Record<string, unknown>).instagram as string ?? "",
+          tiktok:    (data as Record<string, unknown>).tiktok    as string ?? "",
+          twitter:   (data as Record<string, unknown>).twitter   as string ?? "",
+          pinterest: (data as Record<string, unknown>).pinterest as string ?? "",
+          spotify:   (data as Record<string, unknown>).spotify   as string ?? "",
+          website:   (data as Record<string, unknown>).website   as string ?? "",
+        });
+        setShowSocials(Boolean((data as Record<string, unknown>).show_socials));
+      });
+  }, [user.id]);
+
   // Save template to localStorage
   function handleSetTemplate(id: TemplateId) {
     setTemplateId(id);
@@ -906,6 +933,16 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .then(({ data }) => { if (data) setPhotos(data as Photo[]); });
+  }, [user.id]);
+
+  useEffect(() => {
+    const sb = createClient();
+    Promise.all([
+      sb.from("club_memberships").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      sb.from("seat_reservations").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "reserved"),
+    ]).then(([clubs, events]) => {
+      setStats({ clubs: clubs.count ?? 0, events: events.count ?? 0 });
+    });
   }, [user.id]);
 
   function openLightbox(index: number) {
@@ -1019,10 +1056,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
     setTimeout(() => setExtraSaved(false), 2000);
   }
 
-  function handleSaveSocials() {
+  async function handleSaveSocials() {
     if (typeof window !== "undefined") {
       localStorage.setItem(`bb_socials_${user.id}`, JSON.stringify(socials));
     }
+    await fetch("/api/member/socials", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...socials, show_socials: showSocials }),
+    });
     setSocialsSaved(true);
     setTimeout(() => setSocialsSaved(false), 2000);
   }
@@ -1106,7 +1148,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </p>
             )}
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
               <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>MEMBER SINCE</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{memberSince}</p>
@@ -1118,6 +1160,19 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </p>
               </div>
             </div>
+
+            {stats !== null && (
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>CLUBS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{stats.clubs}</p>
+                </div>
+                <div style={{ flex: 1, background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 3 }}>EVENTS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>{stats.events}</p>
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#1C1B1C", borderRadius: 999, padding: "6px 14px" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>
@@ -1228,6 +1283,37 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             )}
+
+            <QuestionSheCaries editable />
+
+            {/* My Story link */}
+            <Link
+              href="/member/my-story"
+              style={{ textDecoration: "none" }}
+            >
+              <div
+                style={{
+                  background: "#FFF8F0",
+                  borderRadius: 16,
+                  padding: "16px 18px",
+                  border: "1px solid rgba(255,31,125,0.12)",
+                  boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 4 }}>✦ MY STORY</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#111", margin: 0 }}>Your BloomBay life, as Yande remembers it.</p>
+                </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </Link>
+
+            <SocialProofSection userId={user.id} />
           </div>
         )}
 
@@ -1530,6 +1616,31 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             ))}
+
+            {/* Show socials publicly toggle */}
+            <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C", marginBottom: 3 }}>Show on my profile</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#999", lineHeight: 1.4 }}>Let other members find you on your socials</p>
+              </div>
+              <button
+                onClick={() => setShowSocials(v => !v)}
+                style={{
+                  width: 46, height: 26, borderRadius: 999, border: "none", cursor: "pointer",
+                  background: showSocials ? PINK : "#E5E5E5",
+                  position: "relative", flexShrink: 0,
+                  transition: "background 0.2s",
+                }}
+              >
+                <span style={{
+                  position: "absolute", top: 3,
+                  left: showSocials ? 23 : 3,
+                  width: 20, height: 20, borderRadius: "50%",
+                  background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                  transition: "left 0.2s",
+                }} />
+              </button>
+            </div>
 
             <button
               onClick={handleSaveSocials}

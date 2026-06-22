@@ -14,6 +14,9 @@ import { getEvents, type Event } from "@/lib/actions/events";
 import { EventObjectCard } from "./event-object-cards";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { MorningAfterCard } from "./morning-after-card";
+import { ThisOrThatCard } from "./this-or-that-card";
+import { useTheme } from "@/lib/theme/theme-context";
+import { ThemeToggle } from "./theme-toggle";
 
 // ── Time-aware accent ──────────────────────────────────────────────────────────
 function getAccentColor() {
@@ -29,7 +32,8 @@ function getBg() {
 
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 
-type Club = { id: string; name: string; primary_color: string | null; cover_url: string | null; member_count?: number };
+type Club = { id: string; name: string; slug: string; primary_color: string | null; cover_url: string | null; member_count?: number };
+type ClubBuzz = { id: string; club_name: string; club_color: string | null; media_type: "photo" | "voice_note"; public_url: string; caption: string | null; created_at: string };
 
 // ── EditProfileSheet ───────────────────────────────────────────────────────────
 function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
@@ -135,20 +139,23 @@ const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 export function HomePage() {
   const PINK = getAccentColor();
   const BG   = getBg();
+  const { palette, toggle, mode } = useTheme();
   const now   = new Date();
   const month = MONTHS_S[now.getMonth()];
   const day   = now.getDate();
 
-  const [tod,          setTod]          = useState<TimeOfDay>("morning");
-  const [firstName,    setFirstName]    = useState("");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [bio,          setBio]          = useState("");
-  const [myClubs,      setMyClubs]      = useState<Club[]>([]);
-  const [loading,      setLoading]      = useState(true);
-  const [showSafety,   setShowSafety]   = useState(false);
-  const [showEdit,     setShowEdit]     = useState(false);
-  const [upNextIdx,    setUpNextIdx]    = useState(0);
-  const [events,       setEvents]       = useState<Event[]>([]);
+  const [tod,                   setTod]                   = useState<TimeOfDay>("morning");
+  const [firstName,             setFirstName]             = useState("");
+  const [neighborhood,          setNeighborhood]          = useState("");
+  const [bio,                   setBio]                   = useState("");
+  const [myClubs,               setMyClubs]               = useState<Club[]>([]);
+  const [clubBuzz,              setClubBuzz]              = useState<ClubBuzz[]>([]);
+  const [loading,               setLoading]               = useState(true);
+  const [showSafety,            setShowSafety]            = useState(false);
+  const [showEdit,              setShowEdit]              = useState(false);
+  const [upNextIdx,             setUpNextIdx]             = useState(0);
+  const [events,                setEvents]                = useState<Event[]>([]);
+  const [showPreferencesBanner, setShowPreferencesBanner] = useState(false);
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
@@ -159,7 +166,7 @@ export function HomePage() {
       if (!user) { setLoading(false); return; }
       const [{ data: profile }, { data: memberships }] = await Promise.all([
         supabase.from("profiles").select("first_name, neighborhood, bio").eq("id", user.id).single(),
-        supabase.from("club_members").select("club_id").eq("user_id", user.id).limit(10),
+        supabase.from("club_memberships").select("club_slug").eq("user_id", user.id).limit(10),
       ]);
       if (profile) {
         const p = profile as { first_name: string | null; neighborhood: string | null; bio: string | null };
@@ -168,11 +175,47 @@ export function HomePage() {
         setBio(p.bio ?? "");
       }
       if (memberships?.length) {
-        const ids = (memberships as { club_id: string }[]).map(m => m.club_id);
-        const { data: clubs } = await supabase.from("clubs").select("id, name, primary_color, cover_url").in("id", ids).limit(8);
-        setMyClubs((clubs ?? []) as Club[]);
+        const slugs = (memberships as { club_slug: string }[]).map(m => m.club_slug);
+        const { data: clubs } = await supabase
+          .from("clubs")
+          .select("id, name, slug, primary_color, cover_url, member_count")
+          .in("slug", slugs)
+          .limit(8);
+        const loaded = (clubs ?? []) as Club[];
+        setMyClubs(loaded);
+
+        // Fetch recent media from these clubs for the activity strip
+        if (loaded.length) {
+          const clubIds = loaded.map(c => c.id);
+          const { data: media } = await supabase
+            .from("club_media")
+            .select("id, club_id, media_type, public_url, caption, created_at")
+            .in("club_id", clubIds)
+            .order("created_at", { ascending: false })
+            .limit(12);
+          if (media?.length) {
+            const buzz: ClubBuzz[] = (media as Array<{ id: string; club_id: string; media_type: "photo" | "voice_note"; public_url: string; caption: string | null; created_at: string }>).map(m => {
+              const club = loaded.find(c => c.id === m.club_id);
+              return { ...m, club_name: club?.name ?? "", club_color: club?.primary_color ?? null };
+            });
+            setClubBuzz(buzz);
+          }
+        }
       }
       setLoading(false);
+
+      // Secondary fetch: check if preferences are empty
+      fetch("/api/member/preferences")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!d) return;
+          const hasAgeGroup = !!d.age_group;
+          const hasLifestyleTags = Array.isArray(d.lifestyle_tags) && d.lifestyle_tags.length > 0;
+          if (!hasAgeGroup && !hasLifestyleTags) {
+            setShowPreferencesBanner(true);
+          }
+        })
+        .catch(() => undefined);
     })();
   }, []);
 
@@ -196,7 +239,7 @@ export function HomePage() {
   const upNextEv     = upNextEvents[upNextIdx] ?? null;
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, paddingBottom: 120, paddingTop: 54 }}>
+    <div style={{ minHeight: "100vh", background: palette.pageBg, paddingBottom: 120, paddingTop: 54 }}>
 
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
@@ -206,21 +249,24 @@ export function HomePage() {
 
       {/* ══ TODAY'S BLOOM ══════════════════════════════════════════════════════ */}
       <div style={{ padding: "20px 16px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 12 }}>TODAY&apos;S BLOOM ✦</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK }}>TODAY&apos;S BLOOM ✦</p>
+          <ThemeToggle />
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
           {/* Left */}
           <div>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: "#1A0010", lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7vw,34px)", color: palette.textPrimary, lineHeight: 1.1, letterSpacing: "-0.01em", marginBottom: 14 }}>
               {greeting}{firstName ? `, ${firstName}` : ""}.
             </p>
 
             {/* Stat pills */}
-            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: "white", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 12, background: palette.card, borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px rgba(255,31,125,0.08)" }}>
               {[
-                { v: String(Math.max(1, dinnerCount)), label: "DINNER"       },
-                { v: String(Math.max(1, danceCount)),  label: "DANCE"        },
-                { v: String(myClubs.length || 3),      label: "ACTIVE CLUBS" },
+                { v: String(dinnerCount),     label: "DINNER"       },
+                { v: String(danceCount),      label: "DANCE"        },
+                { v: String(myClubs.length),  label: "MY CLUBS"     },
               ].map((s, i, arr) => (
                 <div key={s.label} style={{ flex: 1, textAlign: "center", padding: "10px 4px", borderRight: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none" }}>
                   <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.v}</p>
@@ -230,7 +276,7 @@ export function HomePage() {
             </div>
 
             {/* Yande note */}
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: palette.textMuted, lineHeight: 1.4 }}>
               {tod === "evening" || tod === "night" ? "Tonight is your busiest evening this week." : "Your week is looking lively."}{" "}
               <span style={{ color: PINK }}>— Yande</span>
             </p>
@@ -258,6 +304,47 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* ══ PREFERENCES BANNER — shown when preferences are empty ═══════════ */}
+      {showPreferencesBanner && (
+        <div style={{ margin: "16px 16px 0" }}>
+          <div style={{
+            background: "#FFF8F0",
+            border: "1px solid rgba(255,31,125,0.15)",
+            borderRadius: 16,
+            padding: "18px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 6 }}>
+                ✦ YANDE WANTS TO KNOW YOU
+              </p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "#1A0010", lineHeight: 1.3, marginBottom: 10 }}>
+                Tell us who you are. Better matches start here.
+              </p>
+              <Link href="/member/preferences" style={{ textDecoration: "none", display: "inline-block" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, color: "#FF1F7D" }}>
+                  Complete your profile →
+                </span>
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowPreferencesBanner(false)}
+              style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid rgba(255,31,125,0.15)", background: "rgba(255,31,125,0.04)", cursor: "pointer", fontSize: 14, color: "#FF1F7D", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══ THIS OR THAT — weekly Yande game ══════════════════════════════ */}
+      <div style={{ margin: "16px 16px 0" }}>
+        <ThisOrThatCard />
+      </div>
+
       {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
       {(tod === "morning") && (
         <MorningAfterCard
@@ -279,7 +366,7 @@ export function HomePage() {
       {upNextEv && (
         <div style={{ padding: "24px 16px 0" }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>UP NEXT</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>UP NEXT</p>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
           </div>
 
@@ -341,10 +428,10 @@ export function HomePage() {
       {/* ══ YOUR WEEK ══════════════════════════════════════════════════════════ */}
       <div style={{ padding: "24px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR WEEK</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR WEEK</p>
           <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
         </div>
-        <div style={{ background: "white", borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
+        <div style={{ background: palette.card, borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
             {weekDays.map((d, i) => {
               const isToday = i === todayWeek;
@@ -393,7 +480,7 @@ export function HomePage() {
       <div style={{ marginTop: 26 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>YOUR CLUBS</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR CLUBS</p>
             {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
           </div>
           <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
@@ -401,8 +488,8 @@ export function HomePage() {
 
         {!loading && myClubs.length === 0 ? (
           /* Empty state */
-          <div style={{ margin: "0 16px", background: "white", borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: "#1A0010", marginBottom: 8 }}>Find your people.</p>
+          <div style={{ margin: "0 16px", background: palette.card, borderRadius: 20, padding: "20px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 16, color: palette.textPrimary, marginBottom: 8 }}>Find your people.</p>
             <Link href="/member/clubs" style={{ textDecoration: "none", display: "inline-block", background: "#FF1F7D", color: "white", borderRadius: 999, padding: "8px 20px", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900 }}>
               EXPLORE CLUBS
             </Link>
@@ -417,12 +504,55 @@ export function HomePage() {
         )}
       </div>
 
+      {/* ══ CLUBS BUZZ — recent photos & voice notes from joined clubs ════════ */}
+      {clubBuzz.length > 0 && (
+        <div style={{ marginTop: 26 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>CLUBS BUZZ</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>latest from your clubs</p>
+            </div>
+            <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>CLUBS →</Link>
+          </div>
+          <div className="bb-scroll-x" style={{ display: "flex", gap: 10, overflowX: "auto", padding: "4px 16px 20px" }}>
+            {clubBuzz.map(item => (
+              <div key={item.id} style={{ flexShrink: 0, width: 110, borderRadius: 16, overflow: "hidden", background: palette.card, boxShadow: "0 6px 22px rgba(0,0,0,0.1)", position: "relative" }}>
+                {item.media_type === "photo" ? (
+                  <div style={{ position: "relative", width: 110, height: 110 }}>
+                    <Image src={item.public_url} alt={item.caption ?? ""} fill unoptimized style={{ objectFit: "cover" }} sizes="110px" />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.55) 100%)" }} />
+                  </div>
+                ) : (
+                  <div style={{ width: 110, height: 110, background: item.club_color ?? PINK, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 6 }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.15)" />
+                      <path d="M10 8l6 4-6 4V8z" fill="white" />
+                    </svg>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em" }}>VOICE NOTE</p>
+                  </div>
+                )}
+                <div style={{ padding: "8px 8px 10px" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: item.club_color ?? PINK, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {item.club_name.toUpperCase()}
+                  </p>
+                  {item.caption && (
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: palette.textSecondary, lineHeight: 1.3, overflow: "hidden", maxHeight: 30 }}>
+                      {item.caption}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ══ AROUND THE CITY — real event objects ══════════════════════════════ */}
       {events.length > 0 && (
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
             <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: "#1A0010" }}>AROUND THE CITY</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>AROUND THE CITY</p>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>NYC</p>
             </div>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>

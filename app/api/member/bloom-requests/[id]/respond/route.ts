@@ -29,7 +29,7 @@ export async function POST(
 
   const { data: row, error: fetchErr } = await supabase
     .from("bloom_requests")
-    .select("id, to_user_id, status")
+    .select("id, to_user_id, from_user_id, status")
     .eq("id", id)
     .maybeSingle();
 
@@ -48,6 +48,39 @@ export async function POST(
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
+  }
+
+  if (body.status === "accepted") {
+    try {
+      const { data: questions } = await supabase
+        .from("yande_questions")
+        .select("id, prompt")
+        .eq("kind", "bloom_pair");
+
+      if (questions && questions.length > 0) {
+        const question = questions[Math.floor(Math.random() * questions.length)];
+        const fromUserId = row.from_user_id;
+        const toUserId = user.id;
+
+        void supabase.from("notifications").insert({
+          user_id: toUserId,
+          type: "yande_question",
+          title: "Yande has a question for you two 🌸",
+          body: question.prompt.slice(0, 140),
+          data: { question_id: question.id, bloomie_id: fromUserId },
+        });
+
+        void supabase.from("notifications").insert({
+          user_id: fromUserId,
+          type: "yande_question",
+          title: "Yande has a question for you two 🌸",
+          body: question.prompt.slice(0, 140),
+          data: { question_id: question.id, bloomie_id: toUserId },
+        });
+      }
+    } catch {
+      /* non-fatal */
+    }
   }
 
   await logBehaviorSignal(supabase, user.id, `bloom_request_${body.status}`, { requestId: id });

@@ -6,9 +6,19 @@ import { PortalFooter } from "@/app/components/portal/portal-footer";
 import { CLUB_OWNER_NAV } from "@/lib/portal-navigation";
 import { portalTourHref } from "@/lib/portal-tour";
 import { PortalSignOutButton } from "@/app/components/auth/portal-sign-out-button";
-import { PortalOnboardingTour } from "@/app/components/portal/portal-onboarding-tour";
+import { PortalSpotlightTour } from "@/app/components/portal/portal-spotlight-tour";
 import { BloomBayBrand } from "@/app/member/components/bloombay-logo";
 import "@/app/styles/portal-footer.css";
+
+// Tour IDs for each bottom-nav item (must match portal-spotlight-tour.tsx selectors)
+const NAV_TOUR_IDS: Record<string, string> = {
+  "/club-owner/dashboard":     "nav-home",
+  "/club-owner/events-studio": "nav-events-studio",
+  "/club-owner/gatherings":    "nav-gatherings",
+  "/club-owner/members":       "nav-women",
+  "/club-owner/applications":  "nav-applications",
+  "/club-owner/comms":         "nav-broadcast",
+};
 
 export function ClubOwnerShell({
   children,
@@ -24,7 +34,7 @@ export function ClubOwnerShell({
 
   return (
     <div className="co-app">
-      <PortalOnboardingTour portalId="club_owner" />
+      <PortalSpotlightTour portalId="club_owner" />
       <div className="co-main-wrap">
         <header className="co-header">
           <div className="co-header__left">
@@ -43,19 +53,23 @@ export function ClubOwnerShell({
         </header>
         <div className="co-content">{children}</div>
         <nav className="co-bottom-nav" aria-label="Clubhouse portal">
-          {CLUB_OWNER_NAV.slice(0, 5).map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={
-                pathname === item.href || pathname.startsWith(`${item.href}/`)
-                  ? "co-bottom-nav--active"
-                  : ""
-              }
-            >
-              {item.label === "Applications" ? "Apps" : item.label}
-            </Link>
-          ))}
+          {CLUB_OWNER_NAV.slice(0, 6).map((item) => {
+            const tourId = NAV_TOUR_IDS[item.href];
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                data-tour={tourId}
+                className={
+                  pathname === item.href || pathname.startsWith(`${item.href}/`)
+                    ? "co-bottom-nav--active"
+                    : ""
+                }
+              >
+                {item.label === "Applications" ? "Apps" : item.label}
+              </Link>
+            );
+          })}
         </nav>
         <PortalFooter links={CLUB_OWNER_NAV} tourHref={portalTourHref("club_owner")} className="co-portal-footer" />
       </div>

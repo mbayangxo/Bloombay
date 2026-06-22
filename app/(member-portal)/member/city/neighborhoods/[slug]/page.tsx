@@ -631,7 +631,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
         {/* Text */}
         <div style={{ position: "absolute", bottom: 24, left: 20, right: 20 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: hood.heroAccent, marginBottom: 6 }}>{hood.borough} · NEIGHBORHOOD</p>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 44, color: "white", lineHeight: 0.9, letterSpacing: "-0.02em", marginBottom: 10 }}>{hood.name}.</p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(30px, 11vw, 44px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.02em", marginBottom: 10 }}>{hood.name}.</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.52)", lineHeight: 1.4, maxWidth: 280 }}>{hood.tagline}</p>
         </div>
       </div>

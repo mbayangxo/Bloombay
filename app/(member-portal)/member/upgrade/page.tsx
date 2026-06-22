@@ -75,7 +75,7 @@ export default function UpgradePage() {
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: PINK, letterSpacing: "0.18em", marginBottom: 8 }}>
           BLOOMBAY MEMBERSHIP
         </p>
-        <h1 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 34, color: PLUM, lineHeight: 1.15, marginBottom: 10 }}>
+        <h1 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(26px, 8.5vw, 34px)", color: PLUM, lineHeight: 1.15, marginBottom: 10 }}>
           Your table is here.
         </h1>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#666", lineHeight: 1.6 }}>

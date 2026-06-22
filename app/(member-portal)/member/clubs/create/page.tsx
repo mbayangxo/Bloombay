@@ -194,6 +194,8 @@ export default function CreateClubPage() {
   const [submitted, setSubmitted] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [newClubId, setNewClubId] = useState<string | null>(null);
+  const [newClubSlug, setNewClubSlug] = useState<string | null>(null);
 
   // Step 1 — Name & Look
   const [clubName, setClubName] = useState("");
@@ -215,6 +217,7 @@ export default function CreateClubPage() {
   // Step 3 — Launch
   const [capacity, setCapacity] = useState("12");
   const [membershipType, setMembershipType] = useState("");
+  const [launchMode, setLaunchMode] = useState<"live" | "draft">("live");
 
   function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -254,8 +257,9 @@ export default function CreateClubPage() {
           member_limit: capacity === "50+" ? null : parseInt(capacity, 10),
           membership_type: membershipType,
           owner_id: user.id,
+          ...(launchMode === "draft" ? { status: "draft" } : {}),
         })
-        .select("id")
+        .select("id, slug")
         .single();
 
       if (error) throw error;
@@ -269,6 +273,10 @@ export default function CreateClubPage() {
         }
       }
 
+      if (newClub) {
+        setNewClubId(newClub.id);
+        setNewClubSlug(newClub.slug ?? newClub.id);
+      }
       setSubmitted(true);
     } catch (err) {
       const msg = (err as { message?: string })?.message || "Failed to create club. Please try again.";
@@ -297,14 +305,27 @@ export default function CreateClubPage() {
             CLUB CREATED
           </p>
           <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "#111", lineHeight: 1.2, marginBottom: 10 }}>
-            {clubName} is live.
+            {launchMode === "draft" ? `${clubName} is saved.` : `${clubName} is live.`}
           </h2>
           <p style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 28, fontStyle: "italic", fontFamily: "var(--font-playfair)" }}>
-            Your club is now visible to BloomBay members. Start inviting women and hosting gatherings.
+            {launchMode === "draft"
+              ? "Your club is saved as a draft. Design it, then make it live when you're ready."
+              : "Your club is now visible to BloomBay members. Start inviting women and hosting gatherings."}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <Link href="/member/clubs" style={{ display: "block", padding: "15px", borderRadius: 16, background: accentColor, color: "white", textDecoration: "none", fontSize: 13, fontWeight: 800, textAlign: "center" }}>
-              View All Clubs
+            {newClubId && (
+              <Link
+                href={`/member/clubs/${newClubSlug ?? newClubId}/design`}
+                style={{ display: "block", padding: "15px", borderRadius: 16, background: accentColor, color: "white", textDecoration: "none", fontSize: 13, fontWeight: 800, textAlign: "center" }}
+              >
+                Continue to Design Studio →
+              </Link>
+            )}
+            <Link
+              href="/member/clubs"
+              style={{ display: "block", padding: "14px", borderRadius: 16, background: launchMode === "draft" ? "white" : accentColor, color: launchMode === "draft" ? "rgba(0,0,0,0.5)" : "white", border: launchMode === "draft" ? "1.5px solid rgba(0,0,0,0.1)" : "none", textDecoration: "none", fontSize: 13, fontWeight: 700, textAlign: "center" }}
+            >
+              {launchMode === "draft" ? "Go Live Now →" : "View All Clubs"}
             </Link>
             <Link href="/member/apply-club-mama" style={{ display: "block", padding: "14px", borderRadius: 16, background: "#111", color: PINK, textDecoration: "none", fontSize: 13, fontWeight: 700, textAlign: "center" }}>
               Apply for Club Mama Stipend ✦
@@ -570,6 +591,35 @@ export default function CreateClubPage() {
               </div>
             )}
 
+            {/* Launch mode */}
+            <div style={{ marginBottom: 18 }}>
+              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.15em", color: "rgba(0,0,0,0.3)", marginBottom: 10 }}>HOW DO YOU WANT TO LAUNCH?</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button onClick={() => setLaunchMode("live")}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 12, borderRadius: 20, padding: 16, textAlign: "left", cursor: "pointer", background: launchMode === "live" ? `${accentColor}10` : "white", border: `1.5px solid ${launchMode === "live" ? accentColor : "rgba(0,0,0,0.07)"}`, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+                >
+                  <div style={{ width: 36, height: 36, borderRadius: 12, background: launchMode === "live" ? `${accentColor}18` : "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+                    🌐
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: launchMode === "live" ? accentColor : "#111", marginBottom: 2 }}>Launch Live Now</p>
+                    <p style={{ fontSize: 11, color: "#aaa" }}>Your club is immediately visible to all members</p>
+                  </div>
+                </button>
+                <button onClick={() => setLaunchMode("draft")}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 12, borderRadius: 20, padding: 16, textAlign: "left", cursor: "pointer", background: launchMode === "draft" ? `${PINK}10` : "white", border: `1.5px solid ${launchMode === "draft" ? PINK : "rgba(0,0,0,0.07)"}`, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+                >
+                  <div style={{ width: 36, height: 36, borderRadius: 12, background: launchMode === "draft" ? `${PINK}18` : "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+                    ✦
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: launchMode === "draft" ? PINK : "#111", marginBottom: 2 }}>Save as Draft ✦</p>
+                    <p style={{ fontSize: 11, color: "#aaa" }}>Design first. Make it live when you&apos;re ready.</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             {/* Club Mama upsell */}
             <Link href="/member/apply-club-mama"
               style={{ display: "flex", alignItems: "center", gap: 12, borderRadius: 20, padding: 16, marginBottom: 8, background: `${PINK}0E`, border: `1px solid ${PINK}22`, textDecoration: "none" }}
@@ -616,7 +666,7 @@ export default function CreateClubPage() {
               transition: "all 0.2s",
             }}
           >
-            {creating ? "Creating…" : step === 3 ? "Launch Club ✦" : "Continue →"}
+            {creating ? "Creating…" : step === 3 ? (launchMode === "draft" ? "Save as Draft ✦" : "Launch Club ✦") : "Continue →"}
           </button>
         </div>
       </div>

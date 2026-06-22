@@ -223,13 +223,13 @@ export function WallPage() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
       {/* ── Header ── */}
       <header style={{ position: "sticky", top: 0, zIndex: 30, background: `linear-gradient(160deg, #C2005A 0%, ${PINK} 55%, #FF6EB4 100%)`, padding: "18px 18px 16px", boxShadow: "0 4px 24px rgba(255,31,125,0.28)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
           <Link href="/member/avenue" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,0.2)", color: "#fff", textDecoration: "none", fontSize: 18, flexShrink: 0, marginTop: 4 }}>←</Link>
           <div style={{ flex: 1, marginLeft: 12 }}>
-            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 44, fontWeight: 700, margin: 0, lineHeight: 1, color: "#fff", letterSpacing: "-0.01em" }}>The Wall.</h1>
+            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "clamp(32px, 11vw, 44px)", fontWeight: 700, margin: 0, lineHeight: 1, color: "#fff", letterSpacing: "-0.01em" }}>The Wall.</h1>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, margin: "4px 0 0", color: "rgba(255,255,255,0.82)" }}>Post. Share. Vibe.</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.18)", borderRadius: 20, padding: "6px 11px", flexShrink: 0, marginTop: 6 }}>

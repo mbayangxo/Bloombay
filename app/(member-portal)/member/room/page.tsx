@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -1121,7 +1122,7 @@ function TheAvenueInner() {
   if (room === "girlbar") return <GirlBar onBack={() => setRoom("avenue")} />;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "#0C050F" }}>
+    <div className="min-h-screen pb-24 md:pb-10 bloom-world-enter" style={{ background: "#0C050F" }}>
 
       <div className="px-5 pt-16 pb-4 md:px-8 md:pt-4">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "rgba(255,31,125,0.6)" }}>✦ BLOOMBAY</p>

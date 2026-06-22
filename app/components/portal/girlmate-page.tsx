@@ -716,7 +716,7 @@ export function GirlMatePage() {
     : SEEKERS;
 
   return (
-    <div style={{ minHeight: "100dvh", background: IVORY }}>
+    <div style={{ minHeight: "100dvh", background: IVORY, paddingBottom: 120 }}>
 
       {/* ── Header ── */}
       <div style={{ background: `linear-gradient(160deg, ${PLUM} 0%, #2E0A1C 100%)`, padding: "52px 20px 24px", position: "relative", overflow: "hidden" }}>

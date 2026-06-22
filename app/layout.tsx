@@ -41,6 +41,7 @@ export const metadata: Metadata = {
   title: "BloomBay — Where you bloom.",
   description:
     "BloomBay is a social world for women — friends, clubs, gatherings, and real-life connection. Join the waitlist.",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

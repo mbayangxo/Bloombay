@@ -395,7 +395,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     <div style={{ minHeight: "100vh", background: "#F9F4EE", paddingBottom: 40 }}>
 
       {/* ── TOP BAR ── */}
-      <div style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         paddingTop: "env(safe-area-inset-top, 0px)",
         background: "rgba(249,244,238,0.97)",
@@ -416,7 +416,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
       </div>
 
       {/* ── CONTENT ── */}
-      <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))", padding: "calc(54px + env(safe-area-inset-top, 0px)) 18px 24px" }}>
+      <div className="md:!pt-0" style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))", padding: "calc(54px + env(safe-area-inset-top, 0px)) 18px 24px" }}>
         <StepContent />
       </div>
 

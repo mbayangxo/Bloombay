@@ -2,45 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
+import "@/app/styles/bloom-entrance.css";
 
 const PINK  = "#FF1F7D";
-const GOLD  = "#D4A853";
-const CREAM = "rgba(251,247,241,0.98)";
 
-// 6-petal flower path for nav (viewBox "0 0 360 84")
-// Each petal sits over one tab: x centers at 30, 90, 150, 210, 270, 330
-// Center petals (Clubs x=150, Avenue x=210) peak at y=8; outer petals at y=12
-const BLOOM_PATH =
-  "M 14 84 Q 0 84 0 66 L 0 32 " +
-  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +      // petal 1 (Home)
-  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +   // petal 2 (Plans)
-  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +   // petal 3 (Clubs)
-  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +   // petal 4 (Avenue)
-  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " + // petal 5 (City)
-  "C 307 18 317 12 330 12 C 343 12 353 18 360 32 " + // petal 6 (Introductions)
-  "L 360 66 Q 360 84 346 84 Z";
-
-// Scalloped top edge only (for inner highlight stroke)
-const BLOOM_TOP =
-  "M 0 32 " +
-  "C 7 18 17 12 30 12 C 43 12 53 18 60 32 " +
-  "C 67 18 77 12 90 12 C 103 12 113 18 120 32 " +
-  "C 127 16 137 8 150 8 C 163 8 173 16 180 32 " +
-  "C 187 16 197 8 210 8 C 223 8 233 16 240 32 " +
-  "C 247 18 257 12 270 12 C 283 12 293 18 300 32 " +
-  "C 307 18 317 12 330 12 C 343 12 353 18 360 32";
-
-// Inject keyframes once
 if (typeof document !== "undefined") {
   if (!document.getElementById("bb-nav-style")) {
     const s = document.createElement("style");
     s.id = "bb-nav-style";
     s.textContent = `
       @keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.65;transform:scale(0.88)} }
-      @keyframes bloomPop  { 0%{transform:scale(0.5);opacity:0} 65%{transform:scale(1.14)} 100%{transform:scale(1);opacity:1} }
     `;
     document.head.appendChild(s);
   }
@@ -48,7 +21,6 @@ if (typeof document !== "undefined") {
 
 interface NavUser { name: string; initial: string; role: string; }
 
-// ── Time slab ─────────────────────────────────────────────────────────────────
 type Slab = "morning" | "afternoon" | "evening" | "tonight";
 function getSlab(): Slab {
   const h = new Date().getHours();
@@ -61,7 +33,6 @@ const SLAB_LABEL: Record<Slab, string> = {
   morning: "This Morning", afternoon: "This Afternoon", evening: "This Evening", tonight: "Tonight",
 };
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
 type SVGProps = { c: string; w?: number };
 
 function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
@@ -94,10 +65,9 @@ function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
   );
 }
 
-// Plans: open notebook with lines
 function IconPlans({ c, w = 2 }: SVGProps) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
       <line x1="9" y1="8"  x2="15" y2="8"/>
@@ -107,23 +77,6 @@ function IconPlans({ c, w = 2 }: SVGProps) {
   );
 }
 
-// Introductions: four women together — Sex and the City city girls
-function IconIntroductions({ c, w = 2 }: SVGProps) {
-  return (
-    <svg width="24" height="20" viewBox="0 0 40 22" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="5" cy="5" r="2.5"/>
-      <path d="M2.5 8 Q5 7 7.5 8 L9 21 L1 21 Z"/>
-      <circle cx="14" cy="4.5" r="2.5"/>
-      <path d="M11.5 7.5 Q14 6.5 16.5 7.5 L18 21 L10 21 Z"/>
-      <circle cx="26" cy="5" r="2.5"/>
-      <path d="M23.5 8 Q26 7 28.5 8 L30 21 L22 21 Z"/>
-      <circle cx="35" cy="4.5" r="2.5"/>
-      <path d="M32.5 7.5 Q35 6.5 37.5 7.5 L39 21 L31 21 Z"/>
-    </svg>
-  );
-}
-
-// Clubs: facing BB mark
 function IconClubs({ c }: SVGProps) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -137,27 +90,21 @@ function IconClubs({ c }: SVGProps) {
   );
 }
 
-// Avenue: street sign
 function IconAveSign({ c, w = 2 }: SVGProps) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <line x1="12" y1="10" x2="12" y2="22" stroke={c} strokeWidth={w} strokeLinecap="round"/>
       <rect x="3" y="3" width="18" height="8" rx="1.5" stroke={c} strokeWidth={w} fill="none"/>
-      <line x1="7" y1="5.5" x2="6" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="7" y1="5.5" x2="8" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="7"   y1="5.5" x2="6"   y2="9"   stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="7"   y1="5.5" x2="8"   y2="9"   stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
       <line x1="6.5" y1="7.5" x2="7.5" y2="7.5" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="10" y1="5.5" x2="10" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="10" y1="5.5" x2="11.2" y2="7.2" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="11.2" y1="7.2" x2="10" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="13.5" y1="5.5" x2="13.5" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="13.5" y1="5.5" x2="15.5" y2="5.5" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="13.5" y1="7.2" x2="15" y2="7.2" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="13.5" y1="9" x2="15.5" y2="9" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="10"  y1="5.5" x2="10"  y2="9"   stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="10"  y1="5.5" x2="11.2" y2="7.2" stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="11.2" y1="7.2" x2="10" y2="9"   stroke={c} strokeWidth="1.4" strokeLinecap="round"/>
     </svg>
   );
 }
 
-// City: skyline
 function IconHappenings({ c, w = 2 }: SVGProps) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">
@@ -166,61 +113,6 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
       <path d="M16 20v-6h5v6"/>
       <line x1="9" y1="12" x2="11" y2="12"/>
       <line x1="9" y1="16" x2="11" y2="16"/>
-    </svg>
-  );
-}
-
-// ── Flower-shaped nav background (SVG) ────────────────────────────────────────
-function NavBloom() {
-  return (
-    <svg
-      viewBox="0 0 360 84"
-      preserveAspectRatio="none"
-      style={{
-        position: "absolute",
-        top: -20,       // petals rise 20px above the icon row
-        left: 0, right: 0,
-        width: "100%",
-        height: 84,
-        pointerEvents: "none",
-        overflow: "visible",
-      }}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <filter id="bb-nav-shadow" x="-8%" y="-30%" width="116%" height="170%">
-          <feDropShadow dx="0" dy="8"  stdDeviation="14" floodColor="rgba(0,0,0,0.10)" floodOpacity="1"/>
-          <feDropShadow dx="0" dy="3"  stdDeviation="5"  floodColor={GOLD}             floodOpacity="0.13"/>
-          <feDropShadow dx="0" dy="-1" stdDeviation="2"  floodColor="rgba(255,255,255,0.6)" floodOpacity="1"/>
-        </filter>
-        {/* Grain filter applied to the fill rect */}
-        <filter id="bb-nav-grain" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" result="noise"/>
-          <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-          <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
-          <feComposite in="blended" in2="SourceGraphic" operator="in"/>
-        </filter>
-        <clipPath id="bb-nav-clip">
-          <path d={BLOOM_PATH}/>
-        </clipPath>
-      </defs>
-
-      {/* Main cream fill with drop shadow */}
-      <path d={BLOOM_PATH} fill={CREAM} filter="url(#bb-nav-shadow)"/>
-
-      {/* Grain texture clipped to bloom shape */}
-      <rect width="360" height="84" fill="rgba(120,80,40,0.018)" filter="url(#bb-nav-grain)" clipPath="url(#bb-nav-clip)"/>
-
-      {/* Gold border along the bloom outline */}
-      <path d={BLOOM_PATH} fill="none" stroke={GOLD} strokeWidth="1.2" strokeOpacity="0.45"/>
-
-      {/* Inner white highlight along the scalloped top */}
-      <path d={BLOOM_TOP} fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1"/>
-
-      {/* Tiny gold dots at petal valleys (x: 60, 120, 180, 240, 300; y ≈ 30) */}
-      {[60, 120, 180, 240, 300].map(x => (
-        <circle key={x} cx={x} cy={30} r="1.8" fill={GOLD} opacity="0.35"/>
-      ))}
     </svg>
   );
 }
@@ -245,9 +137,17 @@ function IconPin({ c }: SVGProps) {
 }
 function IconMail({ c }: SVGProps) {
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-      <polyline points="22,6 12,13 2,6"/>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Post */}
+      <line x1="12" y1="20" x2="12" y2="15"/>
+      {/* Base */}
+      <line x1="9" y1="20" x2="15" y2="20"/>
+      {/* Mailbox body */}
+      <path d="M5 15h14V10a7 7 0 0 0-14 0v5z"/>
+      {/* Door/slot */}
+      <line x1="5" y1="12" x2="9" y2="12"/>
+      {/* Flag up */}
+      <polyline points="19,10 19,6 22,6 22,10"/>
     </svg>
   );
 }
@@ -259,65 +159,87 @@ function IconChatBubble({ c }: SVGProps) {
   );
 }
 
+// ── Open Rose SVG — the left end of the stem ─────────────────────────────────
+function OpenRose() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+      {/* Outer ring — 5 large open petals */}
+      {[0, 72, 144, 216, 288].map(a => (
+        <ellipse key={`o${a}`} cx="20" cy="7" rx="5" ry="12"
+          fill="#FF5B8D" opacity="0.55"
+          transform={`rotate(${a} 20 20)`} />
+      ))}
+      {/* Mid ring — 5 petals offset */}
+      {[36, 108, 180, 252, 324].map(a => (
+        <ellipse key={`m${a}`} cx="20" cy="10" rx="3.8" ry="9"
+          fill="#FF1F7D" opacity="0.7"
+          transform={`rotate(${a} 20 20)`} />
+      ))}
+      {/* Inner ring — tighter petals */}
+      {[0, 72, 144, 216, 288].map(a => (
+        <ellipse key={`i${a}`} cx="20" cy="13" rx="2.5" ry="6"
+          fill="#C80060" opacity="0.88"
+          transform={`rotate(${a} 20 20)`} />
+      ))}
+      {/* Center disk */}
+      <circle cx="20" cy="20" r="5.2" fill="#A8004C"/>
+      {/* Stamen */}
+      <circle cx="20" cy="20" r="3" fill="#FF5FA5" opacity="0.82"/>
+      <circle cx="20" cy="20" r="1.4" fill="rgba(255,255,255,0.62)"/>
+    </svg>
+  );
+}
+
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
-  { href: "/member/home",          key: "home"          },
-  { href: "/member/happenings",    key: "happenings"    },
-  { href: "/member/plans",         key: "plans"         },
-  { href: "/member/clubs",         key: "clubs"         },
-  { href: "/member/avenue",        key: "avenue"        },
-  { href: "/member/introductions", key: "introductions" },
+  { href: "/member/home",       key: "home"       },
+  { href: "/member/happenings", key: "happenings" },
+  { href: "/member/plans",      key: "plans"      },
+  { href: "/member/clubs",      key: "clubs"      },
+  { href: "/member/avenue",     key: "avenue"     },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function BottomNav({ user }: { user?: NavUser }) {
-  const pathname    = usePathname();
-  const slab        = getSlab();
-  const isDarkPage  = pathname.startsWith("/member/home") || pathname.startsWith("/member/avenue") || pathname.startsWith("/member/plans") || pathname.startsWith("/member/happenings");
-  const [navShrunk, setNavShrunk]   = useState(false);
-  const [navTouched, setNavTouched] = useState(false);
-  const lastYRef = useRef(0);
-
-  useEffect(() => {
-    function onScroll() {
-      const y = window.scrollY;
-      if (y > lastYRef.current + 10) setNavShrunk(true);
-      else if (y < lastYRef.current - 6) setNavShrunk(false);
-      lastYRef.current = y;
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const pathname   = usePathname();
+  const slab       = getSlab();
+  const isDarkPage = pathname.startsWith("/member/avenue")    ||
+                     pathname.startsWith("/member/plans")     ||
+                     pathname.startsWith("/member/happenings")||
+                     pathname.startsWith("/member/clubs");
+  const hideTopBar = pathname.startsWith("/member/lounge")    ||
+                     pathname.startsWith("/member/happenings");
 
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings");
-    if (href === "/member/avenue") return pathname.startsWith("/member/avenue");
-    if (href === "/member/introductions") return pathname.startsWith("/member/introductions") || pathname.startsWith("/member/girlmate");
+    if (href === "/member/avenue")     return pathname.startsWith("/member/avenue");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   function renderIcon(key: TabKey, active: boolean) {
-    const c = active ? "white" : "rgba(0,0,0,0.36)";
+    const c = active ? PINK : (isDarkPage ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)");
     const w = active ? 2.2 : 1.7;
-    if (key === "home")          return <IconTime           c={c} w={w} slab={slab} />;
-    if (key === "happenings")    return <IconHappenings     c={c} w={w} />;
-    if (key === "plans")         return <IconPlans          c={c} w={w} />;
-    if (key === "clubs")         return <IconClubs          c={c} />;
-    if (key === "avenue")        return <IconAveSign        c={c} w={w} />;
-    if (key === "introductions") return <IconIntroductions  c={c} w={w} />;
+    if (key === "home")       return <IconTime       c={c} w={w} slab={slab} />;
+    if (key === "happenings") return <IconHappenings c={c} w={w} />;
+    if (key === "plans")      return <IconPlans      c={c} w={w} />;
+    if (key === "clubs")      return <IconClubs      c={c} />;
+    if (key === "avenue")     return <IconAveSign    c={c} w={w} />;
   }
 
   function tabLabel(key: TabKey): string {
-    if (key === "home")          return SLAB_LABEL[slab];
-    if (key === "happenings")    return "The City";
-    if (key === "plans")         return "Plans";
-    if (key === "clubs")         return "Clubs";
-    if (key === "avenue")        return "The Avenue";
-    if (key === "introductions") return "Intros";
+    if (key === "home")       return SLAB_LABEL[slab];
+    if (key === "happenings") return "The City";
+    if (key === "plans")      return "Plans";
+    if (key === "clubs")      return "Clubs";
+    if (key === "avenue")     return "Avenue";
     return key;
   }
+
+  // Stem and branch colors — warm rose, adapted to bg
+  const stemC   = isDarkPage ? "rgba(255,190,210,0.28)" : "rgba(170,80,110,0.25)";
+  const branchC = isDarkPage ? "rgba(255,190,210,0.32)" : "rgba(170,80,110,0.28)";
 
   function TopTile({ href, label, children, badge }: {
     href: string; label: string; children: React.ReactNode; badge?: "dot" | "number";
@@ -330,7 +252,6 @@ export function BottomNav({ user }: { user?: NavUser }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           background: active ? `${PINK}15` : "transparent",
           border: active ? `1.5px solid ${PINK}28` : "none",
-          transition: "all 0.18s",
         }}>
           {children}
         </div>
@@ -342,7 +263,6 @@ export function BottomNav({ user }: { user?: NavUser }) {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "7.5px", fontWeight: 900, color: "white", fontFamily: "var(--font-jost)",
             animation: "pinkPulse 2s ease-in-out infinite",
-            boxShadow: `0 0 0 3px ${PINK}30, 0 0 10px ${PINK}44`,
           }}>3</div>
         )}
         {badge === "dot" && (
@@ -359,132 +279,146 @@ export function BottomNav({ user }: { user?: NavUser }) {
   return (
     <>
       {/* ══════ TOP BAR ══════ */}
-      <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
-        style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
-          <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
-            <BBLogo size={26} pinkColor={PINK} />
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <TopTile href="/member/lounge" label="Apartment">
-              <IconApt c={isDarkPage ? "white" : PINK} />
-            </TopTile>
-            <TopTile href="/member/pin-drops" label="City">
-              <IconPin c={isDarkPage ? "white" : PINK} />
-            </TopTile>
-            <TopTile href="/member/messages" label="Mailbox" badge="number">
-              <IconMail c={isDarkPage ? "white" : PINK} />
-            </TopTile>
-            <TopTile href="/member/chat" label="Chat" badge="dot">
-              <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
-                <IconChatBubble c={isDarkPage ? "white" : PINK} />
-              </span>
-            </TopTile>
+      {!hideTopBar && (
+        <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
+          style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
+            <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
+              <BBLogo size={26} pinkColor={PINK} />
+            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <TopTile href="/member/apartment" label="Apartment">
+                <IconApt c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/notifications" label="Pin Drops">
+                <IconPin c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/messages" label="Mailbox" badge="number">
+                <IconMail c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/chat" label="Chat" badge="dot">
+                <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
+                  <IconChatBubble c={isDarkPage ? "white" : PINK} />
+                </span>
+              </TopTile>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ══════ BLOOM NAV ══════ */}
+      {/* ══════ ROSE STEM NAVIGATION ══════
+          No container. No pill. No background.
+          A horizontal rose stem with one open rose at the left end.
+          Each destination grows from the stem like a bud.
+      */}
       <div
         className="fixed z-50 md:hidden"
-        onTouchStart={() => { setNavTouched(true); setNavShrunk(false); }}
-        onTouchEnd={() => { setTimeout(() => setNavTouched(false), 600); }}
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 14px)",
-          left: navShrunk && !navTouched ? "50%" : "16px",
-          right: navShrunk && !navTouched ? "auto" : "16px",
-          transform: navShrunk && !navTouched ? "translateX(-50%) scale(0.68)" : "none",
-          transformOrigin: "bottom center",
-          transition: "all 0.44s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          opacity: navShrunk && !navTouched ? 0.68 : 1,
-          // Height for the icon + label row; SVG extends above via top: -20
-          height: 60,
-          position: "fixed",
+          bottom: 0, left: 0, right: 0,
+          height: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+          pointerEvents: "none",
+          // zero background — the stem IS the navigation
         }}
       >
-        {/* SVG flower background */}
-        <NavBloom />
-
-        {/* Sliding flower indicator */}
-        {(() => {
-          const activeIndex = Math.max(0, TABS.findIndex(t => isActive(t.href)));
-          return (
-            <div style={{
-              position: "absolute",
-              top: 2,
-              left: `calc(${activeIndex * (100 / TABS.length)}% + ${100 / TABS.length / 2}%)`,
-              transform: "translateX(-50%)",
-              transition: "left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              zIndex: 2,
-              pointerEvents: "none",
-            }}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="3" fill="#FF1F7D" />
-                {[0,1,2,3,4].map(i => {
-                  const angle = (i/5)*Math.PI*2 - Math.PI/2;
-                  const cx = 9 + Math.cos(angle)*5.2;
-                  const cy = 9 + Math.sin(angle)*5.2;
-                  return <ellipse key={i} cx={cx} cy={cy} rx="2.2" ry="1.4" fill="#FF1F7D" opacity="0.72" transform={`rotate(${(i/5)*360},${cx},${cy})`}/>;
-                })}
-              </svg>
-            </div>
-          );
-        })()}
-
-        {/* Icon + label row */}
+        {/* ─ Horizontal stem line (runs left-to-right, starts after the rose) ─ */}
         <div style={{
-          position: "relative", zIndex: 1,
-          height: "100%",
-          display: "flex", alignItems: "center",
+          position: "absolute",
+          left: 46,
+          right: 0,
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 26px)",
+          height: 1.5,
+          background: `linear-gradient(90deg, ${PINK}60 0%, ${stemC} 22%, ${stemC} 100%)`,
+          borderRadius: 1,
+        }} />
+
+        {/* ─ Small leaf/thorn on the stem (decorative) ─ */}
+        <div style={{
+          position: "absolute",
+          left: "28%",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 27px)",
+          width: 10,
+          height: 6,
+          pointerEvents: "none",
         }}>
-          {TABS.map((tab, i) => {
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path d="M0 6 C2 0 8 0 10 3 C7 5 2 6 0 6Z"
+              fill={isDarkPage ? "rgba(180,220,180,0.4)" : "rgba(80,130,70,0.3)"}
+            />
+          </svg>
+        </div>
+
+        {/* ─ Open rose at the left end ─ */}
+        <div style={{
+          position: "absolute",
+          left: 8,
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 9px)",
+          width: 34,
+          height: 34,
+          zIndex: 2,
+          pointerEvents: "none",
+        }}>
+          <OpenRose />
+        </div>
+
+        {/* ─ Nav destinations — grow upward from the stem ─ */}
+        <div style={{
+          position: "absolute",
+          left: 44,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          display: "flex",
+          pointerEvents: "auto",
+        }}>
+          {TABS.map((tab) => {
             const active = isActive(tab.href);
-            const label  = tabLabel(tab.key);
-            const isCenter = i === 2 || i === 3;
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="active:scale-90 transition-transform"
-                style={{ flex: 1, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}
+                className="bloom-btn-pop"
+                style={{
+                  flex: 1,
+                  textDecoration: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  WebkitTapHighlightColor: "transparent",
+                }}
               >
-                {/* Icon bloom */}
+                {/* Label */}
+                <span style={{
+                  fontFamily: "var(--font-jost)",
+                  fontSize: "5.5px",
+                  fontWeight: active ? 800 : 500,
+                  letterSpacing: "0.05em",
+                  color: active ? PINK : (isDarkPage ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.26)"),
+                  lineHeight: 1,
+                  whiteSpace: "nowrap" as const,
+                  marginBottom: 3,
+                }}>
+                  {tabLabel(tab.key).toUpperCase()}
+                </span>
+
+                {/* Icon */}
                 <div style={{
-                  width: isCenter ? 42 : 40,
-                  height: isCenter ? 42 : 36,
-                  borderRadius: active
-                    ? "58% 42% 58% 42% / 42% 58% 42% 58%"  // organic petal
-                    : "50%",
+                  width: 26, height: 26,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  background: active
-                    ? `linear-gradient(145deg, ${PINK}, #FF5BAD)`
-                    : "transparent",
-                  boxShadow: active
-                    ? `0 5px 18px ${PINK}55, inset 0 1px 0 rgba(255,255,255,0.28)`
-                    : "none",
-                  transform: active ? "translateY(-6px) scale(1.06)" : "translateY(0) scale(1)",
-                  transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  animation: active ? "bloomPop 0.38s cubic-bezier(0.34,1.56,0.64,1)" : "none",
+                  marginBottom: 3,
                 }}>
                   {renderIcon(tab.key, active)}
                 </div>
 
-                {/* Label */}
-                <span style={{
-                  fontSize: "7px",
-                  fontWeight: active ? 900 : 600,
-                  letterSpacing: "0.06em",
-                  fontFamily: "var(--font-jost)",
-                  color: active ? PINK : `${GOLD}AA`,
-                  lineHeight: 1,
-                  opacity: navShrunk && !navTouched ? 0 : 1,
-                  maxHeight: navShrunk && !navTouched ? 0 : 10,
-                  overflow: "hidden",
-                  transition: "all 0.2s",
-                  textTransform: "uppercase" as const,
-                }}>
-                  {label}
-                </span>
+                {/* Branch — connects the icon to the stem below */}
+                <div style={{
+                  width: active ? 2 : 1.5,
+                  height: active ? 15 : 10,
+                  background: active ? PINK : branchC,
+                  borderRadius: 1,
+                  marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+                  transition: "height 0.22s ease, background 0.18s, width 0.18s",
+                }} />
               </Link>
             );
           })}
@@ -495,9 +429,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
 }
 
 export function BottomNavSignout({ user }: { user: NavUser }) {
+  void user;
   return (
     <form action={logout} className="hidden">
-      <button type="submit">{user.name}</button>
+      <button type="submit">Sign out</button>
     </form>
   );
 }

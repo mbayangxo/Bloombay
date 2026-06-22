@@ -1,9 +1,11 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { updateProfile } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/client";
+import { FriendshipHealthSection } from "./friendship-health-section";
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
@@ -103,7 +105,14 @@ function PurchaseHistorySection() {
 }
 const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
-const GOLD   = "#D4A853";
+
+const PROFILE_TEMPLATES = [
+  { id: "bloom",    name: "Bloom",     gradient: "linear-gradient(160deg, #3A0020 0%, #6A0035 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)" },
+  { id: "midnight", name: "Midnight",  gradient: "linear-gradient(160deg, #0A0008 0%, #1A0015 40%, #2A0020 70%, #4A0035 100%)" },
+  { id: "sakura",   name: "Sakura",    gradient: "linear-gradient(160deg, #4A0030 0%, #8B1455 35%, #D4406A 60%, #F28090 85%, #FFB8C8 100%)" },
+  { id: "noir",     name: "Noir",      gradient: "linear-gradient(160deg, #0A0A0A 0%, #1A1010 40%, #2D1520 70%, #3A1A25 100%)" },
+  { id: "rose",     name: "Rose Gold", gradient: "linear-gradient(160deg, #1A0010 0%, #5A1830 35%, #A83860 60%, #C4005A 85%, #FF5FA5 100%)" },
+];
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 
@@ -170,8 +179,8 @@ const INTEREST_TAGS = ["Soft Life", "Art", "Wellness", "Food", "Music", "Travel"
 const WITNESS_ENTRIES = [
   { initial: "A", color: "#FF1F7D", text: "She lights up the whole table when she talks about food.",  date: "Apr 2026" },
   { initial: "Z", color: "#FF69B4", text: "The most thoughtful woman I've met at a BloomBay event.",   date: "Mar 2026" },
-  { initial: "N", color: "#C084FC", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
-  { initial: "M", color: "#FB923C", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
+  { initial: "N", color: "#FFB3D1", text: "She made everyone feel welcome that Sunday morning walk.",  date: "Mar 2026" },
+  { initial: "M", color: "#C4005A", text: "Real, grounded, and completely herself — rare.",            date: "Feb 2026" },
 ];
 
 function getMemberNumber(name: string) {
@@ -252,24 +261,24 @@ function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.28em", color: "rgba(255,255,255,0.32)", marginTop: 2 }}>NEW YORK CITY</p>
           </div>
           <div style={{
-            background: "rgba(212,168,83,0.16)", border: "1px solid rgba(212,168,83,0.48)",
+            background: "rgba(255,31,125,0.18)", border: "1px solid rgba(255,31,125,0.5)",
             borderRadius: 3, padding: "2px 8px",
           }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: GOLD }}>{tier}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: "#FFB3D1" }}>{tier}</p>
           </div>
         </div>
 
-        {/* Gold chip */}
+        {/* Chip */}
         <div style={{
           width: 30, height: 21, borderRadius: 3,
-          background: "linear-gradient(135deg, #D4A853 0%, #F4D03F 38%, #D4A853 65%, #B8860B 100%)",
-          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.28)",
+          background: "linear-gradient(135deg, #C4005A 0%, #FF1F7D 38%, #C4005A 65%, #8A003A 100%)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
           position: "relative", overflow: "hidden",
         }}>
           <div style={{
             position: "absolute", inset: "3px 3px",
-            border: "0.5px solid rgba(0,0,0,0.18)", borderRadius: 1,
-            background: "linear-gradient(90deg, rgba(0,0,0,0.08) 0%, transparent 30%, rgba(0,0,0,0.04) 70%, transparent 100%)",
+            border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: 1,
+            background: "linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 30%, rgba(0,0,0,0.06) 70%, transparent 100%)",
           }} />
         </div>
 
@@ -300,9 +309,9 @@ function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
 function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
   label: string; icon: string; href: string; num: string; accentColor?: string;
 }) {
-  const doorWood = "#B5724A";
-  const doorPanel = "#C9895A";
-  const frameColor = "#7A4A28";
+  const doorWood = "#FFF0F5";
+  const doorPanel = "#FFFFFF";
+  const frameColor = "#FF1F7D";
 
   return (
     <Link href={href} style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
@@ -337,19 +346,19 @@ function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
           {/* Highlight on arch */}
           <path d={`M6 24 Q6 6 29 6 Q48 6 52 18`} stroke="rgba(255,255,255,0.14)" strokeWidth="2" fill="none" strokeLinecap="round"/>
 
-          {/* Gold number plate */}
-          <rect x="19" y="14" width="20" height="12" rx="2" fill={GOLD} opacity="0.9"/>
-          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#7B4A1A">{num}</text>
+          {/* Number plate */}
+          <rect x="19" y="14" width="20" height="12" rx="2" fill="#FF1F7D" opacity="0.9"/>
+          <text x="29" y="23" textAnchor="middle" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="white">{num}</text>
 
           {/* Door knob */}
-          <circle cx="44" cy="44" r="4.5" fill={GOLD} opacity="0.9"/>
+          <circle cx="44" cy="44" r="4.5" fill="#C4005A" opacity="0.9"/>
           <circle cx="44" cy="44" r="3" fill="url(#knobGrad)"/>
           <circle cx="43" cy="43" r="1.2" fill="rgba(255,255,255,0.5)"/>
 
           <defs>
             <radialGradient id="knobGrad" cx="35%" cy="35%" r="65%">
-              <stop offset="0%" stopColor="#F4D03F"/>
-              <stop offset="100%" stopColor="#B8860B"/>
+              <stop offset="0%" stopColor="#FF5FA5"/>
+              <stop offset="100%" stopColor="#8A003A"/>
             </radialGradient>
           </defs>
         </svg>
@@ -575,9 +584,111 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   );
 }
 
+// ── TEMPLATE PICKER SHEET ─────────────────────────────────────────────────────
+
+function TemplatePickerSheet({ current, displayName, onSelect, onClose }: {
+  current: string;
+  displayName: string;
+  onSelect: (id: string, bgPhoto?: string | null) => void;
+  onClose: () => void;
+}) {
+  const firstName = displayName.split(" ")[0] || "You";
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#06000E", overflowY: "auto" }}>
+      {/* Header */}
+      <div style={{
+        padding: "calc(env(safe-area-inset-top,0px) + 16px) 20px 12px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.7)", marginBottom: 3 }}>✦ PROFILE TEMPLATES</p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "white", lineHeight: 1 }}>Choose your look.</p>
+        </div>
+        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+        </button>
+      </div>
+
+      {/* Template cards — 2-column grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, padding: "20px 16px 8px" }}>
+        {PROFILE_TEMPLATES.map(t => {
+          const isActive = current === t.id;
+          return (
+            <button key={t.id} onClick={() => { onSelect(t.id); onClose(); }}
+              style={{ border: "none", background: "none", cursor: "pointer", padding: 0, textAlign: "left" as const }}>
+              {/* Full profile mini-preview */}
+              <div style={{
+                borderRadius: 20, overflow: "hidden",
+                border: isActive ? `3px solid ${PINK}` : "3px solid rgba(255,255,255,0.08)",
+                boxShadow: isActive ? `0 0 0 3px ${PINK}44, 0 12px 32px rgba(255,31,125,0.3)` : "0 6px 24px rgba(0,0,0,0.5)",
+                position: "relative" as const,
+              }}>
+                {/* Hero area */}
+                <div style={{ height: 140, background: t.gradient, position: "relative" as const, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "flex-end", padding: "0 0 12px" }}>
+                  {/* Glow circle */}
+                  <div style={{ position: "absolute", top: -20, left: -20, width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.4) 0%, transparent 70%)", pointerEvents: "none" }} />
+                  {/* Avatar ring */}
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 6, boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}>
+                    <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, fontWeight: 900, color: "rgba(255,255,255,0.9)" }}>{firstName[0]?.toUpperCase()}</span>
+                  </div>
+                  {/* Name overlay */}
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(to top, rgba(20,4,32,0.75) 0%, transparent 100%)", padding: "24px 10px 8px" }}>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 14, color: "white", lineHeight: 1, textAlign: "center" as const }}>{firstName}.</p>
+                  </div>
+                  {/* Selected check */}
+                  {isActive && (
+                    <div style={{ position: "absolute" as const, top: 8, right: 8, width: 22, height: 22, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.5)" }}>
+                      <svg width="9" height="9" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                    </div>
+                  )}
+                </div>
+                {/* Tab bar preview */}
+                <div style={{ background: "white", padding: "8px 10px 9px", display: "flex", gap: 8 }}>
+                  {["About","Vibe","Code"].map((tab, i) => (
+                    <div key={tab} style={{ flex: 1, textAlign: "center" as const, paddingBottom: 3, borderBottom: i === 0 ? `2px solid ${PINK}` : "2px solid transparent" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, color: i === 0 ? PINK : "#ccc" }}>{tab}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: isActive ? PINK : "rgba(255,255,255,0.5)", marginTop: 8, textAlign: "center" as const }}>{t.name}{isActive ? " ✦" : ""}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Background photo upload */}
+      <div style={{ padding: "12px 16px 24px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>OR ADD YOUR OWN PHOTO</p>
+        <label style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "16px 18px", cursor: "pointer", border: "1.5px dashed rgba(255,255,255,0.14)" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white" }}>Upload a background photo</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Replaces the gradient with your image</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <input type="file" accept="image/*" onChange={e => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => { onSelect(current, reader.result as string); onClose(); };
+            reader.readAsDataURL(file);
+          }} style={{ display: "none" }} />
+        </label>
+        {/* Safe area bottom padding */}
+        <div style={{ height: "calc(env(safe-area-inset-bottom,0px) + 20px)" }} />
+      </div>
+    </div>
+  );
+}
+
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
-export function LoungePage({ user }: { user?: LoungeUser }) {
+export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const [localName, setLocalName] = useState(user?.name         ?? "");
   const [localNbhd, setLocalNbhd] = useState(user?.neighborhood ?? "NYC");
   const [localBio,  setLocalBio]  = useState(user?.bio          ?? "Part of the world made for women.");
@@ -622,7 +733,27 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
   }
 
   const [isFoundingMother, setIsFoundingMother] = useState(false);
-  const [contentTab, setContentTab] = useState<"about" | "scrapbook">("about");
+  const [contentTab, setContentTab] = useState<"about" | "vibes" | "girl_code">("about");
+  const [templateId, setTemplateId] = useState<string>(() => {
+    if (typeof window === "undefined") return "bloom";
+    return localStorage.getItem("bb_template") ?? "bloom";
+  });
+  const [bgPhoto, setBgPhoto] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("bb_bg_photo");
+  });
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+
+  function handleTemplateSelect(id: string, photo?: string | null) {
+    setTemplateId(id);
+    localStorage.setItem("bb_template", id);
+    if (photo !== undefined) {
+      if (photo) { setBgPhoto(photo); localStorage.setItem("bb_bg_photo", photo); }
+      else { setBgPhoto(null); localStorage.removeItem("bb_bg_photo"); }
+    }
+  }
+
+  const currentTemplate = PROFILE_TEMPLATES.find(t => t.id === templateId) ?? PROFILE_TEMPLATES[0];
 
   useEffect(() => {
     const supabase = createClient();
@@ -642,7 +773,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
     { label: "Bouquet",        icon: "💐", href: "/member/lounge/bouquet",         num: "02", accentColor: PINK      },
     { label: "Bloomies",       icon: "🌸", href: "/member/lounge/bloomies",        num: "03", accentColor: "#E8006A" },
     { label: "Clubs",          icon: "🌺", href: "/member/clubs",                 num: "04", accentColor: "#C4005A" },
-    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: GOLD }] : []),
+    ...(ownedClub ? [{ label: "My Club", icon: "👑", href: `/member/clubs/${ownedClub.slug}/manage`, num: "05", accentColor: PINK }] : []),
   ];
 
   return (
@@ -650,10 +781,13 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
 
       {/* ══════════ PROFILE PHOTO HERO ══════════ */}
       <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
-        {/* Background — richly styled like a chosen profile template */}
+        {/* Background — selected profile template */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(160deg, #2D0640 0%, #6A1045 35%, #C03060 65%, #E8608A 88%, #F8A8B8 100%)",
+          ...(bgPhoto
+            ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: currentTemplate.gradient }
+          ),
         }} />
         {/* Texture glow circles */}
         <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.35) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -681,11 +815,14 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
           <div style={{ display: "flex", gap: 7 }}>
-            <Link href="/member/you?tab=style" style={{ textDecoration: "none" }}>
-              <div style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999, padding: "6px 12px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "white" }}>Style ✦</p>
-              </div>
-            </Link>
+            <button onClick={() => setShowTemplatePicker(true)} style={{
+              background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)",
+              border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 999,
+              padding: "7px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white", letterSpacing: "0.04em" }}>Templates</p>
+            </button>
             <button onClick={() => setShowEdit(true)} style={{
               background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
               border: "1px solid rgba(255,255,255,0.3)", borderRadius: 999,
@@ -700,7 +837,7 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         {/* Founding Mother — tiny badge, upper-right corner of photo area */}
         {isFoundingMother && (
           <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
-            <div style={{ background: GOLD, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(212,168,83,0.6)" }}>
+            <div style={{ background: PINK, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(255,31,125,0.5)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</p>
             </div>
           </div>
@@ -725,9 +862,27 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
-      {/* ══════════ ABOUT / SCRAPBOOK TOGGLE ══════════ */}
+      {/* ══════════ FLOWERS — small chips under hero ══════════ */}
+      {earnedFlowers.length > 0 && (
+        <div style={{ background: PAPER, padding: "10px 20px 0" }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" as const, paddingBottom: 2 }}>
+            {earnedFlowers.map(flower => (
+              <div key={flower.id} style={{
+                flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
+                background: flower.bg, border: `1px solid ${flower.color}33`,
+                borderRadius: 999, padding: "4px 9px",
+              }}>
+                <span style={{ fontSize: 11 }}>{flower.emoji}</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: flower.color, whiteSpace: "nowrap" as const }}>{flower.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ TABS ══════════ */}
       <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
-        {(["about", "scrapbook"] as const).map(tab => (
+        {(["about", "vibes", "girl_code"] as const).map(tab => (
           <button key={tab} onClick={() => setContentTab(tab)} style={{
             flex: 1, background: "none", border: "none", cursor: "pointer",
             padding: "14px 0 12px",
@@ -735,10 +890,10 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             WebkitTapHighlightColor: "transparent",
           }}>
             <span style={{
-              fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em",
+              fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.10em",
               color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
               textTransform: "uppercase" as const,
-            }}>{tab === "about" ? "About" : "Scrapbook"}</span>
+            }}>{tab === "about" ? "About" : tab === "vibes" ? "Your Vibe" : "Girl Code"}</span>
           </button>
         ))}
       </div>
@@ -768,18 +923,6 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
             </div>
           )}
 
-          {/* Interest tags */}
-          <div style={{ marginBottom: 18 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
-            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
-              {INTEREST_TAGS.map(t => (
-                <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Witness entries */}
           {WITNESS_ENTRIES.length > 0 && (
             <div style={{ marginBottom: 4 }}>
@@ -802,31 +945,98 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       )}
 
-      {/* ══════════ SCRAPBOOK TAB ══════════ */}
-      {contentTab === "scrapbook" && (
+      {/* ══════════ YOUR VIBE TAB ══════════ */}
+      {contentTab === "vibes" && (
         <div style={{ padding: "20px 20px 0" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>MEMORIES</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {MEMORIES.map((m, i) => (
-              <div key={i} style={{
-                background: m.color, borderRadius: 16, padding: "18px 14px",
-                transform: `rotate(${m.rotate})`, transformOrigin: "center",
-                boxShadow: "0 3px 12px rgba(0,0,0,0.09)",
-                minHeight: 100, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
-              }}>
-                <span style={{ fontSize: 26 }}>{m.emoji}</span>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 22 }}>
+            {INTEREST_TAGS.map(t => (
+              <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
+              </div>
+            ))}
+            <div style={{ background: "transparent", border: "1.5px dashed rgba(255,31,125,0.25)", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
+            </div>
+          </div>
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>SOUNDS LIKE</p>
+          <div style={{ background: "white", borderRadius: 18, padding: "14px 16px", marginBottom: 22, boxShadow: "0 2px 12px rgba(255,31,125,0.05)" }}>
+            {[
+              { artist: "SZA", track: "Good Days" },
+              { artist: "Solange", track: "Cranes in the Sky" },
+              { artist: "Rihanna", track: "Love on the Brain" },
+            ].map((song, i, arr) => (
+              <div key={song.track} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(255,31,125,0.06)" : "none" }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,rgba(255,31,125,0.12),rgba(255,105,180,0.24))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill={PINK}><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </div>
                 <div>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>{m.title}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{m.date}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111" }}>{song.track}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>{song.artist}</p>
                 </div>
               </div>
             ))}
+            <div style={{ paddingTop: 10, textAlign: "center" as const }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,31,125,0.4)", cursor: "pointer" }}>+ add your sounds</p>
+            </div>
           </div>
-          <div style={{ marginTop: 16, background: "rgba(255,31,125,0.04)", border: "1.5px dashed rgba(255,31,125,0.2)", borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: "rgba(255,31,125,0.5)" }}>+ add a memory</p>
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>YOUR PHOTOS</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 22 }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{ aspectRatio: "1", borderRadius: 14, background: i === 0 ? "rgba(255,31,125,0.06)" : "#F5F5F5", border: i === 0 ? "1.5px dashed rgba(255,31,125,0.25)" : "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {i === 0 ? (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
+                ) : (
+                  <span style={{ fontSize: 20, opacity: 0.15 }}>🌸</span>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
+
+      {/* ══════════ GIRL CODE TAB ══════════ */}
+      {contentTab === "girl_code" && (
+        <div style={{ padding: "24px 20px 0" }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 24 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>YOUR QR CODE</p>
+            <div style={{ width: 180, height: 180, borderRadius: 20, background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.12)", display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid white", overflow: "hidden" }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=174x174&color=1A0010&bgcolor=FFFFFF&data=https://bloombay.app/${displayHandle}&qzone=2`}
+                alt="Your QR Code"
+                width={174} height={174}
+                style={{ borderRadius: 14 }}
+              />
+            </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 10 }}>Scan to find me on BloomBay</p>
+          </div>
+
+          <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", marginBottom: 12, boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOM LINK</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
+            </div>
+            <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
+              {copied ? "Copied ✓" : "Copy"}
+            </button>
+          </div>
+
+          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative" as const, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ position: "absolute" as const, top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>GIRL CODE</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
+            </div>
+            <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
+              style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* ══════════ ROOMS ══════════ */}
       <div style={{ padding: "32px 20px 0" }}>
@@ -896,33 +1106,11 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
+      {/* ══════════ FRIENDSHIP PULSE ══════════ */}
+      <FriendshipHealthSection />
+
       {/* ══════════ PURCHASE HISTORY ══════════ */}
       <PurchaseHistorySection />
-
-      {/* ══════════ SHARE ══════════ */}
-      <div style={{ padding: "24px 20px 36px", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOMBAY LINK</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
-          </div>
-          <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
-            {copied ? "Copied ✓" : "Copy"}
-          </button>
-        </div>
-
-        <div style={{ background: DARK, borderRadius: 20, padding: "14px 18px", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>REFERRAL CODE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
-          </div>
-          <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
-            style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
-            Copy
-          </button>
-        </div>
-      </div>
 
       {/* ══════════ TOAST ══════════ */}
       {toast && (
@@ -946,6 +1134,286 @@ export function LoungePage({ user }: { user?: LoungeUser }) {
           onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
         />
       )}
+      {showTemplatePicker && (
+        <TemplatePickerSheet
+          current={templateId}
+          displayName={displayName}
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplatePicker(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── LOUNGE CHAT PAGE ──────────────────────────────────────────────────────────
+
+interface Convo {
+  id: string;
+  name: string;
+  initial: string;
+  color: string;
+  lastMessage: string;
+  time: string;
+  unread: number;
+  isGroup?: boolean;
+  members?: string[];
+  neighborhood?: string;
+}
+
+const CONVOS: Convo[] = [
+  {
+    id: "aaliyah",  name: "Aaliyah M.",  initial: "A",  color: "#FF1F7D",
+    lastMessage: "Just got back from that matcha spot. It's everything.",
+    time: "2m", unread: 3, neighborhood: "Crown Heights",
+  },
+  {
+    id: "sofia",    name: "Sofia K.",    initial: "S",  color: "#FF69B4",
+    lastMessage: "Sunday run done 🏃‍♀️ pastries were mandatory",
+    time: "1h", unread: 1, neighborhood: "Williamsburg",
+  },
+  {
+    id: "dinner",   name: "Dinner Society", initial: "DS", color: "#C4005A",
+    lastMessage: "Temi: Carbone reservation locked in for Thursday ✦",
+    time: "3h", unread: 7, isGroup: true,
+    members: ["Aminah", "Temi", "Zara", "Sofia"],
+  },
+  {
+    id: "kelechi",  name: "Kelechi O.", initial: "K",  color: "#EC4899",
+    lastMessage: "Book club pick just dropped. Cannot wait to discuss",
+    time: "5h", unread: 0, neighborhood: "Flatbush",
+  },
+  {
+    id: "museum",   name: "Museum Girls", initial: "MG", color: "#FF69B4",
+    lastMessage: "Naomi: MoMA Saturday — who's coming?",
+    time: "Yesterday", unread: 4, isGroup: true,
+    members: ["Naomi", "Kelechi", "Yemi"],
+  },
+  {
+    id: "naomi",    name: "Naomi B.",   initial: "N",  color: "#FF69B4",
+    lastMessage: "That rooftop in SoHo was so good last night ✨",
+    time: "Yesterday", unread: 0, neighborhood: "SoHo",
+  },
+  {
+    id: "temi",     name: "Temi A.",    initial: "T",  color: "#E8007A",
+    lastMessage: "We should do the next one in Crown Heights",
+    time: "2 days", unread: 0, neighborhood: "Crown Heights",
+  },
+];
+
+function NamePill({ name, color, size = "md" }: { name: string; color: string; size?: "sm" | "md" }) {
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center",
+      background: `${color}18`, border: `1px solid ${color}38`,
+      borderRadius: 999,
+      padding: size === "sm" ? "2px 8px" : "4px 10px",
+    }}>
+      <div style={{
+        width: size === "sm" ? 14 : 18, height: size === "sm" ? 14 : 18,
+        borderRadius: "50%",
+        background: `linear-gradient(135deg, ${color}, ${color}BB)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: size === "sm" ? 7 : 8, fontWeight: 800, color: "white",
+        marginRight: 5, flexShrink: 0,
+      }}>{name[0]}</div>
+      <span style={{
+        fontFamily: "var(--font-jost)", fontSize: size === "sm" ? 10 : 11,
+        fontWeight: 700, color,
+      }}>{name.split(" ")[0]}</span>
+    </div>
+  );
+}
+
+export function LoungePage({ user }: { user?: LoungeUser }) {
+  const [active, setActive] = useState<Convo | null>(null);
+  const [msgText, setMsgText] = useState("");
+
+  const PINK_C = "#FF1F7D";
+
+  if (active) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#FBF0F5", display: "flex", flexDirection: "column" }}>
+        <style>{`@keyframes msgIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
+        {/* Chat header */}
+        <div style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)", padding: "calc(env(safe-area-inset-top, 0px) + 12px) 18px 12px", background: "white", borderBottom: "1px solid rgba(255,31,125,0.08)", display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={() => setActive(null)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK_C} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg, ${active.color}, ${active.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: active.initial.length > 1 ? 10 : 15, fontWeight: 800, color: "white", flexShrink: 0 }}>{active.initial}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 15, color: "#111", lineHeight: 1.1 }}>{active.name}</p>
+            {active.isGroup
+              ? <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa" }}>{active.members?.join(", ")}</p>
+              : <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa" }}>{active.neighborhood}</p>
+            }
+          </div>
+        </div>
+
+        {/* Messages area */}
+        <div style={{ flex: 1, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 12, overflowY: "auto" }}>
+          {/* Incoming */}
+          <div style={{ animation: "msgIn 0.28s ease both", maxWidth: "78%", alignSelf: "flex-start" }}>
+            <NamePill name={active.name} color={active.color} size="sm" />
+            <div style={{ marginTop: 5, background: "white", borderRadius: "4px 16px 16px 16px", padding: "11px 14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid rgba(255,31,125,0.07)" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#222", lineHeight: 1.5 }}>{active.lastMessage}</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", marginTop: 3, paddingLeft: 4 }}>{active.time} ago</p>
+          </div>
+
+          {/* Sample outgoing */}
+          <div style={{ animation: "msgIn 0.28s ease 0.1s both", maxWidth: "72%", alignSelf: "flex-end" }}>
+            <div style={{ background: `linear-gradient(135deg, ${PINK_C}, #d4006a)`, borderRadius: "16px 16px 4px 16px", padding: "11px 14px", boxShadow: `0 4px 14px ${PINK_C}33` }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "white", lineHeight: 1.5 }}>Yes!! I was literally just thinking about you 🌸</p>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", marginTop: 3, textAlign: "right", paddingRight: 4 }}>Just now</p>
+          </div>
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: "12px 16px", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 90px)", background: "white", borderTop: "1px solid rgba(255,31,125,0.07)", display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <div style={{ flex: 1, background: "#FBF0F5", borderRadius: 20, padding: "10px 16px", border: "1px solid rgba(255,31,125,0.1)" }}>
+            <input
+              value={msgText}
+              onChange={e => setMsgText(e.target.value)}
+              placeholder="Say something..."
+              style={{ width: "100%", background: "none", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 14, color: "#222" }}
+            />
+          </div>
+          <button
+            style={{ width: 42, height: 42, borderRadius: "50%", background: msgText.trim() ? PINK_C : "rgba(255,31,125,0.12)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.18s" }}
+            onClick={() => setMsgText("")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M22 2L15 22 11 13 2 9l20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const unreadTotal = CONVOS.reduce((s, c) => s + c.unread, 0);
+  const pinned = CONVOS[0];
+  const rest   = CONVOS.slice(1);
+
+  return (
+    <div className="bloom-world-enter" style={{ minHeight: "100vh", background: "#FF1F7D", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)", overflowX: "hidden" }}>
+      <style>{`
+        @keyframes cardSlideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .chat-card { animation: cardSlideIn 0.36s ease both; }
+        .chat-card:active { transform: scale(0.97); transition: transform 0.1s; }
+        .chat-scroll::-webkit-scrollbar { display: none; }
+      `}</style>
+
+      {/* ── Header ── */}
+      <div style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 64px)", padding: "calc(env(safe-area-inset-top, 0px) + 64px) 22px 0" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>THE LOUNGE</p>
+            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(26px, 9vw, 36px)", color: "white", lineHeight: 1, margin: 0 }}>Chats.</h1>
+          </div>
+          {unreadTotal > 0 && (
+            <div style={{ background: "white", borderRadius: 999, padding: "6px 14px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, color: PINK_C }}>{unreadTotal} new</span>
+            </div>
+          )}
+        </div>
+
+        {/* Active people pills row */}
+        <div className="chat-scroll" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 20, scrollbarWidth: "none" }}>
+          {CONVOS.filter(c => c.unread > 0).map(c => (
+            <button key={c.id} onClick={() => setActive(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0 }}>
+              <NamePill name={c.name} color="white" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Pinned / most recent card ── */}
+      <button
+        onClick={() => setActive(pinned)}
+        className="chat-card"
+        style={{ display: "block", width: "calc(100% - 36px)", margin: "0 18px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0, animationDelay: "0.04s" }}
+      >
+        <div style={{
+          background: "white", borderRadius: 22,
+          boxShadow: "0 16px 48px rgba(0,0,0,0.22), 0 4px 0 rgba(0,0,0,0.08)",
+          overflow: "hidden",
+        }}>
+          {/* Color header strip */}
+          <div style={{ height: 6, background: `linear-gradient(90deg, ${pinned.color}, ${pinned.color}88)` }} />
+          <div style={{ padding: "16px 18px 18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg, ${pinned.color}, ${pinned.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "white", flexShrink: 0 }}>{pinned.initial}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <NamePill name={pinned.name} color={pinned.color} />
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa", marginTop: 3 }}>{pinned.neighborhood ?? `${pinned.members?.length} members`}</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5, flexShrink: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#ccc" }}>{pinned.time}</p>
+                {pinned.unread > 0 && (
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: PINK_C, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, color: "white" }}>{pinned.unread}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#444", lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+              {pinned.lastMessage}
+            </p>
+          </div>
+        </div>
+      </button>
+
+      {/* ── Rest of conversations ── */}
+      <div style={{ padding: "12px 18px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+        {rest.map((convo, idx) => (
+          <button
+            key={convo.id}
+            onClick={() => setActive(convo)}
+            className="chat-card"
+            style={{ display: "block", width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0, animationDelay: `${0.08 + idx * 0.05}s` }}
+          >
+            <div style={{
+              background: "rgba(255,255,255,0.92)",
+              backdropFilter: "blur(12px)",
+              borderRadius: 18,
+              padding: "14px 16px",
+              display: "flex", alignItems: "center", gap: 12,
+              border: "1px solid rgba(255,255,255,0.5)",
+              boxShadow: convo.unread > 0
+                ? "0 8px 24px rgba(0,0,0,0.14), 0 2px 0 rgba(0,0,0,0.06)"
+                : "0 4px 14px rgba(0,0,0,0.08)",
+            }}>
+              {/* Avatar */}
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${convo.color}, ${convo.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: convo.initial.length > 1 ? 10 : 15, fontWeight: 800, color: "white" }}>{convo.initial}</div>
+                {convo.unread > 0 && (
+                  <div style={{ position: "absolute", top: -2, right: -2, width: 16, height: 16, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${PINK_C}` }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: PINK_C }}>{convo.unread}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                  <NamePill name={convo.name} color={convo.color} size="sm" />
+                  {convo.isGroup && (
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "#bbb", letterSpacing: "0.06em" }}>GROUP</span>
+                  )}
+                </div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: convo.unread > 0 ? "#333" : "#aaa", fontWeight: convo.unread > 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {convo.lastMessage}
+                </p>
+              </div>
+
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#ccc", flexShrink: 0 }}>{convo.time}</p>
+            </div>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

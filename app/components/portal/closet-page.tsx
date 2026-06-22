@@ -492,6 +492,7 @@ export function ClosetPage() {
       minHeight: "100dvh",
       background: CREAM,
       backgroundImage: PAPER_TEX,
+      paddingBottom: 120,
       backgroundRepeat: "repeat",
       fontFamily: "var(--font-jost), sans-serif",
       color: DARK,

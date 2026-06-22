@@ -9,6 +9,7 @@ import { getHostClubId, getHostOwnerName, listApplications } from "@/lib/club-ho
 import { getClubAnalytics } from "@/lib/club-owner-data";
 import { listGatherings, listNotifications } from "@/lib/club-owner-store";
 import { getClubProfile } from "@/lib/club-world-data";
+import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
 
 export default function ClubOwnerDashboardPage() {
   const [clubId, setClubId] = useState("morning-run-club");
@@ -102,6 +103,10 @@ export default function ClubOwnerDashboardPage() {
             </span>
           </Link>
         ))}
+      </section>
+
+      <section className="co-section co-section--full">
+        <BloomCardsDeck context="club_mama" />
       </section>
     </ClubOwnerShell>
   );

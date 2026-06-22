@@ -50,6 +50,61 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
   }
 
+  const STREAK_WINDOW_DAYS = 7;
+
+  const { data: coAttendees } = await supabase
+    .from("gathering_attendance")
+    .select("user_id")
+    .eq("gathering_id", gatheringId)
+    .neq("user_id", user.id)
+    .limit(50);
+
+  if (coAttendees && coAttendees.length > 0) {
+    void (async () => {
+      try {
+        await Promise.all(
+          coAttendees.map(async (coAttendee) => {
+            const [ua, ub] = [user.id, coAttendee.user_id].sort();
+
+            const coAttendanceUpdate = supabase.rpc("increment_co_attendance", {
+              uid_a: ua,
+              uid_b: ub,
+            }).then(() => null).catch(() => null);
+
+            const streakUpdate = (async () => {
+              const { data: existing } = await supabase
+                .from("bloom_scan_streaks")
+                .select("streak_count, last_scan_at")
+                .eq("user_a", ua)
+                .eq("user_b", ub)
+                .maybeSingle();
+
+              const now = new Date();
+              let newCount = 1;
+
+              if (existing?.last_scan_at) {
+                const lastScan = new Date(existing.last_scan_at);
+                const diffDays = (now.getTime() - lastScan.getTime()) / (1000 * 60 * 60 * 24);
+                newCount = diffDays <= STREAK_WINDOW_DAYS ? (existing.streak_count ?? 0) + 1 : 1;
+              }
+
+              await supabase
+                .from("bloom_scan_streaks")
+                .upsert(
+                  { user_a: ua, user_b: ub, streak_count: newCount, last_scan_at: now.toISOString() },
+                  { onConflict: "user_a,user_b" }
+                );
+            })().catch(() => null);
+
+            await Promise.all([coAttendanceUpdate, streakUpdate]);
+          })
+        );
+      } catch {
+        /* non-fatal */
+      }
+    })();
+  }
+
   await logBehaviorSignal(supabase, user.id, "attended_irl", {
     gatheringId,
     slug: resolved.slug,

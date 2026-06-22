@@ -1,11 +1,13 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Tape, PushPin, GoldStar, SafetyPin, TornEdge, WashiTape, Polaroid } from "./scrapbook";
+import { PushPin, GoldStar, SafetyPin, TornEdge, WashiTape } from "./scrapbook";
 import { createClient } from "@/lib/supabase/client";
 import { thumbUrl } from "@/lib/images/supabase-transform";
+import { ClubCrestSVG } from "./club-crest";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -15,7 +17,7 @@ const PAPER = "#FEFDF8";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null };
+type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null; neighborhood?: string | null; category?: string | null };
 type RealGathering = { id: string; title: string; starts_at: string; venue: string | null; neighborhood: string | null };
 
 const ROTS = [-2, 1.5, -1, 2, -1.5, 0.5, -0.8];
@@ -61,10 +63,14 @@ const LIVE_FEED = [
   { action: "joined",  who: "Chisom E.","club": "SUPPER CLUB",  time: "18m",   color: "#c9504a" },
 ];
 
+
 const HOT_CLUBS = [
-  { name: "SUPPER CLUB",    fire: 42, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/11111111-1111-1111-1111-111111111111" },
-  { name: "MUSEUM GIRLS",   fire: 38, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/22222222-2222-2222-2222-222222222222" },
-  { name: "SOFT LIFE CLUB", fire: 31, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/44444444-4444-4444-4444-444444444444" },
+  { name: "WALK & TALK CLUB", fire: 58, grad: "linear-gradient(135deg,#2D6A4F,#1A3D2C)", href: "/member/clubs/walk-and-talk" },
+  { name: "SUPPER CLUB NYC",  fire: 47, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/supper-club-nyc" },
+  { name: "MUSEUM GIRLS",     fire: 42, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/museum-girls" },
+  { name: "SOFT LIFE CLUB",   fire: 38, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/soft-life-club" },
+  { name: "APERITIVO GIRLS",  fire: 31, grad: "linear-gradient(135deg,#e07040,#8a3810)", href: "/member/clubs/aperitivo-girls" },
+  { name: "BOOK SOCIETY",     fire: 29, grad: "linear-gradient(135deg,#b5451b,#6a2210)", href: "/member/clubs/book-society" },
 ];
 
 export function ClubsPage() {
@@ -74,22 +80,25 @@ export function ClubsPage() {
   const [nearYou, setNearYou] = useState(NEAR_YOU_FALLBACK);
   const [checkedSteps, setCheckedSteps] = useState<boolean[]>([false, false, false, false]);
   const allDone = checkedSteps.every(Boolean);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase
       .from("clubs")
-      .select("id, name, description, primary_color, cover_url, slug, neighborhood")
-      .order("created_at", { ascending: false })
-      .limit(50)
+      .select("id, name, description, primary_color, cover_url, slug, neighborhood, category")
+      .eq("is_active", true)
+      .order("member_count", { ascending: false })
+      .limit(100)
       .then(({ data }) => {
-        if (!data) return;
-        setClubs((data as (RealClub & { neighborhood?: string | null })[]).slice(0, 8));
+        const rows = (data ?? []) as (RealClub & { neighborhood?: string | null })[];
+        setClubs(rows);
 
-        // Compute real neighborhood counts
         const counts: Record<string, number> = {};
-        for (const c of data) {
-          const n = (c as { neighborhood?: string | null }).neighborhood;
+        for (const c of rows) {
+          const n = c.neighborhood;
           if (n) counts[n] = (counts[n] ?? 0) + 1;
         }
         const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -111,35 +120,35 @@ export function ClubsPage() {
   }, []);
 
   return (
-    <div style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
+    <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
 
       {/* ── Create Club FAB ── */}
       <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
         <div style={{
-          position: "fixed", top: 60, right: 16, zIndex: 60,
-          width: 36, height: 36, borderRadius: "50%",
+          position: "fixed", bottom: "calc(env(safe-area-inset-bottom,0px) + 88px)", right: 18, zIndex: 50,
+          width: 44, height: 44, borderRadius: "50%",
           background: PINK,
-          boxShadow: `0 3px 14px ${PINK}66`,
+          boxShadow: `0 4px 18px ${PINK}77`,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </div>
       </Link>
 
       {/* ══════════ HERO — bulletin board with headline + polaroid ══════════ */}
-      <section style={{ padding: "72px 18px 0", position: "relative" }}>
+      <section style={{ padding: "64px 18px 0", position: "relative" }}>
 
         {/* Board texture dots */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
 
         {/* Safety pin top-left decoration */}
-        <SafetyPin style={{ position: "absolute", top: 62, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
+        <SafetyPin style={{ position: "absolute", top: 54, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
 
         {/* Gold star decorations */}
-        <GoldStar size={18} style={{ position: "absolute", top: 68, right: 28, zIndex: 4 }} />
-        <GoldStar size={12} style={{ position: "absolute", top: 200, right: 54, zIndex: 4, opacity: 0.7 }} />
+        <GoldStar size={18} style={{ position: "absolute", top: 58, right: 28, zIndex: 4 }} />
+        <GoldStar size={12} style={{ position: "absolute", top: 190, right: 54, zIndex: 4, opacity: 0.7 }} />
 
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 28, position: "relative", zIndex: 2 }}>
 
@@ -159,33 +168,21 @@ export function ClubsPage() {
               position: "relative",
               overflow: "hidden",
             }}>
-              {/* "SEE ALL CLUBS" pill */}
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                <Link href="/member/clubs" style={{ textDecoration: "none" }}>
-                  <div style={{ background: PINK, borderRadius: 20, padding: "6px 14px", boxShadow: "0 2px 8px rgba(255,31,125,0.4)" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>SEE ALL CLUBS</p>
-                  </div>
-                </Link>
-              </div>
-
               {/* Big headline */}
-              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 10 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 8 }}>
                 <div style={{ fontSize: "clamp(38px,11vw,50px)", color: DARK }}>Clubs.</div>
               </div>
 
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.55, marginBottom: 0, lineHeight: 1.4 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.55, marginBottom: 14, lineHeight: 1.4 }}>
                 clubs for every side of you.
               </p>
 
-              {/* Stats row */}
-              <div style={{ display: "flex", gap: 14, marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-                {[["500+", "clubs"], ["12K+", "members"], ["48", "cities"]].map(([n, l]) => (
-                  <div key={l}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: PINK, lineHeight: 1 }}>{n}</p>
-                    <p style={{ fontSize: 7, fontWeight: 700, color: "rgba(0,0,0,0.35)", letterSpacing: "0.12em", marginTop: 2 }}>{l.toUpperCase()}</p>
-                  </div>
-                ))}
-              </div>
+              <Link href="/member/clubs/create" style={{ textDecoration: "none", display: "inline-flex" }}>
+                <div style={{ background: DARK, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>START A CLUB</p>
+                </div>
+              </Link>
 
               <TornEdge color={BOARD} height={12} style={{ marginLeft: -16, marginRight: -16, marginBottom: -1 }} />
             </div>
@@ -256,18 +253,18 @@ export function ClubsPage() {
           <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.8)" }}>tap to peek inside →</span>
         </div>
 
-        <div style={{ display: "flex", gap: 18, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 36, scrollbarWidth: "none" as const }}>
+        <div className="bloom-stagger" style={{ display: "flex", gap: 18, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 36, scrollbarWidth: "none" as const }}>
           {clubs.length === 0 && (
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0" }}>Clubs loading…</p>
           )}
-          {clubs.map((club, idx) => {
+          {clubs.slice(0, 16).map((club, idx) => {
             const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
             const rot = ROTS[idx % ROTS.length];
             const grad = club.primary_color
               ? `linear-gradient(145deg, ${club.primary_color}44 0%, ${club.primary_color} 100%)`
               : GRADS[idx % GRADS.length];
             return (
-              <Link key={club.id} href={href} style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
+              <Link key={club.id} href={href} className="bloom-lift bloom-card-enter" style={{ textDecoration: "none", flexShrink: 0, position: "relative" }}>
                 {idx % 2 === 0 ? (
                   <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1deg)", zIndex: 5 }}>
                     <WashiTape color={idx === 1 ? "pink" : "yellow"} width={54} height={16} />
@@ -288,9 +285,17 @@ export function ClubsPage() {
                   position: "relative",
                   marginTop: Math.abs(rot) > 1.5 ? 8 : 4,
                 }}>
-                  <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 6px 6px", overflow: "hidden", position: "relative" }}>
-                    {club.cover_url && (
+                  <div style={{ width: "100%", height: 108, background: grad, backgroundSize: "cover", backgroundPosition: "center", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+                    {club.cover_url ? (
                       <Image src={thumbUrl(club.cover_url) ?? ""} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                    ) : (
+                      <ClubCrestSVG
+                        name={club.name}
+                        category={club.category ?? ""}
+                        color={club.primary_color ?? PINK}
+                        size={82}
+                        shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
+                      />
                     )}
                   </div>
                   <div style={{ marginTop: 10 }}>
@@ -304,6 +309,111 @@ export function ClubsPage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* ══════════ SEARCH + FILTER ══════════ */}
+      <section style={{ padding: "0 18px 16px" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {/* Search input */}
+          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "10px 14px" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search clubs…"
+              style={{ flex: 1, background: "none", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "white" }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "rgba(255,255,255,0.3)", fontSize: 14, lineHeight: 1 }}>✕</button>
+            )}
+          </div>
+          {/* Filter toggle */}
+          <button onClick={() => setShowFilters(f => !f)} style={{
+            width: 44, height: 44, borderRadius: 13, flexShrink: 0,
+            background: showFilters ? PINK : "rgba(255,255,255,0.07)",
+            border: `1px solid ${showFilters ? "transparent" : "rgba(255,255,255,0.1)"}`,
+            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+            boxShadow: showFilters ? `0 4px 16px ${PINK}55` : "none",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+          </button>
+        </div>
+
+        {/* Collapsible filter chips */}
+        {showFilters && (
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap" as const, gap: 7 }}>
+            {["Most Popular", "New", "Wellness", "Social", "Creative", "Foodie", "Active", "Fashion", "Faith"].map(f => (
+              <button key={f} onClick={() => setActiveFilter(activeFilter === f ? null : f)} style={{
+                padding: "6px 14px", borderRadius: 999,
+                fontSize: 10, fontWeight: 700, cursor: "pointer", border: "1.5px solid",
+                borderColor: activeFilter === f ? PINK : "rgba(255,255,255,0.2)",
+                background: activeFilter === f ? PINK : "rgba(255,255,255,0.05)",
+                color: "white", fontFamily: "var(--font-jost)",
+              }}>
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ══════════ ALL CLUBS — 2-column grid ══════════ */}
+      <section style={{ padding: "0 18px 28px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, boxShadow: `0 0 8px ${PINK}` }} />
+            <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}>ALL CLUBS</p>
+          </div>
+          <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.7)" }}>
+            {searchQuery ? `${clubs.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).length} results` : `${clubs.length} spaces`}
+          </span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {clubs
+            .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()) || (c.description ?? "").toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((club, idx) => {
+              const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
+              const grad = club.primary_color
+                ? `linear-gradient(145deg, ${club.primary_color}55 0%, ${club.primary_color} 100%)`
+                : GRADS[idx % GRADS.length];
+              return (
+                <Link key={`grid-${club.id}`} href={href} style={{ textDecoration: "none" }}>
+                  <div style={{ borderRadius: 18, overflow: "hidden", background: grad, position: "relative", boxShadow: "0 4px 18px rgba(0,0,0,0.35)" }}>
+                    {club.cover_url && (
+                      <div style={{ position: "absolute", inset: 0 }}>
+                        <Image src={thumbUrl(club.cover_url) ?? ""} alt="" fill unoptimized style={{ objectFit: "cover", opacity: 0.5 }} />
+                      </div>
+                    )}
+                    <div style={{ position: "relative", zIndex: 1, padding: "14px 14px 12px" }}>
+                      <div style={{ minHeight: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {!club.cover_url && (
+                          <ClubCrestSVG
+                            name={club.name}
+                            category={club.category ?? ""}
+                            color={club.primary_color ?? PINK}
+                            size={56}
+                            shape={idx % 3 === 0 ? "shield" : idx % 3 === 1 ? "oval" : "round"}
+                          />
+                        )}
+                      </div>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontSize: 13, color: "white", lineHeight: 1.2, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{club.name}</p>
+                      {club.description && (
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, lineHeight: 1.4 }}>
+                          {club.description.slice(0, 48)}{club.description.length > 48 ? "…" : ""}
+                        </p>
+                      )}
+                      <div style={{ marginTop: 10, display: "inline-flex", background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "4px 12px" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>JOIN →</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+          })}
+          {clubs.length === 0 && (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0", gridColumn: "span 2" }}>Clubs loading…</p>
+          )}
         </div>
       </section>
 
@@ -530,28 +640,26 @@ export function ClubsPage() {
         </div>
       </section>
 
-      {/* ── LIVE ACTIVITY ── */}
-      <section style={{ padding: "0 18px 32px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)", animation: "pinkPulse 1.5s ease-in-out infinite" }} />
-          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>LIVE ACTIVITY</span>
-        </div>
-        <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 14px rgba(0,0,0,0.06)", border: "1px solid rgba(255,31,125,0.08)" }}>
-          {LIVE_FEED.map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", borderBottom: i < LIVE_FEED.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
-              <div style={{ width: 30, height: 30, borderRadius: "50%", background: item.color, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 12, color: "white", flexShrink: 0 }}>
+      {/* ── LIVE ACTIVITY — compact strip ── */}
+      <section style={{ padding: "0 18px 20px" }}>
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>
+          <div style={{ display: "flex", position: "relative" as const }}>
+            {LIVE_FEED.slice(0, 4).map((item, i) => (
+              <div key={i} style={{ width: 26, height: 26, borderRadius: "50%", background: item.color, border: `2px solid ${BOARD}`, marginLeft: i > 0 ? -9 : 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 10, color: "white", flexShrink: 0, zIndex: 4 - i }}>
                 {item.who[0]}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: DARK, lineHeight: 1.3 }}>
-                  <span style={{ color: item.color }}>{item.who}</span>
-                  {" "}{item.action === "joined" ? "joined" : item.action === "posted" ? "posted in" : "shared from"}{" "}
-                  <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{item.club}</span>
-                </p>
-              </div>
-              <p style={{ fontSize: 9, color: DARK, opacity: 0.3, flexShrink: 0 }}>{item.time}</p>
+            ))}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 2px rgba(34,197,94,0.25)" }} />
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)" }}>LIVE ACTIVITY</p>
             </div>
-          ))}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 2 }}>
+              {LIVE_FEED.length} members active now
+            </p>
+          </div>
+          <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l4 4.5-4 4.5"/></svg>
         </div>
       </section>
 
@@ -576,6 +684,22 @@ export function ClubsPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* ── CLUB RANKINGS ── */}
+      <section style={{ padding: "0 18px 24px" }}>
+        <Link href="/member/clubs/rankings" style={{ textDecoration: "none" }}>
+          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 18, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 14, background: `linear-gradient(135deg, #D4A85344, #D4A853)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 20 }}>🏆</span>
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "white", lineHeight: 1 }}>Club Rankings</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.38)", marginTop: 4 }}>Top clubs by activity, retention & love</p>
+            </div>
+            <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l4 4.5-4 4.5"/></svg>
+          </div>
+        </Link>
       </section>
 
       {/* ── START YOUR OWN CLUB ── */}

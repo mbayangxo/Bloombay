@@ -1,3 +1,4 @@
+import "@/app/styles/bloom-entrance.css";
 import { getAuthUser } from "@/lib/auth/get-user";
 import Link from "next/link";
 
@@ -16,6 +17,7 @@ export default async function LobbyPage({
 
   return (
     <div
+      className="bloom-world-enter"
       style={{
         minHeight: "100vh",
         background:

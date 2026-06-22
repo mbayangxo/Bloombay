@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,23 +14,46 @@ import {
 } from "@/lib/actions/happenings";
 import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 import { coverUrl } from "@/lib/images/supabase-transform";
+import { getIntros, postIntro, flowerIntro, type IntroPost } from "@/lib/actions/introductions";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
 const CREAM  = "#F6F1EB";
 const NAV_BG = "#F6F1EB";
 
-// Map DB event_type string → EventType for template dispatch
+// Map DB event_type + title → EventType for template dispatch
 function inferEventType(ev: Event): EventType {
-  const t = (ev.event_type ?? "").toLowerCase();
-  if (t.includes("concert") || t.includes("music") || t.includes("show") || t.includes("performance")) return "concert";
-  if (t.includes("party") || t.includes("birthday") || t.includes("celebration") || t.includes("social")) return "party";
-  if (t.includes("invitation") || t.includes("invite")) return "invitation";
-  if (t.includes("open_seat") || t.includes("open seat") || t.includes("last seat")) return "open_seats";
-  if (t.includes("table") || t.includes("supper club") || t.includes("private dinner")) return "table";
-  if (t.includes("brunch") || t.includes("dinner") || t.includes("lunch") || t.includes("meal")) return "brunch";
-  if (t.includes("walk") || t.includes("outdoor") || t.includes("hike") || t.includes("run")) return "walk";
-  if (t.includes("museum") || t.includes("gallery") || t.includes("art") || t.includes("exhibition")) return "museum";
+  const t  = (ev.event_type ?? "").toLowerCase();
+  const tt = (ev.title ?? "").toLowerCase();
+  const s  = `${t} ${tt}`;
+  // Ticket / concert
+  if (/concert|live music|vinyl night|jazz night|performance|gig|music show|afrobeats night|dance.*show/.test(s)) return "concert";
+  // Party poster
+  if (/\bparty\b|girls night|birthday bash|girls.night.out|rooftop.*party|dance all night|night out|noche|rave|social night/.test(s)) return "party";
+  // Invitation
+  if (/\binvit(ation|e)\b|private.*invite/.test(s)) return "invitation";
+  // Open seats (last minute)
+  if (/open.?seat|last.?seat|open.?table|seat.?available/.test(s)) return "open_seats";
+  // Private dinner table card
+  if (/private dinner|reserved table|members.table|dinner.*table|table.*dinner/.test(s)) return "table";
+  // Supper club / intimate dinners → handwritten note card
+  if (/supper club|supper|intimate dinner|dinner party|dinner society|italian dinner/.test(s)) return "supper";
+  // Cocktails / drinks / aperitivo → vintage poster card
+  if (/cocktail|aperitivo|wine night|wine.*tasting|bar night|drinks night|happy hour|champagne|rosé|rose|spirits|martini|negroni/.test(s)) return "drinks";
+  // Bakery / patisserie
+  if (/bakery|boulangerie|pastry|croissant|peko|bread|pâtisserie/.test(s)) return "bakery";
+  // Food pop-up / café
+  if (/pop.?up|café|coffee.*event|bites|brunch.*event/.test(s)) return "popup";
+  // Food editorial
+  if (/food.*partner|tasting menu|culinary|feast|dining.*experience/.test(s)) return "food";
+  // Brunch
+  if (/\bbrunch\b|sunday.*brunch|brunch.*club|mimosa|bagels/.test(s)) return "brunch";
+  // Dinner that didn't match above
+  if (/\bdinner\b|\blunch\b|\bmeal\b|restaurant/.test(s)) return "supper";
+  // Walk / outdoor / active
+  if (/\bwalk\b|outdoor|hike|run club|morning.*walk|stroll|trail/.test(s)) return "walk";
+  // Museum / gallery / art
+  if (/museum|gallery|exhibition|moma|the met|\bart show\b|art.*night/.test(s)) return "museum";
   return "gathering";
 }
 
@@ -138,7 +162,7 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "map" | "scene";
+type HapTab = "happenings" | "intros" | "map" | "scene";
 type Filter = "All" | "Parties" | "Dinners" | "Gatherings" | "Club Gatherings" | "Invitations" | "Open Seats" | "Tables" | "Confetti" | "Events";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
@@ -436,7 +460,7 @@ function TonightStrip({ events, joined, onToggle }: { events: Event[]; joined: S
               color: "white", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
               cursor: "pointer",
             }}>
-              {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+              {joined.has(ev.id) ? "Going ✓" : "Going →"}
             </button>
           </div>
         ))}
@@ -663,7 +687,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.05em",
               cursor: "pointer", flexShrink: 0,
             }}>
-              {onWaitlist ? "WAITLISTED ✓" : "WAITLIST →"}
+              {onWaitlist ? "You're next ✓" : "Next to attend"}
             </button>
           ) : (
             <button onClick={onToggle} style={{
@@ -674,7 +698,7 @@ function PosterCard({ ev, posterIdx, joined, onToggle, fullWidth = false, waitli
               cursor: "pointer", flexShrink: 0,
               boxShadow: joined ? "none" : `0 3px 14px ${PINK}66`,
             }}>
-              {joined ? "JOINED ✓" : "JOIN →"}
+              {joined ? "Going ✓" : "Going →"}
             </button>
           )}
         </div>
@@ -737,7 +761,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {onWaitlist ? "WAITLISTED ✓" : "JOIN WAITLIST →"}
+            {onWaitlist ? "You're next ✓" : "Next to sit →"}
           </button>
         ) : (
           <button onClick={onToggle} style={{
@@ -748,7 +772,7 @@ function TicketCard({ ev, ticketIdx, joined, onToggle, waitlistCount = 0, onWait
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             cursor: "pointer",
           }}>
-            {joined ? "JOINED ✓" : "GRAB A SEAT"}
+            {joined ? "Going ✓" : "Going →"}
           </button>
         )}
       </div>
@@ -793,7 +817,7 @@ function ClubCard({ ev, clubIdx, joined, onToggle }: {
             cursor: "pointer",
             boxShadow: joined ? "none" : `0 2px 10px ${PINK}55`,
           }}>
-            {joined ? "JOINED ✓" : "JOIN →"}
+            {joined ? "Going ✓" : "Going →"}
           </button>
         </div>
       </div>
@@ -843,7 +867,7 @@ function PaperCard({ ev, joined, onToggle }: { ev: Event; joined: boolean; onTog
         fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.07em",
         cursor: "pointer",
       }}>
-        {joined ? "JOINED ✓" : "JOIN →"}
+        {joined ? "Going ✓" : "Going →"}
       </button>
     </div>
   );
@@ -888,13 +912,13 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
         <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />
         <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>YOUR EVENTS</span>
       </div>
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
+      <div className="bloom-stagger" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 14px 16px", scrollbarWidth: "none" as const }}>
         {events.map(ev => {
           const isFull = ev.spots_left !== null && ev.spots_left !== undefined && ev.spots_left <= 0;
           const wCount = waitlistCounts[ev.id] ?? 0;
           const onList = myWaitlist.has(ev.id);
           return (
-            <div key={ev.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
+            <div key={ev.id} className="bloom-lift bloom-card-enter" style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
               <EventCard ev={toCardData(ev)} />
               {/* Action row below card */}
               <div style={{ display: "flex", gap: 5, marginTop: 6, alignItems: "center" }}>
@@ -921,11 +945,11 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
                 <div style={{ flex: 1 }} />
                 {isFull ? (
                   <button onClick={() => onWaitlist(ev.id)} style={{ background: onList ? "rgba(255,255,255,0.1)" : "#D97706", border: "none", borderRadius: 999, padding: "4px 10px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer" }}>
-                    {onList ? "WAITLISTED" : "WAITLIST →"}
+                    {onList ? "You're next ✓" : "Next to attend"}
                   </button>
                 ) : (
                   <button onClick={() => onToggle(ev.id)} style={{ background: joined.has(ev.id) ? "rgba(255,255,255,0.1)" : PINK, border: "none", borderRadius: 999, padding: "4px 12px", color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, cursor: "pointer", boxShadow: joined.has(ev.id) ? "none" : `0 2px 10px ${PINK}55` }}>
-                    {joined.has(ev.id) ? "JOINED ✓" : "JOIN →"}
+                    {joined.has(ev.id) ? "Going ✓" : "Going →"}
                   </button>
                 )}
               </div>
@@ -937,17 +961,330 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
   );
 }
 
+/* ── Invitation RSVP sheet ─────────────────────────────────── */
+function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+  const [choice, setChoice] = useState<"going" | "maybe" | "cant" | null>(null);
+  const [msg, setMsg] = useState("");
+  const [confettiSent, setConfettiSent] = useState(false);
+  const [done, setDone] = useState(false);
+
+  function sendConfetti() {
+    setConfettiSent(true);
+  }
+
+  function submit() {
+    setDone(true);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
+      <div style={{ background: "rgba(0,0,0,0.55)", position: "absolute", inset: 0, backdropFilter: "blur(4px)" }} />
+      <div style={{ position: "relative", background: "#FFF8F0", borderRadius: "22px 22px 0 0", padding: "20px 20px calc(env(safe-area-inset-bottom, 0px) + 32px)", zIndex: 1, maxHeight: "88vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.14)", margin: "0 auto 18px" }} />
+
+        {done ? (
+          <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>{confettiSent ? "🎊" : choice === "going" ? "🌸" : choice === "maybe" ? "🤞" : "💌"}</div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "#111", marginBottom: 6 }}>
+              {confettiSent ? "Confetti sent!" : choice === "going" ? "You're going!" : choice === "maybe" ? "Noted!" : "They know you care."}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#999" }}>
+              {choice === "going" ? "She'll see you there." : "You can always send her confetti later."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Event name */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.18em", color: `${PINK}99`, marginBottom: 4 }}>💌 YOU WERE INVITED</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "#111", lineHeight: 1.15, marginBottom: 4 }}>{ev.title}</p>
+            {ev.host_name && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginBottom: 16 }}>Hosted by {ev.host_name}</p>
+            )}
+
+            {/* 3-option picker */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              {([
+                { key: "going",  label: "I'm going",           emoji: "🌸" },
+                { key: "maybe",  label: "I'll try to make it", emoji: "🤞" },
+                { key: "cant",   label: "Can't make it",        emoji: "💌" },
+              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string }[]).map(opt => (
+                <button
+                  key={opt.key}
+                  onClick={() => setChoice(opt.key)}
+                  style={{
+                    flex: 1, padding: "12px 6px", borderRadius: 14, border: "none", cursor: "pointer",
+                    background: choice === opt.key ? `${PINK}18` : "white",
+                    outline: choice === opt.key ? `2px solid ${PINK}` : "1px solid rgba(0,0,0,0.1)",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{opt.emoji}</span>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: choice === opt.key ? PINK : "#555", textAlign: "center", lineHeight: 1.3 }}>{opt.label}</p>
+                </button>
+              ))}
+            </div>
+
+            {/* Message input — always shown */}
+            <div style={{ background: "white", borderRadius: 14, border: "1px solid rgba(0,0,0,0.1)", padding: "12px 14px", marginBottom: 12 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.12em", color: "#999", marginBottom: 6 }}>SEND A MESSAGE</p>
+              <textarea
+                value={msg}
+                onChange={e => setMsg(e.target.value)}
+                placeholder={choice === "cant" ? "Let her know you're thinking of her…" : choice === "maybe" ? "Let her know you'll try…" : "Can't wait to celebrate you!"}
+                rows={2}
+                style={{ width: "100%", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "#111", resize: "none", background: "transparent" }}
+              />
+            </div>
+
+            {/* Send confetti option */}
+            <button
+              onClick={sendConfetti}
+              style={{ width: "100%", padding: "12px", borderRadius: 14, border: `1.5px solid ${confettiSent ? PINK : "rgba(255,31,125,0.25)"}`, background: confettiSent ? `${PINK}12` : "transparent", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, marginBottom: 12, transition: "all 0.15s" }}
+            >
+              <span style={{ fontSize: 20 }}>🎊</span>
+              <div style={{ flex: 1, textAlign: "left" as const }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: PINK }}>
+                  {confettiSent ? "Confetti sent! 🎊" : "Send her confetti"}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#999", marginTop: 1 }}>A little celebration, whether you&apos;re going or not</p>
+              </div>
+              {confettiSent && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              )}
+            </button>
+
+            {/* Submit */}
+            <button
+              onClick={submit}
+              disabled={!choice}
+              style={{ width: "100%", padding: "15px", borderRadius: 18, background: choice ? PINK : "rgba(0,0,0,0.08)", border: "none", cursor: choice ? "pointer" : "default", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", color: choice ? "white" : "rgba(0,0,0,0.3)", boxShadow: choice ? `0 6px 22px ${PINK}44` : "none", transition: "all 0.15s" }}
+            >
+              {choice === "going" ? "I'm going 🌸" : choice === "maybe" ? "I'll try to make it 🤞" : choice === "cant" ? "Send my love 💌" : "Choose one above"}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Invitation card (envelope look) ───────────────────────── */
+function EnvelopeInviteCard({ c, onOpen }: { c: typeof INVITE_DEMO[0]; onOpen: () => void }) {
+  const [opened, setOpened] = useState(false);
+
+  function handleOpen() {
+    setOpened(true);
+    onOpen();
+  }
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, overflow: "hidden", position: "relative" }}>
+      {/* Top color band */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${c.color}, ${c.color}55)` }} />
+
+      {/* Envelope flap graphic */}
+      {!opened && (
+        <div style={{ padding: "16px 16px 0" }}>
+          <div style={{ position: "relative", height: 54, background: `linear-gradient(145deg, ${c.color}22, ${c.color}08)`, border: `1px solid ${c.color}30`, borderRadius: "14px 14px 0 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* Envelope V flap */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "60%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}18`, borderBottom: `1px solid ${c.color}22` }} />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "50%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}12` }} />
+            <span style={{ fontSize: 18, zIndex: 1 }}>💌</span>
+          </div>
+          <div style={{ height: 32, background: `${c.color}08`, border: `1px solid ${c.color}22`, borderTop: "none", borderRadius: "0 0 10px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: `${c.color}99` }}>SEALED WITH LOVE</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding: opened ? "16px 16px 14px" : "12px 16px 14px" }}>
+        {/* Type + date */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+          <div style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 999, padding: "3px 8px", display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 10 }}>{c.type === "Birthday" ? "🎂" : c.type === "Wins" ? "✨" : "🌸"}</span>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: c.color, letterSpacing: "0.08em" }}>{c.type.toUpperCase()}</p>
+          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)" }}>{c.date} · {c.time}</p>
+        </div>
+
+        {/* Host + event */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}, ${c.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 900, color: "white" }}>{c.initials}</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.55)", marginBottom: 2 }}>{c.name} is celebrating</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "white", lineHeight: 1.1 }}>{c.what}</p>
+          </div>
+        </div>
+
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.38)", marginBottom: 12 }}>{c.venue}</p>
+
+        {/* Attendees */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+          {[0,1,2].map(i => (
+            <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}AA, ${c.color}55)`, border: "1.5px solid rgba(255,255,255,0.15)", marginLeft: i > 0 ? -10 : 0 }} />
+          ))}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginLeft: 4 }}>{c.confirmed} showing up for her</p>
+        </div>
+
+        {/* Open invite button (triggers RSVP sheet) */}
+        <button
+          onClick={handleOpen}
+          style={{ width: "100%", padding: "11px", borderRadius: 14, background: opened ? `${c.color}22` : c.color, border: opened ? `1.5px solid ${c.color}55` : "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: opened ? c.color : "white", boxShadow: opened ? "none" : `0 4px 18px ${c.color}55`, transition: "all 0.18s" }}
+        >
+          {opened ? "Invitation opened ✓" : "Open the invitation →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const INVITE_DEMO = [
+  { id: "c1", type: "Birthday" as const,   name: "Sofia K.",  what: "30th Birthday Dinner",   venue: "Carbone, West Village",   date: "SAT JUL 5",  time: "8 PM",    initials: "SK", color: "#FF1F7D", confirmed: 12 },
+  { id: "c2", type: "Wins" as const,       name: "Amara T.",  what: "New Job Celebration",     venue: "Ladurée SoHo",            date: "FRI JUL 11", time: "7:30 PM", initials: "AT", color: "#FF69B4", confirmed: 8  },
+  { id: "c3", type: "Milestones" as const, name: "Nadia O.",  what: "New Apartment Warming",   venue: "Her new place · Tribeca", date: "SUN JUL 13", time: "3 PM",    initials: "NO", color: "#E8006A", confirmed: 18 },
+  { id: "c4", type: "Birthday" as const,   name: "Lena R.",   what: "Birthday Brunch",         venue: "Sadelle's, SoHo",         date: "SUN JUL 20", time: "11 AM",   initials: "LR", color: "#C80060", confirmed: 7  },
+  { id: "c5", type: "Wins" as const,       name: "Zora M.",   what: "Book Deal Dinner",        venue: "Via Carota",              date: "THU JUL 24", time: "7 PM",    initials: "ZM", color: "#FF1F7D", confirmed: 5  },
+  { id: "c6", type: "Milestones" as const, name: "Fatima A.", what: "Engagement Dinner",       venue: "The Jane NYC",            date: "SAT JUL 26", time: "6 PM",    initials: "FA", color: "#A8004C", confirmed: 22 },
+] as const;
+type InviteType = "All" | "Birthday" | "Wins" | "Milestones";
+
+function CelebrationInvitationsView({ events, joined, onToggle }: {
+  events: Event[];
+  joined: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  const [typeFilter, setTypeFilter] = useState<InviteType>("All");
+  const [rsvpEv, setRsvpEv] = useState<Event | null>(null);
+  const [rsvpDemo, setRsvpDemo] = useState<string | null>(null);
+
+  const demo = typeFilter === "All" ? INVITE_DEMO : INVITE_DEMO.filter(c => c.type === typeFilter);
+
+  const demoAsEvent = (c: typeof INVITE_DEMO[0]): Event => ({
+    id: c.id, title: c.what, host_name: c.name, venue: c.venue, starts_at: new Date().toISOString(),
+    event_type: "invitation", attending_count: c.confirmed, spots_left: null, neighborhood: null, city: null,
+    slug: null, badge: null, image_url: null, accent_color: c.color,
+  } as unknown as Event);
+
+  return (
+    <div style={{ padding: "0 0 24px" }}>
+      {/* RSVP sheet */}
+      {rsvpEv && <InvitationRsvpSheet ev={rsvpEv} onClose={() => setRsvpEv(null)} />}
+      {rsvpDemo && <InvitationRsvpSheet ev={demoAsEvent((INVITE_DEMO.find(c => c.id === rsvpDemo) ?? INVITE_DEMO[0]) as typeof INVITE_DEMO[0])} onClose={() => setRsvpDemo(null)} />}
+
+      {/* Header */}
+      <div style={{ padding: "18px 16px 14px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>💌 INVITATIONS</p>
+        <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(24px, 7vw, 30px)", color: "rgba(255,238,220,0.96)", lineHeight: 1.0, margin: "0 0 6px" }}>
+          We show up for our girls.
+        </h2>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)" }}>
+          Birthdays, wins & the moments that matter — open an invite, let her know you&apos;re coming, and send confetti no matter what.
+        </p>
+      </div>
+
+      {/* Type tabs */}
+      <div style={{ display: "flex", gap: 6, padding: "0 14px 16px", overflowX: "auto", scrollbarWidth: "none" as const }}>
+        {(["All", "Birthday", "Wins", "Milestones"] as InviteType[]).map(t => (
+          <button key={t} onClick={() => setTypeFilter(t)} style={{ flexShrink: 0, padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer", background: typeFilter === t ? PINK : "rgba(255,255,255,0.1)", color: typeFilter === t ? "white" : "rgba(255,255,255,0.55)", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.06em", boxShadow: typeFilter === t ? `0 3px 14px ${PINK}55` : "none", transition: "all 0.15s" }}>
+            {t === "Birthday" ? "🎂 " : t === "Wins" ? "✨ " : t === "Milestones" ? "🌸 " : ""}{t}
+          </button>
+        ))}
+      </div>
+
+      {/* Real invitation events with RSVP options */}
+      {events.length > 0 && (
+        <div style={{ padding: "0 14px 14px" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>YOUR INVITATIONS</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {events.map(ev => (
+              <div key={ev.id} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 18, overflow: "hidden" }}>
+                <div style={{ height: 3, background: `linear-gradient(90deg, ${PINK}, ${PINK}44)` }} />
+                <div style={{ padding: "14px 16px" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 900, color: "white", lineHeight: 1.1, marginBottom: 4 }}>{ev.title}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", color: "rgba(255,255,255,0.45)", marginBottom: 14 }}>{ev.venue ?? ev.neighborhood} · {new Date(ev.starts_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                  <div style={{ display: "flex", gap: 7 }}>
+                    <button onClick={() => { onToggle(ev.id); }} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: joined.has(ev.id) ? PINK : "rgba(255,255,255,0.12)", color: "white", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      {joined.has(ev.id) ? "I'm going ✓" : "I'm going"}
+                    </button>
+                    <button onClick={() => setRsvpEv(ev)} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      Can&apos;t make it
+                    </button>
+                    <button onClick={() => setRsvpEv(ev)} style={{ flex: 1, padding: "9px 6px", borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800 }}>
+                      I&apos;ll try 🤞
+                    </button>
+                  </div>
+                  <button onClick={() => setRsvpEv(ev)} style={{ width: "100%", marginTop: 7, padding: "8px", borderRadius: 10, border: `1px solid ${PINK}33`, background: `${PINK}12`, cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: PINK }}>
+                    🎊 Send confetti
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Demo invitation cards (envelope look) */}
+      <div style={{ padding: "0 14px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>OPEN INVITATIONS</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {(demo as typeof INVITE_DEMO[number][]).map(c => (
+            <EnvelopeInviteCard key={c.id} c={c as typeof INVITE_DEMO[0]} onOpen={() => setRsvpDemo(c.id)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Confetti strip — recently sent */}
+      <div style={{ margin: "20px 14px 0", padding: "16px", background: "rgba(255,255,255,0.06)", borderRadius: 18, border: "1px solid rgba(255,255,255,0.1)" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>🎊 CONFETTI SENT</p>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
+          {[
+            { name: "Maya B.", what: "New job 🎉", color: "#FF1F7D" },
+            { name: "Temi O.", what: "Birthday 🎂", color: "#FF69B4" },
+            { name: "Jade R.", what: "New keys 🏠", color: "#E8006A" },
+            { name: "Sade L.", what: "Book deal 📚", color: "#C80060" },
+          ].map((r, i) => (
+            <div key={i} style={{ flexShrink: 0, width: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${r.color}, ${r.color}66)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.12)" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, color: "white" }}>{r.name[0]}</span>
+              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 1.2 }}>{r.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.38)", textAlign: "center", lineHeight: 1.3 }}>{r.what}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Drop confetti CTA */}
+      <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}28`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 22 }}>🎊</span>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Drop confetti on her</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Birthdays, wins, new keys, new chapters</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  );
+}
+
 /* ── Static collage (no events yet) ─────────────────────── */
 function StaticCollage() {
   const DEMO_EVENTS: EventCardData[] = [
-    { id: "d1", type: "concert",    title: "Vinyl Night & Jazz",      host: "Girl Creatives", location: "Bushwick",     date: "SAT JUN 14", time: "9 PM",    spotsLeft: 12, accentColor: "#1C1B1C" },
-    { id: "d2", type: "party",      title: "Girls Night Out",          host: "BloomBay",       location: "SoHo",         date: "FRI JUN 13", time: "10 PM",   spotsLeft: 6,  accentColor: PINK },
-    { id: "d3", type: "gathering",  title: "Italian Dinner Society",   host: "Yande",          location: "Carbone",      date: "THU JUN 19", time: "7:30 PM", going: 8 },
-    { id: "d4", type: "invitation", title: "Pilates + Matcha",         host: "Sofia K.",       location: "Williamsburg", date: "SUN JUN 15", time: "9 AM",    spotsLeft: 3 },
-    { id: "d7", type: "open_seats", title: "Sunday Supper",            host: "Natalie M.",     location: "West Village", date: "SUN JUN 15", time: "7 PM",    spotsLeft: 2, going: 6 },
-    { id: "d8", type: "table",      title: "Private Dinner Party",     host: "House of Flora", location: "NoHo",         date: "SAT JUN 21", time: "8 PM",    spotsLeft: 4, accentColor: "#1A3A1A" },
-    { id: "d5", type: "brunch",     title: "Sunday Brunch Club", host: "BloomBay",       location: "Ladurée SoHo", date: "SUN JUN 22", time: "11 AM", going: 14 },
-    { id: "d6", type: "museum",     title: "MoMA + Froyo After", host: "Girl Creatives", location: "Midtown",  date: "SAT JUN 21", time: "2 PM", spotsLeft: 5 },
+    { id: "d1",  type: "concert",    title: "Vinyl Night & Jazz",        host: "Girl Creatives",  location: "Elsewhere, Bushwick",  date: "SAT JUL 12", time: "9 PM",    spotsLeft: 12, accentColor: "#1C1B1C" },
+    { id: "d2",  type: "party",      title: "Girls Night Out",           host: "BloomBay",        location: "SoHo",                 date: "FRI JUL 11", time: "10 PM",   spotsLeft: 6,  accentColor: PINK },
+    { id: "d3",  type: "supper",     title: "Italian Dinner Society",    host: "Yande M.",        location: "Carbone, West Village",date: "THU JUL 17", time: "7:30 PM", going: 8 },
+    { id: "d4",  type: "invitation", title: "Pilates + Matcha Morning",  host: "Sofia K.",        location: "Williamsburg",         date: "SUN JUL 13", time: "9 AM",    spotsLeft: 3 },
+    { id: "d5",  type: "open_seats", title: "Sunday Supper",             host: "Natalie M.",      location: "West Village",         date: "SUN JUL 13", time: "7 PM",    spotsLeft: 2,  going: 6 },
+    { id: "d6",  type: "table",      title: "Private Dinner Party",      host: "House of Flora",  location: "NoHo",                 date: "SAT JUL 19", time: "8 PM",    spotsLeft: 4,  accentColor: "#1A3A1A" },
+    { id: "d7",  type: "drinks",     title: "Aperitivo Hour",            host: "Valentini's",     location: "Nolita",               date: "FRI JUL 18", time: "6 PM",    spotsLeft: 8,  accentColor: "#C84030" },
+    { id: "d8",  type: "museum",     title: "MoMA + Froyo After",        host: "Museum Girls",    location: "Midtown",              date: "SAT JUL 19", time: "2 PM",    spotsLeft: 5 },
+    { id: "d9",  type: "brunch",     title: "Sunday Brunch Club",        host: "BloomBay",        location: "Ladurée SoHo",         date: "SUN JUL 20", time: "11 AM",   going: 14 },
+    { id: "d10", type: "bakery",     title: "Croissant Morning",         host: "Flour & Stone",   location: "Lower East Side",      date: "SAT JUL 12", time: "9 AM",    spotsLeft: 10, accentColor: "#8B3A2A" },
+    { id: "d11", type: "walk",       title: "Brooklyn Bridge Walk",      host: "Walk & Talk Club",location: "Brooklyn Bridge Park", date: "SUN JUL 13", time: "8 AM",    going: 22 },
+    { id: "d12", type: "food",       title: "Wine & Cheese Tasting",     host: "Buvette",         location: "West Village",         date: "WED JUL 16", time: "7 PM",    spotsLeft: 6,  accentColor: "#C8860A" },
   ];
 
   return (
@@ -1042,7 +1379,7 @@ function CreateFAB() {
     <Link href="/member/host" style={{ textDecoration: "none" }}>
       <div style={{
         position: "fixed",
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 110px)",
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 155px)",
         right: 18,
         zIndex: 60,
         width: 52,
@@ -1131,6 +1468,11 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   // Review tracking
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
+  // Introductions
+  const [intros,        setIntros]        = useState<IntroPost[]>([]);
+  const [introsLoading, setIntrosLoading] = useState(false);
+  const [showIntroPost, setShowIntroPost] = useState(false);
+
   // Sheets
   const [inviteEv,   setInviteEv]   = useState<Event | null>(null);
   const [witnessEv,  setWitnessEv]  = useState<Event | null>(null);
@@ -1164,6 +1506,12 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (tab !== "intros") return;
+    setIntrosLoading(true);
+    getIntros().then(data => { setIntros(data); setIntrosLoading(false); }).catch(() => setIntrosLoading(false));
+  }, [tab]);
 
   function toggleJoin(eventId: string) {
     const isJoined = joined.has(eventId);
@@ -1226,81 +1574,43 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
 
   return (
-    <div style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
+    <div className="bloom-world-enter" style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
       <style>{CSS}</style>
 
 
       {/* ── Fixed top bar ── */}
-      {standalone && <div style={{
+      {/* tablet: top-[60px] clears the fixed desktop top-nav; desktop: top-0 + left-60 clears the sidebar */}
+      {standalone && <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
         background: getNavBg(),
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255,255,255,0.12)",
-        height: 54,
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
         paddingTop: "env(safe-area-inset-top, 0px)",
-        display: "flex", alignItems: "center",
       }}>
-        {/* Left: BB+ · city · slab */}
-        <div style={{ flex: 1, paddingLeft: 18, display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>BB+</span>
-          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>·</span>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>NYC</span>
-        </div>
-
-        {/* Center: HAPPENINGS | MAP | CITY toggle */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        {/* Row 1: toggle + search */}
+        <div style={{ height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px" }}>
+          {/* Tab toggle */}
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {([["happenings","HAPPENINGS"],["map","MAP"],["scene","CITY"]] as [HapTab, string][]).map(([t, label]) => (
+            {([["happenings","Happenings"],["intros","Intros"],["map","Map"],["scene","City"]] as [HapTab, string][]).map(([t, label]) => (
               <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
                 padding: "5px 10px", borderRadius: 999, border: "none",
                 background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
                 color: tab === t ? PINK : "rgba(255,255,255,0.85)",
                 fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
-                letterSpacing: "0.10em", cursor: "pointer", transition: "all 0.18s",
+                letterSpacing: "0.06em", cursor: "pointer", transition: "all 0.18s",
                 boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
               }}>
                 {label}
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Right: search icon + nav icons */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingRight: 14 }}>
-          {tab === "happenings" && (
-            <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 4, background: "none", border: "none", cursor: "pointer" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-            </button>
-          )}
-          <Link href="/member/lounge" aria-label="Apartment" style={{ display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="2" y1="21" x2="22" y2="21"/>
-              <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
-              <circle cx="14.5" cy="13" r="0.7" fill="rgba(255,255,255,0.75)" stroke="none"/>
+          {/* Search icon */}
+          <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 6, background: searchOpen ? "rgba(255,255,255,0.15)" : "none", border: "none", cursor: "pointer", borderRadius: 999 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-          </Link>
-          <Link href="/member/city" aria-label="City" style={{ display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="rgba(255,255,255,0.75)" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="7.5" r="5" fill="rgba(255,255,255,0.75)"/>
-              <line x1="12" y1="12.5" x2="12" y2="21" stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round"/>
-            </svg>
-          </Link>
-          <Link href="/member/messages" aria-label="Mailbox" style={{ position: "relative", display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-            <div style={{ position: "absolute", top: 0, right: 0, width: 13, height: 13, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>3</div>
-          </Link>
-          <Link href="/member/chat" aria-label="Chat" style={{ position: "relative", display: "flex", padding: 4 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span style={{ position: "absolute", top: 2, right: 2, width: 7, height: 7, borderRadius: "50%", background: "white" }}/>
-          </Link>
+          </button>
         </div>
       </div>}
 
@@ -1310,7 +1620,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           onClick={() => setFilterOpen(o => !o)}
           aria-label="Toggle filters"
           style={{
-            position: "fixed", left: 0, top: 70, zIndex: 49,
+            position: "fixed", left: 0, top: 60, zIndex: 49,
             background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
             backdropFilter: "blur(12px)",
             border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
@@ -1335,8 +1645,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
-        <div style={{
-          position: "fixed", top: 54, left: 0, right: 0, zIndex: 50,
+        <div className="md:top-[110px] lg:top-[50px] lg:left-60 lg:right-[280px]" style={{
+          position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
@@ -1360,7 +1670,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? (searchOpen ? 108 : 54) : 0 }}>
+      <div style={{ paddingTop: standalone ? (searchOpen ? 104 : 50) : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -1448,7 +1758,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                               letterSpacing: "0.08em",
                             }}
                           >
-                            {isJoined ? "JOINED ✓" : "JOIN NOW →"}
+                            {isJoined ? "Going ✓" : "Going →"}
                           </button>
                         </div>
                       );
@@ -1547,8 +1857,17 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </div>
             )}
 
+            {/* Invitations: celebration template */}
+            {!loading && filter === "Invitations" && (
+              <CelebrationInvitationsView
+                events={filtered}
+                joined={joined}
+                onToggle={toggleJoin}
+              />
+            )}
+
             {/* Collage: real events */}
-            {!loading && filtered.length > 0 && (
+            {!loading && filter !== "Invitations" && filtered.length > 0 && (
               <EventTemplatesStrip
                 events={filtered}
                 joined={joined}
@@ -1563,12 +1882,12 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             )}
 
             {/* Collage: static posters when no events */}
-            {!loading && events.length === 0 && (
+            {!loading && filter !== "Invitations" && events.length === 0 && (
               <StaticCollage/>
             )}
 
             {/* No match for filter */}
-            {!loading && events.length > 0 && filtered.length === 0 && (
+            {!loading && filter !== "Invitations" && events.length > 0 && filtered.length === 0 && (
               <div style={{ padding: "40px 24px", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.3)" }}>nothing here yet ✦</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.2)", marginTop: 6, letterSpacing: "0.06em" }}>try a different filter</p>
@@ -1636,6 +1955,68 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           </>
         )}
 
+        {/* ── INTROS TAB ── */}
+        {standalone && tab === "intros" && (
+          <div style={{ paddingBottom: 96 }}>
+            {/* Header */}
+            <div style={{ padding: "20px 18px 16px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: PINK, marginBottom: 6 }}>🌸 INTRODUCTIONS</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(22px, 7vw, 28px)", color: "rgba(255,238,220,0.95)", lineHeight: 0.95, margin: 0, marginBottom: 10 }}>
+                Meet the Women.
+              </h2>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 14 }}>
+                New arrivals, locals & women finding their people
+              </p>
+              <Link href="/member/introductions" style={{ textDecoration: "none", display: "block" }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10,
+                background: "rgba(255,255,255,0.09)", border: "1.5px solid rgba(255,255,255,0.18)",
+                borderRadius: 14, padding: "12px 16px", cursor: "pointer",
+              }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ fontSize: 14 }}>👋</span>
+                </div>
+                <div style={{ flex: 1, textAlign: "left" as const }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.75)" }}>Introduce yourself</p>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 1 }}>Tap to share your story</p>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              </Link>
+            </div>
+            {/* Intros list */}
+            <div style={{ padding: "0 14px" }}>
+              {introsLoading ? (
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "30px 0" }}>Loading…</p>
+              ) : intros.length === 0 ? (
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "30px 0" }}>No introductions yet — be the first!</p>
+              ) : intros.map(intro => (
+                <div key={intro.id} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 18, padding: "14px 16px", marginBottom: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg,${intro.color},${intro.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: "white" }}>{intro.initial}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white" }}>{intro.name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>{intro.neighborhood ? `📍 ${intro.neighborhood} · ` : ""}{intro.time}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, marginBottom: 10 }}>{intro.bio}</p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <button onClick={() => { const next = !intro.my_flower; void flowerIntro(intro.id); setIntros(prev => prev.map(i => i.id === intro.id ? { ...i, my_flower: next, flowers: i.flowers + (next ? 1 : -1) } : i)); }} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, border: "none", cursor: "pointer", background: intro.my_flower ? `${PINK}20` : "rgba(255,255,255,0.08)" }}>
+                      <span style={{ fontSize: 12 }}>🌸</span>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: intro.my_flower ? PINK : "rgba(255,255,255,0.5)" }}>{intro.flowers}</p>
+                    </button>
+                    <button style={{ padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer", background: `linear-gradient(135deg,${PINK},#FF69B4)`, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", boxShadow: `0 2px 10px ${PINK}33` }}>
+                      Connect →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── MAP TAB ── */}
         {standalone && tab === "map" && (
           <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column" }}>
@@ -1701,7 +2082,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
           <div style={{ padding: "0 0 24px", minHeight: "calc(100vh - 54px)" }}>
             <div style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, marginBottom: 2 }}>New York City</p>
-              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px, 8.5vw, 34px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.01em" }}>The City</h1>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>tap a neighborhood to explore</p>
             </div>
 

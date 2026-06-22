@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK   = "#FF1F7D";
@@ -36,7 +36,68 @@ interface FilmPost {
   poster_b: string;
   timeAgo: string;
   platform?: string;
+  badge?: string;
 }
+
+// ── DB row shape from avenue_content ─────────────────────────────────────────
+interface ScreeningRow {
+  id: string;
+  title: string;
+  body: string | null;
+  badge: string | null;
+  week_of: string;
+  rank_order: number;
+  like_count: number;
+  save_count: number;
+  meta: {
+    where_to_watch?: string;
+    genre?: string;
+    runtime?: string;
+    director?: string;
+    year?: number;
+    author_name?: string;
+    author_initial?: string;
+    author_color?: string;
+    poster_a?: string;
+    poster_b?: string;
+    rating?: number;
+  };
+}
+
+// Map a genre string to a FilmCategory key
+function genreToCategory(genre?: string): FilmCategory {
+  if (!genre) return "indie";
+  const g = genre.toLowerCase();
+  if (g.includes("drama"))     return "drama";
+  if (g.includes("romance"))   return "romance";
+  if (g.includes("thriller"))  return "thriller";
+  if (g.includes("horror") || g.includes("surreal")) return "horror";
+  if (g.includes("doc"))       return "documentary";
+  return "indie";
+}
+
+function rowToFilmPost(row: ScreeningRow): FilmPost {
+  const meta = row.meta ?? {};
+  return {
+    id:            row.id,
+    author_name:   meta.author_name   ?? "Screening Room",
+    author_initial: meta.author_initial ?? "S",
+    author_color:  meta.author_color  ?? REEL,
+    category:      genreToCategory(meta.genre),
+    title:         row.title,
+    year:          meta.year          ?? 2024,
+    text:          row.body           ?? "",
+    rating:        meta.rating        ?? 5,
+    blooms:        row.like_count     ?? 0,
+    poster_a:      meta.poster_a      ?? "#4A148C",
+    poster_b:      meta.poster_b      ?? "#1A1A1A",
+    timeAgo:       "This week",
+    platform:      meta.where_to_watch,
+    badge:         row.badge          ?? undefined,
+  };
+}
+
+// ── Fallback mock posts (used if API is unavailable) ─────────────────────────
 
 const MOCK_POSTS: FilmPost[] = [
   {
@@ -118,6 +179,12 @@ function FilmCard({ post }: { post: FilmPost }) {
         </div>
         {/* Grain */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN, backgroundSize: "200px 200px", opacity: 0.6 }} />
+        {/* Badge */}
+        {post.badge && (
+          <div style={{ position: "absolute", top: 20, right: 10, background: REEL, borderRadius: 99, padding: "2px 8px", zIndex: 2 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: DARK, letterSpacing: "0.15em" }}>{post.badge}</p>
+          </div>
+        )}
         {/* Title overlay */}
         <div style={{ position: "relative", zIndex: 1, padding: "0 14px 14px", width: "100%" }}>
           <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)", marginBottom: 2 }}>{post.title}</p>
@@ -157,8 +224,30 @@ function FilmCard({ post }: { post: FilmPost }) {
 
 export function ScreeningRoomPage() {
   const [activeCategory, setActiveCategory] = useState<FilmCategory>("all");
+  const [posts, setPosts] = useState<FilmPost[]>(MOCK_POSTS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPicks() {
+      try {
+        const res = await fetch("/api/avenue/screening-room");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rows: ScreeningRow[] = await res.json();
+        if (rows && rows.length > 0) {
+          setPosts(rows.map(rowToFilmPost));
+        }
+        // If API returns empty, keep mock posts as-is
+      } catch {
+        // Silently fall back to mock posts — API may not be available in preview
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPicks();
+  }, []);
+
   const cats = Object.entries(CAT_META) as [FilmCategory, { label: string; color: string }][];
-  const filtered = activeCategory === "all" ? MOCK_POSTS : MOCK_POSTS.filter(p => p.category === activeCategory);
+  const filtered = activeCategory === "all" ? posts : posts.filter(p => p.category === activeCategory);
 
   return (
     <div style={{ background: "#0E0C10", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
@@ -186,7 +275,7 @@ export function ScreeningRoomPage() {
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>89 WATCHING NOW</p>
             </div>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "white", lineHeight: 1, marginBottom: 6 }}>Screening Room.</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>Screening Room.</h1>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.4)" }}>Films. Reviews. Watch parties.</p>
         </div>
       </div>
@@ -207,7 +296,12 @@ export function ScreeningRoomPage() {
       </div>
 
       <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", gap: 14 }}>
-        {filtered.map(post => <FilmCard key={post.id} post={post} />)}
+        {loading
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} style={{ height: 230, borderRadius: 18, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }} />
+            ))
+          : filtered.map(post => <FilmCard key={post.id} post={post} />)
+        }
       </div>
 
       {/* Watch party CTA */}

@@ -49,7 +49,7 @@ export function FeedbackButton() {
       <button
         onClick={() => setOpen(true)}
         style={{
-          position: "fixed", bottom: "calc(env(safe-area-inset-bottom,0px) + 84px)", right: 16, zIndex: 45,
+          position: "fixed", bottom: "calc(env(safe-area-inset-bottom,0px) + 84px)", left: 16, zIndex: 45,
           width: 40, height: 40, borderRadius: "50%",
           background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)",
           backdropFilter: "blur(8px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",

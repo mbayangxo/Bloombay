@@ -19,21 +19,21 @@ const TICKET_IMAGES: Record<number, string> = {
 };
 
 const ACTIVE_ROOMS: PlanRoom[] = [
-  { id: 1, name: "Afrobeats Night",      emoji: "🎶", bg: "#140820", accent: "#C084FC", unread: 2, members: 24, date: "Jun 10", venue: "SOBs, 204 Varick St",    time: "Sat Jun 10 · 10PM" },
-  { id: 2, name: "Sunday Walk Circle",   emoji: "🌿", bg: "#0A140A", accent: "#83C5A0", unread: 0, members: 9,  date: "Jun 8",  venue: "Prospect Park, GArmy", time: "Sun Jun 8 · 9AM"  },
-  { id: 4, name: "Women in Lens",        emoji: "📸", bg: "#201008", accent: "#E8906A", unread: 1, members: 18, date: "Jun 12", venue: "The Parlor Gallery, BK", time: "Tonight · 7PM"    },
-  { id: 3, name: "Wheel Throwing",       emoji: "🏺", bg: "#100820", accent: "#A855F7", unread: 0, members: 8,  date: "Jun 15", venue: "Brooklyn Clay, WB",    time: "Tonight · 6:30PM" },
-  { id: 6, name: "Golden Hour Rooftop",  emoji: "🌅", bg: "#20100A", accent: "#F59E0B", unread: 3, members: 31, date: "Jun 18", venue: "Arlo Hotel",           time: "Jun 18 · 7PM"     },
+  { id: 1, name: "Afrobeats Night",      emoji: "🎶", bg: "#18080F", accent: "#FF69B4", unread: 2, members: 24, date: "Jun 10", venue: "SOBs, 204 Varick St",    time: "Sat Jun 10 · 10PM" },
+  { id: 2, name: "Sunday Walk Circle",   emoji: "🌿", bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 9,  date: "Jun 8",  venue: "Prospect Park, GArmy", time: "Sun Jun 8 · 9AM"  },
+  { id: 4, name: "Women in Lens",        emoji: "📸", bg: "#18080F", accent: "#FF5FA5", unread: 1, members: 18, date: "Jun 12", venue: "The Parlor Gallery, BK", time: "Tonight · 7PM"    },
+  { id: 3, name: "Wheel Throwing",       emoji: "🏺", bg: "#18080F", accent: "#FF1F7D", unread: 0, members: 8,  date: "Jun 15", venue: "Brooklyn Clay, WB",    time: "Tonight · 6:30PM" },
+  { id: 6, name: "Golden Hour Rooftop",  emoji: "🌅", bg: "#18080F", accent: "#FF1F7D", unread: 3, members: 31, date: "Jun 18", venue: "Arlo Hotel",           time: "Jun 18 · 7PM"     },
 ];
 
 const RETIRED_ROOMS: PlanRoom[] = [
-  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#C8A0FF", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
-  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#83C5A0", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",    time: "Sun Apr 20 · 11AM" },
+  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#18080F", accent: "#FF69B4", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
+  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",    time: "Sun Apr 20 · 11AM" },
 ];
 
 const EXPIRED_ROOMS: PlanRoom[] = [
-  { id: 20, name: "Jazz at Small's",  emoji: "🎷",  bg: "#0A0810", accent: "#D4A853", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV", time: "Wed May 28 · 8PM" },
-  { id: 21, name: "Rooftop Pilates",  emoji: "🧘‍♀️", bg: "#0A1018", accent: "#83C5A0", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",   time: "Thu May 15 · 7AM" },
+  { id: 20, name: "Jazz at Small's",  emoji: "🎷",  bg: "#18080F", accent: "#FF69B4", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV", time: "Wed May 28 · 8PM" },
+  { id: 21, name: "Rooftop Pilates",  emoji: "🧘‍♀️", bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",   time: "Thu May 15 · 7AM" },
 ];
 
 function TicketCard({ room, status }: { room: PlanRoom; status: "active" | "used" | "expired" }) {

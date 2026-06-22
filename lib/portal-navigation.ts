@@ -24,6 +24,7 @@ export const CLUB_OWNER_NAV: NavLink[] = [
   { label: "Gatherings", href: "/club-owner/gatherings" },
   { label: "Women", href: "/club-owner/members" },
   { label: "Applications", href: "/club-owner/applications" },
+  { label: "Broadcast", href: "/club-owner/comms" },
   { label: "Tickets & QR", href: "/club-owner/events" },
   { label: "Settings", href: "/club-owner/settings" },
 ];
