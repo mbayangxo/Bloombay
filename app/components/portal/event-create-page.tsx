@@ -4,6 +4,15 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TicketCard, PosterCard, GatheringCard, InvitationEventCard, type EventType, type EventCardData } from "./event-card-templates";
+
+const INVITATION_STYLES: { id: string; label: string; emoji: string; desc: string }[] = [
+  { id: "default",   label: "Envelope",     emoji: "💌", desc: "Classic envelope & card" },
+  { id: "photo",     label: "Photo Card",   emoji: "📸", desc: "Big photo + bold title" },
+  { id: "scallop",   label: "Scallop",      emoji: "🎀", desc: "Scalloped edge celebration" },
+  { id: "newspaper", label: "Newspaper",    emoji: "📰", desc: "Bold navy press style" },
+  { id: "formal",    label: "Formal",       emoji: "🥂", desc: "Elegant serif dinner card" },
+  { id: "launch",    label: "Launch",       emoji: "🚀", desc: "Dramatic dark launch party" },
+];
 import { createEvent } from "@/lib/actions/happenings";
 
 const PINK = "#FF1F7D";
@@ -91,6 +100,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
   const [customColor, setCustom]    = useState(PINK);
   const [fontKey, setFont]          = useState("playfair");
   const [photoId, setPhoto]         = useState<string | null>(preset?.photoId ?? null);
+  const [invStyle, setInvStyle]     = useState("default");
   const [uploading, setUploading]   = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -110,6 +120,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     going: 12,
     accentColor,
     href: "#",
+    invitationStyle: invStyle === "default" ? undefined : invStyle,
   };
 
   function PreviewCard() {
@@ -155,6 +166,30 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
             );
           })}
         </div>
+
+        {eventType === "invitation" && (
+          <div style={{ marginTop: 18 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>INVITATION STYLE</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {INVITATION_STYLES.map(s => {
+                const active = invStyle === s.id;
+                return (
+                  <button key={s.id} onClick={() => setInvStyle(s.id)} style={{
+                    background: active ? `${PINK}0F` : "white",
+                    border: `2px solid ${active ? PINK : "rgba(0,0,0,0.08)"}`,
+                    borderRadius: 14, padding: "12px 10px",
+                    cursor: "pointer", textAlign: "left" as const,
+                    transition: "all 0.18s",
+                  }}>
+                    <div style={{ fontSize: 22, marginBottom: 5 }}>{s.emoji}</div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: active ? PINK : DARK }}>{s.label}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.4)", marginTop: 2 }}>{s.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
