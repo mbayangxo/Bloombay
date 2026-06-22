@@ -2019,60 +2019,163 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
         {/* ── MAP TAB ── */}
         {standalone && tab === "map" && (
-          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "20px 18px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column", paddingBottom: 28 }}>
+
+            {/* LIVE MAP header — at the very top */}
+            <div style={{ padding: "18px 18px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>happening near you</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>🗺 LIVE MAP</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>bloomies are out tonight</p>
+              </div>
+              <div style={{ background: "rgba(255,31,125,0.15)", borderRadius: 999, padding: "5px 12px", border: "1px solid rgba(255,31,125,0.3)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>NYC ✦ LIVE</p>
               </div>
             </div>
-            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 380 }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
-              {[10, 25, 40, 55, 70, 85].map(pct => (
-                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-              ))}
-              {[15, 30, 45, 60, 75, 90].map(pct => (
-                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-              ))}
-              <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
-              <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
+
+            {/* Filter chips */}
+            <div style={{ padding: "0 16px 10px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
               {[
-                {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
-                {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
-                {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
-                {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
-                {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
-                {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
-                {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
+                { label: "ALL",           color: PINK,      active: true  },
+                { label: "EVENTS",        color: PINK,      active: false },
+                { label: "BLOOMIE NOTES", color: "#F59E0B", active: false },
+                { label: "GIRL GEMS",     color: "#8B5CF6", active: false },
+                { label: "FAVORITES",     color: "#EF4444", active: false },
+                { label: "FOOD",          color: "#F97316", active: false },
+              ].map((f, i) => (
+                <div key={i} style={{ flexShrink: 0, background: f.active ? f.color : "rgba(255,255,255,0.08)", borderRadius: 999, padding: "7px 14px", border: `1.5px solid ${f.active ? f.color : f.color + "44"}` }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: f.active ? "white" : f.color, letterSpacing: "0.06em", whiteSpace: "nowrap" as const }}>{f.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* MAP CANVAS */}
+            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 420, boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}>
+              {/* Map base — warm parchment city grid */}
+              <div style={{ position: "absolute", inset: 0, background: "#E8E2D8" }}/>
+              {/* Street grid — horizontal */}
+              {[8, 17, 26, 35, 44, 53, 62, 71, 80, 89].map(pct => (
+                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: pct % 17 === 8 ? 4 : 2, background: "#F2EDE4", zIndex: 1 }}/>
+              ))}
+              {/* Street grid — vertical */}
+              {[10, 22, 34, 46, 58, 70, 82].map(pct => (
+                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 3, background: "#F2EDE4", zIndex: 1 }}/>
+              ))}
+              {/* City blocks (slightly darker patches between streets) */}
+              {[
+                {t:"9%",l:"11%",w:"10%",h:"7%"},{t:"9%",l:"23%",w:"10%",h:"7%"},{t:"9%",l:"35%",w:"10%",h:"7%"},
+                {t:"9%",l:"59%",w:"10%",h:"7%"},{t:"18%",l:"11%",w:"10%",h:"7%"},{t:"18%",l:"47%",w:"10%",h:"7%"},
+                {t:"27%",l:"23%",w:"10%",h:"7%"},{t:"27%",l:"59%",w:"10%",h:"7%"},{t:"36%",l:"11%",w:"10%",h:"7%"},
+                {t:"36%",l:"35%",w:"10%",h:"7%"},{t:"45%",l:"23%",w:"10%",h:"7%"},{t:"45%",l:"71%",w:"10%",h:"7%"},
+                {t:"54%",l:"11%",w:"10%",h:"7%"},{t:"54%",l:"47%",w:"10%",h:"7%"},{t:"63%",l:"35%",w:"10%",h:"7%"},
+                {t:"63%",l:"59%",w:"10%",h:"7%"},{t:"72%",l:"11%",w:"10%",h:"7%"},{t:"72%",l:"23%",w:"10%",h:"7%"},
+              ].map((b, i) => (
+                <div key={`b${i}`} style={{ position: "absolute", top: b.t, left: b.l, width: b.w, height: b.h, background: "#D9D3C8", zIndex: 1 }}/>
+              ))}
+              {/* Park patch — Central Park style */}
+              <div style={{ position: "absolute", top: "4%", right: "5%", width: "20%", height: "28%", borderRadius: 8, background: "rgba(110,175,80,0.35)", border: "1px solid rgba(90,160,60,0.25)", zIndex: 2 }}/>
+              <p style={{ position: "absolute", top: "9%", right: "8%", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(60,130,40,0.7)", zIndex: 2, letterSpacing: "0.05em" }}>THE PARK</p>
+              {/* River strip — left edge */}
+              <div style={{ position: "absolute", top: 0, left: 0, width: "8%", height: "100%", background: "rgba(100,160,220,0.28)", borderRight: "2px solid rgba(80,140,200,0.2)", zIndex: 2 }}/>
+
+              {/* ── EVENT PINS (pink) ── */}
+              {[
+                {x:"28%",y:"38%",label:"Girls Night",cnt:12},
+                {x:"55%",y:"22%",label:"Rooftop",cnt:8},
+                {x:"42%",y:"58%",label:"Brunch Club",cnt:15},
+                {x:"74%",y:"45%",label:"Jazz Night",cnt:4},
+                {x:"48%",y:"72%",label:"Dance All Night",cnt:20},
+                {x:"63%",y:"55%",label:"Book Society",cnt:9},
               ].map((pin, i) => (
-                <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
-                  <div style={{ background: pin.color, borderRadius: 20, padding: "4px 10px 4px 8px", display: "flex", alignItems: "center", gap: 5, boxShadow: `0 3px 12px ${pin.color}66`, whiteSpace: "nowrap" as const }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
+                <div key={`e${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 5 }}>
+                  <div style={{ background: PINK, borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: `0 3px 14px ${PINK}70`, whiteSpace: "nowrap" as const }}>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite" }}/>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
                   </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
+                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `6px solid ${PINK}`, margin: "0 auto" }}/>
                 </div>
               ))}
-              <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(12px)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,31,125,0.12)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
-              </div>
-            </div>
-            <div style={{ padding: "12px 16px 24px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
+
+              {/* ── BLOOMIE NOTES (amber) ── */}
               {[
-                { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
-                { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
-                { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
-                { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
-                { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
-                { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
-              ].map((chip, i) => (
-                <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{chip.time}</p>
+                {x:"22%",y:"55%",label:"Love this spot",cnt:7},
+                {x:"66%",y:"30%",label:"hidden gem here",cnt:3},
+              ].map((pin, i) => (
+                <div key={`n${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
+                  <div style={{ background: "#F59E0B", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(245,158,11,0.5)", whiteSpace: "nowrap" as const }}>
+                    <span style={{ fontSize: "10px" }}>📝</span>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
+                  </div>
+                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #F59E0B", margin: "0 auto" }}/>
                 </div>
               ))}
+
+              {/* ── GIRL GEMS (purple) ── */}
+              {[
+                {x:"38%",y:"25%",label:"Wine Cave",cnt:14},
+                {x:"72%",y:"68%",label:"Secret Garden",cnt:6},
+              ].map((pin, i) => (
+                <div key={`g${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
+                  <div style={{ background: "#8B5CF6", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(139,92,246,0.5)", whiteSpace: "nowrap" as const }}>
+                    <span style={{ fontSize: "10px" }}>💎</span>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
+                  </div>
+                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #8B5CF6", margin: "0 auto" }}/>
+                </div>
+              ))}
+
+              {/* ── FAVORITES (red heart) ── */}
+              {[
+                {x:"52%",y:"82%",label:"Bar Pisellino",cnt:32},
+                {x:"19%",y:"40%",label:"Café Kitsuné",cnt:18},
+              ].map((pin, i) => (
+                <div key={`f${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
+                  <div style={{ background: "#EF4444", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(239,68,68,0.5)", whiteSpace: "nowrap" as const }}>
+                    <span style={{ fontSize: "10px" }}>♥</span>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
+                  </div>
+                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #EF4444", margin: "0 auto" }}/>
+                </div>
+              ))}
+
+              {/* ── FOOD SPOTS (orange) ── */}
+              {[
+                {x:"45%",y:"47%",label:"Lucien",cnt:21},
+                {x:"80%",y:"58%",label:"Sushi Noz",cnt:11},
+              ].map((pin, i) => (
+                <div key={`fd${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
+                  <div style={{ background: "#F97316", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(249,115,22,0.5)", whiteSpace: "nowrap" as const }}>
+                    <span style={{ fontSize: "10px" }}>🍽</span>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
+                  </div>
+                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #F97316", margin: "0 auto" }}/>
+                </div>
+              ))}
+            </div>
+
+            {/* Legend + event scroll chips */}
+            <div style={{ padding: "14px 16px 0" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>ON THE MAP</p>
+              <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
+                {[
+                  { label: "Girls Night Out",   time: "Tonight",   color: PINK      },
+                  { label: "Rooftop Sessions",  time: "Sat 8PM",   color: "#FF69B4" },
+                  { label: "Brunch Club",       time: "Sun 11AM",  color: "#F97316" },
+                  { label: "Jazz Night",        time: "Fri 9PM",   color: PINK      },
+                  { label: "Bar Pisellino",     time: "♥ 32 saves",color: "#EF4444" },
+                  { label: "Wine Cave",         time: "💎 gem",    color: "#8B5CF6" },
+                  { label: "hidden gem here",   time: "📝 note",   color: "#F59E0B" },
+                ].map((chip, i) => (
+                  <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", marginTop: 1 }}>{chip.time}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

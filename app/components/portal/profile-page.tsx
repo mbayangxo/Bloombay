@@ -15,7 +15,7 @@ const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -733,6 +733,127 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
   );
 }
 
+// ─── 11. Lookbook ─────────────────────────────────────────────────────────────
+// Inspired by: IMG_3660 — full-bleed fashion photo, floating pink label cards.
+function TemplateLookbook({ displayName, initials, avatarUrl, occupation, vibe, neighborhood, sign, photos, onAvatarClick }: TemplateProps) {
+  const bgUrl = avatarUrl || photos[0]?.url || null;
+  const labels = [
+    { text: occupation || "main character", x: "8%",  y: "12%" },
+    { text: neighborhood || "NYC",          x: "58%", y: "8%"  },
+    { text: sign || "Leo ✦",               x: "68%", y: "58%" },
+    { text: vibe || "that girl",            x: "6%",  y: "72%" },
+  ];
+  return (
+    <div
+      onClick={onAvatarClick}
+      style={{ borderRadius: 16, overflow: "hidden", position: "relative", height: 380, cursor: "pointer", boxShadow: "0 14px 48px rgba(0,0,0,0.28)" }}
+    >
+      {/* Full-bleed image */}
+      <div style={{ position: "absolute", inset: 0, background: bgUrl ? "transparent" : `linear-gradient(135deg, #FFD6EA, ${PINK})` }}>
+        {bgUrl && <Image src={bgUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />}
+      </div>
+      {/* Gradient overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.2) 45%, transparent 70%)" }} />
+      {/* Floating pink label cards */}
+      {labels.map((lbl, i) => (
+        <div key={i} style={{ position: "absolute", left: lbl.x, top: lbl.y, background: "rgba(255,31,125,0.92)", backdropFilter: "blur(8px)", borderRadius: 6, padding: "4px 10px", boxShadow: "0 3px 14px rgba(0,0,0,0.35)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>{lbl.text.toUpperCase()}</p>
+        </div>
+      ))}
+      {/* Name at bottom */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 18px 20px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.25em", color: "rgba(255,31,125,0.85)", marginBottom: 5 }}>BLOOMBAY MEMBER</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 30, fontWeight: 900, color: "white", lineHeight: 1, textShadow: "0 2px 14px rgba(0,0,0,0.5)" }}>{displayName}</p>
+      </div>
+      {/* Top-right tap hint */}
+      <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)", borderRadius: 999, padding: "5px 10px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.1em" }}>TAP TO CHANGE ↑</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 12. Moodboard ────────────────────────────────────────────────────────────
+// Inspired by: IMG_3650 — scattered polaroid collage, "Simple Beauty" script center.
+function TemplateMoodboard({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick }: TemplateProps) {
+  const items = [
+    { url: avatarUrl,         w: 98,  h: 108, top: 16,  left: 4,   rotate: -3.5, label: displayName, isAvatar: true  },
+    { url: photos[0]?.url ?? null, w: 82,  h:  92, top:  8,  left: 130,  rotate:  2,   label: "moments",   isAvatar: false },
+    { url: photos[1]?.url ?? null, w: 90,  h: 100, top: 148, left: 22,   rotate: -2,   label: "vibes",     isAvatar: false },
+    { url: photos[2]?.url ?? null, w: 78,  h:  88, top: 100, left: 216,  rotate:  3.5, label: "life",      isAvatar: false },
+    { url: photos[3]?.url ?? null, w: 86,  h:  96, top: 200, left: 130,  rotate: -1,   label: "her world", isAvatar: false },
+  ];
+  return (
+    <div style={{ background: "#FAF6F0", borderRadius: 16, position: "relative", height: 330, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
+      {/* Scattered polaroids */}
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onClick={item.isAvatar ? onAvatarClick : undefined}
+          style={{ position: "absolute", top: item.top, left: item.left, transform: `rotate(${item.rotate}deg)`, background: "none", border: "none", padding: 0, cursor: item.isAvatar ? "pointer" : "default", zIndex: i + 1 }}
+        >
+          <div style={{ background: "white", padding: "5px 5px 16px", boxShadow: "0 4px 18px rgba(0,0,0,0.16)" }}>
+            <div style={{ width: item.w, height: item.h, overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #FFD6EA, #FFABD4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {item.url
+                ? <Image src={item.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "rgba(255,31,125,0.38)" }}>{initials}</p>}
+            </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.38)", textAlign: "center" as const, marginTop: 3 }}>{item.label}</p>
+          </div>
+        </button>
+      ))}
+      {/* Central script card */}
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%) rotate(1.5deg)", zIndex: 20, background: "white", padding: "10px 14px 20px", boxShadow: "0 8px 32px rgba(0,0,0,0.25)", borderRadius: 1 }}>
+        <div style={{ width: 108, height: 112, background: "linear-gradient(135deg, #FFF0F8, #FFD6EA)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "rgba(255,31,125,0.45)" }}>BloomBay</p>
+        </div>
+        <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#1C1B1C", textAlign: "center" as const, marginTop: 6, whiteSpace: "nowrap" as const }}>
+          {vibe || "Simple Beauty"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 13. Polaroid 4 ───────────────────────────────────────────────────────────
+// Inspired by: IMG_3653 — clean 2×2 grid of thick-bordered Polaroid frames.
+function TemplatePolaroid4({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick }: TemplateProps) {
+  const slots = [
+    { url: avatarUrl,              label: displayName,   isAvatar: true  },
+    { url: photos[0]?.url ?? null, label: "moments",     isAvatar: false },
+    { url: photos[1]?.url ?? null, label: "her world",   isAvatar: false },
+    { url: photos[2]?.url ?? null, label: vibe || "✦",   isAvatar: false },
+  ];
+  return (
+    <div style={{ background: "#F9F7F5", borderRadius: 16, padding: "20px 16px 16px", boxShadow: "0 6px 24px rgba(0,0,0,0.09)" }}>
+      {/* Small brand header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 16, color: "rgba(0,0,0,0.35)" }}>moments ✦</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)" }}>BLOOMBAY</p>
+      </div>
+      {/* 2×2 Polaroid grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {slots.map((slot, i) => (
+          <button
+            key={i}
+            onClick={slot.isAvatar ? onAvatarClick : undefined}
+            style={{ background: "none", border: "none", padding: 0, cursor: slot.isAvatar ? "pointer" : "default" }}
+          >
+            <div style={{ background: "white", padding: "8px 8px 24px", boxShadow: "0 5px 18px rgba(0,0,0,0.14)", borderRadius: 2 }}>
+              <div style={{ width: "100%", aspectRatio: "1", overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #FFD6EA, #FFABD4)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 1 }}>
+                {slot.url
+                  ? <Image src={slot.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                  : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "rgba(255,31,125,0.4)" }}>{initials}</p>}
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.4)", textAlign: "center" as const, marginTop: 6, lineHeight: 1 }}>{slot.label}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
@@ -747,6 +868,9 @@ function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId;
     { id: "magazine",     label: "MAG",      bg: "#1A0010", textColor: "#FF1F7D" },
     { id: "solo",         label: "SOLO",     bg: "#FF8EC7", textColor: "white" },
     { id: "billboard",    label: "BILLBOARD",bg: "#0D0820", textColor: "#FF1F7D" },
+    { id: "lookbook",     label: "LOOKBOOK", bg: "#1A1A1A", textColor: "#FF1F7D" },
+    { id: "moodboard",    label: "MOOD",     bg: "#FAF6F0", textColor: "#555" },
+    { id: "polaroid4",    label: "POLAROID", bg: "#F9F7F5", textColor: "#888" },
   ];
 
   return (
@@ -1217,6 +1341,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {templateId === "magazine" && <TemplateZineMag {...templateProps} />}
           {templateId === "solo" && <TemplateSolo {...templateProps} />}
           {templateId === "billboard" && <TemplateBillboard {...templateProps} />}
+          {templateId === "lookbook"  && <TemplateLookbook  {...templateProps} />}
+          {templateId === "moodboard" && <TemplateMoodboard {...templateProps} />}
+          {templateId === "polaroid4" && <TemplatePolaroid4 {...templateProps} />}
         </div>
 
       </div>
