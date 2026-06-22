@@ -1,7 +1,9 @@
 export { DinnerPosterTemplate } from "./dinner-poster-template";
 export { ClubPosterTemplate } from "./club-poster-template";
+export { GridPosterTemplate } from "./grid-poster-template";
 export { PartyPosterTemplate } from "./party-poster-template";
 export { MuseumPosterTemplate } from "./museum-poster-template";
+export { PlatePosterTemplate } from "./plate-poster-template";
 export { WalkPosterTemplate } from "./walk-poster-template";
 export { WellnessPosterTemplate } from "./wellness-poster-template";
 export { PosterRenderer, renderPosterByType } from "./poster-renderer";

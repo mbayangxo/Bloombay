@@ -1,8 +1,10 @@
 import type { PosterTemplateData, PosterTemplateProps, PosterTemplateType } from "@/lib/poster-templates/types";
 import { ClubPosterTemplate } from "./club-poster-template";
 import { DinnerPosterTemplate } from "./dinner-poster-template";
+import { GridPosterTemplate } from "./grid-poster-template";
 import { MuseumPosterTemplate } from "./museum-poster-template";
 import { PartyPosterTemplate } from "./party-poster-template";
+import { PlatePosterTemplate } from "./plate-poster-template";
 import { WalkPosterTemplate } from "./walk-poster-template";
 import { WellnessPosterTemplate } from "./wellness-poster-template";
 
@@ -25,6 +27,10 @@ export function renderPosterByType(type: PosterTemplateType, props: PosterTempla
       return <WalkPosterTemplate {...props} />;
     case "wellness":
       return <WellnessPosterTemplate {...props} />;
+    case "grid":
+      return <GridPosterTemplate {...props} />;
+    case "plate":
+      return <PlatePosterTemplate {...props} />;
     default:
       return <DinnerPosterTemplate {...props} />;
   }

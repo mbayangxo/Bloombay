@@ -8,7 +8,9 @@ export type PosterTemplateType =
   | "party"
   | "museum"
   | "walk"
-  | "wellness";
+  | "wellness"
+  | "grid"
+  | "plate";
 
 export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "dinner",
@@ -17,6 +19,8 @@ export const POSTER_TEMPLATE_TYPES: PosterTemplateType[] = [
   "museum",
   "walk",
   "wellness",
+  "grid",
+  "plate",
 ];
 
 /** Fields every template accepts (rendered from event / gathering data). */
@@ -45,12 +49,14 @@ export type PosterTemplateData = PosterTemplateProps & {
 
 export function posterTemplateLabel(type: PosterTemplateType): string {
   const labels: Record<PosterTemplateType, string> = {
-    dinner: "Dinner",
-    club: "Club",
-    party: "Party",
-    museum: "Museum",
-    walk: "Walk",
+    dinner:   "Dinner",
+    club:     "Club",
+    party:    "Party",
+    museum:   "Museum",
+    walk:     "Walk",
     wellness: "Wellness",
+    grid:     "Grid Poster",
+    plate:    "Plate",
   };
   return labels[type];
 }
