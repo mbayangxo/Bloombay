@@ -44,6 +44,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   const [profile, setProfile] = useState<DBProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("about");
+  const [doorOpen, setDoorOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/member/profile/${username}`)
@@ -252,9 +253,147 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         {tab === "board" && (
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER BOARD · PHOTOS · QUOTES · VOICE NOTES</p>
-            <div style={{ textAlign: "center" as const, padding: "48px 20px" }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "rgba(255,255,255,0.2)" }}>Nothing here yet.</p>
+
+            {/* Apartment Door */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 0 48px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 14 }}>HER APARTMENT</p>
+
+              <button
+                onClick={() => setDoorOpen(true)}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 0, WebkitTapHighlightColor: "transparent" as unknown as string }}
+              >
+                {/* Door SVG illustration */}
+                <svg width="120" height="180" viewBox="0 0 120 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Door frame */}
+                  <rect x="8" y="20" width="104" height="154" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,31,125,0.3)" strokeWidth="1.5"/>
+                  {/* Door body */}
+                  <rect x="14" y="26" width="92" height="142" rx="3" fill="rgba(255,31,125,0.08)" stroke="rgba(255,31,125,0.2)" strokeWidth="1"/>
+                  {/* Arched top */}
+                  <path d="M14 68 Q14 26 60 26 Q106 26 106 68" fill="rgba(255,31,125,0.12)" stroke="rgba(255,31,125,0.25)" strokeWidth="1"/>
+                  {/* Door panel details */}
+                  <rect x="22" y="80" width="34" height="40" rx="3" fill="none" stroke="rgba(255,31,125,0.18)" strokeWidth="1"/>
+                  <rect x="64" y="80" width="34" height="40" rx="3" fill="none" stroke="rgba(255,31,125,0.18)" strokeWidth="1"/>
+                  <rect x="22" y="130" width="76" height="28" rx="3" fill="none" stroke="rgba(255,31,125,0.18)" strokeWidth="1"/>
+                  {/* Heart door handle */}
+                  <path d="M76 106 C76 103.5 78 101.5 80.5 101.5 C83 101.5 85 103.5 85 106 C85 110 80.5 114 80.5 114 C80.5 114 76 110 76 106Z" fill="#FF1F7D" opacity="0.7"/>
+                  {/* Flower above arch */}
+                  <circle cx="60" cy="46" r="4" fill="#FF1F7D" opacity="0.6"/>
+                  <ellipse cx="60" cy="38" rx="2.5" ry="4" fill="rgba(255,31,125,0.35)"/>
+                  <ellipse cx="60" cy="54" rx="2.5" ry="4" fill="rgba(255,31,125,0.35)"/>
+                  <ellipse cx="52" cy="46" rx="4" ry="2.5" fill="rgba(255,31,125,0.35)"/>
+                  <ellipse cx="68" cy="46" rx="4" ry="2.5" fill="rgba(255,31,125,0.35)"/>
+                  {/* Number plate */}
+                  <rect x="48" y="155" width="24" height="12" rx="2" fill="rgba(255,31,125,0.15)" stroke="rgba(255,31,125,0.2)" strokeWidth="0.8"/>
+                  <text x="60" y="164" textAnchor="middle" fontFamily="monospace" fontSize="6" fill="rgba(255,31,125,0.6)">✦ BB ✦</text>
+                  {/* Step */}
+                  <rect x="4" y="172" width="112" height="6" rx="3" fill="rgba(255,31,125,0.12)"/>
+                </svg>
+              </button>
+
+              <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 16, color: "rgba(255,255,255,0.35)", marginTop: 12 }}>Tap to enter</p>
             </div>
+
+            {/* Door opens — slide-up panel */}
+            {doorOpen && (
+              <div
+                style={{
+                  position: "fixed", inset: 0, zIndex: 100,
+                  background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)",
+                  display: "flex", alignItems: "flex-end",
+                }}
+                onClick={() => setDoorOpen(false)}
+              >
+                <div
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    width: "100%", maxHeight: "88vh", overflow: "auto",
+                    background: "white", borderRadius: "24px 24px 0 0",
+                    padding: "0 0 40px",
+                    animation: "slideUp 0.3s ease-out",
+                  }}
+                >
+                  <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+
+                  {/* Drag handle */}
+                  <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 6px" }}>
+                    <div style={{ width: 40, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
+                  </div>
+
+                  {/* Close button */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 18px 0" }}>
+                    <button onClick={() => setDoorOpen(false)} style={{ background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round">
+                        <line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Header */}
+                  <div style={{ padding: "8px 22px 20px" }}>
+                    <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 30, color: "#1C1B1C", margin: "0 0 4px", lineHeight: 1.1 }}>Her Apartment</h2>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(0,0,0,0.35)" }}>{neighborhood ? `${neighborhood.toUpperCase()} · ${city.toUpperCase()}` : city.toUpperCase()}</p>
+                  </div>
+
+                  {/* Solo-date style card */}
+                  <div style={{ margin: "0 16px 20px", borderRadius: 16, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", display: "flex", minHeight: 160 }}>
+                    {/* Left — pink striped */}
+                    <div style={{
+                      width: 110, flexShrink: 0,
+                      background: "repeating-linear-gradient(45deg, #FF1F7D 0px, #FF1F7D 2px, #ff5ba8 2px, #ff5ba8 10px, #FF1F7D 10px, #FF1F7D 12px)",
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "16px 8px",
+                    }}>
+                      {/* Avatar */}
+                      <div style={{ width: 68, height: 68, borderRadius: "50%", border: "3px solid rgba(255,255,255,0.7)", overflow: "hidden", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative" }}>
+                        {profile?.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={profile.avatar_url} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 28, color: "white" }}>{initial}</span>
+                        )}
+                      </div>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.12em", color: "rgba(255,255,255,0.9)", textTransform: "uppercase" as const }}>✦</span>
+                      <span style={{ fontFamily: "var(--font-caveat)", fontSize: 15, fontWeight: 700, color: "white", textAlign: "center", lineHeight: 1.2 }}>{name}</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>bloomie</span>
+                    </div>
+
+                    {/* Right — dark section */}
+                    <div style={{ flex: 1, background: "#111", padding: "18px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 2 }}>Apartment:</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                          <span style={{ color: "#FF1F7D", fontSize: 11, lineHeight: 1.4 }}>✦</span>
+                          <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>{name}</span>
+                        </div>
+                        {neighborhood && (
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                            <span style={{ color: "#FF1F7D", fontSize: 11, lineHeight: 1.4 }}>✦</span>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>{neighborhood}</span>
+                          </div>
+                        )}
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                          <span style={{ color: "#FF1F7D", fontSize: 11, lineHeight: 1.4 }}>✦</span>
+                          <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>{city}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bloom Her button */}
+                  <div style={{ padding: "0 16px" }}>
+                    <button
+                      style={{
+                        width: "100%", padding: "14px 0", borderRadius: 14,
+                        background: "#FF1F7D", border: "none", cursor: "pointer",
+                        fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 800,
+                        letterSpacing: "0.14em", color: "white",
+                      }}
+                    >
+                      ✦ BLOOM HER
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
