@@ -196,7 +196,7 @@ export default function ClubApplyPage() {
         style={{
           width: "100%",
           height: 220,
-          background: "linear-gradient(160deg, #1A0A18, #3A1028)",
+          background: "linear-gradient(160deg, #FF1F7D, #FF69B4)",
           position: "relative",
           display: "flex",
           flexDirection: "column",

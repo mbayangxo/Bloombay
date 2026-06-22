@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
-const DARK  = "#1C1B1C";
-const PAPER = "#0C0818";
+const PAPER = "#FFFFFF";
 
 const ALL_BLOOMIES = [
   { name: "Aaliyah M.", neighborhood: "Crown Heights", color: "#FF1F7D", initial: "A", since: "Jan 2026", mutual: 4 },
@@ -30,33 +29,33 @@ export default function BloomiesPage() {
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(160deg, ${DARK} 0%, #2A0818 50%, #4A0C28 100%)`,
+        background: `linear-gradient(160deg, #FF1F7D 0%, #FF3A8C 50%, #FF69B4 100%)`,
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
         paddingBottom: 28, position: "relative", overflow: "hidden",
       }}>
         <div style={{ padding: "0 20px 14px", position: "relative", zIndex: 1 }}>
           <Link href="/member/lounge" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             </div>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}>APARTMENT</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.08em" }}>APARTMENT</span>
           </Link>
         </div>
         <div style={{ padding: "0 20px", position: "relative", zIndex: 1 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,31,125,0.65)", marginBottom: 6 }}>🌸 YOUR BLOOMIES</p>
-          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(38px, 10vw, 52px)", color: "rgba(255,238,220,0.92)", lineHeight: 0.94, margin: 0 }}>Your People.</h1>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 8 }}>{ALL_BLOOMIES.length} women in your world</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,255,255,0.8)", marginBottom: 6 }}>🌸 YOUR BLOOMIES</p>
+          <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(38px, 10vw, 52px)", color: "white", lineHeight: 0.94, margin: 0 }}>Your People.</h1>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>{ALL_BLOOMIES.length} women in your world</p>
         </div>
       </div>
 
       {/* Search */}
       <div style={{ padding: "16px 20px 0" }}>
-        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 14, padding: "0 14px", display: "flex", alignItems: "center", gap: 10, border: "1.5px solid rgba(255,31,125,0.2)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <div style={{ background: "#FFF5F8", borderRadius: 14, padding: "0 14px", display: "flex", alignItems: "center", gap: 10, border: "1.5px solid rgba(255,31,125,0.2)" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input
             value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search your bloomies…"
-            style={{ flex: 1, padding: "12px 0", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "rgba(255,255,255,0.9)", background: "transparent" }}
+            style={{ flex: 1, padding: "12px 0", border: "none", outline: "none", fontFamily: "var(--font-jost)", fontSize: 13, color: "#111111", background: "transparent" }}
           />
         </div>
       </div>
@@ -66,19 +65,19 @@ export default function BloomiesPage() {
         {filtered.map(b => (
           <button key={b.name} onClick={() => setSelected(b)}
             style={{
-              background: "rgba(255,255,255,0.06)", borderRadius: 18, padding: "14px 16px",
+              background: "#FFFFFF", borderRadius: 18, padding: "14px 16px",
               display: "flex", alignItems: "center", gap: 14, textAlign: "left" as const,
               border: "none", cursor: "pointer", width: "100%",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.2)", borderLeft: `3px solid ${b.color}`,
+              boxShadow: "0 2px 12px rgba(255,31,125,0.08)", borderLeft: `3px solid ${b.color}`,
             }}>
             <div style={{ width: 50, height: 50, borderRadius: "50%", background: `linear-gradient(135deg, ${b.color}, ${b.color}AA)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "white", flexShrink: 0 }}>{b.initial}</div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.9)" }}>{b.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{b.neighborhood} · since {b.since}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "#111111" }}>{b.name}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>{b.neighborhood} · since {b.since}</p>
             </div>
             <div style={{ textAlign: "right" as const }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK }}>{b.mutual} events</p>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" style={{ marginTop: 4 }}><polyline points="9 18 15 12 9 6"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.3)" strokeWidth="2" strokeLinecap="round" style={{ marginTop: 4 }}><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </button>
         ))}
@@ -92,27 +91,27 @@ export default function BloomiesPage() {
 
       {/* Add more */}
       <div style={{ padding: "16px 20px 0" }}>
-        <Link href="/member/match" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: `${PINK}0A`, border: `1.5px dashed rgba(255,31,125,0.25)`, borderRadius: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", border: `1.5px dashed rgba(255,31,125,0.3)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 20, color: "rgba(255,31,125,0.35)" }}>+</span>
+        <Link href="/member/match" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: `${PINK}0A`, border: `1.5px dashed rgba(255,31,125,0.3)`, borderRadius: 16 }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", border: `1.5px dashed rgba(255,31,125,0.35)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 20, color: "rgba(255,31,125,0.5)" }}>+</span>
           </div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,31,125,0.5)" }}>Meet more women via Introductions →</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: PINK }}>Meet more women via Introductions →</p>
         </Link>
       </div>
 
       {/* Profile sheet */}
       {selected && (
         <>
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "#120A20", borderRadius: "24px 24px 0 0", padding: "20px 24px 48px", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)", zIndex: 40 }} onClick={() => setSelected(null)} />
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "20px 24px 48px", boxShadow: "0 -8px 40px rgba(255,31,125,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-              <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.2)" }} />
+              <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)" }} />
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
               <div style={{ width: 68, height: 68, borderRadius: "50%", background: `linear-gradient(135deg, ${selected.color}, ${selected.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "white", boxShadow: `0 6px 20px ${selected.color}44` }}>{selected.initial}</div>
               <div>
-                <h3 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "rgba(255,255,255,0.95)", margin: 0 }}>{selected.name}</h3>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{selected.neighborhood} · since {selected.since}</p>
+                <h3 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "#111111", margin: 0 }}>{selected.name}</h3>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{selected.neighborhood} · since {selected.since}</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, marginTop: 4 }}>{selected.mutual} events together</p>
               </div>
             </div>
@@ -121,7 +120,7 @@ export default function BloomiesPage() {
                 <div style={{ padding: "13px 0", borderRadius: 14, background: PINK, textAlign: "center" as const, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, color: "white", boxShadow: `0 4px 14px ${PINK}44` }}>Message</div>
               </Link>
               <Link href="/member/lounge/bouquet" style={{ flex: 1, textDecoration: "none" }}>
-                <div style={{ padding: "13px 0", borderRadius: 14, background: "rgba(255,31,125,0.1)", textAlign: "center" as const, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, border: `1.5px solid rgba(255,31,125,0.3)` }}>Add to Bouquet</div>
+                <div style={{ padding: "13px 0", borderRadius: 14, background: "#FFF5F8", textAlign: "center" as const, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, border: `1.5px solid rgba(255,31,125,0.25)` }}>Add to Bouquet</div>
               </Link>
             </div>
           </div>

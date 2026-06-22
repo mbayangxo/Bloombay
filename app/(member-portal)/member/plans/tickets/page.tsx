@@ -111,7 +111,7 @@ export default function TicketsPage() {
   const GRAIN = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='turbulence' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.07'/></svg>") repeat`;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0C0818", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* Header */}
       <div style={{
@@ -159,7 +159,7 @@ export default function TicketsPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "16px 16px 0" }}>
         {displayRooms.length === 0 ? (
           <div style={{ padding: "48px 0", textAlign: "center" as const }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "#ccc" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "rgba(0,0,0,0.35)" }}>
               {filter === "active" ? "No upcoming tickets." : filter === "used" ? "No used tickets yet." : "No expired tickets."}
             </p>
           </div>

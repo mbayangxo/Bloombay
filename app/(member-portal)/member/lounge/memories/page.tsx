@@ -5,9 +5,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 const PINK  = "#FF1F7D";
-const PLUM  = "#1A0A2E";
-const IVORY = "#0C0818";
-const INK   = "rgba(255,255,255,0.9)";
+const PLUM  = "#FF1F7D";
+const IVORY = "#FFFFFF";
+const INK   = "#111111";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -243,12 +243,12 @@ function RecapSheet({ recap, onClose }: { recap: BloomRecap; onClose: () => void
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(10px)" }} />
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 301,
-        background: PLUM, borderRadius: "24px 24px 0 0",
+        background: "#FFFFFF", borderRadius: "24px 24px 0 0",
         maxHeight: "92vh", overflowY: "auto",
-        boxShadow: "0 -12px 48px rgba(0,0,0,0.4)",
+        boxShadow: "0 -12px 48px rgba(255,31,125,0.15)",
       }}>
         <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
-          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.12)" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)" }} />
         </div>
 
         <div style={{ padding: "16px 22px 56px" }}>
@@ -258,12 +258,12 @@ function RecapSheet({ recap, onClose }: { recap: BloomRecap; onClose: () => void
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>
                 {recap.current ? "✦ IN PROGRESS" : "✦ BLOOM RECAP"}
               </p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 32, fontWeight: 700, color: "white", lineHeight: 1 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 32, fontWeight: 700, color: "#111111", lineHeight: 1 }}>
                 {recap.month}
               </p>
             </div>
-            <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+            <button onClick={onClose} style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
             </button>
           </div>
 
@@ -276,24 +276,24 @@ function RecapSheet({ recap, onClose }: { recap: BloomRecap; onClose: () => void
               { emoji: "🌺", label: "Flowers given", value: recap.flowers },
               { emoji: "👥", label: "Clubs joined", value: recap.clubsJoined },
             ].map(s => (
-              <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "14px 16px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 28, fontWeight: 900, color: "white", lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 3 }}>{s.emoji} {s.label}</p>
+              <div key={s.label} style={{ background: "#FFF5F8", borderRadius: 16, padding: "14px 16px" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 28, fontWeight: 900, color: PINK, lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.4)", marginTop: 3 }}>{s.emoji} {s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Highlight */}
           {recap.highlight && (
-            <div style={{ background: "rgba(255,31,125,0.12)", border: `1px solid ${PINK}33`, borderRadius: 16, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ background: "#FFF5F8", border: `1px solid ${PINK}33`, borderRadius: 16, padding: "14px 16px", marginBottom: 16 }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 6 }}>✦ HIGHLIGHT</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>{recap.highlight}</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#111111", lineHeight: 1.5 }}>{recap.highlight}</p>
             </div>
           )}
 
           {/* Yande's observation */}
-          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: "16px" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, marginBottom: 10 }}>
+          <div style={{ background: "#FFF5F8", borderRadius: 16, padding: "16px" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(0,0,0,0.7)", lineHeight: 1.6, marginBottom: 10 }}>
               &ldquo;{recap.yandeObservation}&rdquo;
             </p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>— Yande ✦</p>
@@ -388,16 +388,16 @@ export default function BloomTrailsPage() {
     <div style={{ minHeight: "100dvh", background: IVORY, paddingBottom: 96 }}>
 
       {/* ── Header ── */}
-      <div style={{ background: `linear-gradient(160deg, ${PLUM} 0%, #2A0818 60%, #3C0E22 100%)`, paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)", paddingBottom: 28, position: "relative", overflow: "hidden" }}>
+      <div style={{ background: `linear-gradient(160deg, #FF1F7D 0%, #FF3A8C 60%, #FF69B4 100%)`, paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)", paddingBottom: 28, position: "relative", overflow: "hidden" }}>
         {/* Subtle radial glow */}
         <div style={{ position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
 
         <div style={{ padding: "0 20px 14px", position: "relative", zIndex: 1 }}>
           <Link href="/member/lounge" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             </div>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>THE APARTMENT</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>THE APARTMENT</span>
           </Link>
         </div>
 
@@ -415,7 +415,7 @@ export default function BloomTrailsPage() {
       {/* ── Monthly Recaps ── */}
       <div style={{ padding: "24px 0 0" }}>
         <div style={{ padding: "0 20px 12px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>MONTHLY RECAPS</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.4)" }}>MONTHLY RECAPS</p>
         </div>
 
         {/* Horizontal scroll row */}
@@ -435,13 +435,13 @@ export default function BloomTrailsPage() {
       {MISSED_LAST_MONTH.length > 0 && (
         <div style={{ padding: "28px 20px 0" }}>
           <div style={{ marginBottom: 12 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>FROM LAST MONTH</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb", marginTop: 3 }}>You missed these. Could be different this time.</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.4)" }}>FROM LAST MONTH</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 3 }}>You missed these. Could be different this time.</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {MISSED_LAST_MONTH.map(ev => (
               <Link key={ev.id} href="/member/happenings" style={{ textDecoration: "none" }}>
-                <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", borderLeft: `3px solid rgba(255,31,125,0.3)` }}>
+                <div style={{ background: "#FFFFFF", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(255,31,125,0.08)", borderLeft: `3px solid rgba(255,31,125,0.4)` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
                     <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: INK, lineHeight: 1.2, flex: 1 }}>{ev.title}</p>
                     {ev.clubName && (
@@ -493,7 +493,7 @@ export default function BloomTrailsPage() {
 
       {/* ── Yande's Witness ── */}
       <div style={{ padding: "28px 20px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb", marginBottom: 12 }}>YANDE NOTICED</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.4)", marginBottom: 12 }}>YANDE NOTICED</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {WITNESS_NOTES.map(w => (
             <div key={w.id} style={{ background: "white", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)", borderLeft: `3px solid ${PINK}` }}>
@@ -509,7 +509,7 @@ export default function BloomTrailsPage() {
       {/* ── Activity Trail ── */}
       <div style={{ padding: "28px 0 0" }}>
         <div style={{ padding: "0 20px 12px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb" }}>ACTIVITY TRAIL</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.4)" }}>ACTIVITY TRAIL</p>
         </div>
 
         {loading && (
@@ -522,7 +522,7 @@ export default function BloomTrailsPage() {
         {!loading && trail.length === 0 && (
           <div style={{ padding: "32px 20px", textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,31,125,0.4)", marginBottom: 8 }}>Your trail starts here.</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb", lineHeight: 1.6, marginBottom: 20 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.4)", lineHeight: 1.6, marginBottom: 20 }}>
               Attend events, save places, and join clubs.<br />Every action builds your trail.
             </p>
             <Link href="/member/happenings" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", background: PINK, color: "white", borderRadius: 14, textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800 }}>

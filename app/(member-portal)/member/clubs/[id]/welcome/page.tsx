@@ -48,7 +48,7 @@ export default function ClubWelcomePage() {
       <div
         style={{
           minHeight: "100vh",
-          background: "linear-gradient(160deg, #1A0A18, #3A0A28)",
+          background: "linear-gradient(160deg, #FF1F7D, #FF3A8C 50%, #FF69B4)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",

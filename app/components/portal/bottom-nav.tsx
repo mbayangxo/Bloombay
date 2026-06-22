@@ -289,17 +289,8 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
   const slab       = getSlab();
-  const isDarkPage = pathname.startsWith("/member/avenue")    ||
-                     pathname.startsWith("/member/plans")     ||
-                     pathname.startsWith("/member/happenings")||
-                     pathname.startsWith("/member/clubs")     ||
-                     pathname.startsWith("/member/chat")      ||
-                     pathname.startsWith("/member/lounge")    ||
-                     pathname.startsWith("/member/city")      ||
-                     pathname.startsWith("/member/home")      ||
-                     pathname.startsWith("/member/messages")  ||
-                     pathname.startsWith("/member/notifications") ||
-                     pathname.startsWith("/member/pin-drops");
+  // Avenue has a full-screen pink gradient bg — use light icons there; everywhere else is white
+  const isDarkPage = pathname.startsWith("/member/avenue");
   // hideTopBar hides the ACTION icons only (not the logo)
   const hideTopBarActions = pathname.startsWith("/member/lounge")    ||
                             pathname.startsWith("/member/happenings");

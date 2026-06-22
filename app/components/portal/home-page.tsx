@@ -61,15 +61,15 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
   const inputStyle: React.CSSProperties = {
     width: "100%", border: "1.5px solid rgba(255,31,125,0.25)",
     borderRadius: 12, padding: "12px 14px", outline: "none",
-    fontFamily: "var(--font-jost)", fontSize: 14, color: "rgba(255,255,255,0.9)",
-    background: "rgba(255,255,255,0.08)", boxSizing: "border-box",
+    fontFamily: "var(--font-jost)", fontSize: 14, color: "#111111",
+    background: "#FFF5F8", boxSizing: "border-box",
   };
 
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }} />
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 101, background: "#120A20", borderRadius: "24px 24px 0 0", padding: "24px 24px 48px", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
-        <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.2)", margin: "0 auto 20px" }} />
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(6px)" }} />
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 101, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "24px 24px 48px", boxShadow: "0 -8px 40px rgba(255,31,125,0.15)" }}>
+        <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)", margin: "0 auto 20px" }} />
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.22em", color: "#FF1F7D", marginBottom: 18 }}>EDIT PROFILE</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Display name" style={inputStyle} />
@@ -369,7 +369,7 @@ export function HomePage() {
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.18em", color: "#FF1F7D", marginBottom: 6 }}>
                 ✦ YANDE WANTS TO KNOW YOU
               </p>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "rgba(255,220,240,0.9)", lineHeight: 1.3, marginBottom: 10 }}>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "#111111", lineHeight: 1.3, marginBottom: 10 }}>
                 Tell us who you are. Better matches start here.
               </p>
               <Link href="/member/preferences" style={{ textDecoration: "none", display: "inline-block" }}>
@@ -644,7 +644,7 @@ export function HomePage() {
             </div>
 
             {/* Memory text */}
-            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 14 }}>
+            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,31,125,0.1)", paddingLeft: 14 }}>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>
                 &ldquo;Last night felt intimate and alive — the kind of evening you carry home.&rdquo;
               </p>

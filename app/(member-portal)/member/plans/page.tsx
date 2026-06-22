@@ -19,16 +19,16 @@ type DayEditorTab = "write" | "sticker" | "photo" | "voice";
 // (night mode removed — always use light pink theme)
 
 const THEME = {
-  pageBg:      "#0C0818",
-  topBar:      "rgba(12,8,24,0.97)",
-  topBarBorder:"rgba(255,31,125,0.18)",
-  cardBg:      "rgba(255,255,255,0.07)",
-  cardBorder:  "rgba(255,31,125,0.18)",
-  heading:     "rgba(255,255,255,0.95)",
-  subText:     "rgba(255,220,240,0.6)",
-  label:       "rgba(255,200,225,0.42)",
-  sectionBg:   "rgba(255,255,255,0.06)",
-  inputBg:     "rgba(255,255,255,0.08)",
+  pageBg:      "#FFFFFF",
+  topBar:      "rgba(255,255,255,0.97)",
+  topBarBorder:"rgba(255,31,125,0.12)",
+  cardBg:      "#FFFFFF",
+  cardBorder:  "rgba(255,31,125,0.15)",
+  heading:     "#111111",
+  subText:     "rgba(0,0,0,0.6)",
+  label:       "rgba(0,0,0,0.38)",
+  sectionBg:   "#FFF5F8",
+  inputBg:     "#FFF5F8",
 };
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -180,13 +180,13 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
   if (sent) return (
     <>
       <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#120A20", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
         <div className="flex flex-col items-center py-10 px-6 text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", boxShadow: "0 4px 20px rgba(255,31,125,0.35)" }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.95)" }}>Invitations sent!</p>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
+          <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>Invitations sent!</p>
+          <p className="text-sm" style={{ color: "rgba(0,0,0,0.5)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
           <button onClick={onClose} className="mt-6 px-8 py-3.5 rounded-full text-sm font-bold" style={{ background: "#FF1F7D", color: "white" }}>Done</button>
         </div>
       </div>
@@ -196,40 +196,40 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
   return (
     <>
       <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl flex flex-col" style={{ background: "#120A20", maxHeight: "88vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} /></div>
-        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl flex flex-col" style={{ background: "#FFFFFF", maxHeight: "88vh", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,31,125,0.2)" }} /></div>
+        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
             <div>
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>💌 INVITE TO {room.name.toUpperCase()}</p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Choose who to invite</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>Choose who to invite</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {BLOOMIES_LIST.map(b => {
             const on = selected.has(b.id);
             return (
-              <button key={b.id} onClick={() => toggle(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
+              <button key={b.id} onClick={() => toggle(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,31,125,0.08)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>{b.name}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{b.status}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{b.name}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{b.status}</p>
                 </div>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,255,255,0.2)" }}>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,31,125,0.2)" }}>
                   {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
               </button>
             );
           })}
         </div>
-        <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
+        <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,31,125,0.1)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
           <button onClick={() => setSent(true)} disabled={selected.size === 0} className="w-full py-4 rounded-full text-sm font-bold"
             style={selected.size > 0 ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
             {selected.size > 0 ? `Send invite to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : "Select Bloomies to invite"}
@@ -249,27 +249,27 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#120A20", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
-        <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} /></div>
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FFFFFF", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,31,125,0.2)" }} /></div>
         <div className="px-5 pb-2">
-          <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.3)", border: "1px solid rgba(255,31,125,0.2)" }}>
-            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1.5px dashed rgba(255,255,255,0.1)" }}>
+          <div className="rounded-3xl overflow-hidden" style={{ background: "#FFF5F8", boxShadow: "0 4px 24px rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)" }}>
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1.5px dashed rgba(255,31,125,0.12)" }}>
               <p className="text-[9px] font-bold tracking-[0.28em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>PLAN ROOM TICKET</p>
+              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "rgba(0,0,0,0.4)" }}>PLAN ROOM TICKET</p>
             </div>
             <div className="flex items-center justify-center" style={{ height: "80px", background: room.bg }}>
               <span style={{ fontSize: "38px" }}>{room.emoji}</span>
             </div>
             <div className="px-6 pt-4 pb-2">
               <p className="text-[9px] font-bold tracking-wider uppercase mb-1" style={{ color: "#FF1F7D" }}>YOUR TICKET</p>
-              <h2 className="font-black leading-none mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: "rgba(255,255,255,0.95)", lineHeight: 0.92 }}>{room.name}</h2>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>{room.time}</p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{room.venue}</p>
+              <h2 className="font-black leading-none mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: "#111111", lineHeight: 0.92 }}>{room.name}</h2>
+              <p className="text-xs" style={{ color: "rgba(0,0,0,0.5)" }}>{room.time}</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.4)" }}>{room.venue}</p>
             </div>
-            <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.1)", margin: "12px 24px" }} />
+            <div style={{ borderTop: "1.5px dashed rgba(255,31,125,0.12)", margin: "12px 24px" }} />
             <div className="px-6 pb-6 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <p className="text-[8px] font-mono tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>{ticketCode}</p>
+                <p className="text-[8px] font-mono tracking-widest" style={{ color: "rgba(0,0,0,0.38)" }}>{ticketCode}</p>
                 <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#111,#1A0010)", border: "1px solid rgba(255,31,125,0.35)" }}>
                   <span style={{ fontSize: "7px", color: "#FF1F7D" }}>✦</span>
                   <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>Founding Mother #47</span>
@@ -615,7 +615,7 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
       {/* ── SPIRAL BINDING ── */}
       <div style={{ background: T.binding, padding: "8px 0 7px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
         {Array.from({ length: 15 }, (_, i) => (
-          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: "#181820", border: "2.5px solid rgba(255,255,255,0.18)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08)" }} />
+          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: "#FFE0EE", border: "2.5px solid rgba(255,31,125,0.2)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08)" }} />
         ))}
       </div>
 
@@ -1080,26 +1080,26 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "#120A20", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.6)" }}>
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.2)" }} /></div>
-        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "#FFFFFF", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)" }} /></div>
+        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
           <div className="flex items-center gap-3">
             {step !== "choose" && (
-              <button onClick={() => setStep("choose")} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <button onClick={() => setStep("choose")} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
               </button>
             )}
             <div>
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
                 {step === "choose" ? "✦ NEW PLAN" : step === "room" ? "✦ PLAN ROOM" : step === "bloomie" ? "✦ INVITE BLOOMIES" : "✦ POST TO CLUB"}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>
                 {step === "choose" ? "What kind of plan?" : step === "room" ? "Create a plan room" : step === "bloomie" ? "Send directly to friends" : "Share with club members"}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
           </button>
         </div>
 
@@ -1112,13 +1112,13 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
             ]).map(opt => (
               <button key={opt.s} onClick={() => setStep(opt.s)}
                 className="flex items-center gap-4 p-5 rounded-2xl text-left active:scale-[0.98] transition-transform"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,31,125,0.2)" }}>
+                style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.2)" }}>
                 <span style={{ fontSize: 28 }}>{opt.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>{opt.label}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{opt.sub}</p>
+                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{opt.label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{opt.sub}</p>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             ))}
           </div>
@@ -1127,12 +1127,12 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
         {step === "room" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>Room name</p>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Morocco October, Brunch Girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,31,125,0.25)", color: "rgba(255,255,255,0.9)" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>Room name</p>
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Morocco October, Brunch Girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>What&apos;s the plan?</p>
-              <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,31,125,0.25)", color: "rgba(255,255,255,0.9)" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <button onClick={createRoom} disabled={!name.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold mt-2"
               style={name.trim() ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
@@ -1143,29 +1143,29 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
 
         {step === "bloomie" && (
           <>
-            <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>What&apos;s the plan?</p>
-              <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Dinner at Tatiana, Sunday walk, gallery…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,31,125,0.25)", color: "rgba(255,255,255,0.9)" }} />
+            <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Dinner at Tatiana, Sunday walk, gallery…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div className="flex-1 overflow-y-auto">
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase px-6 pt-3 pb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Who to invite</p>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase px-6 pt-3 pb-1" style={{ color: "rgba(0,0,0,0.45)" }}>Who to invite</p>
               {BLOOMIES_LIST.map(b => {
                 const on = selected.has(b.id);
                 return (
-                  <button key={b.id} onClick={() => toggleBloomie(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
+                  <button key={b.id} onClick={() => toggleBloomie(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,31,125,0.08)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
                     <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>{b.name}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{b.status}</p>
+                      <p className="font-semibold text-sm" style={{ color: "#111111" }}>{b.name}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{b.status}</p>
                     </div>
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,255,255,0.2)" }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,31,125,0.2)" }}>
                       {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
+            <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,31,125,0.1)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
               <button onClick={() => setDone(true)} disabled={selected.size === 0 || !message.trim()} className="w-full py-4 rounded-full text-sm font-bold"
                 style={selected.size > 0 && message.trim() ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
                 {selected.size > 0 && message.trim() ? `Send to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : selected.size === 0 ? "Select Bloomies" : "Add a plan description"}
@@ -1177,20 +1177,20 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
         {step === "club" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>What&apos;s the plan?</p>
-              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm going to Afrobeats Night at SOB's — who's coming?" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,31,125,0.25)", color: "rgba(255,255,255,0.9)" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm going to Afrobeats Night at SOB's — who's coming?" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>Post to which club?</p>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>Post to which club?</p>
               <div className="flex flex-col gap-2">
                 {CLUBS_LIST.map(club => {
                   const on = clubId === club.id;
                   return (
-                    <button key={club.id} onClick={() => setClubId(club.id)} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left" style={on ? { background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.4)" } : { background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.1)" }}>
+                    <button key={club.id} onClick={() => setClubId(club.id)} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left" style={on ? { background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.4)" } : { background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.12)" }}>
                       <span style={{ fontSize: 22 }}>{club.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>{club.name}</p>
-                        <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{club.members} members</p>
+                        <p className="font-semibold text-sm" style={{ color: "#111111" }}>{club.name}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{club.members} members</p>
                       </div>
                       <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
                         {on && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -1379,7 +1379,7 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
         {/* Dimming overlay for used/expired */}
         {status !== "active" && (
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)", zIndex: 5, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 8, padding: "5px 14px", transform: "rotate(-8deg)" }}>
+            <div style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)", borderRadius: 8, padding: "5px 14px", transform: "rotate(-8deg)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "rgba(255,255,255,0.85)", letterSpacing: "0.18em" }}>{overlay}</p>
             </div>
           </div>
@@ -1406,7 +1406,7 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
@@ -1788,7 +1788,7 @@ function PlansPageInner() {
                       </div>
                     </>
                   )}
-                  <button onClick={() => setShowCalendar(true)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
+                  <button onClick={() => setShowCalendar(true)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.82)", letterSpacing: "0.08em" }}>PLANNER</p>
                   </button>
@@ -1832,7 +1832,7 @@ function PlansPageInner() {
                           ))}
                         </div>
                       </div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em" }}>VIEW ALL →</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(0,0,0,0.45)", letterSpacing: "0.1em" }}>VIEW ALL →</p>
                     </div>
                   </div>
                 </button>
@@ -1898,9 +1898,9 @@ function PlansPageInner() {
 
       {/* Calendar full-screen overlay */}
       {showCalendar && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#0C0818", overflowY: "auto" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#FFFFFF", overflowY: "auto" }}>
           {/* Header with close button */}
-          <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(255,240,248,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backdropFilter: "blur(12px)" }}>
+          <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(255,255,255,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backdropFilter: "blur(12px)" }}>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.6)", marginBottom: 4 }}>YOUR PLANNER</p>
               <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
@@ -1974,7 +1974,7 @@ function PlansPageInner() {
 
 export default function PlansPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0C0818" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#FFFFFF" }} />}>
       <PlansPageInner />
     </Suspense>
   );

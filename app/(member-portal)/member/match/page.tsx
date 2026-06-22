@@ -9,7 +9,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-8 pt-16 pb-28"
-      style={{ background: "#0A0808" }}
+      style={{ background: "#FFFFFF" }}
     >
       {/* Glow orb */}
       <div
@@ -17,7 +17,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
         style={{
           width: 320, height: 320,
           background: "radial-gradient(circle, #FF1F7D 0%, transparent 70%)",
-          opacity: 0.08,
+          opacity: 0.15,
           top: "50%", left: "50%",
           transform: "translate(-50%, -60%)",
         }}
@@ -37,11 +37,11 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
         <div>
           <p
             className="font-black italic leading-none"
-            style={{ fontFamily: "var(--font-playfair)", fontSize: "52px", color: "white" }}
+            style={{ fontFamily: "var(--font-playfair)", fontSize: "52px", color: "#111111" }}
           >
             Intros.
           </p>
-          <p className="text-sm mt-3 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-sm mt-3 leading-relaxed" style={{ color: "rgba(0,0,0,0.5)" }}>
             Not dating. Not swiping.<br />Relationship-building.
           </p>
         </div>
@@ -52,7 +52,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
         {/* Body copy */}
         <p
           className="text-sm leading-relaxed italic"
-          style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.35)", maxWidth: 280 }}
+          style={{ fontFamily: "var(--font-playfair)", color: "rgba(0,0,0,0.5)", maxWidth: 280 }}
         >
           Intros opens when the community reaches its first milestone. We&apos;re building something
           intentional — the right women, the right moment.
@@ -62,14 +62,14 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
         {hasThreshold && (
           <div className="w-full">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "rgba(0,0,0,0.4)" }}>
                 MEMBERS
               </span>
               <span className="text-[10px] font-bold" style={{ color: "#FF1F7D" }}>
                 {currentCount.toLocaleString()} / {threshold.toLocaleString()}
               </span>
             </div>
-            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,31,125,0.1)" }}>
               <div
                 className="h-full rounded-full"
                 style={{
@@ -79,7 +79,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
                 }}
               />
             </div>
-            <p className="text-[10px] mt-2 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>
+            <p className="text-[10px] mt-2 text-center" style={{ color: "rgba(0,0,0,0.35)" }}>
               {pct}% of the way there
             </p>
           </div>
@@ -93,7 +93,7 @@ function IntrosLockedPage({ currentCount, threshold }: { currentCount: number; t
           <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-2" style={{ color: "rgba(255,31,125,0.5)" }}>
             YANDE SAYS
           </p>
-          <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "rgba(0,0,0,0.5)" }}>
             &ldquo;The right introductions don&apos;t happen by accident. They happen when the room is ready.&rdquo;
           </p>
         </div>

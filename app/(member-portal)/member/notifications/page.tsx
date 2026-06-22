@@ -148,7 +148,7 @@ function NotifPill({ n, index }: { n: Notif; index: number }) {
         fontFamily: "var(--font-jost)",
         fontSize: isUnread ? "12px" : "11px",
         fontWeight: isUnread ? 700 : 500,
-        color: isUnread ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.55)",
+        color: isUnread ? "#111111" : "rgba(0,0,0,0.5)",
         lineHeight: 1.3,
         whiteSpace: "nowrap" as const,
         overflow: "hidden",
@@ -264,7 +264,7 @@ export default function NotificationsPage() {
       minHeight: "100vh",
       paddingBottom: 100,
       paddingTop: "calc(env(safe-area-inset-top, 0px) + 70px)",
-      backgroundColor: "#0C0818",
+      backgroundColor: "#FFFFFF",
     }}>
       {/* Header */}
       <div style={{
@@ -279,7 +279,7 @@ export default function NotificationsPage() {
             fontSize: "clamp(28px, 8vw, 34px)",
             fontWeight: 700,
             fontStyle: "italic",
-            color: "white",
+            color: "#111111",
             lineHeight: 1,
             margin: 0,
           }}>
@@ -312,7 +312,7 @@ export default function NotificationsPage() {
             fontSize: "9px",
             fontWeight: 700,
             letterSpacing: "0.08em",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(0,0,0,0.35)",
             padding: "4px 0",
           }}
         >
@@ -397,14 +397,14 @@ export default function NotificationsPage() {
               fontStyle: "italic",
               fontSize: 18,
               fontWeight: 700,
-              color: "rgba(255,255,255,0.8)",
+              color: "#111111",
             }}>
               All caught up ✦
             </p>
             <p style={{
               fontFamily: "var(--font-jost)",
               fontSize: 12,
-              color: "rgba(255,255,255,0.35)",
+              color: "rgba(0,0,0,0.45)",
               marginTop: 6,
             }}>
               Nothing new right now.
