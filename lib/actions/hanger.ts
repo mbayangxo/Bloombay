@@ -306,6 +306,20 @@ export interface HangerSellerStats {
   flower_count: number;
 }
 
+export async function hasPurchasedFromSeller(sellerId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data } = await supabase
+    .from("hanger_sales")
+    .select("id")
+    .eq("seller_id", sellerId)
+    .eq("buyer_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  return !!data;
+}
+
 export async function getHangerSellerStats(sellerId: string): Promise<HangerSellerStats> {
   const supabase = await createClient();
   const { data } = await supabase

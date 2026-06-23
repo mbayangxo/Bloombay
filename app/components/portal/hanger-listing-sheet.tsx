@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   getHangerComments, postHangerComment, sendHangerFlower, removeHangerFlower,
-  getHangerReviews, submitHangerReview,
+  getHangerReviews, submitHangerReview, hasPurchasedFromSeller,
 } from "@/lib/actions/hanger";
 import type { HangerComment, HangerReview } from "@/lib/actions/hanger";
 import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
@@ -62,12 +62,13 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
   const [postingComment, setPostingComment] = useState(false);
   const [flowerSent,    setFlowerSent]    = useState(false);
   const [flowerLoading, setFlowerLoading] = useState(false);
-  const [reviewRating,  setReviewRating]  = useState(0);
+  const [reviewRating,  setReviewRating]  = useState(5);
   const [reviewBody,    setReviewBody]    = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSubmitted,  setReviewSubmitted]  = useState(false);
   const [reviewError,  setReviewError]    = useState<string | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [hasPurchased,  setHasPurchased]  = useState(false);
 
   const price = `$${(listing.price_cents / 100).toFixed(0)}`;
   const conditionColor = CONDITION_COLORS[listing.condition] ?? "rgba(255,255,255,0.4)";
@@ -79,12 +80,14 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
       const { data: { user } } = await supabase.auth.getUser();
       if (user) setCurrentUserId(user.id);
 
-      const [cms, rvs] = await Promise.all([
+      const [cms, rvs, purchased] = await Promise.all([
         getHangerComments(listing.id),
         getHangerReviews(listing.seller_id),
+        hasPurchasedFromSeller(listing.seller_id),
       ]);
       setComments(cms);
       setReviews(rvs);
+      setHasPurchased(purchased);
 
       // Check if current user already sent a flower
       if (user) {
@@ -125,7 +128,7 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
   }
 
   async function handleReview() {
-    if (reviewRating === 0) { setReviewError("Please choose a star rating."); return; }
+    if (!reviewBody.trim()) { setReviewError("Please write why you recommend (or don't) this seller."); return; }
     setReviewSubmitting(true);
     setReviewError(null);
     const result = await submitHangerReview({
@@ -505,7 +508,7 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
                   <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>
                     Reviews
                   </p>
-                  {!isMine && !reviewSubmitted && (
+                  {!isMine && !reviewSubmitted && hasPurchased && (
                     <button
                       onClick={() => setShowReviewForm(v => !v)}
                       style={{ background: "rgba(255,31,125,0.12)", border: `1px solid ${PINK}33`, borderRadius: 20, padding: "5px 12px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, cursor: "pointer" }}
@@ -513,48 +516,58 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
                       Leave a Review
                     </button>
                   )}
+                  {!isMine && !hasPurchased && (
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", fontStyle: "italic" }}>
+                      Purchase to review
+                    </span>
+                  )}
                 </div>
 
                 {/* Review form */}
                 {showReviewForm && !reviewSubmitted && (
                   <div style={{ background: "rgba(255,31,125,0.06)", border: `1px solid ${PINK}22`, borderRadius: 14, padding: "14px", marginBottom: 14 }}>
-                    {/* Stars */}
-                    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                    <p style={{ margin: "0 0 10px", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>
+                      Tell others about your experience
+                    </p>
+                    <textarea
+                      rows={4}
+                      placeholder="How was it? Was the item as described, was communication easy, did it arrive safely? Tell the community why you'd recommend (or not) this seller…"
+                      value={reviewBody}
+                      onChange={(e) => setReviewBody(e.target.value)}
+                      style={{ ...sharedInput, fontFamily: "var(--font-caveat), cursive", fontSize: 15, marginBottom: 10 }}
+                    />
+                    {/* Stars — secondary */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)" }}>Rating:</span>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           onClick={() => setReviewRating(star)}
                           style={{
                             background: "transparent", border: "none", cursor: "pointer",
-                            fontSize: 26, padding: 0,
-                            filter: star <= reviewRating ? "none" : "grayscale(1) opacity(0.3)",
+                            fontSize: 22, padding: 0, lineHeight: 1,
+                            filter: star <= reviewRating ? "none" : "grayscale(1) opacity(0.25)",
                           }}
                         >
                           ⭐
                         </button>
                       ))}
                     </div>
-                    <textarea
-                      rows={3}
-                      placeholder="Share your experience with this seller…"
-                      value={reviewBody}
-                      onChange={(e) => setReviewBody(e.target.value)}
-                      style={{ ...sharedInput, fontFamily: "var(--font-caveat), cursive", fontSize: 15, marginBottom: 8 }}
-                    />
                     {reviewError && (
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#e53e3e", margin: "0 0 8px" }}>{reviewError}</p>
                     )}
                     <button
                       onClick={() => void handleReview()}
-                      disabled={reviewSubmitting}
+                      disabled={reviewSubmitting || !reviewBody.trim()}
                       style={{
-                        width: "100%", background: reviewSubmitting ? "rgba(255,255,255,0.1)" : PINK,
+                        width: "100%",
+                        background: reviewSubmitting || !reviewBody.trim() ? "rgba(255,255,255,0.08)" : PINK,
                         color: "#fff", border: "none", borderRadius: 12, padding: "12px 0",
                         fontSize: 13, fontFamily: "var(--font-jost)", fontWeight: 700,
-                        cursor: reviewSubmitting ? "not-allowed" : "pointer",
+                        cursor: reviewSubmitting || !reviewBody.trim() ? "not-allowed" : "pointer",
                       }}
                     >
-                      {reviewSubmitting ? "Submitting…" : "Submit Review"}
+                      {reviewSubmitting ? "Submitting…" : "Post Review"}
                     </button>
                   </div>
                 )}
