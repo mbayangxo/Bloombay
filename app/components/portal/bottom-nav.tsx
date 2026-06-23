@@ -423,11 +423,9 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
   const slab       = getSlab();
-  // Avenue has a full-screen pink gradient bg — use light icons there; everywhere else is white
-  const isDarkPage = pathname.startsWith("/member/avenue");
-  // hideTopBar hides the ACTION icons only (not the logo)
-  const hideTopBarActions = pathname.startsWith("/member/lounge")    ||
-                            pathname.startsWith("/member/happenings");
+  // Pages with dark/colored backgrounds — use lighter icon colors
+  const isDarkPage = pathname.startsWith("/member/avenue") ||
+                     pathname.startsWith("/member/happenings");
 
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings");
@@ -502,24 +500,22 @@ export function BottomNav({ user }: { user?: NavUser }) {
           <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
             <BBLogo size={26} pinkColor={PINK} />
           </Link>
-          {!hideTopBarActions && (
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <TopTile href="/member/apartment" label="Apartment">
-                <IconApt c={isDarkPage ? "white" : PINK} />
-              </TopTile>
-              <TopTile href="/member/notifications" label="Pin Drops">
-                <IconPin c={isDarkPage ? "white" : PINK} />
-              </TopTile>
-              <TopTile href="/member/messages" label="Mailbox" badge="number">
-                <IconMail c={isDarkPage ? "white" : PINK} />
-              </TopTile>
-              <TopTile href="/member/chat" label="Chat" badge="dot">
-                <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
-                  <IconChatBubble c={isDarkPage ? "white" : PINK} />
-                </span>
-              </TopTile>
-            </div>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <TopTile href="/member/apartment" label="Apartment">
+              <IconApt c={isDarkPage ? "rgba(255,220,235,0.95)" : PINK} />
+            </TopTile>
+            <TopTile href="/member/notifications" label="Pin Drops">
+              <IconPin c={isDarkPage ? "rgba(255,220,235,0.95)" : PINK} />
+            </TopTile>
+            <TopTile href="/member/messages" label="Mailbox" badge="number">
+              <IconMail c={isDarkPage ? "rgba(255,220,235,0.95)" : PINK} />
+            </TopTile>
+            <TopTile href="/member/chat" label="Chat" badge="dot">
+              <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
+                <IconChatBubble c={isDarkPage ? "rgba(255,220,235,0.95)" : PINK} />
+              </span>
+            </TopTile>
+          </div>
         </div>
       </div>
 
@@ -537,32 +533,52 @@ export function BottomNav({ user }: { user?: NavUser }) {
           // zero background — the stem IS the navigation
         }}
       >
-        {/* ─ Horizontal stem line (runs left-to-right, starts after the rose) ─ */}
-        <div style={{
-          position: "absolute",
-          left: 46,
-          right: 0,
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 26px)",
-          height: 1.5,
-          background: `linear-gradient(90deg, ${PINK}60 0%, ${stemC} 22%, ${stemC} 100%)`,
-          borderRadius: 1,
-        }} />
-
-        {/* ─ Small leaf/thorn on the stem (decorative) ─ */}
-        <div style={{
-          position: "absolute",
-          left: "28%",
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 27px)",
-          width: 10,
-          height: 6,
-          pointerEvents: "none",
-        }}>
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-            <path d="M0 6 C2 0 8 0 10 3 C7 5 2 6 0 6Z"
-              fill={isDarkPage ? "rgba(180,220,180,0.4)" : "rgba(80,130,70,0.3)"}
-            />
-          </svg>
-        </div>
+        {/* ─ Organic wavy botanical stem ─ */}
+        <svg
+          style={{
+            position: "absolute",
+            left: 46,
+            right: 0,
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)",
+            width: "calc(100% - 46px)",
+            height: 32,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+          viewBox="0 0 320 32"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={PINK} stopOpacity="0.8"/>
+              <stop offset="30%" stopColor={isDarkPage ? "rgba(255,180,210,0.5)" : "rgba(200,80,120,0.4)"}/>
+              <stop offset="100%" stopColor={isDarkPage ? "rgba(255,180,210,0.35)" : "rgba(180,60,100,0.3)"}/>
+            </linearGradient>
+          </defs>
+          {/* Main wavy stem */}
+          <path
+            d="M0 20 C18 16 36 24 64 19 C92 14 110 22 140 18 C168 14 186 22 214 18 C240 14 258 21 290 17 C305 15 314 19 320 18"
+            stroke="url(#stemGrad)"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          {/* Leaf at ~30% */}
+          <path
+            d="M88 19 C90 10 100 8 104 14 C100 18 92 20 88 19Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.45)" : "rgba(70,120,55,0.35)"}
+          />
+          {/* Thorn at ~60% */}
+          <path
+            d="M188 18 C190 12 196 11 194 18Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.4)" : "rgba(70,120,55,0.3)"}
+          />
+          {/* Small leaf at ~80% */}
+          <path
+            d="M254 17 C256 10 264 9 266 15 C263 17 257 18 254 17Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.35)" : "rgba(70,120,55,0.25)"}
+          />
+        </svg>
 
         {/* ─ Open rose at the left end ─ */}
         <div style={{
@@ -607,10 +623,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 {/* Label */}
                 <span style={{
                   fontFamily: "var(--font-jost)",
-                  fontSize: "5.5px",
+                  fontSize: "7px",
                   fontWeight: active ? 800 : 500,
                   letterSpacing: "0.05em",
-                  color: active ? PINK : (isDarkPage ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.26)"),
+                  color: active ? PINK : (isDarkPage ? "rgba(255,215,232,0.72)" : "rgba(100,30,65,0.58)"),
                   lineHeight: 1,
                   whiteSpace: "nowrap" as const,
                   marginBottom: 3,

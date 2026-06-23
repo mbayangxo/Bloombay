@@ -11,9 +11,9 @@ import { ClubCrestSVG } from "./club-crest";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
-const BOARD = "#0E0C0A";
-const CREAM = "#F6F1EB";
-const PAPER = "#FEFDF8";
+const BOARD = "var(--bb-page-bg, #FFF0F6)";
+const CREAM = "#FFFFFF";
+const PAPER = "#FFFFFF";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
@@ -183,7 +183,7 @@ export function ClubsPage() {
                 </div>
               </Link>
 
-              <TornEdge color={BOARD} height={12} style={{ marginLeft: -16, marginRight: -16, marginBottom: -1 }} />
+              <TornEdge color="#FFF0F6" height={12} style={{ marginLeft: -16, marginRight: -16, marginBottom: -1 }} />
             </div>
           </div>
 
@@ -462,7 +462,7 @@ export function ClubsPage() {
             <button style={{ marginTop: 12, marginBottom: 10, fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
               SEE FULL CALENDAR →
             </button>
-            <TornEdge color={BOARD} height={14} style={{ marginLeft: -14, marginRight: -14 }} />
+            <TornEdge color="#FFF0F6" height={14} style={{ marginLeft: -14, marginRight: -14 }} />
           </div>
         </div>
 

@@ -18,30 +18,30 @@ export interface ThemePalette {
 }
 
 const DAY: ThemePalette = {
-  pageBg: "#FFFFFF",
-  card: "#FFFFFF",
-  cardElevated: "#FFF5F8",
-  textPrimary: "#111111",
-  textSecondary: "rgba(0,0,0,0.6)",
-  textMuted: "rgba(0,0,0,0.38)",
-  pink: "#FF1F7D",
-  babyPink: "#FF69B4",
-  border: "rgba(255,31,125,0.15)",
-  borderStrong: "rgba(255,31,125,0.35)",
+  pageBg:        "#FFF0F6",
+  card:          "#FFFFFF",
+  cardElevated:  "#FFF8FB",
+  textPrimary:   "#1C1B1C",
+  textSecondary: "rgba(28,27,28,0.65)",
+  textMuted:     "rgba(28,27,28,0.40)",
+  pink:          "#FF1F7D",
+  babyPink:      "#FF69B4",
+  border:        "rgba(255,31,125,0.12)",
+  borderStrong:  "rgba(255,31,125,0.30)",
   isNight: false,
 };
 
 const NIGHT: ThemePalette = {
-  pageBg: "#0D000F",        // deep purple-black — Barbie after dark
-  card: "#180018",          // dark card with subtle violet warmth
-  cardElevated: "#220028",
-  textPrimary: "#FFFFFF",
-  textSecondary: "rgba(255,220,240,0.72)",
-  textMuted: "rgba(255,180,220,0.42)",
-  pink: "#FF1F7D",          // same hot pink — pops on dark
-  babyPink: "#FF69B4",      // same baby pink
-  border: "rgba(255,31,125,0.18)",
-  borderStrong: "rgba(255,31,125,0.4)",
+  pageBg:        "#1A0414",
+  card:          "#260A1C",
+  cardElevated:  "#320C24",
+  textPrimary:   "rgba(255,235,245,0.95)",
+  textSecondary: "rgba(255,200,230,0.70)",
+  textMuted:     "rgba(255,180,215,0.42)",
+  pink:          "#FF1F7D",
+  babyPink:      "#FF69B4",
+  border:        "rgba(255,31,125,0.20)",
+  borderStrong:  "rgba(255,31,125,0.45)",
   isNight: true,
 };
 

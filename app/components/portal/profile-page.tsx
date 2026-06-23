@@ -1500,10 +1500,10 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   /* ── render ─────────────────────────────────── */
 
   return (
-    <div style={{ background: "#ffffff", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "var(--bb-page-bg, #FFF0F6)", minHeight: "100vh", paddingBottom: 120, paddingTop: "calc(env(safe-area-inset-top, 0px) + 62px)" }}>
 
       {/* ══════════════════════════ PORTFOLIO HEADER ══════════════════════════ */}
-      <div style={{ background: "#ffffff", padding: "20px 18px 0", position: "relative" }}>
+      <div style={{ background: "var(--bb-page-card, #FFFFFF)", padding: "20px 18px 0", position: "relative" }}>
 
         {/* Top bar: month/year + member number */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
