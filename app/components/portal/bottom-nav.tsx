@@ -37,132 +37,266 @@ type SVGProps = { c: string; w?: number };
 
 function IconTime({ c, w = 2, slab }: SVGProps & { slab: Slab }) {
   if (slab === "morning") return (
-    // Filled sun with fat alternating rays + 3D highlight sphere
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <defs>
+        <radialGradient id="sunBody" cx="38%" cy="32%" r="70%">
+          <stop offset="0%" stopColor="#FFFDE8"/>
+          <stop offset="40%" stopColor="#FFDD00"/>
+          <stop offset="100%" stopColor="#FF8800"/>
+        </radialGradient>
+        <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={c} stopOpacity="0.22"/>
+          <stop offset="100%" stopColor={c} stopOpacity="0"/>
+        </radialGradient>
+      </defs>
+      {/* Soft outer glow */}
+      <circle cx="12" cy="12" r="10.5" fill="url(#sunGlow)"/>
+      {/* Rays — alternating long/short */}
       {[0,45,90,135,180,225,270,315].map((a,i) => {
         const rad = a * Math.PI / 180;
-        const r1 = 6.8, r2 = r1 + (i%2===0 ? 3.6 : 2.4);
-        return <line key={a}
-          x1={12 + r1*Math.cos(rad)} y1={12 + r1*Math.sin(rad)}
-          x2={12 + r2*Math.cos(rad)} y2={12 + r2*Math.sin(rad)}
-          stroke={c} strokeWidth={i%2===0 ? 2.4 : 1.6} strokeLinecap="round"/>;
+        const r1 = 7, r2 = r1 + (i%2===0 ? 3.8 : 2.4);
+        return <line key={a} x1={12+r1*Math.cos(rad)} y1={12+r1*Math.sin(rad)}
+          x2={12+r2*Math.cos(rad)} y2={12+r2*Math.sin(rad)}
+          stroke={i%2===0 ? "#FFCC00" : "#FF9900"} strokeWidth={i%2===0 ? 2.2 : 1.4} strokeLinecap="round"/>;
       })}
-      <circle cx="12" cy="12" r="5.4" fill={c}/>
-      <ellipse cx="10.2" cy="10" rx="2.2" ry="1.6" fill="white" opacity="0.38" transform="rotate(-20 10.2 10)"/>
+      {/* Sun disc with gradient */}
+      <circle cx="12" cy="12" r="5.8" fill="url(#sunBody)"/>
+      {/* Limb darkening ring */}
+      <circle cx="12" cy="12" r="5.6" stroke="#FF8800" strokeWidth="0.6" fill="none" opacity="0.35"/>
+      {/* Specular highlight */}
+      <ellipse cx="10" cy="9.8" rx="2.4" ry="1.6" fill="white" opacity="0.55" transform="rotate(-25 10 9.8)"/>
     </svg>
   );
   if (slab === "afternoon") return (
-    // Filled cloud silhouette with sun peeking behind + highlight
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <circle cx="17.8" cy="11.5" r="3.5" fill={c} opacity="0.5"/>
-      <line x1="17.8" y1="7.2" x2="17.8" y2="5.5" stroke={c} strokeWidth="1.8" strokeLinecap="round" opacity="0.55"/>
-      <line x1="21" y1="8.6" x2="22.2" y2="7.4" stroke={c} strokeWidth="1.6" strokeLinecap="round" opacity="0.55"/>
-      <line x1="21.5" y1="11.5" x2="23" y2="11.5" stroke={c} strokeWidth="1.6" strokeLinecap="round" opacity="0.55"/>
-      <path d="M7 19 H17.5 a4 4 0 0 0 0-8 H17 a5.5 5.5 0 0 0-10.8 1.5 H6 a3.5 3.5 0 0 0 1 7Z"
-        fill={c}/>
-      <ellipse cx="9.5" cy="14.5" rx="3" ry="1.4" fill="white" opacity="0.22"/>
+      <defs>
+        <radialGradient id="cloudMain" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="white"/>
+          <stop offset="60%" stopColor={c} stopOpacity="0.85"/>
+          <stop offset="100%" stopColor={c}/>
+        </radialGradient>
+        <radialGradient id="cloudShadow" cx="50%" cy="80%" r="50%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.15)"/>
+          <stop offset="100%" stopColor="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+      {/* Sun peeks behind upper right */}
+      <circle cx="18" cy="9.5" r="3.8" fill="#FFCC00" opacity="0.55"/>
+      <line x1="18" y1="4.5" x2="18" y2="3" stroke="#FFAA00" strokeWidth="1.6" strokeLinecap="round" opacity="0.6"/>
+      <line x1="21.8" y1="6.5" x2="23" y2="5.3" stroke="#FFAA00" strokeWidth="1.4" strokeLinecap="round" opacity="0.6"/>
+      <line x1="22.5" y1="9.5" x2="24" y2="9.5" stroke="#FFAA00" strokeWidth="1.4" strokeLinecap="round" opacity="0.6"/>
+      {/* Cloud body — 4 overlapping circles for puffy look */}
+      <circle cx="7.5" cy="16" r="4" fill={c} opacity="0.92"/>
+      <circle cx="11.5" cy="13.5" r="5" fill={c} opacity="0.95"/>
+      <circle cx="16" cy="15" r="3.8" fill={c} opacity="0.9"/>
+      <circle cx="19.5" cy="16.5" r="2.8" fill={c} opacity="0.85"/>
+      {/* Cloud base fill */}
+      <rect x="4" y="16" width="18" height="5" fill={c} opacity="0.88"/>
+      {/* Top highlight */}
+      <ellipse cx="11.5" cy="12" rx="4" ry="1.6" fill="white" opacity="0.35"/>
+      {/* Bottom shadow */}
+      <ellipse cx="12" cy="20" rx="6" ry="1.2" fill="rgba(0,0,0,0.12)"/>
     </svg>
   );
   if (slab === "evening") return (
-    // Filled half-sun on horizon + ray lines
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <line x1="2" y1="17" x2="22" y2="17" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
-      <path d="M6 17 A6 6 0 0 1 18 17Z" fill={c}/>
-      <ellipse cx="10.5" cy="15" rx="2.5" ry="1.2" fill="white" opacity="0.28"/>
-      <line x1="12" y1="3" x2="12" y2="6.2" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
-      <line x1="5.2" y1="5.2" x2="7.3" y2="7.3" stroke={c} strokeWidth="2" strokeLinecap="round"/>
-      <line x1="18.8" y1="5.2" x2="16.7" y2="7.3" stroke={c} strokeWidth="2" strokeLinecap="round"/>
-      <line x1="2.5" y1="11.5" x2="5.5" y2="11.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="18.5" y1="11.5" x2="21.5" y2="11.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      <defs>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FF6633" stopOpacity="0.7"/>
+          <stop offset="50%" stopColor="#FF3366" stopOpacity="0.5"/>
+          <stop offset="100%" stopColor="#330066" stopOpacity="0.3"/>
+        </linearGradient>
+        <radialGradient id="sunSet" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFEE55"/>
+          <stop offset="50%" stopColor="#FF8800"/>
+          <stop offset="100%" stopColor="#FF4400"/>
+        </radialGradient>
+      </defs>
+      {/* Sky wash behind */}
+      <rect x="0" y="0" width="24" height="24" fill="url(#skyGrad)" rx="2"/>
+      {/* Horizon line */}
+      <line x1="1" y1="17" x2="23" y2="17" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+      {/* Half-sun with gradient */}
+      <path d="M6 17 A6 6 0 0 1 18 17Z" fill="url(#sunSet)"/>
+      {/* Sun highlight */}
+      <ellipse cx="10.5" cy="15.2" rx="2.8" ry="1.2" fill="white" opacity="0.35"/>
+      {/* Rays */}
+      <line x1="12" y1="3" x2="12" y2="6.5" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="5.4" y1="5.4" x2="7.5" y2="7.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="18.6" y1="5.4" x2="16.5" y2="7.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="2.5" y1="12" x2="5.5" y2="12" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="18.5" y1="12" x2="21.5" y2="12" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      {/* Horizon reflection glow */}
+      <ellipse cx="12" cy="17" rx="6" ry="0.7" fill="#FF8800" opacity="0.25"/>
     </svg>
   );
-  // tonight: filled crescent + two diamond stars
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill={c}/>
-      <ellipse cx="8.5" cy="7.5" rx="2.2" ry="1.4" fill="white" opacity="0.22" transform="rotate(-25 8.5 7.5)"/>
-      <path d="M19.5 4.5 L20.1 6.2 L21.8 6.2 L20.4 7.2 L20.9 9 L19.5 8 L18.1 9 L18.6 7.2 L17.2 6.2 L18.9 6.2Z"
-        fill={c} opacity="0.85"/>
-      <path d="M4.5 16 L5 17.2 L6.2 17.2 L5.2 18 L5.6 19.2 L4.5 18.4 L3.4 19.2 L3.8 18 L2.8 17.2 L4 17.2Z"
-        fill={c} opacity="0.6"/>
+      <defs>
+        <radialGradient id="moonFace" cx="38%" cy="32%" r="70%">
+          <stop offset="0%" stopColor="#EEF4FF"/>
+          <stop offset="45%" stopColor="#C4D4FF"/>
+          <stop offset="100%" stopColor="#8898CC"/>
+        </radialGradient>
+      </defs>
+      {/* Moon crescent */}
+      <path d="M12 4 A8 8 0 1 0 12 20 A5.5 5.5 0 1 1 12 4Z" fill="url(#moonFace)"/>
+      {/* Subtle crater marks */}
+      <circle cx="9.2" cy="9" r="1.1" fill="rgba(80,90,150,0.2)"/>
+      <circle cx="11" cy="14.5" r="1.4" fill="rgba(80,90,150,0.18)"/>
+      <circle cx="7.5" cy="13" r="0.7" fill="rgba(80,90,150,0.15)"/>
+      {/* Rim highlight on lit side */}
+      <path d="M12 4 A8 8 0 0 1 12 20" stroke="white" strokeWidth="0.6" fill="none" opacity="0.4"/>
+      {/* Stars */}
+      <path d="M19.5 4.5 L20.1 6.4 L22 6.4 L20.5 7.5 L21.1 9.4 L19.5 8.3 L17.9 9.4 L18.5 7.5 L17 6.4 L18.9 6.4Z"
+        fill={c} opacity="0.88"/>
+      <circle cx="20.5" cy="14" r="0.9" fill={c} opacity="0.65"/>
+      <circle cx="18.5" cy="18" r="0.6" fill={c} opacity="0.45"/>
+      <circle cx="3.5" cy="4.5" r="0.7" fill={c} opacity="0.5"/>
     </svg>
   );
 }
 
 function IconPlans({ c }: SVGProps) {
-  // Filled open book — left page slightly lighter, 3D spine, bookmark
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      {/* Left page fill */}
-      <path d="M12 5 C9.5 5 5 5.8 4 7.5 L4 20 C5 18.5 9.5 18 12 18Z" fill={c}/>
-      {/* Right page fill (slightly dimmer) */}
-      <path d="M12 5 C14.5 5 19 5.8 20 7.5 L20 20 C19 18.5 14.5 18 12 18Z" fill={c} opacity="0.78"/>
-      {/* Spine */}
-      <rect x="11" y="5" width="2" height="13" fill={c}/>
-      {/* Left highlight */}
-      <ellipse cx="8" cy="9.5" rx="2.4" ry="1.4" fill="white" opacity="0.22" transform="rotate(8 8 9.5)"/>
-      {/* Right highlight */}
-      <ellipse cx="16" cy="9.5" rx="2.4" ry="1.4" fill="white" opacity="0.16" transform="rotate(-8 16 9.5)"/>
-      {/* Page lines left */}
-      <line x1="5.8" y1="10.5" x2="10.5" y2="10" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
-      <line x1="5.8" y1="13"   x2="10.5" y2="12.6" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
-      <line x1="5.8" y1="15.5" x2="9.5"  y2="15.2" stroke="white" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
-      {/* Bookmark */}
-      <path d="M17 5 L17 10 L15.5 8.8 L14 10 L14 5Z" fill="white" opacity="0.55"/>
+      <defs>
+        <linearGradient id="pageL" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={c}/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.82"/>
+        </linearGradient>
+        <linearGradient id="pageR" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={c} stopOpacity="0.9"/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.65"/>
+        </linearGradient>
+      </defs>
+      {/* Left page — slight perspective taper */}
+      <path d="M12 5.5 C9.5 5.5 5 6.2 3.5 7.8 L3.5 20.5 C5 19.2 9.5 18.5 12 18.5Z" fill="url(#pageL)"/>
+      {/* Right page — slightly dimmer */}
+      <path d="M12 5.5 C14.5 5.5 19 6.2 20.5 7.8 L20.5 20.5 C19 19.2 14.5 18.5 12 18.5Z" fill="url(#pageR)"/>
+      {/* Spine with slight gradient */}
+      <rect x="11.2" y="5.5" width="1.6" height="13" fill={c}/>
+      {/* Highlights on left page */}
+      <ellipse cx="7.8" cy="9.2" rx="2.8" ry="1.4" fill="white" opacity="0.28" transform="rotate(8 7.8 9.2)"/>
+      {/* Page text lines left */}
+      <line x1="5.5" y1="10.8" x2="10.5" y2="10.3" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.55"/>
+      <line x1="5.5" y1="12.8" x2="10.5" y2="12.4" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.45"/>
+      <line x1="5.5" y1="14.8" x2="9.5"  y2="14.5" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.4"/>
+      {/* Page text lines right */}
+      <line x1="13.5" y1="10.3" x2="18.5" y2="10.8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.35"/>
+      <line x1="13.5" y1="12.4" x2="18.5" y2="12.8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
+      {/* Ribbon bookmark */}
+      <path d="M17.5 5.5 L17.5 11.5 L16 10.2 L14.5 11.5 L14.5 5.5Z" fill="white" opacity="0.6"/>
+      {/* Bookmark ribbon gradient */}
+      <path d="M17.5 5.5 L17.5 8 L16 6.8 L14.5 8 L14.5 5.5Z" fill="white" opacity="0.2"/>
     </svg>
   );
 }
 
 function IconClubs({ c }: SVGProps) {
-  // Filled three-person social club silhouette
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="7" r="3.2" fill={c}/>
-      <path d="M6.5 21 C6.5 16.2 9 14 12 14 C15 14 17.5 16.2 17.5 21Z" fill={c}/>
-      <circle cx="11" cy="6" r="1.3" fill="white" opacity="0.3"/>
-      <circle cx="5" cy="8.2" r="2.5" fill={c} opacity="0.72"/>
-      <path d="M1 21 C1 17 2.8 14.8 5 14.8 C6.5 14.8 7.8 15.8 8.5 17.8"
-        stroke={c} strokeWidth="3.2" fill="none" strokeLinecap="round" opacity="0.72"/>
-      <circle cx="19" cy="8.2" r="2.5" fill={c} opacity="0.72"/>
-      <path d="M23 21 C23 17 21.2 14.8 19 14.8 C17.5 14.8 16.2 15.8 15.5 17.8"
-        stroke={c} strokeWidth="3.2" fill="none" strokeLinecap="round" opacity="0.72"/>
+      {/* Left figure (partial, behind centre) */}
+      <circle cx="5.2" cy="7.8" r="2.6" fill={c} opacity="0.68"/>
+      <path d="M1.5 21.5 C1.5 17.2 3 15 5.2 15 C6.6 15 8 15.8 8.8 17.6"
+        stroke={c} strokeWidth="3.4" fill="none" strokeLinecap="round" opacity="0.68"/>
+      {/* Right figure (partial, behind centre) */}
+      <circle cx="18.8" cy="7.8" r="2.6" fill={c} opacity="0.68"/>
+      <path d="M22.5 21.5 C22.5 17.2 21 15 18.8 15 C17.4 15 16 15.8 15.2 17.6"
+        stroke={c} strokeWidth="3.4" fill="none" strokeLinecap="round" opacity="0.68"/>
+      {/* Centre figure — full detail */}
+      <circle cx="12" cy="6.8" r="3.4" fill={c}/>
+      {/* Centre figure highlight */}
+      <ellipse cx="11" cy="5.8" rx="1.5" ry="1.1" fill="white" opacity="0.32"/>
+      <path d="M6.5 21.5 C6.5 16 9 13.5 12 13.5 C15 13.5 17.5 16 17.5 21.5Z" fill={c}/>
+      {/* Shoulder highlight */}
+      <ellipse cx="10" cy="14.5" rx="2" ry="0.9" fill="white" opacity="0.2"/>
     </svg>
   );
 }
 
 function IconAveSign({ c }: SVGProps) {
-  // Filled street signs on pole with arrow indicators
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <line x1="12" y1="8.5" x2="12" y2="22" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
-      <rect x="2" y="3" width="20" height="6" rx="1.5" fill={c}/>
-      <rect x="3" y="3.8" width="18" height="2.2" rx="0.8" fill="white" opacity="0.2"/>
-      <polyline points="5.5,4.8 3.8,6 5.5,7.2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      <polyline points="18.5,4.8 20.2,6 18.5,7.2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      <rect x="8" y="10" width="14" height="5" rx="1.2" fill={c} opacity="0.82" transform="rotate(-10 15 12.5)"/>
-      <rect x="8.5" y="10.6" width="12" height="2" rx="0.6" fill="white" opacity="0.18" transform="rotate(-10 15 12.5)"/>
-      <polyline points="20,11.2 21.6,12.2 20,13.2" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="rotate(-10 20.8 12.2)"/>
+      <defs>
+        <linearGradient id="signPost" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor={c} stopOpacity="0.7"/>
+          <stop offset="50%" stopColor={c}/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="signFaceTop" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={c}/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.82"/>
+        </linearGradient>
+        <linearGradient id="signFaceBot" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={c} stopOpacity="0.88"/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.7"/>
+        </linearGradient>
+      </defs>
+      {/* Post */}
+      <line x1="12" y1="8.5" x2="12" y2="22.5" stroke="url(#signPost)" strokeWidth="2.4" strokeLinecap="round"/>
+      {/* Post foot base */}
+      <rect x="10" y="21.5" width="4" height="1.2" rx="0.6" fill={c} opacity="0.5"/>
+      {/* Top sign — wide with both arrows */}
+      <rect x="2" y="2.5" width="20" height="6.5" rx="1.8" fill="url(#signFaceTop)"/>
+      {/* Top sign sheen */}
+      <rect x="2.5" y="3" width="19" height="2" rx="0.6" fill="white" opacity="0.18"/>
+      <polyline points="5.5,4.8 3.5,5.8 5.5,6.8" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <polyline points="18.5,4.8 20.5,5.8 18.5,6.8" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <line x1="7" y1="5.8" x2="17" y2="5.8" stroke="white" strokeWidth="0.7" strokeLinecap="round" opacity="0.3"/>
+      {/* Lower sign — angled, one arrow */}
+      <rect x="7.5" y="10" width="15" height="5.2" rx="1.4" fill="url(#signFaceBot)" transform="rotate(-12 15 12.5)"/>
+      {/* Lower sign sheen */}
+      <rect x="8" y="10.6" width="13.5" height="1.8" rx="0.5" fill="white" opacity="0.15" transform="rotate(-12 15 12.5)"/>
+      <polyline points="20.5,11 22.2,12 20.5,13" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="rotate(-12 21.3 12)"/>
     </svg>
   );
 }
 
 function IconHappenings({ c }: SVGProps) {
-  // Filled NYC skyline silhouette with lit windows
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <rect x="2"  y="11" width="5.5" height="10" fill={c} opacity="0.8"/>
-      <rect x="9"  y="5"  width="6"   height="16" fill={c}/>
-      <rect x="16.5" y="9" width="5.5" height="12" fill={c} opacity="0.8"/>
-      <line x1="12" y1="5" x2="12" y2="2.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
-      <rect x="10.5" y="7"   width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
-      <rect x="12.5" y="7"   width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
-      <rect x="10.5" y="10"  width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
-      <rect x="12.5" y="10"  width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.2"/>
-      <rect x="3.2"  y="13"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
-      <rect x="5.2"  y="13"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
-      <rect x="17.8" y="11"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
-      <rect x="19.8" y="11"  width="1.3" height="1.3" fill="white" opacity="0.45" rx="0.2"/>
-      <line x1="1" y1="21" x2="23" y2="21" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <defs>
+        <linearGradient id="skyCity" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={c} stopOpacity="0.18"/>
+          <stop offset="100%" stopColor={c} stopOpacity="0.04"/>
+        </linearGradient>
+      </defs>
+      {/* Sky wash */}
+      <rect x="0" y="0" width="24" height="24" fill="url(#skyCity)"/>
+      {/* Far-left small building */}
+      <rect x="0.5" y="14" width="3.5" height="7.5" fill={c} opacity="0.65" rx="0.3"/>
+      {/* Left mid building */}
+      <rect x="2" y="11" width="5" height="10.5" fill={c} opacity="0.75" rx="0.3"/>
+      {/* Centre tower (Empire State ish) */}
+      <rect x="8.5" y="4.5" width="7" height="17" fill={c} rx="0.4"/>
+      {/* Centre tower setbacks */}
+      <rect x="9.5" y="2.5" width="5" height="4" fill={c} rx="0.3"/>
+      <rect x="10.5" y="1" width="3" height="3" fill={c} rx="0.2"/>
+      {/* Antenna */}
+      <line x1="12" y1="1" x2="12" y2="-0.5" stroke={c} strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Right mid building */}
+      <rect x="17" y="9" width="5" height="12.5" fill={c} opacity="0.75" rx="0.3"/>
+      {/* Far right small building */}
+      <rect x="20" y="13" width="3.5" height="8.5" fill={c} opacity="0.65" rx="0.3"/>
+      {/* Windows — centre tower */}
+      <rect x="10" y="7"  width="1.4" height="1.4" fill="white" opacity="0.65" rx="0.15"/>
+      <rect x="12.5" y="7"  width="1.4" height="1.4" fill="white" opacity="0.65" rx="0.15"/>
+      <rect x="10" y="10.5" width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.15"/>
+      <rect x="12.5" y="10.5" width="1.4" height="1.4" fill="white" opacity="0.55" rx="0.15"/>
+      <rect x="10" y="14"   width="1.4" height="1.4" fill="white" opacity="0.5" rx="0.15"/>
+      <rect x="12.5" y="14" width="1.4" height="1.4" fill="white" opacity="0.5" rx="0.15"/>
+      {/* Windows — side buildings */}
+      <rect x="3.2"  y="13.5" width="1.2" height="1.2" fill="white" opacity="0.5" rx="0.12"/>
+      <rect x="5.2"  y="13.5" width="1.2" height="1.2" fill="white" opacity="0.5" rx="0.12"/>
+      <rect x="3.2"  y="16.5" width="1.2" height="1.2" fill="white" opacity="0.4" rx="0.12"/>
+      <rect x="18.3" y="11" width="1.2" height="1.2" fill="white" opacity="0.5" rx="0.12"/>
+      <rect x="20.3" y="11" width="1.2" height="1.2" fill="white" opacity="0.5" rx="0.12"/>
+      <rect x="18.3" y="14" width="1.2" height="1.2" fill="white" opacity="0.4" rx="0.12"/>
+      {/* Highlight sheen on centre tower */}
+      <rect x="8.5" y="4.5" width="2.5" height="17" fill="white" opacity="0.07" rx="0.4"/>
+      {/* Ground line */}
+      <line x1="0.5" y1="21.5" x2="23.5" y2="21.5" stroke={c} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }

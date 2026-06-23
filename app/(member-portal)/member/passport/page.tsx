@@ -798,9 +798,14 @@ function LeftPage({ tpl, profile, onUpload, uploading }: {
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 700, color: tpl.pagesSubtext, marginTop: 2, lineHeight: 1.3 }}>ADD PHOTO</p>
             </div>
           )}
-          {/* Edit overlay */}
+          {/* Photo edit hint on hover */}
           {profile?.avatar_url && (
-            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0)", display: "flex", alignItems: "center", justifyContent: "center" }}/>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0 }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = "0"; }}
+            >
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 700, color: "white", letterSpacing: "0.1em" }}>CHANGE</p>
+            </div>
           )}
         </div>
 
@@ -1059,6 +1064,10 @@ export default function PassportPage() {
   const [view, setView] = useState<"cover" | "open">("cover");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const tpl = TEMPLATES[templateIdx];
 
@@ -1072,10 +1081,30 @@ export default function PassportPage() {
           .select("first_name, avatar_url, borough, created_at, id")
           .eq("id", user.id).single();
         setProfile(data);
+        setNameInput(data?.first_name ?? "");
       } catch { /* not authenticated, show empty state */ }
     }
     load();
   }, []);
+
+  async function handleSaveName() {
+    const trimmed = nameInput.trim();
+    if (!trimmed) { setNameError("Name can't be empty."); return; }
+    setSavingName(true); setNameError(null);
+    try {
+      const sb = createClient();
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { error: err } = await sb.from("profiles").update({ first_name: trimmed }).eq("id", user.id);
+      if (err) throw err;
+      setProfile(p => p ? { ...p, first_name: trimmed } : { first_name: trimmed });
+      setEditingName(false);
+    } catch (e: unknown) {
+      setNameError((e as Error).message);
+    } finally {
+      setSavingName(false);
+    }
+  }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -1109,14 +1138,60 @@ export default function PassportPage() {
       {/* ── TOP HEADER ── */}
       <div style={{ background: tpl.coverGrad, padding: "calc(env(safe-area-inset-top,0px) + 18px) 22px 24px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 55%)", pointerEvents: "none" }}/>
-        <Link href="/member/home" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", marginBottom: 16 }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: "0.06em" }}>back</span>
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <Link href="/member/apartment" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: "0.06em" }}>apartment</span>
+          </Link>
+          <button
+            onClick={() => { setNameInput(profile?.first_name ?? ""); setEditingName(true); }}
+            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.14)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em" }}>Edit</span>
+          </button>
+        </div>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.26em", color: "rgba(255,255,255,0.65)", marginBottom: 4 }}>✦ BLOOMBAY</p>
         <h1 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "32px", color: "white", lineHeight: 1, margin: 0, letterSpacing: "-0.01em" }}>Bloom Passport</h1>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.6)", marginTop: 4, letterSpacing: "0.02em" }}>{memberNumber}</p>
       </div>
+
+      {/* ── EDIT NAME SHEET ── */}
+      {editingName && (
+        <>
+          <div style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.48)", backdropFilter: "blur(4px)" }} onClick={() => setEditingName(false)}/>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, borderRadius: "24px 24px 0 0", background: "#FEFCF7", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", padding: "0 24px calc(env(safe-area-inset-bottom,0px) + 28px)" }}>
+            <div style={{ display: "flex", justifyContent: "center", paddingTop: 12, paddingBottom: 8 }}>
+              <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }}/>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.7)", marginBottom: 2 }}>EDIT PASSPORT</p>
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 900, fontSize: 20, color: "#111", lineHeight: 1 }}>Update your name.</p>
+              </div>
+              <button onClick={() => setEditingName(false)} style={{ width: 34, height: 34, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+              </button>
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", color: "#aaa", marginBottom: 6 }}>YOUR NAME</p>
+            <input
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              placeholder="Your first name"
+              autoFocus
+              style={{ width: "100%", boxSizing: "border-box", padding: "14px 16px", borderRadius: 16, border: "1.5px solid rgba(255,31,125,0.2)", background: "white", fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 700, color: "#111", outline: "none" }}
+            />
+            {nameError && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#E63946", marginTop: 6 }}>{nameError}</p>}
+            <button
+              onClick={handleSaveName}
+              disabled={savingName}
+              style={{ width: "100%", marginTop: 14, padding: "15px", borderRadius: 18, border: "none", cursor: savingName ? "default" : "pointer", background: savingName ? "#F0E0E8" : PINK, color: savingName ? "#C8A0B0" : "white", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 14, letterSpacing: "0.06em" }}
+            >
+              {savingName ? "Saving…" : "Save Name"}
+            </button>
+          </div>
+        </>
+      )}
 
       {/* ── TEMPLATE PICKER ── */}
       <div style={{ padding: "20px 20px 8px" }}>

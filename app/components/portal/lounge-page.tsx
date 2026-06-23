@@ -1090,6 +1090,67 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         </div>
       </div>
 
+      {/* ══════════ BLOOM PASSPORT ══════════ */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <Link href="/member/passport" style={{ textDecoration: "none", display: "block" }}>
+          <div style={{
+            borderRadius: 22,
+            overflow: "hidden",
+            position: "relative",
+            background: "linear-gradient(145deg, #0A0008 0%, #1E0028 35%, #3A0048 65%, #5C0060 85%, #7B0070 100%)",
+            boxShadow: "0 12px 40px rgba(120,0,100,0.35), 0 4px 16px rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,80,200,0.18)",
+          }}>
+            {/* Shimmer top stripe */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #FF1F7D 30%, #FF80D0 55%, #FF1F7D 75%, transparent)", pointerEvents: "none" }}/>
+            {/* Glow orb */}
+            <div style={{ position: "absolute", top: -20, right: -20, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.25) 0%, transparent 70%)", pointerEvents: "none" }}/>
+            {/* Bloom watermark */}
+            <div style={{ position: "absolute", right: 12, bottom: -6, width: 72, height: 72, opacity: 0.08, pointerEvents: "none" }}>
+              <svg viewBox="0 0 100 100" fill="white"><ellipse cx="50" cy="20" rx="10" ry="22"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(60 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(120 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(180 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(240 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(300 50 50)"/><circle cx="50" cy="50" r="11"/></svg>
+            </div>
+
+            <div style={{ padding: "20px 20px 18px", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.3em", color: "rgba(255,140,220,0.65)", marginBottom: 4 }}>✦ BLOOM PASSPORT</p>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: "white", lineHeight: 1, margin: 0 }}>Your world,</p>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: "#FF80D0", lineHeight: 1.1, margin: 0 }}>documented.</p>
+                </div>
+                {/* Mini passport icon */}
+                <div style={{
+                  width: 52, height: 68, borderRadius: 7,
+                  background: "linear-gradient(160deg,#6B001A,#C4005A)",
+                  border: "1.5px solid rgba(255,255,255,0.15)",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0,
+                }}>
+                  <div style={{ width: 22, height: 22, opacity: 0.85 }}>
+                    <svg viewBox="0 0 100 100" fill="white"><ellipse cx="50" cy="20" rx="10" ry="22"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(60 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(120 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(180 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(240 50 50)"/><ellipse cx="50" cy="20" rx="10" ry="22" transform="rotate(300 50 50)"/><circle cx="50" cy="50" r="11"/></svg>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 5, fontWeight: 900, color: "rgba(255,255,255,0.6)", letterSpacing: "0.12em" }}>BLOOM</p>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["🌹","🌸","🌷"].map((f, i) => (
+                    <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{f}</div>
+                  ))}
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px dashed rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 700 }}>+</p>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,31,125,0.22)", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.35)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#FF80D0" }}>Open Passport</p>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF80D0" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       {/* ══════════ PROFILE TEMPLATES ══════════ */}
       <div style={{ padding: "16px 0 0" }}>
         <div style={{ padding: "0 20px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
