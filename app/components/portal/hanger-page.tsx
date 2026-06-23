@@ -34,157 +34,95 @@ type MockListing = HangerListing & {
   card_gradient: string;
 };
 
+const SWAP_TEAL = "#00C6A7";
+
 // ─── Mock data ──────────────────────────────────────────────────────────────────
 const MOCK_LISTINGS: MockListing[] = [
   {
-    id: "1",
-    seller_id: "u2",
-    seller_name: "Amara K",
-    seller_avatar: null,
+    id: "1", seller_id: "u2", seller_name: "Amara K", seller_avatar: null,
     title: "Silk Slip Dress",
     description: "Bias-cut ivory slip dress, barely worn. Perfect for summer nights.",
-    price_cents: 9500,
-    size: "S",
-    category: "Dresses",
-    condition: "like new",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-01T00:00:00Z",
-    size_display: "S",
-    seller_initials: "AK",
+    price_cents: 9500, listing_type: "sell", swap_wants: null,
+    size: "S", category: "Dresses", condition: "like new",
+    image_url: null, status: "active", created_at: "2026-06-01T00:00:00Z",
+    size_display: "S", seller_initials: "AK",
     seller_gradient: "linear-gradient(135deg, #7B2FF7, #C77DFF)",
     card_gradient: "linear-gradient(160deg, #1a0533 0%, #3d1a6e 100%)",
   },
   {
-    id: "2",
-    seller_id: "u1",
-    seller_name: "Zara M",
-    seller_avatar: null,
+    id: "2", seller_id: "u1", seller_name: "Zara M", seller_avatar: null,
     title: "Vintage Levi's 501",
     description: "Classic 501s, waist 27. High-rise, great fade. True vintage find.",
-    price_cents: 6500,
-    size: "27",
-    category: "Bottoms",
-    condition: "good",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-02T00:00:00Z",
-    size_display: "27",
-    seller_initials: "ZM",
+    price_cents: 6500, listing_type: "sell_or_swap", swap_wants: "Looking for vintage denim jacket, size S/M",
+    size: "27", category: "Bottoms", condition: "good",
+    image_url: null, status: "active", created_at: "2026-06-02T00:00:00Z",
+    size_display: "27", seller_initials: "ZM",
     seller_gradient: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
     card_gradient: "linear-gradient(160deg, #2a0a14 0%, #5c1a33 100%)",
   },
   {
-    id: "3",
-    seller_id: "u4",
-    seller_name: "Nia B",
-    seller_avatar: null,
+    id: "3", seller_id: "u4", seller_name: "Nia B", seller_avatar: null,
     title: "YSL Tote (dupe)",
     description: "High-quality YSL-inspired tote in camel. Goes with everything.",
-    price_cents: 4500,
-    size: "-",
-    category: "Bags",
-    condition: "good",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-03T00:00:00Z",
-    size_display: "O/S",
-    seller_initials: "NB",
+    price_cents: 4500, listing_type: "sell", swap_wants: null,
+    size: "-", category: "Bags", condition: "good",
+    image_url: null, status: "active", created_at: "2026-06-03T00:00:00Z",
+    size_display: "O/S", seller_initials: "NB",
     seller_gradient: "linear-gradient(135deg, #00C6A7, #3B82F6)",
     card_gradient: "linear-gradient(160deg, #001a17 0%, #003d33 100%)",
   },
   {
-    id: "4",
-    seller_id: "u3",
-    seller_name: "Sade T",
-    seller_avatar: null,
+    id: "4", seller_id: "u3", seller_name: "Sade T", seller_avatar: null,
     title: "Reformation Linen Top",
-    description: "Soft linen button-down in sage. XS. Worn twice.",
-    price_cents: 3800,
-    size: "XS",
-    category: "Tops",
-    condition: "like new",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-04T00:00:00Z",
-    size_display: "XS",
-    seller_initials: "ST",
+    description: "Soft linen button-down in sage. Worn twice.",
+    price_cents: 0, listing_type: "swap", swap_wants: "Swap for any linen bottom, XS–S",
+    size: "XS", category: "Tops", condition: "like new",
+    image_url: null, status: "active", created_at: "2026-06-04T00:00:00Z",
+    size_display: "XS", seller_initials: "ST",
     seller_gradient: "linear-gradient(135deg, #FF6B35, #FFB347)",
     card_gradient: "linear-gradient(160deg, #1a0f00 0%, #3d2600 100%)",
   },
   {
-    id: "5",
-    seller_id: "u5",
-    seller_name: "Lena P",
-    seller_avatar: null,
+    id: "5", seller_id: "u5", seller_name: "Lena P", seller_avatar: null,
     title: "Nike Air Force 1 White",
     description: "Size 7.5. Worn a handful of times — still clean.",
-    price_cents: 8000,
-    size: "7.5",
-    category: "Shoes",
-    condition: "good",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-05T00:00:00Z",
-    size_display: "7.5",
-    seller_initials: "LP",
+    price_cents: 8000, listing_type: "sell", swap_wants: null,
+    size: "7.5", category: "Shoes", condition: "good",
+    image_url: null, status: "active", created_at: "2026-06-05T00:00:00Z",
+    size_display: "7.5", seller_initials: "LP",
     seller_gradient: "linear-gradient(135deg, #E91E8C, #F48FB1)",
     card_gradient: "linear-gradient(160deg, #1a0011 0%, #400028 100%)",
   },
   {
-    id: "6",
-    seller_id: "u2",
-    seller_name: "Amara K",
-    seller_avatar: null,
+    id: "6", seller_id: "u2", seller_name: "Amara K", seller_avatar: null,
     title: "Beaded Clutch (Thrift)",
     description: "Vintage beaded clutch, silver and white. Unique piece.",
-    price_cents: 2800,
-    size: "-",
-    category: "Bags",
-    condition: "good",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-06T00:00:00Z",
-    size_display: "O/S",
-    seller_initials: "AK",
+    price_cents: 0, listing_type: "swap", swap_wants: "Swap for a small crossbody or mini bag",
+    size: "-", category: "Bags", condition: "good",
+    image_url: null, status: "active", created_at: "2026-06-06T00:00:00Z",
+    size_display: "O/S", seller_initials: "AK",
     seller_gradient: "linear-gradient(135deg, #7B2FF7, #C77DFF)",
     card_gradient: "linear-gradient(160deg, #0d0d1a 0%, #1a1a40 100%)",
   },
   {
-    id: "7",
-    seller_id: "u4",
-    seller_name: "Nia B",
-    seller_avatar: null,
+    id: "7", seller_id: "u4", seller_name: "Nia B", seller_avatar: null,
     title: "Blazer (H&M Studio)",
     description: "Oversized black blazer, S. Tags still attached. Never worn.",
-    price_cents: 5500,
-    size: "S",
-    category: "Tops",
-    condition: "new with tags",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-07T00:00:00Z",
-    size_display: "S",
-    seller_initials: "NB",
+    price_cents: 5500, listing_type: "sell", swap_wants: null,
+    size: "S", category: "Tops", condition: "new with tags",
+    image_url: null, status: "active", created_at: "2026-06-07T00:00:00Z",
+    size_display: "S", seller_initials: "NB",
     seller_gradient: "linear-gradient(135deg, #00C6A7, #3B82F6)",
     card_gradient: "linear-gradient(160deg, #0a0a0a 0%, #1a1a1a 100%)",
   },
   {
-    id: "8",
-    seller_id: "u1",
-    seller_name: "Zara M",
-    seller_avatar: null,
+    id: "8", seller_id: "u1", seller_name: "Zara M", seller_avatar: null,
     title: "Floral Midi Skirt",
     description: "Floaty midi skirt with pink floral print. M. Barely worn.",
-    price_cents: 4200,
-    size: "M",
-    category: "Bottoms",
-    condition: "like new",
-    image_url: null,
-    status: "active",
-    created_at: "2026-06-08T00:00:00Z",
-    size_display: "M",
-    seller_initials: "ZM",
+    price_cents: 4200, listing_type: "sell_or_swap", swap_wants: "Also open to swapping for a maxi dress",
+    size: "M", category: "Bottoms", condition: "like new",
+    image_url: null, status: "active", created_at: "2026-06-08T00:00:00Z",
+    size_display: "M", seller_initials: "ZM",
     seller_gradient: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
     card_gradient: "linear-gradient(160deg, #1a0011 0%, #400028 100%)",
   },
@@ -279,6 +217,8 @@ export function HangerPage() {
   const [sellCondition,   setSellCondition]   = useState("");
   const [sellPrice,       setSellPrice]       = useState("");
   const [sellDescription, setSellDescription] = useState("");
+  const [listingType,     setListingType]     = useState<"sell" | "swap" | "sell_or_swap">("sell");
+  const [swapWants,       setSwapWants]       = useState("");
 
   const filtered =
     activeCategory === "All"
@@ -623,19 +563,19 @@ export function HangerPage() {
                   {listing.title}
                 </p>
 
-                {/* Price */}
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 16,
-                    fontFamily: "var(--font-playfair), serif",
-                    fontStyle: "italic",
-                    fontWeight: 700,
-                    color: PINK,
-                  }}
-                >
-                  {price}
-                </p>
+                {/* Price / swap label */}
+                {listing.listing_type === "swap" ? (
+                  <p style={{ margin: 0, fontSize: 13, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, color: SWAP_TEAL, letterSpacing: "0.02em" }}>
+                    🔄 Swap only
+                  </p>
+                ) : listing.listing_type === "sell_or_swap" ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
+                    <span style={{ fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: SWAP_TEAL, background: `${SWAP_TEAL}18`, padding: "2px 6px", borderRadius: 6 }}>SWAP OK</span>
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
+                )}
 
                 {/* Seller chip */}
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -672,27 +612,37 @@ export function HangerPage() {
                   </span>
                 </div>
 
-                {/* Buy button */}
-                <button
-                  onClick={() => void handleBuy(listing.id)}
-                  disabled={buyingId === listing.id}
-                  style={{
-                    marginTop: "auto",
-                    width: "100%",
-                    background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "9px 0",
-                    fontSize: 11,
-                    fontFamily: "var(--font-jost), sans-serif",
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    cursor: buyingId === listing.id ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {buyingId === listing.id ? "…" : `Buy · ${price}`}
-                </button>
+                {/* Action button */}
+                {listing.listing_type === "swap" ? (
+                  <button
+                    style={{ marginTop: "auto", width: "100%", background: SWAP_TEAL, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
+                  >
+                    Offer a Swap 🔄
+                  </button>
+                ) : listing.listing_type === "sell_or_swap" ? (
+                  <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
+                    <button
+                      onClick={() => void handleBuy(listing.id)}
+                      disabled={buyingId === listing.id}
+                      style={{ flex: 1, background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
+                    >
+                      {buyingId === listing.id ? "…" : `Buy`}
+                    </button>
+                    <button
+                      style={{ flex: 1, background: "transparent", color: SWAP_TEAL, border: `1.5px solid ${SWAP_TEAL}`, borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: "pointer" }}
+                    >
+                      Swap 🔄
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => void handleBuy(listing.id)}
+                    disabled={buyingId === listing.id}
+                    style={{ marginTop: "auto", width: "100%", background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
+                  >
+                    {buyingId === listing.id ? "…" : `Buy · ${price}`}
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -770,11 +720,47 @@ export function HangerPage() {
               fontFamily: "var(--font-caveat), cursive",
               fontSize: 14,
               color: "rgba(255,255,255,0.35)",
-              margin: "0 0 20px",
+              margin: "0 0 16px",
             }}
           >
             women-only closet ✦
           </p>
+
+          {/* Listing type */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            {(["sell", "swap", "sell_or_swap"] as const).map(type => {
+              const labels = { sell: "Sell", swap: "Swap", sell_or_swap: "Sell or Swap" };
+              const active = listingType === type;
+              return (
+                <button
+                  key={type}
+                  onClick={() => setListingType(type)}
+                  style={{
+                    flex: 1,
+                    padding: "9px 4px",
+                    borderRadius: 10,
+                    border: active
+                      ? `1.5px solid ${type === "swap" ? SWAP_TEAL : PINK}`
+                      : "1.5px solid rgba(255,255,255,0.12)",
+                    background: active
+                      ? (type === "swap" ? `${SWAP_TEAL}22` : `${PINK}22`)
+                      : "transparent",
+                    color: active
+                      ? (type === "swap" ? SWAP_TEAL : PINK)
+                      : "rgba(255,255,255,0.45)",
+                    fontFamily: "var(--font-jost), sans-serif",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.03em",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {labels[type]}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Title */}
           <label style={fieldLabelStyle}>Item title</label>
@@ -841,15 +827,42 @@ export function HangerPage() {
             </div>
           </div>
 
-          {/* Price */}
-          <label style={fieldLabelStyle}>Price ($)</label>
-          <input
-            type="number"
-            placeholder="e.g. 45"
-            value={sellPrice}
-            onChange={(e) => setSellPrice(e.target.value)}
-            style={{ ...sharedInputStyle, marginBottom: 16 }}
-          />
+          {/* Price — hidden for swap-only */}
+          {listingType !== "swap" && (
+            <>
+              <label style={fieldLabelStyle}>
+                Price ($){listingType === "sell_or_swap" && <span style={{ color: "rgba(255,255,255,0.3)", fontWeight: 400, marginLeft: 4 }}>optional if swap</span>}
+              </label>
+              <input
+                type="number"
+                placeholder="e.g. 45"
+                value={sellPrice}
+                onChange={(e) => setSellPrice(e.target.value)}
+                style={{ ...sharedInputStyle, marginBottom: 16 }}
+              />
+            </>
+          )}
+
+          {/* Swap wants — shown for swap and sell_or_swap */}
+          {listingType !== "sell" && (
+            <>
+              <label style={{ ...fieldLabelStyle, color: SWAP_TEAL }}>What are you looking to swap for?</label>
+              <textarea
+                placeholder="e.g. Looking for a size S linen top or vintage denim…"
+                value={swapWants}
+                onChange={(e) => setSwapWants(e.target.value)}
+                rows={2}
+                style={{
+                  ...sharedInputStyle,
+                  fontFamily: "var(--font-caveat), cursive",
+                  fontSize: 15,
+                  marginBottom: 16,
+                  resize: "none",
+                  borderColor: `${SWAP_TEAL}40`,
+                }}
+              />
+            </>
+          )}
 
           {/* Description */}
           <label style={fieldLabelStyle}>Description</label>
@@ -877,13 +890,17 @@ export function HangerPage() {
               lineHeight: 1.4,
             }}
           >
-            Bloombay takes 10% when it sells. You keep the rest.
+            {listingType === "swap"
+              ? "No fees on swaps — just connect and exchange."
+              : listingType === "sell_or_swap"
+              ? "10% fee on sales. Swaps are always free."
+              : "Bloombay takes 10% when it sells. You keep the rest."}
           </p>
 
           <button
             style={{
               width: "100%",
-              background: PINK,
+              background: listingType === "swap" ? SWAP_TEAL : PINK,
               color: "#fff",
               border: "none",
               borderRadius: 14,
@@ -895,7 +912,7 @@ export function HangerPage() {
               cursor: "pointer",
             }}
           >
-            List it →
+            {listingType === "swap" ? "List for Swap 🔄" : listingType === "sell_or_swap" ? "List it →" : "List it →"}
           </button>
         </div>
       </div>
