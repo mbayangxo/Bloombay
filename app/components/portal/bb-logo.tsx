@@ -1,8 +1,7 @@
 /**
  * BBWordmark — full "BloomBay" wordmark combining calligraphic + bold styles.
- * "Bloom" in flowing Fraunces italic (image 3 inspiration: the script B.).
- * "Bay" in Jost Black (image 1 inspiration: chunky FLORA letterforms).
- * Asterisk ✶ precedes the word, matching the star in image 3.
+ * "Bloom" in flowing Fraunces italic (script B. reference — image 3).
+ * "Bay" in Jost Black (chunky FLORA letterforms — image 1).
  */
 export function BBWordmark({
   size = 26,
@@ -24,21 +23,6 @@ export function BBWordmark({
         userSelect: "none",
       }}
     >
-      {/* Asterisk star — like image 3 */}
-      <span
-        style={{
-          fontFamily: "var(--font-jost)",
-          fontWeight: 900,
-          fontSize: size * 0.48,
-          color: pink,
-          marginRight: size * 0.14,
-          transform: "translateY(-1px)",
-          display: "inline-block",
-          letterSpacing: 0,
-        }}
-      >
-        ✶
-      </span>
       {/* "Bloom" — flowing Fraunces italic (calligraphic, script-like) */}
       <span
         style={{
