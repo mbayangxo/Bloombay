@@ -10,13 +10,16 @@ import { WhyJoin } from "./why-join";
 import { ClubForm } from "./club-form";
 import { PartnerForm } from "./partner-form";
 import { FoundingMothers } from "./founding-mothers";
+import { MemberOnboarding } from "./member-onboarding";
 import { submitToWaitlist, type SignupType } from "../../../lib/supabase";
 
 // ── Scenes ────────────────────────────────────────────────────
 type Scene =
   | "invite"
   | "signup-type"
-  // Member path
+  // Member path — new beautiful flow
+  | "member-onboarding"
+  // Legacy member path (kept for club/partner)
   | "why-here"
   | "member-form"
   // Club path
@@ -278,7 +281,7 @@ export function BloomSuite() {
 
   // Route "Continue" from signup-type to the right next screen
   const handleSignupContinue = () => {
-    if (signupType === "member")    go("why-here");
+    if (signupType === "member")    go("member-onboarding");
     if (signupType === "club_host") go("club-form");
     if (signupType === "partner")   go("partner-form");
   };
@@ -301,6 +304,16 @@ export function BloomSuite() {
               onSelect={setSignupType}
               onContinue={handleSignupContinue}
               onBack={() => go("invite")}
+            />
+          </div>
+        );
+
+      case "member-onboarding":
+        return (
+          <div className="bloom-scene bloom-scene--ivory" style={{ padding: 0 }}>
+            <MemberOnboarding
+              onBack={() => go("signup-type")}
+              onHome={() => go("invite")}
             />
           </div>
         );
