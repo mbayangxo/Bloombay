@@ -5,7 +5,7 @@ import { PinDropCompose } from "./pin-drop-compose";
 import "@/app/styles/bloom-entrance.css";
 
 const PINK = "#FF1F7D";
-const BG   = "#0D0820";
+const BG   = "var(--bb-page-bg, #FFF0F6)";
 
 interface PersonalPin  { id: string; location: string; caption: string | null; expires_at: string; created_at: string; }
 interface ReceivedPin  { id: string; location: string; caption: string | null; expires_at: string; sent_at: string; sender_name: string; sender_avatar: string | null; kind: "received"; }
@@ -32,12 +32,12 @@ function expiresIn(iso: string) {
 }
 
 const PILL_COLORS = [
-  { bg: "#2D1B4E", border: "rgba(180,120,255,0.4)", text: "rgba(210,180,255,0.95)" },
-  { bg: "#1A2E1A", border: "rgba(100,200,100,0.35)", text: "rgba(160,230,160,0.95)" },
-  { bg: "#2E1A1A", border: "rgba(255,100,100,0.35)", text: "rgba(255,160,160,0.95)" },
-  { bg: "#1A1E2E", border: "rgba(100,140,255,0.35)", text: "rgba(160,190,255,0.95)" },
-  { bg: "#2E2A1A", border: "rgba(255,200,80,0.35)",  text: "rgba(255,225,140,0.95)" },
-  { bg: "#2E1A28", border: `${PINK}55`,              text: "rgba(255,160,200,0.95)" },
+  { bg: "#FF1F7D", border: "rgba(255,31,125,0.5)",   text: "#FFFFFF" },
+  { bg: "#FFFFFF",  border: "rgba(255,31,125,0.3)",   text: "#FF1F7D" },
+  { bg: "#FF69B4", border: "rgba(255,105,180,0.5)",  text: "#FFFFFF" },
+  { bg: "#1C1B1C", border: "rgba(0,0,0,0.3)",        text: "#FFFFFF" },
+  { bg: "#FFF0F6", border: "rgba(255,31,125,0.25)",  text: "#FF1F7D" },
+  { bg: "#FF1F7D", border: "rgba(255,31,125,0.5)",   text: "#FFFFFF" },
 ];
 
 // Scattered layout: each pill gets a % position and slight rotation
@@ -161,7 +161,7 @@ export function PinDropsPage() {
       <div style={{
         position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
         width: 300, height: 300, borderRadius: "50%",
-        background: `radial-gradient(circle, ${PINK}18 0%, transparent 70%)`,
+        background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`,
         pointerEvents: "none",
       }} />
 

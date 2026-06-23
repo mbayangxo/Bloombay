@@ -11,9 +11,9 @@ import { ClubCrestSVG } from "./club-crest";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
-const BOARD = "#0E0C0A";
-const CREAM = "#F6F1EB";
-const PAPER = "#FEFDF8";
+const BOARD = "var(--bb-page-bg, #FFF0F6)";
+const CREAM = "#FFFFFF";
+const PAPER = "#FFFFFF";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
@@ -141,7 +141,7 @@ export function ClubsPage() {
       <section style={{ padding: "14px 18px 0", position: "relative" }}>
 
         {/* Board texture dots */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,31,125,0.08) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
 
         {/* Safety pin top-left decoration */}
         <SafetyPin style={{ position: "absolute", top: 8, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
