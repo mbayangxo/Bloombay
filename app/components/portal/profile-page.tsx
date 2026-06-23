@@ -11,6 +11,7 @@ import type { AuthUser } from "@/lib/auth/get-user";
 import { SocialProofSection } from "./social-proof-section";
 import { QuestionSheCaries } from "./question-she-carries";
 import { FoundingFlower } from "@/app/components/shared/founding-flower";
+import { CreateMomentSheet } from "@/app/components/portal/create-moment-sheet";
 
 const PINK = "#FF1F7D";
 
@@ -1169,6 +1170,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
   const [activeTab, setActiveTab] = useState<TabId>(defaultTab ?? "profile");
   const [bloomCodeCopied, setBloomCodeCopied] = useState(false);
+  const [showMomentSheet, setShowMomentSheet] = useState(false);
   const [bloomLinkCopied, setBloomLinkCopied] = useState(false);
 
   // Template state
@@ -2055,21 +2057,28 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             {photos.length === 0 && uploadingCount === 0 && (
               <div style={{ ...cardStyle, textAlign: "center", padding: "32px 18px" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,31,125,0.5)", marginBottom: 6 }}>No moments yet</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.35)", marginBottom: 16 }}>Upload photos to fill your apartment</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.35)", marginBottom: 16 }}>Capture a place, event, meetup, or girl gem ✦</p>
               </div>
             )}
 
             <button
-              onClick={() => addInputRef.current?.click()}
-              style={{ width: "100%", padding: "14px", borderRadius: 16, border: `1.5px dashed rgba(255,31,125,0.4)`, background: "rgba(255,31,125,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
+              onClick={() => setShowMomentSheet(true)}
+              style={{ width: "100%", padding: "14px", borderRadius: 16, border: "none", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>ADD MOMENT</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "0.1em" }}>CREATE MOMENT</span>
             </button>
             <input ref={addInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
               onChange={e => { if (e.target.files?.length) handleAddPhotos(e.target.files); e.target.value = ""; }} />
+
+            {showMomentSheet && (
+              <CreateMomentSheet
+                onClose={() => setShowMomentSheet(false)}
+                onPosted={() => setShowMomentSheet(false)}
+              />
+            )}
           </div>
         )}
 

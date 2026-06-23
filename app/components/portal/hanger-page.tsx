@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
+import { createHangerListing } from "@/lib/actions/hanger";
 import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
@@ -219,6 +220,28 @@ export function HangerPage() {
   const [sellDescription, setSellDescription] = useState("");
   const [listingType,     setListingType]     = useState<"sell" | "swap" | "sell_or_swap">("sell");
   const [swapWants,       setSwapWants]       = useState("");
+  const [listSubmitting,  setListSubmitting]  = useState(false);
+  const [listError,       setListError]       = useState<string | null>(null);
+
+  async function handleList() {
+    if (!sellTitle.trim()) { setListError("Please add a title."); return; }
+    if (listingType !== "swap" && !sellPrice) { setListError("Please enter a price."); return; }
+    setListSubmitting(true);
+    setListError(null);
+    const result = await createHangerListing({
+      title:        sellTitle.trim(),
+      description:  sellDescription.trim() || undefined,
+      price_cents:  listingType === "swap" ? 0 : Math.round(parseFloat(sellPrice) * 100),
+      listing_type: listingType,
+      swap_wants:   swapWants.trim() || undefined,
+      size:         sellSize.trim() || undefined,
+      category:     sellCategory || undefined,
+      condition:    sellCondition || "good",
+    });
+    setListSubmitting(false);
+    if (!result.ok) { setListError(result.error ?? "Something went wrong."); return; }
+    closeSellSheet();
+  }
 
   function closeSellSheet() {
     setSellSheetOpen(false);
@@ -902,10 +925,15 @@ export function HangerPage() {
               : "Bloombay takes 10% when it sells. You keep the rest."}
           </p>
 
+          {listError && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#e53e3e", margin: "0 0 10px", textAlign: "center" }}>{listError}</p>
+          )}
           <button
+            onClick={() => void handleList()}
+            disabled={listSubmitting}
             style={{
               width: "100%",
-              background: listingType === "swap" ? SWAP_TEAL : PINK,
+              background: listSubmitting ? "rgba(255,31,125,0.5)" : listingType === "swap" ? SWAP_TEAL : PINK,
               color: "#fff",
               border: "none",
               borderRadius: 14,
@@ -914,10 +942,10 @@ export function HangerPage() {
               fontFamily: "var(--font-jost), sans-serif",
               fontWeight: 700,
               letterSpacing: "0.05em",
-              cursor: "pointer",
+              cursor: listSubmitting ? "not-allowed" : "pointer",
             }}
           >
-            {listingType === "swap" ? "List for Swap 🔄" : listingType === "sell_or_swap" ? "List it →" : "List it →"}
+            {listSubmitting ? "Listing…" : listingType === "swap" ? "List for Swap 🔄" : "List it →"}
           </button>
         </div>
       </div>
