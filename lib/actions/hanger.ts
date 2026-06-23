@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-export type HangerListingType = "sell" | "swap" | "sell_or_swap";
+export type HangerListingType = "sell" | "swap" | "sell_or_swap" | "give_away";
 
 export interface HangerListing {
   id: string;
@@ -17,6 +17,7 @@ export interface HangerListing {
   size: string | null;
   category: string | null;
   condition: string;
+  city: string | null;
   image_url: string | null;
   status: string;
   created_at: string;
@@ -28,6 +29,7 @@ export interface CreateHangerListingInput {
   price_cents: number;
   listing_type?: HangerListingType;
   swap_wants?: string;
+  city?: string;
   size?: string;
   category?: string;
   condition?: string;
@@ -49,13 +51,13 @@ export async function getHangerListings(category?: string): Promise<HangerListin
   return (data ?? []).map((r: {
     id: string; seller_id: string; title: string; description: string | null;
     price_cents: number; listing_type: HangerListingType | null; swap_wants: string | null;
-    size: string | null; category: string | null;
+    city: string | null; size: string | null; category: string | null;
     condition: string; image_url: string | null; status: string; created_at: string;
     profiles: { display_name: string | null; avatar_url: string | null } | null;
   }) => ({
     id: r.id, seller_id: r.seller_id, title: r.title, description: r.description,
     price_cents: r.price_cents, listing_type: r.listing_type ?? "sell", swap_wants: r.swap_wants ?? null,
-    size: r.size, category: r.category,
+    city: r.city ?? null, size: r.size, category: r.category,
     condition: r.condition, image_url: r.image_url, status: r.status, created_at: r.created_at,
     seller_name: r.profiles?.display_name ?? null,
     seller_avatar: r.profiles?.avatar_url ?? null,
@@ -74,13 +76,13 @@ export async function getMyHangerListings(): Promise<HangerListing[]> {
   return (data ?? []).map((r: {
     id: string; seller_id: string; title: string; description: string | null;
     price_cents: number; listing_type: HangerListingType | null; swap_wants: string | null;
-    size: string | null; category: string | null;
+    city: string | null; size: string | null; category: string | null;
     condition: string; image_url: string | null; status: string; created_at: string;
     profiles: { display_name: string | null; avatar_url: string | null } | null;
   }) => ({
     id: r.id, seller_id: r.seller_id, title: r.title, description: r.description,
     price_cents: r.price_cents, listing_type: r.listing_type ?? "sell", swap_wants: r.swap_wants ?? null,
-    size: r.size, category: r.category,
+    city: r.city ?? null, size: r.size, category: r.category,
     condition: r.condition, image_url: r.image_url, status: r.status, created_at: r.created_at,
     seller_name: r.profiles?.display_name ?? null,
     seller_avatar: r.profiles?.avatar_url ?? null,
@@ -99,6 +101,7 @@ export async function createHangerListing(input: CreateHangerListingInput): Prom
     price_cents: input.price_cents,
     listing_type: input.listing_type ?? "sell",
     swap_wants: input.swap_wants?.trim() ?? null,
+    city: input.city?.trim() ?? null,
     size: input.size ?? null,
     category: input.category ?? null,
     condition: input.condition ?? "good",
