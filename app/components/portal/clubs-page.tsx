@@ -138,17 +138,16 @@ export function ClubsPage() {
       </Link>
 
       {/* ══════════ HERO — bulletin board with headline + polaroid ══════════ */}
-      <section style={{ padding: "64px 18px 0", position: "relative" }}>
+      <section style={{ padding: "14px 18px 0", position: "relative" }}>
 
         {/* Board texture dots */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
 
         {/* Safety pin top-left decoration */}
-        <SafetyPin style={{ position: "absolute", top: 54, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
+        <SafetyPin style={{ position: "absolute", top: 8, left: 24, transform: "rotate(-15deg)", zIndex: 4 }} />
 
-        {/* Gold star decorations */}
-        <GoldStar size={18} style={{ position: "absolute", top: 58, right: 28, zIndex: 4 }} />
-        <GoldStar size={12} style={{ position: "absolute", top: 190, right: 54, zIndex: 4, opacity: 0.7 }} />
+        {/* Gold star decoration */}
+        <GoldStar size={16} style={{ position: "absolute", top: 10, right: 28, zIndex: 4 }} />
 
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 28, position: "relative", zIndex: 2 }}>
 
@@ -169,18 +168,18 @@ export function ClubsPage() {
               overflow: "hidden",
             }}>
               {/* Big headline */}
-              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 8 }}>
-                <div style={{ fontSize: "clamp(38px,11vw,50px)", color: DARK }}>Clubs.</div>
+              <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, lineHeight: 1.0, marginBottom: 6 }}>
+                <div style={{ fontSize: "clamp(28px,8vw,36px)", color: DARK }}>Clubs.</div>
               </div>
 
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: DARK, opacity: 0.55, marginBottom: 14, lineHeight: 1.4 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: DARK, opacity: 0.55, marginBottom: 10, lineHeight: 1.3 }}>
                 clubs for every side of you.
               </p>
 
               <Link href="/member/clubs/create" style={{ textDecoration: "none", display: "inline-flex" }}>
-                <div style={{ background: DARK, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>START A CLUB</p>
+                <div style={{ background: DARK, borderRadius: 999, padding: "6px 14px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>START A CLUB</p>
                 </div>
               </Link>
 
@@ -198,21 +197,21 @@ export function ClubsPage() {
             {/* Polaroid */}
             <div style={{
               background: "white",
-              padding: "7px 7px 26px",
-              width: 110,
+              padding: "5px 5px 20px",
+              width: 88,
               boxShadow: "4px 8px 24px rgba(0,0,0,0.6)",
               transform: "rotate(3.5deg)",
               position: "relative",
             }}>
               <div style={{
                 width: "100%",
-                height: 96,
+                height: 72,
                 background: "linear-gradient(145deg,#3D0020,#C80060,#FF5BAD)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}>
-                <span style={{ fontSize: 40, opacity: 0.7 }}>🌸</span>
+                <span style={{ fontSize: 32, opacity: 0.7 }}>🌸</span>
               </div>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.45)", textAlign: "center", marginTop: 4, lineHeight: 1.2 }}>
                 your new favorite<br/>room ♡

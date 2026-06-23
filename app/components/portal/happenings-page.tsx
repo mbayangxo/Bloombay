@@ -162,7 +162,7 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "intros" | "map" | "scene";
+type HapTab = "happenings" | "intros" | "map" | "scene" | "calendar";
 type Filter = "All" | "Parties" | "Dinners" | "Gatherings" | "Club Gatherings" | "Invitations" | "Open Seats" | "Tables" | "Confetti" | "Events";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
