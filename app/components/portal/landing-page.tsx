@@ -164,111 +164,162 @@ function EnvelopeInvitation() {
   function handleOpen() {
     if (opening) return;
     setOpening(true);
-    setTimeout(() => router.push("/waitlist"), 680);
+    setTimeout(() => router.push("/waitlist"), 700);
   }
 
   return (
-    <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 20px 40px", maxWidth: 400, margin: "0 auto", width: "100%" }}>
+    <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 0 44px", maxWidth: 360, margin: "0 auto", width: "100%" }}>
       {/* YOU'RE INVITED label */}
-      <p style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 900, letterSpacing: "0.34em", color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>
+      <p style={{ textAlign: "center", fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.38em", color: "rgba(255,255,255,0.55)", marginBottom: 16 }}>
         YOU&apos;RE INVITED
       </p>
 
-      {/* Envelope body */}
-      <div style={{ position: "relative", perspective: "600px" }}>
+      {/* Envelope wrapper — perspective container */}
+      <div style={{ position: "relative", perspective: "900px" }}>
 
-        {/* Shadow envelope (depth effect) */}
-        <div style={{ position: "absolute", bottom: -6, left: 6, right: -6, height: "90%", background: "#FFB8D4", borderRadius: 16, opacity: 0.4 }} />
+        {/* Depth layers behind the envelope */}
+        <div style={{ position: "absolute", bottom: -10, left: 10, right: -10, height: "88%", background: "rgba(140,0,50,0.22)", borderRadius: 18, filter: "blur(8px)", zIndex: 0 }} />
+        <div style={{ position: "absolute", bottom: -4, left: 4, right: -4, height: "92%", background: "rgba(255,180,210,0.35)", borderRadius: 17, zIndex: 0 }} />
 
-        {/* Main envelope */}
+        {/* ── ENVELOPE BODY ── */}
         <div style={{
-          position: "relative",
-          background: "#FFEDF4",
+          position: "relative", zIndex: 1,
+          background: "linear-gradient(160deg, #FFF8F3 0%, #FFF2EC 40%, #FFEAE4 100%)",
           borderRadius: 16,
-          overflow: "hidden",
-          boxShadow: "0 20px 56px rgba(0,0,0,0.28), 0 4px 0 rgba(180,0,70,0.15)",
+          overflow: "visible",
+          boxShadow: "0 28px 64px rgba(0,0,0,0.26), 0 8px 20px rgba(0,0,0,0.12), 0 2px 0 rgba(200,80,100,0.18), inset 0 1px 0 rgba(255,255,255,0.9)",
+          border: "0.5px solid rgba(255,210,220,0.7)",
         }}>
-          {/* Side flap shadows (V shape on left and right) */}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(255,180,210,0.35) 0%, transparent 35%, transparent 65%, rgba(255,180,210,0.35) 100%)", pointerEvents: "none" }} />
+          {/* Envelope back body (clipped rect, no overflow) */}
+          <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
 
-          {/* Bottom V fold */}
-          <div style={{
-            position: "absolute",
-            bottom: 0, left: 0, right: 0, height: "42%",
-            clipPath: "polygon(0 100%, 50% 0%, 100% 100%)",
-            background: "linear-gradient(to bottom, #FFD4E8, #FFBAD8)",
-            opacity: 0.65,
-          }} />
+            {/* Diagonal side-fold shadows (makes it look like a real envelope) */}
+            <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: "40%", background: "linear-gradient(to right, rgba(180,80,100,0.08) 0%, transparent 100%)", pointerEvents: "none", zIndex: 2 }} />
+            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "40%", background: "linear-gradient(to left, rgba(180,80,100,0.08) 0%, transparent 100%)", pointerEvents: "none", zIndex: 2 }} />
 
-          {/* TOP FLAP — words on the flap, small */}
-          <div style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0,
-            height: "46%",
-            clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-            background: "linear-gradient(to bottom, #FFD4E8, #FFEDF4)",
-            transformOrigin: "top center",
-            transform: opening ? "perspective(400px) rotateX(-160deg)" : "perspective(400px) rotateX(0deg)",
-            transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
-            zIndex: 4,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            paddingTop: 14,
-            gap: 3,
-          }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.26em", color: "rgba(196,0,90,0.55)", textAlign: "center" }}>WHERE YOU BLOOM</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(0,0,0,0.25)", textAlign: "center" }}>A NEW KIND OF SOCIAL LIFE</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: PINK, opacity: 0.55, textAlign: "center" }}>built for women. by women.</p>
-          </div>
+            {/* Bottom V-fold */}
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0, height: "44%",
+              clipPath: "polygon(0 100%, 50% 8%, 100% 100%)",
+              background: "linear-gradient(170deg, #F8D8E4 0%, #F0C0D4 55%, #E8AABF 100%)",
+              zIndex: 1,
+            }} />
+            {/* Bottom V shadow line (fold crease) */}
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0, height: "44%",
+              clipPath: "polygon(calc(50% - 1px) 8%, calc(50% + 1px) 8%, calc(50% + 1px) 9%, calc(50% - 1px) 9%)",
+              background: "rgba(150,60,80,0.3)",
+              zIndex: 3,
+            }} />
 
-          {/* Envelope content — starts below the flap */}
-          <div style={{ padding: "110px 24px 40px", position: "relative", zIndex: 2, textAlign: "center" }}>
-            {/* BloomBay script — safely below the flap */}
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(28px,8vw,38px)", color: PINK, lineHeight: 1, letterSpacing: "-0.01em", marginBottom: 8 }}>
-              BloomBay
-            </p>
+            {/* Interior liner — visible behind top flap */}
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: "48%",
+              clipPath: "polygon(0 0, 100% 0, 50% 88%)",
+              background: "repeating-linear-gradient(135deg, rgba(255,31,125,0.055) 0px, rgba(255,31,125,0.055) 1px, transparent 1px, transparent 7px), linear-gradient(to bottom, #FFDDE8, #FFD0E0)",
+              zIndex: 1,
+            }} />
 
-            {/* Decorative divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "10px 0 16px" }}>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
-              <span style={{ color: "rgba(255,31,125,0.3)", fontSize: 10 }}>✦</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.15)" }} />
+            {/* ── TOP FLAP ── */}
+            <div style={{
+              position: "absolute",
+              top: 0, left: 0, right: 0, height: "47%",
+              clipPath: "polygon(0 0, 100% 0, 50% 90%)",
+              background: "linear-gradient(175deg, #FFF4F0 0%, #FFE8EE 45%, #FFD8E6 100%)",
+              transformOrigin: "top center",
+              transform: opening
+                ? "perspective(600px) rotateX(-168deg)"
+                : "perspective(600px) rotateX(0deg)",
+              transition: "transform 0.62s cubic-bezier(0.36,0,0.2,1)",
+              zIndex: 5,
+              overflow: "hidden",
+            }}>
+              {/* Diagonal liner on flap interior */}
+              <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(135deg, rgba(255,31,125,0.05) 0px, rgba(255,31,125,0.05) 1px, transparent 1px, transparent 7px)", opacity: 0.8 }} />
+              {/* Subtle flap gradient sheen */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom right, rgba(255,255,255,0.5) 0%, transparent 60%)" }} />
+              {/* BB monogram on flap */}
+              <div style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", border: "1px solid rgba(196,0,90,0.22)", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.6)" }}>
+                  <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 10, color: "rgba(196,0,90,0.55)", letterSpacing: "0.04em" }}>BB</span>
+                </div>
+              </div>
             </div>
 
-            {/* "Open me ♡" handwritten note */}
-            <div style={{ position: "absolute", bottom: 48, right: 20, textAlign: "right" }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.3)", lineHeight: 1.2 }}>
-                Open me ♡
-              </p>
-              <svg width="28" height="16" viewBox="0 0 28 16" fill="none" style={{ display: "block", marginLeft: "auto" }}>
-                <path d="M2 8 Q10 2 24 8" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                <path d="M20 5 L24 8 L21 11" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              </svg>
+            {/* ── INNER INVITATION CARD ── */}
+            <div style={{ padding: "98px 18px 28px", position: "relative", zIndex: 3 }}>
+              <div style={{
+                background: "white",
+                borderRadius: 10,
+                overflow: "hidden",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.09), 0 1px 0 rgba(255,31,125,0.05)",
+                border: "0.5px solid rgba(255,31,125,0.08)",
+                position: "relative",
+              }}>
+                {/* Gold foil header bar */}
+                <div style={{ background: "linear-gradient(90deg, #C4005A 0%, #FF1F7D 35%, #FF69B4 55%, #FF1F7D 75%, #C4005A 100%)", padding: "8px 16px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,255,255,0.9)" }}>WHERE YOU BLOOM</p>
+                </div>
+
+                {/* Card body */}
+                <div style={{ padding: "16px 16px 14px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(26px,7.5vw,34px)", color: PINK, lineHeight: 1, letterSpacing: "-0.01em" }}>
+                    BloomBay
+                  </p>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px 0" }}>
+                    <div style={{ flex: 1, height: "0.5px", background: "rgba(255,31,125,0.18)" }} />
+                    <span style={{ color: "rgba(255,31,125,0.35)", fontSize: 8 }}>✦</span>
+                    <div style={{ flex: 1, height: "0.5px", background: "rgba(255,31,125,0.18)" }} />
+                  </div>
+
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(0,0,0,0.3)", marginBottom: 14 }}>
+                    A NEW KIND OF SOCIAL LIFE
+                  </p>
+
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.3)", lineHeight: 1.3 }}>
+                    built for women. by women.
+                  </p>
+
+                  {/* "Open me" handwritten note */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 4, marginTop: 10 }}>
+                    <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.22)" }}>Open me ♡</p>
+                    <svg width="22" height="13" viewBox="0 0 22 13" fill="none">
+                      <path d="M2 7 Q9 2 18 7" stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeLinecap="round" fill="none" />
+                      <path d="M15 4.5 L18 7 L15.5 9.5" stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        </div>
 
-        {/* Wax seal — sits over the envelope bottom fold */}
+        {/* ── WAX SEAL ── */}
         <div style={{
           position: "absolute",
-          bottom: -22,
+          bottom: -26,
           left: "50%",
-          transform: `translateX(-50%) ${opening ? "scale(0.85) translateY(-4px)" : "scale(1)"}`,
-          transition: "transform 0.4s ease",
-          zIndex: 5,
+          transform: `translateX(-50%) ${opening ? "scale(0.80) translateY(-8px)" : "scale(1)"}`,
+          transition: "transform 0.48s ease",
+          zIndex: 6,
+          filter: "drop-shadow(0 6px 18px rgba(140,0,40,0.55))",
         }}>
           <div style={{
-            width: 56, height: 56, borderRadius: "50%",
-            background: "radial-gradient(circle at 38% 32%, #FF5BAD 0%, #C4005A 60%, #8B0038 100%)",
-            boxShadow: "0 4px 16px rgba(196,0,90,0.55), 0 2px 0 rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.28)",
+            width: 62, height: 62, borderRadius: "50%",
+            background: "radial-gradient(circle at 32% 28%, #FF5BAD 0%, #C4005A 48%, #8B003A 78%, #5C0025 100%)",
+            boxShadow: "0 4px 0 rgba(0,0,0,0.25), inset 0 3px 3px rgba(255,255,255,0.28), inset 0 -3px 6px rgba(0,0,0,0.22)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            flexDirection: "column",
+            flexDirection: "column", position: "relative", overflow: "hidden",
           }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 16, color: "white", letterSpacing: "-0.02em", lineHeight: 1 }}>BB</span>
-            {/* Leaf detail */}
-            <svg width="18" height="6" viewBox="0 0 18 6" fill="none" style={{ marginTop: 1 }}>
-              <path d="M1 5 Q5 1 9 3 Q13 5 17 1" stroke="rgba(255,255,255,0.45)" strokeWidth="1" strokeLinecap="round" fill="none" />
+            {/* Radial rays texture */}
+            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", backgroundImage: "repeating-conic-gradient(rgba(255,255,255,0.06) 0deg 6deg, rgba(0,0,0,0.04) 6deg 12deg)" }} />
+            {/* Inner ring */}
+            <div style={{ position: "absolute", inset: 5, borderRadius: "50%", border: "0.5px solid rgba(255,255,255,0.22)" }} />
+            <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 17, color: "white", letterSpacing: "-0.02em", lineHeight: 1, position: "relative", textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>BB</span>
+            <svg width="22" height="7" viewBox="0 0 22 7" fill="none" style={{ marginTop: 2, position: "relative" }}>
+              <path d="M1 6 Q5.5 1 11 4 Q16.5 7 21 2" stroke="rgba(255,255,255,0.55)" strokeWidth="1.1" strokeLinecap="round" fill="none" />
             </svg>
           </div>
         </div>
@@ -327,10 +378,10 @@ export function LandingPage() {
         <div style={{ position: "absolute", bottom: -60, left: -60, width: 320, height: 320, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}22 0%, transparent 70%)`, pointerEvents: "none" }} />
         {/* Top bar with LOG IN + JOIN NOW */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 18px) 22px 0" }}>
-          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.22)", padding: "7px 16px", borderRadius: 999 }}>
+          <Link href="/portals" style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(255,255,255,0.7)", textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.28)", padding: "11px 22px", borderRadius: 999 }}>
             LOG IN
           </Link>
-          <Link href="/onboard" style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 900, letterSpacing: "0.14em", color: "white", textDecoration: "none", background: PINK, padding: "7px 18px", borderRadius: 999, boxShadow: `0 4px 18px ${PINK}55` }}>
+          <Link href="/onboard" style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 900, letterSpacing: "0.12em", color: "white", textDecoration: "none", background: PINK, padding: "11px 26px", borderRadius: 999, boxShadow: `0 6px 22px ${PINK}60` }}>
             JOIN NOW →
           </Link>
         </div>
@@ -761,40 +812,6 @@ export function LandingPage() {
         </p>
       </div>
 
-      {/* ══════════════════════════════════════════════════════
-          IT'S A WOMAN'S WORLD. WE'RE IT.
-      ══════════════════════════════════════════════════════ */}
-      <section style={{ background: PINK, padding: "36px 22px 80px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.08) 0%, transparent 50%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 900, margin: "0 auto", position: "relative", textAlign: "center" }}>
-          <Sparkle color="rgba(255,255,255,0.5)" size={28} />
-          <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(32px,6vw,68px)", color: "white", margin: "20px 0 10px", lineHeight: 1.1 }}>
-            It&apos;s a woman&apos;s world.
-          </h2>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(32px,6vw,68px)", color: "white", margin: "0 0 24px", lineHeight: 1, letterSpacing: "-0.02em" }}>
-            We&apos;re it.
-          </h2>
-
-          {/* Stats */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", marginBottom: 32 }}>
-            {[
-              { num: "3 in 5", label: "Women feel lonely in cities" },
-              { num: "100K+", label: "Women move to NYC every year" },
-              { num: "1 in 3", label: "Women have no close friends outside family" },
-            ].map(s => (
-              <div key={s.label} style={{ textAlign: "center", maxWidth: 180 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(28px,4vw,40px)", color: "white", lineHeight: 1 }}>{s.num}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)", marginTop: 6, lineHeight: 1.4 }}>{s.label.toUpperCase()}</p>
-              </div>
-            ))}
-          </div>
-
-          <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "18px 40px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.12em", background: "white", color: PINK, textDecoration: "none", boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
-            SAVE MY SPOT
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke={PINK} strokeWidth="1.5" strokeLinecap="round" /></svg>
-          </Link>
-        </div>
-      </section>
 
       {/* ══════════════════════════════════════════════════════
           HOW IT WORKS (light, editorial steps)
