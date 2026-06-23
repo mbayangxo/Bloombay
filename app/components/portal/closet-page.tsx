@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
 
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
@@ -677,7 +678,14 @@ export function ClosetPage() {
         +
       </button>
 
-      {showCreate && <CreateSheet onClose={() => setShowCreate(false)} />}
+      {showCreate && (
+        <FashionPostSheet
+          context="avenue"
+          category="fits"
+          onClose={() => setShowCreate(false)}
+          onPosted={() => setShowCreate(false)}
+        />
+      )}
     </div>
   );
 }

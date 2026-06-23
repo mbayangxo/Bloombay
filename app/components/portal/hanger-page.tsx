@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
+import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -215,6 +216,7 @@ interface SellerBalance {
 export function HangerPage() {
   const [activeCategory, setActiveCategory]   = useState<Category>("All");
   const [sellSheetOpen,  setSellSheetOpen]     = useState(false);
+  const [showPostSheet,  setShowPostSheet]     = useState(false);
   const [buyingId,       setBuyingId]          = useState<string | null>(null);
   const [buyError,       setBuyError]          = useState<string | null>(null);
   const [earnings,       setEarnings]          = useState<EarningsRow[]>([]);
@@ -381,24 +383,44 @@ export function HangerPage() {
             </p>
           </div>
 
-          <button
-            onClick={() => setSellSheetOpen(true)}
-            style={{
-              background: PINK,
-              color: "#fff",
-              border: "none",
-              borderRadius: 20,
-              padding: "8px 18px",
-              fontSize: 12,
-              fontFamily: "var(--font-jost), sans-serif",
-              fontWeight: 700,
-              letterSpacing: "0.04em",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Sell →
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setShowPostSheet(true)}
+              style={{
+                background: "rgba(255,31,125,0.12)",
+                color: PINK,
+                border: `1.5px solid ${PINK}40`,
+                borderRadius: 20,
+                padding: "8px 14px",
+                fontSize: 12,
+                fontFamily: "var(--font-jost), sans-serif",
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Post ✦
+            </button>
+            <button
+              onClick={() => setSellSheetOpen(true)}
+              style={{
+                background: PINK,
+                color: "#fff",
+                border: "none",
+                borderRadius: 20,
+                padding: "8px 18px",
+                fontSize: 12,
+                fontFamily: "var(--font-jost), sans-serif",
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Sell →
+            </button>
+          </div>
         </div>
       </header>
 
@@ -877,6 +899,16 @@ export function HangerPage() {
           </button>
         </div>
       </div>
+
+      {/* ── Fashion post sheet (hanger style posts) ──────────────────────────── */}
+      {showPostSheet && (
+        <FashionPostSheet
+          context="hanger"
+          category="fits"
+          onClose={() => setShowPostSheet(false)}
+          onPosted={() => setShowPostSheet(false)}
+        />
+      )}
     </div>
   );
 }
