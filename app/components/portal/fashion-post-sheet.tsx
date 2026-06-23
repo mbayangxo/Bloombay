@@ -6,15 +6,21 @@ import { createClient } from "@/lib/supabase/browser";
 const PINK   = "#FF1F7D";
 const INK    = "#111111";
 const IVORY  = "#fdf4ec";
+const CREAM  = "#F5EFE6";
 
 // ── Template definitions ──────────────────────────────────────────────────────
 
 export type TemplateId =
-  | "standard"        // single photo / swipeable carousel
-  | "polaroid_single" // one Polaroid, slight tilt, big white border
-  | "polaroid_grid"   // 2×2 grid of Polaroids, alternating tilts
-  | "collage"         // 3 overlapping Polaroids at angles (moodboard)
-  | "editorial";      // split editorial panel — photo left, text right
+  | "standard"         // swipeable carousel 1-10 photos
+  | "polaroid_single"  // one Polaroid, slight tilt, big border
+  | "polaroid_grid"    // 2×2 contact sheet
+  | "collage"          // 3 overlapping scattered Polaroids
+  | "editorial"        // 58/42 split panel
+  | "lookbook"         // "Look 01 / Look 02" (IMG_3464)
+  | "camera"           // Y2K camera/device screen (IMG_3559)
+  | "scrapbook"        // spiral notebook, clip + washi tape (IMG_3562)
+  | "portrait_stack"   // big portrait left + Polaroid column (IMG_3470)
+  | "moodboard";       // journal page, overlapping Polaroids (IMG_3457)
 
 interface TemplateConfig {
   id: TemplateId;
@@ -26,11 +32,16 @@ interface TemplateConfig {
 }
 
 const TEMPLATES: TemplateConfig[] = [
-  { id: "standard",        label: "Standard",       emoji: "◻",   description: "Clean swipeable feed",       maxPhotos: 10, minPhotos: 1 },
-  { id: "polaroid_single", label: "Polaroid",        emoji: "📷",  description: "Instant camera frame",       maxPhotos: 1,  minPhotos: 1 },
-  { id: "polaroid_grid",   label: "Grid",            emoji: "⊞",   description: "2×2 contact sheet",          maxPhotos: 4,  minPhotos: 2 },
-  { id: "collage",         label: "Collage",         emoji: "✦",   description: "Scattered moodboard",        maxPhotos: 3,  minPhotos: 2 },
-  { id: "editorial",       label: "Editorial",       emoji: "▨",   description: "Split editorial panel",      maxPhotos: 2,  minPhotos: 1 },
+  { id: "standard",        label: "Standard",    emoji: "◻",  description: "Swipeable feed",         maxPhotos: 10, minPhotos: 1 },
+  { id: "polaroid_single", label: "Polaroid",    emoji: "📷", description: "Instant camera frame",   maxPhotos: 1,  minPhotos: 1 },
+  { id: "polaroid_grid",   label: "Grid",        emoji: "⊞",  description: "2×2 contact sheet",      maxPhotos: 4,  minPhotos: 2 },
+  { id: "collage",         label: "Collage",     emoji: "✦",  description: "Scattered moodboard",    maxPhotos: 3,  minPhotos: 2 },
+  { id: "editorial",       label: "Editorial",   emoji: "▨",  description: "Split editorial panel",  maxPhotos: 2,  minPhotos: 1 },
+  { id: "lookbook",        label: "Lookbook",    emoji: "👗", description: "Look 01 / Look 02",      maxPhotos: 2,  minPhotos: 2 },
+  { id: "camera",          label: "Camera",      emoji: "📸", description: "Y2K camera screen",      maxPhotos: 6,  minPhotos: 1 },
+  { id: "scrapbook",       label: "Scrapbook",   emoji: "📔", description: "Notebook journal page",  maxPhotos: 3,  minPhotos: 1 },
+  { id: "portrait_stack",  label: "Portrait",    emoji: "🎞", description: "Portrait + photo stack", maxPhotos: 4,  minPhotos: 1 },
+  { id: "moodboard",       label: "Moodboard",   emoji: "🌿", description: "Journal mood board",     maxPhotos: 3,  minPhotos: 1 },
 ];
 
 const BORDER_COLORS = [
@@ -38,168 +49,468 @@ const BORDER_COLORS = [
   { label: "Ivory",    value: "#FAF5EC" },
   { label: "Black",    value: "#1A1A1A" },
   { label: "Blush",    value: "#FFD6E8" },
-  { label: "Hot pink", value: "#FF1F7D" },
+  { label: "Hot Pink", value: "#FF1F7D" },
   { label: "Sage",     value: "#C8D5C0" },
   { label: "Lavender", value: "#D4C5F0" },
   { label: "Nude",     value: "#E8D5C4" },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Slot: tappable upload area or image preview ───────────────────────────────
 
-function PhotoSlot({
-  file, index, borderColor, caption, onUpload, onCaptionChange, tilt = 0, width = "100%", height = 200,
+function Slot({
+  file, onTap, style, imgStyle,
 }: {
-  file?: File; index: number; borderColor: string; caption?: string;
-  onUpload: (index: number) => void; onCaptionChange?: (index: number, v: string) => void;
-  tilt?: number; width?: number | string; height?: number;
+  file: File | null;
+  onTap: () => void;
+  style?: React.CSSProperties;
+  imgStyle?: React.CSSProperties;
 }) {
   const url = file ? URL.createObjectURL(file) : null;
+  return (
+    <div
+      onClick={!file ? onTap : undefined}
+      style={{ overflow: "hidden", position: "relative", ...style }}
+    >
+      {url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...imgStyle }} />
+      ) : (
+        <div style={{ width: "100%", height: "100%", background: "rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
+          <span style={{ fontSize: 20, opacity: 0.4 }}>+</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#bbb", letterSpacing: "0.04em" }}>tap to add</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
-  const frameStyle: React.CSSProperties = {
-    backgroundColor: borderColor,
-    padding: "10px 10px 32px",
-    borderRadius: 2,
-    boxShadow: "0 4px 18px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.10)",
-    transform: tilt ? `rotate(${tilt}deg)` : undefined,
-    display: "inline-block",
-    width,
-    flexShrink: 0,
-  };
+// ── Caption input inside frames ───────────────────────────────────────────────
+
+function CaptionInput({
+  value, onChange, placeholder = "write here…", style,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <input
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      maxLength={60}
+      onClick={e => e.stopPropagation()}
+      style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", textAlign: "center", boxSizing: "border-box", padding: "6px 4px 0", ...style }}
+    />
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TEMPLATE PREVIEWS
+// ══════════════════════════════════════════════════════════════════════════════
+
+// 1. Standard — swipeable carousel ────────────────────────────────────────────
+function StandardPreview({ photos, borderColor, captions, onTap }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void;
+}) {
+  const [idx, setIdx] = useState(0);
+  const filled = photos.filter(Boolean);
+  const total = Math.max(filled.length, 1);
 
   return (
-    <div style={frameStyle}>
-      <div
-        onClick={() => !file && onUpload(index)}
-        style={{
-          height, background: url ? "none" : "rgba(0,0,0,0.06)",
-          borderRadius: 1, overflow: "hidden", cursor: url ? "default" : "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          position: "relative",
-        }}
-      >
-        {url
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          : (
-            <div style={{ textAlign: "center" }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-              </svg>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 4 }}>photo {index + 1}</p>
+    <div>
+      <div style={{ borderRadius: 14, overflow: "hidden", background: "#F8F4EE", position: "relative", aspectRatio: "4/5" }}>
+        <Slot file={photos[idx] ?? null} onTap={() => onTap(idx)} style={{ width: "100%", height: "100%" }} />
+        {/* Arrow controls */}
+        {filled.length > 1 && (
+          <>
+            {idx > 0 && (
+              <button onClick={() => setIdx(i => i - 1)} style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", color: "#fff", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+            )}
+            {idx < filled.length - 1 && (
+              <button onClick={() => setIdx(i => i + 1)} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.35)", color: "#fff", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+            )}
+            {/* Dot indicators */}
+            <div style={{ position: "absolute", bottom: 8, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 4 }}>
+              {filled.map((_, i) => (
+                <div key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 16 : 6, height: 6, borderRadius: 3, background: i === idx ? "#fff" : "rgba(255,255,255,0.5)", transition: "width 0.2s", cursor: "pointer" }} />
+              ))}
             </div>
-          )
-        }
-        {url && (
-          <button
-            onClick={e => { e.stopPropagation(); onUpload(index); }}
-            style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.45)", border: "none", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
-          </button>
+          </>
+        )}
+        {/* Add more button */}
+        {filled.length > 0 && filled.length < 10 && (
+          <button onClick={() => onTap(filled.length)} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.4)", color: "#fff", border: "none", borderRadius: 8, padding: "4px 8px", fontFamily: "var(--font-jost)", fontSize: 10, cursor: "pointer" }}>+ Add</button>
         )}
       </div>
-      {onCaptionChange && (
-        <input
-          value={caption ?? ""}
-          onChange={e => onCaptionChange(index, e.target.value)}
-          placeholder="caption…"
-          maxLength={60}
-          style={{ marginTop: 6, width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-caveat)", fontSize: 13, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.55)", textAlign: "center", boxSizing: "border-box" }}
-        />
+      {captions[idx] !== undefined && (
+        <CaptionInput value={captions[idx]} onChange={() => {}} placeholder="Add a caption…" style={{ textAlign: "left", fontSize: 12, paddingLeft: 2 }} />
       )}
     </div>
   );
 }
 
-// ── Template Previews ─────────────────────────────────────────────────────────
-
-function StandardPreview({ files, borderColor }: { files: File[]; borderColor: string }) {
-  const [idx, setIdx] = useState(0);
-  const file = files[idx];
-  const url = file ? URL.createObjectURL(file) : null;
+// 2. Polaroid Single ───────────────────────────────────────────────────────────
+function PolaroidSinglePreview({ photos, borderColor, captions, onTap, onCaptionChange }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void;
+}) {
   return (
-    <div style={{ position: "relative", borderRadius: 14, overflow: "hidden", background: "#eee", aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {url
-        // eslint-disable-next-line @next/next/no-img-element
-        ? <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        : <div style={{ color: "rgba(0,0,0,0.2)", fontFamily: "var(--font-jost)", fontSize: 12 }}>photo here</div>
-      }
-      {files.length > 1 && (
-        <>
-          <button onClick={() => setIdx(i => Math.max(0, i - 1))} style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.75)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>‹</button>
-          <button onClick={() => setIdx(i => Math.min(files.length - 1, i + 1))} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.75)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14 }}>›</button>
-          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
-            {files.map((_, i) => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: i === idx ? "white" : "rgba(255,255,255,0.5)" }} />)}
+    <div style={{ display: "flex", justifyContent: "center", padding: "24px 16px", background: CREAM, borderRadius: 14 }}>
+      <div style={{ transform: "rotate(-2deg)", filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.22))" }}>
+        <div style={{ backgroundColor: borderColor, padding: "10px 10px 40px", width: 220 }}>
+          <Slot file={photos[0]} onTap={() => onTap(0)} style={{ height: 220 }} />
+          <CaptionInput
+            value={captions[0]}
+            onChange={v => onCaptionChange(0, v)}
+            style={{ color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.45)", marginTop: 4 }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 3. Polaroid Grid 2×2 ────────────────────────────────────────────────────────
+function PolaroidGridPreview({ photos, borderColor, captions, onTap, onCaptionChange }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void;
+}) {
+  const tilts = [-2.5, 1.8, 2.2, -1.5];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: 16, background: CREAM, borderRadius: 14 }}>
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} style={{ transform: `rotate(${tilts[i]}deg)`, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}>
+          <div style={{ backgroundColor: borderColor, padding: "7px 7px 28px" }}>
+            <Slot file={photos[i] ?? null} onTap={() => onTap(i)} style={{ height: 110 }} />
+            <CaptionInput
+              value={captions[i] ?? ""}
+              onChange={v => onCaptionChange(i, v)}
+              style={{ fontSize: 11, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.4)" }}
+            />
           </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function PolaroidSinglePreview({ files, borderColor, captions }: { files: File[]; borderColor: string; captions: string[] }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "center", padding: "24px 16px", background: "#f8f3ee", borderRadius: 14 }}>
-      <PhotoSlot file={files[0]} index={0} borderColor={borderColor} caption={captions[0]} onUpload={() => {}} tilt={-2} width={220} height={220} />
-    </div>
-  );
-}
-
-function PolaroidGridPreview({ files, borderColor, captions }: { files: File[]; borderColor: string; captions: string[] }) {
-  const tilts = [-2.5, 1.5, 2, -1.5];
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "16px", background: "#f8f3ee", borderRadius: 14 }}>
-      {[0,1,2,3].map(i => (
-        <PhotoSlot key={i} file={files[i]} index={i} borderColor={borderColor} caption={captions[i]} onUpload={() => {}} tilt={tilts[i]} height={130} />
-      ))}
-    </div>
-  );
-}
-
-function CollagePreview({ files, borderColor, captions }: { files: File[]; borderColor: string; captions: string[] }) {
-  const configs = [
-    { tilt: -8,  left: "5%",  top: "10%",  w: 160, h: 160, zIndex: 1 },
-    { tilt:  4,  left: "30%", top: "0%",   w: 180, h: 180, zIndex: 3 },
-    { tilt: -3,  left: "15%", top: "45%",  w: 155, h: 155, zIndex: 2 },
-  ];
-  return (
-    <div style={{ position: "relative", height: 280, background: "#f8f3ee", borderRadius: 14, overflow: "hidden" }}>
-      {configs.map((c, i) => (
-        <div key={i} style={{ position: "absolute", left: c.left, top: c.top, zIndex: c.zIndex }}>
-          <PhotoSlot file={files[i]} index={i} borderColor={borderColor} caption={captions[i]} onUpload={() => {}} tilt={c.tilt} width={c.w} height={c.h} />
         </div>
       ))}
     </div>
   );
 }
 
-function EditorialPreview({ files, borderColor, globalCaption }: { files: File[]; borderColor: string; globalCaption: string }) {
-  const url0 = files[0] ? URL.createObjectURL(files[0]) : null;
-  const url1 = files[1] ? URL.createObjectURL(files[1]) : null;
+// 4. Collage — 3 scattered Polaroids ──────────────────────────────────────────
+function CollagePreview({ photos, borderColor, captions, onTap, onCaptionChange }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void;
+}) {
+  const configs = [
+    { top: 0,    left: "5%",  width: 170, height: 170, rotate: -7,  zIndex: 3 },
+    { top: 60,   left: "38%", width: 155, height: 155, rotate: 5,   zIndex: 2 },
+    { top: 120,  left: "15%", width: 160, height: 160, rotate: -3,  zIndex: 1 },
+  ];
   return (
-    <div style={{ display: "flex", borderRadius: 14, overflow: "hidden", height: 260 }}>
-      <div style={{ flex: "0 0 58%", position: "relative", background: "#ddd" }}>
-        {url0
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={url0} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}><p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.3)" }}>main photo</p></div>
-        }
+    <div style={{ position: "relative", height: 340, background: CREAM, borderRadius: 14, overflow: "hidden" }}>
+      {[0, 1, 2].map(i => {
+        const c = configs[i];
+        return (
+          <div key={i} style={{ position: "absolute", top: c.top, left: c.left, transform: `rotate(${c.rotate}deg)`, zIndex: c.zIndex, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.22))" }}>
+            <div style={{ backgroundColor: borderColor, padding: "8px 8px 32px", width: c.width }}>
+              <Slot file={photos[i] ?? null} onTap={() => onTap(i)} style={{ height: c.height }} />
+              <CaptionInput
+                value={captions[i] ?? ""}
+                onChange={v => onCaptionChange(i, v)}
+                style={{ fontSize: 11, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.4)" }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// 5. Editorial split ───────────────────────────────────────────────────────────
+function EditorialPreview({ photos, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  return (
+    <div style={{ background: "#F0EBE2", borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ display: "flex", height: 280 }}>
+        <Slot file={photos[0]} onTap={() => onTap(0)} style={{ flex: "0 0 58%", height: "100%" }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <Slot file={photos[1] ?? null} onTap={() => onTap(1)} style={{ flex: 1 }} />
+          <div style={{ padding: "8px 10px 10px", background: "#fff" }}>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(0,0,0,0.35)", textTransform: "uppercase" }}>BLOOMBAY ✦</p>
+            <CaptionInput value={captions[1] ?? ""} onChange={v => onCaptionChange(1, v)} style={{ textAlign: "left", padding: 0, fontSize: 11, paddingTop: 3 }} />
+          </div>
+        </div>
       </div>
-      <div style={{ flex: 1, background: borderColor !== "#FFFFFF" ? borderColor : "#f5f0ea", display: "flex", flexDirection: "column", padding: "16px 12px", justifyContent: "space-between" }}>
-        {url1 && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url1} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 4, marginBottom: 10, flexShrink: 0 }} />
-        )}
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.8)" : "#333", lineHeight: 1.5, flex: 1 }}>
-          {globalCaption || "your caption…"}
-        </p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK, marginTop: 8 }}>BLOOMBAY ✦</p>
+      <div style={{ padding: "10px 12px" }}>
+        <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: INK }}>{title || "Title"}</p>
+        <CaptionInput value={captions[0] ?? ""} onChange={v => onCaptionChange(0, v)} style={{ textAlign: "left", padding: "4px 0 0", fontSize: 12 }} />
       </div>
     </div>
   );
 }
 
-// ── Main Sheet ────────────────────────────────────────────────────────────────
+// 6. Lookbook — "Look 01 / Look 02" (IMG_3464) ────────────────────────────────
+function LookbookPreview({ photos, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  const year = new Date().getFullYear();
+  return (
+    <div style={{ background: "#F7F3EE", borderRadius: 14, overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{ padding: "10px 14px 6px", display: "flex", justifyContent: "flex-end" }}>
+        <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(0,0,0,0.35)", textTransform: "uppercase", textAlign: "right", lineHeight: 1.5 }}>
+          SPRING / SUMMER {year}<br />PHOTO DIRECTION
+        </p>
+      </div>
+      {/* Two photos side by side */}
+      <div style={{ display: "flex", gap: 6, padding: "0 8px" }}>
+        {[0, 1].map(i => (
+          <div key={i} style={{ flex: 1, position: "relative" }}>
+            <Slot file={photos[i] ?? null} onTap={() => onTap(i)} style={{ height: 220, borderRadius: 2 }} />
+            {/* "Look 0N" overlay */}
+            <p style={{ position: "absolute", bottom: 8, left: 8, margin: 0, fontFamily: "var(--font-caveat)", fontSize: 16, color: "#fff", fontWeight: 700, textShadow: "0 1px 4px rgba(0,0,0,0.5)", pointerEvents: "none" }}>
+              Look 0{i + 1}
+            </p>
+          </div>
+        ))}
+      </div>
+      {/* Title + caption */}
+      <div style={{ padding: "10px 14px 14px" }}>
+        <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em", color: INK, textTransform: "uppercase" }}>
+          {title || "TITLE 01"}
+        </p>
+        <CaptionInput value={captions[0] ?? ""} onChange={v => onCaptionChange(0, v)} placeholder="Describe the look…" style={{ textAlign: "left", padding: "4px 0 0", fontSize: 11, color: "rgba(0,0,0,0.45)" }} />
+      </div>
+    </div>
+  );
+}
+
+// 7. Camera / Y2K device screen (IMG_3559) ────────────────────────────────────
+function CameraPreview({ photos, captions, onTap }: {
+  photos: (File | null)[]; captions: string[]; onTap: (i: number) => void;
+}) {
+  const [idx, setIdx] = useState(0);
+  const filled = photos.filter(Boolean);
+  const total = Math.max(filled.length, 1);
+
+  return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "12px 0", background: "#1A1A2E", borderRadius: 14 }}>
+      {/* Camera body */}
+      <div style={{ background: "linear-gradient(160deg, #E8A0C8 0%, #D070B0 40%, #B85090 100%)", borderRadius: 18, padding: "10px 10px 14px", width: 230, boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)" }}>
+        {/* Top bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ display: "flex", gap: 3 }}>
+            {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: i === 0 ? "#FFD700" : "rgba(255,255,255,0.3)" }} />)}
+          </div>
+          <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.7)", textTransform: "uppercase" }}>BLOOMBAY CAM</p>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(0,0,0,0.3)", border: "1.5px solid rgba(255,255,255,0.2)" }} />
+        </div>
+
+        {/* Screen bezel */}
+        <div style={{ background: "#0A0A1A", borderRadius: 6, padding: 4, boxShadow: "inset 0 2px 8px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(255,255,255,0.1)" }}>
+          {/* Screen status bar */}
+          <div style={{ background: "#000", padding: "3px 6px", display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, color: "#00FF88", letterSpacing: "0.1em" }}>REC</p>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, color: "#FFD700" }}>{idx + 1}/{total}</p>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(255,255,255,0.5)" }}>▣ MEM</p>
+          </div>
+          {/* Photo in screen */}
+          <Slot file={photos[idx] ?? null} onTap={() => onTap(idx)} style={{ height: 168, borderRadius: 2 }} />
+          {/* Screen grid overlay */}
+          <div style={{ position: "relative", marginTop: 2 }}>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(0,255,136,0.6)", textAlign: "center", letterSpacing: "0.08em" }}>▪ ▪ ▪ AF LOCK ▪ ▪ ▪</p>
+          </div>
+        </div>
+
+        {/* Swipe controls */}
+        {filled.length > 1 && (
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 8 }}>
+            <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0} style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 24, height: 16, cursor: "pointer", fontSize: 10, opacity: idx === 0 ? 0.3 : 1 }}>‹</button>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {filled.map((_, i) => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: i === idx ? "#FFD700" : "rgba(255,255,255,0.3)" }} />)}
+            </div>
+            <button onClick={() => setIdx(i => Math.min(filled.length - 1, i + 1))} disabled={idx >= filled.length - 1} style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 24, height: 16, cursor: "pointer", fontSize: 10, opacity: idx >= filled.length - 1 ? 0.3 : 1 }}>›</button>
+          </div>
+        )}
+
+        {/* Bottom buttons */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, padding: "0 4px" }}>
+          <div style={{ display: "flex", gap: 5 }}>
+            {["FUNC", "DISP", "SET"].map(b => (
+              <div key={b} style={{ background: "rgba(0,0,0,0.4)", borderRadius: 3, padding: "2px 5px" }}>
+                <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 6, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>{b}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {["▲", "●", "▼"].map(s => (
+              <div key={s} style={{ width: 14, height: 14, borderRadius: "50%", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p style={{ margin: 0, fontSize: 7, color: "rgba(255,255,255,0.5)" }}>{s}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 8. Scrapbook — spiral notebook (IMG_3562) ────────────────────────────────────
+function ScrapbookPreview({ photos, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 14, overflow: "hidden", display: "flex", position: "relative", minHeight: 340 }}>
+      {/* Spiral binding */}
+      <div style={{ width: 22, flexShrink: 0, background: "#E0E0E0", display: "flex", flexDirection: "column", justifyContent: "space-evenly", alignItems: "center", padding: "8px 0" }}>
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div key={i} style={{ width: 16, height: 16, borderRadius: "50%", border: "2.5px solid #999", background: "#fff" }} />
+        ))}
+      </div>
+
+      {/* Page content */}
+      <div style={{ flex: 1, padding: "14px 12px 12px 10px", position: "relative" }}>
+        {/* Row 1: two photos with clip + washi tape */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+          {/* Photo 1 — pink clip */}
+          <div style={{ flex: 1, position: "relative" }}>
+            <div style={{ transform: "rotate(-3deg)", transformOrigin: "top center" }}>
+              {/* Clip */}
+              <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", fontSize: 16, zIndex: 2 }}>📎</div>
+              <div style={{ background: "#fff", padding: "3px 3px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)", marginTop: 8 }}>
+                <Slot file={photos[0]} onTap={() => onTap(0)} style={{ height: 95 }} />
+                <CaptionInput value={captions[0]} onChange={v => onCaptionChange(0, v)} style={{ fontSize: 10 }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Photo 2 — washi tape */}
+          <div style={{ flex: 1, position: "relative" }}>
+            <div style={{ transform: "rotate(2deg)", transformOrigin: "top center" }}>
+              {/* Washi tape strip */}
+              <div style={{ position: "absolute", top: -4, left: 0, right: 0, height: 10, background: "rgba(255,182,193,0.7)", zIndex: 2, borderRadius: 1 }} />
+              <div style={{ background: "#fff", padding: "8px 3px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+                <Slot file={photos[1] ?? null} onTap={() => onTap(1)} style={{ height: 95 }} />
+                <CaptionInput value={captions[1] ?? ""} onChange={v => onCaptionChange(1, v)} style={{ fontSize: 10 }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Handwritten label */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: PINK, margin: "0 0 8px", paddingLeft: 4, lineHeight: 1 }}>
+          {title || "With Love Always ♡"}
+        </p>
+
+        {/* Photo 3 — large bottom, cut-out style */}
+        <div style={{ transform: "rotate(-1deg)", marginLeft: 4 }}>
+          <Slot file={photos[2] ?? null} onTap={() => onTap(2)} style={{ height: 130, borderRadius: 2, boxShadow: "0 3px 12px rgba(0,0,0,0.15)" }} />
+        </div>
+
+        {/* Bottom sticker text */}
+        <div style={{ position: "absolute", bottom: 10, right: 10, background: PINK, borderRadius: 3, padding: "3px 8px", transform: "rotate(2deg)" }}>
+          <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", color: "#fff", textTransform: "uppercase" }}>BLOOMBAY ✦</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 9. Portrait + Stack (IMG_3470) ───────────────────────────────────────────────
+function PortraitStackPreview({ photos, borderColor, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  const stackTilts = [-2, 1.5, -1.2];
+  return (
+    <div style={{ background: "#F8F3EE", borderRadius: 14, overflow: "visible", padding: "12px 12px 14px" }}>
+      {/* Pink bow at top */}
+      <p style={{ textAlign: "center", fontSize: 22, margin: "0 0 8px" }}>🎀</p>
+
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        {/* Large portrait left */}
+        <div style={{ flex: "0 0 54%" }}>
+          <Slot file={photos[0]} onTap={() => onTap(0)} style={{ height: 260, borderRadius: 3, boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
+          {/* Handwritten name label */}
+          <div style={{ background: "#F5F0E8", padding: "4px 8px", marginTop: 4, display: "inline-block" }}>
+            <CaptionInput value={captions[0]} onChange={v => onCaptionChange(0, v)} placeholder="Rhode..♡" style={{ fontSize: 12, color: "rgba(0,0,0,0.5)", width: "auto", minWidth: 80 }} />
+          </div>
+        </div>
+
+        {/* Polaroid stack right */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8, paddingTop: 16 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ transform: `rotate(${stackTilts[i - 1]}deg)`, filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))" }}>
+              <div style={{ backgroundColor: borderColor, padding: "5px 5px 22px" }}>
+                <Slot file={photos[i] ?? null} onTap={() => onTap(i)} style={{ height: 70 }} />
+                <CaptionInput value={captions[i] ?? ""} onChange={v => onCaptionChange(i, v)} style={{ fontSize: 9, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 10. Moodboard Journal (IMG_3457) ────────────────────────────────────────────
+function MoodboardPreview({ photos, borderColor, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; borderColor: string; captions: string[]; onTap: (i: number) => void; onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  return (
+    <div style={{ background: "#FAFAF8", borderRadius: 14, overflow: "hidden" }}>
+      {/* Top tag bar */}
+      <div style={{ padding: "8px 12px 4px", display: "flex", gap: 6 }}>
+        {["Outfit inspiration", "Street style", "Island style"].map(t => (
+          <div key={t} style={{ background: "#E8E0F8", borderRadius: 10, padding: "2px 8px" }}>
+            <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, color: "#7B5EA7", fontWeight: 600 }}>{t}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Main full-width photo */}
+      <Slot file={photos[0]} onTap={() => onTap(0)} style={{ height: 180, margin: "0 8px", borderRadius: 4 }} />
+
+      {/* Middle row: two overlapping Polaroids + text */}
+      <div style={{ position: "relative", height: 170, margin: "8px 8px 0" }}>
+        {/* Polaroid 1 */}
+        <div style={{ position: "absolute", top: 8, left: 0, transform: "rotate(-5deg)", zIndex: 2, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.2))" }}>
+          <div style={{ backgroundColor: borderColor, padding: "6px 6px 24px", width: 120 }}>
+            <Slot file={photos[1] ?? null} onTap={() => onTap(1)} style={{ height: 100 }} />
+            <CaptionInput value={captions[1] ?? ""} onChange={v => onCaptionChange(1, v)} style={{ fontSize: 9 }} />
+          </div>
+        </div>
+        {/* Polaroid 2 */}
+        <div style={{ position: "absolute", top: 26, left: 80, transform: "rotate(4deg)", zIndex: 3, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.2))" }}>
+          <div style={{ backgroundColor: borderColor, padding: "6px 6px 24px", width: 110 }}>
+            <Slot file={photos[2] ?? null} onTap={() => onTap(2)} style={{ height: 90 }} />
+            <CaptionInput value={captions[2] ?? ""} onChange={v => onCaptionChange(2, v)} style={{ fontSize: 9 }} />
+          </div>
+        </div>
+
+        {/* Text block right side */}
+        <div style={{ position: "absolute", right: 0, top: 10, width: 110 }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "#5A5A7A", margin: "0 0 2px", lineHeight: 1.2 }}>
+            {title || "she is a goddess"}
+          </p>
+          <CaptionInput value={captions[0]} onChange={v => onCaptionChange(0, v)} placeholder="add lyrics or caption…" style={{ textAlign: "left", fontSize: 11, color: "rgba(0,0,0,0.4)", padding: "4px 0 0" }} />
+        </div>
+      </div>
+
+      {/* Bottom label */}
+      <div style={{ padding: "8px 12px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ background: "#E8E8F4", borderRadius: 4, padding: "3px 8px" }}>
+          <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, color: "#6060A0", fontWeight: 700, letterSpacing: "0.06em" }}>pretty girl</p>
+        </div>
+        <div style={{ background: "#E8E8F4", borderRadius: 4, padding: "3px 8px" }}>
+          <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, color: "#6060A0", fontWeight: 700, letterSpacing: "0.06em" }}>of the beautiful eyes</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAIN SHEET
+// ══════════════════════════════════════════════════════════════════════════════
 
 interface Props {
   onClose: () => void;
@@ -209,43 +520,52 @@ interface Props {
 }
 
 export function FashionPostSheet({ onClose, onPosted, context = "avenue", category }: Props) {
-  const [template, setTemplate] = useState<TemplateId>("standard");
-  const [borderColor, setBorderColor] = useState("#FFFFFF");
-  const [photos, setPhotos] = useState<(File | null)[]>([null, null, null, null]);
-  const [captions, setCaptions] = useState<string[]>(["", "", "", ""]);
-  const [globalCaption, setGlobalCaption] = useState("");
-  const [title, setTitle] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [template,     setTemplate]     = useState<TemplateId>("standard");
+  const [borderColor,  setBorderColor]  = useState("#FFFFFF");
+  const [customColor,  setCustomColor]  = useState("#FFFFFF");
+  const [photos,       setPhotos]       = useState<(File | null)[]>(Array(10).fill(null));
+  const [captions,     setCaptions]     = useState<string[]>(Array(10).fill(""));
+  const [title,        setTitle]        = useState("");
+  const [globalCaption,setGlobalCaption]= useState("");
+  const [uploading,    setUploading]    = useState(false);
+  const [done,         setDone]         = useState(false);
+  const [error,        setError]        = useState<string | null>(null);
 
-  const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingSlot  = useRef<number>(0);
 
   const cfg = TEMPLATES.find(t => t.id === template)!;
-  const filledPhotos = photos.filter(Boolean) as File[];
+  const polaroidTemplates: TemplateId[] = ["polaroid_single", "polaroid_grid", "collage", "portrait_stack", "moodboard"];
 
-  const handleFileChange = useCallback((index: number, file: File | null) => {
-    setPhotos(prev => { const n = [...prev]; n[index] = file; return n; });
-  }, []);
-
-  function triggerUpload(index: number) {
-    fileRefs.current[index]?.click();
+  function triggerUpload(slotIndex: number) {
+    pendingSlot.current = slotIndex;
+    fileInputRef.current?.click();
   }
 
-  async function uploadPhoto(file: File): Promise<string | null> {
-    try {
-      const supabase = createClient();
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `avenue_posts/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { data, error } = await supabase.storage.from("avenue-media").upload(path, file, { upsert: true });
-      if (error || !data) return null;
-      return supabase.storage.from("avenue-media").getPublicUrl(data.path).data.publicUrl;
-    } catch {
-      return null;
-    }
+  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const slot = pendingSlot.current;
+    setPhotos(prev => { const n = [...prev]; n[slot] = file; return n; });
+    e.target.value = "";
+  }, []);
+
+  function updateCaption(i: number, v: string) {
+    setCaptions(prev => { const n = [...prev]; n[i] = v; return n; });
+  }
+
+  async function uploadPhoto(file: File): Promise<string> {
+    const supabase = createClient();
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `fashion-posts/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("avenue-media").upload(path, file, { contentType: file.type });
+    if (error) throw new Error(error.message);
+    const { data } = supabase.storage.from("avenue-media").getPublicUrl(path);
+    return data.publicUrl;
   }
 
   async function handlePost() {
+    const filledPhotos = photos.filter(Boolean) as File[];
     if (filledPhotos.length < cfg.minPhotos) {
       setError(`This template needs at least ${cfg.minPhotos} photo${cfg.minPhotos > 1 ? "s" : ""}.`);
       return;
@@ -267,11 +587,11 @@ export function FashionPostSheet({ onClose, onPosted, context = "avenue", catego
           caption: globalCaption.trim() || null,
           photo_urls: photoUrls.filter(Boolean),
           photo_captions: captions.filter((_, i) => photos[i]),
-          border_color: template !== "standard" ? borderColor : null,
+          border_color: polaroidTemplates.includes(template) ? borderColor : null,
           meta: { template_id: template, border_color: borderColor },
         }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Something went wrong");
+      if (!res.ok) throw new Error((await res.json() as { error?: string }).error ?? "Something went wrong");
       setDone(true);
       onPosted?.();
     } catch (e: unknown) {
@@ -287,318 +607,181 @@ export function FashionPostSheet({ onClose, onPosted, context = "avenue", catego
     outline: "none", boxSizing: "border-box",
   };
 
+  // ── Done state ──────────────────────────────────────────────────────────────
   if (done) return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }} />
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401, background: IVORY, borderRadius: "24px 24px 0 0", padding: "40px 24px 64px", textAlign: "center" }}>
         <div style={{ fontSize: 44, marginBottom: 14 }}>✦</div>
         <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 24, color: INK, marginBottom: 8 }}>Posted.</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", marginBottom: 24 }}>Your post is live on the Avenue.</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", marginBottom: 24 }}>
+          {context === "hanger" ? "Your post is live on The Hanger." : "Your post is live on the Avenue."}
+        </p>
         <button onClick={onClose} style={{ padding: "14px 32px", background: PINK, color: "white", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Done ✦</button>
       </div>
     </>
   );
 
+  // ── Sheet ───────────────────────────────────────────────────────────────────
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }} />
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 400 }} />
 
-      {/* Hidden file inputs */}
-      {[0,1,2,3].map(i => (
-        <input
-          key={i}
-          ref={el => { fileRefs.current[i] = el; }}
-          type="file" accept="image/*"
-          style={{ display: "none" }}
-          onChange={e => handleFileChange(i, e.target.files?.[0] ?? null)}
-        />
-      ))}
+      {/* Hidden file input */}
+      <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
 
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401, background: IVORY, borderRadius: "24px 24px 0 0", maxHeight: "95vh", overflowY: "auto", boxShadow: "0 -12px 48px rgba(0,0,0,0.22)" }}>
+      {/* Sheet */}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401,
+        background: IVORY, borderRadius: "24px 24px 0 0",
+        boxShadow: "0 -8px 40px rgba(0,0,0,0.18)",
+        maxHeight: "94dvh", overflowY: "auto",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}>
+        {/* Drag handle */}
         <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
-          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
         </div>
 
-        <div style={{ padding: "12px 20px 80px", display: "flex", flexDirection: "column", gap: 20 }}>
-
+        <div style={{ padding: "0 18px 36px" }}>
           {/* Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>
-                {context === "hanger" ? "THE HANGER" : "FASHION AVENUE"}
-              </p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: INK, marginTop: 2 }}>New post.</p>
-            </div>
-            <button onClick={onClose} style={{ background: "rgba(0,0,0,0.07)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 18 }}>×</button>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, fontWeight: 700, color: INK, margin: 0 }}>
+              {context === "hanger" ? "Post a look" : "Post to Avenue"}
+            </h2>
+            <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "rgba(0,0,0,0.35)", padding: "0 0 0 16px" }}>✕</button>
+          </div>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.4)", margin: "0 0 20px" }}>
+            Choose a template ✦
+          </p>
+
+          {/* ── Template picker ────────────────────────────────────────────── */}
+          <div style={{ overflowX: "auto", display: "flex", gap: 8, marginBottom: 20, paddingBottom: 4 }}>
+            {TEMPLATES.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTemplate(t.id)}
+                style={{
+                  flexShrink: 0,
+                  padding: "8px 12px",
+                  borderRadius: 12,
+                  border: template === t.id ? `2px solid ${PINK}` : "1.5px solid rgba(0,0,0,0.1)",
+                  background: template === t.id ? `${PINK}12` : "#fff",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  minWidth: 74,
+                }}
+              >
+                <p style={{ margin: 0, fontSize: 20 }}>{t.emoji}</p>
+                <p style={{ margin: "3px 0 1px", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: template === t.id ? PINK : INK, letterSpacing: "0.04em" }}>{t.label}</p>
+                <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(0,0,0,0.35)", lineHeight: 1.2 }}>{t.description}</p>
+              </button>
+            ))}
           </div>
 
-          {/* ── Template Picker ── */}
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 10 }}>TEMPLATE</p>
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-              {TEMPLATES.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setTemplate(t.id)}
-                  style={{
-                    flexShrink: 0, padding: "10px 14px", borderRadius: 14, cursor: "pointer",
-                    border: `2px solid ${template === t.id ? PINK : "#F0EBE4"}`,
-                    background: template === t.id ? "#FFF0F5" : "white",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 18, marginBottom: 4, lineHeight: 1 }}>{t.emoji}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: template === t.id ? PINK : INK }}>{t.label}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa", marginTop: 1 }}>{t.description}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Polaroid Color Picker (for Polaroid templates) ── */}
-          {template !== "standard" && template !== "editorial" && (
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 10 }}>FRAME COLOR</p>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {BORDER_COLORS.map(bc => (
+          {/* ── Polaroid border color picker ───────────────────────────────── */}
+          {polaroidTemplates.includes(template) && (
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(0,0,0,0.4)", margin: "0 0 10px" }}>Frame color</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                {BORDER_COLORS.map(c => (
                   <button
-                    key={bc.value}
-                    onClick={() => setBorderColor(bc.value)}
-                    title={bc.label}
+                    key={c.value}
+                    onClick={() => setBorderColor(c.value)}
+                    title={c.label}
                     style={{
-                      width: 36, height: 36, borderRadius: "50%",
-                      background: bc.value,
-                      border: `3px solid ${borderColor === bc.value ? PINK : "rgba(0,0,0,0.1)"}`,
-                      boxShadow: borderColor === bc.value ? `0 0 0 2px ${PINK}44` : "none",
-                      cursor: "pointer", transition: "all 0.15s", flexShrink: 0,
+                      width: 28, height: 28, borderRadius: "50%",
+                      background: c.value,
+                      border: borderColor === c.value ? `3px solid ${PINK}` : "2px solid rgba(0,0,0,0.15)",
+                      cursor: "pointer",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
                     }}
                   />
                 ))}
                 {/* Custom color */}
-                <label style={{ width: 36, height: 36, borderRadius: "50%", border: "2px dashed #ddd", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}
-                  title="Custom color">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  <input type="color" defaultValue={borderColor} onChange={e => setBorderColor(e.target.value)} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} />
+                <label style={{ position: "relative", width: 28, height: 28, borderRadius: "50%", overflow: "hidden", cursor: "pointer", border: "2px dashed rgba(0,0,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: 14 }}>+</span>
+                  <input type="color" value={customColor} onChange={e => { setCustomColor(e.target.value); setBorderColor(e.target.value); }} style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", cursor: "pointer" }} />
                 </label>
               </div>
             </div>
           )}
 
-          {/* ── Template Preview ── */}
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#ccc", marginBottom: 10 }}>
-              PREVIEW <span style={{ fontWeight: 400, color: "#ddd" }}>— tap photo slots to upload</span>
-            </p>
-
-            {/* Click-through wrapper that triggers file input */}
-            <div onClick={e => {
-              const el = e.target as HTMLElement;
-              const slot = el.closest("[data-slot]") as HTMLElement | null;
-              if (slot) triggerUpload(Number(slot.dataset.slot));
-            }}>
-              {template === "standard" && (
-                <div style={{ position: "relative" }}>
-                  <StandardPreview files={filledPhotos} borderColor={borderColor} />
-                  {filledPhotos.length === 0 && (
-                    <button onClick={() => triggerUpload(0)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.03)", border: "2px dashed #ddd", borderRadius: 14, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb" }}>tap to add photos</p>
-                    </button>
-                  )}
-                  {filledPhotos.length > 0 && filledPhotos.length < 10 && (
-                    <button onClick={() => triggerUpload(filledPhotos.length)} style={{ marginTop: 8, width: "100%", padding: "10px", border: "1.5px dashed #ddd", borderRadius: 10, background: "transparent", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>
-                      + Add another photo
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {template === "polaroid_single" && (
-                <div style={{ display: "flex", justifyContent: "center", padding: "20px 0", background: "#F8F3EE", borderRadius: 14 }}>
-                  <div
-                    data-slot="0"
-                    onClick={() => !photos[0] && triggerUpload(0)}
-                    style={{
-                      backgroundColor: borderColor, padding: "10px 10px 36px", borderRadius: 2,
-                      boxShadow: "0 6px 24px rgba(0,0,0,0.22)", transform: "rotate(-2deg)",
-                      cursor: photos[0] ? "default" : "pointer", width: 220,
-                    }}
-                  >
-                    <div style={{ height: 220, background: photos[0] ? "none" : "rgba(0,0,0,0.06)", overflow: "hidden", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {photos[0]
-                        // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={URL.createObjectURL(photos[0])} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <div style={{ textAlign: "center" }}>
-                            <p style={{ fontSize: 28 }}>📷</p>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.3)", marginTop: 4 }}>tap to upload</p>
-                          </div>
-                      }
-                    </div>
-                    <input
-                      value={captions[0]}
-                      onChange={e => setCaptions(p => { const n=[...p]; n[0]=e.target.value; return n; })}
-                      placeholder="write here…"
-                      maxLength={50}
-                      onClick={e => e.stopPropagation()}
-                      style={{ marginTop: 8, width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-caveat)", fontSize: 14, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)", textAlign: "center", boxSizing: "border-box" }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {template === "polaroid_grid" && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "16px", background: "#F8F3EE", borderRadius: 14 }}>
-                  {[0,1,2,3].map(i => {
-                    const tilts = [-2.5, 1.8, 2.2, -1.5];
-                    return (
-                      <div
-                        key={i} data-slot={i}
-                        onClick={() => !photos[i] && triggerUpload(i)}
-                        style={{ backgroundColor: borderColor, padding: "8px 8px 28px", borderRadius: 2, boxShadow: "0 3px 14px rgba(0,0,0,0.15)", transform: `rotate(${tilts[i]}deg)`, cursor: photos[i] ? "default" : "pointer" }}
-                      >
-                        <div style={{ height: 110, background: photos[i] ? "none" : "rgba(0,0,0,0.06)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          {photos[i]
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={URL.createObjectURL(photos[i]!)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            : <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.25)" }}>photo {i+1}</p>
-                          }
-                        </div>
-                        <input
-                          value={captions[i]}
-                          onChange={e => setCaptions(p => { const n=[...p]; n[i]=e.target.value; return n; })}
-                          placeholder="…"
-                          maxLength={30}
-                          onClick={e => e.stopPropagation()}
-                          style={{ marginTop: 4, width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-caveat)", fontSize: 11, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.45)", textAlign: "center", boxSizing: "border-box" }}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {template === "collage" && (
-                <div style={{ position: "relative", height: 290, background: "#F8F3EE", borderRadius: 14, overflow: "visible" }}>
-                  {[
-                    { i: 0, tilt: -9,  left: "4%",  top: "8%",  w: 158, h: 155 },
-                    { i: 1, tilt:  5,  left: "28%", top: "2%",  w: 175, h: 172 },
-                    { i: 2, tilt: -4,  left: "14%", top: "46%", w: 162, h: 158 },
-                  ].map(({ i, tilt, left, top, w, h }) => (
-                    <div
-                      key={i} data-slot={i}
-                      onClick={() => !photos[i] && triggerUpload(i)}
-                      style={{
-                        position: "absolute", left, top, zIndex: i === 1 ? 3 : i + 1,
-                        backgroundColor: borderColor, padding: "8px 8px 28px", borderRadius: 2,
-                        boxShadow: "0 4px 18px rgba(0,0,0,0.2)", transform: `rotate(${tilt}deg)`,
-                        cursor: photos[i] ? "default" : "pointer", width: w,
-                      }}
-                    >
-                      <div style={{ height: h, background: photos[i] ? "none" : "rgba(0,0,0,0.06)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {photos[i]
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={URL.createObjectURL(photos[i]!)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          : <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.3)" }}>photo {i+1}</p>
-                        }
-                      </div>
-                      <input
-                        value={captions[i]}
-                        onChange={e => setCaptions(p => { const n=[...p]; n[i]=e.target.value; return n; })}
-                        placeholder="…"
-                        maxLength={40}
-                        onClick={e => e.stopPropagation()}
-                        style={{ marginTop: 4, width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-caveat)", fontSize: 11, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.45)", textAlign: "center", boxSizing: "border-box" }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {template === "editorial" && (
-                <div style={{ display: "flex", borderRadius: 14, overflow: "hidden", height: 270 }}>
-                  <div
-                    data-slot="0"
-                    onClick={() => !photos[0] && triggerUpload(0)}
-                    style={{ flex: "0 0 58%", background: photos[0] ? "none" : "#eee", position: "relative", cursor: photos[0] ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                  >
-                    {photos[0]
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={URL.createObjectURL(photos[0])} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : <div style={{ textAlign: "center" }}>
-                          <p style={{ fontSize: 24 }}>📷</p>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 4 }}>main photo</p>
-                        </div>
-                    }
-                  </div>
-                  <div style={{ flex: 1, background: borderColor !== "#FFFFFF" ? borderColor : "#f5f0ea", display: "flex", flexDirection: "column", padding: "14px 12px", gap: 10 }}>
-                    <div
-                      data-slot="1"
-                      onClick={() => !photos[1] && triggerUpload(1)}
-                      style={{ flex: "0 0 40%", background: photos[1] ? "none" : "rgba(0,0,0,0.06)", borderRadius: 3, overflow: "hidden", cursor: photos[1] ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      {photos[1]
-                        // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={URL.createObjectURL(photos[1]!)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, color: "rgba(0,0,0,0.25)" }}>photo 2</p>
-                      }
-                    </div>
-                    <textarea
-                      value={globalCaption}
-                      onChange={e => setGlobalCaption(e.target.value)}
-                      placeholder="your words here…"
-                      maxLength={120}
-                      onClick={e => e.stopPropagation()}
-                      style={{ flex: 1, background: "transparent", border: "none", outline: "none", resize: "none", fontFamily: "var(--font-caveat)", fontSize: 13, color: borderColor === "#1A1A1A" ? "rgba(255,255,255,0.8)" : "#333", lineHeight: 1.5 }}
-                    />
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.15em", color: PINK }}>BLOOMBAY ✦</p>
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* ── Template preview ───────────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            {template === "standard" && (
+              <StandardPreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} />
+            )}
+            {template === "polaroid_single" && (
+              <PolaroidSinglePreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} />
+            )}
+            {template === "polaroid_grid" && (
+              <PolaroidGridPreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} />
+            )}
+            {template === "collage" && (
+              <CollagePreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} />
+            )}
+            {template === "editorial" && (
+              <EditorialPreview photos={photos} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
+            {template === "lookbook" && (
+              <LookbookPreview photos={photos} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
+            {template === "camera" && (
+              <CameraPreview photos={photos} captions={captions} onTap={triggerUpload} />
+            )}
+            {template === "scrapbook" && (
+              <ScrapbookPreview photos={photos} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
+            {template === "portrait_stack" && (
+              <PortraitStackPreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
+            {template === "moodboard" && (
+              <MoodboardPreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
           </div>
 
-          {/* ── Title (optional for avenue posts) ── */}
-          {context === "avenue" && (
-            <div>
-              <label style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 6, display: "block" }}>TITLE <span style={{ fontWeight: 400, color: "#ddd" }}>— optional</span></label>
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="The outfit, the vibe, the era…" maxLength={80} style={INPUT} />
-            </div>
-          )}
+          {/* ── Title ──────────────────────────────────────────────────────── */}
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(0,0,0,0.4)", margin: "0 0 8px" }}>Title</p>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder={template === "lookbook" ? "TITLE 01" : template === "moodboard" ? "she is a goddess…" : "Add a title…"}
+              maxLength={80}
+              style={INPUT}
+            />
+          </div>
 
-          {/* ── Global caption ── */}
-          {template === "standard" && (
-            <div>
-              <label style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 6, display: "block" }}>CAPTION</label>
+          {/* ── Caption (global, for standard + camera) ────────────────────── */}
+          {(template === "standard" || template === "camera") && (
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(0,0,0,0.4)", margin: "0 0 8px" }}>Caption</p>
               <textarea
                 value={globalCaption}
                 onChange={e => setGlobalCaption(e.target.value)}
-                placeholder="Tell them about the look…"
+                placeholder="Write a caption…"
+                rows={2}
                 maxLength={300}
-                rows={3}
-                style={{ ...INPUT, resize: "none", lineHeight: 1.6, fontFamily: "var(--font-jost)" }}
+                style={{ ...INPUT, resize: "none", fontFamily: "var(--font-caveat)", fontSize: 15 }}
               />
             </div>
           )}
 
-          {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#B71C1C" }}>{error}</p>}
+          {/* ── Error ──────────────────────────────────────────────────────── */}
+          {error && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#e53e3e", margin: "0 0 12px" }}>{error}</p>
+          )}
 
+          {/* ── Submit ─────────────────────────────────────────────────────── */}
           <button
-            onClick={handlePost}
-            disabled={uploading || filledPhotos.length < cfg.minPhotos}
-            style={{
-              width: "100%", padding: "16px",
-              background: filledPhotos.length >= cfg.minPhotos ? PINK : "#eee",
-              color: filledPhotos.length >= cfg.minPhotos ? "white" : "#bbb",
-              border: "none", borderRadius: 14, fontFamily: "var(--font-jost)",
-              fontSize: 13, fontWeight: 800, letterSpacing: "0.04em",
-              cursor: (!uploading && filledPhotos.length >= cfg.minPhotos) ? "pointer" : "default",
-              boxShadow: filledPhotos.length >= cfg.minPhotos ? `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` : "none",
-              transition: "all 0.2s",
-            }}
+            onClick={() => void handlePost()}
+            disabled={uploading}
+            style={{ width: "100%", padding: "15px 0", background: uploading ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 16, fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, letterSpacing: "0.05em", cursor: uploading ? "not-allowed" : "pointer" }}
           >
-            {uploading ? "Posting…" : `Post to ${context === "hanger" ? "The Hanger" : "Fashion Avenue"} ✦`}
+            {uploading ? "Posting…" : context === "hanger" ? "Post to Hanger ✦" : "Post to Avenue ✦"}
           </button>
-
         </div>
       </div>
     </>
