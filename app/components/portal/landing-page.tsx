@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BBLogo } from "./bb-logo";
+import { BBLogo, BBWordmark } from "./bb-logo";
 
 const PINK  = "#FF1F7D";
 const INK   = "#111111";
@@ -354,7 +354,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
             <BBLogo size={30} />
-            <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "14px", letterSpacing: "0.2em", color: INK }}>BLOOMBAY</span>
+            <BBWordmark size={22} />
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
             {[{ label: "OUR STORY", href: "/about" }, { label: "EVENTS", href: "/events" }, { label: "SAFETY", href: "/safety" }].map((item) => (
@@ -896,7 +896,7 @@ export function LandingPage() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                 <BBLogo size={32} />
-                <span style={{ fontWeight: 900, fontSize: "18px", letterSpacing: "0.18em", color: INK }}>BLOOMBAY</span>
+                <BBWordmark size={24} />
               </div>
               <p style={{ fontSize: "14px", color: "#888", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 4 }}>A world built for women.</p>
               <p style={{ fontSize: "12px", color: "#bbb" }}>New York City · Est. 2025</p>

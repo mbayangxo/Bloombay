@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { YandeAvatar } from "./yande-avatar";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -214,11 +215,11 @@ export function MemberDesktopRightPanel() {
 
       {/* ── Yande Recommends ── */}
       <div style={{ padding: "18px 22px 16px", borderBottom: "1px solid rgba(255,31,125,0.06)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <YandeAvatar size={24}/>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.3)" }}>
             YANDE RECOMMENDS
           </p>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: PINK }}>✦</span>
         </div>
 
         {loading && (
