@@ -6,6 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
 import { createHangerListing } from "@/lib/actions/hanger";
 import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
+import { HangerInquirySheet } from "@/app/components/portal/hanger-inquiry-sheet";
+import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
+import { HangerListingSheet } from "@/app/components/portal/hanger-listing-sheet";
+import type { ListingDetail } from "@/app/components/portal/hanger-listing-sheet";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -162,6 +166,9 @@ export function HangerPage() {
   const [earnings,       setEarnings]          = useState<EarningsRow[]>([]);
   const [balance,        setBalance]           = useState<SellerBalance | null>(null);
   const [showEarnings,   setShowEarnings]      = useState(false);
+  const [inquiryListing, setInquiryListing]    = useState<InquiryListing | null>(null);
+  const [inquiryMode,    setInquiryMode]       = useState<"inquire" | "swap_offer">("inquire");
+  const [detailListing,  setDetailListing]     = useState<ListingDetail | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -225,11 +232,13 @@ export function HangerPage() {
   const [listSubmitting,  setListSubmitting]  = useState(false);
   const [listError,       setListError]       = useState<string | null>(null);
 
-  async function handleList() {
+  async function handleList(publishStatus: "active" | "draft" = "active") {
     if (!sellTitle.trim()) { setListError("Please add a title."); return; }
-    if (!sellCity.trim()) { setListError("Please add your city."); return; }
-    if (listingType === "sell" || listingType === "sell_or_swap") {
-      if (!sellPrice) { setListError("Please enter a price."); return; }
+    if (publishStatus === "active") {
+      if (!sellCity.trim()) { setListError("Please add your city."); return; }
+      if (listingType === "sell" || listingType === "sell_or_swap") {
+        if (!sellPrice) { setListError("Please enter a price."); return; }
+      }
     }
     setListSubmitting(true);
     setListError(null);
@@ -239,10 +248,11 @@ export function HangerPage() {
       price_cents:  (listingType === "swap" || listingType === "give_away") ? 0 : Math.round(parseFloat(sellPrice) * 100),
       listing_type: listingType,
       swap_wants:   swapWants.trim() || undefined,
-      city:         sellCity.trim(),
+      city:         sellCity.trim() || undefined,
       size:         sellSize.trim() || undefined,
       category:     sellCategory || undefined,
       condition:    sellCondition || "good",
+      status:       publishStatus,
     });
     setListSubmitting(false);
     if (!result.ok) { setListError(result.error ?? "Something went wrong."); return; }
@@ -523,6 +533,7 @@ export function HangerPage() {
             >
               {/* Image placeholder — 3:4 aspect */}
               <div
+                onClick={() => setDetailListing(listing)}
                 style={{
                   aspectRatio: "3 / 4",
                   background: listing.card_gradient,
@@ -531,6 +542,7 @@ export function HangerPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   position: "relative",
+                  cursor: "pointer",
                 }}
               >
                 <span style={{ fontSize: 40, opacity: 0.6 }}>
@@ -662,15 +674,17 @@ export function HangerPage() {
                 {/* Action button */}
                 {listing.listing_type === "give_away" ? (
                   <button
+                    onClick={() => { setInquiryMode("inquire"); setInquiryListing(listing); }}
                     style={{ marginTop: "auto", width: "100%", background: FREE_GREEN, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
                   >
-                    Claim It 🎁
+                    Inquire 🎁
                   </button>
                 ) : listing.listing_type === "swap" ? (
                   <button
+                    onClick={() => { setInquiryMode("swap_offer"); setInquiryListing(listing); }}
                     style={{ marginTop: "auto", width: "100%", background: SWAP_TEAL, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
                   >
-                    Offer a Swap
+                    Offer a Swap ↔
                   </button>
                 ) : listing.listing_type === "sell_or_swap" ? (
                   <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
@@ -682,6 +696,7 @@ export function HangerPage() {
                       {buyingId === listing.id ? "…" : `Buy · ${price}`}
                     </button>
                     <button
+                      onClick={() => { setInquiryMode("swap_offer"); setInquiryListing(listing); }}
                       style={{ flex: 1, background: "transparent", color: SWAP_TEAL, border: `1.5px solid ${SWAP_TEAL}`, borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: "pointer" }}
                     >
                       Swap ↔
@@ -961,25 +976,50 @@ export function HangerPage() {
           {listError && (
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#e53e3e", margin: "0 0 10px", textAlign: "center" }}>{listError}</p>
           )}
-          <button
-            onClick={() => void handleList()}
-            disabled={listSubmitting}
-            style={{
-              width: "100%",
-              background: listSubmitting ? "rgba(0,0,0,0.3)" : listingType === "swap" ? SWAP_TEAL : listingType === "give_away" ? FREE_GREEN : PINK,
-              color: "#fff",
-              border: "none",
-              borderRadius: 14,
-              padding: "14px 0",
-              fontSize: 14,
-              fontFamily: "var(--font-jost), sans-serif",
-              fontWeight: 700,
-              letterSpacing: "0.05em",
-              cursor: listSubmitting ? "not-allowed" : "pointer",
-            }}
-          >
-            {listSubmitting ? "Listing…" : listingType === "swap" ? "List for Swap 🔄" : listingType === "give_away" ? "Give it Away 🎁" : "List it →"}
-          </button>
+
+          <div style={{ display: "flex", gap: 10 }}>
+            {/* Save as draft */}
+            <button
+              onClick={() => void handleList("draft")}
+              disabled={listSubmitting}
+              style={{
+                flex: 1,
+                background: "rgba(255,255,255,0.06)",
+                color: "rgba(255,255,255,0.55)",
+                border: "1.5px solid rgba(255,255,255,0.12)",
+                borderRadius: 14,
+                padding: "14px 0",
+                fontSize: 12,
+                fontFamily: "var(--font-jost), sans-serif",
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                cursor: listSubmitting ? "not-allowed" : "pointer",
+              }}
+            >
+              Save Draft
+            </button>
+
+            {/* Publish */}
+            <button
+              onClick={() => void handleList("active")}
+              disabled={listSubmitting}
+              style={{
+                flex: 2,
+                background: listSubmitting ? "rgba(0,0,0,0.3)" : listingType === "swap" ? SWAP_TEAL : listingType === "give_away" ? FREE_GREEN : PINK,
+                color: "#fff",
+                border: "none",
+                borderRadius: 14,
+                padding: "14px 0",
+                fontSize: 14,
+                fontFamily: "var(--font-jost), sans-serif",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                cursor: listSubmitting ? "not-allowed" : "pointer",
+              }}
+            >
+              {listSubmitting ? "Saving…" : listingType === "swap" ? "List for Swap 🔄" : listingType === "give_away" ? "Give it Away 🎁" : "Publish →"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -990,6 +1030,32 @@ export function HangerPage() {
           category="fits"
           onClose={() => setShowPostSheet(false)}
           onPosted={() => setShowPostSheet(false)}
+        />
+      )}
+
+      {/* ── Listing detail sheet ─────────────────────────────────────────────── */}
+      {detailListing && !inquiryListing && (
+        <HangerListingSheet
+          listing={detailListing}
+          onClose={() => setDetailListing(null)}
+          onInquire={(mode) => {
+            setInquiryMode(mode);
+            setInquiryListing(detailListing);
+            setDetailListing(null);
+          }}
+          onBuy={() => {
+            void handleBuy(detailListing.id);
+            setDetailListing(null);
+          }}
+        />
+      )}
+
+      {/* ── Inquiry / swap offer sheet ────────────────────────────────────────── */}
+      {inquiryListing && (
+        <HangerInquirySheet
+          listing={inquiryListing}
+          mode={inquiryMode}
+          onClose={() => setInquiryListing(null)}
         />
       )}
     </div>
