@@ -1,64 +1,117 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
-import { PinIcon } from "./pin-icon";
 import { PinDropCompose } from "./pin-drop-compose";
 import "@/app/styles/bloom-entrance.css";
 
-interface PersonalPin {
-  id: string;
-  location: string;
-  caption: string | null;
-  expires_at: string;
-  created_at: string;
-}
+const PINK = "#FF1F7D";
+const BG   = "#0D0820";
 
-interface ReceivedPin {
-  id: string;
-  location: string;
-  caption: string | null;
-  expires_at: string;
-  sent_at: string;
-  sender_name: string;
-  sender_avatar: string | null;
-  kind: "received";
-}
-
-interface ClubPin {
-  id: string;
-  location: string;
-  caption: string;
-  club_name: string | null;
-  sent_at: string;
-  type: "club";
-}
+interface PersonalPin  { id: string; location: string; caption: string | null; expires_at: string; created_at: string; }
+interface ReceivedPin  { id: string; location: string; caption: string | null; expires_at: string; sent_at: string; sender_name: string; sender_avatar: string | null; kind: "received"; }
+interface ClubPin      { id: string; location: string; caption: string; club_name: string | null; sent_at: string; type: "club"; }
 
 type PinItem =
   | ({ kind: "personal" } & PersonalPin)
   | ({ kind: "received" } & ReceivedPin)
-  | ({ kind: "club" } & ClubPin);
+  | ({ kind: "club" }    & ClubPin);
 
 function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return "just now";
   if (m < 60) return `${m}m ago`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h ago`;
   return `${Math.floor(h / 24)}d ago`;
 }
-
 function expiresIn(iso: string) {
-  const diff = new Date(iso).getTime() - Date.now();
-  const h = Math.round(diff / 3600000);
+  const h = Math.round((new Date(iso).getTime() - Date.now()) / 3600000);
   if (h < 1) return "expires soon";
-  if (h < 24) return `expires in ${h}h`;
-  return `expires in ${Math.round(h / 24)}d`;
+  if (h < 24) return `${h}h left`;
+  return `${Math.round(h / 24)}d left`;
+}
+
+const PILL_COLORS = [
+  { bg: "#2D1B4E", border: "rgba(180,120,255,0.4)", text: "rgba(210,180,255,0.95)" },
+  { bg: "#1A2E1A", border: "rgba(100,200,100,0.35)", text: "rgba(160,230,160,0.95)" },
+  { bg: "#2E1A1A", border: "rgba(255,100,100,0.35)", text: "rgba(255,160,160,0.95)" },
+  { bg: "#1A1E2E", border: "rgba(100,140,255,0.35)", text: "rgba(160,190,255,0.95)" },
+  { bg: "#2E2A1A", border: "rgba(255,200,80,0.35)",  text: "rgba(255,225,140,0.95)" },
+  { bg: "#2E1A28", border: `${PINK}55`,              text: "rgba(255,160,200,0.95)" },
+];
+
+// Scattered layout: each pill gets a % position and slight rotation
+const SCATTER: { top: string; left: string; rot: number }[] = [
+  { top: "8%",  left: "12%", rot: -3 },
+  { top: "6%",  left: "52%", rot:  2 },
+  { top: "18%", left: "30%", rot: -5 },
+  { top: "22%", left: "62%", rot:  4 },
+  { top: "32%", left: "5%",  rot:  3 },
+  { top: "36%", left: "45%", rot: -2 },
+  { top: "46%", left: "18%", rot:  5 },
+  { top: "48%", left: "58%", rot: -4 },
+  { top: "58%", left: "8%",  rot:  2 },
+  { top: "60%", left: "42%", rot: -3 },
+  { top: "70%", left: "22%", rot:  4 },
+  { top: "72%", left: "60%", rot: -2 },
+];
+
+function PinPill({ pin, idx }: { pin: PinItem; idx: number }) {
+  const pos   = SCATTER[idx % SCATTER.length];
+  const color = PILL_COLORS[idx % PILL_COLORS.length];
+  const label = pin.kind === "club"
+    ? (pin.club_name ?? "Club")
+    : pin.kind === "received"
+    ? pin.sender_name
+    : "You";
+  const time = pin.kind === "personal"
+    ? expiresIn(pin.expires_at)
+    : timeAgo(pin.kind === "received" ? pin.sent_at : pin.sent_at);
+
+  return (
+    <div style={{
+      position: "absolute",
+      top: pos.top,
+      left: pos.left,
+      transform: `rotate(${pos.rot}deg)`,
+      background: color.bg,
+      border: `1.5px solid ${color.border}`,
+      borderRadius: 999,
+      padding: "10px 18px",
+      backdropFilter: "blur(12px)",
+      boxShadow: `0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)`,
+      maxWidth: 180,
+      cursor: "default",
+    }}>
+      <p style={{
+        fontFamily: "var(--font-jost)",
+        fontSize: 13,
+        fontWeight: 700,
+        color: color.text,
+        margin: 0,
+        lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        maxWidth: 150,
+      }}>
+        {pin.location}
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>
+          {label.toUpperCase()}
+        </span>
+        <span style={{ width: 2, height: 2, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.35)" }}>
+          {time}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export function PinDropsPage() {
-  const [pins, setPins]       = useState<PinItem[]>([]);
+  const [pins, setPins]     = useState<PinItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadPins = useCallback(() => {
@@ -72,9 +125,8 @@ export function PinDropsPage() {
           ...(club_pins as ClubPin[]).map((p) => ({ kind: "club" as const, ...p })),
         ];
         all.sort((a, b) => {
-          const aTime = a.kind === "personal" ? a.created_at : a.kind === "received" ? a.sent_at : a.sent_at;
-          const bTime = b.kind === "personal" ? b.created_at : b.kind === "received" ? b.sent_at : b.sent_at;
-          return new Date(bTime).getTime() - new Date(aTime).getTime();
+          const t = (x: PinItem) => x.kind === "personal" ? x.created_at : x.kind === "received" ? x.sent_at : x.sent_at;
+          return new Date(t(b)).getTime() - new Date(t(a)).getTime();
         });
         setPins(all);
         setLoading(false);
@@ -84,104 +136,90 @@ export function PinDropsPage() {
 
   useEffect(() => { loadPins(); }, [loadPins]);
 
+  // Fallback preview pills when no real data
+  const PREVIEW_PILLS = [
+    { label: "Dinner Society", sub: "SoHo · tonight" },
+    { label: "Museum Meetup",  sub: "Sofia K. · 2h ago" },
+    { label: "Rooftop Girls",  sub: "Club · 5m ago" },
+    { label: "Book Night",     sub: "You · expires in 3h" },
+    { label: "Wine & Style",   sub: "Priya K. · 1h ago" },
+    { label: "Sunday Brunch",  sub: "Club Mama · now" },
+    { label: "Gallery Walk",   sub: "Amara · 30m ago" },
+    { label: "Soft Life Club", sub: "You · expires in 6h" },
+  ];
+
   return (
-    <div className="bloom-page-enter min-h-screen pb-24" style={{ background: "#FFF8F0" }}>
-      <div className="px-5 pt-12 pb-6 max-w-lg mx-auto">
+    <div style={{
+      background: BG,
+      minHeight: "100vh",
+      paddingBottom: 120,
+      paddingTop: "calc(env(safe-area-inset-top, 0px) + 64px)",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Radial glow behind */}
+      <div style={{
+        position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
+        width: 300, height: 300, borderRadius: "50%",
+        background: `radial-gradient(circle, ${PINK}18 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
 
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-          <Link
-            href="/member/home"
-            style={{ width: 40, height: 40, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", textDecoration: "none", color: "#111" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <PinIcon size={18} />
-            <h1 style={{ fontFamily: "var(--font-playfair, 'Playfair Display', Georgia, serif)", fontStyle: "italic", fontSize: 28, fontWeight: 700, color: "#111", margin: 0 }}>
-              Pin drops
-            </h1>
-          </div>
-        </div>
+      {/* Header */}
+      <div style={{ padding: "0 22px 24px", position: "relative", zIndex: 2 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: `${PINK}99`, marginBottom: 6 }}>
+          YOUR DROPS
+        </p>
+        <h1 style={{
+          fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900,
+          fontSize: 42, color: "white", margin: 0, lineHeight: 1,
+        }}>
+          Pin Drops.
+        </h1>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.38)", marginTop: 6 }}>
+          where you&apos;ve been dropped in ✦
+        </p>
+      </div>
 
-        <div style={{ width: 40, height: 2, borderRadius: 2, background: "#FF1F7D", marginBottom: 24 }} />
-
+      {/* Compose */}
+      <div style={{ padding: "0 22px 16px", position: "relative", zIndex: 2 }}>
         <PinDropCompose onSent={loadPins} />
+      </div>
 
+      {/* Scattered pills */}
+      <div style={{
+        position: "relative",
+        height: loading ? 300 : Math.max(500, (pins.length || PREVIEW_PILLS.length) * 70),
+        margin: "0 0 20px",
+      }}>
         {loading ? (
-          <div style={{ textAlign: "center", paddingTop: 60 }}>
-            <p style={{ fontFamily: "Jost, sans-serif", fontSize: 12, color: "#bbb", letterSpacing: "0.1em" }}>Loading…</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em" }}>loading drops…</p>
           </div>
-        ) : pins.length === 0 ? (
-          <div style={{ background: "#fff", borderRadius: 24, padding: 32, textAlign: "center", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(255,31,125,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-              <PinIcon size={22} />
-            </div>
-            <p style={{ fontFamily: "var(--font-playfair, 'Playfair Display', Georgia, serif)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#111", marginBottom: 8 }}>
-              No pin drops yet.
-            </p>
-            <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, color: "#888", lineHeight: 1.6, maxWidth: 260, margin: "0 auto" }}>
-              When someone saves you a seat, your Club Mama drops a pin, or something real happens — it lands here.
-            </p>
-          </div>
+        ) : pins.length > 0 ? (
+          pins.map((pin, i) => <PinPill key={pin.id} pin={pin} idx={i} />)
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {pins.map((pin) => (
-              <div
-                key={pin.id}
-                className="bloom-card-enter"
-                style={{
-                  background: "#fff",
-                  borderRadius: 16,
-                  padding: "16px 18px",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                  borderLeft: pin.kind === "club" ? "3px solid #FF1F7D" : pin.kind === "received" ? "3px solid #FF1F7D" : "3px solid #111",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 14, color: pin.kind === "personal" ? "#111" : "#FF1F7D" }}>📍</span>
-                    <span style={{
-                      fontFamily: "Jost, sans-serif",
-                      fontSize: 9,
-                      fontWeight: 700,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: pin.kind === "personal" ? "#666" : "#FF1F7D",
-                    }}>
-                      {pin.kind === "club"
-                        ? (pin.club_name ?? "Your club")
-                        : pin.kind === "received"
-                        ? `${pin.sender_name} dropped a pin`
-                        : "Your pin"}
-                    </span>
-                  </div>
-                  <span style={{ fontFamily: "Jost, sans-serif", fontSize: 10, color: "#bbb" }}>
-                    {pin.kind === "personal" ? expiresIn(pin.expires_at) : timeAgo(pin.kind === "received" ? pin.sent_at : pin.sent_at)}
-                  </span>
-                </div>
-
-                <p style={{
-                  fontFamily: "var(--font-playfair, 'Playfair Display', Georgia, serif)",
-                  fontStyle: "italic",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: "#111",
-                  margin: "0 0 4px",
-                }}>
-                  {pin.location}
-                </p>
-
-                {pin.caption && (
-                  <p style={{ fontFamily: "Jost, sans-serif", fontSize: 13, color: "#555", margin: 0, lineHeight: 1.5 }}>
-                    {pin.caption}
-                  </p>
-                )}
+          /* Preview mode — show what it'll look like */
+          PREVIEW_PILLS.map((p, i) => {
+            const pos   = SCATTER[i % SCATTER.length];
+            const color = PILL_COLORS[i % PILL_COLORS.length];
+            return (
+              <div key={i} style={{
+                position: "absolute",
+                top: pos.top, left: pos.left,
+                transform: `rotate(${pos.rot}deg)`,
+                background: color.bg,
+                border: `1.5px solid ${color.border}`,
+                borderRadius: 999,
+                padding: "10px 18px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                opacity: 0.72,
+              }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: color.text, margin: 0, whiteSpace: "nowrap" }}>{p.label}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.35)", margin: "3px 0 0", whiteSpace: "nowrap" }}>{p.sub}</p>
               </div>
-            ))}
-          </div>
+            );
+          })
         )}
       </div>
     </div>
