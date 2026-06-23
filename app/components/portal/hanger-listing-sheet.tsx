@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   getHangerComments, postHangerComment, sendHangerFlower, removeHangerFlower,
@@ -379,16 +380,21 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
 
               {/* Seller row */}
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: "50%",
-                  background: listing.seller_gradient ?? "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "var(--font-jost)", flexShrink: 0,
-                }}>
-                  {listing.seller_initials ?? listing.seller_name?.[0] ?? "?"}
-                </div>
+                <Link href={`/member/profile/${listing.seller_id}`} style={{ textDecoration: "none", flexShrink: 0 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%",
+                    background: listing.seller_gradient ?? "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "var(--font-jost)",
+                    boxShadow: "0 0 0 2px rgba(255,255,255,0.15)",
+                  }}>
+                    {listing.seller_initials ?? listing.seller_name?.[0] ?? "?"}
+                  </div>
+                </Link>
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#fff" }}>{listing.seller_name ?? "Unknown"}</p>
+                  <Link href={`/member/profile/${listing.seller_id}`} style={{ textDecoration: "none" }}>
+                    <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#fff" }}>{listing.seller_name ?? "Unknown"}</p>
+                  </Link>
                   {avgRating && (
                     <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
                       ⭐ {avgRating} · {reviews.length} review{reviews.length !== 1 ? "s" : ""}
@@ -497,18 +503,23 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Seller header */}
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: "50%",
-                  background: listing.seller_gradient ?? "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "var(--font-jost)",
-                }}>
-                  {listing.seller_initials ?? listing.seller_name?.[0] ?? "?"}
-                </div>
+                <Link href={`/member/profile/${listing.seller_id}`} style={{ textDecoration: "none", flexShrink: 0 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: "50%",
+                    background: listing.seller_gradient ?? "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "var(--font-jost)",
+                    boxShadow: "0 0 0 3px rgba(255,255,255,0.12)",
+                  }}>
+                    {listing.seller_initials ?? listing.seller_name?.[0] ?? "?"}
+                  </div>
+                </Link>
                 <div>
-                  <p style={{ margin: 0, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#fff" }}>
-                    {listing.seller_name ?? "Unknown"}
-                  </p>
+                  <Link href={`/member/profile/${listing.seller_id}`} style={{ textDecoration: "none" }}>
+                    <p style={{ margin: 0, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#fff" }}>
+                      {listing.seller_name ?? "Unknown"}
+                    </p>
+                  </Link>
                   <p style={{ margin: "3px 0 0", fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
                     {listing.city ? `📍 ${listing.city}` : "Hanger member"}
                   </p>

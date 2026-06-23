@@ -648,24 +648,29 @@ export function HangerPage() {
 
                 {/* Seller chip + appreciation counts */}
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      background: listing.seller_gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 8,
-                      fontWeight: 700,
-                      color: "#fff",
-                      fontFamily: "var(--font-jost), sans-serif",
-                      flexShrink: 0,
-                    }}
+                  <Link
+                    href={`/member/profile/${listing.seller_id}`}
+                    style={{ textDecoration: "none", flexShrink: 0 }}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {listing.seller_initials}
-                  </div>
+                    <div
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: "50%",
+                        background: listing.seller_gradient,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 8,
+                        fontWeight: 700,
+                        color: "#fff",
+                        fontFamily: "var(--font-jost), sans-serif",
+                      }}
+                    >
+                      {listing.seller_initials}
+                    </div>
+                  </Link>
                   <span
                     style={{
                       fontSize: 10,
