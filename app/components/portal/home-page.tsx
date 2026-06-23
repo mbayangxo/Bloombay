@@ -267,7 +267,7 @@ export function HomePage() {
   const upNextEv     = upNextEvents[upNextIdx] ?? null;
 
   return (
-    <div style={{ minHeight: "100vh", background: palette.pageBg, paddingBottom: 120, paddingTop: 54 }}>
+    <div style={{ minHeight: "100vh", background: palette.pageBg, paddingBottom: 120, paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
 
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }

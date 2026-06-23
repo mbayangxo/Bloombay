@@ -493,9 +493,19 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   return (
     <>
-      {/* ══════ TOP BAR — logo always visible ══════ */}
+      {/* ══════ TOP BAR — fixed, always visible, never transparent ══════ */}
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
-        style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        style={{
+          background: isDarkPage
+            ? "rgba(26,4,20,0.92)"
+            : "rgba(255,240,246,0.95)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          borderBottom: isDarkPage
+            ? "1px solid rgba(255,31,125,0.18)"
+            : "1px solid rgba(255,31,125,0.10)",
+          paddingTop: "env(safe-area-inset-top, 0px)",
+        }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
           <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
             <BBLogo size={26} pinkColor={PINK} />

@@ -227,7 +227,7 @@ export function ColumnPage() {
   const [featured, ...rest] = filtered;
 
   return (
-    <div style={{ background: `${GRAIN}, ${CREAM}`, backgroundSize: "200px 200px, auto", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ background: `${GRAIN}, ${CREAM}`, backgroundSize: "200px 200px, auto", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
       {/* Header */}
       <div style={{
         padding: "56px 22px 24px",

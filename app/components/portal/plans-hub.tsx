@@ -30,8 +30,8 @@ export function PlansHub() {
   const debating = plans.filter((p) => p.commitment === "debating");
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="px-5 pt-12 pb-4 md:px-10 md:pt-8 max-w-2xl mx-auto">
+    <div className="min-h-screen pb-24 md:pb-10" style={{ background: "var(--bb-page-bg, #FFF0F6)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
+      <div className="px-5 pt-4 pb-4 md:px-10 md:pt-8 max-w-2xl mx-auto">
         <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
           ✦ YOUR PLANS
         </p>

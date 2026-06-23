@@ -275,7 +275,7 @@ function DetailView({
   const FRIEND_INITIALS = ["J", "M", "T"];
 
   return (
-    <div style={{ minHeight: "100vh", background: CREAM, backgroundImage: PAPER_TEXTURE, paddingBottom: 100 }}>
+    <div style={{ minHeight: "100vh", background: CREAM, backgroundImage: PAPER_TEXTURE, paddingBottom: 100, paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
       {/* Hero */}
       <div style={{ position: "relative", height: 220, background: heroGradient, flexShrink: 0 }}>
         {/* Dark overlay */}

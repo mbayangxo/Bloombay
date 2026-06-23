@@ -765,6 +765,7 @@ export function BloomTripPage() {
         minHeight: "100vh",
         background: "linear-gradient(160deg, #0D0820 0%, #1A0830 40%, #0D1A20 100%)",
         paddingBottom: 100,
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)",
       }}
     >
       {/* Sticky header */}

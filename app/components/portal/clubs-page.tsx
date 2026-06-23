@@ -120,7 +120,7 @@ export function ClubsPage() {
   }, []);
 
   return (
-    <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
+    <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120, paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
 
       {/* ── Create Club FAB ── */}
       <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
