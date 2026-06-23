@@ -251,7 +251,7 @@ export function AvenuePage() {
 
   return (
     <div style={{
-      background: "#fdf4ec",
+      background: "#ffffff",
       minHeight: "100vh",
       paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)",
       overflowX: "hidden",

@@ -31,13 +31,13 @@ export function SectionHeader({
 
   const headerBg = bg ?? (isDark
     ? "rgba(13,13,13,0.92)"
-    : "rgba(253,244,236,0.92)");
+    : "rgba(255,255,255,0.92)");
 
-  const titleColor  = isDark ? "#fff"                  : "#1A1A1A";
-  const subColor    = isDark ? "rgba(255,255,255,0.38)" : "rgba(26,26,26,0.42)";
-  const backBg      = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-  const backColor   = isDark ? "#fff"                  : "#1A1A1A";
-  const borderColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
+  const titleColor  = isDark ? "#fff"                  : "#111111";
+  const subColor    = isDark ? "rgba(255,255,255,0.38)" : "rgba(17,17,17,0.45)";
+  const backBg      = isDark ? "rgba(255,255,255,0.08)" : "rgba(255,31,125,0.07)";
+  const backColor   = isDark ? "#fff"                  : "#FF1F7D";
+  const borderColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(17,17,17,0.08)";
 
   const backEl = backHref ? (
     <Link
@@ -140,10 +140,10 @@ interface HeaderBtnProps {
 }
 
 const COLORS = {
-  ghost:   { bg: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.75)", border: "rgba(255,255,255,0.18)" },
-  primary: { bg: "#FF1F7D",               color: "#fff",                   border: "transparent" },
-  teal:    { bg: "#00C6A7",               color: "#fff",                   border: "transparent" },
-  green:   { bg: "#16A34A",               color: "#fff",                   border: "transparent" },
+  ghost:   { bg: "rgba(255,31,125,0.07)", color: "#FF1F7D",  border: "rgba(255,31,125,0.2)" },
+  primary: { bg: "#FF1F7D",              color: "#fff",       border: "transparent" },
+  teal:    { bg: "#00C6A7",              color: "#fff",       border: "transparent" },
+  green:   { bg: "#16A34A",              color: "#fff",       border: "transparent" },
 };
 
 export function HeaderBtn({ children, onClick, variant = "ghost", disabled }: HeaderBtnProps) {
@@ -153,8 +153,8 @@ export function HeaderBtn({ children, onClick, variant = "ghost", disabled }: He
       onClick={onClick}
       disabled={disabled}
       style={{
-        background: disabled ? "rgba(255,255,255,0.06)" : c.bg,
-        color: disabled ? "rgba(255,255,255,0.3)" : c.color,
+        background: disabled ? "rgba(17,17,17,0.05)" : c.bg,
+        color: disabled ? "rgba(17,17,17,0.25)" : c.color,
         border: `1.5px solid ${c.border}`,
         borderRadius: 20,
         padding: "7px 14px",

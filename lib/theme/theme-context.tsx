@@ -32,16 +32,16 @@ const DAY: ThemePalette = {
 };
 
 const NIGHT: ThemePalette = {
-  pageBg: "#120008",
-  card: "#1E000E",
-  cardElevated: "#2A0014",
-  textPrimary: "rgba(255,210,235,0.95)",
-  textSecondary: "rgba(255,170,210,0.7)",
-  textMuted: "rgba(255,140,190,0.42)",
-  pink: "#E0006E",
-  babyPink: "#D44488",
-  border: "rgba(224,0,110,0.22)",
-  borderStrong: "rgba(224,0,110,0.45)",
+  pageBg: "#0D000F",        // deep purple-black — Barbie after dark
+  card: "#180018",          // dark card with subtle violet warmth
+  cardElevated: "#220028",
+  textPrimary: "#FFFFFF",
+  textSecondary: "rgba(255,220,240,0.72)",
+  textMuted: "rgba(255,180,220,0.42)",
+  pink: "#FF1F7D",          // same hot pink — pops on dark
+  babyPink: "#FF69B4",      // same baby pink
+  border: "rgba(255,31,125,0.18)",
+  borderStrong: "rgba(255,31,125,0.4)",
   isNight: true,
 };
 

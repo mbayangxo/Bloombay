@@ -6,11 +6,11 @@
 :root {
   --ivory: #fdf4ec;
   --blush: #ffd6e4;
-  --hot-pink: #ff0055;
+  --hot-pink: #FF1F7D;
   --ink: #111111;
   --rose-gold: #c9a27a;
   --white: #ffffff;
-  --background: var(--ivory);
+  --background: #ffffff;
   --foreground: var(--ink);
   /* Portal brand tokens */
   --bb-pink: #FF1F7D;
