@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   getHangerComments, postHangerComment, sendHangerFlower, removeHangerFlower,
   getHangerReviews, submitHangerReview, hasPurchasedFromSeller,
+  getListingAppreciation,
 } from "@/lib/actions/hanger";
 import type { HangerComment, HangerReview } from "@/lib/actions/hanger";
 import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
@@ -60,8 +61,10 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
   const [reviews,       setReviews]       = useState<HangerReview[]>([]);
   const [commentText,   setCommentText]   = useState("");
   const [postingComment, setPostingComment] = useState(false);
-  const [flowerSent,    setFlowerSent]    = useState(false);
-  const [flowerLoading, setFlowerLoading] = useState(false);
+  const [petalCount,    setPetalCount]    = useState(0);
+  const [flowerCount,   setFlowerCount]   = useState(0);
+  const [myAppreciation, setMyAppreciation] = useState<"flower" | "petal" | null>(null);
+  const [appreciationLoading, setAppreciationLoading] = useState(false);
   const [reviewRating,  setReviewRating]  = useState(5);
   const [reviewBody,    setReviewBody]    = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
@@ -80,39 +83,41 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
       const { data: { user } } = await supabase.auth.getUser();
       if (user) setCurrentUserId(user.id);
 
-      const [cms, rvs, purchased] = await Promise.all([
+      const [cms, rvs, purchased, appreciation] = await Promise.all([
         getHangerComments(listing.id),
         getHangerReviews(listing.seller_id),
         hasPurchasedFromSeller(listing.seller_id),
+        getListingAppreciation(listing.id),
       ]);
       setComments(cms);
       setReviews(rvs);
       setHasPurchased(purchased);
-
-      // Check if current user already sent a flower
-      if (user) {
-        const { data } = await supabase
-          .from("hanger_flowers")
-          .select("id")
-          .eq("sender_id", user.id)
-          .eq("listing_id", listing.id)
-          .maybeSingle();
-        if (data) setFlowerSent(true);
-      }
+      setPetalCount(appreciation.petals);
+      setFlowerCount(appreciation.flowers);
+      setMyAppreciation(appreciation.myType);
     })();
   }, [listing.id, listing.seller_id]);
 
-  async function handleFlower() {
+  async function handleAppreciate(type: "flower" | "petal") {
     if (isMine) return;
-    setFlowerLoading(true);
-    if (flowerSent) {
+    setAppreciationLoading(true);
+    if (myAppreciation === type) {
+      // Tapping the same one — remove it
       await removeHangerFlower(listing.id);
-      setFlowerSent(false);
+      if (type === "petal") setPetalCount(c => Math.max(0, c - 1));
+      else setFlowerCount(c => Math.max(0, c - 1));
+      setMyAppreciation(null);
     } else {
-      await sendHangerFlower(listing.seller_id, listing.id);
-      setFlowerSent(true);
+      // New or switching — upsert
+      const prev = myAppreciation;
+      await sendHangerFlower(listing.seller_id, listing.id, type);
+      if (prev === "petal") setPetalCount(c => Math.max(0, c - 1));
+      if (prev === "flower") setFlowerCount(c => Math.max(0, c - 1));
+      if (type === "petal") setPetalCount(c => c + 1);
+      else setFlowerCount(c => c + 1);
+      setMyAppreciation(type);
     }
-    setFlowerLoading(false);
+    setAppreciationLoading(false);
   }
 
   async function handleComment() {
@@ -241,24 +246,52 @@ export function HangerListingSheet({ listing, onClose, onInquire, onBuy }: Props
             {listing.condition}
           </div>
 
-          {/* Flower button */}
+          {/* Petal / Flower appreciation buttons */}
           {!isMine && (
-            <button
-              onClick={() => void handleFlower()}
-              disabled={flowerLoading}
+            <div
               style={{
                 position: "absolute", bottom: 10, right: 10,
-                background: flowerSent ? `${PINK}33` : "rgba(0,0,0,0.5)",
-                border: flowerSent ? `1.5px solid ${PINK}` : "1px solid rgba(255,255,255,0.2)",
-                borderRadius: 20, padding: "5px 12px",
-                fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
-                color: flowerSent ? PINK : "rgba(255,255,255,0.8)",
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                display: "flex", gap: 6,
               }}
             >
-              <span style={{ fontSize: 14 }}>🌸</span>
-              {flowerSent ? "Sent" : "Send Flower"}
-            </button>
+              {/* Petal — like it */}
+              <button
+                onClick={() => void handleAppreciate("petal")}
+                disabled={appreciationLoading}
+                title="Like it"
+                style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  background: myAppreciation === "petal" ? "rgba(255,180,100,0.3)" : "rgba(0,0,0,0.5)",
+                  border: myAppreciation === "petal" ? "1.5px solid #FFAA44" : "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: 20, padding: "5px 10px",
+                  fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
+                  color: myAppreciation === "petal" ? "#FFAA44" : "rgba(255,255,255,0.75)",
+                  cursor: appreciationLoading ? "not-allowed" : "pointer",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>🌷</span>
+                {petalCount > 0 && <span>{petalCount}</span>}
+              </button>
+
+              {/* Flower — love it */}
+              <button
+                onClick={() => void handleAppreciate("flower")}
+                disabled={appreciationLoading}
+                title="Love it"
+                style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  background: myAppreciation === "flower" ? `${PINK}33` : "rgba(0,0,0,0.5)",
+                  border: myAppreciation === "flower" ? `1.5px solid ${PINK}` : "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: 20, padding: "5px 10px",
+                  fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
+                  color: myAppreciation === "flower" ? PINK : "rgba(255,255,255,0.75)",
+                  cursor: appreciationLoading ? "not-allowed" : "pointer",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>🌸</span>
+                {flowerCount > 0 && <span>{flowerCount}</span>}
+              </button>
+            </div>
           )}
         </div>
 

@@ -37,6 +37,8 @@ type MockListing = HangerListing & {
   seller_initials: string;
   seller_gradient: string;
   card_gradient: string;
+  petal_count: number;
+  flower_count: number;
 };
 
 const SWAP_TEAL  = "#00C6A7";
@@ -54,6 +56,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "S", seller_initials: "AK",
     seller_gradient: "linear-gradient(135deg, #7B2FF7, #C77DFF)",
     card_gradient: "linear-gradient(160deg, #1a0533 0%, #3d1a6e 100%)",
+    petal_count: 14, flower_count: 6,
   },
   {
     id: "2", seller_id: "u1", seller_name: "Zara M", seller_avatar: null,
@@ -65,6 +68,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "27", seller_initials: "ZM",
     seller_gradient: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
     card_gradient: "linear-gradient(160deg, #2a0a14 0%, #5c1a33 100%)",
+    petal_count: 8, flower_count: 2,
   },
   {
     id: "3", seller_id: "u4", seller_name: "Nia B", seller_avatar: null,
@@ -76,6 +80,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "O/S", seller_initials: "NB",
     seller_gradient: "linear-gradient(135deg, #00C6A7, #3B82F6)",
     card_gradient: "linear-gradient(160deg, #001a17 0%, #003d33 100%)",
+    petal_count: 5, flower_count: 1,
   },
   {
     id: "4", seller_id: "u3", seller_name: "Sade T", seller_avatar: null,
@@ -87,6 +92,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "XS", seller_initials: "ST",
     seller_gradient: "linear-gradient(135deg, #FF6B35, #FFB347)",
     card_gradient: "linear-gradient(160deg, #1a0f00 0%, #3d2600 100%)",
+    petal_count: 11, flower_count: 4,
   },
   {
     id: "5", seller_id: "u5", seller_name: "Lena P", seller_avatar: null,
@@ -98,6 +104,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "7.5", seller_initials: "LP",
     seller_gradient: "linear-gradient(135deg, #E91E8C, #F48FB1)",
     card_gradient: "linear-gradient(160deg, #1a0011 0%, #400028 100%)",
+    petal_count: 3, flower_count: 0,
   },
   {
     id: "6", seller_id: "u2", seller_name: "Amara K", seller_avatar: null,
@@ -109,6 +116,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "O/S", seller_initials: "AK",
     seller_gradient: "linear-gradient(135deg, #7B2FF7, #C77DFF)",
     card_gradient: "linear-gradient(160deg, #0d0d1a 0%, #1a1a40 100%)",
+    petal_count: 22, flower_count: 9,
   },
   {
     id: "7", seller_id: "u4", seller_name: "Nia B", seller_avatar: null,
@@ -120,6 +128,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "S", seller_initials: "NB",
     seller_gradient: "linear-gradient(135deg, #00C6A7, #3B82F6)",
     card_gradient: "linear-gradient(160deg, #0a0a0a 0%, #1a1a1a 100%)",
+    petal_count: 7, flower_count: 3,
   },
   {
     id: "8", seller_id: "u1", seller_name: "Zara M", seller_avatar: null,
@@ -131,6 +140,7 @@ const MOCK_LISTINGS: MockListing[] = [
     size_display: "M", seller_initials: "ZM",
     seller_gradient: "linear-gradient(135deg, #FF1F7D, #FF9ECA)",
     card_gradient: "linear-gradient(160deg, #1a0011 0%, #400028 100%)",
+    petal_count: 6, flower_count: 2,
   },
 ];
 
@@ -636,7 +646,7 @@ export function HangerPage() {
                   <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.35)", letterSpacing: "0.04em" }}>📍 {listing.city}</p>
                 )}
 
-                {/* Seller chip */}
+                {/* Seller chip + appreciation counts */}
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                   <div
                     style={{
@@ -665,10 +675,19 @@ export function HangerPage() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
+                      flex: 1,
                     }}
                   >
                     {listing.seller_name}
                   </span>
+                  {/* Appreciation micro-counts */}
+                  {(listing.petal_count > 0 || listing.flower_count > 0) && (
+                    <span style={{ fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.3)", flexShrink: 0, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+                      {listing.petal_count > 0 && `🌷${listing.petal_count}`}
+                      {listing.petal_count > 0 && listing.flower_count > 0 && " "}
+                      {listing.flower_count > 0 && `🌸${listing.flower_count}`}
+                    </span>
+                  )}
                 </div>
 
                 {/* Action button */}

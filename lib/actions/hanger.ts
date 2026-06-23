@@ -198,15 +198,53 @@ export async function getHangerThread(listingId: string, otherUserId: string): P
 
 // ─── Flowers ───────────────────────────────────────────────────────────────────
 
-export async function sendHangerFlower(recipientId: string, listingId?: string): Promise<{ ok: boolean; error?: string }> {
+export async function sendHangerFlower(
+  recipientId: string,
+  listingId: string,
+  type: "flower" | "petal",
+): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
-  const { error } = await supabase.from("hanger_flowers").insert({
-    sender_id: user.id, recipient_id: recipientId, listing_id: listingId ?? null,
-  });
-  if (error?.code === "23505") return { ok: true }; // already sent — idempotent
+  // Upsert: creates or switches petal ↔ flower for this (sender, listing) pair
+  const { error } = await supabase.from("hanger_flowers").upsert(
+    { sender_id: user.id, recipient_id: recipientId, listing_id: listingId, appreciation_type: type },
+    { onConflict: "sender_id,listing_id" },
+  );
   return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+export interface ListingAppreciation {
+  petals: number;
+  flowers: number;
+  myType: "flower" | "petal" | null;
+}
+
+export async function getListingAppreciation(listingId: string): Promise<ListingAppreciation> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [{ data: counts }, { data: mine }] = await Promise.all([
+    supabase
+      .from("hanger_listing_appreciation")
+      .select("petal_count, flower_count")
+      .eq("listing_id", listingId)
+      .maybeSingle(),
+    user
+      ? supabase
+          .from("hanger_flowers")
+          .select("appreciation_type")
+          .eq("listing_id", listingId)
+          .eq("sender_id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  return {
+    petals:  (counts as { petal_count: number } | null)?.petal_count  ?? 0,
+    flowers: (counts as { flower_count: number } | null)?.flower_count ?? 0,
+    myType:  (mine as { appreciation_type: string } | null)?.appreciation_type as "flower" | "petal" | null ?? null,
+  };
 }
 
 export async function removeHangerFlower(listingId: string): Promise<void> {
