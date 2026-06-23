@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     .select(`
       id, parent_id, body, blooms, created_at,
       author_id,
-      profiles!post_comments_author_id_fkey(display_name, avatar_url, girl_code)
+      profiles!post_comments_author_id_fkey(display_name, avatar_url, bloom_code)
     `)
     .order("created_at", { ascending: true });
 

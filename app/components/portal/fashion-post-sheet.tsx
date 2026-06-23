@@ -20,7 +20,8 @@ export type TemplateId =
   | "camera"           // Y2K camera/device screen (IMG_3559)
   | "scrapbook"        // spiral notebook, clip + washi tape (IMG_3562)
   | "portrait_stack"   // big portrait left + Polaroid column (IMG_3470)
-  | "moodboard";       // journal page, overlapping Polaroids (IMG_3457)
+  | "moodboard"        // journal page, overlapping Polaroids (IMG_3457)
+  | "binder";          // planner binder rings left, blush collage
 
 interface TemplateConfig {
   id: TemplateId;
@@ -42,6 +43,7 @@ const TEMPLATES: TemplateConfig[] = [
   { id: "scrapbook",       label: "Scrapbook",   emoji: "📔", description: "Notebook journal page",  maxPhotos: 3,  minPhotos: 1 },
   { id: "portrait_stack",  label: "Portrait",    emoji: "🎞", description: "Portrait + photo stack", maxPhotos: 4,  minPhotos: 1 },
   { id: "moodboard",       label: "Moodboard",   emoji: "🌿", description: "Journal mood board",     maxPhotos: 3,  minPhotos: 1 },
+  { id: "binder",          label: "Binder",      emoji: "📒", description: "Planner binder collage", maxPhotos: 3,  minPhotos: 1 },
 ];
 
 const BORDER_COLORS = [
@@ -508,6 +510,64 @@ function MoodboardPreview({ photos, borderColor, captions, onTap, onCaptionChang
   );
 }
 
+// 11. Binder — planner binder rings left, blush collage ───────────────────────
+function BinderPreview({ photos, captions, onTap, onCaptionChange, title }: {
+  photos: (File | null)[]; captions: string[]; onTap: (i: number) => void;
+  onCaptionChange: (i: number, v: string) => void; title: string;
+}) {
+  const BLUSH = "#F9E8E8";
+  const RING_SILVER = "linear-gradient(180deg, #D0D0D0 0%, #A0A0A0 40%, #E8E8E8 60%, #B0B0B0 100%)";
+  const rings = Array.from({ length: 9 });
+  return (
+    <div style={{ background: BLUSH, borderRadius: 16, overflow: "hidden", position: "relative", minHeight: 300 }}>
+      {/* Binder rings — left spine */}
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 28, background: "#EFD0D0", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", padding: "12px 0" }}>
+        {rings.map((_, i) => (
+          <div key={i} style={{ width: 18, height: 18, borderRadius: "50%", background: RING_SILVER, boxShadow: "inset 0 1px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15)", position: "relative" }}>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 8, height: 8, borderRadius: "50%", background: "#C8C8C8", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Page content — offset from rings */}
+      <div style={{ marginLeft: 32, padding: "14px 12px 14px 8px" }}>
+        {/* Title line */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#8B4A6A", marginBottom: 10 }}>
+          {title || "my looks ✦"}
+        </p>
+
+        {/* Main photo (large) */}
+        <div style={{ position: "relative", marginBottom: 8 }}>
+          <Slot file={photos[0]} onTap={() => onTap(0)} style={{ borderRadius: 8, height: 160, background: "#F0CDCD" }} />
+          {/* Annotation label */}
+          <div style={{ position: "absolute", bottom: -6, right: 8, background: BLUSH, padding: "2px 10px", borderRadius: 4, boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }}>
+            <CaptionInput value={captions[0]} onChange={v => onCaptionChange(0, v)} placeholder="item name…" style={{ fontSize: 11, color: "#8B4A6A", textAlign: "left", width: 100 }} />
+          </div>
+        </div>
+
+        {/* Two smaller photos side by side */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+          {[1, 2].map(i => (
+            <div key={i} style={{ position: "relative" }}>
+              <Slot file={photos[i]} onTap={() => onTap(i)} style={{ borderRadius: 8, height: 100, background: "#F0CDCD" }} />
+              <div style={{ position: "absolute", bottom: -6, right: 4, background: BLUSH, padding: "2px 8px", borderRadius: 4, boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }}>
+                <CaptionInput value={captions[i]} onChange={v => onCaptionChange(i, v)} placeholder={i === 1 ? "detail…" : "colour…"} style={{ fontSize: 10, color: "#8B4A6A", textAlign: "left", width: 72 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Brand/label strip */}
+        <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ height: 1, flex: 1, background: "rgba(139,74,106,0.2)" }} />
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(139,74,106,0.5)", margin: 0 }}>mix & match</p>
+          <div style={{ height: 1, flex: 1, background: "rgba(139,74,106,0.2)" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // MAIN SHEET
 // ══════════════════════════════════════════════════════════════════════════════
@@ -739,6 +799,9 @@ export function FashionPostSheet({ onClose, onPosted, context = "avenue", catego
             )}
             {template === "moodboard" && (
               <MoodboardPreview photos={photos} borderColor={borderColor} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
+            )}
+            {template === "binder" && (
+              <BinderPreview photos={photos} captions={captions} onTap={triggerUpload} onCaptionChange={updateCaption} title={title} />
             )}
           </div>
 

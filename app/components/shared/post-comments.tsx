@@ -12,7 +12,7 @@ const CREAM  = "#fdf4ec";
 interface CommentAuthor {
   display_name: string | null;
   avatar_url: string | null;
-  girl_code: number | null;
+  bloom_code: number | null;
 }
 
 interface Comment {
@@ -91,7 +91,7 @@ function ProfileBubble({ author, size = 30 }: { author: CommentAuthor | null; si
               </div>
               <div>
                 <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 15, color: INK }}>{author?.display_name ?? "Member"}</p>
-                {author?.girl_code && <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 11, color: PINK, fontWeight: 700 }}>#{author.girl_code}</p>}
+                {author?.bloom_code && <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 11, color: PINK, fontWeight: 700 }}>#{author.bloom_code}</p>}
               </div>
             </div>
             {[
@@ -155,8 +155,8 @@ function CommentRow({
           <div style={{ background: "rgba(0,0,0,0.04)", borderRadius: 14, padding: "10px 12px" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: INK }}>{name}</span>
-              {comment.profiles?.girl_code && (
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: PINK, fontWeight: 700 }}>#{comment.profiles.girl_code}</span>
+              {comment.profiles?.bloom_code && (
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: PINK, fontWeight: 700 }}>#{comment.profiles.bloom_code}</span>
               )}
               <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(0,0,0,0.35)", marginLeft: "auto" }}>{timeAgo}</span>
             </div>

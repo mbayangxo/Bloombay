@@ -733,7 +733,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   }
 
   const [isFoundingMother, setIsFoundingMother] = useState(false);
-  const [contentTab, setContentTab] = useState<"about" | "vibes" | "girl_code">("about");
+  const [contentTab, setContentTab] = useState<"about" | "vibes" | "bloom_code">("about");
   const [templateId, setTemplateId] = useState<string>(() => {
     if (typeof window === "undefined") return "bloom";
     return localStorage.getItem("bb_template") ?? "bloom";
@@ -882,7 +882,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
 
       {/* ══════════ TABS ══════════ */}
       <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
-        {(["about", "vibes", "girl_code"] as const).map(tab => (
+        {(["about", "vibes", "bloom_code"] as const).map(tab => (
           <button key={tab} onClick={() => setContentTab(tab)} style={{
             flex: 1, background: "none", border: "none", cursor: "pointer",
             padding: "14px 0 12px",
@@ -893,7 +893,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
               fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.10em",
               color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
               textTransform: "uppercase" as const,
-            }}>{tab === "about" ? "About" : tab === "vibes" ? "Your Vibe" : "Girl Code"}</span>
+            }}>{tab === "about" ? "About" : tab === "vibes" ? "Your Vibe" : "Bloom Code"}</span>
           </button>
         ))}
       </div>
@@ -997,8 +997,8 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         </div>
       )}
 
-      {/* ══════════ GIRL CODE TAB ══════════ */}
-      {contentTab === "girl_code" && (
+      {/* ══════════ BLOOM CODE TAB ══════════ */}
+      {contentTab === "bloom_code" && (
         <div style={{ padding: "24px 20px 0" }}>
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 24 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>YOUR QR CODE</p>

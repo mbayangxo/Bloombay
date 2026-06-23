@@ -220,6 +220,18 @@ export function HangerPage() {
   const [listingType,     setListingType]     = useState<"sell" | "swap" | "sell_or_swap">("sell");
   const [swapWants,       setSwapWants]       = useState("");
 
+  function closeSellSheet() {
+    setSellSheetOpen(false);
+    setSellTitle("");
+    setSellCategory("");
+    setSellSize("");
+    setSellCondition("");
+    setSellPrice("");
+    setSellDescription("");
+    setListingType("sell");
+    setSwapWants("");
+  }
+
   const filtered =
     activeCategory === "All"
       ? MOCK_LISTINGS
@@ -565,13 +577,11 @@ export function HangerPage() {
 
                 {/* Price / swap label */}
                 {listing.listing_type === "swap" ? (
-                  <p style={{ margin: 0, fontSize: 13, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, color: SWAP_TEAL, letterSpacing: "0.02em" }}>
-                    🔄 Swap only
-                  </p>
+                  <span style={{ display: "inline-block", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", background: SWAP_TEAL, padding: "3px 9px", borderRadius: 20 }}>Swap ↔</span>
                 ) : listing.listing_type === "sell_or_swap" ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div>
                     <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
-                    <span style={{ fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: SWAP_TEAL, background: `${SWAP_TEAL}18`, padding: "2px 6px", borderRadius: 6 }}>SWAP OK</span>
+                    <span style={{ display: "inline-block", marginTop: 3, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: SWAP_TEAL, background: `${SWAP_TEAL}18`, border: `1px solid ${SWAP_TEAL}44`, padding: "2px 7px", borderRadius: 20 }}>or swap ↔</span>
                   </div>
                 ) : (
                   <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
@@ -617,7 +627,7 @@ export function HangerPage() {
                   <button
                     style={{ marginTop: "auto", width: "100%", background: SWAP_TEAL, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
                   >
-                    Offer a Swap 🔄
+                    Offer a Swap
                   </button>
                 ) : listing.listing_type === "sell_or_swap" ? (
                   <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
@@ -626,12 +636,12 @@ export function HangerPage() {
                       disabled={buyingId === listing.id}
                       style={{ flex: 1, background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
                     >
-                      {buyingId === listing.id ? "…" : `Buy`}
+                      {buyingId === listing.id ? "…" : `Buy · ${price}`}
                     </button>
                     <button
                       style={{ flex: 1, background: "transparent", color: SWAP_TEAL, border: `1.5px solid ${SWAP_TEAL}`, borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: "pointer" }}
                     >
-                      Swap 🔄
+                      Swap ↔
                     </button>
                   </div>
                 ) : (
@@ -659,7 +669,7 @@ export function HangerPage() {
       {/* ── Sell sheet backdrop ────────────────────────────────────────────────── */}
       {sellSheetOpen && (
         <div
-          onClick={() => setSellSheetOpen(false)}
+          onClick={closeSellSheet}
           style={{
             position: "fixed",
             inset: 0,
@@ -726,10 +736,10 @@ export function HangerPage() {
             women-only closet ✦
           </p>
 
-          {/* Listing type */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-            {(["sell", "swap", "sell_or_swap"] as const).map(type => {
-              const labels = { sell: "Sell", swap: "Swap", sell_or_swap: "Sell or Swap" };
+          {/* Listing type pill selector */}
+          <div style={{ display: "flex", gap: 0, marginBottom: 20, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, overflow: "hidden" }}>
+            {(["sell", "swap", "sell_or_swap"] as const).map((type, idx) => {
+              const labels: Record<string, string> = { sell: "Sell", swap: "Swap ↔", sell_or_swap: "Both" };
               const active = listingType === type;
               return (
                 <button
@@ -737,19 +747,14 @@ export function HangerPage() {
                   onClick={() => setListingType(type)}
                   style={{
                     flex: 1,
-                    padding: "9px 4px",
-                    borderRadius: 10,
-                    border: active
-                      ? `1.5px solid ${type === "swap" ? SWAP_TEAL : PINK}`
-                      : "1.5px solid rgba(255,255,255,0.12)",
-                    background: active
-                      ? (type === "swap" ? `${SWAP_TEAL}22` : `${PINK}22`)
-                      : "transparent",
-                    color: active
-                      ? (type === "swap" ? SWAP_TEAL : PINK)
-                      : "rgba(255,255,255,0.45)",
+                    padding: "10px 4px",
+                    borderRadius: 0,
+                    border: "none",
+                    borderLeft: idx > 0 ? "1px solid rgba(255,255,255,0.15)" : "none",
+                    background: active ? PINK : "transparent",
+                    color: active ? "#fff" : "rgba(255,255,255,0.5)",
                     fontFamily: "var(--font-jost), sans-serif",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     letterSpacing: "0.03em",
                     cursor: "pointer",
@@ -846,9 +851,9 @@ export function HangerPage() {
           {/* Swap wants — shown for swap and sell_or_swap */}
           {listingType !== "sell" && (
             <>
-              <label style={{ ...fieldLabelStyle, color: SWAP_TEAL }}>What are you looking to swap for?</label>
+              <label style={{ ...fieldLabelStyle, color: SWAP_TEAL }}>Looking to swap for…</label>
               <textarea
-                placeholder="e.g. Looking for a size S linen top or vintage denim…"
+                placeholder="What are you looking for in return? (style, size, brand…)"
                 value={swapWants}
                 onChange={(e) => setSwapWants(e.target.value)}
                 rows={2}
@@ -891,9 +896,9 @@ export function HangerPage() {
             }}
           >
             {listingType === "swap"
-              ? "No fees on swaps — just connect and exchange."
+              ? "Swap listings are free — Bloombay takes nothing."
               : listingType === "sell_or_swap"
-              ? "10% fee on sales. Swaps are always free."
+              ? "If it sells, Bloombay takes 10%. Swaps are always free."
               : "Bloombay takes 10% when it sells. You keep the rest."}
           </p>
 

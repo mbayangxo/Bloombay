@@ -10,6 +10,7 @@ import { uploadProfilePhoto } from "@/lib/storage/upload";
 import type { AuthUser } from "@/lib/auth/get-user";
 import { SocialProofSection } from "./social-proof-section";
 import { QuestionSheCaries } from "./question-she-carries";
+import { FoundingFlower } from "@/app/components/shared/founding-flower";
 
 const PINK = "#FF1F7D";
 
@@ -1521,6 +1522,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               {displayName}.
             </p>
 
+            {isFounder && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, marginBottom: 4 }}>
+                <FoundingFlower size={18} />
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#111" }}>
+                  FOUNDING MEMBER
+                </span>
+              </div>
+            )}
+
             {(user.neighborhood || user.borough) ? (
               <p style={{ fontFamily: "var(--font-jost)", fontStyle: "italic", fontSize: 11, color: "rgba(0,0,0,0.45)", marginBottom: 14, letterSpacing: "0.03em" }}>
                 {user.neighborhood}{user.borough ? ` · ${user.borough}` : ""}
@@ -2125,6 +2135,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.6)", marginBottom: 16 }}>
               YOUR BLOOM CODE
             </p>
+
+            {isFounder && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 20 }}>
+                <FoundingFlower size={36} />
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#111" }}>
+                  FOUNDING MEMBER
+                </span>
+              </div>
+            )}
 
             <div style={{ ...cardStyle, textAlign: "center", padding: "32px 20px" }}>
               <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE8F4 100%)", borderRadius: 18, padding: "24px 20px", marginBottom: 20, border: "1px solid rgba(255,31,125,0.15)" }}>

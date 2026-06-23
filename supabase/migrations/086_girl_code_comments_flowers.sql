@@ -1,31 +1,31 @@
--- ── Girl Code sequential member numbers ──────────────────────────────────────
+-- ── Bloom Code sequential member numbers ──────────────────────────────────────
 -- Each member gets a unique sequential number starting from 1.
 -- #1 is reserved for the founding account (mbayangskin@gmail.com).
 
-create sequence if not exists public.girl_code_seq start 1;
+create sequence if not exists public.bloom_code_seq start 1;
 
 alter table public.profiles
-  add column if not exists girl_code integer unique;
+  add column if not exists bloom_code integer unique;
 
--- Auto-assign girl_code on new profile creation
-create or replace function public.assign_girl_code()
+-- Auto-assign bloom_code on new profile creation
+create or replace function public.assign_bloom_code()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if new.girl_code is null then
-    new.girl_code := nextval('public.girl_code_seq');
+  if new.bloom_code is null then
+    new.bloom_code := nextval('public.bloom_code_seq');
   end if;
   return new;
 end;
 $$;
 
-drop trigger if exists assign_girl_code_trigger on public.profiles;
-create trigger assign_girl_code_trigger
+drop trigger if exists assign_bloom_code_trigger on public.profiles;
+create trigger assign_bloom_code_trigger
   before insert on public.profiles
-  for each row execute function public.assign_girl_code();
+  for each row execute function public.assign_bloom_code();
 
 -- Founder gets #1 (backfill for the first account created)
--- Run once: UPDATE profiles SET girl_code = 1 WHERE email = 'mbayangskin@gmail.com';
--- Then: SELECT setval('girl_code_seq', (SELECT COALESCE(MAX(girl_code), 1) FROM profiles));
+-- Run once: UPDATE profiles SET bloom_code = 1 WHERE email = 'mbayangskin@gmail.com';
+-- Then: SELECT setval('bloom_code_seq', (SELECT COALESCE(MAX(bloom_code), 1) FROM profiles));
 
 
 -- ── Post comments ─────────────────────────────────────────────────────────────
