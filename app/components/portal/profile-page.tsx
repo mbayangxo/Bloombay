@@ -1947,6 +1947,32 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
             <QuestionSheCaries editable />
 
+            {/* Bloom Passport link */}
+            <Link href="/member/passport" style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "linear-gradient(160deg, #6B001A 0%, #9B0032 45%, #C4005A 100%)",
+                borderRadius: 16, padding: "16px 18px",
+                boxShadow: "0 6px 24px rgba(196,0,90,0.28)",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                position: "relative", overflow: "hidden",
+              }}>
+                <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 55%)", pointerEvents: "none" }}/>
+                <div style={{ position: "relative" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,200,220,0.75)", marginBottom: 4 }}>✦ BLOOM PASSPORT</p>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "rgba(255,230,242,0.97)", margin: 0, letterSpacing: "-0.01em" }}>Your world, documented.</p>
+                </div>
+                <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
+                  <div style={{ width: 34, height: 44, borderRadius: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "9px", color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em" }}>BB</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", marginTop: 1 }}>PASS</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
             {/* My Story link */}
             <Link
               href="/member/my-story"
