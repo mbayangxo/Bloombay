@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { SectionHeader } from "@/app/components/shared/section-header";
+import { PAGE_BG, PINK as _PINK, INK } from "@/app/components/shared/design-tokens";
 
-const PINK  = "#FF1F7D";
-const CREAM = "#F6F1EB";
-const DARK  = "#1C1B1C";
+const PINK  = _PINK;
+const CREAM = PAGE_BG;
+const DARK  = INK;
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
 
@@ -223,24 +225,23 @@ export function WallPage() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
       {/* ── Header ── */}
-      <header style={{ position: "sticky", top: 0, zIndex: 30, background: `linear-gradient(160deg, #C2005A 0%, ${PINK} 55%, #FF6EB4 100%)`, padding: "18px 18px 16px", boxShadow: "0 4px 24px rgba(255,31,125,0.28)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
-          <Link href="/member/avenue" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,0.2)", color: "#fff", textDecoration: "none", fontSize: 18, flexShrink: 0, marginTop: 4 }}>←</Link>
-          <div style={{ flex: 1, marginLeft: 12 }}>
-            <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "clamp(32px, 11vw, 44px)", fontWeight: 700, margin: 0, lineHeight: 1, color: "#fff", letterSpacing: "-0.01em" }}>The Wall.</h1>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, margin: "4px 0 0", color: "rgba(255,255,255,0.82)" }}>Post. Share. Vibe.</p>
+      <SectionHeader
+        title="The Wall"
+        subtitle="Post. Share. Vibe."
+        backHref="/member/avenue"
+        theme="light"
+        actions={
+          <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,31,125,0.08)", borderRadius: 20, padding: "6px 11px" }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e" }} />
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, letterSpacing: "0.04em" }}>Live</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.18)", borderRadius: 20, padding: "6px 11px", flexShrink: 0, marginTop: 6 }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#A7F3D0" }} />
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: "0.04em" }}>Live</span>
-          </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* ── Category filter ── */}
-      <div style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(246,241,235,0.95)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(28,27,28,0.08)", padding: "10px 18px" }}>
+      <div style={{ position: "sticky", top: 60, zIndex: 20, background: "rgba(253,244,236,0.95)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(26,26,26,0.08)", padding: "10px 18px" }}>
         <div style={{ display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none" }}>
           {(Object.keys(CATEGORY_META) as Category[]).map(c => {
             const m = CATEGORY_META[c];

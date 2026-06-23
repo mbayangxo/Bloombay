@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { SectionHeader } from "@/app/components/shared/section-header";
+import { PAGE_BG } from "@/app/components/shared/design-tokens";
 
 const PINK = "#FF1F7D";
 
@@ -145,7 +147,7 @@ function IcebreakerScreen({ withUserId }: { withUserId: string }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "#FFF8F0",
+        background: PAGE_BG,
         paddingBottom: 96,
       }}
     >
@@ -364,17 +366,13 @@ export function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "var(--pale-pink-bg)" }}>
-      <div className="px-5 pt-12 pb-6 max-w-lg mx-auto">
-        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>
-          MESSAGES
-        </p>
-        <h1
-          className="text-3xl font-bold italic mb-6"
-          style={{ fontFamily: "var(--font-playfair)", color: "#111" }}
-        >
-          {planSlug ? "Plan group chat" : "Chats"}
-        </h1>
+    <div className="min-h-screen pb-24" style={{ background: PAGE_BG }}>
+      <SectionHeader
+        title={planSlug ? "Plan chat" : "Chats"}
+        subtitle="Direct messages"
+        theme="light"
+      />
+      <div className="px-5 pt-6 pb-6 max-w-lg mx-auto">
 
         <div className="rounded-3xl p-8 text-center bg-white" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
           <p style={{ fontSize: "36px" }}>{planSlug ? "💬" : "✉️"}</p>

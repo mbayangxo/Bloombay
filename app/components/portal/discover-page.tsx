@@ -11,17 +11,17 @@ export function DiscoverPage() {
   const [tab, setTab] = useState<Tab>("happenings");
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "#fdf4ec", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* Sticky tab toggle — sits flush under the fixed top bar */}
       <div style={{
         position: "sticky",
         top: "calc(env(safe-area-inset-top, 0px) + 48px)",
         zIndex: 30,
-        background: "rgba(10,8,8,0.97)",
+        background: "rgba(253,244,236,0.95)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        borderBottom: "1px solid rgba(26,26,26,0.08)",
         padding: "10px 20px",
         display: "flex",
         gap: 8,
@@ -41,8 +41,8 @@ export function DiscoverPage() {
               fontWeight: 800,
               letterSpacing: "0.12em",
               cursor: "pointer",
-              background: tab === t.id ? PINK : "rgba(255,255,255,0.07)",
-              color: tab === t.id ? "white" : "rgba(255,255,255,0.38)",
+              background: tab === t.id ? PINK : "rgba(26,26,26,0.06)",
+              color: tab === t.id ? "white" : "rgba(26,26,26,0.45)",
               boxShadow: tab === t.id ? `0 4px 14px ${PINK}44` : "none",
               transition: "all 0.18s ease",
             }}

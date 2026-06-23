@@ -1500,10 +1500,10 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   /* ── render ─────────────────────────────────── */
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "#fdf4ec", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* ══════════════════════════ PORTFOLIO HEADER ══════════════════════════ */}
-      <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5EC 80%, #FFF0F8 100%)", padding: "20px 18px 0", position: "relative" }}>
+      <div style={{ background: "#fdf4ec", padding: "20px 18px 0", position: "relative" }}>
 
         {/* Top bar: month/year + member number */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -1895,7 +1895,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       })()}
 
       {/* ══════════════════════════ TABS ══════════════════════════ */}
-      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,240,248,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,31,125,0.08)" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(253,244,236,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
         <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined, paddingLeft: 14, paddingRight: 14 }}>
           {tabs.map(tab => (
             <button
