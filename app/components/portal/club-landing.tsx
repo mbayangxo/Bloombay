@@ -899,8 +899,6 @@ export interface ClubCustomization {
 }
 
 export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false, customization }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
-  const [brandPhotos, setBrandPhotos] = useState<string[]>([]);
-  const brandPhotoInputRef = useRef<HTMLInputElement>(null);
   const [applied, setApplied] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
@@ -1155,41 +1153,6 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   </div>
                 ))}
               </div>
-            </section>
-          )}
-
-          {/* ── BRAND GALLERY ────────────────────────────────────────────── */}
-          {(isOwner || brandPhotos.length > 0) && (
-            <section style={{ padding: "0 20px 28px" }}>
-              <input ref={brandPhotoInputRef} type="file" accept="image/*" multiple onChange={e => { Array.from(e.target.files ?? []).forEach(f => setBrandPhotos(prev => [...prev, URL.createObjectURL(f)])); e.target.value = ""; }} style={{ display: "none" }} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38, marginBottom: 2 }}>BRAND GALLERY</p>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: DARK, opacity: 0.45 }}>mood, moments & vibe ✦</p>
-                </div>
-                {isOwner && (
-                  <button onClick={() => brandPhotoInputRef.current?.click()} style={{ padding: "6px 14px", borderRadius: 20, background: brandColor, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.1em", color: "white" }}>+ ADD</button>
-                )}
-              </div>
-              {brandPhotos.length === 0 ? (
-                <button onClick={() => brandPhotoInputRef.current?.click()} style={{ width: "100%", background: "rgba(0,0,0,0.03)", border: `1.5px dashed ${brandColor}44`, borderRadius: 16, padding: "36px 20px", cursor: "pointer", fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.25)", fontStyle: "italic" }}>
-                  Add photos to showcase the club's aesthetic, mood, and brand
-                </button>
-              ) : (
-                <div style={{ display: "flex", gap: 8, overflowX: "auto", marginLeft: -20, paddingLeft: 20, paddingRight: 20, paddingBottom: 4, scrollbarWidth: "none" as const }}>
-                  {brandPhotos.map((url, i) => (
-                    <div key={i} style={{ flexShrink: 0, position: "relative" }}>
-                      <img src={url} alt="" style={{ width: 160, height: 200, borderRadius: 16, objectFit: "cover", display: "block", boxShadow: "0 4px 18px rgba(0,0,0,0.14)" }} />
-                      {isOwner && (
-                        <button onClick={() => setBrandPhotos(prev => prev.filter((_, j) => j !== i))} style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: "rgba(0,0,0,0.55)", border: "none", cursor: "pointer", color: "white", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
-                      )}
-                    </div>
-                  ))}
-                  {isOwner && (
-                    <button onClick={() => brandPhotoInputRef.current?.click()} style={{ flexShrink: 0, width: 100, height: 200, borderRadius: 16, border: `1.5px dashed ${brandColor}55`, background: `${brandColor}06`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: brandColor, fontSize: 28, fontWeight: 300 }}>+</button>
-                  )}
-                </div>
-              )}
             </section>
           )}
 

@@ -162,7 +162,7 @@ const CSS = `
 }
 `;
 
-type HapTab = "happenings" | "intros" | "map" | "scene" | "calendar";
+type HapTab = "happenings" | "intros" | "map" | "scene";
 type Filter = "All" | "Parties" | "Dinners" | "Gatherings" | "Club Gatherings" | "Invitations" | "Open Seats" | "Tables" | "Confetti" | "Events";
 type CategoryFilter = "all" | "arts" | "eat" | "music" | "books" | "active" | "drinks" | "film" | "dance";
 
@@ -1443,307 +1443,6 @@ function TraditionsStrip({ traditions, onFollow }: {
   );
 }
 
-/* ── CalendarView ────────────────────────────────────────── */
-function CalendarView({ events }: { events: Event[] }) {
-  const today = new Date();
-  const year  = today.getFullYear();
-  const month = today.getMonth(); // 0-indexed
-
-  const monthName = today.toLocaleString("en-US", { month: "long" });
-  const yearStr   = String(year);
-
-  // Days in month
-  const daysInMonth  = new Date(year, month + 1, 0).getDate();
-  // What weekday does the 1st fall on? (0=Sun…6=Sat → convert to Mon-first: Mon=0…Sun=6)
-  const firstWdRaw   = new Date(year, month, 1).getDay(); // 0=Sun
-  const firstWd      = (firstWdRaw + 6) % 7; // Mon-first offset
-
-  // Events in current month → map day-of-month → events
-  const eventsByDay = new Map<number, Event[]>();
-  events.forEach(ev => {
-    const d = new Date(ev.starts_at);
-    if (d.getFullYear() === year && d.getMonth() === month) {
-      const dom = d.getDate();
-      const arr = eventsByDay.get(dom) ?? [];
-      arr.push(ev);
-      eventsByDay.set(dom, arr);
-    }
-  });
-
-  // Featured event: first future event in current month
-  const nowMs = Date.now();
-  const futureEventsThisMonth = events
-    .filter(ev => {
-      const d = new Date(ev.starts_at);
-      return d.getFullYear() === year && d.getMonth() === month && d.getTime() > nowMs;
-    })
-    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
-  const featuredEv = futureEventsThisMonth[0] ?? null;
-  const featuredDay = featuredEv ? new Date(featuredEv.starts_at).getDate() : null;
-
-  // Build grid cells: leading blanks + days
-  const totalCells = firstWd + daysInMonth;
-  const rows       = Math.ceil(totalCells / 7);
-  const cells: (number | null)[] = [
-    ...Array(firstWd).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  // Pad to full grid
-  while (cells.length < rows * 7) cells.push(null);
-
-  const todayDay = today.getMonth() === month && today.getFullYear() === year ? today.getDate() : -1;
-
-  return (
-    <div style={{ fontFamily: "var(--font-jost)" }}>
-
-      {/* ── Header zone ── */}
-      <div style={{
-        background: "#F5EDD8",
-        padding: "28px 24px 20px",
-        textAlign: "center",
-        borderBottom: "1px solid rgba(139,115,85,0.18)",
-        position: "relative",
-      }}>
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.22em", color: "#8B7355", marginBottom: 4, textTransform: "uppercase" as const }}>
-          ✦ &nbsp; {yearStr} &nbsp; ✦
-        </div>
-        <h2 style={{
-          fontFamily: "var(--font-fraunces)",
-          fontStyle: "italic",
-          fontSize: "clamp(38px, 10vw, 52px)",
-          fontWeight: 900,
-          color: "#2C2417",
-          lineHeight: 1,
-          margin: "0 0 6px",
-          letterSpacing: "-0.02em",
-        }}>
-          {monthName}
-        </h2>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", margin: "12px 0 0" }}>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, #8B7355 50%, transparent)" }} />
-          <span style={{ fontSize: 14, color: "#8B7355" }}>✦</span>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, #8B7355 50%, transparent)" }} />
-        </div>
-      </div>
-
-      {/* ── Calendar grid ── */}
-      <div style={{ background: "#FDFAF4", padding: "16px 12px 20px", position: "relative" }}>
-        {/* Day headers */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2, marginBottom: 4 }}>
-          {["MON","TUE","WED","THU","FRI","SAT","SUN"].map(d => (
-            <div key={d} style={{
-              textAlign: "center" as const,
-              fontFamily: "var(--font-jost)",
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: "0.15em",
-              color: "#8B7355",
-              padding: "4px 0",
-            }}>{d}</div>
-          ))}
-        </div>
-
-        {/* Day cells */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}>
-          {cells.map((day, idx) => {
-            const isToday   = day === todayDay;
-            const hasEvents = day !== null && (eventsByDay.get(day)?.length ?? 0) > 0;
-            return (
-              <div
-                key={idx}
-                style={{
-                  height: 48,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 3,
-                  position: "relative",
-                }}
-              >
-                {day !== null && (
-                  <>
-                    <div style={isToday ? {
-                      width: 30,
-                      height: 30,
-                      borderRadius: "50%",
-                      border: "2px solid #FF1F7D",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transform: "rotate(-4deg)",
-                    } : {}}>
-                      <span style={{
-                        fontFamily: "var(--font-jost)",
-                        fontSize: 16,
-                        fontWeight: 700,
-                        color: isToday ? "#FF1F7D" : "#2C2417",
-                        lineHeight: 1,
-                      }}>{day}</span>
-                    </div>
-                    {hasEvents && (
-                      <div style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: "#FF1F7D",
-                        flexShrink: 0,
-                      }} />
-                    )}
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ── Sticky note overlay ── */}
-        {featuredEv && featuredDay !== null && (() => {
-          // Figure out where this cell is in the grid
-          const cellIdx = firstWd + featuredDay - 1;
-          const rowIdx  = Math.floor(cellIdx / 7);
-          const colIdx  = cellIdx % 7;
-          // Position roughly over that cell
-          const cellW = 100 / 7;
-          const leftPct = cellW * colIdx + cellW / 2;
-          const topPx   = 54 + rowIdx * 50; // header height (day labels) + row offset
-          return (
-            <div style={{
-              position: "absolute",
-              left: `${leftPct}%`,
-              top: topPx,
-              transform: "translate(-50%, -100%) rotate(2deg)",
-              zIndex: 10,
-              width: 130,
-              background: "#FFF176",
-              borderRadius: 6,
-              boxShadow: "2px 3px 8px rgba(0,0,0,0.15)",
-              padding: "20px 10px 10px",
-              pointerEvents: "none",
-            }}>
-              {/* Paper clip SVG */}
-              <svg
-                width="18" height="28"
-                viewBox="0 0 18 28"
-                fill="none"
-                style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)" }}
-              >
-                <path
-                  d="M9 2C6.79 2 5 3.79 5 6v14c0 3.31 2.69 6 6 6s6-2.69 6-6V8h-2v12c0 2.21-1.79 4-4 4s-4-1.79-4-4V6c0-1.1.9-2 2-2s2 .9 2 2v12h2V6c0-2.21-1.79-4-4-4z"
-                  fill="#888"
-                />
-              </svg>
-              <p style={{
-                fontFamily: "var(--font-caveat)",
-                fontSize: 12,
-                color: "#333",
-                lineHeight: 1.4,
-                textAlign: "center" as const,
-                overflow: "hidden",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical" as const,
-                wordBreak: "break-word" as const,
-              }}>
-                {featuredEv.title}
-              </p>
-              {featuredEv.venue && (
-                <p style={{
-                  fontFamily: "var(--font-jost)",
-                  fontSize: 9,
-                  color: "#666",
-                  textAlign: "center" as const,
-                  marginTop: 4,
-                  whiteSpace: "nowrap" as const,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}>
-                  📍 {featuredEv.venue}
-                </p>
-              )}
-            </div>
-          );
-        })()}
-      </div>
-
-      {/* ── Event list below grid ── */}
-      {futureEventsThisMonth.length > 0 && (
-        <div style={{ background: "#F5EDD8", padding: "16px 16px 24px", borderTop: "1px solid rgba(139,115,85,0.15)" }}>
-          <p style={{
-            fontFamily: "var(--font-jost)",
-            fontSize: 9,
-            fontWeight: 800,
-            letterSpacing: "0.2em",
-            color: "#8B7355",
-            marginBottom: 14,
-            textTransform: "uppercase" as const,
-          }}>
-            ✦ COMING UP THIS MONTH
-          </p>
-          {futureEventsThisMonth.slice(0, 8).map((ev, i) => {
-            const d = new Date(ev.starts_at);
-            const dateLabel = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
-            const timeLabel = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-            return (
-              <div key={ev.id} style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 10,
-                paddingBottom: 12,
-                marginBottom: 12,
-                borderBottom: i < futureEventsThisMonth.slice(0, 8).length - 1 ? "1px solid rgba(139,115,85,0.12)" : "none",
-              }}>
-                <div style={{
-                  flexShrink: 0,
-                  width: 54,
-                  fontFamily: "var(--font-jost)",
-                  fontSize: 9,
-                  fontWeight: 800,
-                  color: "#FF1F7D",
-                  letterSpacing: "0.06em",
-                  lineHeight: 1.4,
-                }}>
-                  {d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase()}
-                  <br />
-                  <span style={{ color: "#8B7355", fontWeight: 600, fontSize: 8 }}>{timeLabel}</span>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontStyle: "italic",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: "#2C2417",
-                    lineHeight: 1.2,
-                    whiteSpace: "nowrap" as const,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}>
-                    {ev.title}
-                  </p>
-                  {(ev.venue ?? ev.neighborhood) && (
-                    <p style={{
-                      fontFamily: "var(--font-jost)",
-                      fontSize: 10,
-                      color: "#8B7355",
-                      marginTop: 2,
-                      whiteSpace: "nowrap" as const,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}>
-                      {ev.venue ?? ev.neighborhood}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ── Main ────────────────────────────────────────────────── */
 export function HappeningsPage({ standalone = true }: { standalone?: boolean }) {
   const [tab,            setTab]           = useState<HapTab>("happenings");
@@ -1783,52 +1482,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     async function load() {
       setLoading(true);
       const [evs, ids] = await Promise.all([getEvents(), getJoinedEventIds()]);
+      setEvents(evs);
       setJoined(new Set(ids));
-
-      if (evs.length > 0) {
-        setEvents(evs);
-        setLoading(false);
-      } else {
-        // DB empty — try Eventbrite
-        try {
-          const res = await fetch("/api/member/eventbrite");
-          if (res.ok) {
-            const data = await res.json() as { events: Array<{
-              id: string; title: string; starts_at: string; venue: string | null;
-              city: string; neighborhood: string | null; host_name: string | null;
-              cover_url: string | null; attending_count: number | null;
-              spots_left: number | null; event_type: string; slug: string;
-              accent_color: string | null; badge: string | null;
-              source: "eventbrite"; href: string;
-            }> };
-            const mapped = (data.events ?? []).map(ev => ({
-              id: ev.id,
-              slug: ev.slug,
-              title: ev.title,
-              description: null,
-              venue: ev.venue,
-              neighborhood: ev.neighborhood,
-              area: null,
-              city: ev.city,
-              starts_at: ev.starts_at,
-              event_type: ev.event_type,
-              image_url: ev.cover_url,
-              accent_color: ev.accent_color,
-              host_id: null,
-              host_name: ev.host_name,
-              host_note: null,
-              capacity: ev.spots_left,
-              spots_left: ev.spots_left,
-              attending_count: ev.attending_count ?? 0,
-              price_cents: 0,
-              is_official: false,
-              badge: ev.badge,
-            })) as Event[];
-            setEvents(mapped);
-          }
-        } catch { /* ignore */ }
-        setLoading(false);
-      }
+      setLoading(false);
 
       // Load ancillary data in background
       const eventIds = evs.map(e => e.id);
@@ -1932,57 +1588,65 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         borderBottom: "1px solid rgba(255,255,255,0.1)",
         paddingTop: "env(safe-area-inset-top, 0px)",
       }}>
-        {/* Row 1: BB+ editorial header */}
-        <div style={{ height: 46, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, fontWeight: 900, color: "white", letterSpacing: "-0.01em" }}>BB+</span>
-            <span style={{ width: 4, height: 4, borderRadius: "50%", background: PINK, display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.08em" }}>
-              NYC · {new Date().getHours() < 12 ? "THIS MORNING" : new Date().getHours() < 17 ? "THIS AFTERNOON" : new Date().getHours() < 21 ? "TONIGHT" : "LATE NIGHT"}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            {/* Search */}
-            <button onClick={() => setSearchOpen(o => !o)} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: searchOpen ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.7)"} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            </button>
-            {/* Intros tab quick-link */}
-            <button onClick={() => setTab("intros")} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: tab === "intros" ? PINK : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tab === "intros" ? "white" : "rgba(255,255,255,0.7)"} strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </button>
-            {/* Calendar tab quick-link */}
-            <button onClick={() => setTab("calendar")} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: tab === "calendar" ? PINK : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tab === "calendar" ? "white" : "rgba(255,255,255,0.7)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Filter tabs */}
-        <div style={{ height: 40, display: "flex", alignItems: "center", gap: 6, padding: "0 14px", overflowX: "auto", scrollbarWidth: "none" as const }}>
-          {(["All", "Tonight", "This Weekend", "Dinners", "Parties", "Gatherings"] as const).map(f => {
-            const filterMap: Record<string, Filter> = { "Tonight": "Parties", "This Weekend": "Parties", "Dinners": "Dinners", "Parties": "Parties", "Gatherings": "Gatherings" };
-            const mapped = (filterMap[f] ?? "All") as Filter;
-            const active = f === "All" ? filter === "All" : filter === mapped;
-            return (
-              <button key={f} onClick={() => setFilter(f === "All" ? "All" : mapped)} style={{
-                flexShrink: 0, padding: "5px 14px", borderRadius: 999, border: "none",
-                background: active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.07)",
-                color: active ? "white" : "rgba(255,255,255,0.5)",
-                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700,
-                letterSpacing: "0.04em", cursor: "pointer",
-                outline: active ? "1.5px solid rgba(255,255,255,0.25)" : "none",
+        {/* Row 1: toggle + search */}
+        <div style={{ height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px" }}>
+          {/* Tab toggle */}
+          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
+            {([["happenings","Happenings"],["intros","Intros"],["map","Map"],["scene","City"]] as [HapTab, string][]).map(([t, label]) => (
+              <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
+                padding: "5px 10px", borderRadius: 999, border: "none",
+                background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
+                color: tab === t ? PINK : "rgba(255,255,255,0.85)",
+                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
+                letterSpacing: "0.06em", cursor: "pointer", transition: "all 0.18s",
+                boxShadow: tab === t ? "0 2px 10px rgba(0,0,0,0.18)" : "none",
               }}>
-                {f === "This Weekend" ? "★ This Weekend" : f}
+                {label}
               </button>
-            );
-          })}
+            ))}
+          </div>
+          {/* Search icon */}
+          <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 6, background: searchOpen ? "rgba(255,255,255,0.15)" : "none", border: "none", cursor: "pointer", borderRadius: 999 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
         </div>
       </div>}
 
+      {/* ── Filter toggle — floating left pill ── */}
+      {standalone && tab === "happenings" && (
+        <button
+          onClick={() => setFilterOpen(o => !o)}
+          aria-label="Toggle filters"
+          style={{
+            position: "fixed", left: 0, top: 60, zIndex: 49,
+            background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
+            backdropFilter: "blur(12px)",
+            border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
+            borderLeft: "none", borderRadius: "0 16px 16px 0",
+            padding: "9px 11px 9px 7px", cursor: "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+            WebkitTapHighlightColor: "transparent",
+            transition: "all 0.18s",
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+            {filterOpen
+              ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+              : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></>
+            }
+          </svg>
+          {!filterOpen && (filter !== "All" || categoryFilter !== "all") && (
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "white" }} />
+          )}
+        </button>
+      )}
+
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
-        <div className="md:top-[166px] lg:top-[86px] lg:left-60 lg:right-[280px]" style={{
-          position: "fixed", top: 86, left: 0, right: 0, zIndex: 50,
+        <div className="md:top-[110px] lg:top-[50px] lg:left-60 lg:right-[280px]" style={{
+          position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
@@ -2006,7 +1670,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? (searchOpen ? 140 : 86) : 0 }}>
+      <div style={{ paddingTop: standalone ? (searchOpen ? 104 : 50) : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -2267,6 +1931,27 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               <TraditionsStrip traditions={traditions} onFollow={handleFollowTradition} />
             )}
 
+            {/* ── INTRODUCTIONS link ── */}
+            {!loading && (
+              <div style={{ margin: "8px 14px 16px" }}>
+                <Link href="/member/introductions" style={{ textDecoration: "none" }}>
+                  <div style={{
+                    borderRadius: 18, overflow: "hidden",
+                    background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
+                    border: "1px solid rgba(255,31,125,0.22)",
+                    padding: "14px 18px",
+                    display: "flex", alignItems: "center", gap: 14,
+                  }}>
+                    <div style={{ fontSize: 24 }}>👋</div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.1 }}>Introductions</p>
+                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Meet new arrivals, locals & women finding their people</p>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </Link>
+              </div>
+            )}
           </>
         )}
 
@@ -2334,163 +2019,60 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
         {/* ── MAP TAB ── */}
         {standalone && tab === "map" && (
-          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column", paddingBottom: 28 }}>
-
-            {/* LIVE MAP header — at the very top */}
-            <div style={{ padding: "18px 18px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "20px 18px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>🗺 LIVE MAP</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>bloomies are out tonight</p>
-              </div>
-              <div style={{ background: "rgba(255,31,125,0.15)", borderRadius: 999, padding: "5px 12px", border: "1px solid rgba(255,31,125,0.3)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>NYC ✦ LIVE</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>happening near you</p>
               </div>
             </div>
-
-            {/* Filter chips */}
-            <div style={{ padding: "0 16px 10px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
+            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 380 }}>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
+              {[10, 25, 40, 55, 70, 85].map(pct => (
+                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+              ))}
+              {[15, 30, 45, 60, 75, 90].map(pct => (
+                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
+              ))}
+              <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
+              <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
               {[
-                { label: "ALL",           color: PINK,      active: true  },
-                { label: "EVENTS",        color: PINK,      active: false },
-                { label: "BLOOMIE NOTES", color: "#F59E0B", active: false },
-                { label: "GIRL GEMS",     color: "#8B5CF6", active: false },
-                { label: "FAVORITES",     color: "#EF4444", active: false },
-                { label: "FOOD",          color: "#F97316", active: false },
-              ].map((f, i) => (
-                <div key={i} style={{ flexShrink: 0, background: f.active ? f.color : "rgba(255,255,255,0.08)", borderRadius: 999, padding: "7px 14px", border: `1.5px solid ${f.active ? f.color : f.color + "44"}` }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: f.active ? "white" : f.color, letterSpacing: "0.06em", whiteSpace: "nowrap" as const }}>{f.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* MAP CANVAS */}
-            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 420, boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}>
-              {/* Map base — warm parchment city grid */}
-              <div style={{ position: "absolute", inset: 0, background: "#E8E2D8" }}/>
-              {/* Street grid — horizontal */}
-              {[8, 17, 26, 35, 44, 53, 62, 71, 80, 89].map(pct => (
-                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: pct % 17 === 8 ? 4 : 2, background: "#F2EDE4", zIndex: 1 }}/>
-              ))}
-              {/* Street grid — vertical */}
-              {[10, 22, 34, 46, 58, 70, 82].map(pct => (
-                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 3, background: "#F2EDE4", zIndex: 1 }}/>
-              ))}
-              {/* City blocks (slightly darker patches between streets) */}
-              {[
-                {t:"9%",l:"11%",w:"10%",h:"7%"},{t:"9%",l:"23%",w:"10%",h:"7%"},{t:"9%",l:"35%",w:"10%",h:"7%"},
-                {t:"9%",l:"59%",w:"10%",h:"7%"},{t:"18%",l:"11%",w:"10%",h:"7%"},{t:"18%",l:"47%",w:"10%",h:"7%"},
-                {t:"27%",l:"23%",w:"10%",h:"7%"},{t:"27%",l:"59%",w:"10%",h:"7%"},{t:"36%",l:"11%",w:"10%",h:"7%"},
-                {t:"36%",l:"35%",w:"10%",h:"7%"},{t:"45%",l:"23%",w:"10%",h:"7%"},{t:"45%",l:"71%",w:"10%",h:"7%"},
-                {t:"54%",l:"11%",w:"10%",h:"7%"},{t:"54%",l:"47%",w:"10%",h:"7%"},{t:"63%",l:"35%",w:"10%",h:"7%"},
-                {t:"63%",l:"59%",w:"10%",h:"7%"},{t:"72%",l:"11%",w:"10%",h:"7%"},{t:"72%",l:"23%",w:"10%",h:"7%"},
-              ].map((b, i) => (
-                <div key={`b${i}`} style={{ position: "absolute", top: b.t, left: b.l, width: b.w, height: b.h, background: "#D9D3C8", zIndex: 1 }}/>
-              ))}
-              {/* Park patch — Central Park style */}
-              <div style={{ position: "absolute", top: "4%", right: "5%", width: "20%", height: "28%", borderRadius: 8, background: "rgba(110,175,80,0.35)", border: "1px solid rgba(90,160,60,0.25)", zIndex: 2 }}/>
-              <p style={{ position: "absolute", top: "9%", right: "8%", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(60,130,40,0.7)", zIndex: 2, letterSpacing: "0.05em" }}>THE PARK</p>
-              {/* River strip — left edge */}
-              <div style={{ position: "absolute", top: 0, left: 0, width: "8%", height: "100%", background: "rgba(100,160,220,0.28)", borderRight: "2px solid rgba(80,140,200,0.2)", zIndex: 2 }}/>
-
-              {/* ── EVENT PINS (pink) ── */}
-              {[
-                {x:"28%",y:"38%",label:"Girls Night",cnt:12},
-                {x:"55%",y:"22%",label:"Rooftop",cnt:8},
-                {x:"42%",y:"58%",label:"Brunch Club",cnt:15},
-                {x:"74%",y:"45%",label:"Jazz Night",cnt:4},
-                {x:"48%",y:"72%",label:"Dance All Night",cnt:20},
-                {x:"63%",y:"55%",label:"Book Society",cnt:9},
+                {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
+                {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
+                {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
+                {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
+                {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
+                {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
+                {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
               ].map((pin, i) => (
-                <div key={`e${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 5 }}>
-                  <div style={{ background: PINK, borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: `0 3px 14px ${PINK}70`, whiteSpace: "nowrap" as const }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite" }}/>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
+                <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
+                  <div style={{ background: pin.color, borderRadius: 20, padding: "4px 10px 4px 8px", display: "flex", alignItems: "center", gap: 5, boxShadow: `0 3px 12px ${pin.color}66`, whiteSpace: "nowrap" as const }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
+                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
+                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
                   </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `6px solid ${PINK}`, margin: "0 auto" }}/>
+                  <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
                 </div>
               ))}
-
-              {/* ── BLOOMIE NOTES (amber) ── */}
-              {[
-                {x:"22%",y:"55%",label:"Love this spot",cnt:7},
-                {x:"66%",y:"30%",label:"hidden gem here",cnt:3},
-              ].map((pin, i) => (
-                <div key={`n${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
-                  <div style={{ background: "#F59E0B", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(245,158,11,0.5)", whiteSpace: "nowrap" as const }}>
-                    <span style={{ fontSize: "10px" }}>📝</span>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
-                  </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #F59E0B", margin: "0 auto" }}/>
-                </div>
-              ))}
-
-              {/* ── GIRL GEMS (purple) ── */}
-              {[
-                {x:"38%",y:"25%",label:"Wine Cave",cnt:14},
-                {x:"72%",y:"68%",label:"Secret Garden",cnt:6},
-              ].map((pin, i) => (
-                <div key={`g${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
-                  <div style={{ background: "#8B5CF6", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(139,92,246,0.5)", whiteSpace: "nowrap" as const }}>
-                    <span style={{ fontSize: "10px" }}>💎</span>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
-                  </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #8B5CF6", margin: "0 auto" }}/>
-                </div>
-              ))}
-
-              {/* ── FAVORITES (red heart) ── */}
-              {[
-                {x:"52%",y:"82%",label:"Bar Pisellino",cnt:32},
-                {x:"19%",y:"40%",label:"Café Kitsuné",cnt:18},
-              ].map((pin, i) => (
-                <div key={`f${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
-                  <div style={{ background: "#EF4444", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(239,68,68,0.5)", whiteSpace: "nowrap" as const }}>
-                    <span style={{ fontSize: "10px" }}>♥</span>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
-                  </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #EF4444", margin: "0 auto" }}/>
-                </div>
-              ))}
-
-              {/* ── FOOD SPOTS (orange) ── */}
-              {[
-                {x:"45%",y:"47%",label:"Lucien",cnt:21},
-                {x:"80%",y:"58%",label:"Sushi Noz",cnt:11},
-              ].map((pin, i) => (
-                <div key={`fd${i}`} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 4 }}>
-                  <div style={{ background: "#F97316", borderRadius: 20, padding: "4px 10px 4px 7px", display: "flex", alignItems: "center", gap: 4, boxShadow: "0 3px 12px rgba(249,115,22,0.5)", whiteSpace: "nowrap" as const }}>
-                    <span style={{ fontSize: "10px" }}>🍽</span>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.cnt}</span>
-                  </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: "6px solid #F97316", margin: "0 auto" }}/>
-                </div>
-              ))}
-            </div>
-
-            {/* Legend + event scroll chips */}
-            <div style={{ padding: "14px 16px 0" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>ON THE MAP</p>
-              <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
-                {[
-                  { label: "Girls Night Out",   time: "Tonight",   color: PINK      },
-                  { label: "Rooftop Sessions",  time: "Sat 8PM",   color: "#FF69B4" },
-                  { label: "Brunch Club",       time: "Sun 11AM",  color: "#F97316" },
-                  { label: "Jazz Night",        time: "Fri 9PM",   color: PINK      },
-                  { label: "Bar Pisellino",     time: "♥ 32 saves",color: "#EF4444" },
-                  { label: "Wine Cave",         time: "💎 gem",    color: "#8B5CF6" },
-                  { label: "hidden gem here",   time: "📝 note",   color: "#F59E0B" },
-                ].map((chip, i) => (
-                  <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)", marginTop: 1 }}>{chip.time}</p>
-                  </div>
-                ))}
+              <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(12px)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,31,125,0.12)" }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP</p>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
               </div>
+            </div>
+            <div style={{ padding: "12px 16px 24px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
+              {[
+                { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
+                { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
+                { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
+                { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
+                { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
+                { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
+              ].map((chip, i) => (
+                <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{chip.time}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -2594,13 +2176,6 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                 </Link>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* ── CALENDAR TAB ── */}
-        {standalone && tab === "calendar" && (
-          <div style={{ padding: "0 0 120px" }}>
-            <CalendarView events={events} />
           </div>
         )}
       </div>

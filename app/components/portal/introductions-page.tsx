@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PostEventBloomiePrompt } from "./post-event-bloomie-prompt";
-import { GirlMatePage } from "./girlmate-page";
 import "@/app/styles/bloom-entrance.css";
 
 // ── Real data types ───────────────────────────────────────────────────────────
@@ -762,7 +761,6 @@ export function IntroductionsPage() {
   const [comeWithPosts, setComeWithPosts] = useState<RealComeWith[]>([]);
   const [sentBloomRequests, setSentBloomRequests] = useState<Set<string>>(new Set());
   const [showPostIntroSheet, setShowPostIntroSheet] = useState(false);
-  const [showGirlMate, setShowGirlMate] = useState(false);
 
   useEffect(() => {
     fetch("/api/member/bloom-requests")
@@ -1126,7 +1124,7 @@ export function IntroductionsPage() {
         {/* ── GirlMates ─────────────────────────────────────────────────────── */}
         <section className="px-5">
           <SectionHeader eyebrow="GIRLMATES" title="Roommate matching." />
-          <button onClick={() => setShowGirlMate(true)} style={{ textDecoration: "none", display: "block", width: "100%", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
+          <Link href="/member/girlmate" style={{ textDecoration: "none", display: "block" }}>
             <div className="rounded-3xl overflow-hidden" style={{ background: "#111", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
               <div className="p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF1F7D, transparent 70%)", opacity: 0.13, transform: "translate(30%,-30%)" }} />
@@ -1150,7 +1148,7 @@ export function IntroductionsPage() {
                 </div>
               </div>
             </div>
-          </button>
+          </Link>
         </section>
 
         {/* ── Find a Room ─────────────────────────────────────────────────────── */}
@@ -1246,24 +1244,6 @@ export function IntroductionsPage() {
         </button>
       </div>
       {showPostIntroSheet && <PostIntroSheet onClose={() => setShowPostIntroSheet(false)} />}
-
-      {/* GirlMate full-screen slide-up sheet */}
-      {showGirlMate && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 100,
-          animation: "gmSlideUp 0.32s cubic-bezier(0.22,1,0.36,1) both",
-        }}>
-          <style>{`
-            @keyframes gmSlideUp {
-              from { transform: translateY(100%); }
-              to   { transform: translateY(0); }
-            }
-          `}</style>
-          <div style={{ width: "100%", height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch" as unknown as undefined }}>
-            <GirlMatePage onBack={() => setShowGirlMate(false)} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
