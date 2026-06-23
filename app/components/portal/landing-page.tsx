@@ -294,7 +294,6 @@ function EnvelopeInvitation() {
             </div>
           </div>
         </div>
-        </div>
 
         {/* ── WAX SEAL ── */}
         <div style={{
