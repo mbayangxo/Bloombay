@@ -369,7 +369,17 @@ export function LandingPage() {
         </div>
 
         {/* Envelope + club pills */}
-        <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", padding: "32px 22px 0" }}>
+        <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", padding: "28px 22px 0" }}>
+
+          {/* Women are gathering echo */}
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 10.5vw, 52px)", color: "rgba(255,255,255,0.88)", lineHeight: 0.9, letterSpacing: "-0.035em" }}>
+              Women are
+            </div>
+            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 12.5vw, 64px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 6 }}>
+              gathering…
+            </div>
+          </div>
 
           {/* Club pills */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
