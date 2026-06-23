@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
-import { createHangerListing } from "@/lib/actions/hanger";
+import { createHangerListing, getMyHangerListings } from "@/lib/actions/hanger";
 import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
 import { HangerInquirySheet } from "@/app/components/portal/hanger-inquiry-sheet";
 import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
 import { HangerListingSheet } from "@/app/components/portal/hanger-listing-sheet";
 import type { ListingDetail } from "@/app/components/portal/hanger-listing-sheet";
+import { SectionHeader, HeaderBtn } from "@/app/components/shared/section-header";
+import { HangerCardSkeleton } from "@/app/components/shared/skeleton";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -30,6 +32,9 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Shoes", "Bags", "Accessories", "Vintage"] as const;
 type Category = typeof CATEGORIES[number];
+
+const SIZES = ["XS", "S", "M", "L", "XL", "6", "7", "8", "9", "10", "27", "28", "29", "30"] as const;
+type HangerTab = "browse" | "my-listings";
 
 // ─── Extended mock type ────────────────────────────────────────────────────────
 type MockListing = HangerListing & {
@@ -179,6 +184,13 @@ export function HangerPage() {
   const [inquiryListing, setInquiryListing]    = useState<InquiryListing | null>(null);
   const [inquiryMode,    setInquiryMode]       = useState<"inquire" | "swap_offer">("inquire");
   const [detailListing,  setDetailListing]     = useState<ListingDetail | null>(null);
+  const [searchQuery,    setSearchQuery]       = useState("");
+  const [showSearch,     setShowSearch]        = useState(false);
+  const [activeSize,     setActiveSize]        = useState<string | null>(null);
+  const [activeTab,      setActiveTab]         = useState<HangerTab>("browse");
+  const [myListings,     setMyListings]        = useState<HangerListing[]>([]);
+  const [myListingsLoading, setMyListingsLoading] = useState(false);
+  const [listingsLoading, setListingsLoading]  = useState(true);
 
   useEffect(() => {
     void (async () => {
@@ -204,8 +216,20 @@ export function HangerPage() {
         setEarnings((earningsData as EarningsRow[]) ?? []);
         if (balanceData) setBalance(balanceData as SellerBalance);
       } catch { /* no sales yet */ }
+      setListingsLoading(false);
     })();
   }, []);
+
+  // Load my listings when tab switches to my-listings
+  useEffect(() => {
+    if (activeTab !== "my-listings") return;
+    if (myListings.length > 0) return;
+    setMyListingsLoading(true);
+    void getMyHangerListings().then((data) => {
+      setMyListings(data);
+      setMyListingsLoading(false);
+    });
+  }, [activeTab, myListings.length]);
 
   async function handleBuy(listingId: string) {
     setBuyingId(listingId);
@@ -282,10 +306,17 @@ export function HangerPage() {
     setSellCity("");
   }
 
-  const filtered =
-    activeCategory === "All"
-      ? MOCK_LISTINGS
-      : MOCK_LISTINGS.filter((l) => l.category === activeCategory);
+  const filtered = MOCK_LISTINGS.filter((l) => {
+    if (activeCategory !== "All" && l.category !== activeCategory) return false;
+    if (activeSize && l.size !== activeSize) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      if (!l.title.toLowerCase().includes(q) &&
+          !(l.description ?? "").toLowerCase().includes(q) &&
+          !(l.category ?? "").toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
 
   const sharedInputStyle: React.CSSProperties = {
     width: "100%",
@@ -324,107 +355,89 @@ export function HangerPage() {
         overflowX: "hidden",
       }}
     >
-      {/* ── Sticky header ─────────────────────────────────────────────────────── */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 30,
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          background: "rgba(13,13,13,0.88)",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
-          padding: "14px 16px 12px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link
-            href="/member/match"
+      {/* ── Shared section header ─────────────────────────────────────────────── */}
+      <SectionHeader
+        title="The Hanger"
+        subtitle="women-only closet ✦"
+        backHref="/member/match"
+        theme="dark"
+        actions={
+          <>
+            <button
+              onClick={() => setShowSearch(v => !v)}
+              style={{
+                background: showSearch ? `${PINK}22` : "rgba(255,255,255,0.08)",
+                color: showSearch ? PINK : "rgba(255,255,255,0.7)",
+                border: showSearch ? `1.5px solid ${PINK}44` : "1.5px solid rgba(255,255,255,0.12)",
+                borderRadius: "50%", width: 34, height: 34,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 15, cursor: "pointer",
+              }}
+              aria-label="Search"
+            >
+              🔍
+            </button>
+            <HeaderBtn variant="ghost" onClick={() => setShowPostSheet(true)}>Post ✦</HeaderBtn>
+            <HeaderBtn variant="primary" onClick={() => setSellSheetOpen(true)}>List +</HeaderBtn>
+          </>
+        }
+      />
+
+      {/* ── Search bar (slides in) ─────────────────────────────────────────────── */}
+      {showSearch && (
+        <div style={{ padding: "10px 12px 0", animation: "fadeIn 0.18s ease" }}>
+          <input
+            type="search"
+            placeholder="Search dresses, Nike, size S…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoFocus
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)",
+              width: "100%",
+              padding: "11px 14px",
+              borderRadius: 12,
+              border: "1.5px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.07)",
+              fontFamily: "var(--font-jost), sans-serif",
+              fontSize: 14,
               color: "#fff",
-              textDecoration: "none",
-              fontSize: 16,
-              flexShrink: 0,
+              outline: "none",
+              boxSizing: "border-box",
             }}
-            aria-label="Back to match"
-          >
-            ←
-          </Link>
-
-          <div style={{ flex: 1 }}>
-            <h1
-              style={{
-                fontFamily: "var(--font-playfair), serif",
-                fontStyle: "italic",
-                fontWeight: 700,
-                fontSize: 22,
-                margin: 0,
-                lineHeight: 1.1,
-                color: "#fff",
-              }}
-            >
-              The Hanger
-            </h1>
-            <p
-              style={{
-                fontFamily: "var(--font-caveat), cursive",
-                fontSize: 14,
-                margin: 0,
-                color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.2,
-              }}
-            >
-              women-only closet ✦
-            </p>
-          </div>
-
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={() => setShowPostSheet(true)}
-              style={{
-                background: "rgba(255,31,125,0.12)",
-                color: PINK,
-                border: `1.5px solid ${PINK}40`,
-                borderRadius: 20,
-                padding: "8px 14px",
-                fontSize: 12,
-                fontFamily: "var(--font-jost), sans-serif",
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Post ✦
-            </button>
-            <button
-              onClick={() => setSellSheetOpen(true)}
-              style={{
-                background: PINK,
-                color: "#fff",
-                border: "none",
-                borderRadius: 20,
-                padding: "8px 18px",
-                fontSize: 12,
-                fontFamily: "var(--font-jost), sans-serif",
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Sell →
-            </button>
-          </div>
+          />
         </div>
-      </header>
+      )}
+
+      {/* ── Browse / My Listings tabs ──────────────────────────────────────────── */}
+      <div style={{
+        display: "flex",
+        padding: "10px 12px 0",
+        gap: 0,
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        {(["browse", "my-listings"] as HangerTab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              borderBottom: activeTab === tab ? `2px solid ${PINK}` : "2px solid transparent",
+              color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.4)",
+              fontFamily: "var(--font-jost), sans-serif",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              padding: "8px 0 10px",
+              cursor: "pointer",
+            }}
+          >
+            {tab === "browse" ? "Browse" : "My Listings"}
+          </button>
+        ))}
+      </div>
 
       {/* ── Seller balance strip ───────────────────────────────────────────────── */}
       <div style={{ padding: "10px 12px 0" }}>
@@ -479,45 +492,107 @@ export function HangerPage() {
         </div>
       </div>
 
-      {/* ── Category filters (horizontal scroll) ──────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          overflowX: "auto",
-          padding: "14px 12px",
-          scrollbarWidth: "none",
-        }}
-      >
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            style={{
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "6px 14px",
-              borderRadius: 20,
-              border: "none",
-              background:
-                activeCategory === cat ? PINK : "rgba(255,255,255,0.08)",
-              color: activeCategory === cat ? "#fff" : "rgba(255,255,255,0.6)",
-              fontSize: 12,
-              fontFamily: "var(--font-jost), sans-serif",
-              fontWeight: 600,
-              letterSpacing: "0.03em",
-              cursor: "pointer",
-            }}
-          >
-            <span style={{ fontSize: 14 }}>{CATEGORY_ICONS[cat]}</span>
-            {cat}
-          </button>
-        ))}
-      </div>
+      {/* ── Category + size filters (only on Browse tab) ──────────────────────── */}
+      {activeTab === "browse" && (
+        <>
+          {/* Category row */}
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "12px 12px 0", scrollbarWidth: "none" }}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
+                  padding: "6px 14px", borderRadius: 20, border: "none",
+                  background: activeCategory === cat ? PINK : "rgba(255,255,255,0.08)",
+                  color: activeCategory === cat ? "#fff" : "rgba(255,255,255,0.6)",
+                  fontSize: 12, fontFamily: "var(--font-jost), sans-serif",
+                  fontWeight: 600, letterSpacing: "0.03em", cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{CATEGORY_ICONS[cat]}</span>
+                {cat}
+              </button>
+            ))}
+          </div>
 
-      {/* ── 2-column grid ─────────────────────────────────────────────────────── */}
+          {/* Size filter row */}
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 12px 12px", scrollbarWidth: "none", alignItems: "center" }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", flexShrink: 0 }}>Size</span>
+            <button
+              onClick={() => setActiveSize(null)}
+              style={{
+                flexShrink: 0, padding: "4px 12px", borderRadius: 20, border: "none",
+                background: activeSize === null ? "rgba(255,255,255,0.15)" : "transparent",
+                color: activeSize === null ? "#fff" : "rgba(255,255,255,0.4)",
+                fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
+                letterSpacing: "0.04em", cursor: "pointer",
+              }}
+            >
+              All
+            </button>
+            {SIZES.map((sz) => (
+              <button
+                key={sz}
+                onClick={() => setActiveSize(activeSize === sz ? null : sz)}
+                style={{
+                  flexShrink: 0, padding: "4px 10px", borderRadius: 20,
+                  border: `1.5px solid ${activeSize === sz ? PINK : "rgba(255,255,255,0.12)"}`,
+                  background: activeSize === sz ? `${PINK}22` : "transparent",
+                  color: activeSize === sz ? PINK : "rgba(255,255,255,0.5)",
+                  fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
+                  letterSpacing: "0.03em", cursor: "pointer",
+                }}
+              >
+                {sz}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* ── My Listings tab ───────────────────────────────────────────────────── */}
+      {activeTab === "my-listings" && (
+        <div style={{ padding: "16px 12px 100px" }}>
+          {myListingsLoading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {[1, 2, 3, 4].map(i => <HangerCardSkeleton key={i} />)}
+            </div>
+          ) : myListings.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 0" }}>
+              <p style={{ fontSize: 32, marginBottom: 12 }}>🧺</p>
+              <p style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontSize: 18, color: "#fff", marginBottom: 6 }}>Nothing listed yet</p>
+              <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 14, color: "rgba(255,255,255,0.35)" }}>Tap <strong>List +</strong> to post your first item ✦</p>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {myListings.map((listing) => {
+                const statusColor = listing.status === "active" ? "#10B981" : listing.status === "draft" ? "rgba(255,255,255,0.35)" : PINK;
+                return (
+                  <div key={listing.id} style={{ background: "#1a1a1a", borderRadius: 12, overflow: "hidden" }}>
+                    <div style={{ aspectRatio: "3/4", background: "linear-gradient(160deg, #1a0533 0%, #3d1a6e 100%)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                      <span style={{ fontSize: 36, opacity: 0.5 }}>{listing.category ? CATEGORY_ICONS[listing.category] ?? "🛍️" : "🛍️"}</span>
+                      <div style={{ position: "absolute", top: 8, left: 8, background: `${statusColor}22`, border: `1px solid ${statusColor}55`, borderRadius: 6, padding: "2px 7px", fontSize: 9, fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: statusColor }}>
+                        {listing.status}
+                      </div>
+                    </div>
+                    <div style={{ padding: "10px 10px 12px" }}>
+                      <p style={{ margin: "0 0 4px", fontSize: 11, fontFamily: "var(--font-jost)", fontWeight: 700, color: "#fff" }}>{listing.title}</p>
+                      <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost)", color: "rgba(255,255,255,0.35)" }}>
+                        {listing.listing_type === "give_away" ? "FREE 🎁" : listing.listing_type === "swap" ? "Swap ↔" : `$${(listing.price_cents / 100).toFixed(0)}`}
+                        {listing.city ? ` · 📍 ${listing.city}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 2-column browse grid ──────────────────────────────────────────────── */}
+      {activeTab === "browse" && (
       <div
         style={{
           display: "grid",
@@ -526,7 +601,15 @@ export function HangerPage() {
           padding: "0 12px 100px",
         }}
       >
-        {filtered.map((listing) => {
+        {listingsLoading ? (
+          [1, 2, 3, 4, 5, 6].map(i => <HangerCardSkeleton key={i} />)
+        ) : filtered.length === 0 ? (
+          <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "48px 0" }}>
+            <p style={{ fontSize: 28, marginBottom: 8 }}>🔍</p>
+            <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: "rgba(255,255,255,0.35)" }}>Nothing matching — try a different filter ✦</p>
+          </div>
+        ) : null}
+        {!listingsLoading && filtered.map((listing) => {
           const price = `$${(listing.price_cents / 100).toFixed(0)}`;
           const conditionColor = CONDITION_COLORS[listing.condition] ?? "rgba(255,255,255,0.4)";
 
@@ -740,6 +823,7 @@ export function HangerPage() {
           );
         })}
       </div>
+      )} {/* end activeTab === "browse" */}
 
       {/* ── Buy error toast ───────────────────────────────────────────────────── */}
       {buyError && (
