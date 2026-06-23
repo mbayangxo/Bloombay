@@ -6,11 +6,11 @@
 :root {
   --ivory: #fdf4ec;
   --blush: #ffd6e4;
-  --hot-pink: #ff0055;
+  --hot-pink: #FF1F7D;
   --ink: #111111;
   --rose-gold: #c9a27a;
   --white: #ffffff;
-  --background: var(--ivory);
+  --background: #ffffff;
   --foreground: var(--ink);
   /* Portal brand tokens */
   --bb-pink: #FF1F7D;
@@ -20,6 +20,39 @@
   --pale-pink-bg: #FFF5F8;
   --mid-pink: #FFB6D0;
   --light-pink: #FFE0EE;
+
+  /* Day/night theme tokens — all pages use these */
+  --bb-bg: #FFF8F0;
+  --bb-card: #FFFFFF;
+  --bb-card-2: #FEFCF7;
+  --bb-text: #111111;
+  --bb-text-2: rgba(0,0,0,0.55);
+  --bb-text-3: rgba(0,0,0,0.35);
+  --bb-text-muted: rgba(0,0,0,0.22);
+  --bb-input-bg: #FAFAFA;
+  --bb-separator: rgba(0,0,0,0.08);
+  --bb-nav-bg: rgba(0,0,0,0.05);
+  --bb-nav-border: rgba(0,0,0,0.08);
+  --bb-nav-icon: rgba(0,0,0,0.55);
+  --bb-border: rgba(255,31,125,0.12);
+  --bb-border-strong: rgba(255,31,125,0.3);
+}
+
+[data-theme="night"] {
+  --bb-bg: #0E0906;
+  --bb-card: #1B1108;
+  --bb-card-2: #221508;
+  --bb-text: rgba(255,240,218,0.95);
+  --bb-text-2: rgba(255,200,180,0.7);
+  --bb-text-3: rgba(255,220,200,0.38);
+  --bb-text-muted: rgba(255,220,200,0.22);
+  --bb-input-bg: rgba(255,240,218,0.06);
+  --bb-separator: rgba(255,77,148,0.15);
+  --bb-nav-bg: rgba(255,240,218,0.06);
+  --bb-nav-border: rgba(255,240,218,0.1);
+  --bb-nav-icon: rgba(255,240,218,0.65);
+  --bb-border: rgba(255,77,148,0.2);
+  --bb-border-strong: rgba(255,77,148,0.4);
 }
 
 @theme inline {
@@ -47,14 +80,16 @@
 html {
   height: 100%;
   overflow: auto;
-  background: #FFF0F8;
+  background: var(--bb-bg, #FFF0F8);
+  transition: background 0.6s ease;
 }
 
 body {
   min-height: 100%;
-  background: #FFF0F8;
-  color: var(--ink);
+  background: var(--bb-bg, #FFF0F8);
+  color: var(--bb-text, var(--ink));
   font-family: var(--font-jost), system-ui, sans-serif;
+  transition: background 0.6s ease, color 0.4s ease;
 }
 
 ::selection {

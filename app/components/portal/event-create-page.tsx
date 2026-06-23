@@ -4,6 +4,15 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TicketCard, PosterCard, GatheringCard, InvitationEventCard, type EventType, type EventCardData } from "./event-card-templates";
+
+const INVITATION_STYLES: { id: string; label: string; emoji: string; desc: string }[] = [
+  { id: "default",   label: "Envelope",     emoji: "💌", desc: "Classic envelope & card" },
+  { id: "photo",     label: "Photo Card",   emoji: "📸", desc: "Big photo + bold title" },
+  { id: "scallop",   label: "Scallop",      emoji: "🎀", desc: "Scalloped edge celebration" },
+  { id: "newspaper", label: "Newspaper",    emoji: "📰", desc: "Bold navy press style" },
+  { id: "formal",    label: "Formal",       emoji: "🥂", desc: "Elegant serif dinner card" },
+  { id: "launch",    label: "Launch",       emoji: "🚀", desc: "Dramatic dark launch party" },
+];
 import { createEvent } from "@/lib/actions/happenings";
 
 const PINK = "#FF1F7D";
@@ -91,6 +100,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
   const [customColor, setCustom]    = useState(PINK);
   const [fontKey, setFont]          = useState("playfair");
   const [photoId, setPhoto]         = useState<string | null>(preset?.photoId ?? null);
+  const [invStyle, setInvStyle]     = useState("default");
   const [uploading, setUploading]   = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -109,7 +119,9 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     spotsLeft: 8,
     going: 12,
     accentColor,
+    fontFamily: FONTS.find(f => f.key === fontKey)?.family,
     href: "#",
+    invitationStyle: invStyle === "default" ? undefined : invStyle,
   };
 
   function PreviewCard() {
@@ -155,6 +167,60 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
             );
           })}
         </div>
+
+        {eventType === "invitation" && (
+          <div style={{ marginTop: 18 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>INVITATION STYLE</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {INVITATION_STYLES.map(s => {
+                const active = invStyle === s.id;
+                return (
+                  <button key={s.id} onClick={() => setInvStyle(s.id)} style={{
+                    background: active ? `${PINK}0F` : "white",
+                    border: `2px solid ${active ? PINK : "rgba(0,0,0,0.08)"}`,
+                    borderRadius: 14, padding: "12px 10px",
+                    cursor: "pointer", textAlign: "left" as const,
+                    transition: "all 0.18s",
+                  }}>
+                    <div style={{ fontSize: 22, marginBottom: 5 }}>{s.emoji}</div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: active ? PINK : DARK }}>{s.label}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.4)", marginTop: 2 }}>{s.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── INLINE COLOR + FONT ── */}
+        <div style={{ marginTop: 18 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 10 }}>COLOR & FONT</p>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginBottom: 10 }}>
+            {COLOR_SWATCHES.map(c => (
+              <button key={c} onClick={() => { setAccent(c); setCustom(c); }} style={{
+                width: 26, height: 26, borderRadius: "50%", background: c, border: `3px solid ${accentColor === c ? DARK : "transparent"}`,
+                cursor: "pointer", padding: 0, boxShadow: accentColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none", transition: "all 0.12s",
+              }} />
+            ))}
+            <input type="color" value={customColor} onChange={e => { setCustom(e.target.value); setAccent(e.target.value); }}
+              style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid rgba(0,0,0,0.12)", cursor: "pointer", padding: 1, background: "white" }} />
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+            {FONTS.map(f => {
+              const active = fontKey === f.key;
+              return (
+                <button key={f.key} onClick={() => setFont(f.key)} style={{
+                  padding: "7px 13px", borderRadius: 10, border: `2px solid ${active ? PINK : "rgba(0,0,0,0.1)"}`,
+                  background: active ? `${PINK}0F` : "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, transition: "all 0.12s",
+                }}>
+                  <span style={{ fontFamily: f.family, fontSize: 18, fontWeight: 700, color: active ? PINK : DARK, lineHeight: 1 }}>{f.preview}</span>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: active ? PINK : "rgba(0,0,0,0.4)", letterSpacing: "0.06em" }}>{f.label.toUpperCase()}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     );
   }
@@ -395,7 +461,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     <div style={{ minHeight: "100vh", background: "#F9F4EE", paddingBottom: 40 }}>
 
       {/* ── TOP BAR ── */}
-      <div style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         paddingTop: "env(safe-area-inset-top, 0px)",
         background: "rgba(249,244,238,0.97)",
@@ -416,7 +482,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
       </div>
 
       {/* ── CONTENT ── */}
-      <div style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))", padding: "calc(54px + env(safe-area-inset-top, 0px)) 18px 24px" }}>
+      <div className="md:!pt-0" style={{ paddingTop: "calc(54px + env(safe-area-inset-top, 0px))", padding: "calc(54px + env(safe-area-inset-top, 0px)) 18px 24px" }}>
         <StepContent />
       </div>
 

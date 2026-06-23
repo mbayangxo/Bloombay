@@ -407,7 +407,7 @@ export function HostPage() {
       {/* ── Header ── */}
       <div style={{ padding: "62px 22px 0" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.26em", color: "#D4849A", marginBottom: 6 }}>BRING WOMEN TOGETHER</p>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: 38, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1, margin: 0 }}>Host something.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px, 9.5vw, 38px)", fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1, margin: 0 }}>Host something.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#C07080", marginTop: 6 }}>No club required. Just an idea and a date.</p>
       </div>
 

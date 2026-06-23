@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTheme } from "@/lib/theme/theme-context";
 
 export type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
 
@@ -15,38 +16,27 @@ export function getGreeting(tod: TimeOfDay): string {
   if (tod === "morning") return "Good morning";
   if (tod === "afternoon") return "Good afternoon";
   if (tod === "evening") return "Good evening";
-  return "Good night";
+  return "Goodnight";
 }
 
-const LIGHT_STYLE: React.CSSProperties = {
-  "--pale-pink-bg": "#F6F1EB",
-  "--light-pink": "#FFE0EE",
-  "--heading-color": "#111111",
-  "--text-color": "#333333",
-  "--text-muted": "#888888",
-  "--card-bg": "#FFFFFF",
-  "--card-border": "rgba(0,0,0,0.06)",
-  background: "#F6F1EB",
-} as React.CSSProperties;
-
-const TIME_STYLES: Record<TimeOfDay, React.CSSProperties> = {
-  morning:   LIGHT_STYLE,
-  afternoon: LIGHT_STYLE,
-  evening:   LIGHT_STYLE,
-  night:     LIGHT_STYLE,
-};
-
 export function TimeWrapper({ children }: { children: React.ReactNode }) {
+  const { palette } = useTheme();
   const [tod, setTod] = useState<TimeOfDay>("morning");
 
   useEffect(() => {
     setTod(getTimeOfDay(new Date().getHours()));
   }, []);
 
+  void tod;
+
   return (
     <div
       className="min-h-screen"
-      style={TIME_STYLES[tod]}
+      style={{
+        background: palette.pageBg,
+        color: palette.textPrimary,
+        transition: "background 0.6s ease, color 0.4s ease",
+      }}
     >
       {children}
     </div>

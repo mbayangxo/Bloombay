@@ -1,4 +1,60 @@
 /**
+ * BBWordmark — full "BloomBay" wordmark combining calligraphic + bold styles.
+ * "Bloom" in flowing Fraunces italic (script B. reference — image 3).
+ * "Bay" in Jost Black (chunky FLORA letterforms — image 1).
+ */
+export function BBWordmark({
+  size = 26,
+  light = false,
+}: {
+  size?: number;
+  light?: boolean;
+}) {
+  const ink  = light ? "white" : "#111111";
+  const pink = light ? "rgba(255,255,255,0.85)" : "#FF1F7D";
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "baseline",
+        gap: 0,
+        lineHeight: 1,
+        userSelect: "none",
+      }}
+    >
+      {/* "Bloom" — flowing Fraunces italic (calligraphic, script-like) */}
+      <span
+        style={{
+          fontFamily: "var(--font-fraunces)",
+          fontStyle: "italic",
+          fontWeight: 300,
+          fontSize: size,
+          color: ink,
+          letterSpacing: "-0.025em",
+          lineHeight: 1,
+        }}
+      >
+        Bloom
+      </span>
+      {/* "Bay" — Jost Black (chunky, graphic, bold) */}
+      <span
+        style={{
+          fontFamily: "var(--font-jost)",
+          fontWeight: 900,
+          fontSize: size,
+          color: pink,
+          letterSpacing: "0.01em",
+          lineHeight: 1,
+        }}
+      >
+        Bay
+      </span>
+    </span>
+  );
+}
+
+/**
  * BBLogo — the official BloomBay BB mark as an inline SVG.
  *
  * Props:

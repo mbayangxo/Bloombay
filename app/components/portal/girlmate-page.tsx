@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/browser";
+import { sendYandeSignal } from "@/lib/yande-signal";
 
 const PINK  = "#FF1F7D";
 const PLUM  = "#1A0A2E";
@@ -30,6 +32,25 @@ interface Listing {
   poster: { initial: string; color: string; name: string; showProfile: boolean; clubs?: string[] };
   compatibility: number;
   yandeNote: string;
+  ageRange?: string;
+  lifestyleTags?: string[];
+  personalityType?: string;
+  cleanlinessLevel?: string;
+  noiseLevel?: string;
+  drinking?: string;
+  momStatus?: string;
+  wantsKids?: string;
+  religion?: string;
+  religionLevel?: string;
+  moveInTimeline?: string;
+  guestFrequency?: string;
+  kitchenUse?: string;
+  tempPreference?: string;
+  dealbreakerTags?: string[];
+  interests?: string[];
+  dealBreakers?: string;
+  voiceNoteUrl?: string;
+  videoIntroUrl?: string;
 }
 
 interface Seeker {
@@ -47,6 +68,25 @@ interface Seeker {
   note: string;
   compatibility: number;
   yandeNote: string;
+  ageRange?: string;
+  lifestyleTags?: string[];
+  personalityType?: string;
+  cleanlinessLevel?: string;
+  noiseLevel?: string;
+  drinking?: string;
+  momStatus?: string;
+  wantsKids?: string;
+  religion?: string;
+  religionLevel?: string;
+  moveInTimeline?: string;
+  guestFrequency?: string;
+  kitchenUse?: string;
+  tempPreference?: string;
+  dealbreakerTags?: string[];
+  interests?: string[];
+  dealBreakers?: string;
+  voiceNoteUrl?: string;
+  videoIntroUrl?: string;
 }
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
@@ -140,6 +180,49 @@ const QUIZ = [
   { id: "dietary", q: "Kitchen needs?", opts: ["Halal kitchen (no pork/alcohol)", "No pork", "Vegan kitchen preferred", "No restrictions"] },
   { id: "wfh", q: "Working from home?", opts: ["Always home", "Few days a week", "Rarely home"] },
   { id: "partner", q: "Partner visits?", opts: ["Often — very present", "Sometimes", "Single / partner rarely here"] },
+  { id: "age", q: "Your age range?", opts: ["20–25", "26–30", "31–35", "36–40", "40+"] },
+  { id: "lifestyle", q: "Your daily rhythm?", opts: ["Early bird — up by 7, in by 10", "Night owl — alive after midnight", "Homebody — mostly at home", "Social butterfly — always out"] },
+  { id: "mom", q: "Family status?", opts: ["I'm a mom · kids at home", "Not a mom", "Open to living with moms", "Prefer child-free home"] },
+  { id: "religion", q: "Religion (helps with lifestyle fit)?", opts: ["Muslim", "Christian", "Jewish", "Hindu", "Buddhist", "Atheist/agnostic", "Spiritual", "Prefer not to say"] },
+  { id: "dealbreaker", q: "Biggest deal-breaker in a home?", opts: ["Messiness / uncleanliness", "Loud guests at night", "No personal space respected", "Misaligned values / lifestyle"] },
+];
+
+// ── Lifestyle & profile constants ─────────────────────────────────────────────
+
+const LIFESTYLE_TAGS = [
+  { id: "early_bird",    label: "Early bird",       emoji: "🌅" },
+  { id: "night_owl",     label: "Night owl",         emoji: "🌙" },
+  { id: "homebody",      label: "Homebody",          emoji: "🏡" },
+  { id: "social",        label: "Social butterfly",  emoji: "🦋" },
+  { id: "creative",      label: "Creative",          emoji: "🎨" },
+  { id: "fitness",       label: "Fitness focused",   emoji: "💪" },
+  { id: "wfh",           label: "Works from home",   emoji: "💻" },
+  { id: "travel",        label: "Travels often",     emoji: "✈️" },
+  { id: "quiet_space",   label: "Needs quiet",       emoji: "🤫" },
+  { id: "spiritual",     label: "Spiritual",         emoji: "🙏" },
+];
+
+const MOM_OPTIONS = [
+  { id: "is_mom",           label: "I'm a mom 👶",       desc: "Kids live with me" },
+  { id: "not_mom",          label: "Not a mom",           desc: "No kids at home" },
+  { id: "open_to_moms",     label: "Open to moms 💛",    desc: "Kids are welcome" },
+  { id: "prefer_child_free",label: "Child-free home",    desc: "Prefer no kids at home" },
+];
+
+const RELIGION_OPTIONS = [
+  "Muslim", "Christian", "Jewish", "Hindu", "Buddhist",
+  "Atheist/agnostic", "Spiritual", "Prefer not to say",
+];
+
+const DEALBREAKER_OPTIONS = [
+  { id: "loud_parties",    label: "Loud parties" },
+  { id: "overnight_guests", label: "Overnight guests constantly" },
+  { id: "smoking_inside",  label: "Smoking inside" },
+  { id: "no_cleaning",     label: "Not cleaning shared spaces" },
+  { id: "no_notice",       label: "No notice for guests" },
+  { id: "loud_music",      label: "Loud music at night" },
+  { id: "no_boundaries",   label: "Not respecting personal space" },
+  { id: "misaligned_values", label: "Misaligned values" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -190,6 +273,107 @@ function Tag({ label }: { label: string }) {
     <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 600, color: "#666", background: "#F0F0F0", borderRadius: 999, padding: "3px 8px" }}>
       {label}
     </span>
+  );
+}
+
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "4px 0" }}>
+      <div style={{ flex: 1, height: 1, background: "#F0EBE4" }} />
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "#ccc", flexShrink: 0 }}>{label}</p>
+      <div style={{ flex: 1, height: 1, background: "#F0EBE4" }} />
+    </div>
+  );
+}
+
+const PROFILE_TAG: React.CSSProperties = {
+  fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 600,
+  color: "#555", background: "#F5F5F5", padding: "4px 10px", borderRadius: 999,
+};
+
+type ProfileFields = Pick<Listing,
+  "ageRange" | "lifestyleTags" | "personalityType" | "cleanlinessLevel" |
+  "noiseLevel" | "drinking" | "momStatus" | "wantsKids" | "religion" |
+  "religionLevel" | "moveInTimeline" | "guestFrequency" | "kitchenUse" |
+  "tempPreference" | "dealbreakerTags" | "interests" | "dealBreakers"
+>;
+
+const READABLE: Record<string, string> = {
+  introvert: "Introvert", extrovert: "Extrovert", ambivert: "Ambivert",
+  very_tidy: "Very tidy", organized: "Organized", relaxed: "Relaxed",
+  very_quiet: "Very quiet", moderate: "Moderate", social: "Social",
+  no_alcohol: "No alcohol", socially: "Drinks socially", regularly: "Drinks regularly",
+  asap: "Looking now", "1_3_months": "1–3 months", "3_6_months": "3–6 months", "6_plus_months": "6+ months",
+  never: "Guests: never", occasionally: "Guests: occasionally", regularly_guests: "Guests: regularly",
+  cook_often: "Cooks often", sometimes: "Cooks sometimes", rarely: "Rarely cooks",
+  cold: "Keeps it cool", warm: "Keeps it warm",
+  yes: "Wants kids someday", no: "Doesn't want kids", undecided: "Undecided on kids",
+  very_religious: "Very religious", moderately: "Moderately religious", not_religious: "Not religious",
+};
+
+function ProfileTags({ l }: { l: ProfileFields }) {
+  const hasAny = l.ageRange || l.momStatus || l.religion || l.personalityType || l.moveInTimeline ||
+    (l.lifestyleTags && l.lifestyleTags.length > 0) || (l.interests && l.interests.length > 0) ||
+    l.dealBreakers || (l.dealbreakerTags && l.dealbreakerTags.length > 0);
+  if (!hasAny) return null;
+  return (
+    <div style={{ background: "white", borderRadius: 16, padding: "14px 16px", marginBottom: 16 }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 10 }}>ABOUT THE POSTER</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+        {l.ageRange && <span style={PROFILE_TAG}>Age {l.ageRange}</span>}
+        {l.personalityType && <span style={PROFILE_TAG}>{READABLE[l.personalityType] ?? l.personalityType}</span>}
+        {l.moveInTimeline && <span style={{ ...PROFILE_TAG, background: "#FFF0F5", color: "#FF1F7D" }}>{READABLE[l.moveInTimeline] ?? l.moveInTimeline}</span>}
+        {l.momStatus && <span style={PROFILE_TAG}>{MOM_OPTIONS.find(m => m.id === l.momStatus)?.label ?? l.momStatus}</span>}
+        {l.religion && <span style={PROFILE_TAG}>{l.religion}{l.religionLevel ? ` · ${READABLE[l.religionLevel] ?? l.religionLevel}` : ""}</span>}
+        {l.cleanlinessLevel && <span style={PROFILE_TAG}>{READABLE[l.cleanlinessLevel] ?? l.cleanlinessLevel}</span>}
+        {l.noiseLevel && <span style={PROFILE_TAG}>{READABLE[l.noiseLevel] ?? l.noiseLevel} home</span>}
+        {l.drinking && <span style={PROFILE_TAG}>{READABLE[l.drinking] ?? l.drinking}</span>}
+        {l.lifestyleTags?.map(t => {
+          const tag = LIFESTYLE_TAGS.find(lt => lt.id === t);
+          return tag ? <span key={t} style={PROFILE_TAG}>{tag.emoji} {tag.label}</span> : null;
+        })}
+      </div>
+      {l.interests && l.interests.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "#bbb", marginBottom: 4 }}>INTERESTS</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#444" }}>{l.interests.join(", ")}</p>
+        </div>
+      )}
+      {(l.dealbreakerTags?.length || l.dealBreakers) && (
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #F5F5F5" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "#e53e3e", marginBottom: 6 }}>DEAL-BREAKERS</p>
+          {l.dealbreakerTags && l.dealbreakerTags.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 6 }}>
+              {l.dealbreakerTags.map(t => {
+                const opt = DEALBREAKER_OPTIONS.find(d => d.id === t);
+                return opt ? <span key={t} style={{ ...PROFILE_TAG, background: "#FFF5F5", color: "#e53e3e" }}>✕ {opt.label}</span> : null;
+              })}
+            </div>
+          )}
+          {l.dealBreakers && <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#444" }}>{l.dealBreakers}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VoiceVideoDisplay({ voiceNoteUrl, videoIntroUrl }: { voiceNoteUrl?: string; videoIntroUrl?: string }) {
+  if (!voiceNoteUrl && !videoIntroUrl) return null;
+  return (
+    <>
+      {voiceNoteUrl && (
+        <div style={{ background: "white", borderRadius: 14, padding: "12px 16px", marginBottom: 12 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "#bbb", marginBottom: 8 }}>🎙 VOICE INTRO</p>
+          <audio src={voiceNoteUrl} controls style={{ width: "100%", accentColor: PINK }} />
+        </div>
+      )}
+      {videoIntroUrl && (
+        <div style={{ marginBottom: 16 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "#bbb", marginBottom: 8 }}>🎬 VIDEO INTRO</p>
+          <video src={videoIntroUrl} controls playsInline style={{ width: "100%", borderRadius: 12, maxHeight: 280, objectFit: "cover", background: "#000" }} />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -321,6 +505,17 @@ function SendButton({ name, sent, onSend }: { name: string; sent: boolean; onSen
 
 function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    sendYandeSignal("girlmate", "profile_viewed", {
+      target_id: typeof l.poster === "object" ? undefined : undefined,
+      object_id: String(l.id),
+      object_type: "girlmate_listing",
+      meta: { compat_score: l.compatibility, neighborhood: l.neighborhood },
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [l.id]);
+
   return (
     <DetailSheet onClose={onClose}>
       <div style={{ height: 160, margin: "0 16px", background: `linear-gradient(135deg, ${l.poster.color}33, ${l.poster.color}0A)`, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", marginBottom: 4 }}>
@@ -374,8 +569,21 @@ function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
           </div>
         )}
 
+        <ProfileTags l={l} />
+        <VoiceVideoDisplay voiceNoteUrl={l.voiceNoteUrl} videoIntroUrl={l.videoIntroUrl} />
         <YandeNote note={l.yandeNote} />
-        <SendButton name={`Message ${l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}`} sent={sent} onSend={() => setSent(true)} />
+        <SendButton
+          name={`Message ${l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}`}
+          sent={sent}
+          onSend={() => {
+            setSent(true);
+            sendYandeSignal("girlmate", "message_sent", {
+              object_id: String(l.id),
+              object_type: "girlmate_listing",
+              meta: { compat_score: l.compatibility },
+            });
+          }}
+        />
       </div>
     </DetailSheet>
   );
@@ -422,6 +630,8 @@ function SeekerDetail({ s, onClose }: { s: Seeker; onClose: () => void }) {
           </div>
         )}
 
+        <ProfileTags l={s} />
+        <VoiceVideoDisplay voiceNoteUrl={s.voiceNoteUrl} videoIntroUrl={s.videoIntroUrl} />
         <YandeNote note={s.yandeNote} />
         <SendButton name="Reach out" sent={sent} onSend={() => setSent(true)} />
       </div>
@@ -494,10 +704,91 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [desc, setDesc] = useState("");
+  const [furnished, setFurnished] = useState(false);
+  const [privateBath, setPrivateBath] = useState(false);
+  const [petsOk, setPetsOk] = useState(false);
+  const [smokingOk, setSmokingOk] = useState(false);
+  const [weedOk, setWeedOk] = useState(false);
+  const [halalKitchen, setHalalKitchen] = useState(false);
+  const [wfhFriendly, setWfhFriendly] = useState(false);
+  const [partnerOk, setPartnerOk] = useState(false);
   const [showProfile, setShowProfile] = useState(true);
+
+  // Comprehensive profile fields — About You
+  const [ageRange, setAgeRange] = useState("");
+  const [selectedLifestyle, setSelectedLifestyle] = useState<string[]>([]);
+  const [personalityType, setPersonalityType] = useState("");
+  const [momStatus, setMomStatus] = useState("");
+  const [wantsKids, setWantsKids] = useState("");
+  const [religion, setReligion] = useState("");
+  const [religionLevel, setReligionLevel] = useState("");
+  const [moveInTimeline, setMoveInTimeline] = useState("");
+  const [interests, setInterests] = useState("");
+
+  // House rules
+  const [cleanlinessLevel, setCleanlinessLevel] = useState("");
+  const [noiseLevel, setNoiseLevel] = useState("");
+  const [drinking, setDrinking] = useState("");
+  const [guestFrequency, setGuestFrequency] = useState("");
+  const [kitchenUse, setKitchenUse] = useState("");
+  const [tempPreference, setTempPreference] = useState("");
+
+  // Dealbreakers
+  const [selectedDealbreakers, setSelectedDealbreakers] = useState<string[]>([]);
+  const [dealBreakers, setDealBreakers] = useState("");
+
+  // Media
+  const [voiceFile, setVoiceFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [voicePreviewUrl, setVoicePreviewUrl] = useState<string | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+
   const [done, setDone] = useState(false);
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+
+  const voiceRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
+
+  function toggleLifestyle(tag: string) {
+    setSelectedLifestyle(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  }
+
+  function toggleDealbreaker(id: string) {
+    setSelectedDealbreakers(prev =>
+      prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]
+    );
+  }
+
+  function handleVoiceChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setVoiceFile(file);
+    setVoicePreviewUrl(URL.createObjectURL(file));
+  }
+
+  function handleVideoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setVideoFile(file);
+    setVideoPreviewUrl(URL.createObjectURL(file));
+  }
+
+  async function uploadMedia(file: File, folder: string): Promise<string | null> {
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "bin";
+      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { data, error } = await supabase.storage.from("girlmate-media").upload(path, file, { upsert: true });
+      if (error || !data) return null;
+      const { data: { publicUrl } } = supabase.storage.from("girlmate-media").getPublicUrl(data.path);
+      return publicUrl;
+    } catch {
+      return null;
+    }
+  }
 
   const valid = city.trim() && hood.trim() && price.trim() && from.trim() && desc.trim();
 
@@ -506,9 +797,15 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
     setPosting(true);
     setPostError(null);
     try {
+      const [voiceNoteUrl, videoIntroUrl] = await Promise.all([
+        voiceFile ? uploadMedia(voiceFile, "voice") : Promise.resolve(null),
+        videoFile ? uploadMedia(videoFile, "video") : Promise.resolve(null),
+      ]);
+
       const listingType = mode === "have"
         ? type
         : type === "room" ? "roommate-wanted" : type === "apartment" ? "co-search" : "co-search";
+
       const res = await fetch("/api/girlmate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -520,7 +817,36 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
           available_from: from.trim() || null,
           available_to: to.trim() || null,
           description: desc.trim(),
+          furnished,
+          private_bathroom: privateBath,
+          pets: petsOk,
+          smoking: smokingOk,
+          weed_ok: weedOk,
+          halal_kitchen: halalKitchen,
+          wfh_friendly: wfhFriendly,
+          partner_ok: partnerOk,
           show_profile: showProfile,
+          age_range: ageRange || null,
+          lifestyle_tags: selectedLifestyle,
+          personality_type: personalityType || null,
+          cleanliness_level: cleanlinessLevel || null,
+          noise_level: noiseLevel || null,
+          drinking: drinking || null,
+          mom_status: momStatus || null,
+          wants_kids: wantsKids || null,
+          religion: religion || null,
+          religion_level: religionLevel || null,
+          move_in_timeline: moveInTimeline || null,
+          guest_frequency: guestFrequency || null,
+          kitchen_use: kitchenUse || null,
+          temp_preference: tempPreference || null,
+          dealbreaker_tags: selectedDealbreakers,
+          interests: interests.trim()
+            ? interests.split(",").map(s => s.trim()).filter(Boolean)
+            : [],
+          deal_breakers: dealBreakers.trim() || null,
+          voice_note_url: voiceNoteUrl,
+          video_intro_url: videoIntroUrl,
         }),
       });
       if (!res.ok) {
@@ -530,6 +856,13 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
         return;
       }
       setDone(true);
+      sendYandeSignal("girlmate", "listing_posted", {
+        meta: {
+          listing_type: listingType, city: city.trim(),
+          has_voice: !!voiceNoteUrl, has_video: !!videoIntroUrl,
+          lifestyle_tags: selectedLifestyle, move_in_timeline: moveInTimeline,
+        },
+      });
       onPosted?.();
     } catch {
       setPostError("Something went wrong");
@@ -552,23 +885,39 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
   const INPUT: React.CSSProperties = { width: "100%", padding: "13px 14px", borderRadius: 12, border: "1.5px solid #F0EBE4", background: "white", fontFamily: "var(--font-jost)", fontSize: 14, color: INK, outline: "none", boxSizing: "border-box" };
   const LABEL: React.CSSProperties = { fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 6, display: "block" };
 
+  const TOGGLE_RULES = [
+    { label: "Furnished",             val: furnished,    set: setFurnished },
+    { label: "Private bathroom",      val: privateBath,  set: setPrivateBath },
+    { label: "Pets OK",               val: petsOk,       set: setPetsOk },
+    { label: "Smoking OK",            val: smokingOk,    set: setSmokingOk },
+    { label: "Weed / cannabis OK",    val: weedOk,       set: setWeedOk },
+    { label: "Halal kitchen",         val: halalKitchen, set: setHalalKitchen },
+    { label: "WFH friendly",          val: wfhFriendly,  set: setWfhFriendly },
+    { label: "Partner can visit often", val: partnerOk,  set: setPartnerOk },
+  ];
+
   return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }} />
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401, background: IVORY, borderRadius: "24px 24px 0 0", maxHeight: "93vh", overflowY: "auto", boxShadow: "0 -12px 48px rgba(0,0,0,0.22)" }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401, background: IVORY, borderRadius: "24px 24px 0 0", maxHeight: "95vh", overflowY: "auto", boxShadow: "0 -12px 48px rgba(0,0,0,0.22)" }}>
         <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
           <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
         </div>
-        <div style={{ padding: "12px 20px 64px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+        <div style={{ padding: "12px 20px 80px", display: "flex", flexDirection: "column", gap: 18 }}>
+
+          {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>NEW GIRLMATE LISTING</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: INK, marginTop: 2 }}>Post your space.</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>GIRLMATE LISTING</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: INK, marginTop: 2 }}>Your profile.</p>
             </div>
             <button onClick={onClose} style={{ background: "rgba(0,0,0,0.07)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 18 }}>×</button>
           </div>
 
-          {/* I have / I need toggle */}
+          {/* ── SECTION: What are you looking for? ── */}
+          <SectionDivider label="WHAT ARE YOU LOOKING FOR?" />
+
           <div style={{ display: "flex", background: "#F0EBE4", borderRadius: 14, padding: 4 }}>
             {[{ k: "have", l: "I have a space" }, { k: "need", l: "I need a space" }].map(m => (
               <button key={m.k} onClick={() => setMode(m.k as "have" | "need")} style={{ flex: 1, padding: "10px", borderRadius: 11, border: "none", background: mode === m.k ? "white" : "transparent", color: mode === m.k ? INK : "#999", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.15s", boxShadow: mode === m.k ? "0 1px 6px rgba(0,0,0,0.08)" : "none" }}>
@@ -577,7 +926,6 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
             ))}
           </div>
 
-          {/* Type */}
           <div>
             <label style={LABEL}>TYPE</label>
             <div style={{ display: "flex", gap: 8 }}>
@@ -592,19 +940,21 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
             </div>
           </div>
 
-          {/* City */}
+          {/* ── SECTION: Location ── */}
+          <SectionDivider label="LOCATION" />
+
           <div>
             <label style={LABEL}>CITY</label>
             <input value={city} onChange={e => setCity(e.target.value)} placeholder="New York City, London, Paris…" style={INPUT} />
           </div>
-
-          {/* Neighborhood */}
           <div>
             <label style={LABEL}>NEIGHBORHOOD</label>
             <input value={hood} onChange={e => setHood(e.target.value)} placeholder="Williamsburg, Peckham…" style={INPUT} />
           </div>
 
-          {/* Price */}
+          {/* ── SECTION: Price & Timing ── */}
+          <SectionDivider label="PRICE & TIMING" />
+
           <div>
             <label style={LABEL}>{mode === "have" ? "ASKING PRICE / MONTH" : "BUDGET / MONTH"}</label>
             <div style={{ position: "relative" }}>
@@ -612,8 +962,6 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
               <input value={price} onChange={e => setPrice(e.target.value)} placeholder="1,400" type="number" style={{ ...INPUT, paddingLeft: 28 }} />
             </div>
           </div>
-
-          {/* Dates */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <label style={LABEL}>{mode === "have" ? "AVAILABLE FROM" : "MOVE-IN"}</label>
@@ -625,27 +973,282 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
             </div>
           </div>
 
-          {/* Description */}
+          {/* ── SECTION: About the Space ── */}
+          <SectionDivider label="ABOUT THE SPACE" />
+
           <div>
-            <label style={LABEL}>{mode === "have" ? "ABOUT THE SPACE + YOUR TERMS" : "ABOUT YOU + WHAT YOU NEED"}</label>
-            <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder={mode === "have" ? "The vibe, your rules, what kind of person you're looking for…" : "A bit about yourself, lifestyle, what matters most to you…"} rows={4} style={{ ...INPUT, resize: "none", lineHeight: 1.6 }} />
+            <label style={LABEL}>{mode === "have" ? "DESCRIBE THE SPACE & YOUR TERMS" : "ABOUT YOU & WHAT YOU NEED"}</label>
+            <textarea value={desc} onChange={e => setDesc(e.target.value)}
+              placeholder={mode === "have" ? "The vibe, your rules, what kind of person you're looking for…" : "A bit about yourself, lifestyle, what matters most to you…"}
+              rows={4} style={{ ...INPUT, resize: "none", lineHeight: 1.6 }} />
           </div>
 
-          {/* Profile toggle */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {TOGGLE_RULES.map(({ label, val, set }) => (
+              <button key={label} onClick={() => set((p: boolean) => !p)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, border: `1.5px solid ${val ? PINK : "#F0EBE4"}`, background: val ? "#FFF0F5" : "white", cursor: "pointer", textAlign: "left" }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: val ? PINK : "transparent", border: `1.5px solid ${val ? PINK : "#ddd"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                  {val && <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><polyline points="1.5,4.5 3.5,6.5 7.5,2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: val ? PINK : "#555" }}>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ── SECTION: About You ── */}
+          <SectionDivider label="ABOUT YOU" />
+
+          {/* Age range */}
+          <div>
+            <label style={LABEL}>YOUR AGE RANGE</label>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["20–25", "26–30", "31–35", "36–40", "40+"].map(age => (
+                <button key={age} onClick={() => setAgeRange(ageRange === age ? "" : age)} style={{ padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${ageRange === age ? PINK : "#F0EBE4"}`, background: ageRange === age ? "#FFF0F5" : "white", color: ageRange === age ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: ageRange === age ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                  {age}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lifestyle tags */}
+          <div>
+            <label style={LABEL}>YOUR LIFESTYLE <span style={{ fontWeight: 400, textTransform: "none", color: "#bbb" }}>— select all that apply</span></label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {LIFESTYLE_TAGS.map(tag => {
+                const active = selectedLifestyle.includes(tag.id);
+                return (
+                  <button key={tag.id} onClick={() => toggleLifestyle(tag.id)} style={{ padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${active ? PINK : "#F0EBE4"}`, background: active ? "#FFF0F5" : "white", color: active ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: active ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                    {tag.emoji} {tag.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Family status */}
+          <div>
+            <label style={LABEL}>FAMILY STATUS</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {MOM_OPTIONS.map(opt => (
+                <button key={opt.id} onClick={() => setMomStatus(momStatus === opt.id ? "" : opt.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${momStatus === opt.id ? PINK : "#F0EBE4"}`, background: momStatus === opt.id ? "#FFF0F5" : "white", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${momStatus === opt.id ? PINK : "#ddd"}`, background: momStatus === opt.id ? PINK : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                    {momStatus === opt.id && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "white" }} />}
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: momStatus === opt.id ? PINK : INK, margin: 0 }}>{opt.label}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", margin: "2px 0 0" }}>{opt.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Religion */}
+          <div>
+            <label style={LABEL}>RELIGION <span style={{ fontWeight: 400, textTransform: "none", color: "#bbb" }}>— optional · helps with lifestyle compatibility</span></label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {RELIGION_OPTIONS.map(r => (
+                <button key={r} onClick={() => setReligion(religion === r ? "" : r)} style={{ padding: "8px 12px", borderRadius: 999, border: `1.5px solid ${religion === r ? PINK : "#F0EBE4"}`, background: religion === r ? "#FFF0F5" : "white", color: religion === r ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: religion === r ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interests */}
+          <div>
+            <label style={LABEL}>INTERESTS & HOBBIES</label>
+            <input value={interests} onChange={e => setInterests(e.target.value)} placeholder="Museums, cooking, yoga, travel, fashion, books…" style={INPUT} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#ccc", marginTop: 4 }}>Separate with commas</p>
+          </div>
+
+          {/* Personality */}
+          <div>
+            <label style={LABEL}>PERSONALITY</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[{ k: "introvert", l: "Introvert 🪴" }, { k: "extrovert", l: "Extrovert 🌻" }, { k: "ambivert", l: "Ambivert 🌿" }].map(p => (
+                <button key={p.k} onClick={() => setPersonalityType(personalityType === p.k ? "" : p.k)} style={{ flex: 1, padding: "10px 6px", borderRadius: 12, border: `1.5px solid ${personalityType === p.k ? PINK : "#F0EBE4"}`, background: personalityType === p.k ? "#FFF0F5" : "white", color: personalityType === p.k ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: personalityType === p.k ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                  {p.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Move-in timeline */}
+          <div>
+            <label style={LABEL}>MOVE-IN TIMELINE</label>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {[
+                { k: "asap", l: "ASAP 🔑" },
+                { k: "1_3_months", l: "1–3 months" },
+                { k: "3_6_months", l: "3–6 months" },
+                { k: "6_plus_months", l: "6+ months" },
+              ].map(t => (
+                <button key={t.k} onClick={() => setMoveInTimeline(moveInTimeline === t.k ? "" : t.k)} style={{ padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${moveInTimeline === t.k ? PINK : "#F0EBE4"}`, background: moveInTimeline === t.k ? "#FFF0F5" : "white", color: moveInTimeline === t.k ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: moveInTimeline === t.k ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                  {t.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Future kids */}
+          <div>
+            <label style={LABEL}>CHILDREN IN THE FUTURE?</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[{ k: "yes", l: "Yes, someday" }, { k: "no", l: "No thanks" }, { k: "undecided", l: "Undecided" }].map(k => (
+                <button key={k.k} onClick={() => setWantsKids(wantsKids === k.k ? "" : k.k)} style={{ flex: 1, padding: "10px 6px", borderRadius: 12, border: `1.5px solid ${wantsKids === k.k ? PINK : "#F0EBE4"}`, background: wantsKids === k.k ? "#FFF0F5" : "white", color: wantsKids === k.k ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: wantsKids === k.k ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                  {k.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Religion level */}
+          {religion && religion !== "Prefer not to say" && religion !== "Atheist/agnostic" && (
+            <div>
+              <label style={LABEL}>HOW IMPORTANT IS FAITH TO YOUR LIFESTYLE?</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[{ k: "very_religious", l: "Very important" }, { k: "moderately", l: "Moderately" }, { k: "not_religious", l: "Not much" }].map(r => (
+                  <button key={r.k} onClick={() => setReligionLevel(religionLevel === r.k ? "" : r.k)} style={{ flex: 1, padding: "10px 4px", borderRadius: 12, border: `1.5px solid ${religionLevel === r.k ? PINK : "#F0EBE4"}`, background: religionLevel === r.k ? "#FFF0F5" : "white", color: religionLevel === r.k ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: religionLevel === r.k ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                    {r.l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── SECTION: House Rules ── */}
+          <SectionDivider label="HOUSE RULES" />
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", marginTop: -8 }}>
+            Most roommate conflicts start here. Be honest — it saves everyone time.
+          </p>
+
+          {[
+            { label: "CLEANLINESS", set: setCleanlinessLevel, val: cleanlinessLevel, opts: [{ k: "very_tidy", l: "Very tidy" }, { k: "organized", l: "Organized" }, { k: "relaxed", l: "Relaxed" }] },
+            { label: "NOISE LEVEL", set: setNoiseLevel, val: noiseLevel, opts: [{ k: "very_quiet", l: "Very quiet" }, { k: "moderate", l: "Moderate" }, { k: "social", l: "Social/loud" }] },
+            { label: "GUESTS", set: setGuestFrequency, val: guestFrequency, opts: [{ k: "never", l: "Never" }, { k: "occasionally", l: "Sometimes" }, { k: "regularly", l: "Regularly" }] },
+            { label: "KITCHEN", set: setKitchenUse, val: kitchenUse, opts: [{ k: "cook_often", l: "Cook often" }, { k: "sometimes", l: "Sometimes" }, { k: "rarely", l: "Rarely" }] },
+            { label: "DRINKING", set: setDrinking, val: drinking, opts: [{ k: "no_alcohol", l: "No alcohol" }, { k: "socially", l: "Socially" }, { k: "regularly", l: "Regularly" }] },
+            { label: "TEMPERATURE", set: setTempPreference, val: tempPreference, opts: [{ k: "cold", l: "Cool home" }, { k: "moderate", l: "Moderate" }, { k: "warm", l: "Warm home" }] },
+          ].map(row => (
+            <div key={row.label}>
+              <label style={LABEL}>{row.label}</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {row.opts.map(o => (
+                  <button key={o.k} onClick={() => row.set((row.val === o.k ? "" : o.k) as string)} style={{ flex: 1, padding: "10px 4px", borderRadius: 12, border: `1.5px solid ${row.val === o.k ? PINK : "#F0EBE4"}`, background: row.val === o.k ? "#FFF0F5" : "white", color: row.val === o.k ? PINK : "#555", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: row.val === o.k ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
+                    {o.l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* ── SECTION: Dealbreakers ── */}
+          <SectionDivider label="DEAL-BREAKERS" />
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", marginTop: -8 }}>
+            Be upfront. This helps the right people reach out and the wrong ones kindly move on.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {DEALBREAKER_OPTIONS.map(opt => {
+              const active = selectedDealbreakers.includes(opt.id);
+              return (
+                <button key={opt.id} onClick={() => toggleDealbreaker(opt.id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, border: `1.5px solid ${active ? "#e53e3e" : "#F0EBE4"}`, background: active ? "#FFF5F5" : "white", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ width: 16, height: 16, borderRadius: 4, background: active ? "#e53e3e" : "transparent", border: `1.5px solid ${active ? "#e53e3e" : "#ddd"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                    {active && <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><polyline points="1.5,4.5 3.5,6.5 7.5,2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, color: active ? "#e53e3e" : "#555" }}>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Additional deal-breakers */}
+          <div>
+            <label style={LABEL}>ANYTHING ELSE?</label>
+            <textarea value={dealBreakers} onChange={e => setDealBreakers(e.target.value)} placeholder="Anything not on the list above…" rows={2} style={{ ...INPUT, resize: "none", lineHeight: 1.6 }} />
+          </div>
+
+          {/* ── SECTION: Your Intro Media ── */}
+          <SectionDivider label="YOUR INTRO" />
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", marginTop: -8 }}>
+            Let Bloomies hear and see you before they reach out. Optional — but people connect faster when they can.
+          </p>
+
+          {/* Voice message */}
+          <div style={{ background: "white", borderRadius: 14, padding: "14px 16px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 4 }}>🎙 VOICE MESSAGE</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#555", marginBottom: 12, lineHeight: 1.5 }}>
+              A 30–60 second voice note introducing yourself. Hearing someone&apos;s voice builds trust before meeting.
+            </p>
+            {voicePreviewUrl ? (
+              <div>
+                <audio src={voicePreviewUrl} controls style={{ width: "100%", accentColor: PINK }} />
+                <button onClick={() => { setVoiceFile(null); setVoicePreviewUrl(null); if (voiceRef.current) voiceRef.current.value = ""; }} style={{ marginTop: 8, fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  × Remove
+                </button>
+              </div>
+            ) : (
+              <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, border: `1.5px dashed ${PINK}55`, cursor: "pointer", background: "#FFF8FA" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>Add voice message</span>
+                <input ref={voiceRef} type="file" accept="audio/*" onChange={handleVoiceChange} style={{ display: "none" }} />
+              </label>
+            )}
+          </div>
+
+          {/* Video intro */}
+          <div style={{ background: "white", borderRadius: 14, padding: "14px 16px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#bbb", marginBottom: 4 }}>
+              🎬 SHORT VIDEO INTRO <span style={{ fontWeight: 500, color: "#ddd" }}>· max 30 sec</span>
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#555", marginBottom: 12, lineHeight: 1.5 }}>
+              A quick &ldquo;hi, this is me&rdquo; clip — 30 seconds is enough. Helps people decide whether to reach out and makes it easy to kindly pass if it&apos;s not a fit.
+            </p>
+            {videoPreviewUrl ? (
+              <div>
+                <video src={videoPreviewUrl} controls playsInline style={{ width: "100%", borderRadius: 10, maxHeight: 220, objectFit: "cover", background: "#000" }} />
+                <button onClick={() => { setVideoFile(null); setVideoPreviewUrl(null); if (videoRef.current) videoRef.current.value = ""; }} style={{ marginTop: 8, fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  × Remove
+                </button>
+              </div>
+            ) : (
+              <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12, border: `1.5px dashed ${PINK}55`, cursor: "pointer", background: "#FFF8FA" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>Add video intro</span>
+                <input ref={videoRef} type="file" accept="video/*" onChange={handleVideoChange} style={{ display: "none" }} />
+              </label>
+            )}
+          </div>
+
+          {/* ── SECTION: Privacy ── */}
+          <SectionDivider label="PRIVACY" />
+
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", borderRadius: 14, padding: "14px 16px" }}>
             <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: INK }}>Show my BloomBay profile</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: INK, margin: 0 }}>Show my BloomBay profile</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginTop: 2 }}>Bloomies see your clubs and saved places</p>
             </div>
-            <button onClick={() => setShowProfile(p => !p)} style={{ width: 44, height: 26, borderRadius: 999, background: showProfile ? PINK : "#E0E0E0", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
+            <button onClick={() => setShowProfile(p => !p)} style={{ width: 44, height: 26, borderRadius: 999, background: showProfile ? PINK : "#E0E0E0", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
               <div style={{ width: 20, height: 20, borderRadius: "50%", background: "white", position: "absolute", top: 3, left: showProfile ? 21 : 3, transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
             </button>
           </div>
 
-          {postError && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#B71C1C", marginBottom: 8 }}>{postError}</p>}
+          {postError && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#B71C1C" }}>{postError}</p>}
+
           <button onClick={submit} disabled={!valid || posting} style={{ width: "100%", padding: "16px", background: valid ? PINK : "#eee", color: valid ? "white" : "#bbb", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", cursor: valid && !posting ? "pointer" : "default", boxShadow: valid ? `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` : "none", transition: "all 0.2s" }}>
             {posting ? "Posting…" : "Post listing ✦"}
           </button>
+
         </div>
       </div>
     </>
@@ -678,10 +1281,18 @@ function apiToListing(r: any): Listing {
     poster: { initial: name[0]?.toUpperCase() ?? "B", color: COLORS[colorIdx], name, showProfile: r.show_profile ?? true },
     compatibility: 75,
     yandeNote: r.yande_note ?? "A fellow Bloomie looking for the right match.",
+    ageRange: r.age_range ?? undefined,
+    lifestyleTags: r.lifestyle_tags ?? [],
+    momStatus: r.mom_status ?? undefined,
+    religion: r.religion ?? undefined,
+    interests: r.interests ?? [],
+    dealBreakers: r.deal_breakers ?? undefined,
+    voiceNoteUrl: r.voice_note_url ?? undefined,
+    videoIntroUrl: r.video_intro_url ?? undefined,
   };
 }
 
-export function GirlMatePage() {
+export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
   const [tab, setTab]                       = useState<Tab>("available");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedSeeker, setSelectedSeeker]   = useState<Seeker | null>(null);
@@ -716,7 +1327,7 @@ export function GirlMatePage() {
     : SEEKERS;
 
   return (
-    <div style={{ minHeight: "100dvh", background: IVORY }}>
+    <div style={{ minHeight: "100dvh", background: IVORY, paddingBottom: 120 }}>
 
       {/* ── Header ── */}
       <div style={{ background: `linear-gradient(160deg, ${PLUM} 0%, #2E0A1C 100%)`, padding: "52px 20px 24px", position: "relative", overflow: "hidden" }}>
@@ -725,10 +1336,17 @@ export function GirlMatePage() {
           {[0,1,2,3,4,5].map(i => { const a = (i/6)*Math.PI*2; return <ellipse key={i} cx={110+Math.cos(a)*60} cy={110+Math.sin(a)*60} rx="32" ry="54" fill="white" transform={`rotate(${i*60} ${110+Math.cos(a)*60} ${110+Math.sin(a)*60})`} />; })}
         </svg>
 
-        <Link href="/member/introductions" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, textDecoration: "none" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
-        </Link>
+        {onBack ? (
+          <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
+          </button>
+        ) : (
+          <Link href="/member/introductions" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16, textDecoration: "none" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>INTRODUCTIONS</span>
+          </Link>
+        )}
 
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.22em", color: PINK, marginBottom: 4 }}>✦ GIRLMATE</p>
         <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 28, color: "white", lineHeight: 1.1, marginBottom: 6 }}>

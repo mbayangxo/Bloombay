@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
+import { BBStickerPicker } from "./bb-sticker-picker";
 import {
   getTopNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
   getPlaceTagCounts, addNoteTags,
@@ -78,7 +79,7 @@ function AuthorChip({ note }: { note: BloomNote }) {
   );
 }
 
-// ── Single note card ──────────────────────────────────────────────────────────
+// ── Single note card — Polaroid style ────────────────────────────────────────
 function NoteCard({
   note, index, onFlower, onSave, top,
 }: {
@@ -88,66 +89,72 @@ function NoteCard({
   onSave: (id: string) => void;
   top: boolean;
 }) {
-  const tone     = NOTE_TONES[index % NOTE_TONES.length];
-  const pinColor = PIN_COLORS[index % PIN_COLORS.length];
-  const rotation = index % 2 === 0 ? -0.8 : 0.9;
+  const gradients = [
+    "linear-gradient(135deg,#FFD6EA,#FFABD4)",
+    "linear-gradient(135deg,#FFE8B0,#FFD580)",
+    "linear-gradient(135deg,#B8E4C9,#7DD4A8)",
+    "linear-gradient(135deg,#C9C4F0,#A89BE8)",
+    "linear-gradient(135deg,#FFD6EA,#FF8EC7)",
+  ];
+  const bg = gradients[index % gradients.length];
+  const rotation = ["-1.5deg","1.2deg","-0.8deg","1.8deg","-1deg"][index % 5];
 
   return (
-    <div style={{
-      background: tone, borderRadius: 6, padding: "14px 13px 12px",
-      boxShadow: "0 4px 18px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.08)",
-      transform: `rotate(${rotation}deg)`, position: "relative",
-    }}>
-      <PushPin color={pinColor} size={13} style={{ position: "absolute", top: -9, left: `${28 + (index % 5) * 13}%`, zIndex: 2 }}/>
+    <div style={{ transform: `rotate(${rotation})`, position: "relative" }}>
+      <PushPin color={PIN_COLORS[index % PIN_COLORS.length]} size={13} style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
 
-      {/* Top note crown */}
-      {top && (
-        <div style={{
-          position: "absolute", top: 8, right: 10,
-          background: PINK, borderRadius: 4, padding: "2px 7px",
-        }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>MOST LOVED</span>
+      {/* Polaroid frame */}
+      <div style={{ background: "white", padding: "7px 7px 22px", boxShadow: "0 5px 22px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)" }}>
+
+        {/* Photo slot */}
+        <div style={{ width: "100%", aspectRatio: "1", background: bg, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {top && (
+            <div style={{ position: "absolute", top: 6, right: 6, background: PINK, borderRadius: 4, padding: "2px 7px", zIndex: 2 }}>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>MOST LOVED</span>
+            </div>
+          )}
+          {/* Note text as photo content */}
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.65)", lineHeight: 1.55, padding: "10px 12px", textAlign: "center" as const }}>
+            {note.content}
+          </p>
         </div>
-      )}
 
-      <p style={{
-        fontFamily: "var(--font-caveat)", fontSize: 16, color: "#3A2A1A",
-        lineHeight: 1.5, marginBottom: 10, marginTop: top ? 14 : 0,
-      }}>
-        {note.content}
-      </p>
+        {/* Polaroid caption area */}
+        <div style={{ paddingTop: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+            <AuthorChip note={note} />
+            <span style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#A09080" }}>
+              {timeAgo(note.created_at)}
+            </span>
+          </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <AuthorChip note={note} />
-        <span style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#A09080", marginLeft: 2 }}>
-          {timeAgo(note.created_at)}
-        </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+            {/* Save */}
+            <button
+              onClick={() => onSave(note.id)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 4px", display: "flex", alignItems: "center" }}
+              aria-label="save"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill={note.saved ? "#C0185F" : "none"} stroke="#C0185F" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
 
-        {/* Save */}
-        <button
-          onClick={() => onSave(note.id)}
-          style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "3px 5px", display: "flex", alignItems: "center" }}
-          aria-label="save"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill={note.saved ? "#C0185F" : "none"} stroke="#C0185F" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-        </button>
-
-        {/* Flower */}
-        <button
-          onClick={() => onFlower(note.id)}
-          style={{
-            background: note.gave_flower ? "#C0185F" : "rgba(192,24,95,0.1)",
-            color: note.gave_flower ? "white" : "#C0185F",
-            border: "none", borderRadius: 999, padding: "4px 11px", cursor: "pointer",
-            fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800,
-            display: "flex", alignItems: "center", gap: 4,
-            boxShadow: note.gave_flower ? "0 2px 8px rgba(192,24,95,0.35)" : "none",
-          }}
-        >
-          ✿ {note.flower_count}
-        </button>
+            {/* Flower */}
+            <button
+              onClick={() => onFlower(note.id)}
+              style={{
+                background: note.gave_flower ? "#C0185F" : "rgba(192,24,95,0.08)",
+                color: note.gave_flower ? "white" : "#C0185F",
+                border: "none", borderRadius: 999, padding: "3px 9px", cursor: "pointer",
+                fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
+                display: "flex", alignItems: "center", gap: 3,
+              }}
+            >
+              ✿ {note.flower_count}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -157,10 +164,11 @@ function NoteCard({
 const ALL_TAGS = Object.keys(CITY_TAG_LABELS) as CityTag[];
 
 function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; placeName: string; onPosted: () => void }) {
-  const [draft, setDraft]       = useState("");
-  const [selectedTags, setTags] = useState<CityTag[]>([]);
-  const [posting, setPosting]   = useState(false);
-  const [error, setError]       = useState("");
+  const [draft, setDraft]         = useState("");
+  const [selectedTags, setTags]   = useState<CityTag[]>([]);
+  const [posting, setPosting]     = useState(false);
+  const [error, setError]         = useState("");
+  const [showStickers, setShowStickers] = useState(false);
 
   function toggleTag(tag: CityTag) {
     setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag].slice(0, 3));
@@ -188,18 +196,25 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
       boxShadow: "0 4px 16px rgba(0,0,0,0.14)", transform: "rotate(-0.5deg)", position: "relative",
     }}>
       <PushPin color="gold" size={14} style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
-      <textarea
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        placeholder="Leave a little note for the next girl…"
-        rows={3}
-        maxLength={500}
-        style={{
-          width: "100%", border: "none", outline: "none", background: "transparent",
-          resize: "none", fontFamily: "var(--font-caveat)", fontSize: 17, color: "#3A2A1A", lineHeight: 1.45,
-        }}
-      />
-      {/* City intelligence tag chips */}
+      <div style={{ position: "relative" }}>
+        <textarea
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          placeholder="Leave a little note for the next girl…"
+          rows={3}
+          maxLength={500}
+          style={{
+            width: "100%", border: "none", outline: "none", background: "transparent",
+            resize: "none", fontFamily: "var(--font-caveat)", fontSize: 17, color: "#3A2A1A", lineHeight: 1.45,
+          }}
+        />
+        {showStickers && (
+          <BBStickerPicker
+            onSelect={sticker => { setDraft(prev => prev + sticker); setShowStickers(false); }}
+            onClose={() => setShowStickers(false)}
+          />
+        )}
+      </div>
       {draft.trim().length > 0 && (
         <div style={{ marginBottom: 10, marginTop: 4 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "#B0A090", letterSpacing: "0.1em", marginBottom: 6 }}>QUICK TAGS · PICK UP TO 3</p>
@@ -226,7 +241,29 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
       )}
       {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#E53E3E", marginBottom: 6 }}>{error}</p>}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
+          <button
+            onClick={() => setShowStickers(prev => !prev)}
+            style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: showStickers ? PINK : "#FFF0F7",
+              border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: showStickers ? `0 2px 10px ${PINK}55` : "none",
+              transition: "all 0.15s",
+            }}
+            aria-label="Open sticker picker"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={showStickers ? "white" : PINK} strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </button>
+        </div>
         <button
           onClick={post}
           disabled={posting || !draft.trim()}

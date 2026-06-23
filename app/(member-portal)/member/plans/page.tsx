@@ -13,22 +13,21 @@ interface PlanRoom {
 }
 interface DayContent { text: string; stickers: string[]; photos: string[]; voiceCount: number; }
 type View = "list" | "room";
-type MainTab = "plans" | "calendar";
 type NewPlanStep = "choose" | "room" | "bloomie" | "club";
 type DayEditorTab = "write" | "sticker" | "photo" | "voice";
 
 // (night mode removed — always use light pink theme)
 
 const THEME = {
-  pageBg:      "linear-gradient(160deg, #FFF0F8 0%, #FFF5EC 50%, #FEF0F8 100%)",
+  pageBg:      "#FFFFFF",
   topBar:      "rgba(255,255,255,0.97)",
-  topBarBorder:"rgba(255,31,125,0.1)",
-  cardBg:      "rgba(255,255,255,0.92)",
-  cardBorder:  "rgba(255,31,125,0.12)",
-  heading:     "#1A1A1A",
-  subText:     "#888",
-  label:       "rgba(0,0,0,0.35)",
-  sectionBg:   "rgba(255,255,255,0.85)",
+  topBarBorder:"rgba(255,31,125,0.12)",
+  cardBg:      "#FFFFFF",
+  cardBorder:  "rgba(255,31,125,0.15)",
+  heading:     "#111111",
+  subText:     "rgba(0,0,0,0.6)",
+  label:       "rgba(0,0,0,0.38)",
+  sectionBg:   "#FFF5F8",
   inputBg:     "#FFF5F8",
 };
 
@@ -39,19 +38,19 @@ const PINK = "#FF1F7D";
 const PLAN_ROOMS: PlanRoom[] = [
   { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7,  members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026",   poster: "/happenings/posters/10_Ladies_First_Road_Trip.png" },
   { id: 2, name: "Afrobeats Night",     emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3,  members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", poster: "/happenings/posters/06_Dance_All_Night.png",          eventId: 6 },
-  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#83C5A0", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
+  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#FFB3D1", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
   { id: 4, name: "Women in Lens",       emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2,  members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     poster: "/happenings/posters/05_Film_Club.png",                eventId: 1 },
-  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#83C5A0", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
-  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#F59E0B", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
+  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#FFB3D1", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
+  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#FF1F7D", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
 ];
 
 const BLOOMIES_LIST = [
   { id: 1, name: "Aaliyah M.", initial: "A", color: "#FF1F7D", status: "Active now" },
   { id: 2, name: "Zara F.",    initial: "Z", color: "#FF69B4", status: "Online"     },
-  { id: 3, name: "Temi A.",    initial: "T", color: "#A855F7", status: "3h ago"     },
-  { id: 4, name: "Jade K.",    initial: "J", color: "#0EA5E9", status: "Yesterday"  },
-  { id: 5, name: "Sofia W.",   initial: "S", color: "#83C5A0", status: "Online"     },
-  { id: 6, name: "Naomi B.",   initial: "N", color: "#D4A853", status: "2d ago"     },
+  { id: 3, name: "Temi A.",    initial: "T", color: "#FF1F7D", status: "3h ago"     },
+  { id: 4, name: "Jade K.",    initial: "J", color: "#FF5FA5", status: "Yesterday"  },
+  { id: 5, name: "Sofia W.",   initial: "S", color: "#FFB3D1", status: "Online"     },
+  { id: 6, name: "Naomi B.",   initial: "N", color: "#FF1F7D", status: "2d ago"     },
 ];
 
 const CLUBS_LIST = [
@@ -111,10 +110,10 @@ const PLAN_NOTES: Record<number, { id: number; text: string }[]> = {
 };
 
 const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; color: string }[]> = {
-  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",    color: "#83C5A0" }],
-  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",    color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#83C5A0" }],
+  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",    color: "#FFB3D1" }],
+  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",    color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#FFB3D1" }],
   "2026-06-14": [{ emoji: "🎵", name: "Afrobeats Night",     time: "10PM",   color: "#FF69B4" }],
-  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",    color: "#F59E0B" }],
+  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",    color: "#FF1F7D" }],
   "2026-10-10": [{ emoji: "🇲🇦", name: "Morocco October",   time: "10AM",   color: "#FF69B4" }],
 };
 
@@ -181,13 +180,13 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
   if (sent) return (
     <>
       <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
         <div className="flex flex-col items-center py-10 px-6 text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", boxShadow: "0 4px 20px rgba(255,31,125,0.35)" }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Invitations sent!</p>
-          <p className="text-sm" style={{ color: "#999", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
+          <p className="font-black text-xl mb-1" style={{ fontFamily: "var(--font-playfair)", color: "#111111" }}>Invitations sent!</p>
+          <p className="text-sm" style={{ color: "rgba(0,0,0,0.5)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>{selected.size} Bloomie{selected.size !== 1 ? "s" : ""} invited to {room.name}</p>
           <button onClick={onClose} className="mt-6 px-8 py-3.5 rounded-full text-sm font-bold" style={{ background: "#FF1F7D", color: "white" }}>Done</button>
         </div>
       </div>
@@ -197,40 +196,40 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
   return (
     <>
       <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl flex flex-col" style={{ background: "#FDFAF5", maxHeight: "88vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} /></div>
-        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl flex flex-col" style={{ background: "#FFFFFF", maxHeight: "88vh", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,31,125,0.2)" }} /></div>
+        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.05)" }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
             <div>
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>💌 INVITE TO {room.name.toUpperCase()}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>Choose who to invite</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>Choose who to invite</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.05)" }}>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {BLOOMIES_LIST.map(b => {
             const on = selected.has(b.id);
             return (
-              <button key={b.id} onClick={() => toggle(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid #F5F5F5", background: on ? "#FFF5F8" : "white" }}>
+              <button key={b.id} onClick={() => toggle(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,31,125,0.08)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.name}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{b.status}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111111" }}>{b.name}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{b.status}</p>
                 </div>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,31,125,0.2)" }}>
                   {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
               </button>
             );
           })}
         </div>
-        <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid #F0F0F0", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
+        <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,31,125,0.1)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
           <button onClick={() => setSent(true)} disabled={selected.size === 0} className="w-full py-4 rounded-full text-sm font-bold"
             style={selected.size > 0 ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
             {selected.size > 0 ? `Send invite to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : "Select Bloomies to invite"}
@@ -250,30 +249,30 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
-        <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} /></div>
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FFFFFF", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(255,31,125,0.2)" }} /></div>
         <div className="px-5 pb-2">
-          <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1.5px dashed rgba(0,0,0,0.08)" }}>
+          <div className="rounded-3xl overflow-hidden" style={{ background: "#FFF5F8", boxShadow: "0 4px 24px rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.2)" }}>
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1.5px dashed rgba(255,31,125,0.12)" }}>
               <p className="text-[9px] font-bold tracking-[0.28em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
-              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#bbb" }}>PLAN ROOM TICKET</p>
+              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase" style={{ color: "rgba(0,0,0,0.4)" }}>PLAN ROOM TICKET</p>
             </div>
             <div className="flex items-center justify-center" style={{ height: "80px", background: room.bg }}>
               <span style={{ fontSize: "38px" }}>{room.emoji}</span>
             </div>
             <div className="px-6 pt-4 pb-2">
               <p className="text-[9px] font-bold tracking-wider uppercase mb-1" style={{ color: "#FF1F7D" }}>YOUR TICKET</p>
-              <h2 className="font-black leading-none mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: "#111", lineHeight: 0.92 }}>{room.name}</h2>
-              <p className="text-xs" style={{ color: "#777" }}>{room.time}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{room.venue}</p>
+              <h2 className="font-black leading-none mb-2" style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,6vw,28px)", color: "#111111", lineHeight: 0.92 }}>{room.name}</h2>
+              <p className="text-xs" style={{ color: "rgba(0,0,0,0.5)" }}>{room.time}</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.4)" }}>{room.venue}</p>
             </div>
-            <div style={{ borderTop: "1.5px dashed rgba(0,0,0,0.08)", margin: "12px 24px" }} />
+            <div style={{ borderTop: "1.5px dashed rgba(255,31,125,0.12)", margin: "12px 24px" }} />
             <div className="px-6 pb-6 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{ticketCode}</p>
-                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#1A1208,#2D1E08)", border: "1px solid rgba(212,168,83,0.35)" }}>
-                  <span style={{ fontSize: "7px", color: "#D4A853" }}>✦</span>
-                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#D4A853" }}>Founding Mother #47</span>
+                <p className="text-[8px] font-mono tracking-widest" style={{ color: "rgba(0,0,0,0.38)" }}>{ticketCode}</p>
+                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#111,#1A0010)", border: "1px solid rgba(255,31,125,0.35)" }}>
+                  <span style={{ fontSize: "7px", color: "#FF1F7D" }}>✦</span>
+                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>Founding Mother #47</span>
                 </div>
                 <p className="text-[9px] font-semibold" style={{ color: "#999" }}>{room.members} women · Show at door</p>
               </div>
@@ -348,7 +347,7 @@ function StickerKeyboard({ onAdd }: { onAdd: (s: string) => void }) {
           </div>
           <div style={{ textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", marginBottom: 4 }}>Your Sticker Pack</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "#aaa", lineHeight: 1.4 }}>Upload PNG images to use as custom stickers on your planner</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#aaa", lineHeight: 1.4 }}>Upload PNG images to use as custom stickers on your planner</p>
           </div>
           <button onClick={() => fileRef.current?.click()} style={{ padding: "10px 24px", borderRadius: 999, background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "white", letterSpacing: "0.06em" }}>UPLOAD STICKER →</p>
@@ -463,16 +462,16 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
                   transform="rotate(-12 36 36)" />
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 38, fontWeight: 700, color: "#1A1A1A", lineHeight: 1 }}>{dayNum}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 38, fontWeight: 700, color: "#1A1A1A", lineHeight: 1 }}>{dayNum}</p>
               </div>
             </div>
 
             {/* Day info */}
             <div style={{ flex: 1, paddingTop: 4 }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, lineHeight: 1 }}>{dayLabel}</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#888", marginBottom: 6 }}>{monthLabel}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: PINK, lineHeight: 1 }}>{dayLabel}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#888", marginBottom: 6 }}>{monthLabel}</p>
               {eventsToday.length > 0 && eventsToday.map((ev, i) => (
-                <p key={i} style={{ fontFamily: "var(--font-caveat)", fontSize: 18, fontStyle: "italic", color: ev.color, lineHeight: 1.3, marginBottom: 2 }}>
+                <p key={i} style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontStyle: "italic", color: ev.color, lineHeight: 1.3, marginBottom: 2 }}>
                   {ev.emoji} {ev.name}
                   <span style={{ fontSize: 13, color: "#aaa" }}> · {ev.time}</span>
                 </p>
@@ -500,7 +499,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
               autoFocus
               style={{
                 width: "100%", minHeight: 200, padding: "12px 24px 16px",
-                fontFamily: "var(--font-caveat)", fontSize: 18, color: "#333",
+                fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "#333",
                 background: "repeating-linear-gradient(transparent, transparent 31px, rgba(0,0,0,0.06) 32px)",
                 backgroundSize: "100% 32px", backgroundPosition: "0 12px",
                 border: "none", outline: "none", resize: "none", lineHeight: "32px",
@@ -517,7 +516,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
               <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
               <button onClick={() => fileRef.current?.click()}
                 className="active:scale-[0.98] transition-transform"
-                style={{ width: "100%", height: 100, borderRadius: 20, border: "2px dashed rgba(255,31,125,0.3)", background: "#FFF5F8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginBottom: 16 }}>
+                style={{ width: "100%", height: 100, borderRadius: 20, border: "2px dashed rgba(255,31,125,0.4)", background: "rgba(255,31,125,0.06)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginBottom: 16 }}>
                 <span style={{ fontSize: 32 }}>📷</span>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: PINK, fontWeight: 700 }}>Add from camera roll</p>
               </button>
@@ -544,12 +543,12 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
                   <div key={i} style={{ width: 3, borderRadius: 99, height: recording ? undefined : h, background: recording ? PINK : "rgba(255,31,125,0.22)", animation: recording ? `waveBar ${0.4 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite alternate` : "none", minHeight: recording ? 6 : h, maxHeight: recording ? 36 : h }} />
                 ))}
               </div>
-              {recording && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 22, color: PINK, marginBottom: 16 }}>{Math.floor(recSecs/60).toString().padStart(2,"0")}:{(recSecs%60).toString().padStart(2,"0")}</p>}
+              {recording && <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: PINK, marginBottom: 16 }}>{Math.floor(recSecs/60).toString().padStart(2,"0")}:{(recSecs%60).toString().padStart(2,"0")}</p>}
               <button onClick={() => recording ? stopRecording() : setRecording(true)}
                 style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? PINK : "rgba(255,31,125,0.1)", border: `3px solid ${recording ? PINK : "rgba(255,31,125,0.3)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: recording ? "0 0 0 10px rgba(255,31,125,0.1), 0 4px 20px rgba(255,31,125,0.4)" : "none", transition: "all 0.2s" }}>
                 {recording ? <div style={{ width: 22, height: 22, borderRadius: 4, background: "white" }} /> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>}
               </button>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>{recording ? "Tap to stop" : "Tap to record a voice note"}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#aaa", marginTop: 10, textAlign: "center" }}>{recording ? "Tap to stop" : "Tap to record a voice note"}</p>
               {voiceCount > 0 && (
                 <div style={{ marginTop: 20, width: "100%" }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: "#aaa", marginBottom: 8 }}>SAVED</p>
@@ -616,7 +615,7 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
       {/* ── SPIRAL BINDING ── */}
       <div style={{ background: T.binding, padding: "8px 0 7px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
         {Array.from({ length: 15 }, (_, i) => (
-          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: "#181820", border: "2.5px solid rgba(255,255,255,0.18)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08)" }} />
+          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: "#FFE0EE", border: "2.5px solid rgba(255,31,125,0.2)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08)" }} />
         ))}
       </div>
 
@@ -692,11 +691,11 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
                       <ellipse cx="14" cy="14" rx="12" ry="11.5" fill="none" stroke={T.todayRing} strokeWidth="1.8" strokeDasharray="4 1.5" transform="rotate(-12 14 14)" />
                     </svg>
                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, fontWeight: 700, color: T.todayRing, lineHeight: 1 }}>{day}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, fontWeight: 700, color: T.todayRing, lineHeight: 1 }}>{day}</p>
                     </div>
                   </div>
                 ) : (
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: isSel ? T.accent : "#444", fontWeight: isSel ? 700 : 400, lineHeight: 1 }}>{day}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: isSel ? T.accent : "#444", fontWeight: isSel ? 700 : 400, lineHeight: 1 }}>{day}</p>
                 )}
 
                 {/* Indicators */}
@@ -729,7 +728,7 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
         {[{ color: T.todayRing, label: "Today" }, { color: T.accent, label: "Plans" }, { color: "#999", label: "Notes" }].map(l => (
           <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: l.color, opacity: 0.8 }} />
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: T.textColor, opacity: 0.6 }}>{l.label}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: T.textColor, opacity: 0.6 }}>{l.label}</p>
           </div>
         ))}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
@@ -775,7 +774,7 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
         <div>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.25em", color: T.accent, marginBottom: 4 }}>{dayLabel.toUpperCase()} {T.deco}</p>
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: T.textColor, lineHeight: 1 }}>{dayNum} {monthLabel}</p>
-          {events.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: T.accent, opacity: 0.7, marginTop: 3 }}>{events.length} plan{events.length !== 1 ? "s" : ""} today</p>}
+          {events.length > 0 && <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: T.accent, opacity: 0.7, marginTop: 3 }}>{events.length} plan{events.length !== 1 ? "s" : ""} today</p>}
         </div>
         <button onClick={onEdit} style={{ padding: "8px 16px", borderRadius: 999, background: T.accent, border: "none", cursor: "pointer", flexShrink: 0 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.05em" }}>+ NOTES</p>
@@ -834,15 +833,15 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
       {dayContent?.text && (
         <div style={{ background: `${T.accent}07`, padding: "12px 16px 14px", borderTop: `1px solid ${T.accent}12` }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.2em", color: T.accent, opacity: 0.6, marginBottom: 6 }}>✍️ MY NOTES</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#555", lineHeight: 1.55 }}>{dayContent.text}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#555", lineHeight: 1.55 }}>{dayContent.text}</p>
         </div>
       )}
 
       {/* Empty state */}
       {events.length === 0 && !hasContent && (
         <div style={{ padding: "22px 16px 24px", textAlign: "center" as const, background: "white" }}>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "#D4CCC8" }}>Nothing planned yet {T.deco}</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#DDD", marginTop: 4 }}>Tap + NOTES to journal, add stickers, photos or voice notes</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: "#D4CCC8" }}>Nothing planned yet {T.deco}</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: "#DDD", marginTop: 4 }}>Tap + NOTES to journal, add stickers, photos or voice notes</p>
         </div>
       )}
     </div>
@@ -851,111 +850,51 @@ function DayScheduleView({ dayKey, dayContent, onEdit }: {
 
 // ── PLAN DOOR CARD ────────────────────────────────────────────────────────────
 
-const DOOR_PAINTS: Record<number, { body: string; bodyLight: string; frame: string; glass: string; knob: string }> = {
-  1: { body: "#B8402A", bodyLight: "#D45038", frame: "#7A2818", glass: "rgba(255,150,80,0.22)",  knob: "#D4A853" },
-  2: { body: "#CC1870", bodyLight: "#E0288A", frame: "#8A0048", glass: "rgba(255,80,180,0.18)",  knob: "#FFD4A0" },
-  3: { body: "#3A7850", bodyLight: "#4A8860", frame: "#1E5830", glass: "rgba(80,200,120,0.18)",  knob: "#D4A853" },
-  4: { body: "#6A1030", bodyLight: "#8A2040", frame: "#440818", glass: "rgba(200,60,100,0.2)",   knob: "#C8A870" },
-  5: { body: "#C8B8A0", bodyLight: "#DECCA8", frame: "#A09070", glass: "rgba(240,220,180,0.3)",  knob: "#D4A853" },
-  6: { body: "#A07018", bodyLight: "#B88028", frame: "#704E08", glass: "rgba(240,190,60,0.2)",   knob: "#FFD060" },
-};
 
 function PlanDoorCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boolean; onPress: () => void }) {
   const hasUnread = room.unread > 0 && !isRead;
-  const paint = DOOR_PAINTS[room.id] ?? DOOR_PAINTS[2];
-  const W = 90, ARCH_R = 45;
-  const BODY_H = 96;
-  const TOTAL_H = ARCH_R + BODY_H;
+  const W = 100;
+  const H = 155;
 
   return (
     <button
       onClick={onPress}
       className="active:scale-[0.95] transition-transform"
-      style={{ width: W + 10, height: TOTAL_H + 20, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative", WebkitTapHighlightColor: "transparent" }}
+      style={{ width: W, height: H, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative", WebkitTapHighlightColor: "transparent", borderRadius: 16, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.28)" }}
     >
-      {/* Floor shadow */}
-      <div style={{ position: "absolute", bottom: 0, left: 8, right: 8, height: 10, borderRadius: "50%", background: `${paint.frame}44`, filter: "blur(5px)" }} />
+      {/* Poster background */}
+      {room.poster ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={room.poster} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
+      ) : (
+        <div style={{ position: "absolute", inset: 0, background: room.bg }} />
+      )}
 
-      {/* Door frame/surround */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, width: W + 10, height: TOTAL_H + 10,
-        borderRadius: `${ARCH_R + 5}px ${ARCH_R + 5}px 8px 8px`,
-        background: `linear-gradient(180deg, ${paint.frame} 0%, ${paint.frame}CC 100%)`,
-        boxShadow: `0 6px 20px ${paint.frame}66`,
-      }} />
+      {/* Dark gradient overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)" }} />
 
-      {/* Door face */}
-      <div style={{
-        position: "absolute", top: 4, left: 4, width: W, height: TOTAL_H,
-        borderRadius: `${ARCH_R}px ${ARCH_R}px 4px 4px`,
-        background: `linear-gradient(175deg, ${paint.bodyLight} 0%, ${paint.body} 40%, ${paint.frame}88 100%)`,
-        boxShadow: `inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.2)`,
-        overflow: "hidden",
-      }}>
-        {/* Arch glass window — shows poster or emoji */}
-        <div style={{
-          position: "absolute", top: 5, left: 8, right: 8, height: ARCH_R - 4,
-          borderRadius: `${ARCH_R - 8}px ${ARCH_R - 8}px 2px 2px`,
-          background: paint.glass,
-          border: "1.5px solid rgba(255,255,255,0.35)",
-          overflow: "hidden",
-        }}>
-          {room.poster ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={room.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%)" }} />
-            </>
-          ) : (
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 16 }}>{room.emoji}</span>
-            </div>
-          )}
-          {/* Glass shine */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%", borderRadius: "50% 50% 0 0", background: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%)", pointerEvents: "none" }} />
+      {/* Content overlay */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 8px 10px" }}>
+        {/* Date chip at top */}
+        <div style={{ position: "absolute", top: 7, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(6px)", whiteSpace: "nowrap" as const }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{room.date}</p>
         </div>
 
-        {/* Center stile (vertical divider) */}
-        <div style={{ position: "absolute", left: "50%", transform: "translateX(-0.5px)", top: ARCH_R + 2, bottom: 4, width: 1, background: `${paint.frame}88` }} />
-
-        {/* Upper panels */}
-        <div style={{ position: "absolute", top: ARCH_R + 4, left: 6, right: 6, height: Math.floor(BODY_H * 0.42), display: "flex", gap: 3 }}>
-          {[0,1].map(i => (
-            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
-          ))}
-        </div>
-
-        {/* Lower panels */}
-        <div style={{ position: "absolute", bottom: 6, left: 6, right: 6, height: Math.floor(BODY_H * 0.45), display: "flex", gap: 3 }}>
-          {[0,1].map(i => (
-            <div key={i} style={{ flex: 1, borderRadius: 3, background: "rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 1px 0 rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08)" }} />
-          ))}
-        </div>
-
-        {/* Door knob */}
-        <div style={{
-          position: "absolute", right: 10, top: ARCH_R + Math.floor(BODY_H * 0.55),
-          width: 9, height: 9, borderRadius: "50%",
-          background: `radial-gradient(circle at 38% 35%, ${paint.knob}FF, ${paint.knob}88)`,
-          boxShadow: `0 1px 4px rgba(0,0,0,0.5), 0 0 0 1.5px ${paint.frame}88`,
-        }} />
-
-        {/* Name label at bottom */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.45))", padding: "12px 5px 5px" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.92)", textAlign: "center", letterSpacing: "0.05em", lineHeight: 1.2 }}>
-            {room.name.split(" ").slice(0,2).join(" ").toUpperCase()}
+        {/* Room name */}
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.04em", lineHeight: 1.3, marginBottom: 3, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+          {room.name.toUpperCase()}
+        </p>
+        {/* Venue */}
+        {room.venue && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 400, color: "rgba(255,255,255,0.72)", letterSpacing: "0.02em", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            {room.venue.split(",")[0]}
           </p>
-        </div>
-      </div>
-
-      {/* Date chip */}
-      <div style={{ position: "absolute", top: 2, left: "50%", transform: "translateX(-50%)", background: "white", borderRadius: 999, padding: "1.5px 6px", border: `1px solid ${paint.frame}44`, whiteSpace: "nowrap" as const }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, color: paint.body, letterSpacing: "0.04em" }}>{room.date}</p>
+        )}
       </div>
 
       {/* Unread badge */}
       {hasUnread && (
-        <div style={{ position: "absolute", top: 6, right: 4, width: 17, height: 17, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
+        <div style={{ position: "absolute", top: 7, right: 7, width: 17, height: 17, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.6)", zIndex: 3, animation: "badgeShake 3s ease-in-out 1s infinite" }}>
           <span style={{ fontSize: 7, fontWeight: 900, color: "white" }}>{room.unread}</span>
         </div>
       )}
@@ -990,7 +929,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
           <div style={{ width: 38, height: 38, borderRadius: 14, background: `${room.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{room.emoji}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: theme.heading, lineHeight: 1.2 }}>{room.name}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText, marginTop: 1 }}>{room.members} women · {room.time}</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText, marginTop: 1 }}>{room.members} women · {room.time}</p>
           </div>
           <button onClick={() => setShowTicket(true)} style={{ padding: "5px 12px", borderRadius: 999, background: `${room.accent}18`, border: `1px solid ${room.accent}44`, cursor: "pointer", flexShrink: 0 }}>
             <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: room.accent }}>🎟 Ticket</span>
@@ -1041,7 +980,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
                 <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white", border: "2.5px solid rgba(255,255,255,0.7)", boxShadow: `0 2px 10px ${b.color}44` }}>
                   {b.initial}
                 </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
               </div>
             ))}
           </div>
@@ -1055,7 +994,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
               <div style={{ width: 60, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
                 <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg,${PINK},#FF69B4)`, borderRadius: 99, transition: "width 0.3s" }} />
               </div>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1078,7 +1017,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {notes.map(n => (
                 <div key={n.id} style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 16, padding: "12px 16px", border: `1px solid ${theme.cardBorder}`, borderLeft: `3px solid ${room.accent}` }}>
-                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: theme.heading, lineHeight: 1.45 }}>{n.text}</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: theme.heading, lineHeight: 1.45 }}>{n.text}</p>
                 </div>
               ))}
             </div>
@@ -1094,7 +1033,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
 
 // ── NEW PLAN SHEET ────────────────────────────────────────────────────────────
 
-function NewPlanSheet({ onClose }: { onClose: () => void }) {
+function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
   const [step, setStep]         = useState<NewPlanStep>("choose");
   const [name, setName]         = useState("");
   const [details, setDetails]   = useState("");
@@ -1102,7 +1041,23 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [clubId, setClubId]     = useState<number | null>(null);
   const [done, setDone]         = useState(false);
+  const [creating, setCreating] = useState(false);
   function toggleBloomie(id: number) { setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+
+  async function createRoom() {
+    if (!name.trim() || creating) return;
+    setCreating(true);
+    try {
+      await fetch("/api/member/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: name.trim(), description: details.trim() || undefined, plan_type: "hangout" }),
+      });
+      onCreated?.();
+    } catch { /* ignore — plan created locally */ }
+    setCreating(false);
+    setDone(true);
+  }
 
   if (done) return (
     <>
@@ -1125,26 +1080,26 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "white", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} /></div>
-        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "#FFFFFF", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)" }}>
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)" }} /></div>
+        <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
           <div className="flex items-center gap-3">
             {step !== "choose" && (
-              <button onClick={() => setStep("choose")} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.05)" }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <button onClick={() => setStep("choose")} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
               </button>
             )}
             <div>
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "#FF1F7D" }}>
                 {step === "choose" ? "✦ NEW PLAN" : step === "room" ? "✦ PLAN ROOM" : step === "bloomie" ? "✦ INVITE BLOOMIES" : "✦ POST TO CLUB"}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>
                 {step === "choose" ? "What kind of plan?" : step === "room" ? "Create a plan room" : step === "bloomie" ? "Send directly to friends" : "Share with club members"}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.05)" }}>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFF5F8" }}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
           </button>
         </div>
 
@@ -1157,13 +1112,13 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
             ]).map(opt => (
               <button key={opt.s} onClick={() => setStep(opt.s)}
                 className="flex items-center gap-4 p-5 rounded-2xl text-left active:scale-[0.98] transition-transform"
-                style={{ background: "#FFF8FA", border: "1px solid rgba(255,31,125,0.12)" }}>
+                style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.2)" }}>
                 <span style={{ fontSize: 28 }}>{opt.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: "#1A1A1A" }}>{opt.label}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "#aaa" }}>{opt.sub}</p>
+                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{opt.label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{opt.sub}</p>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.5)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             ))}
           </div>
@@ -1172,45 +1127,45 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
         {step === "room" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>Room name</p>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Morocco October, Brunch Girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>Room name</p>
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Morocco October, Brunch Girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
-              <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
-            <button onClick={() => { if (name.trim()) setDone(true); }} disabled={!name.trim()} className="w-full py-4 rounded-full text-sm font-bold mt-2"
+            <button onClick={createRoom} disabled={!name.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold mt-2"
               style={name.trim() ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-              {name.trim() ? "Create Plan Room →" : "Add a room name first"}
+              {creating ? "Creating…" : name.trim() ? "Create Plan Room →" : "Add a room name first"}
             </button>
           </div>
         )}
 
         {step === "bloomie" && (
           <>
-            <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
-              <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Dinner at Tatiana, Sunday walk, gallery…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+            <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Dinner at Tatiana, Sunday walk, gallery…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div className="flex-1 overflow-y-auto">
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase px-6 pt-3 pb-1" style={{ color: "#bbb" }}>Who to invite</p>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase px-6 pt-3 pb-1" style={{ color: "rgba(0,0,0,0.45)" }}>Who to invite</p>
               {BLOOMIES_LIST.map(b => {
                 const on = selected.has(b.id);
                 return (
-                  <button key={b.id} onClick={() => toggleBloomie(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid #F5F5F5", background: on ? "#FFF5F8" : "white" }}>
+                  <button key={b.id} onClick={() => toggleBloomie(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid rgba(255,31,125,0.08)", background: on ? "rgba(255,31,125,0.15)" : "transparent" }}>
                     <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.name}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{b.status}</p>
+                      <p className="font-semibold text-sm" style={{ color: "#111111" }}>{b.name}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{b.status}</p>
                     </div>
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid rgba(255,31,125,0.2)" }}>
                       {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid #F0F0F0", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
+            <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,31,125,0.1)", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
               <button onClick={() => setDone(true)} disabled={selected.size === 0 || !message.trim()} className="w-full py-4 rounded-full text-sm font-bold"
                 style={selected.size > 0 && message.trim() ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
                 {selected.size > 0 && message.trim() ? `Send to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : selected.size === 0 ? "Select Bloomies" : "Add a plan description"}
@@ -1222,20 +1177,20 @@ function NewPlanSheet({ onClose }: { onClose: () => void }) {
         {step === "club" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
-              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm going to Afrobeats Night at SOB's — who's coming?" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
+              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm going to Afrobeats Night at SOB's — who's coming?" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
             <div>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>Post to which club?</p>
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>Post to which club?</p>
               <div className="flex flex-col gap-2">
                 {CLUBS_LIST.map(club => {
                   const on = clubId === club.id;
                   return (
-                    <button key={club.id} onClick={() => setClubId(club.id)} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left" style={on ? { background: "#FFF5F8", border: "1.5px solid #FF1F7D33" } : { background: "#FAFAFA", border: "1.5px solid #F0F0F0" }}>
+                    <button key={club.id} onClick={() => setClubId(club.id)} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left" style={on ? { background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.4)" } : { background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.12)" }}>
                       <span style={{ fontSize: 22 }}>{club.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm" style={{ color: "#111" }}>{club.name}</p>
-                        <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{club.members} members</p>
+                        <p className="font-semibold text-sm" style={{ color: "#111111" }}>{club.name}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: "rgba(0,0,0,0.45)" }}>{club.members} members</p>
                       </div>
                       <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
                         {on && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -1268,12 +1223,12 @@ const TICKET_IMAGES: Record<number, string> = {
 // ── MEMORY EVENTS ─────────────────────────────────────────────────────────────
 
 const MEMORY_EVENTS = [
-  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#C8A0FF" },
-  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#83C5A0" },
-  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#D4A853" },
+  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#FF1F7D" },
+  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#FFB3D1" },
+  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#FF1F7D" },
   { id: 21, name: "Rooftop Pilates",  date: "May 15", poster: "/happenings/posters/08_Rooftop_Sessions.png",        note: "girls that slay",  color: "#FF69B4" },
   { id: 22, name: "Film Club Night",  date: "Apr 5",  poster: "/happenings/posters/06_Dance_All_Night.png",         note: "loved this 💕",    color: "#FF1F7D" },
-  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#83C5A0" },
+  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#FFB3D1" },
 ];
 
 const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
@@ -1301,7 +1256,7 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
             <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(17px,5vw,21px)", color: "#1A1A1A", lineHeight: 1.05, marginBottom: 6 }}>{room.name}</h2>
             {room.venue && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 500, color: PINK, marginBottom: 2 }}>📍 {room.venue}</p>}
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 600, color: PINK, marginBottom: 10 }}>{room.time}</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
               see you there,<br/>gorgeous ♡
             </p>
           </div>
@@ -1342,11 +1297,11 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
         {/* Middle: dark confirmed bar */}
         <div style={{ background: "#111", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(212,168,83,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>
               {room.members} women
             </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "#666", marginBottom: 5 }}>RSVP STATUS</p>
@@ -1389,13 +1344,13 @@ function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoo
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
 const RETIRED_ROOMS: PlanRoom[] = [
-  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#C8A0FF", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
-  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#83C5A0", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
+  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#FF1F7D", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
+  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#FFB3D1", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
 ];
 
 const EXPIRED_ROOMS: PlanRoom[] = [
-  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#D4A853", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
-  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#83C5A0", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
+  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#FF1F7D", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
+  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#FFB3D1", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
 ];
 
 // ── Ticket card (shared render) ───────────────────────────────────────────────
@@ -1424,7 +1379,7 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
         {/* Dimming overlay for used/expired */}
         {status !== "active" && (
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)", zIndex: 5, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 8, padding: "5px 14px", transform: "rotate(-8deg)" }}>
+            <div style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)", borderRadius: 8, padding: "5px 14px", transform: "rotate(-8deg)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, color: "rgba(255,255,255,0.85)", letterSpacing: "0.18em" }}>{overlay}</p>
             </div>
           </div>
@@ -1451,7 +1406,7 @@ function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active"
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.22em", color: `${room.accent}AA`, marginBottom: 4 }}>BLOOMBAY · EVENT TICKET</p>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, color: "white", lineHeight: 1.05, letterSpacing: "-0.01em" }}>{room.name}</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.45)", marginTop: 3, overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{room.venue}</p>
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
@@ -1663,6 +1618,67 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   );
 }
 
+// ── RECENT CONFIRMATIONS STRIP ────────────────────────────────────────────────
+
+interface ConfirmationSummary {
+  id: string;
+  type: "gathering" | "event";
+  title: string;
+  venue: string | null;
+  starts_at: string;
+  confirmation_code: string;
+  confirmed_at: string | null;
+}
+
+function RecentConfirmationsStrip() {
+  const router = useRouter();
+  const [confirmations, setConfirmations] = useState<ConfirmationSummary[]>([]);
+
+  useEffect(() => {
+    fetch("/api/member/plans/confirmations")
+      .then(r => r.ok ? r.json() : { confirmations: [] })
+      .then(({ confirmations: c }) => setConfirmations(c ?? []))
+      .catch(() => {});
+  }, []);
+
+  if (confirmations.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", marginBottom: 10 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.5)" }}>✦ MY CONFIRMATIONS</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.3)", letterSpacing: "0.06em" }}>{confirmations.length} confirmed</p>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "2px 16px 16px", scrollbarWidth: "none" as const }}>
+        {confirmations.map(c => {
+          const d = new Date(c.starts_at);
+          const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+          const day = d.getDate();
+          return (
+            <button
+              key={c.id}
+              onClick={() => router.push(`/member/plans/confirmations/${c.id}`)}
+              style={{ flexShrink: 0, width: 130, background: "var(--bb-card)", border: "1px solid rgba(255,31,125,0.14)", borderRadius: 16, padding: "12px 12px 10px", cursor: "pointer", textAlign: "left" as const, boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}
+            >
+              {/* Date chip */}
+              <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: "rgba(255,31,125,0.08)", borderRadius: 8, padding: "4px 8px", marginBottom: 8 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.12em", color: PINK }}>{month}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK, lineHeight: 1 }}>{day}</p>
+              </div>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, fontWeight: 700, color: "var(--bb-text)", lineHeight: 1.2, marginBottom: 4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{c.title}</p>
+              {c.venue && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "var(--bb-text-3)", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis", marginBottom: 4 }}>{c.venue}</p>}
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.04em" }}>Confirmed ✓</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 
 function PlansPageInner() {
@@ -1671,15 +1687,22 @@ function PlansPageInner() {
 
   const [userId, setUserId] = useState<string | null>(null);
   const [view, setView]               = useState<View>("list");
-  const [mainTab, setMainTab]         = useState<MainTab>("plans");
   const [activeRoom, setActiveRoom]   = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>(PLAN_ROOMS);
 
   useEffect(() => {
     void import("@/lib/supabase/client").then(({ createClient }) => {
       createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
     });
+    fetch("/api/member/plans")
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { plans?: PlanRoom[] } | null) => {
+        if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+      })
+      .catch(() => {});
   }, []);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -1689,11 +1712,11 @@ function PlansPageInner() {
   useEffect(() => {
     const eventId = searchParams.get("event");
     if (eventId) {
-      const room = PLAN_ROOMS.find(r => r.eventId === parseInt(eventId, 10));
+      const room = planRooms.find(r => r.eventId === parseInt(eventId, 10));
       if (room) openRoom(room);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [planRooms]);
 
   function openRoom(room: PlanRoom) {
     setRead(prev => new Set([...prev, room.id]));
@@ -1708,7 +1731,7 @@ function PlansPageInner() {
     return <PlanRoomBoard room={activeRoom} onBack={() => { setView("list"); setActiveRoom(null); }} theme={theme} />;
   }
 
-  const totalUnread = PLAN_ROOMS.filter(r => r.unread > 0 && !read.has(r.id)).length;
+  const totalUnread = planRooms.filter(r => r.unread > 0 && !read.has(r.id)).length;
   const today = new Date();
   const todayStr = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
@@ -1719,131 +1742,120 @@ function PlansPageInner() {
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
         <span style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: PINK }}>BB✿</span>
 
-        <div style={{ display: "flex", background: "rgba(255,31,125,0.07)", borderRadius: 999, padding: "3px", gap: 2 }}>
-          {(["plans","calendar"] as MainTab[]).map(t => (
-            <button key={t} onClick={() => setMainTab(t)}
-              style={{ padding: "6px 14px", borderRadius: 999, background: mainTab === t ? PINK : "transparent", color: mainTab === t ? "white" : theme.subText, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.10em", textTransform: "uppercase" as const, border: "none", cursor: "pointer", transition: "all 0.18s", boxShadow: mainTab === t ? "0 2px 10px rgba(255,31,125,0.44)" : "none" }}>
-              {t === "plans" ? "PLANS" : "CALENDAR"}
-            </button>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Calendar icon button */}
+          <button onClick={() => setShowCalendar(true)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.18)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          {/* New plan button */}
+          <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
-
-        <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
       </div>
 
       <div style={{ paddingTop: 54 }}>
 
-        {/* Plans tab */}
-        {mainTab === "plans" && (
-          <div>
+        {/* Plans content */}
+        <div>
 
             {/* ── EDITORIAL HEADER — full-bleed, no card border ── */}
-            <div style={{ position: "relative", overflow: "hidden", paddingBottom: 28 }}>
-              {/* Pink gradient that fades into page bg */}
+            <div style={{ position: "relative", overflow: "hidden", paddingBottom: 8 }}>
+              {/* Pink gradient */}
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(185deg, #FF1F7D 0%, #E8006A 28%, #FF4FA0 55%, rgba(255,240,248,0) 100%)" }} />
-              {/* Ghost BLOOM watermark */}
-              <div style={{ position: "absolute", bottom: 10, right: -12, fontFamily: "var(--font-playfair)", fontSize: 90, fontWeight: 900, fontStyle: "italic", color: "rgba(255,255,255,0.07)", lineHeight: 1, userSelect: "none", pointerEvents: "none", letterSpacing: "-0.02em" }}>BLOOM</div>
 
-              <div style={{ position: "relative", zIndex: 1, padding: "14px 18px 0" }}>
-                {/* Date kicker */}
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.65)", marginBottom: 12 }}>✦ {todayStr.toUpperCase()}</p>
-
-                {/* Title + new button */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
-                  <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,8vw,34px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.12)" }}>
-                    Your Plans.
-                  </h1>
-                  <button onClick={() => setShowNewPlan(true)} style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flexShrink: 0, marginTop: 4 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <div style={{ position: "relative", zIndex: 1, padding: "8px 16px 10px" }}>
+                {/* Compact row: date + title + button */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.58)", marginBottom: 2 }}>✦ {todayStr.toUpperCase()}</p>
+                    <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(20px,5.5vw,24px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.02em" }}>
+                      Your Plans.
+                    </h1>
+                  </div>
+                  <button onClick={() => setShowNewPlan(true)} style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flexShrink: 0 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
                 </div>
-
-                {/* Stats row */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.08em" }}>{PLAN_ROOMS.length} ROOMS</p>
+                {/* Compact stats row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}>{planRooms.length} ROOMS</p>
                   {totalUnread > 0 && (
                     <>
-                      <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.35)" }} />
-                      <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "2px 8px", border: "1px solid rgba(255,255,255,0.3)" }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{totalUnread} NEW</p>
+                      <div style={{ width: 2.5, height: 2.5, borderRadius: "50%", background: "rgba(255,255,255,0.32)" }} />
+                      <div style={{ background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "1.5px 7px", border: "1px solid rgba(255,255,255,0.28)" }}>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>{totalUnread} NEW</p>
                       </div>
                     </>
                   )}
-                  <button onClick={() => setMainTab("calendar")} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 999, padding: "5px 11px", cursor: "pointer" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.08em" }}>PLANNER</p>
+                  <button onClick={() => setShowCalendar(true)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.82)", letterSpacing: "0.08em" }}>PLANNER</p>
                   </button>
                 </div>
-
-                {/* Week strip — embedded in header on dark pink bg */}
-                {(() => {
-                  const dow = today.getDay();
-                  const mondayOffset = dow === 0 ? -6 : 1 - dow;
-                  const monday = new Date(today);
-                  monday.setDate(monday.getDate() + mondayOffset);
-                  const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-                  const weekDays = Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date(monday);
-                    d.setDate(monday.getDate() + i);
-                    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-                    return { date: d.getDate(), events: EVENT_DATES[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
-                  });
-                  return (
-                    <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: 16, padding: "10px 10px 8px", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
-                        {weekDays.map(day => (
-                          <div key={day.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.04em", color: day.isToday ? "white" : "rgba(255,255,255,0.42)" }}>{day.label}</p>
-                            <div style={{ width: 26, height: 26, borderRadius: "50%", background: day.isToday ? "white" : day.events.length > 0 ? "rgba(255,255,255,0.14)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", border: day.isToday ? "none" : `1.5px solid rgba(255,255,255,${day.events.length > 0 ? "0.3" : "0.15"})` }}>
-                              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: day.isToday ? 800 : 400, color: day.isToday ? PINK : "rgba(255,255,255,0.8)", lineHeight: 1 }}>{day.date}</p>
-                            </div>
-                            <div style={{ display: "flex", gap: 1.5, justifyContent: "center", minHeight: 5 }}>
-                              {day.events.slice(0, 2).map((_, j) => (
-                                <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.7)" }} />
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
               </div>
             </div>
 
             {/* Swipeable door row — no label, flows from header */}
             <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 16px 24px", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined }}>
-              <button onClick={() => setShowNewPlan(true)} style={{ width: 90, height: 145, flexShrink: 0, borderRadius: "45px 45px 6px 6px", border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", marginTop: 10 }}>
+              <button onClick={() => setShowNewPlan(true)} style={{ width: 100, height: 155, flexShrink: 0, borderRadius: 16, border: `2px dashed rgba(255,31,125,0.25)`, background: "rgba(255,31,125,0.04)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}>
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,31,125,0.6)", letterSpacing: "0.06em" }}>NEW</p>
               </button>
-              {PLAN_ROOMS.map(room => (
+              {planRooms.map(room => (
                 <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
               ))}
             </div>
 
-            {/* Confirmation card — most recent upcoming event */}
-            <EventConfirmationCard room={PLAN_ROOMS[1]} onViewRoom={() => openRoom(PLAN_ROOMS[1])} />
+            <RecentConfirmationsStrip />
 
-            {/* Ornamental divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18, marginTop: 18 }}>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
-              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
-            </div>
-
-            {/* Wallet Tickets — pink blush */}
-            <WalletTickets rooms={PLAN_ROOMS.filter(r => r.eventId)} theme={theme} onOpen={(room) => { setTicketRoom(room); }} />
-
-            {/* Ornamental divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
-              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
+            {/* Confirmation receipt + wallet — same compact row */}
+            <div style={{ display: "flex", gap: 10, padding: "8px 16px 20px" }}>
+              {/* Left: hot-pink receipt — tap goes to all confirmations */}
+              {planRooms[1] && (
+                <button onClick={() => router.push("/member/plans/confirmations")} style={{ flex: 1, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const }}>
+                  <div style={{ background: "linear-gradient(145deg, #FF1F7D 0%, #C8005A 100%)", borderRadius: 16, padding: "14px 13px 12px", boxShadow: "0 8px 28px rgba(255,31,125,0.42), 0 2px 0 rgba(120,0,45,0.4)", display: "flex", flexDirection: "column" as const, justifyContent: "space-between", height: 155, position: "relative" as const, overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 100%)", borderRadius: "16px 16px 0 0", pointerEvents: "none" as const }}/>
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.52)", marginBottom: 5 }}>BLOOMBAY ❋</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.62)", marginBottom: 4 }}>ADMITS ONE</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: 14, color: "white", lineHeight: 1.05, marginBottom: 4 }}>{planRooms[1].name}</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 600, color: "rgba(255,255,255,0.78)" }}>{planRooms[1].time}</p>
+                    </div>
+                    <div>
+                      <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.25)", paddingTop: 7, marginTop: 6 }}>
+                        <div style={{ display: "flex", gap: 1, alignItems: "flex-end", marginBottom: 5 }}>
+                          {[2,1,3,1,2,1,3,2,1,2,1,3,1,2].map((w, j) => (
+                            <div key={j} style={{ width: w, height: j%3===0 ? 17 : 11, background: "rgba(255,255,255,0.6)", borderRadius: 0.5 }} />
+                          ))}
+                        </div>
+                      </div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(0,0,0,0.45)", letterSpacing: "0.1em" }}>VIEW ALL →</p>
+                    </div>
+                  </div>
+                </button>
+              )}
+              {/* Right: compact wallet stack */}
+              {planRooms.filter(r => r.eventId).length > 0 && (
+                <button onClick={() => { const r = planRooms.find(r => r.eventId); if (r) setTicketRoom(r); }} style={{ flex: 1, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const }}>
+                  <div style={{ background: "linear-gradient(145deg, #FFD6EB 0%, #FFBCD8 100%)", borderRadius: 16, padding: "14px 13px 12px", height: 155, display: "flex", flexDirection: "column" as const, justifyContent: "space-between", boxShadow: "0 4px 18px rgba(255,31,125,0.16)", position: "relative" as const, overflow: "hidden" }}>
+                    <div>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(180,40,100,0.55)", marginBottom: 6 }}>BB WALLET ❋</p>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#AA2255", marginBottom: 10 }}>{planRooms.filter(r => r.eventId).length} tickets</p>
+                      <div style={{ position: "relative", height: 72 }}>
+                        {planRooms.filter(r => r.eventId).slice(0, 3).map((r, i) => (
+                          <div key={r.id} style={{ position: "absolute" as const, top: i * 7, left: i * 2, right: -(i * 2), height: 50, background: r.bg, borderRadius: 8, boxShadow: "0 2px 10px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", padding: "0 10px", overflow: "hidden" }}>
+                            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "white", overflow: "hidden", whiteSpace: "nowrap" as const, textOverflow: "ellipsis" }}>{r.name}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "rgba(170,34,85,0.5)", letterSpacing: "0.1em", textAlign: "right" as const }}>OPEN →</p>
+                  </div>
+                </button>
+              )}
             </div>
 
             {/* Bloomies Planner™ — real live plans */}
@@ -1863,7 +1875,7 @@ function PlansPageInner() {
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
                   <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
                 </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
                 {MEMORY_EVENTS.map((ev, i) => (
@@ -1874,24 +1886,31 @@ function PlansPageInner() {
                         <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 50%, ${ev.color}44 100%)` }} />
                       </div>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
+                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        )}
+        </div>
+      </div>
 
-        {/* Calendar tab */}
-        {mainTab === "calendar" && (
-          <div style={{ padding: "16px 0" }}>
-            <div style={{ padding: "0 16px 14px" }}>
+      {/* Calendar full-screen overlay */}
+      {showCalendar && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#FFFFFF", overflowY: "auto" }}>
+          {/* Header with close button */}
+          <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(255,255,255,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backdropFilter: "blur(12px)" }}>
+            <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.6)", marginBottom: 4 }}>YOUR PLANNER</p>
-              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#aaa", letterSpacing: "0.06em", marginTop: 5 }}>TAP A DATE TO ADD NOTES OR VIEW PLANS</p>
+              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Plan Calendar.</h2>
             </div>
+            <button onClick={() => setShowCalendar(false)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            </button>
+          </div>
+          <div style={{ padding: "12px 0 32px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#aaa", letterSpacing: "0.06em", marginBottom: 12, paddingLeft: 16 }}>TAP A DATE TO ADD NOTES OR VIEW PLANS</p>
             <div style={{ margin: "0 16px 12px", borderRadius: 20, overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.14), 0 1px 0 rgba(255,255,255,0.9) inset" }}>
               <PaperCalendarView
                 dayContents={dayContents}
@@ -1907,8 +1926,8 @@ function PlansPageInner() {
               />
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {editorDay && (
         <DayEditorSheet
@@ -1927,7 +1946,11 @@ function PlansPageInner() {
         />
       )}
 
-      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} />}
+      {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} onCreated={() => {
+        fetch("/api/member/plans").then(r => r.ok ? r.json() : null).then((json: { plans?: PlanRoom[] } | null) => {
+          if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+        }).catch(() => {});
+      }} />}
 
       <style>{`
         @keyframes badgeShake {
@@ -1951,7 +1974,7 @@ function PlansPageInner() {
 
 export default function PlansPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F6F1EB" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#FFFFFF" }} />}>
       <PlansPageInner />
     </Suspense>
   );

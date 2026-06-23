@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK  = "#FF1F7D";
@@ -146,8 +146,38 @@ function BookCard({ post }: { post: BookPost }) {
 
 export function ReadingRoomPage() {
   const [activeCategory, setActiveCategory] = useState<BookCategory>("all");
+  const [posts, setPosts] = useState<BookPost[]>(MOCK_POSTS);
+
+  useEffect(() => {
+    fetch("/api/avenue/reading")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setPosts(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): BookPost => ({
+              id: row.id,
+              book_title: row.title,
+              book_author: row.meta?.book_author ?? "",
+              category: (row.meta?.category ?? "fiction") as BookCategory,
+              rating: row.meta?.rating ?? 0,
+              spine_color: row.meta?.spine_color ?? "#333",
+              spine_color2: row.meta?.spine_color2 ?? "#555",
+              text: row.body ?? "",
+              author_name: row.author ?? "",
+              author_initial: (row.author ?? "?")[0],
+              author_color: GOLD,
+              blooms: 0,
+              timeAgo: "",
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const cats = Object.entries(CAT_META) as [BookCategory, { label: string; color: string }][];
-  const filtered = activeCategory === "all" ? MOCK_POSTS : MOCK_POSTS.filter(p => p.category === activeCategory);
+  const filtered = activeCategory === "all" ? posts : posts.filter(p => p.category === activeCategory);
 
   return (
     <div style={{ background: "linear-gradient(160deg, #FAF6F0 0%, #F5EDD8 50%, #FAF6F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
@@ -165,7 +195,7 @@ export function ReadingRoomPage() {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "rgba(255,255,255,0.7)", letterSpacing: "0.2em" }}>54 READING NOW</p>
           </div>
         </div>
-        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 44, color: "white", lineHeight: 1, marginBottom: 6 }}>Reading Room.</h1>
+        <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>Reading Room.</h1>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Books. Discuss. Share.</p>
       </div>
 

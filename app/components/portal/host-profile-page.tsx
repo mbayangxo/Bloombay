@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -58,6 +58,59 @@ function Stars({ rating, size = 12 }: { rating: number; size?: number }) {
           <path d="M6 1l1.3 2.7L10 4.1l-2 1.9.5 2.7L6 7.3l-2.5 1.4.5-2.7L2 4.1l2.7-.4z" />
         </svg>
       ))}
+    </div>
+  );
+}
+
+// ── Brand Gallery ────────────────────────────────────────────────────────────
+function BrandGallery({ isOwn = false }: { isOwn?: boolean }) {
+  const [photos, setPhotos] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    files.forEach(f => {
+      const url = URL.createObjectURL(f);
+      setPhotos(prev => [...prev, url]);
+    });
+    e.target.value = "";
+  }
+
+  if (!isOwn && photos.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", marginBottom: 14 }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(255,255,255,0.9)" }}>BRAND GALLERY</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>mood, moments & vibe</p>
+        </div>
+        {isOwn && (
+          <button onClick={() => inputRef.current?.click()} style={{ padding: "7px 14px", borderRadius: 20, background: PINK, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", color: "white" }}>
+            + ADD
+          </button>
+        )}
+      </div>
+      <input ref={inputRef} type="file" accept="image/*" multiple onChange={handleAdd} style={{ display: "none" }} />
+      {photos.length === 0 ? (
+        <div style={{ margin: "0 24px", borderRadius: 16, border: "1.5px dashed rgba(255,255,255,0.1)", padding: "36px 24px", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.25)", fontStyle: "italic" }}>Add photos to showcase your brand</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "4px 24px 16px", scrollbarWidth: "none" as const }}>
+          {photos.map((url, i) => (
+            <div key={i} style={{ flexShrink: 0, width: 160, height: 200, borderRadius: 16, overflow: "hidden", position: "relative", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+              <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {isOwn && (
+                <button onClick={() => setPhotos(prev => prev.filter((_, j) => j !== i))} style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", color: "white", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+              )}
+            </div>
+          ))}
+          {isOwn && (
+            <button onClick={() => inputRef.current?.click()} style={{ flexShrink: 0, width: 100, height: 200, borderRadius: 16, border: "1.5px dashed rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.3)", fontSize: 28, fontWeight: 300 }}>+</button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -318,6 +371,9 @@ export function HostProfilePage({ hostId }: { hostId: string }) {
 
           {/* ── Divider ── */}
           <div style={{ margin: "32px 24px 0", height: 1, background: "rgba(255,255,255,0.07)" }} />
+
+          {/* ── Brand Gallery ── */}
+          <BrandGallery isOwn={false} />
 
           {/* ── Past happenings ── */}
           {pastEvents.length > 0 && (

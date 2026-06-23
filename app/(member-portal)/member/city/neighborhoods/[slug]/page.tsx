@@ -34,7 +34,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Cobblestones, candlelight, and the best martini of your life.",
     vibe: ["Date Night", "Brunch", "Wine Bars", "Boutiques"],
     bloomies: 892,
-    heroBg: "linear-gradient(155deg, #2A0818 0%, #3A1020 55%, #1A0810 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#D4A853",
     eats: [
       { name: "Bar Pisellino",    type: "COCKTAIL BAR",  note: "The negroni at the marble bar. Go at 6pm before the crowd.", saves: 412, hot: true },
@@ -67,7 +67,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Cast iron, concept stores, and the city's best people-watching.",
     vibe: ["Shopping", "Galleries", "Brunch", "Fashion"],
     bloomies: 1204,
-    heroBg: "linear-gradient(155deg, #080818 0%, #100820 55%, #06060E 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#6BB5F5",
     eats: [
       { name: "Sadelle's",          type: "BRUNCH",      note: "Tower of bagels. Reserve ahead. Worth every minute.", saves: 334, hot: true },
@@ -100,7 +100,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Waterfront views, vintage finds, and brunch that goes until 5pm.",
     vibe: ["Brunch", "Vintage", "Live Music", "Rooftops"],
     bloomies: 743,
-    heroBg: "linear-gradient(155deg, #0A1A10 0%, #142A18 55%, #081408 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#A8C97A",
     eats: [
       { name: "Lilia",           type: "PASTA",     note: "The mafaldini with pink peppercorns. Reserve weeks ahead.", saves: 445, hot: true },
@@ -133,7 +133,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Four blocks. Infinite cool. The best neighborhood nobody can spell.",
     vibe: ["Boutiques", "Cafés", "Brunch", "Strolling"],
     bloomies: 567,
-    heroBg: "linear-gradient(155deg, #1A0A08 0%, #2A1410 55%, #120806 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#FF9B70",
     eats: [
       { name: "Café Gitane",     type: "CAFÉ",        note: "Avocado toast before it was everywhere. The original.", saves: 312, hot: true },
@@ -166,7 +166,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Manhattan Bridge views, converted warehouses, and weekend art crawls.",
     vibe: ["Waterfront", "Galleries", "Architecture", "Views"],
     bloomies: 489,
-    heroBg: "linear-gradient(155deg, #080C1A 0%, #101828 55%, #060A14 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#7BA8E0",
     eats: [
       { name: "Time Out Market",    type: "FOOD HALL",  note: "Every cuisine under one roof. Rooftop bar with bridge views.", saves: 356, hot: true },
@@ -197,7 +197,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Promenade views, brownstone quiet, and the city's most civilized pace.",
     vibe: ["Promenade", "Brownstones", "Quiet", "Classic"],
     bloomies: 312,
-    heroBg: "linear-gradient(155deg, #100818 0%, #1C1024 55%, #0C0814 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#B09FD8",
     eats: [
       { name: "Henry's End",       type: "AMERICAN",     note: "Neighborhood institution. Game menu in winter. Book it.", saves: 201, hot: true },
@@ -228,7 +228,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Prospect Park mornings, bookshops, and brunch that lasts all afternoon.",
     vibe: ["Families", "Brunch", "Bookshops", "Parks"],
     bloomies: 654,
-    heroBg: "linear-gradient(155deg, #0A1810 0%, #141C10 55%, #08140A 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#90C880",
     eats: [
       { name: "Olmsted",            type: "NEW AMERICAN",  note: "Garden dining. Seasonal menu. Book a month ahead.",      saves: 389, hot: true },
@@ -259,7 +259,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Dive bars, live music, vintage rails, and the city's best late-night energy.",
     vibe: ["Bars", "Live Music", "Vintage", "Nightlife"],
     bloomies: 534,
-    heroBg: "linear-gradient(155deg, #120808 0%, #1E0C10 55%, #0E0608 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#E05858",
     eats: [
       { name: "Katz's Delicatessen",   type: "DELI",        note: "The pastrami on rye. The whole vibe. Get here early.",  saves: 445, hot: true },
@@ -290,7 +290,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "World-class galleries, the High Line, and the best Saturday afternoon in the city.",
     vibe: ["Galleries", "High Line", "Art", "West Side"],
     bloomies: 678,
-    heroBg: "linear-gradient(155deg, #080E18 0%, #0C1424 55%, #060C14 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#6898D8",
     eats: [
       { name: "The Cookshop",  type: "BRUNCH",   note: "Art world brunch. Farm-to-table before the galleries.",  saves: 289, hot: true },
@@ -321,7 +321,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "The birthplace of a movement. Jazz, soul food, and culture that fills every block.",
     vibe: ["Culture", "Music", "Soul Food", "History"],
     bloomies: 421,
-    heroBg: "linear-gradient(155deg, #180808 0%, #241010 55%, #120606 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#E0982A",
     eats: [
       { name: "Sylvia's",              type: "SOUL FOOD", note: "Since 1962. Fried chicken. Sunday gospel brunch. Required.", saves: 445, hot: true },
@@ -352,7 +352,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Greek coffee, diverse bites, and a neighborhood that still feels like real New York.",
     vibe: ["Greek Food", "Coffee", "Chill", "Affordable"],
     bloomies: 289,
-    heroBg: "linear-gradient(155deg, #0A1018 0%, #141820 55%, #080C14 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#80A8D8",
     eats: [
       { name: "Taverna Kyclades",  type: "GREEK",         note: "Grilled fish, lemon, olive oil. Queue for it. Worth it.",     saves: 312, hot: true },
@@ -383,7 +383,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Caribbean flavor, museum mornings, and the best block parties in the borough.",
     vibe: ["Culture", "Caribbean", "Arts", "Nightlife"],
     bloomies: 378,
-    heroBg: "linear-gradient(155deg, #0C0818 0%, #181224 55%, #0A0814 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#D080E8",
     eats: [
       { name: "Miss Ada",          type: "ISRAELI",    note: "Garden dining in a brownstone backyard. The shakshuka.",   saves: 289, hot: true },
@@ -414,7 +414,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Museum Mile, impeccable brunches, and a neighborhood that refuses to be anything but classic.",
     vibe: ["Museums", "Elegant", "Brunch", "Classic NYC"],
     bloomies: 543,
-    heroBg: "linear-gradient(155deg, #0A0A18 0%, #141424 55%, #080810 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#C0B870",
     eats: [
       { name: "Café Boulud",         type: "FRENCH",      note: "Daniel Boulud's neighborhood bistro. The Sunday brunch.", saves: 312, hot: true },
@@ -445,7 +445,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "Street murals, underground venues, and the city's most alive creative neighborhood.",
     vibe: ["Murals", "Nightlife", "Art", "Studios"],
     bloomies: 412,
-    heroBg: "linear-gradient(155deg, #0E0814 0%, #18101E 55%, #0A0810 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#E050C8",
     eats: [
       { name: "Roberta's",         type: "PIZZA",      note: "The Bee Sting pizza. The garden. The vibe. The legend.",    saves: 489, hot: true },
@@ -476,7 +476,7 @@ const NEIGHBORHOODS: Record<string, NeighborhoodData> = {
     tagline: "The best dim sum outside Hong Kong, night markets, and a neighborhood that never sleeps.",
     vibe: ["Dim Sum", "Asian Food", "Markets", "Culture"],
     bloomies: 234,
-    heroBg: "linear-gradient(155deg, #081018 0%, #0C1820 55%, #060E14 100%)",
+    heroBg: "linear-gradient(155deg, #FF1F7D 0%, #FF3A8C 55%, #FF69B4 100%)",
     heroAccent: "#E89040",
     eats: [
       { name: "Golden Shopping Mall",     type: "FOOD COURT", note: "Basement food court. Hand-pulled noodles. The real Flushing.", saves: 389, hot: true },
@@ -522,7 +522,7 @@ function SectionHeader({ label, sub, accent }: { label: string; sub?: string; ac
   return (
     <div style={{ marginBottom: 14 }}>
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: accent }}>{label}</p>
-      {sub && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.38)", marginTop: 2 }}>{sub}</p>}
+      {sub && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>{sub}</p>}
     </div>
   );
 }
@@ -532,14 +532,13 @@ function EatCard({ eat, accent }: { eat: NeighborhoodData["eats"][0]; accent: st
   const [saved, setSaved] = useState(false);
   return (
     <div style={{
-      backgroundImage: DARK_GRAIN,
       backgroundSize: "160px 160px",
-      backgroundColor: "#130810",
+      backgroundColor: "#FFFFFF",
       borderRadius: 18,
       padding: "16px 16px 14px",
       marginBottom: 10,
-      border: `1px solid rgba(255,255,255,0.06)`,
-      boxShadow: "0 4px 20px rgba(0,0,0,0.35)",
+      border: `1px solid rgba(255,31,125,0.1)`,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
       position: "relative",
     }}>
       {eat.hot && (
@@ -552,10 +551,10 @@ function EatCard({ eat, accent }: { eat: NeighborhoodData["eats"][0]; accent: st
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: accent, letterSpacing: "0.1em" }}>{eat.type}</span>
         </div>
       </div>
-      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 20, color: "white", lineHeight: 1.1, marginBottom: 7 }}>{eat.name}</p>
-      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.45, marginBottom: 10 }}>"{eat.note}"</p>
+      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 20, color: "#111111", lineHeight: 1.1, marginBottom: 7 }}>{eat.name}</p>
+      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.5)", lineHeight: 1.45, marginBottom: 10 }}>"{eat.note}"</p>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.22)" }}>{eat.saves} saves</span>
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>{eat.saves} saves</span>
         <button onClick={() => setSaved(s => !s)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? GOLD : "none"} stroke={GOLD} strokeWidth="2.2">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -571,22 +570,20 @@ function TrendingCard({ item, accent }: { item: NeighborhoodData["trending"][0];
   return (
     <div style={{
       flexShrink: 0, width: 200,
-      backgroundImage: DARK_GRAIN,
-      backgroundSize: "160px 160px",
-      backgroundColor: "#0E080E",
+      backgroundColor: "#FFFFFF",
       borderRadius: 18,
       padding: "16px 16px 14px",
-      border: `1px solid ${accent}22`,
-      boxShadow: `0 6px 24px rgba(0,0,0,0.4), 0 0 0 1px ${accent}11`,
+      border: `1px solid rgba(255,31,125,0.1)`,
+      boxShadow: `0 6px 24px rgba(0,0,0,0.08), 0 0 0 1px ${accent}11`,
     }}>
       <div style={{ background: `${accent}22`, border: `1px solid ${accent}55`, borderRadius: 999, padding: "3px 9px", display: "inline-flex", marginBottom: 10 }}>
         <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: accent, letterSpacing: "0.1em" }}>{item.tag}</span>
       </div>
-      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 17, color: "white", lineHeight: 1.15, marginBottom: 8 }}>{item.name}</p>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: 12 }}>{item.detail}</p>
+      <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 17, color: "#111111", lineHeight: 1.15, marginBottom: 8 }}>{item.name}</p>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.45)", lineHeight: 1.5, marginBottom: 12 }}>{item.detail}</p>
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, boxShadow: `0 0 0 2px rgba(255,0,144,0.22)` }} />
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>{item.going} bloomies going</span>
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.4)" }}>{item.going} bloomies going</span>
       </div>
     </div>
   );
@@ -600,9 +597,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div style={{
-      backgroundImage: DARK_GRAIN,
-      backgroundSize: "160px 160px",
-      backgroundColor: "#0A040E",
+      backgroundColor: "#FFFFFF",
       minHeight: "100vh",
       paddingBottom: 120,
     }}>
@@ -613,14 +608,14 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
         {/* Glow */}
         <div style={{ position: "absolute", bottom: 0, left: "30%", width: 260, height: 260, borderRadius: "50%", background: `radial-gradient(circle, ${hood.heroAccent}22 0%, transparent 70%)`, filter: "blur(40px)" }} />
         {/* Overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(10,4,14,0.9) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(255,255,255,0.3) 100%)" }} />
 
         {/* Back button */}
         <Link href="/member/city" style={{ textDecoration: "none" }}>
           <div style={{
             position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 16px)", left: 16, zIndex: 20,
-            background: "rgba(0,0,0,0.38)", backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255,255,255,0.14)", borderRadius: 999,
+            background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,31,125,0.15)", borderRadius: 999,
             padding: "6px 13px", display: "flex", alignItems: "center", gap: 6,
           }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -631,25 +626,23 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
         {/* Text */}
         <div style={{ position: "absolute", bottom: 24, left: 20, right: 20 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: hood.heroAccent, marginBottom: 6 }}>{hood.borough} · NEIGHBORHOOD</p>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 44, color: "white", lineHeight: 0.9, letterSpacing: "-0.02em", marginBottom: 10 }}>{hood.name}.</p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(30px, 11vw, 44px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.02em", marginBottom: 10 }}>{hood.name}.</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.52)", lineHeight: 1.4, maxWidth: 280 }}>{hood.tagline}</p>
         </div>
       </div>
 
       {/* ── STATS BAR ────────────────────────────────────────────────────────── */}
       <div style={{
-        backgroundImage: DARK_GRAIN,
-        backgroundSize: "160px 160px",
-        backgroundColor: "#120A14",
+        backgroundColor: "#FFFFFF",
         padding: "14px 20px",
         display: "flex", alignItems: "center", gap: 0,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid rgba(255,31,125,0.08)",
       }}>
         <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 22, color: "white", lineHeight: 1 }}>{hood.bloomies.toLocaleString()}</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>BLOOMIES HERE</p>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 22, color: "#111111", lineHeight: 1 }}>{hood.bloomies.toLocaleString()}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.12em", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>BLOOMIES HERE</p>
         </div>
-        <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.08)", margin: "0 16px" }} />
+        <div style={{ width: 1, height: 32, background: "rgba(255,31,125,0.15)", margin: "0 16px" }} />
         <div style={{ flex: 2, display: "flex", gap: 6, flexWrap: "wrap" as const }}>
           {hood.vibe.map(v => (
             <div key={v} style={{ background: `${hood.heroAccent}18`, border: `1px solid ${hood.heroAccent}33`, borderRadius: 999, padding: "3px 10px" }}>
@@ -660,7 +653,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
       </div>
 
       {/* ── TAB BAR ──────────────────────────────────────────────────────────── */}
-      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.07)", backgroundColor: "#0A040E" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,31,125,0.1)", backgroundColor: "#FFFFFF" }}>
         {(["eats", "trending", "popular"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1, padding: "13px 0", background: "none", border: "none", cursor: "pointer",
@@ -670,7 +663,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
             <span style={{
               fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
               letterSpacing: "0.12em", textTransform: "uppercase" as const,
-              color: tab === t ? hood.heroAccent : "rgba(255,255,255,0.28)",
+              color: tab === t ? hood.heroAccent : "rgba(0,0,0,0.4)",
             }}>
               {t === "eats" ? "🍽 Eats" : t === "trending" ? "✦ Trending" : "✦ Most Loved"}
             </span>
@@ -686,7 +679,7 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
             <SectionHeader label="BEST EATS" sub="Where the girls go" accent={hood.heroAccent} />
             {hood.eats.length > 0
               ? hood.eats.map((eat, i) => <EatCard key={i} eat={eat} accent={hood.heroAccent} />)
-              : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>Coming soon.</p>
+              : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.35)" }}>Coming soon.</p>
             }
           </>
         )}
@@ -698,14 +691,14 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
             <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 12, scrollbarWidth: "none" as const, marginBottom: 24 }}>
               {hood.trending.length > 0
                 ? hood.trending.map((item, i) => <TrendingCard key={i} item={item} accent={hood.heroAccent} />)
-                : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>Coming soon.</p>
+                : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.35)" }}>Coming soon.</p>
               }
             </div>
 
             {/* Hidden gems */}
             {hood.hidden.length > 0 && (
               <>
-                <SectionHeader label="HIDDEN GEMS" sub="Secrets worth knowing" accent="rgba(255,255,255,0.4)" />
+                <SectionHeader label="HIDDEN GEMS" sub="Secrets worth knowing" accent="rgba(0,0,0,0.45)" />
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {hood.hidden.map((gem, i) => (
                     <div key={i} style={{
@@ -739,12 +732,11 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
               {hood.popular.length > 0
                 ? hood.popular.map((pick, i) => (
                     <div key={i} style={{
-                      backgroundImage: DARK_GRAIN,
-                      backgroundSize: "160px 160px",
-                      backgroundColor: "#120A14",
+                      backgroundColor: "#FFF5F8",
                       borderRadius: 18,
                       overflow: "hidden",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.35)",
+                      border: "1px solid rgba(255,31,125,0.1)",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
                     }}>
                       <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${pick.accent}88, transparent)` }} />
                       <div style={{ padding: "14px 16px", display: "flex", gap: 12, alignItems: "center" }}>
@@ -756,15 +748,15 @@ export default function NeighborhoodPage({ params }: { params: Promise<{ slug: s
                             <div style={{ background: `${pick.accent}22`, border: `1px solid ${pick.accent}44`, borderRadius: 999, padding: "1.5px 7px" }}>
                               <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, color: pick.accent, letterSpacing: "0.1em" }}>{pick.cat}</span>
                             </div>
-                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(255,255,255,0.22)" }}>{pick.saves} saves</span>
+                            <span style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>{pick.saves} saves</span>
                           </div>
-                          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 17, color: "rgba(255,245,235,0.9)", lineHeight: 1.1, marginBottom: 4 }}>{pick.name}</p>
+                          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 17, color: "#111111", lineHeight: 1.1, marginBottom: 4 }}>{pick.name}</p>
                           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: `${pick.accent}bb`, lineHeight: 1.35 }}>"{pick.note}"</p>
                         </div>
                       </div>
                     </div>
                   ))
-                : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>Coming soon.</p>
+                : <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.35)" }}>Coming soon.</p>
               }
             </div>
           </>

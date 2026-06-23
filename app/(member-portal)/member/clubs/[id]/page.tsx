@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { ClubLandingPage } from "@/app/components/portal/club-landing";
-import type { ClubLandingData, ClubTradition } from "@/app/components/portal/club-landing";
+import type { ClubLandingData, ClubTradition, ClubCustomization } from "@/app/components/portal/club-landing";
 
 export default async function ClubPage({ params }: { params: { id: string } }) {
   const user = await getAuthUser();
@@ -43,6 +43,17 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     .eq("user_id", user.id)
     .eq("club_slug", clubSlug)
     .maybeSingle();
+
+  // Club customization (crest, colors, layout)
+  let customization: ClubCustomization | undefined;
+  try {
+    const { data: cx } = await supabase
+      .from("club_customization")
+      .select("crest_shape, crest_symbol, crest_color_primary, crest_color_secondary, crest_color_accent, accent_color, cover_url")
+      .eq("club_id", club.id)
+      .maybeSingle();
+    if (cx) customization = cx as ClubCustomization;
+  } catch {}
 
   // Traditions (new table from migration 025)
   let traditions: ClubTradition[] = [];
@@ -98,7 +109,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
   };
 
   const isOwner = club.owner_id === user.id;
-  return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} isOwner={isOwner} />;
+  return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} isOwner={isOwner} customization={customization} />;
 }
 
 function extractTagline(description: string | null): string {

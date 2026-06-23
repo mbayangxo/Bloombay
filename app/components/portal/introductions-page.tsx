@@ -1,29 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { PostEventBloomiePrompt } from "./post-event-bloomie-prompt";
+import { GirlMatePage } from "./girlmate-page";
+import "@/app/styles/bloom-entrance.css";
+
+// ── Real data types ───────────────────────────────────────────────────────────
+
+interface RealIntro {
+  id: string;
+  bio: string;
+  arrival_status: string;
+  neighborhood: string | null;
+  interests: string[];
+  flower_count: number;
+  created_at: string;
+  user_id: string;
+  profiles: { first_name: string | null; full_name: string | null; avatar_url: string | null };
+}
+
+interface RealComeWith {
+  id: string;
+  post: string;
+  activity: string;
+  when_text: string | null;
+  emoji: string;
+  spots_left: number;
+  created_at: string;
+  user_id: string;
+  profiles: { first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null };
+}
 
 // ── Logged-in user (replace with real auth context when backend is ready) ─────
 
 const ME = { initial: "D", color: "#FF1F7D", name: "dmbayang" };
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ── Real bloom request type ────────────────────────────────────────────────────
 
-const BLOOM_REQUESTS = [
-  { id: 1, initial: "R", name: "Remi O.", neighborhood: "Williamsburg", color: "#FF1F7D",
-    clubs: ["Book Club"],
-    message: "We kept almost sitting next to each other at the last Book Club. Finally doing this." },
-  { id: 2, initial: "K", name: "Kezia N.", neighborhood: "Chelsea", color: "#FF1F7D",
-    clubs: ["Girl Tech Collective", "Museum Girls"], message: undefined as string | undefined },
-  { id: 3, initial: "F", name: "Fatima A.", neighborhood: "Harlem", color: "#FF69B4",
-    clubs: ["African Girls Club"],
-    message: "Saw your Girl Picks — you have the best taste in hidden gems." },
-];
+interface RealBloomRequest {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  status: "pending" | "accepted" | "declined" | "cancelled";
+  context: string | null;
+  note: string | null;
+  compatibility_score: number | null;
+  created_at: string;
+  data: { template?: string } | null;
+  sender: { id: string; first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null } | null;
+  recipient: { id: string; first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null } | null;
+}
 
-const SENT_REQUESTS = [
-  { id: 4, initial: "C", name: "Ciara M.", neighborhood: "Brooklyn Heights", color: "#FF69B4", sentDays: 2 },
-  { id: 5, initial: "Z", name: "Zara F.", neighborhood: "DUMBO", color: "#FF69B4", sentDays: 5 },
-];
+function reqDisplayName(profile: RealBloomRequest["sender"]): string {
+  return profile?.first_name || profile?.full_name?.split(" ")[0] || "Her";
+}
+
+function reqInitial(profile: RealBloomRequest["sender"]): string {
+  return reqDisplayName(profile).charAt(0).toUpperCase();
+}
 
 const IN_YOUR_ORBIT = [
   { id: 1, initial: "A", name: "Aminah C.", neighborhood: "Bed-Stuy", color: "#FF1F7D",
@@ -155,27 +190,131 @@ function SectionHeader({ eyebrow, title, note }: { eyebrow: string; title: strin
 
 // ── Bloom Request — Sealed Envelope (list) ───────────────────────────────────
 
-function BloomRequestEnvelope({ req, accepted, onOpen }: {
-  req: typeof BLOOM_REQUESTS[0]; accepted: boolean; onOpen: () => void;
+function BloomRequestEnvelope({ req, isIncoming, accepted, onOpen }: {
+  req: RealBloomRequest; isIncoming: boolean; accepted: boolean; onOpen: () => void;
 }) {
+  const profile = isIncoming ? req.sender : req.recipient;
+  const name = reqDisplayName(profile);
+  const initial = reqInitial(profile);
+  const neighborhood = profile?.neighborhood;
+  const template = req.data?.template ?? "classic";
+
   if (accepted) {
     return (
       <div className="rounded-2xl px-5 py-4 flex items-center gap-3"
         style={{ background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.05)", border: "1.5px solid rgba(255,31,125,0.12)" }}>
-        <ProfileAvatar initial={req.initial} color={req.color} size={40} />
+        {profile?.avatar_url
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={profile.avatar_url} alt={name} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+          : <ProfileAvatar initial={initial} color="#FF1F7D" size={40} />
+        }
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm" style={{ color: "#111" }}>{req.name}</p>
-          <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{req.neighborhood}</p>
+          <p className="font-bold text-sm" style={{ color: "#111" }}>{name}</p>
+          {neighborhood && <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{neighborhood}</p>}
         </div>
-        <button
-          className="text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-95"
-          style={{ background: "#FF1F7D", color: "white" }}>
-          Message →
-        </button>
+        <span className="text-[9px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#FFF0F5", color: "#FF1F7D" }}>
+          Bloomies ✿
+        </span>
       </div>
     );
   }
 
+  // ── Sealed envelope variants by template ─────────────────────────────────
+
+  if (template === "dark") {
+    return (
+      <button onClick={onOpen} className="w-full text-left transition-transform active:scale-[0.98]"
+        style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+        <div style={{ height: 28, background: "#FF1F7D", clipPath: "polygon(0 0, 50% 100%, 100% 0)" }} />
+        <div className="px-5 pt-2 pb-4" style={{ background: "#111" }}>
+          <p className="text-[8px] font-bold tracking-[0.3em] uppercase mb-3" style={{ color: "rgba(255,31,125,0.5)" }}>
+            BLOOM REQUEST · AN INVITATION TO A REAL CONNECTION
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.3)" }}>
+              <span className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: 20, color: "#FF1F7D" }}>B</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black italic text-white leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: 18 }}>
+                She sees something<br/>in you.
+              </p>
+              <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>Open to read her letter.</p>
+            </div>
+          </div>
+        </div>
+        <div className="px-5 py-3 flex items-center justify-between" style={{ background: "#1a1a1a", borderTop: "1px solid rgba(255,31,125,0.15)" }}>
+          <div>
+            <p className="text-[9px] font-bold" style={{ color: "rgba(255,31,125,0.5)" }}>From</p>
+            <p className="text-sm font-bold text-white">{name}{neighborhood ? ` · ${neighborhood}` : ""}</p>
+          </div>
+          <span className="text-[11px] font-bold" style={{ color: "#FF1F7D" }}>Open →</span>
+        </div>
+      </button>
+    );
+  }
+
+  if (template === "cream") {
+    return (
+      <button onClick={onOpen} className="w-full text-left transition-transform active:scale-[0.98]"
+        style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 20px rgba(255,31,125,0.15)", border: "1.5px solid rgba(255,31,125,0.2)" }}>
+        <div style={{ height: 26, background: "#FFD6E8", clipPath: "polygon(0 0, 50% 100%, 100% 0)" }} />
+        <div className="px-5 pt-2 pb-4" style={{ background: "#FFF8F0" }}>
+          <p className="text-[8px] font-bold tracking-[0.3em] uppercase mb-3" style={{ color: "rgba(255,31,125,0.4)" }}>
+            BLOOM REQUEST · A PERSONAL INVITATION
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(255,31,125,0.08)", border: "1.5px dashed rgba(255,31,125,0.3)" }}>
+              <span style={{ fontSize: 20 }}>✉️</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black italic leading-tight" style={{ fontFamily: "var(--font-playfair)", fontSize: 17, color: "#444" }}>
+                She wrote you<br/>a little letter.
+              </p>
+              <p className="text-[10px] mt-1" style={{ color: "#bbb" }}>Tap to open it.</p>
+            </div>
+          </div>
+        </div>
+        <div className="px-5 py-3 flex items-center justify-between" style={{ background: "#FFF0E4", borderTop: "1px dashed rgba(255,31,125,0.18)" }}>
+          <div>
+            <p className="text-[9px] font-bold" style={{ color: "#bbb" }}>From</p>
+            <p className="text-sm font-bold" style={{ color: "#444" }}>{name}{neighborhood ? ` · ${neighborhood}` : ""}</p>
+          </div>
+          <span className="text-[11px] font-bold" style={{ color: "#FF1F7D" }}>Open →</span>
+        </div>
+      </button>
+    );
+  }
+
+  if (template === "minimal") {
+    return (
+      <button onClick={onOpen} className="w-full text-left transition-transform active:scale-[0.98]"
+        style={{ borderRadius: 16, background: "white", boxShadow: "0 2px 16px rgba(0,0,0,0.08)", border: "1.5px solid rgba(255,31,125,0.25)", overflow: "hidden" }}>
+        <div className="px-5 py-4 flex items-center gap-4">
+          {profile?.avatar_url
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={profile.avatar_url} alt={name} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+            : <ProfileAvatar initial={initial} color="#FF1F7D" size={48} />
+          }
+          <div className="flex-1 min-w-0">
+            <p className="text-[8px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#FF1F7D" }}>BLOOM REQUEST</p>
+            <p className="font-black italic text-base leading-tight" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
+              {name} would like<br/>to connect.
+            </p>
+            {neighborhood && <p className="text-[10px] mt-1" style={{ color: "#bbb" }}>{neighborhood}</p>}
+          </div>
+          <span className="text-[11px] font-bold flex-shrink-0" style={{ color: "#FF1F7D" }}>Open →</span>
+        </div>
+        <div className="h-0.5" style={{ background: "rgba(255,31,125,0.12)" }} />
+        <div className="px-5 py-2.5">
+          <p className="text-[9px]" style={{ color: "#ccc" }}>AN INVITATION TO A REAL CONNECTION</p>
+        </div>
+      </button>
+    );
+  }
+
+  // classic (default)
   return (
     <button onClick={onOpen} className="w-full text-left transition-transform active:scale-[0.98]"
       style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 32px rgba(255,31,125,0.22)" }}>
@@ -206,7 +345,7 @@ function BloomRequestEnvelope({ req, accepted, onOpen }: {
         style={{ background: "#C0185F" }}>
         <div>
           <p className="text-[9px] font-bold" style={{ color: "rgba(255,255,255,0.6)" }}>From</p>
-          <p className="text-sm font-bold text-white">{req.name} · {req.neighborhood}</p>
+          <p className="text-sm font-bold text-white">{name}{neighborhood ? ` · ${neighborhood}` : ""}</p>
         </div>
         <span className="text-[11px] font-bold text-white">Open →</span>
       </div>
@@ -218,124 +357,142 @@ function BloomRequestEnvelope({ req, accepted, onOpen }: {
 
 const COMPATIBILITY_POINTS = ["Values aligned", "Lifestyle aligned", "Energy aligned", "Vibe aligned"];
 
-function BloomRequestLetterPage({ req, onAccept, onDecline, onBack }: {
-  req: typeof BLOOM_REQUESTS[0];
+function BloomRequestLetterPage({ req, onAccept, onDecline, onBack, accepting }: {
+  req: RealBloomRequest;
   onAccept: () => void;
   onDecline: () => void;
   onBack: () => void;
+  accepting?: boolean;
 }) {
+  const senderProfile = req.sender;
+  const senderName = reqDisplayName(senderProfile);
+  const senderInitial = reqInitial(senderProfile);
+  const template = req.data?.template ?? "classic";
+  const bgColor = template === "dark" ? "#111" : template === "cream" ? "#FDF4EC" : template === "minimal" ? "#fff" : "#FDF4EC";
+  const accentColor = "#FF1F7D";
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: "#FDF4EC" }}>
+    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: bgColor }}>
       <div className="sticky top-0 z-10 px-5 pt-4 pb-3 flex items-center justify-between"
-        style={{ background: "#FDF4EC", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: "#FF1F7D" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5">
+        style={{ background: bgColor, borderBottom: template === "dark" ? "1px solid rgba(255,31,125,0.1)" : "1px solid rgba(0,0,0,0.05)" }}>
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: accentColor }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2.5">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
           </svg>
           Back
         </button>
-        <p className="text-[8px] font-bold tracking-[0.3em] uppercase" style={{ color: "#FF1F7D" }}>BLOOMBAY</p>
+        <p className="text-[8px] font-bold tracking-[0.3em] uppercase" style={{ color: accentColor }}>BLOOMBAY</p>
         <div style={{ width: 48 }} />
       </div>
 
       <div className="px-5 pt-2 pb-28">
         <div className="text-center py-6">
-          <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: "#FF1F7D" }}>You just received a</p>
-          <h1 className="font-black uppercase leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "36px", color: "#111" }}>
+          <p className="text-[9px] font-bold tracking-[0.22em] uppercase mb-1" style={{ color: accentColor }}>You just received a</p>
+          <h1 className="font-black uppercase leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "36px", color: template === "dark" ? "#fff" : "#111" }}>
             BLOOM<br/>REQUEST
           </h1>
           <p className="text-[9px] font-bold tracking-[0.22em] uppercase mt-1" style={{ color: "#aaa" }}>AN INVITATION TO A REAL CONNECTION</p>
         </div>
 
         <div className="rounded-3xl overflow-hidden mb-5"
-          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)", background: "white" }}>
+          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)", background: template === "dark" ? "#1a1a1a" : "white" }}>
           <div className="flex items-center justify-center py-4"
-            style={{ background: "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 100%)" }}>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ background: "radial-gradient(circle at 35% 35%, #FF69B4, #C0185F)", boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}>
-              <span className="font-black italic text-white" style={{ fontFamily: "var(--font-playfair)", fontSize: "18px" }}>B</span>
-            </div>
+            style={{ background: template === "dark" ? "#222" : "linear-gradient(135deg, #FF69B4 0%, #FF1F7D 100%)" }}>
+            {senderProfile?.avatar_url
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={senderProfile.avatar_url} alt={senderName} style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(255,255,255,0.3)" }} />
+              : <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{ background: template === "dark" ? "rgba(255,31,125,0.2)" : "radial-gradient(circle at 35% 35%, #FF69B4, #C0185F)", boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}>
+                  <span className="font-black italic" style={{ fontFamily: "var(--font-playfair)", fontSize: 24, color: template === "dark" ? "#FF1F7D" : "white" }}>
+                    {senderInitial}
+                  </span>
+                </div>
+            }
           </div>
           <div className="px-7 py-6">
             <p className="font-black italic leading-tight mb-2 text-center"
               style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", color: "#FF1F7D" }}>
               She sees something<br/>in you.
             </p>
-            <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: "#555" }}>
+            <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: template === "dark" ? "rgba(255,255,255,0.5)" : "#555" }}>
               And she&apos;d love to get<br/>to know the real you.
             </p>
-            {req.message && (
-              <div className="rounded-2xl px-5 py-4 mb-2" style={{ background: "#FFF5F8", borderLeft: "3px solid #FF1F7D" }}>
-                <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "#444" }}>
-                  &ldquo;{req.message}&rdquo;
+            {req.note && (
+              <div className="rounded-2xl px-5 py-4 mb-2"
+                style={{ background: template === "dark" ? "rgba(255,31,125,0.08)" : "#FFF5F8", borderLeft: "3px solid #FF1F7D" }}>
+                <p className="text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: template === "dark" ? "rgba(255,255,255,0.75)" : "#444" }}>
+                  &ldquo;{req.note}&rdquo;
                 </p>
               </div>
             )}
+            {req.context && (
+              <div className="mt-3 flex items-center gap-2">
+                <span style={{ fontSize: 12 }}>🌸</span>
+                <p className="text-[10px]" style={{ color: "#FF1F7D", fontWeight: 600 }}>{req.context}</p>
+              </div>
+            )}
             <div className="mt-4 pt-4" style={{ borderTop: "1px dashed rgba(255,31,125,0.18)" }}>
-              <p className="text-xs italic leading-relaxed" style={{ fontFamily: "var(--font-caveat)", color: "#999", fontSize: "13px" }}>
+              <p className="text-xs italic leading-relaxed" style={{ color: "#999", fontSize: "13px" }}>
                 This feels like a friendship worth exploring.
               </p>
-              <p className="text-[9px] mt-1" style={{ color: "#FF1F7D", letterSpacing: "0.05em" }}>— Yande ✦</p>
+              <p className="text-[9px] mt-1" style={{ color: accentColor, letterSpacing: "0.05em" }}>— Yande ✦</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl p-5 mb-4 bg-white" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <p className="text-[8px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: "#FF1F7D" }}>ABOUT HER</p>
+        <div className="rounded-3xl p-5 mb-4" style={{ background: template === "dark" ? "#1a1a1a" : "white", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <p className="text-[8px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: accentColor }}>ABOUT HER</p>
           <div className="flex items-center gap-4">
-            <ProfileAvatar initial={req.initial} color={req.color} size={56} />
+            {senderProfile?.avatar_url
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={senderProfile.avatar_url} alt={senderName} style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+              : <ProfileAvatar initial={senderInitial} color="#FF1F7D" size={56} />
+            }
             <div className="flex-1 min-w-0">
-              <p className="font-black text-xl italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
-                {req.name.split(" ")[0]}
+              <p className="font-black text-xl italic" style={{ fontFamily: "var(--font-playfair)", color: template === "dark" ? "#fff" : "#111" }}>
+                {senderName}
               </p>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {req.clubs.map(c => (
-                  <span key={c} className="text-[9px] font-bold px-2.5 py-0.5 rounded-full"
-                    style={{ background: "#FFF0F5", color: "#FF1F7D" }}>{c}</span>
+              {senderProfile?.neighborhood && (
+                <p className="text-xs mt-0.5" style={{ color: "#aaa" }}>{senderProfile.neighborhood}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {req.compatibility_score && (
+          <div className="rounded-3xl p-5 mb-6" style={{ background: template === "dark" ? "#1a1a1a" : "white", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-0.5" style={{ color: accentColor }}>COMPATIBILITY</p>
+                <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "48px", color: accentColor }}>
+                  {req.compatibility_score}<span style={{ fontSize: "24px" }}>%</span>
+                </p>
+              </div>
+              <div className="flex-1 flex flex-col gap-1.5">
+                {COMPATIBILITY_POINTS.map(pt => (
+                  <div key={pt} className="flex items-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="7" fill="#FF1F7D" fillOpacity="0.12"/>
+                      <polyline points="3.5,7 5.5,9.5 10.5,4.5" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-xs" style={{ color: template === "dark" ? "rgba(255,255,255,0.6)" : "#444" }}>{pt}</span>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
-          <div className="mt-3 flex flex-col gap-1.5">
-            <p className="text-xs flex items-center gap-2" style={{ color: "#666" }}>
-              <span style={{ color: "#FF1F7D" }}>📍</span> {req.neighborhood}
-            </p>
-            <p className="text-xs flex items-center gap-2" style={{ color: "#666" }}>
-              <span style={{ color: "#FF1F7D" }}>✦</span> In your orbit
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-3xl p-5 mb-6 bg-white" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <div className="flex items-center gap-4">
-            <div>
-              <p className="text-[8px] font-bold tracking-[0.22em] uppercase mb-0.5" style={{ color: "#FF1F7D" }}>COMPATIBILITY</p>
-              <p className="font-black leading-none" style={{ fontFamily: "var(--font-playfair)", fontSize: "48px", color: "#FF1F7D" }}>91<span style={{ fontSize: "24px" }}>%</span></p>
-            </div>
-            <div className="flex-1 flex flex-col gap-1.5">
-              {COMPATIBILITY_POINTS.map(pt => (
-                <div key={pt} className="flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="7" fill="#FF1F7D" fillOpacity="0.12"/>
-                    <polyline points="3.5,7 5.5,9.5 10.5,4.5" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-xs" style={{ color: "#444" }}>{pt}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
 
         <div className="flex flex-col gap-3">
-          <button onClick={onAccept}
+          <button onClick={onAccept} disabled={accepting}
             className="w-full py-4 rounded-2xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-            style={{ background: "#FF1F7D", boxShadow: "0 6px 24px rgba(255,31,125,0.35)", fontSize: "15px", letterSpacing: "0.04em" }}>
-            OPEN BLOOM REQUEST
+            style={{ background: accepting ? "#ffb0d0" : "#FF1F7D", boxShadow: "0 6px 24px rgba(255,31,125,0.35)", fontSize: "15px", letterSpacing: "0.04em" }}>
+            {accepting ? "Accepting…" : "Accept Bloom Request"}
             <span style={{ fontSize: "18px" }}>✿</span>
           </button>
           <button onClick={onDecline}
             className="w-full py-3.5 rounded-2xl font-semibold transition-all active:scale-[0.98]"
-            style={{ background: "transparent", border: "1.5px solid #E8E8E8", color: "#888", fontSize: "14px" }}>
+            style={{ background: "transparent", border: template === "dark" ? "1.5px solid rgba(255,255,255,0.1)" : "1.5px solid #E8E8E8", color: "#888", fontSize: "14px" }}>
             Not now
           </button>
           <p className="text-center text-[9px]" style={{ color: "#ccc" }}>
@@ -349,8 +506,8 @@ function BloomRequestLetterPage({ req, onAccept, onDecline, onBack }: {
 
 // ── Both Bloomies — celebration overlay ───────────────────────────────────────
 
-function BothBloomiesOverlay({ req, onDone }: {
-  req: typeof BLOOM_REQUESTS[0]; onDone: () => void;
+function BothBloomiesOverlay({ senderName, senderInitial, onDone }: {
+  senderName: string; senderInitial: string; onDone: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8"
@@ -371,8 +528,8 @@ function BothBloomiesOverlay({ req, onDone }: {
 
       <div className="flex items-center gap-0 mb-10" style={{ animation: "bloomIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="w-20 h-20 rounded-full flex items-center justify-center font-black text-white border-4 border-white"
-          style={{ background: req.color, fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
-          {req.initial}
+          style={{ background: "#C0185F", fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+          {senderInitial}
         </div>
         <div className="flex items-center justify-center mx-[-8px] z-10"
           style={{ animation: "bloomFloat 2s ease-in-out infinite" }}>
@@ -382,8 +539,8 @@ function BothBloomiesOverlay({ req, onDone }: {
           </div>
         </div>
         <div className="w-20 h-20 rounded-full flex items-center justify-center font-black text-white border-4 border-white"
-          style={{ background: ME.color, fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
-          {ME.initial}
+          style={{ background: "#FF69B4", fontSize: "28px", boxShadow: "0 6px 24px rgba(0,0,0,0.2)" }}>
+          Y
         </div>
       </div>
 
@@ -396,7 +553,7 @@ function BothBloomiesOverlay({ req, onDone }: {
           Bloomies<br/>now.
         </p>
         <p className="italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-playfair)", color: "rgba(255,255,255,0.7)", fontSize: "15px" }}>
-          You and {req.name.split(" ")[0]} are now connected.<br/>Say hello.
+          You and {senderName} are now connected.<br/>Say hello.
         </p>
       </div>
 
@@ -405,7 +562,7 @@ function BothBloomiesOverlay({ req, onDone }: {
           className="w-full py-4 rounded-2xl font-bold text-[#FF1F7D] transition-all active:scale-[0.97]"
           style={{ background: "white", fontSize: "15px", boxShadow: "0 6px 24px rgba(0,0,0,0.15)" }}
           onClick={onDone}>
-          Message {req.name.split(" ")[0]} →
+          Message {senderName} →
         </button>
         <button onClick={onDone} className="w-full py-3 font-semibold" style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px" }}>
           Maybe later
@@ -583,9 +740,15 @@ function ClusterSheet({ cluster, onClose, connected, shaking, onConnect }: {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function IntroductionsPage() {
-  const [requests, setRequests] = useState(
-    BLOOM_REQUESTS.map(r => ({ ...r, accepted: false }))
-  );
+  // ── Real bloom request state ───────────────────────────────────────────────
+  const [incoming, setIncoming] = useState<RealBloomRequest[]>([]);
+  const [sent, setSent] = useState<RealBloomRequest[]>([]);
+  const [acceptedBloom, setAcceptedBloom] = useState<RealBloomRequest[]>([]);
+  const [openLetter, setOpenLetter] = useState<RealBloomRequest | null>(null);
+  const [accepting, setAccepting] = useState(false);
+  const [bloomiesOf, setBloomiesOf] = useState<{ name: string; initial: string } | null>(null);
+
+  // ── Other state ────────────────────────────────────────────────────────────
   const [joined, setJoined] = useState<Set<number>>(new Set());
   const [orbitConnected, setOrbitConnected] = useState<Set<number>>(new Set());
   const [orbitShaking, setOrbitShaking] = useState<Set<number>>(new Set());
@@ -595,8 +758,69 @@ export function IntroductionsPage() {
   const [clusterShaking, setClusterShaking] = useState<Set<number>>(new Set());
   const [activeCluster, setActiveCluster] = useState<typeof INTEREST_CLUSTERS[0] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [openLetter, setOpenLetter] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
-  const [bloomiesOf, setBloomiesOf] = useState<typeof BLOOM_REQUESTS[0] | null>(null);
+  const [realIntros, setRealIntros] = useState<RealIntro[]>([]);
+  const [comeWithPosts, setComeWithPosts] = useState<RealComeWith[]>([]);
+  const [sentBloomRequests, setSentBloomRequests] = useState<Set<string>>(new Set());
+  const [showPostIntroSheet, setShowPostIntroSheet] = useState(false);
+  const [showGirlMate, setShowGirlMate] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/member/bloom-requests")
+      .then(r => r.ok ? r.json() : { incoming: [], sent: [], accepted: [] })
+      .then(d => {
+        setIncoming(d.incoming ?? []);
+        setSent(d.sent ?? []);
+        setAcceptedBloom(d.accepted ?? []);
+      })
+      .catch(() => undefined);
+
+    fetch("/api/introductions").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setRealIntros(data);
+    }).catch(() => undefined);
+    fetch("/api/come-with-me").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setComeWithPosts(data);
+    }).catch(() => undefined);
+  }, []);
+
+  async function handleAcceptRequest(req: RealBloomRequest) {
+    setAccepting(true);
+    try {
+      const res = await fetch(`/api/member/bloom-requests/${req.id}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "accepted" }),
+      });
+      if (res.ok) {
+        setIncoming(prev => prev.filter(r => r.id !== req.id));
+        setAcceptedBloom(prev => [{ ...req, status: "accepted" }, ...prev]);
+        const name = reqDisplayName(req.sender);
+        setBloomiesOf({ name, initial: name.charAt(0).toUpperCase() });
+        setOpenLetter(null);
+      }
+    } finally {
+      setAccepting(false);
+    }
+  }
+
+  async function handleDeclineRequest(req: RealBloomRequest) {
+    await fetch(`/api/member/bloom-requests/${req.id}/respond`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "declined" }),
+    });
+    setIncoming(prev => prev.filter(r => r.id !== req.id));
+    setOpenLetter(null);
+  }
+
+  async function sendBloomRequest(recipientId: string) {
+    if (sentBloomRequests.has(recipientId)) return;
+    setSentBloomRequests(prev => new Set([...prev, recipientId]));
+    await fetch("/api/member/bloom-requests", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ toUserId: recipientId }),
+    });
+  }
 
   function showToast(msg: string) {
     setToast(msg);
@@ -606,7 +830,7 @@ export function IntroductionsPage() {
   function introduceOrbit(id: number, name: string) {
     setOrbitConnected(p => new Set([...p, id]));
     setOrbitShaking(p => new Set([...p, id]));
-    showToast(`Bloombay request sent to ${name.split(" ")[0]} ✓`);
+    showToast(`Bloom request sent to ${name.split(" ")[0]} ✓`);
     setTimeout(() => setOrbitShaking(p => { const n = new Set(p); n.delete(id); return n; }), 650);
   }
 
@@ -620,13 +844,11 @@ export function IntroductionsPage() {
   function introduceCluster(id: number, name: string) {
     setClusterConnected(p => new Set([...p, id]));
     setClusterShaking(p => new Set([...p, id]));
-    showToast(`Bloombay request sent to ${name.split(" ")[0]} ✓`);
+    showToast(`Bloom request sent to ${name.split(" ")[0]} ✓`);
     setTimeout(() => setClusterShaking(p => { const n = new Set(p); n.delete(id); return n; }), 650);
   }
 
-  const pendingRequests = requests.filter(r => !r.accepted);
-  const acceptedRequests = requests.filter(r => r.accepted);
-  const incomingCount = pendingRequests.length;
+  const incomingCount = incoming.length;
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)" }}>
@@ -658,6 +880,11 @@ export function IntroductionsPage() {
 
       <div className="flex flex-col gap-10 pb-4">
 
+        {/* Post-event: suggest becoming bloomies with people you just met */}
+        <section className="px-5">
+          <PostEventBloomiePrompt />
+        </section>
+
         <section className="px-5">
           <div className="flex items-start justify-between mb-4">
             <SectionHeader
@@ -666,41 +893,51 @@ export function IntroductionsPage() {
             />
           </div>
 
-          {pendingRequests.length === 0 && acceptedRequests.length === 0 ? (
+          {incoming.length === 0 && acceptedBloom.length === 0 ? (
             <div className="rounded-2xl p-5 text-center" style={{ background: "#FFF5F8" }}>
-              <p className="text-sm italic" style={{ color: "#FF1F7D", fontFamily: "var(--font-caveat)", fontSize: "17px" }}>
+              <p className="text-sm italic" style={{ color: "#FF1F7D", fontFamily: "var(--font-playfair)", fontSize: "17px" }}>
                 The invitations are coming. Your energy precedes you.
               </p>
               <p className="text-xs mt-1" style={{ color: "#bbb" }}>— Yande ✦</p>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {pendingRequests.map(req => (
-                <BloomRequestEnvelope key={req.id} req={req} accepted={false}
+              {incoming.map(req => (
+                <BloomRequestEnvelope key={req.id} req={req} isIncoming accepted={false}
                   onOpen={() => setOpenLetter(req)} />
               ))}
-              {acceptedRequests.map(req => (
-                <BloomRequestEnvelope key={req.id} req={req} accepted onOpen={() => {}} />
+              {acceptedBloom.map(req => (
+                <BloomRequestEnvelope key={req.id} req={req} isIncoming accepted onOpen={() => {}} />
               ))}
             </div>
           )}
 
-          {SENT_REQUESTS.length > 0 && (
+          {sent.length > 0 && (
             <div className="mt-4">
               <p className="text-[9px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "#ccc" }}>WAITING FOR REPLY</p>
               <div className="flex flex-col gap-2">
-                {SENT_REQUESTS.map(r => (
-                  <div key={r.id} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-                    <ProfileAvatar initial={r.initial} color={r.color} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: "#111" }}>{r.name}</p>
-                      <p className="text-[10px]" style={{ color: "#bbb" }}>{r.neighborhood}</p>
+                {sent.map(r => {
+                  const recip = r.recipient;
+                  const rName = reqDisplayName(recip);
+                  const rInitial = reqInitial(recip);
+                  const daysAgo = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86400000);
+                  return (
+                    <div key={r.id} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+                      {recip?.avatar_url
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={recip.avatar_url} alt={rName} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                        : <ProfileAvatar initial={rInitial} color="#FF1F7D" size={36} />
+                      }
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm" style={{ color: "#111" }}>{rName}</p>
+                        {recip?.neighborhood && <p className="text-[10px]" style={{ color: "#bbb" }}>{recip.neighborhood}</p>}
+                      </div>
+                      <span className="text-[9px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#F5F5F5", color: "#ccc" }}>
+                        {daysAgo === 0 ? "today" : `${daysAgo}d ago`}
+                      </span>
                     </div>
-                    <span className="text-[9px] font-bold px-2.5 py-1 rounded-full" style={{ background: "#F5F5F5", color: "#ccc" }}>
-                      {r.sentDays}d ago
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -732,6 +969,36 @@ export function IntroductionsPage() {
             note="Women who recently moved — looking for people and places."
           />
           <div className="flex flex-col gap-3">
+            {realIntros.map(intro => {
+              const name = intro.profiles.full_name ?? intro.profiles.first_name ?? "Member";
+              const initial = name.charAt(0).toUpperCase();
+              const isSent = sentBloomRequests.has(intro.user_id);
+              return (
+                <div key={intro.id} style={{ background: "white", borderRadius: 16, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF1F7D" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                    <ProfileAvatar initial={initial} color="#FF1F7D" size={44} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 14, color: "#111", margin: 0 }}>{name}</p>
+                      {intro.neighborhood && <p style={{ fontSize: 10, color: "#aaa", marginTop: 2 }}>{intro.neighborhood}</p>}
+                      <span style={{ display: "inline-block", fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 100, marginTop: 6, background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }}>
+                        ✦ {intro.arrival_status.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, color: "#555", marginBottom: 12 }}>
+                    &ldquo;{intro.bio}&rdquo;
+                  </p>
+                  <button
+                    onClick={() => sendBloomRequest(intro.user_id)}
+                    style={isSent
+                      ? { padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#eee", color: "#aaa", border: "none", cursor: "default" }
+                      : { padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#FF1F7D", color: "white", border: "none", cursor: "pointer" }
+                    }>
+                    {isSent ? "Sent ✦" : "Bloom Request →"}
+                  </button>
+                </div>
+              );
+            })}
             {NEW_IN_TOWN.map(girl => (
               <div key={girl.id} className="bg-white rounded-2xl p-4"
                 style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: `3px solid ${girl.color}` }}>
@@ -787,6 +1054,38 @@ export function IntroductionsPage() {
             </Link>
           </div>
           <div className="flex flex-col gap-3">
+            {comeWithPosts.map(cwp => {
+              const posterName = cwp.profiles.full_name ?? cwp.profiles.first_name ?? "Member";
+              return (
+                <div key={cwp.id} style={{ background: "white", borderRadius: 16, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", borderLeft: "3px solid #FF1F7D" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+                    <ProfileAvatar initial={posterName.charAt(0).toUpperCase()} color="#FF1F7D" size={40} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <p style={{ fontWeight: 700, fontSize: 14, color: "#111", margin: 0 }}>{posterName}</p>
+                        <span style={{ fontSize: 8, fontWeight: 700, padding: "2px 8px", borderRadius: 100, background: "rgba(255,31,125,0.1)", color: "#FF1F7D" }}>
+                          {cwp.emoji} {cwp.activity}
+                        </span>
+                      </div>
+                      {cwp.profiles.neighborhood && <p style={{ fontSize: 10, color: "#bbb", marginTop: 2 }}>{cwp.profiles.neighborhood}</p>}
+                    </div>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, color: "#444", marginBottom: 12 }}>
+                    &ldquo;{cwp.post}&rdquo;
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    {cwp.when_text && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "6px 12px", borderRadius: 100, background: "rgba(0,0,0,0.04)", color: "#888" }}>
+                        {cwp.when_text}
+                      </span>
+                    )}
+                    <button style={{ padding: "8px 16px", borderRadius: 100, fontSize: 12, fontWeight: 700, background: "#111", color: "white", border: "none", cursor: "pointer", marginLeft: "auto" }}>
+                      I&apos;m In →
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
             {COME_WITH_ME.map(post => (
               <ComeWithMeCard key={post.id} post={post}
                 joined={joined.has(post.id)}
@@ -827,7 +1126,7 @@ export function IntroductionsPage() {
         {/* ── GirlMates ─────────────────────────────────────────────────────── */}
         <section className="px-5">
           <SectionHeader eyebrow="GIRLMATES" title="Roommate matching." />
-          <Link href="/member/girlmate" style={{ textDecoration: "none", display: "block" }}>
+          <button onClick={() => setShowGirlMate(true)} style={{ textDecoration: "none", display: "block", width: "100%", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
             <div className="rounded-3xl overflow-hidden" style={{ background: "#111", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
               <div className="p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, #FF1F7D, transparent 70%)", opacity: 0.13, transform: "translate(30%,-30%)" }} />
@@ -851,7 +1150,7 @@ export function IntroductionsPage() {
                 </div>
               </div>
             </div>
-          </Link>
+          </button>
         </section>
 
         {/* ── Find a Room ─────────────────────────────────────────────────────── */}
@@ -925,25 +1224,125 @@ export function IntroductionsPage() {
       {openLetter && (
         <BloomRequestLetterPage
           req={openLetter}
+          accepting={accepting}
           onBack={() => setOpenLetter(null)}
-          onAccept={() => {
-            setRequests(rs => rs.map(r => r.id === openLetter.id ? { ...r, accepted: true } : r));
-            setBloomiesOf(openLetter);
-            setOpenLetter(null);
-          }}
-          onDecline={() => {
-            setRequests(rs => rs.filter(r => r.id !== openLetter.id));
-            setOpenLetter(null);
-          }}
+          onAccept={() => handleAcceptRequest(openLetter)}
+          onDecline={() => handleDeclineRequest(openLetter)}
         />
       )}
 
       {bloomiesOf && (
         <BothBloomiesOverlay
-          req={bloomiesOf}
+          senderName={bloomiesOf.name}
+          senderInitial={bloomiesOf.initial}
           onDone={() => setBloomiesOf(null)}
         />
       )}
+
+      {/* Post Intro FAB */}
+      <div style={{ position: "fixed", bottom: "calc(env(safe-area-inset-bottom, 0px) + 88px)", right: 18, zIndex: 50 }}>
+        <button onClick={() => setShowPostIntroSheet(true)} style={{ width: 52, height: 52, borderRadius: "50%", background: "#FF1F7D", border: "none", boxShadow: "0 4px 18px rgba(255,31,125,0.4)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      {showPostIntroSheet && <PostIntroSheet onClose={() => setShowPostIntroSheet(false)} />}
+
+      {/* GirlMate full-screen slide-up sheet */}
+      {showGirlMate && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          animation: "gmSlideUp 0.32s cubic-bezier(0.22,1,0.36,1) both",
+        }}>
+          <style>{`
+            @keyframes gmSlideUp {
+              from { transform: translateY(100%); }
+              to   { transform: translateY(0); }
+            }
+          `}</style>
+          <div style={{ width: "100%", height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch" as unknown as undefined }}>
+            <GirlMatePage onBack={() => setShowGirlMate(false)} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Post Intro Sheet ──────────────────────────────────────────────────────────
+
+function PostIntroSheet({ onClose }: { onClose: () => void }) {
+  const [bio, setBio] = useState("");
+  const [arrivalStatus, setArrivalStatus] = useState("local");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function handleSubmit() {
+    if (bio.length < 10) return;
+    setSubmitting(true);
+    const res = await fetch("/api/introductions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ bio, arrival_status: arrivalStatus, neighborhood }),
+    });
+    if (res.ok) setDone(true);
+    setSubmitting(false);
+  }
+
+  if (done) return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ background: "white", borderRadius: 24, padding: "32px 24px", textAlign: "center", maxWidth: 320, width: "100%" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 700, fontStyle: "italic", color: "#FF1F7D", marginBottom: 8 }}>You&apos;re in the room. ✦</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#666", marginBottom: 24 }}>Your introduction is live.</p>
+        <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: 100, background: "#FF1F7D", color: "white", border: "none", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Done</button>
+      </div>
+    </div>
+  );
+
+  const ARRIVAL_OPTIONS = [
+    { value: "just_moved", label: "Just moved here" },
+    { value: "new_6mo", label: "New (< 6 months)" },
+    { value: "fresh_start", label: "Fresh start" },
+    { value: "local", label: "Local" },
+    { value: "native", label: "Native" },
+  ];
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px", borderRadius: 12,
+    border: "1.5px solid #E0D8CF", background: "white",
+    fontFamily: "var(--font-jost)", fontSize: 14, color: "#1C1B1C",
+    outline: "none", boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+      <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "28px 24px 48px", width: "100%", maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 700, fontStyle: "italic", color: "#1C1B1C" }}>Introduce yourself.</h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#999" }}>×</button>
+        </div>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", marginBottom: 20 }}>Tell the community who you are. This appears in the introductions feed.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Who are you? *</label>
+            <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="I just moved to Brooklyn from Lagos. I'm a graphic designer who loves museums, good food, and finding community." rows={4} style={{ ...inputStyle, resize: "none" }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: bio.length < 10 ? "#FF6B6B" : "#aaa", marginTop: 4 }}>{bio.length}/500 — at least 10 characters</p>
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Your story *</label>
+            <select value={arrivalStatus} onChange={e => setArrivalStatus(e.target.value)} style={{ ...inputStyle }}>
+              {ARRIVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: 6 }}>Neighborhood</label>
+            <input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Williamsburg, Crown Heights, SoHo…" style={inputStyle} />
+          </div>
+        </div>
+        <button onClick={handleSubmit} disabled={submitting || bio.length < 10} style={{ width: "100%", marginTop: 24, padding: "16px", borderRadius: 100, border: "none", background: bio.length < 10 ? "#FFB6D0" : "#FF1F7D", color: "white", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 15, cursor: bio.length < 10 ? "default" : "pointer" }}>
+          {submitting ? "Posting…" : "Post My Introduction →"}
+        </button>
+      </div>
     </div>
   );
 }

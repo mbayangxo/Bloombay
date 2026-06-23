@@ -1,17 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ClubOwnerShell } from "../components/club-owner-shell";
 import { ClubOwnerPageTitle } from "../components/club-owner-page";
 import { getHostClubId } from "@/lib/club-host-store";
 import { cancelGathering, listGatherings, logAudit, saveGathering } from "@/lib/club-owner-store";
 import { getClubProfile } from "@/lib/club-world-data";
+import { HostPostMortemCard } from "@/app/components/portal/host-post-mortem-card";
+import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
+
+type PastGathering = { id: string; title: string; date: string; venue: string };
 
 export default function ClubOwnerGatheringsPage() {
   const clubId = getHostClubId();
   const club = getClubProfile(clubId);
   const [events, setEvents] = useState(() => listGatherings(clubId));
+  const [pastGatherings, setPastGatherings] = useState<PastGathering[]>([]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch("/api/club-portal/gatherings");
+        if (res.ok) {
+          const json = await res.json();
+          setPastGatherings(json.past ?? []);
+        }
+      } catch {
+        // Fail silently — post-mortem section is additive
+      }
+    })();
+  }, []);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("NYC");
@@ -80,6 +99,26 @@ export default function ClubOwnerGatheringsPage() {
         ))}
       </section>
 
+      {pastGatherings.length > 0 && (
+        <section className="co-section co-section--full">
+          <h2 className="co-section__title">Past Gatherings</h2>
+          {pastGatherings.map((g) => (
+            <div key={g.id}>
+              <div className="co-row-card" style={{ flexWrap: "wrap", marginBottom: "0.25rem" }}>
+                <div>
+                  <strong>{g.title}</strong>
+                  <p>
+                    {g.date}
+                    {g.venue ? ` · ${g.venue}` : ""}
+                  </p>
+                </div>
+              </div>
+              <HostPostMortemCard gatheringId={g.id} title={g.title} />
+            </div>
+          ))}
+        </section>
+      )}
+
       <form onSubmit={handlePlan} className="co-form">
         <p className="co-form__club">Plan a gathering</p>
         <input className="co-input" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -97,6 +136,10 @@ export default function ClubOwnerGatheringsPage() {
           Save gathering
         </button>
       </form>
+
+      <section className="co-section co-section--full">
+        <BloomCardsDeck context="host" />
+      </section>
     </ClubOwnerShell>
   );
 }

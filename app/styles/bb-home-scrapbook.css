@@ -15,9 +15,9 @@
   gap: 0.5rem;
   padding: 0.65rem 1rem 0.55rem;
   padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
-  background: #2c3438;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  background: rgba(253, 240, 244, 0.95);
+  border-bottom: 1px solid rgba(255, 31, 125, 0.08);
+  box-shadow: 0 4px 24px rgba(255, 31, 125, 0.06);
 }
 
 .bb-home-header__mark {
@@ -45,13 +45,13 @@
   font-size: 1.15rem;
   font-weight: 700;
   font-style: italic;
-  color: #ffb7ce;
+  color: #FF1F7D;
   text-decoration: none;
   letter-spacing: 0.01em;
 }
 
 .bb-home-header__star {
-  color: #ff69b4;
+  color: #FF1F7D;
 }
 
 .bb-home-header__bell {
@@ -62,7 +62,7 @@
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  color: #ffb7ce;
+  color: #111111;
   text-decoration: none;
 }
 
@@ -96,8 +96,10 @@
   padding: 0;
   overflow: hidden;
   /* Same board as header — PNG holes show this, not the browser */
-  background-color: #2c3438;
-  background-image: linear-gradient(180deg, #323b3f 0%, #2c3438 55%, #262e32 100%);
+  background-color: #fdf0f4;
+  background-image:
+    linear-gradient(160deg, #fff5f8 0%, #fde8ef 40%, #fff0f5 70%, #fdf6e3 100%),
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,31,125,0.04) 0%, transparent 60%);
   box-sizing: border-box;
   /* Tall enough for overlapping layers; scales on wide screens */
   min-height: clamp(28rem, 92vw, 34rem);
@@ -111,9 +113,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(255, 214, 228, 0.35) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 50% at 15% 80%, rgba(255, 240, 245, 0.5) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 45% at 88% 20%, rgba(255, 230, 238, 0.4) 0%, transparent 60%);
+    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(255,31,125,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 15% 80%, rgba(255,200,220,0.3) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 45% at 88% 20%, rgba(255,180,210,0.25) 0%, transparent 60%);
 }
 
 /* Layer shell — PNG + absolutely positioned text */

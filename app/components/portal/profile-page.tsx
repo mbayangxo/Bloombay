@@ -8,12 +8,16 @@ import { AvatarUpload } from "@/app/components/shared/avatar-upload";
 import { createClient } from "@/lib/supabase/client";
 import { uploadProfilePhoto } from "@/lib/storage/upload";
 import type { AuthUser } from "@/lib/auth/get-user";
+import { SocialProofSection } from "./social-proof-section";
+import { QuestionSheCaries } from "./question-she-carries";
+import { FoundingFlower } from "@/app/components/shared/founding-flower";
+import { CreateMomentSheet } from "@/app/components/portal/create-moment-sheet";
 
 const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
 type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
-type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard";
+type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge" | "about_me" | "photo_dir";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -60,7 +64,7 @@ function Lightbox({
 
       <div
         onClick={e => e.stopPropagation()}
-        style={{ width: "100%", maxWidth: 440, padding: "0 20px", boxSizing: "border-box" }}
+        style={{ width: "100%", maxWidth: "min(440px, calc(100vw - 32px))", padding: "0 16px", boxSizing: "border-box" }}
       >
         <div style={{ position: "relative", width: "100%", maxHeight: "72vh", aspectRatio: "1", overflow: "hidden", borderRadius: 14 }}>
           <Image
@@ -157,10 +161,10 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
     { label: "SIGN",             value: sign || "—" },
   ];
   return (
-    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#F5EDD8", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
-      {/* Top warm-brown bar */}
-      <div style={{ height: 28, background: "linear-gradient(90deg,#8B6914,#A07820,#8B6914)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,248,220,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
+    <div style={{ backgroundImage: PAPER_GRAIN, backgroundSize: "200px 200px", backgroundColor: "#FEFCF7", borderRadius: 16, padding: 0, boxShadow: "0 14px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)", overflow: "hidden", position: "relative" }}>
+      {/* Top pink bar */}
+      <div style={{ height: 28, background: `linear-gradient(90deg,${PINK},#c4005a,${PINK})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(255,255,255,0.85)" }}>BLOOMBAY DOSSIER ✦ {neighborhood || "NEW YORK CITY"}</p>
       </div>
       {/* Clipboard clip */}
       <div style={{ display: "flex", justifyContent: "center", marginTop: -2 }}>
@@ -189,7 +193,7 @@ function TemplateDossier({ displayName, initials, avatarUrl, neighborhood, arche
         </div>
         {/* Fields */}
         {rows.map(r => (
-          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(139,105,20,0.18)", paddingBottom: 8 }}>
+          <div key={r.label} style={{ marginBottom: 9, borderBottom: "1px solid rgba(255,31,125,0.12)", paddingBottom: 8 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.18em", color: "rgba(0,0,0,0.32)", marginBottom: 2 }}>{r.label}</p>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, fontWeight: 600, color: "#1C1B1C", lineHeight: 1.3 }}>{r.value}</p>
           </div>
@@ -416,7 +420,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
   return (
     <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,0.25)", minHeight: 240 }}>
       {/* Top meta bar */}
-      <div style={{ background: "#F5EDD8", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+      <div style={{ background: "#FFF8F0", padding: "5px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.35)" }}>BB+ CREATIVE STUDIO</p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(0,0,0,0.3)" }}>(2026)</p>
       </div>
@@ -463,7 +467,7 @@ function TemplateBillboard({ displayName, initials, avatarUrl, occupation, vibe,
 // ─── 0. The ID Card (original) ───────────────────────────────────────────────
 function TemplateID({ displayName, initials, avatarUrl, neighborhood, occupation, sign, vibe, onAvatarClick }: TemplateProps) {
   return (
-    <div style={{ background: "#F5EDD8", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
+    <div style={{ background: "#FEFCF7", borderRadius: 18, padding: 24, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", position: "relative" }}>
       {/* BLOOMBAY MEMBER label top-left */}
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>BLOOMBAY MEMBER</p>
 
@@ -529,7 +533,7 @@ function TemplateBoard({ displayName, initials, avatarUrl, photos, onAvatarClick
   ];
 
   return (
-    <div style={{ background: "#E5E5E5", padding: 20, borderRadius: 16, position: "relative" }}>
+    <div style={{ background: "#FFF8F0", padding: 20, borderRadius: 16, position: "relative" }}>
       {/* Top-left: bold BB + drawn heart */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 900, color: "#1C1B1C", letterSpacing: "-0.02em" }}>BB</p>
@@ -731,20 +735,395 @@ function TemplateCollage({ displayName, initials, avatarUrl, vibe, photos, onAva
   );
 }
 
+// ─── 11. Lookbook ─────────────────────────────────────────────────────────────
+// Inspired by: IMG_3660 — full-bleed fashion photo, floating pink label cards.
+function TemplateLookbook({ displayName, initials, avatarUrl, occupation, vibe, neighborhood, sign, photos, onAvatarClick }: TemplateProps) {
+  const bgUrl = avatarUrl || photos[0]?.url || null;
+  const labels = [
+    { text: occupation || "main character", x: "8%",  y: "12%" },
+    { text: neighborhood || "NYC",          x: "58%", y: "8%"  },
+    { text: sign || "Leo ✦",               x: "68%", y: "58%" },
+    { text: vibe || "that girl",            x: "6%",  y: "72%" },
+  ];
+  return (
+    <div
+      onClick={onAvatarClick}
+      style={{ borderRadius: 16, overflow: "hidden", position: "relative", height: 380, cursor: "pointer", boxShadow: "0 14px 48px rgba(0,0,0,0.28)" }}
+    >
+      {/* Full-bleed image */}
+      <div style={{ position: "absolute", inset: 0, background: bgUrl ? "transparent" : `linear-gradient(135deg, #FFD6EA, ${PINK})` }}>
+        {bgUrl && <Image src={bgUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />}
+      </div>
+      {/* Gradient overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.2) 45%, transparent 70%)" }} />
+      {/* Floating pink label cards */}
+      {labels.map((lbl, i) => (
+        <div key={i} style={{ position: "absolute", left: lbl.x, top: lbl.y, background: "rgba(255,31,125,0.92)", backdropFilter: "blur(8px)", borderRadius: 6, padding: "4px 10px", boxShadow: "0 3px 14px rgba(0,0,0,0.35)" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>{lbl.text.toUpperCase()}</p>
+        </div>
+      ))}
+      {/* Name at bottom */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 18px 20px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.25em", color: "rgba(255,31,125,0.85)", marginBottom: 5 }}>BLOOMBAY MEMBER</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 30, fontWeight: 900, color: "white", lineHeight: 1, textShadow: "0 2px 14px rgba(0,0,0,0.5)" }}>{displayName}</p>
+      </div>
+      {/* Top-right tap hint */}
+      <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)", borderRadius: 999, padding: "5px 10px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.1em" }}>TAP TO CHANGE ↑</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 12. Moodboard ────────────────────────────────────────────────────────────
+// Inspired by: IMG_3650 — scattered polaroid collage, "Simple Beauty" script center.
+function TemplateMoodboard({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick }: TemplateProps) {
+  const items = [
+    { url: avatarUrl,         w: 98,  h: 108, top: 16,  left: 4,   rotate: -3.5, label: displayName, isAvatar: true  },
+    { url: photos[0]?.url ?? null, w: 82,  h:  92, top:  8,  left: 130,  rotate:  2,   label: "moments",   isAvatar: false },
+    { url: photos[1]?.url ?? null, w: 90,  h: 100, top: 148, left: 22,   rotate: -2,   label: "vibes",     isAvatar: false },
+    { url: photos[2]?.url ?? null, w: 78,  h:  88, top: 100, left: 216,  rotate:  3.5, label: "life",      isAvatar: false },
+    { url: photos[3]?.url ?? null, w: 86,  h:  96, top: 200, left: 130,  rotate: -1,   label: "her world", isAvatar: false },
+  ];
+  return (
+    <div style={{ background: "#FAF6F0", borderRadius: 16, position: "relative", height: 330, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
+      {/* Scattered polaroids */}
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onClick={item.isAvatar ? onAvatarClick : undefined}
+          style={{ position: "absolute", top: item.top, left: item.left, transform: `rotate(${item.rotate}deg)`, background: "none", border: "none", padding: 0, cursor: item.isAvatar ? "pointer" : "default", zIndex: i + 1 }}
+        >
+          <div style={{ background: "white", padding: "5px 5px 16px", boxShadow: "0 4px 18px rgba(0,0,0,0.16)" }}>
+            <div style={{ width: item.w, height: item.h, overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #FFD6EA, #FFABD4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {item.url
+                ? <Image src={item.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 28, color: "rgba(255,31,125,0.38)" }}>{initials}</p>}
+            </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.38)", textAlign: "center" as const, marginTop: 3 }}>{item.label}</p>
+          </div>
+        </button>
+      ))}
+      {/* Central script card */}
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%) rotate(1.5deg)", zIndex: 20, background: "white", padding: "10px 14px 20px", boxShadow: "0 8px 32px rgba(0,0,0,0.25)", borderRadius: 1 }}>
+        <div style={{ width: 108, height: 112, background: "linear-gradient(135deg, #FFF0F8, #FFD6EA)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "rgba(255,31,125,0.45)" }}>BloomBay</p>
+        </div>
+        <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#1C1B1C", textAlign: "center" as const, marginTop: 6, whiteSpace: "nowrap" as const }}>
+          {vibe || "Simple Beauty"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 13. Polaroid 4 ───────────────────────────────────────────────────────────
+// Inspired by: IMG_3653 — clean 2×2 grid of thick-bordered Polaroid frames.
+function TemplatePolaroid4({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick }: TemplateProps) {
+  const slots = [
+    { url: avatarUrl,              label: displayName,   isAvatar: true  },
+    { url: photos[0]?.url ?? null, label: "moments",     isAvatar: false },
+    { url: photos[1]?.url ?? null, label: "her world",   isAvatar: false },
+    { url: photos[2]?.url ?? null, label: vibe || "✦",   isAvatar: false },
+  ];
+  return (
+    <div style={{ background: "#F9F7F5", borderRadius: 16, padding: "20px 16px 16px", boxShadow: "0 6px 24px rgba(0,0,0,0.09)" }}>
+      {/* Small brand header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <p style={{ fontFamily: "var(--font-caveat)", fontStyle: "italic", fontSize: 16, color: "rgba(0,0,0,0.35)" }}>moments ✦</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)" }}>BLOOMBAY</p>
+      </div>
+      {/* 2×2 Polaroid grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {slots.map((slot, i) => (
+          <button
+            key={i}
+            onClick={slot.isAvatar ? onAvatarClick : undefined}
+            style={{ background: "none", border: "none", padding: 0, cursor: slot.isAvatar ? "pointer" : "default" }}
+          >
+            <div style={{ background: "white", padding: "8px 8px 24px", boxShadow: "0 5px 18px rgba(0,0,0,0.14)", borderRadius: 2 }}>
+              <div style={{ width: "100%", aspectRatio: "1", overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #FFD6EA, #FFABD4)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 1 }}>
+                {slot.url
+                  ? <Image src={slot.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+                  : <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 32, color: "rgba(255,31,125,0.4)" }}>{initials}</p>}
+              </div>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.4)", textAlign: "center" as const, marginTop: 6, lineHeight: 1 }}>{slot.label}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Template: Fridge ────────────────────────────────────────────────────────
+
+function TemplateFridge({ displayName, initials, avatarUrl, vibe, photos, onAvatarClick, isOwn }: { displayName: string; initials: string; avatarUrl: string | null; vibe: string; photos: Photo[]; onAvatarClick: () => void; isOwn?: boolean }) {
+  if (!isOwn && photos.length === 0 && !vibe) return null;
+  const handleStyle: React.CSSProperties = { position: "absolute", left: 12, width: 8, height: 60, borderRadius: 4, background: "linear-gradient(180deg, #E8E8E8, #B0B0B0)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" };
+  return (
+    <div style={{ height: 340, position: "relative", background: "#C5D8E4", borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.14)" }}>
+
+      {/* ── Freezer compartment (top 36%) ── */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "36%", borderBottom: "2px solid rgba(0,0,0,0.12)" }}>
+        <div style={{ position: "absolute", ...handleStyle, top: "50%", transform: "translateY(-50%)" }} />
+        <p style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 300, letterSpacing: "0.45em", color: "rgba(255,255,255,0.55)" }}>SMEG</p>
+
+        {/* Photo booth strip */}
+        <div style={{ position: "absolute", top: 18, left: 45, width: 44, borderRadius: 4, background: "white", padding: "2px 2px 2px", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}>
+          {photos[0] ? (
+            <div style={{ height: 30, overflow: "hidden", position: "relative" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photos[0].url} alt="" style={{ width: "100%", height: 30, objectFit: "cover", display: "block" }} />
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {[0,1,2].map(i => <div key={i} style={{ height: 9, background: "#D0D0D0", borderRadius: 1 }} />)}
+            </div>
+          )}
+        </div>
+
+        {/* Victoria postcard magnet */}
+        <div style={{ position: "absolute", top: 14, right: 55, background: "#FFF8F0", borderRadius: 4, padding: "4px 8px", transform: "rotate(3deg)", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
+          <div style={{ position: "absolute", top: 2, right: 2, width: 8, height: 8, background: "#CC2222", opacity: 0.5, borderRadius: 1 }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#8B4030", letterSpacing: "0.2em" }}>{displayName.toUpperCase().slice(0,8)}</p>
+        </div>
+
+        {/* Pink flower sticker */}
+        <div style={{ position: "absolute", top: 28, right: 14, opacity: 0.7 }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="3" fill="#FF85C8"/>
+            {[0,60,120,180,240,300].map((a,i) => {
+              const rad = a * Math.PI / 180;
+              return <ellipse key={i} cx={9 + 5 * Math.cos(rad)} cy={9 + 5 * Math.sin(rad)} rx="2.5" ry="1.5" fill="#FF85C8" transform={`rotate(${a} ${9 + 5 * Math.cos(rad)} ${9 + 5 * Math.sin(rad)})`}/>;
+            })}
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Main fridge door (lower 64%) ── */}
+      <div style={{ position: "absolute", top: "36%", left: 0, right: 0, bottom: 0 }}>
+        <div style={{ position: "absolute", ...handleStyle, top: "30%" }} />
+
+        {/* 1. Calendar magnet */}
+        <div style={{ position: "absolute", top: 18, left: 18, width: 80, background: "white", borderRadius: 6, padding: "5px 6px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+          <div style={{ height: 14, background: "linear-gradient(90deg,#F87060,#F59E0B)", borderRadius: "4px 4px 0 0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "white" }}>May</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 1.5 }}>
+            {Array.from({length: 21}).map((_,i) => <div key={i} style={{ width: 6, height: 6, background: "#F0E8E8", borderRadius: 1 }} />)}
+          </div>
+        </div>
+
+        {/* 2. Yellow notepad sticky */}
+        <div style={{ position: "absolute", top: 16, left: 110, transform: "rotate(2deg)", background: "#FFE082", padding: "6px 8px", borderRadius: 3, boxShadow: "0 3px 8px rgba(0,0,0,0.15)", maxWidth: 80 }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "#3A2A10", lineHeight: 1.3 }}>{vibe ? vibe.slice(0,30) : "Make people FEEL"}</p>
+        </div>
+
+        {/* 3. B&W photo strip */}
+        <div style={{ position: "absolute", top: 14, right: 14, width: 70, background: "white", padding: "3px 3px 3px", boxShadow: "0 3px 10px rgba(0,0,0,0.2)", borderRadius: 3 }}>
+          {photos[1] ? (
+            <div style={{ height: 55, overflow: "hidden", position: "relative" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photos[1].url} alt="" style={{ width: "100%", height: 55, objectFit: "cover", filter: "grayscale(60%)", display: "block" }} />
+            </div>
+          ) : (
+            <div style={{ height: 55, background: "linear-gradient(135deg, #2A2A2A, #555)" }} />
+          )}
+        </div>
+
+        {/* 4. Pink heart sticker */}
+        <div style={{ position: "absolute", bottom: 40, right: 30 }}>
+          <svg width="24" height="22" viewBox="0 0 24 22" fill="#FF1F7D">
+            <path d="M12 21 C12 21 1 13 1 6.5 C1 3.5 3.5 1 6.5 1 C8.8 1 10.7 2.3 12 4.2 C13.3 2.3 15.2 1 17.5 1 C20.5 1 23 3.5 23 6.5 C23 13 12 21 12 21Z"/>
+          </svg>
+        </div>
+
+        {/* 5. Round button magnet */}
+        <div style={{ position: "absolute", bottom: 38, left: 55, width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #F59E0B, #EF4444)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "white" }}>BB</p>
+        </div>
+
+        {/* 6. Orange note */}
+        <div style={{ position: "absolute", bottom: 30, left: 14, background: "#FF9800", padding: "5px 7px", borderRadius: 3, transform: "rotate(-2deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", maxWidth: 72 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "white", lineHeight: 1.3 }}>SAVE WATER DRINK VEUVE CLICQUOT</p>
+        </div>
+
+        {/* 7. Avatar circle */}
+        <button
+          onClick={onAvatarClick}
+          style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", width: 42, height: 42, borderRadius: "50%", overflow: "hidden", cursor: "pointer", border: "2px solid white", boxShadow: "0 3px 10px rgba(0,0,0,0.2)", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 16, fontWeight: 700, color: "white" }}>{initials}</p>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template: About Me ────────────────────────────────────────────────────────
+
+function TemplateAboutMe({ displayName, occupation, vibe, sheIs, sigTraits, sign, avatarUrl, photos, onAvatarClick }: { displayName: string; occupation: string; vibe: string; sheIs: string; sigTraits: string; sign: string; avatarUrl: string | null; photos: { id: string; url: string }[]; onAvatarClick: () => void }) {
+  const bgPhoto = photos[0]?.url ?? null;
+  const bullets = [
+    displayName || "Your Name",
+    occupation || "What she does",
+    sign || "Her sign",
+    sheIs || "She is…",
+    sigTraits || "Her signature trait",
+    vibe || "Her vibe",
+  ].filter(Boolean);
+
+  return (
+    <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", background: "#E8E5DF", minHeight: 340 }}>
+      {/* B&W photo right half */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        {bgPhoto ? (
+          <img src={bgPhoto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) contrast(1.1)" }} />
+        ) : (
+          <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #4A4A4A, #2A2A2A)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} onClick={onAvatarClick}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%)" }} />
+            ) : (
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 48 }}>+</span>
+            )}
+          </div>
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(232,229,223,0.92) 0%, rgba(232,229,223,0.6) 50%, rgba(0,0,0,0) 100%)" }} />
+      </div>
+
+      {/* Torn paper card — left side */}
+      <div style={{ position: "relative", zIndex: 2, padding: "28px 20px 24px 22px", maxWidth: "62%", minHeight: 340, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {/* Paper clip */}
+        <div style={{ position: "absolute", top: 18, left: "50%", transform: "translateX(-50%)", width: 3, height: 26, background: "linear-gradient(180deg, #C0C0C0, #A0A0A0)", borderRadius: 2, boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+
+        {/* Torn paper texture card */}
+        <div style={{
+          background: "#FEFCF7",
+          borderRadius: "2px 6px 4px 2px",
+          padding: "22px 16px 18px",
+          boxShadow: "2px 3px 12px rgba(0,0,0,0.18), -1px -1px 4px rgba(0,0,0,0.06)",
+          position: "relative",
+          clipPath: "polygon(0% 0%, 96% 0%, 100% 4%, 98% 100%, 4% 98%, 0% 96%)",
+        }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: "rgba(0,0,0,0.3)", marginBottom: 12, textTransform: "uppercase" }}>ABOUT ME</p>
+          <div style={{ width: 28, height: 1.5, background: "#6B4EFF", marginBottom: 12 }} />
+          <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px", display: "flex", flexDirection: "column" as const, gap: 6 }}>
+            {bullets.map((b, i) => (
+              <li key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: "#1C1B1C", letterSpacing: "0.06em", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                <span style={{ color: "#6B4EFF", fontWeight: 900, flexShrink: 0, marginTop: 1 }}>•</span>
+                {b.toUpperCase()}
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", fontStyle: "italic", color: "#6B4EFF", lineHeight: 1.3 }}>
+            and still building…
+          </p>
+        </div>
+
+        {/* Handwritten note below */}
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: "13px", color: "#6B4EFF", marginTop: 10, paddingLeft: 4, fontStyle: "italic" }}>
+          stay tuned for more!
+        </p>
+      </div>
+
+      {/* Photo upload tap target */}
+      {!bgPhoto && (
+        <button onClick={onAvatarClick} style={{ position: "absolute", bottom: 14, right: 14, zIndex: 3, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(4px)", borderRadius: 12, padding: "6px 12px", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "#1C1B1C", letterSpacing: "0.1em" }}>
+          + ADD PHOTO
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── 16. Photo Direction ─────────────────────────────────────────────────────
+function TemplatePhotoDir({ displayName, occupation, vibe, photos, avatarUrl, onAvatarClick }: TemplateProps) {
+  const look1 = photos[0]?.url ?? avatarUrl ?? null;
+  const look2 = photos[1]?.url ?? null;
+  return (
+    <div style={{ background: "#F7F3EE", borderRadius: 12, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
+      {/* Season label */}
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "14px 16px 8px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", color: "#999", textTransform: "uppercase" as const }}>
+          SPRING / SUMMER 2025 · PHOTO DIRECTION
+        </p>
+      </div>
+      {/* Two photos */}
+      <div style={{ display: "flex", gap: 8, padding: "0 10px", height: 230 }}>
+        {/* Look 01 */}
+        <div
+          onClick={onAvatarClick}
+          style={{ flex: 1.15, position: "relative", borderRadius: 6, overflow: "hidden", background: "linear-gradient(135deg,#E8E0D8,#D8D0C8)", cursor: "pointer" }}
+        >
+          {look1 && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={look1} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          )}
+          <span style={{ position: "absolute", top: 12, left: 14, fontFamily: "var(--font-caveat)", fontSize: 15, color: "white", fontStyle: "italic", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>Look 01</span>
+        </div>
+        {/* Look 02 */}
+        <div
+          onClick={onAvatarClick}
+          style={{ flex: 0.85, position: "relative", borderRadius: 6, overflow: "hidden", background: "linear-gradient(135deg,#D0C8C0,#C0B8B0)", cursor: "pointer" }}
+        >
+          {look2 ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={look2} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          ) : (
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>+ add photo</p>
+            </div>
+          )}
+          <span style={{ position: "absolute", bottom: 14, right: 12, fontFamily: "var(--font-caveat)", fontSize: 15, color: "white", fontStyle: "italic", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>Look 02</span>
+        </div>
+      </div>
+      {/* Caption row */}
+      <div style={{ padding: "14px 16px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.08em", color: "#1A1A1A", textTransform: "uppercase" as const, marginBottom: 5 }}>
+            {displayName || "YOUR NAME"}
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#888", lineHeight: 1.55, maxWidth: 220 }}>
+            {occupation || vibe || "BloomBay Member"}
+          </p>
+        </div>
+        {/* Pagination dots */}
+        <div style={{ display: "flex", gap: 5, paddingBottom: 4 }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: i === 0 ? "#1A1A1A" : "#CCC" }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Template Picker + Active Template ───────────────────────────────────────
 
 function TemplatePicker({ templateId, setTemplateId }: { templateId: TemplateId; setTemplateId: (id: TemplateId) => void }) {
   const templates: { id: TemplateId; label: string; bg: string; textColor: string }[] = [
-    { id: "id",           label: "ID",       bg: "#F5EDD8", textColor: "#888" },
-    { id: "board",        label: "BOARD",    bg: "#E5E5E5", textColor: "#555" },
+    { id: "id",           label: "ID",       bg: "#FEFCF7", textColor: "#888" },
+    { id: "board",        label: "BOARD",    bg: "#FFF8F0", textColor: "#555" },
     { id: "zine",         label: "ZINE",     bg: "#FF1F7D", textColor: "white" },
     { id: "collage",      label: "COLLAGE",  bg: "#FAFAFA", textColor: "#888" },
-    { id: "dossier",      label: "DOSSIER",  bg: "#F5EDD8", textColor: "#8B6914" },
+    { id: "dossier",      label: "DOSSIER",  bg: "#FEFCF7", textColor: "#FF1F7D" },
     { id: "beauty_table", label: "BEAUTY",   bg: "#FF5BAD", textColor: "white" },
     { id: "notebook",     label: "NOTEBOOK", bg: "#FEFCF7", textColor: "#555" },
     { id: "magazine",     label: "MAG",      bg: "#1A0010", textColor: "#FF1F7D" },
     { id: "solo",         label: "SOLO",     bg: "#FF8EC7", textColor: "white" },
     { id: "billboard",    label: "BILLBOARD",bg: "#0D0820", textColor: "#FF1F7D" },
+    { id: "lookbook",     label: "LOOKBOOK", bg: "#1A1A1A", textColor: "#FF1F7D" },
+    { id: "moodboard",    label: "MOOD",     bg: "#FAF6F0", textColor: "#555" },
+    { id: "polaroid4",    label: "POLAROID", bg: "#F9F7F5", textColor: "#888" },
+    { id: "fridge",       label: "FRIDGE",   bg: "#C5D8E4", textColor: "#555" },
+    { id: "about_me",     label: "ABOUT ME",  bg: "#E8E5DF", textColor: "#6B4EFF" },
+    { id: "photo_dir",    label: "PHOTO DIR", bg: "#F7F3EE", textColor: "#1A1A1A" },
   ];
 
   return (
@@ -791,6 +1170,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
   const [activeTab, setActiveTab] = useState<TabId>(defaultTab ?? "profile");
   const [bloomCodeCopied, setBloomCodeCopied] = useState(false);
+  const [showMomentSheet, setShowMomentSheet] = useState(false);
   const [bloomLinkCopied, setBloomLinkCopied] = useState(false);
 
   // Template state
@@ -805,9 +1185,18 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [sigTraits, setSigTraits] = useState("");
   const [luckyCharm, setLuckyCharm] = useState("");
   const [extraSaved, setExtraSaved] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [customizeSaved, setCustomizeSaved] = useState(false);
+  const [templateAccent, setTemplateAccent] = useState("#FF1F7D");
+  const [templateFontKey, setTemplateFontKey] = useState("playfair");
+  const [voiceNotes, setVoiceNotes] = useState<{ id: string; url: string; label: string }[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Socials state
   const [socials, setSocials] = useState({ instagram: "", tiktok: "", twitter: "", pinterest: "", spotify: "", website: "" });
+  const [showSocials, setShowSocials] = useState(false);
   const [socialsSaved, setSocialsSaved] = useState(false);
 
   // Notification preferences
@@ -834,6 +1223,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   // Delete account
   const [deleteConfirm,  setDeleteConfirm]  = useState("");
   const [deleteOpen,     setDeleteOpen]     = useState(false);
+
+  // Character stats
+  const [stats, setStats] = useState<{ clubs: number; events: number } | null>(null);
 
   // Avatar upload ref for template clicks
   const avatarUploadRef = useRef<HTMLDivElement>(null);
@@ -893,6 +1285,27 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
     }
   }, [user.id]);
 
+  // Load socials from DB (authoritative source, overrides localStorage)
+  useEffect(() => {
+    createClient()
+      .from("profiles")
+      .select("instagram, tiktok, twitter, pinterest, spotify, website, show_socials")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        setSocials({
+          instagram: (data as Record<string, unknown>).instagram as string ?? "",
+          tiktok:    (data as Record<string, unknown>).tiktok    as string ?? "",
+          twitter:   (data as Record<string, unknown>).twitter   as string ?? "",
+          pinterest: (data as Record<string, unknown>).pinterest as string ?? "",
+          spotify:   (data as Record<string, unknown>).spotify   as string ?? "",
+          website:   (data as Record<string, unknown>).website   as string ?? "",
+        });
+        setShowSocials(Boolean((data as Record<string, unknown>).show_socials));
+      });
+  }, [user.id]);
+
   // Save template to localStorage
   function handleSetTemplate(id: TemplateId) {
     setTemplateId(id);
@@ -906,6 +1319,16 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .then(({ data }) => { if (data) setPhotos(data as Photo[]); });
+  }, [user.id]);
+
+  useEffect(() => {
+    const sb = createClient();
+    Promise.all([
+      sb.from("club_memberships").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      sb.from("seat_reservations").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "reserved"),
+    ]).then(([clubs, events]) => {
+      setStats({ clubs: clubs.count ?? 0, events: events.count ?? 0 });
+    });
   }, [user.id]);
 
   function openLightbox(index: number) {
@@ -1019,10 +1442,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
     setTimeout(() => setExtraSaved(false), 2000);
   }
 
-  function handleSaveSocials() {
+  async function handleSaveSocials() {
     if (typeof window !== "undefined") {
       localStorage.setItem(`bb_socials_${user.id}`, JSON.stringify(socials));
     }
+    await fetch("/api/member/socials", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...socials, show_socials: showSocials }),
+    });
     setSocialsSaved(true);
     setTimeout(() => setSocialsSaved(false), 2000);
   }
@@ -1072,10 +1500,10 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   /* ── render ─────────────────────────────────── */
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 30%, #FFF5F0 60%, #FFF0F8 100%)", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "#ffffff", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* ══════════════════════════ PORTFOLIO HEADER ══════════════════════════ */}
-      <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5EC 80%, #FFF0F8 100%)", padding: "20px 18px 0", position: "relative" }}>
+      <div style={{ background: "#ffffff", padding: "20px 18px 0", position: "relative" }}>
 
         {/* Top bar: month/year + member number */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -1096,6 +1524,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               {displayName}.
             </p>
 
+            {isFounder && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, marginBottom: 4 }}>
+                <FoundingFlower size={18} />
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#111" }}>
+                  FOUNDING MEMBER
+                </span>
+              </div>
+            )}
+
             {(user.neighborhood || user.borough) ? (
               <p style={{ fontFamily: "var(--font-jost)", fontStyle: "italic", fontSize: 11, color: "rgba(0,0,0,0.45)", marginBottom: 14, letterSpacing: "0.03em" }}>
                 {user.neighborhood}{user.borough ? ` · ${user.borough}` : ""}
@@ -1106,7 +1543,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </p>
             )}
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
               <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>MEMBER SINCE</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{memberSince}</p>
@@ -1118,6 +1555,19 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </p>
               </div>
             </div>
+
+            {stats !== null && (
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <div style={{ flex: 1, background: "white", border: "1px solid rgba(255,31,125,0.1)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(0,0,0,0.35)", marginBottom: 3 }}>CLUBS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1C1B1C" }}>{stats.clubs}</p>
+                </div>
+                <div style={{ flex: 1, background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 4px 18px rgba(255,31,125,0.08)" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 3 }}>EVENTS</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK }}>{stats.events}</p>
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#1C1B1C", borderRadius: 999, padding: "6px 14px" }}>
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>
@@ -1162,12 +1612,290 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
           {templateId === "magazine" && <TemplateZineMag {...templateProps} />}
           {templateId === "solo" && <TemplateSolo {...templateProps} />}
           {templateId === "billboard" && <TemplateBillboard {...templateProps} />}
+          {templateId === "lookbook"  && <TemplateLookbook  {...templateProps} />}
+          {templateId === "moodboard" && <TemplateMoodboard {...templateProps} />}
+          {templateId === "polaroid4" && <TemplatePolaroid4 {...templateProps} />}
+          {templateId === "fridge" && <TemplateFridge displayName={templateProps.displayName} initials={templateProps.initials} avatarUrl={templateProps.avatarUrl} vibe={templateProps.vibe} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} isOwn={true} />}
+          {templateId === "about_me" && <TemplateAboutMe displayName={templateProps.displayName} occupation={templateProps.occupation} vibe={templateProps.vibe} sheIs={templateProps.sheIs} sigTraits={templateProps.sigTraits} sign={templateProps.sign} avatarUrl={templateProps.avatarUrl} photos={templateProps.photos} onAvatarClick={templateProps.onAvatarClick} />}
+          {templateId === "photo_dir" && <TemplatePhotoDir {...templateProps} />}
         </div>
 
       </div>
 
+      {/* ══════════════════════════ CUSTOMIZE YOUR APARTMENT ══════════════════════════ */}
+      {(() => {
+        const TEMPLATE_FIELDS: Record<string, string[]> = {
+          id:           ["occupation", "sign", "vibe"],
+          board:        ["photos", "voice"],
+          zine:         ["voice"],
+          collage:      ["vibe", "photos", "voice"],
+          dossier:      ["archetype", "sheIs", "sigTraits", "luckyCharm", "sign"],
+          beauty_table: ["occupation", "vibe", "sheIs"],
+          notebook:     ["sheIs", "photos", "voice"],
+          magazine:     ["occupation", "vibe"],
+          solo:         ["sheIs", "sigTraits", "vibe", "luckyCharm"],
+          billboard:    ["occupation", "vibe", "sheIs"],
+          lookbook:     ["occupation", "vibe", "sign", "photos"],
+          moodboard:    ["vibe", "photos", "voice"],
+          polaroid4:    ["vibe", "photos"],
+          fridge:       ["photos", "vibe", "voice"],
+          about_me:     ["occupation", "sign", "vibe", "sheIs", "sigTraits", "photos"],
+          photo_dir:    ["occupation", "vibe", "photos"],
+        };
+        const FIELD_LABELS: Record<string, string> = {
+          occupation: "WHAT SHE DOES",
+          sign:       "HER SIGN",
+          vibe:       "VIBE / TAGLINE",
+          archetype:  "ARCHETYPE",
+          sheIs:      "SHE IS",
+          sigTraits:  "SIGNATURE TRAITS",
+          luckyCharm: "LUCKY CHARM",
+        };
+        const fieldValueMap: Record<string, { value: string; set: (v: string) => void }> = {
+          occupation: { value: occupation, set: setOccupation },
+          sign:       { value: sign,       set: setSign },
+          vibe:       { value: vibe,       set: setVibe },
+          archetype:  { value: archetype,  set: setArchetype },
+          sheIs:      { value: sheIs,      set: setSheIs },
+          sigTraits:  { value: sigTraits,  set: setSigTraits },
+          luckyCharm: { value: luckyCharm, set: setLuckyCharm },
+        };
+        const activeFields = TEMPLATE_FIELDS[templateId] ?? [];
+        const textFields = activeFields.filter(f => f !== "photos" && f !== "voice");
+        const usesPhotos = activeFields.includes("photos");
+        const usesVoice = activeFields.includes("voice");
+        const hasFields = usesPhotos || usesVoice || textFields.length > 0;
+
+        return (
+          <div style={{ margin: "0 0 0", padding: "0 16px 12px" }}>
+            {/* Header row */}
+            <button
+              onClick={() => setCustomizeOpen(o => !o)}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                background: "none", border: "none", cursor: "pointer", padding: "10px 0 8px",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.18em", color: "#FF1F7D" }}>
+                ✏ CUSTOMIZE YOUR APARTMENT
+              </span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(255,31,125,0.5)", letterSpacing: "0.06em" }}>
+                {customizeOpen ? "▲ CLOSE" : "▼ EDIT"}
+              </span>
+            </button>
+
+            {customizeOpen && (
+              <div style={{
+                background: "#FFFBF7",
+                border: "1px solid rgba(255,31,125,0.12)",
+                borderRadius: 20,
+                padding: 16,
+                display: "flex", flexDirection: "column", gap: 12,
+              }}>
+                {!hasFields && (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.35)", textAlign: "center", padding: "8px 0" }}>
+                    This template has no customizable fields.
+                  </p>
+                )}
+
+                {/* Color + Font picker */}
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                    COLOR &amp; FONT
+                  </p>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginBottom: 10 }}>
+                    {["#FF1F7D","#E8006A","#A855F7","#7C3AED","#F59E0B","#06B6D4","#10B981","#EF4444","#1C1B1C","#4B5563","#C0392B","#2C3E50","#E67E22","#27AE60","#8E44AD"].map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setTemplateAccent(c)}
+                        style={{
+                          width: 24, height: 24, borderRadius: "50%", background: c, border: "none",
+                          cursor: "pointer", flexShrink: 0,
+                          boxShadow: templateAccent === c ? `0 0 0 2.5px white, 0 0 0 4px ${c}` : "none",
+                          transition: "box-shadow 0.15s",
+                        }}
+                      />
+                    ))}
+                    <input
+                      type="color"
+                      value={templateAccent}
+                      onChange={e => setTemplateAccent(e.target.value)}
+                      style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.12)", padding: 0, cursor: "pointer", flexShrink: 0 }}
+                      title="Custom color"
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+                    {[
+                      { key: "playfair", label: "Playfair",  family: "var(--font-playfair)" },
+                      { key: "fraunces", label: "Fraunces",  family: "var(--font-fraunces)" },
+                      { key: "jost",     label: "Jost",      family: "var(--font-jost)" },
+                      { key: "caveat",   label: "Caveat",    family: "var(--font-caveat)" },
+                    ].map(f => (
+                      <button
+                        key={f.key}
+                        onClick={() => setTemplateFontKey(f.key)}
+                        style={{
+                          padding: "5px 10px", borderRadius: 8, cursor: "pointer",
+                          background: templateFontKey === f.key ? "#FF1F7D" : "rgba(255,31,125,0.06)",
+                          border: templateFontKey === f.key ? "none" : "1px solid rgba(255,31,125,0.2)",
+                          display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 2,
+                        }}
+                      >
+                        <span style={{ fontFamily: f.family, fontSize: 16, color: templateFontKey === f.key ? "white" : "#1C1B1C", lineHeight: 1 }}>Aa</span>
+                        <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.1em", color: templateFontKey === f.key ? "white" : "rgba(0,0,0,0.4)" }}>{f.label.toUpperCase()}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Photo slots */}
+                {usesPhotos && (
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                      PHOTOS
+                    </p>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" as const }}>
+                      {photos.slice(0, 4).map(ph => (
+                        <div key={ph.id} style={{ width: 60, height: 60, borderRadius: 10, overflow: "hidden", border: "1.5px solid rgba(255,31,125,0.15)", flexShrink: 0, position: "relative" }}>
+                          <img src={ph.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => addInputRef.current?.click()}
+                        style={{
+                          width: 60, height: 60, borderRadius: 10, flexShrink: 0,
+                          border: "1.5px dashed rgba(255,31,125,0.35)",
+                          background: "rgba(255,31,125,0.04)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: "pointer", color: "#FF1F7D",
+                          fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 300,
+                        }}
+                      >+</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice note recorder */}
+                {usesVoice && (
+                  <div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 8 }}>
+                      VOICE NOTES
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <button
+                        onClick={async () => {
+                          if (isRecording) {
+                            mediaRecorderRef.current?.stop();
+                            setIsRecording(false);
+                          } else {
+                            try {
+                              const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                              const mr = new MediaRecorder(stream);
+                              audioChunksRef.current = [];
+                              mr.ondataavailable = e => audioChunksRef.current.push(e.data);
+                              mr.onstop = () => {
+                                const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                                const url = URL.createObjectURL(blob);
+                                setVoiceNotes(prev => [...prev, { id: Date.now().toString(), url, label: `Memo ${prev.length + 1}` }]);
+                                stream.getTracks().forEach(t => t.stop());
+                              };
+                              mr.start();
+                              mediaRecorderRef.current = mr;
+                              setIsRecording(true);
+                            } catch {
+                              /* mic permission denied */
+                            }
+                          }
+                        }}
+                        style={{
+                          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
+                          background: isRecording ? "#EF4444" : "#FF1F7D",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0, transition: "background 0.2s",
+                        }}
+                      >
+                        {isRecording ? (
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><rect x="2" y="2" width="10" height="10" rx="1" /></svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="white"><ellipse cx="8" cy="6" rx="3" ry="4" /><path d="M3 8a5 5 0 0 0 10 0" stroke="white" strokeWidth="1.5" fill="none" /><line x1="8" y1="13" x2="8" y2="15" stroke="white" strokeWidth="1.5" /></svg>
+                        )}
+                      </button>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: isRecording ? "#EF4444" : "rgba(0,0,0,0.5)" }}>
+                        {isRecording ? "Recording… tap to stop" : "Tap to record a voice note"}
+                      </span>
+                    </div>
+                    {voiceNotes.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+                        {voiceNotes.map(vn => (
+                          <div key={vn.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,31,125,0.04)", borderRadius: 10, padding: "7px 10px", border: "1px solid rgba(255,31,125,0.12)" }}>
+                            <audio src={vn.url} controls style={{ height: 28, flex: 1, minWidth: 0 }} />
+                            <button
+                              onClick={() => setVoiceNotes(prev => prev.filter(n => n.id !== vn.id))}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(0,0,0,0.3)", fontSize: 16, lineHeight: 1, padding: 0, flexShrink: 0 }}
+                            >×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Text fields */}
+                {textFields.map(fieldKey => {
+                  const entry = fieldValueMap[fieldKey];
+                  if (!entry) return null;
+                  return (
+                    <div key={fieldKey}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,31,125,0.6)", marginBottom: 5 }}>
+                        {FIELD_LABELS[fieldKey]}
+                      </p>
+                      <input
+                        value={entry.value}
+                        onChange={e => entry.set(e.target.value)}
+                        style={{
+                          width: "100%", boxSizing: "border-box" as const,
+                          padding: "9px 12px",
+                          fontFamily: "var(--font-jost)", fontSize: 13, color: "#1C1B1C",
+                          background: "white", border: "1px solid rgba(255,31,125,0.18)",
+                          borderRadius: 10, outline: "none",
+                        }}
+                        placeholder={`Enter ${FIELD_LABELS[fieldKey].toLowerCase()}…`}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* Save button */}
+                {hasFields && (
+                  <button
+                    onClick={() => {
+                      handleSaveExtra();
+                      setCustomizeSaved(true);
+                      setTimeout(() => setCustomizeSaved(false), 2000);
+                    }}
+                    style={{
+                      marginTop: 4, padding: "11px 0", borderRadius: 12,
+                      background: customizeSaved ? "rgba(255,31,125,0.08)" : "#FF1F7D",
+                      border: customizeSaved ? "1.5px solid rgba(255,31,125,0.25)" : "none",
+                      cursor: "pointer", width: "100%",
+                      fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
+                      letterSpacing: "0.14em",
+                      color: customizeSaved ? "#FF1F7D" : "white",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {customizeSaved ? "SAVED ✓" : "SAVE"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* ══════════════════════════ TABS ══════════════════════════ */}
-      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,240,248,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,31,125,0.08)" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(253,244,236,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
         <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined, paddingLeft: 14, paddingRight: 14 }}>
           {tabs.map(tab => (
             <button
@@ -1228,6 +1956,63 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             )}
+
+            <QuestionSheCaries editable />
+
+            {/* Bloom Passport link */}
+            <Link href="/member/passport" style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "linear-gradient(160deg, #6B001A 0%, #9B0032 45%, #C4005A 100%)",
+                borderRadius: 16, padding: "16px 18px",
+                boxShadow: "0 6px 24px rgba(196,0,90,0.28)",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                position: "relative", overflow: "hidden",
+              }}>
+                <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 55%)", pointerEvents: "none" }}/>
+                <div style={{ position: "relative" }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,200,220,0.75)", marginBottom: 4 }}>✦ BLOOM PASSPORT</p>
+                  <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "rgba(255,230,242,0.97)", margin: 0, letterSpacing: "-0.01em" }}>Your world, documented.</p>
+                </div>
+                <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
+                  <div style={{ width: 34, height: 44, borderRadius: 5, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "9px", color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em" }}>BB</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", marginTop: 1 }}>PASS</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* My Story link */}
+            <Link
+              href="/member/my-story"
+              style={{ textDecoration: "none" }}
+            >
+              <div
+                style={{
+                  background: "#FFF8F0",
+                  borderRadius: 16,
+                  padding: "16px 18px",
+                  border: "1px solid rgba(255,31,125,0.12)",
+                  boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: PINK, marginBottom: 4 }}>✦ MY STORY</p>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "#111", margin: 0 }}>Your BloomBay life, as Yande remembers it.</p>
+                </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </Link>
+
+            <SocialProofSection userId={user.id} />
           </div>
         )}
 
@@ -1272,21 +2057,28 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             {photos.length === 0 && uploadingCount === 0 && (
               <div style={{ ...cardStyle, textAlign: "center", padding: "32px 18px" }}>
                 <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, color: "rgba(255,31,125,0.5)", marginBottom: 6 }}>No moments yet</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.35)", marginBottom: 16 }}>Upload photos to fill your apartment</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.35)", marginBottom: 16 }}>Capture a place, event, meetup, or girl gem ✦</p>
               </div>
             )}
 
             <button
-              onClick={() => addInputRef.current?.click()}
-              style={{ width: "100%", padding: "14px", borderRadius: 16, border: `1.5px dashed rgba(255,31,125,0.4)`, background: "rgba(255,31,125,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
+              onClick={() => setShowMomentSheet(true)}
+              style={{ width: "100%", padding: "14px", borderRadius: 16, border: "none", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer" }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>ADD MOMENT</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "0.1em" }}>CREATE MOMENT</span>
             </button>
             <input ref={addInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
               onChange={e => { if (e.target.files?.length) handleAddPhotos(e.target.files); e.target.value = ""; }} />
+
+            {showMomentSheet && (
+              <CreateMomentSheet
+                onClose={() => setShowMomentSheet(false)}
+                onPosted={() => setShowMomentSheet(false)}
+              />
+            )}
           </div>
         )}
 
@@ -1352,6 +2144,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.6)", marginBottom: 16 }}>
               YOUR BLOOM CODE
             </p>
+
+            {isFounder && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 20 }}>
+                <FoundingFlower size={36} />
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "#111" }}>
+                  FOUNDING MEMBER
+                </span>
+              </div>
+            )}
 
             <div style={{ ...cardStyle, textAlign: "center", padding: "32px 20px" }}>
               <div style={{ background: "linear-gradient(135deg, #FFF0F8 0%, #FFE8F4 100%)", borderRadius: 18, padding: "24px 20px", marginBottom: 20, border: "1px solid rgba(255,31,125,0.15)" }}>
@@ -1530,6 +2331,31 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 </div>
               </div>
             ))}
+
+            {/* Show socials publicly toggle */}
+            <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C", marginBottom: 3 }}>Show on my profile</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#999", lineHeight: 1.4 }}>Let other members find you on your socials</p>
+              </div>
+              <button
+                onClick={() => setShowSocials(v => !v)}
+                style={{
+                  width: 46, height: 26, borderRadius: 999, border: "none", cursor: "pointer",
+                  background: showSocials ? PINK : "#E5E5E5",
+                  position: "relative", flexShrink: 0,
+                  transition: "background 0.2s",
+                }}
+              >
+                <span style={{
+                  position: "absolute", top: 3,
+                  left: showSocials ? 23 : 3,
+                  width: 20, height: 20, borderRadius: "50%",
+                  background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                  transition: "left 0.2s",
+                }} />
+              </button>
+            </div>
 
             <button
               onClick={handleSaveSocials}

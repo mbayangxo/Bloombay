@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { WellnessPost } from "@/lib/actions/wellness";
 
@@ -259,7 +259,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           Share a recipe
         </h2>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)", margin: "0 0 20px" }}>
-          It goes straight to the Health Bar — and to saved apartments ✦
+          It goes straight to the Girl Fit — and to saved apartments ✦
         </p>
 
         {/* Category */}
@@ -311,7 +311,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           }}
           onClick={onClose}
         >
-          Post to Health Bar →
+          Post to Girl Fit →
         </button>
       </div>
     </>
@@ -321,12 +321,42 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
 // ── HealthPage ──────────────────────────────────────────────────────────────────
 export function HealthPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [posts, setPosts] = useState<MockPost[]>(MOCK_POSTS);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [showCreate, setShowCreate] = useState(false);
 
+  useEffect(() => {
+    fetch("/api/avenue/health")
+      .then(r => r.json())
+      .then(d => {
+        if (d.content?.length) {
+          setPosts(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            d.content.map((row: any): MockPost => ({
+              id: row.id,
+              title: row.title ?? "",
+              content: row.body ?? "",
+              category: (row.meta?.category ?? "tip") as Category,
+              ingredients: row.meta?.ingredients ?? [],
+              steps: row.meta?.steps ?? [],
+              gradientA: row.meta?.gradient_a ?? "#A8E063",
+              gradientB: row.meta?.gradient_b ?? "#56AB2F",
+              author_name: row.author ?? "",
+              author_id: row.id,
+              author_avatar: null,
+              saves_count: 0,
+              created_at: row.created_at ?? new Date().toISOString(),
+              image_url: null,
+            }))
+          );
+        }
+      })
+      .catch(() => {/* keep mock */});
+  }, []);
+
   const filtered = activeCategory === "all"
-    ? MOCK_POSTS
-    : MOCK_POSTS.filter(p => p.category === activeCategory);
+    ? posts
+    : posts.filter(p => p.category === activeCategory);
 
   function toggleSave(id: string) {
     setSavedIds(prev => {
@@ -366,7 +396,7 @@ export function HealthPage() {
               <h1 style={{
                 fontFamily: "var(--font-playfair)", fontStyle: "italic",
                 fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.1, color: DARK,
-              }}>The Health Bar</h1>
+              }}>The Girl Fit</h1>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, margin: 0, color: "rgba(28,27,28,0.5)", lineHeight: 1.2 }}>
                 recipes, rituals & real wellness ✦
               </p>

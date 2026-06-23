@@ -28,8 +28,13 @@ body {
 }
 
 ::selection {
-  background: var(--bb-barbie-soft);
-  color: var(--bb-velvet);
+  background: rgba(255,31,125,0.15);
+  color: #111;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; scroll-behavior: smooth; }
+
+/* All interactive elements get pointer cursor + tap highlight removed */
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}

@@ -650,7 +650,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
         {/* Social proof — avatar stack */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ display: "flex" }}>
-            {(["#FF69B4","#A855F7","#0EA5E9","#D4A853"] as const).map((c, i) => (
+            {(["#FF69B4","#FF1F7D","#FFB3D1","#C4005A"] as const).map((c, i) => (
               <div key={i} style={{
                 width: 26, height: 26, borderRadius: "50%",
                 background: `linear-gradient(135deg,${c},${c}BB)`,
@@ -828,6 +828,10 @@ export function OnboardFlow() {
   // ── STEP 2 – save profile basics ─────────────────────────────────
   async function handleSaveProfile() {
     if (!firstName.trim()) return setError("Enter your first name.");
+    const ageNum = age ? parseInt(age, 10) : null;
+    if (age && (isNaN(ageNum!) || ageNum! < 18 || ageNum! > 100)) {
+      return setError("You must be 18 or older to join BloomBay.");
+    }
     setLoading(true);
     setError(null);
     try {
@@ -836,7 +840,7 @@ export function OnboardFlow() {
       if (!user) throw new Error("Not signed in.");
       const { error: err } = await supabase
         .from("profiles")
-        .update({ first_name: firstName.trim(), bio: bio.trim() || null, age: age ? parseInt(age) : null })
+        .update({ first_name: firstName.trim(), bio: bio.trim() || null, age: ageNum })
         .eq("id", user.id);
       if (err) throw err;
       advance();
@@ -988,7 +992,8 @@ export function OnboardFlow() {
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
       // Fire-and-forget: Yande sends the welcome message
       welcomeNewMember(user.id).catch(() => {});
-      router.push("/member/home");
+      // Send to preferences step so Yande can learn who she is
+      router.push("/member/preferences");
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {

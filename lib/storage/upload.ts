@@ -77,3 +77,39 @@ export async function uploadHangerImage(file: File, listingId: string): Promise<
   if (error) throw error;
   return supabase.storage.from("hanger").getPublicUrl(path).data.publicUrl;
 }
+
+// ── Event / Gathering media ───────────────────────────────────────────────────
+
+export async function uploadEventPhoto(file: File, eventId: string): Promise<string> {
+  const compressed = await prepare(file, 1400, 500);
+  const supabase = createClient();
+  const path = `${eventId}/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+  const { error } = await supabase.storage
+    .from("event-media")
+    .upload(path, compressed, { upsert: false, contentType: "image/webp" });
+  if (error) throw error;
+  return supabase.storage.from("event-media").getPublicUrl(path).data.publicUrl;
+}
+
+export async function uploadEventVoiceNote(blob: Blob, eventId: string): Promise<string> {
+  const supabase = createClient();
+  const path = `${eventId}/voice-${Date.now()}.m4a`;
+  const { error } = await supabase.storage
+    .from("event-media")
+    .upload(path, blob, { upsert: false, contentType: "audio/mp4" });
+  if (error) throw error;
+  return supabase.storage.from("event-media").getPublicUrl(path).data.publicUrl;
+}
+
+// ── Club crest / customization ───────────────────────────────────────────────
+
+export async function uploadClubCrestBadge(svgString: string, clubId: string): Promise<string> {
+  const supabase = createClient();
+  const blob = new Blob([svgString], { type: "image/svg+xml" });
+  const path = `${clubId}/crest.svg`;
+  const { error } = await supabase.storage
+    .from("club-covers")
+    .upload(path, blob, { upsert: true, contentType: "image/svg+xml" });
+  if (error) throw error;
+  return supabase.storage.from("club-covers").getPublicUrl(path).data.publicUrl;
+}

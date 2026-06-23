@@ -4,6 +4,10 @@ import React, { useState, useRef } from "react";
 import { updatePartner, addPartnerPhoto, removePartnerPhoto } from "@/lib/actions/partners";
 import { uploadPartnerPhoto } from "@/lib/storage/upload";
 import type { PartnerData, GirlFavorite, PartnerReview } from "@/lib/actions/partners";
+import { MenuTemplate } from "@/app/components/partner-templates/menu-templates";
+import type { MenuTemplateStyle } from "@/app/components/partner-templates/menu-templates";
+import { BloomPartnerPage } from "@/app/components/partner-templates/bloom-partner-page";
+import { FabmagTemplate } from "@/app/components/partner-templates/fabmag-template";
 
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
@@ -96,6 +100,17 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // ── Poster template ──────────────────────────────────────────────────────
+  const [posterTemplate, setPosterTemplate] = useState<string>("butter_love");
+
+  // ── Page style template ───────────────────────────────────────────────────
+  const [pageStyle, setPageStyle] = useState<"bloom" | "fabmag">("bloom");
+
+  // ── Menu display template ─────────────────────────────────────────────────
+  const [menuTemplate, setMenuTemplate] = useState<string>("cafe_board");
+  const [menuAccent, setMenuAccent] = useState("#FF1F7D");
+  const [menuFont, setMenuFont] = useState("var(--font-playfair)");
+
   // ── Menu highlights ──────────────────────────────────────────────────────
   const [menuItems, setMenuItems] = useState<{ item: string; price: string; note: string }[]>(
     (partner.girl_favorites ?? []).length > 0
@@ -157,7 +172,7 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
   return (
     <div style={{ background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
       {/* ── Fixed header ─────────────────────────────────────────────────── */}
-      <div style={{
+      <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         background: CREAM, borderBottom: "1px solid #E8E0D4",
         padding: "calc(env(safe-area-inset-top,0px) + 10px) 16px 10px",
@@ -341,6 +356,96 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
         {/* ── MENU ───────────────────────────────────────────────────────── */}
         {tab === "menu" && (
           <div>
+            <Section title="BRAND TEMPLATES">
+              <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 14 }}>
+                Choose a poster style for your storefront. Each template uses your photos, name, and brand color.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                {([
+                  { id: "butter_love",   label: "Butter & Love",   bg: "#FEFCF7", emoji: "🥐" },
+                  { id: "bite_crunch",   label: "Bite the Crunch", bg: "#C8201A", emoji: "🍞" },
+                  { id: "receipt_menu",  label: "Receipt Menu",    bg: "#8B5E3C", emoji: "🧾" },
+                  { id: "food_grid",     label: "Food Grid",       bg: "#1A1209", emoji: "☕" },
+                  { id: "sunday_special",label: "Sunday Special",  bg: "#FBF6EE", emoji: "🥖" },
+                  { id: "bakery_promo",  label: "Bakery Promo",    bg: "#4A90D9", emoji: "🎁" },
+                ] as const).map(t => {
+                  const selected = posterTemplate === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setPosterTemplate(t.id)} style={{ borderRadius: 14, overflow: "hidden", border: selected ? `3px solid ${PINK}` : "3px solid transparent", cursor: "pointer", boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)", transition: "all 0.15s", background: "none", padding: 0 }}>
+                      <div style={{ background: t.bg, height: 90, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 6 }}>
+                        <span style={{ fontSize: 28 }}>{t.emoji}</span>
+                        <span style={{ fontFamily: FONT_JOST, fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em", color: brandColor, textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{t.label.toUpperCase()}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </Section>
+
+            <Section title="PAGE STYLE">
+              <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 14 }}>
+                Choose the editorial layout for your partner page.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {([
+                  { id: "bloom" as const, label: "Bloom Page", desc: "Scrapbook editorial", bg: "#FEFCF8", accent: "#FF1F7D" },
+                  { id: "fabmag" as const, label: "FABMAG",     desc: "Magazine two-panel",  bg: "#6B7A5C", accent: "#E8D44D" },
+                ]).map(t => {
+                  const selected = pageStyle === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setPageStyle(t.id)} style={{
+                      borderRadius: 14, overflow: "hidden",
+                      border: selected ? `3px solid ${PINK}` : "3px solid transparent",
+                      cursor: "pointer",
+                      boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)",
+                      transition: "all 0.15s", background: "none", padding: 0,
+                    }}>
+                      <div style={{
+                        background: t.bg, height: 90,
+                        display: "flex", flexDirection: "column" as const,
+                        alignItems: "center", justifyContent: "center", gap: 6,
+                      }}>
+                        <span style={{
+                          fontFamily: FONT_JOST, fontSize: "10px", fontWeight: 900,
+                          letterSpacing: "0.12em", color: t.accent,
+                        }}>
+                          {t.label.toUpperCase()}
+                        </span>
+                        <span style={{
+                          fontFamily: FONT_JOST, fontSize: "8px", fontWeight: 500,
+                          color: t.accent, opacity: 0.7,
+                        }}>
+                          {t.desc}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Live preview of selected page style */}
+              <div style={{ maxWidth: 360, margin: "0 auto" }}>
+                {pageStyle === "bloom" ? (
+                  <BloomPartnerPage
+                    brandName={name || undefined}
+                    location={neighborhood || undefined}
+                    tagline={tagline || undefined}
+                    girlFavorites={favoritesRaw.filter(f => f.name).map(f => f.name)}
+                    curatorNote={hostNoteText || undefined}
+                    aboutText={about || undefined}
+                    instagram={instagram || undefined}
+                    hours={hours["general"] || undefined}
+                    accentColor={brandColor || undefined}
+                  />
+                ) : (
+                  <FabmagTemplate
+                    brandName={name || undefined}
+                    accentColor={brandColor || undefined}
+                  />
+                )}
+              </div>
+            </Section>
+
             <Section title="MENU HIGHLIGHTS">
               <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 16 }}>These appear in the &quot;From the Menu&quot; card on your storefront.</p>
               {menuItems.map((m, i) => (
@@ -358,6 +463,92 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
               }}>
                 + ADD ITEM
               </button>
+            </Section>
+
+            <Section title="MENU DISPLAY">
+              <p style={{ fontFamily: FONT_JOST, fontSize: "10px", color: "#9A8A7A", marginBottom: 14 }}>
+                Choose how your menu looks on your storefront.
+              </p>
+              {/* 5 style picker thumbnails in a 2-col grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {([
+                  { id: "chalkboard",      label: "Chalkboard",    bg: "#1C2B1A", textColor: "white",   emoji: "🪟" },
+                  { id: "bistro",          label: "Bistro",        bg: "#FDFAF3", textColor: "#2C1810", emoji: "📜" },
+                  { id: "cafe_board",      label: "Café Board",    bg: "#FBF6EE", textColor: "#8B5E3C", emoji: "☕" },
+                  { id: "weekly_schedule", label: "Weekly",        bg: "#FBF6EE", textColor: PINK,      emoji: "📋" },
+                  { id: "daily_specials",  label: "Daily Specials",bg: "#1A0F08", textColor: "white",   emoji: "🍽️" },
+                ] as const).map(t => {
+                  const selected = menuTemplate === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setMenuTemplate(t.id)} style={{
+                      borderRadius: 14, overflow: "hidden",
+                      border: selected ? `3px solid ${PINK}` : "3px solid transparent",
+                      cursor: "pointer",
+                      boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)",
+                      transition: "all 0.15s", background: "none", padding: 0,
+                    }}>
+                      <div style={{
+                        background: t.bg, height: 90,
+                        display: "flex", flexDirection: "column" as const,
+                        alignItems: "center", justifyContent: "center", gap: 6,
+                      }}>
+                        <span style={{ fontSize: 24 }}>{t.emoji}</span>
+                        <span style={{
+                          fontFamily: FONT_JOST, fontSize: "8px", fontWeight: 800,
+                          letterSpacing: "0.1em", color: t.textColor,
+                          textShadow: (t.bg === "#1C2B1A" || t.bg === "#1A0F08") ? "0 1px 3px rgba(0,0,0,0.4)" : "none",
+                        }}>
+                          {t.label.toUpperCase()}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Color + font pickers */}
+              <div>
+                {/* Color swatches */}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                  {["#FF1F7D","#8B1A2E","#C8201A","#8B5E3C","#4A90D9","#2C7A4B","#7C3AED","#1A0F08","#1C2B1A","#2C1810"].map(c => (
+                    <button key={c} onClick={() => setMenuAccent(c)} style={{
+                      width: 26, height: 26, borderRadius: "50%", background: c, border: "none", cursor: "pointer",
+                      boxShadow: menuAccent === c ? `0 0 0 2.5px white, 0 0 0 4px ${c}` : "none",
+                      transition: "box-shadow 0.15s",
+                    }} />
+                  ))}
+                  <input type="color" value={menuAccent} onChange={e => setMenuAccent(e.target.value)}
+                    style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.12)", padding: 0, cursor: "pointer" }} />
+                </div>
+                {/* Font buttons */}
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  {[
+                    { key: "playfair", family: "var(--font-playfair)", label: "Playfair" },
+                    { key: "fraunces", family: "var(--font-fraunces)", label: "Fraunces" },
+                    { key: "jost",     family: "var(--font-jost)",     label: "Jost" },
+                    { key: "caveat",   family: "var(--font-caveat)",   label: "Caveat" },
+                  ].map(f => (
+                    <button key={f.key} onClick={() => setMenuFont(f.family)}
+                      style={{ padding: "5px 10px", borderRadius: 8, cursor: "pointer",
+                        background: menuFont === f.family ? "#FF1F7D" : "rgba(255,31,125,0.06)",
+                        border: menuFont === f.family ? "none" : "1px solid rgba(255,31,125,0.2)" }}>
+                      <span style={{ fontFamily: f.family, fontSize: 15, color: menuFont === f.family ? "white" : "#1C1B1C", display: "block", lineHeight: 1 }}>Aa</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, letterSpacing: "0.1em", color: menuFont === f.family ? "white" : "rgba(0,0,0,0.4)" }}>{f.label.toUpperCase()}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live preview */}
+              <div style={{ maxWidth: 320, margin: "0 auto" }}>
+                <MenuTemplate
+                  style={menuTemplate as MenuTemplateStyle}
+                  items={menuItems.filter(m => m.item)}
+                  brandName={name}
+                  accentColor={menuAccent}
+                  fontFamily={menuFont}
+                />
+              </div>
             </Section>
           </div>
         )}
