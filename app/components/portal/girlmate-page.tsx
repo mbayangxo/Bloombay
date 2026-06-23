@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/browser";
+import { sendYandeSignal } from "@/lib/yande-signal";
 
 const PINK  = "#FF1F7D";
 const PLUM  = "#1A0A2E";
@@ -504,6 +505,17 @@ function SendButton({ name, sent, onSend }: { name: string; sent: boolean; onSen
 
 function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    sendYandeSignal("girlmate", "profile_viewed", {
+      target_id: typeof l.poster === "object" ? undefined : undefined,
+      object_id: String(l.id),
+      object_type: "girlmate_listing",
+      meta: { compat_score: l.compatibility, neighborhood: l.neighborhood },
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [l.id]);
+
   return (
     <DetailSheet onClose={onClose}>
       <div style={{ height: 160, margin: "0 16px", background: `linear-gradient(135deg, ${l.poster.color}33, ${l.poster.color}0A)`, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", marginBottom: 4 }}>
@@ -560,7 +572,18 @@ function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
         <ProfileTags l={l} />
         <VoiceVideoDisplay voiceNoteUrl={l.voiceNoteUrl} videoIntroUrl={l.videoIntroUrl} />
         <YandeNote note={l.yandeNote} />
-        <SendButton name={`Message ${l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}`} sent={sent} onSend={() => setSent(true)} />
+        <SendButton
+          name={`Message ${l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}`}
+          sent={sent}
+          onSend={() => {
+            setSent(true);
+            sendYandeSignal("girlmate", "message_sent", {
+              object_id: String(l.id),
+              object_type: "girlmate_listing",
+              meta: { compat_score: l.compatibility },
+            });
+          }}
+        />
       </div>
     </DetailSheet>
   );
@@ -833,6 +856,13 @@ function PostSheet({ onClose, onPosted }: { onClose: () => void; onPosted?: () =
         return;
       }
       setDone(true);
+      sendYandeSignal("girlmate", "listing_posted", {
+        meta: {
+          listing_type: listingType, city: city.trim(),
+          has_voice: !!voiceNoteUrl, has_video: !!videoIntroUrl,
+          lifestyle_tags: selectedLifestyle, move_in_timeline: moveInTimeline,
+        },
+      });
       onPosted?.();
     } catch {
       setPostError("Something went wrong");
