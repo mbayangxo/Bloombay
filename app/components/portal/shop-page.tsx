@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
+import { BloomDropSection } from "./bloom-drop-card";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -86,6 +87,24 @@ const MOCK_ITEMS: ShopItem[] = [
 
 function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onSave: () => void }) {
   const meta = CAT_META[item.category];
+  const [buying, setBuying] = useState(false);
+
+  const handleBuy = useCallback(async () => {
+    if (buying) return;
+    setBuying(true);
+    try {
+      const res = await fetch("/api/shop/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId: item.id }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setBuying(false);
+    }
+  }, [item.id, buying]);
+
   return (
     <div style={{ position: "relative" }}>
       <div style={{ position: "absolute", inset: 0, borderRadius: 18, background: `${item.gradientA}18`, transform: "rotate(1.2deg)", zIndex: 0 }} />
@@ -134,8 +153,19 @@ function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onS
               <button onClick={onSave} style={{ width: 32, height: 32, borderRadius: "50%", background: saved ? `${PINK}12` : "rgba(0,0,0,0.04)", border: `1.5px solid ${saved ? PINK : "rgba(0,0,0,0.08)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill={saved ? PINK : "none"} stroke={saved ? PINK : "#aaa"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
               </button>
-              <button style={{ padding: "7px 14px", borderRadius: 99, background: `linear-gradient(135deg, ${PINK}, #C4005A)`, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", boxShadow: `0 3px 12px ${PINK}40` }}>
-                Shop →
+              <button
+                onClick={handleBuy}
+                disabled={buying}
+                style={{
+                  padding: "7px 14px", borderRadius: 99,
+                  background: buying ? "rgba(0,0,0,0.08)" : `linear-gradient(135deg, ${PINK}, #C4005A)`,
+                  border: "none", cursor: buying ? "default" : "pointer",
+                  fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800,
+                  color: buying ? "#aaa" : "white",
+                  boxShadow: buying ? "none" : `0 3px 12px ${PINK}40`,
+                  transition: "all 0.15s",
+                }}>
+                {buying ? "…" : "Shop →"}
               </button>
             </div>
           </div>
@@ -155,7 +185,7 @@ export function ShopPage() {
   const cats = Object.entries(CAT_META) as [ShopCategory, { label: string; color: string }][];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFF5F0 60%, #F0F4FF 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ background: "var(--bb-page-bg, #FFF0F6)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)" }}>
 
       {/* Header */}
       <div style={{
@@ -192,8 +222,13 @@ export function ShopPage() {
         </div>
       </div>
 
+      {/* Active Bloom Drops — shows free coffees etc. when live */}
+      <div style={{ padding: "18px 18px 0" }}>
+        <BloomDropSection />
+      </div>
+
       {/* Grid */}
-      <div style={{ padding: "18px 18px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      <div style={{ padding: "14px 18px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         {filtered.map(item => (
           <ShopCard
             key={item.id} item={item}
