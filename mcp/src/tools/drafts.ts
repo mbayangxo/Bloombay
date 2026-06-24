@@ -10,31 +10,35 @@ export const draftTools: Tool[] = [
   {
     name: "draft_email",
     description:
-      "Draft a warm, humanized email for a specific member. Saves to the draft queue — does NOT send. Use send_draft to send after review.",
+      "Draft a warm, humanized email for a specific member. Saves to the draft queue — does NOT send. Set use_memory: true to make Yande pull her saved context about this person for a more personal message.",
     inputSchema: {
       type: "object",
       required: ["user_id", "subject", "raw_message"],
       properties: {
-        user_id:     { type: "string", description: "Recipient user UUID" },
-        subject:     { type: "string", description: "Email subject line" },
-        raw_message: { type: "string", description: "Plain text of what you want to say" },
-        mode:        { type: "string", enum: ["bloomBay","host","yande","event","girlmates"], description: "Voice mode (default: yande)" },
-        context:     { type: "string", description: "Optional context to help the voice feel specific" },
+        user_id:            { type: "string", description: "Recipient user UUID" },
+        subject:            { type: "string", description: "Email subject line" },
+        raw_message:        { type: "string", description: "Plain text of what you want to say" },
+        mode:               { type: "string", enum: ["bloomBay","host","yande","event","girlmates","celebration","support","newInTown","clubInvite","rejection"], description: "Voice mode (default: yande)" },
+        context:            { type: "string", description: "Optional context to help the voice feel specific" },
+        relationship_stage: { type: "string", enum: ["stranger","new_friend","friend","close_friend","club_member","host"] },
+        use_memory:         { type: "boolean", description: "Pull Yande's saved context about this member (default: true)" },
       },
     },
   },
   {
     name: "draft_sms",
     description:
-      "Draft a short, warm SMS for a specific member. Saves to the draft queue — does NOT send.",
+      "Draft a short, warm SMS for a specific member. Saves to the draft queue — does NOT send. Set use_memory: true to personalize with Yande's memory.",
     inputSchema: {
       type: "object",
       required: ["user_id", "raw_message"],
       properties: {
-        user_id:     { type: "string", description: "Recipient user UUID" },
-        raw_message: { type: "string", description: "What you want to say (keep short — will be humanized to SMS length)" },
-        mode:        { type: "string", enum: ["bloomBay","host","yande","event","girlmates"], description: "Voice mode (default: yande)" },
-        context:     { type: "string", description: "Optional situation context" },
+        user_id:            { type: "string", description: "Recipient user UUID" },
+        raw_message:        { type: "string", description: "What you want to say (keep short — will be humanized to SMS length)" },
+        mode:               { type: "string", enum: ["bloomBay","host","yande","event","girlmates","celebration","support","newInTown","clubInvite","rejection"], description: "Voice mode (default: yande)" },
+        context:            { type: "string", description: "Optional situation context" },
+        relationship_stage: { type: "string", enum: ["stranger","new_friend","friend","close_friend","club_member","host"] },
+        use_memory:         { type: "boolean", description: "Pull Yande's saved context about this member (default: true)" },
       },
     },
   },
@@ -123,21 +127,59 @@ async function dispatch(name: string, args: Args): Promise<string> {
 // ── Humanizer (inline for MCP package isolation) ──────────────────────────────
 
 const MODE_PROMPTS: Record<string, string> = {
-  bloomBay: `You are the BloomBay voice. Transform text into warm, feminine, inviting messages — like a brilliant friend talking to you. Light emoji (one or two max). Short, punchy sentences. Never corporate. Preserve all information. Return ONLY the message.`,
-  host:     `You are a BloomBay club host. Warm, community-first, genuine excitement — not hype. "We" for club news. Return ONLY the message.`,
-  yande:    `You are Yande — BloomBay's AI companion. Emotionally intelligent, perceptive, warm. You read what someone actually needs. Never robotic. Meet them where they are. Smart older sister energy. Return ONLY the message.`,
-  event:    `You write event copy that feels alive. Sensory, anticipatory, not urgent. Preserve all factual details. Return ONLY the copy.`,
-  girlmates:`You write roommate messages between real women. Kind rejections, warm acceptances, real-person energy. Return ONLY the message.`,
+  bloomBay:    `You are the BloomBay voice. Transform text into warm, feminine, inviting messages — like a brilliant friend talking to you. Light emoji (one or two max). Short, punchy sentences. Never corporate. Preserve all information. Return ONLY the message.`,
+  host:        `You are a BloomBay club host. Warm, community-first, genuine excitement — not hype. "We" for club news. Return ONLY the message.`,
+  yande:       `You are Yande — BloomBay's AI companion. Emotionally intelligent, perceptive, warm. You read what someone actually needs. Never robotic. Smart older sister energy. Return ONLY the message.`,
+  event:       `You write event copy that feels alive. Sensory, anticipatory, not urgent. Preserve all factual details. Return ONLY the copy.`,
+  girlmates:   `You write roommate messages between real women. Kind rejections, warm acceptances, real-person energy. Return ONLY the message.`,
+  celebration: `You are Yande. Someone hit a milestone. Meet the moment with real, grounded joy — not hype. "I'm so proud of you" friend energy. Short. Return ONLY the message.`,
+  support:     `You are Yande. Something didn't go as hoped. Acknowledge it without minimising. Real, warm, human — not corporate consolation. Don't rush to silver linings. Return ONLY the message.`,
+  newInTown:   `You are Yande. Someone just moved to a new city. Sound like the first good friend they made here. Help them feel like they already belong. Return ONLY the message.`,
+  clubInvite:  `You write club invitations that feel personally chosen, not mass-broadcast. The person should feel specifically thought of. Warm, specific, brief. Return ONLY the invitation message.`,
+  rejection:   `You write kind, honest declines. The answer is no — clearly no, never ambiguous. The person should feel respected. No hollow phrases. No over-explanation. Return ONLY the message.`,
 };
 
-async function humanize(raw: string, mode: string, context?: string): Promise<string> {
+const STAGE_LINES: Record<string, string> = {
+  stranger:     "This is a first interaction — welcoming but not overly familiar.",
+  new_friend:   "This person just started — warm and encouraging.",
+  friend:       "A regular member — skip formalities, be more direct.",
+  close_friend: "Deeply embedded in the community — be genuinely personal.",
+  club_member:  "Same club community — insider conversation energy.",
+  host:         "Club leader — speak peer-to-peer.",
+};
+
+interface HumanizeOpts {
+  mode: string;
+  context?: string;
+  stage?: string;
+  memory?: Record<string, unknown>;
+}
+
+async function humanize(raw: string, opts: HumanizeOpts): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return raw;
 
   try {
     const client = new Anthropic({ apiKey });
-    const system = MODE_PROMPTS[mode] ?? MODE_PROMPTS.yande;
-    const userContent = context ? `Context: ${context}\n\n${raw}` : raw;
+    let system = MODE_PROMPTS[opts.mode] ?? MODE_PROMPTS.yande;
+
+    if (opts.stage && STAGE_LINES[opts.stage]) {
+      system += `\n\nRelationship context: ${STAGE_LINES[opts.stage]}`;
+    }
+
+    if (opts.memory) {
+      const m = opts.memory;
+      const parts: string[] = [];
+      if (Array.isArray(m.interests) && m.interests.length)     parts.push(`Interests: ${(m.interests as string[]).join(", ")}`);
+      if (m.life_stage)           parts.push(`Life stage: ${m.life_stage}`);
+      if (m.social_comfort)       parts.push(`Social comfort: ${m.social_comfort}`);
+      if (m.group_size_pref)      parts.push(`Prefers group size: ${m.group_size_pref}`);
+      if (Array.isArray(m.neighborhoods) && m.neighborhoods.length) parts.push(`Neighborhoods: ${(m.neighborhoods as string[]).join(", ")}`);
+      if (m.notes)                parts.push(`Notes: ${m.notes}`);
+      if (parts.length) system += `\n\nWhat you know about this person:\n${parts.join("\n")}\nWeave it in naturally — make it feel personal.`;
+    }
+
+    const userContent = opts.context ? `Context: ${opts.context}\n\n${raw}` : raw;
 
     const msg = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
@@ -152,70 +194,91 @@ async function humanize(raw: string, mode: string, context?: string): Promise<st
   }
 }
 
+async function fetchMemory(userId: string): Promise<Record<string, unknown> | undefined> {
+  const { data } = await db
+    .from("yande_user_context")
+    .select("interests, life_stage, social_comfort, group_size_pref, neighborhoods, notes, relationship_stage")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data ?? undefined;
+}
+
 // ── Tool implementations ──────────────────────────────────────────────────────
 
 async function draftEmail(args: Args): Promise<string> {
+  const userId = args.user_id as string;
   const { data: user } = await db
     .from("profiles")
     .select("full_name, first_name, email")
-    .eq("id", args.user_id as string)
+    .eq("id", userId)
     .maybeSingle();
 
   if (!user?.email) return "Error: user not found or has no email.";
 
   const mode = (args.mode as string) ?? "yande";
+  const useMemory = args.use_memory !== false; // default true
+  const memory = useMemory ? await fetchMemory(userId) : undefined;
+  const stage = (args.relationship_stage as string | undefined) ?? (memory?.relationship_stage as string | undefined);
+
   const context = args.context
     ? `Recipient: ${user.first_name ?? user.full_name}. ${args.context}`
     : `Recipient: ${user.first_name ?? user.full_name}`;
 
-  const body = await humanize(args.raw_message as string, mode, context);
+  const body = await humanize(args.raw_message as string, { mode, context, stage, memory });
   const subject = args.subject as string;
 
   const { data, error } = await db.from("yande_drafts").insert({
     type: "email",
     mode,
-    recipient_user_id: args.user_id as string,
+    recipient_user_id: userId,
     recipient_email: user.email,
     subject,
     body,
     raw_body: args.raw_message as string,
-    context: { user_id: args.user_id, context: args.context },
+    context: { user_id: userId, context: args.context, stage, used_memory: useMemory && !!memory },
   }).select("id").single();
 
   if (error) return `Error saving draft: ${error.message}`;
 
-  return `Email draft created ✦\n\nDraft ID: ${data.id}\nTo: ${user.full_name} <${user.email}>\nSubject: ${subject}\n\n---\n${body}\n---\n\nCall send_draft with this ID (and confirmed: true) to send.`;
+  const memoryNote = memory ? " (personalized with Yande memory ✦)" : "";
+  return `Email draft created ✦${memoryNote}\n\nDraft ID: ${data.id}\nTo: ${user.full_name} <${user.email}>\nSubject: ${subject}\nStage: ${stage ?? "not set"}\n\n---\n${body}\n---\n\nCall send_draft with this ID (and confirmed: true) to send.`;
 }
 
 async function draftSms(args: Args): Promise<string> {
+  const userId = args.user_id as string;
   const { data: user } = await db
     .from("profiles")
     .select("full_name, first_name, phone")
-    .eq("id", args.user_id as string)
+    .eq("id", userId)
     .maybeSingle();
 
   if (!user?.phone) return "Error: user not found or has no phone number.";
 
   const mode = (args.mode as string) ?? "yande";
+  const useMemory = args.use_memory !== false; // default true
+  const memory = useMemory ? await fetchMemory(userId) : undefined;
+  const stage = (args.relationship_stage as string | undefined) ?? (memory?.relationship_stage as string | undefined);
+
   const context = args.context
     ? `Recipient: ${user.first_name ?? user.full_name}. Keep to SMS length (under 160 chars if possible). ${args.context}`
     : `Recipient: ${user.first_name ?? user.full_name}. Keep to SMS length.`;
 
-  const body = await humanize(args.raw_message as string, mode, context);
+  const body = await humanize(args.raw_message as string, { mode, context, stage, memory });
 
   const { data, error } = await db.from("yande_drafts").insert({
     type: "sms",
     mode,
-    recipient_user_id: args.user_id as string,
+    recipient_user_id: userId,
     recipient_phone: user.phone,
     body,
     raw_body: args.raw_message as string,
-    context: { user_id: args.user_id },
+    context: { user_id: userId, stage, used_memory: useMemory && !!memory },
   }).select("id").single();
 
   if (error) return `Error saving draft: ${error.message}`;
 
-  return `SMS draft created ✦\n\nDraft ID: ${data.id}\nTo: ${user.full_name} (${user.phone})\n\n---\n${body}\n---\n\nCall send_draft with this ID (and confirmed: true) to send.`;
+  const memoryNote = memory ? " (personalized with Yande memory ✦)" : "";
+  return `SMS draft created ✦${memoryNote}\n\nDraft ID: ${data.id}\nTo: ${user.full_name} (${user.phone})\nStage: ${stage ?? "not set"}\n\n---\n${body}\n---\n\nCall send_draft with this ID (and confirmed: true) to send.`;
 }
 
 async function draftBulkReminder(args: Args): Promise<string> {
@@ -266,8 +329,8 @@ async function draftBulkReminder(args: Args): Promise<string> {
     `Reminder: ${eventTitle} is coming up on ${eventDate} at ${eventVenue}. Can't wait to see you there!`;
 
   const humanized = await humanize(
-    rawMsg, "event",
-    `Event: ${eventTitle}, ${eventDate}, ${eventVenue}. Keep warm and brief.`
+    rawMsg,
+    { mode: "event", context: `Event: ${eventTitle}, ${eventDate}, ${eventVenue}. Keep warm and brief.` }
   );
 
   // Create drafts in batch
@@ -402,8 +465,8 @@ async function draftAnnouncement(args: Args): Promise<string> {
   if (!club) return `Club '${slug}' not found.`;
 
   const body = await humanize(
-    args.raw_message as string, "host",
-    `Club: ${club.name}. This is an announcement to club members.`
+    args.raw_message as string,
+    { mode: "host", context: `Club: ${club.name}. This is an announcement to club members.` }
   );
 
   if (saveDraft) {

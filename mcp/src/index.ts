@@ -18,6 +18,7 @@ import { humanizeTools, handleHumanizeTool } from "./tools/humanize.js";
 import { draftTools,    handleDraftTool    } from "./tools/drafts.js";
 import { actionTools,   handleActionTool   } from "./tools/actions.js";
 import { agentTools,    handleAgentTool    } from "./tools/agents.js";
+import { memoryTools,   handleMemoryTool   } from "./tools/memory.js";
 
 // ── Tool registry ─────────────────────────────────────────────────────────────
 
@@ -31,6 +32,7 @@ const ALL_TOOLS: Tool[] = [
   ...draftTools,
   ...actionTools,
   ...agentTools,
+  ...memoryTools,
 ];
 
 type ToolHandler = (name: string, args: Record<string, unknown>) => Promise<{ content: { type: "text"; text: string }[] }>;
@@ -45,6 +47,7 @@ const HANDLERS: [Set<string>, ToolHandler][] = [
   [new Set(draftTools.map(t => t.name)),    handleDraftTool],
   [new Set(actionTools.map(t => t.name)),   handleActionTool],
   [new Set(agentTools.map(t => t.name)),    handleAgentTool],
+  [new Set(memoryTools.map(t => t.name)),   handleMemoryTool],
 ];
 
 function route(name: string): ToolHandler | null {
