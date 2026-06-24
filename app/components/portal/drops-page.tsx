@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 
 const PINK = "#FF1F7D";
 const DARK = "#1A1A1A";
@@ -412,10 +413,26 @@ function CodeModal({ active, onClose }: { active: ActiveCode; onClose: () => voi
         </div>
 
         <div style={{ padding: "20px 22px 26px" }}>
-          {/* Code */}
-          <div style={{ background: "white", borderRadius: 16, padding: "16px", border: `1.5px solid ${PINK}18`, textAlign: "center", marginBottom: 14 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(0,0,0,0.28)", letterSpacing: "0.2em", marginBottom: 7 }}>YOUR CODE</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 30, color: PINK, letterSpacing: "0.15em", marginBottom: 10 }}>{active.code}</p>
+          {/* QR code + text code */}
+          <div style={{ background: "white", borderRadius: 16, padding: "18px 16px 14px", border: `1.5px solid ${PINK}18`, textAlign: "center", marginBottom: 14 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, color: "rgba(0,0,0,0.28)", letterSpacing: "0.2em", marginBottom: 14 }}>
+              SHOW THIS TO REDEEM
+            </p>
+            {/* QR code */}
+            <div style={{ display: "inline-block", padding: 10, background: "white", borderRadius: 12, boxShadow: `0 0 0 1.5px ${PINK}18`, marginBottom: 12 }}>
+              <QRCodeSVG
+                value={active.code}
+                size={160}
+                level="H"
+                fgColor={DARK}
+                bgColor="white"
+                style={{ display: "block" }}
+              />
+            </div>
+            {/* Text code below QR */}
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 22, color: PINK, letterSpacing: "0.18em", marginBottom: 10 }}>
+              {active.code}
+            </p>
             <button
               onClick={copy}
               style={{

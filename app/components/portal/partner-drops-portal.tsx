@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1A1A1A";
@@ -191,6 +191,99 @@ function ClaimRow({ row, onSelect }: { row: ClaimRow; onSelect: () => void }) {
   );
 }
 
+// ─── QR Scanner ───────────────────────────────────────────────────────────────
+
+const SCANNER_EL_ID = "bb-partner-qr-scanner";
+
+function QRScanner({ onCode, onClose }: { onCode: (code: string) => void; onClose: () => void }) {
+  const [camError, setCamError] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(true);
+  const scannerRef = useRef<unknown>(null);
+
+  useEffect(() => {
+    let stopped = false;
+    async function start() {
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        const scanner = new Html5Qrcode(SCANNER_EL_ID);
+        scannerRef.current = scanner;
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 12, qrbox: { width: 220, height: 220 } },
+          (text: string) => {
+            if (stopped) return;
+            const code = text.trim().toUpperCase();
+            stopped = true;
+            setScanning(false);
+            scanner.stop().catch(() => {});
+            onCode(code);
+          },
+          () => {}
+        );
+      } catch {
+        setCamError("Camera access denied.\nAllow camera and try again.");
+      }
+    }
+    start();
+    return () => {
+      stopped = true;
+      const s = scannerRef.current as { stop?: () => Promise<void> } | null;
+      s?.stop?.().catch(() => {});
+    };
+  }, [onCode]);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.92)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em", marginBottom: 18 }}>SCAN MEMBER QR CODE</p>
+
+      {camError ? (
+        <div style={{ textAlign: "center", padding: "24px" }}>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "#FF8A8A", lineHeight: 1.7 }}>{camError}</p>
+          <button onClick={onClose} style={{ marginTop: 20, padding: "12px 28px", borderRadius: 99, background: "white", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: DARK }}>
+            Go back
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Camera viewfinder */}
+          <div style={{ position: "relative", width: 270, height: 270 }}>
+            {/* Corner brackets */}
+            {[["0 0", "top", "left"], ["90 50% 50%", "top", "right"], ["180 50% 50%", "bottom", "right"], ["270 50% 50%", "bottom", "left"]].map(([rot, v, h], i) => (
+              <svg key={i} width="28" height="28" viewBox="0 0 28 28" fill="none"
+                style={{ position: "absolute", [v]: -2, [h]: -2, transform: `rotate(${rot.split(" ")[0]}deg)` }}>
+                <path d="M2 18 L2 4 Q2 2 4 2 L18 2" stroke={PINK} strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            ))}
+            <div id={SCANNER_EL_ID} style={{ width: 270, height: 270, borderRadius: 14, overflow: "hidden", background: "#000" }}/>
+            {scanning && (
+              <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${PINK}, transparent)`, animation: "scanline 2s linear infinite", pointerEvents: "none" }}/>
+            )}
+          </div>
+
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.45)", marginTop: 20, textAlign: "center" }}>
+            Point at the QR code on the<br/>member's phone
+          </p>
+
+          <button
+            onClick={onClose}
+            style={{ marginTop: 24, padding: "11px 28px", borderRadius: 99, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}
+          >
+            Cancel
+          </button>
+        </>
+      )}
+
+      <style>{`
+        @keyframes scanline {
+          0% { top: 10%; opacity: 0.8; }
+          50% { opacity: 1; }
+          100% { top: 90%; opacity: 0.8; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // ─── Main portal ──────────────────────────────────────────────────────────────
 
 export function PartnerDropsPortal() {
@@ -203,9 +296,10 @@ export function PartnerDropsPortal() {
   const [claims, setClaims]       = useState<ClaimRow[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [filter, setFilter]       = useState<ClaimStatus | "all">("all");
+  const [scannerOpen, setScannerOpen] = useState(false);
 
-  async function verify() {
-    const code = codeInput.trim().toUpperCase();
+  async function verify(overrideCode?: string) {
+    const code = (overrideCode ?? codeInput).trim().toUpperCase();
     if (!code) return;
     setVerifying(true); setDetail(null); setLookupError(null);
     try {
@@ -215,6 +309,12 @@ export function PartnerDropsPortal() {
       setDetail(data as ClaimDetail);
     } catch { setLookupError("Network error — please try again."); }
     finally { setVerifying(false); }
+  }
+
+  function handleScanned(code: string) {
+    setScannerOpen(false);
+    setCodeInput(code);
+    verify(code);
   }
 
   async function redeem() {
@@ -295,7 +395,33 @@ export function PartnerDropsPortal() {
         {/* ── VERIFY TAB ──────────────────────────────────────────────────── */}
         {tab === "verify" && (
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(0,0,0,0.45)", marginBottom: 10 }}>Enter the member's BB code to verify and redeem.</p>
+            {/* Primary: Scan QR button */}
+            <button
+              onClick={() => { setScannerOpen(true); setDetail(null); setLookupError(null); }}
+              style={{
+                width: "100%", padding: "16px", borderRadius: 16, border: "none",
+                background: `linear-gradient(135deg, ${PINK}, #C4005A)`,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                gap: 10, marginBottom: 14,
+                boxShadow: `0 6px 22px ${PINK}38`,
+              }}
+            >
+              {/* Camera icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, color: "white", letterSpacing: "0.06em" }}>
+                Scan QR Code
+              </p>
+            </button>
+
+            {/* Divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }}/>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(0,0,0,0.3)", letterSpacing: "0.1em" }}>OR TYPE CODE</p>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }}/>
+            </div>
 
             {/* Code input */}
             <div style={{ display: "flex", gap: 8 }}>
@@ -316,16 +442,15 @@ export function PartnerDropsPortal() {
                 }}
               />
               <button
-                onClick={verify}
+                onClick={() => verify()}
                 disabled={verifying || codeInput.length < 3}
                 style={{
                   padding: "13px 18px", borderRadius: 12, border: "none",
-                  background: verifying || codeInput.length < 3 ? "rgba(0,0,0,0.08)" : `linear-gradient(135deg, ${PINK}, #C4005A)`,
+                  background: verifying || codeInput.length < 3 ? "rgba(0,0,0,0.08)" : DARK,
                   cursor: verifying || codeInput.length < 3 ? "default" : "pointer",
                   fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 900,
                   color: verifying || codeInput.length < 3 ? "#aaa" : "white",
                   whiteSpace: "nowrap",
-                  boxShadow: verifying || codeInput.length < 3 ? "none" : `0 4px 14px ${PINK}35`,
                   transition: "all 0.15s",
                 }}
               >{verifying ? "…" : "Verify →"}</button>
@@ -345,13 +470,10 @@ export function PartnerDropsPortal() {
 
             {/* Empty state */}
             {!detail && !lookupError && (
-              <div style={{ marginTop: 40, textAlign: "center" }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${PINK}10`, border: `2px dashed ${PINK}30`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-                  </svg>
-                </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.35)" }}>Ask the member to show their code.<br/>Type it above to verify instantly.</p>
+              <div style={{ marginTop: 36, textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.35)", lineHeight: 1.8 }}>
+                  Scan the QR code on the member's phone<br/>or type the BB code manually.
+                </p>
               </div>
             )}
           </div>
@@ -420,6 +542,11 @@ export function PartnerDropsPortal() {
           </div>
         )}
       </div>
+
+      {/* QR Scanner overlay */}
+      {scannerOpen && (
+        <QRScanner onCode={handleScanned} onClose={() => setScannerOpen(false)}/>
+      )}
     </div>
   );
 }

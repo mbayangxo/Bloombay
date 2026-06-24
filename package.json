@@ -13,6 +13,7 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
     "critters": "^0.0.23",
+    "html5-qrcode": "^2.3.8",
     "motion": "^12.40.0",
     "next": "16.2.4",
     "qrcode.react": "^4.2.0",
