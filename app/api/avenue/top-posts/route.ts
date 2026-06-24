@@ -3,11 +3,25 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET /api/avenue/top-posts — top 4 wall posts by bloom count
-// Requires sign-in; author id is never returned to the client.
+// Requires signed-in, onboarded, verified member.
+// Author id is never returned to the client.
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.onboarding_completed) {
+    return NextResponse.json({ error: "Complete onboarding first" }, { status: 403 });
+  }
+  if (profile.verification_status !== "verified") {
+    return NextResponse.json({ error: "Verified members only" }, { status: 403 });
+  }
 
   const admin = createAdminClient();
   const { data, error } = await admin
