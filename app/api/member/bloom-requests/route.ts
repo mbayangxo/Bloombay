@@ -82,6 +82,9 @@ export async function GET() {
   return NextResponse.json({ incoming, sent, accepted, source: "db" });
 }
 
+const BLOOM_RATE_LIMIT_PER_DAY = 10;
+const NOTE_MAX_LENGTH = 200;
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -105,6 +108,36 @@ export async function POST(request: Request) {
 
   if (body.toUserId === user.id) {
     return NextResponse.json({ ok: false, error: "Cannot bloom yourself" }, { status: 400 });
+  }
+
+  if (body.note && body.note.length > NOTE_MAX_LENGTH) {
+    return NextResponse.json({ ok: false, error: `Note too long (max ${NOTE_MAX_LENGTH} chars)` }, { status: 400 });
+  }
+
+  // Daily rate limit
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const { count: dailyCount } = await supabase
+    .from("bloom_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("from_user_id", user.id)
+    .gte("created_at", dayStart.toISOString());
+
+  if ((dailyCount ?? 0) >= BLOOM_RATE_LIMIT_PER_DAY) {
+    return NextResponse.json({ ok: false, error: "Daily bloom limit reached. Try again tomorrow." }, { status: 429 });
+  }
+
+  // Prevent duplicate pending requests to the same person
+  const { data: existing } = await supabase
+    .from("bloom_requests")
+    .select("id")
+    .eq("from_user_id", user.id)
+    .eq("to_user_id", body.toUserId)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json({ ok: false, error: "You already have a pending request with this person" }, { status: 409 });
   }
 
   const validTemplates = ["classic", "dark", "cream", "minimal"];

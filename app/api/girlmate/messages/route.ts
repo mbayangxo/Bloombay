@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const MESSAGE_MAX_LENGTH = 1000;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX = 20; // max messages per hour per user
+
 // GET /api/girlmate/messages — inbox for current user
 export async function GET() {
   const supabase = await createClient();
@@ -35,6 +39,36 @@ export async function POST(req: NextRequest) {
   }
   if (body.to_user_id === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
+  }
+  if (body.body.trim().length > MESSAGE_MAX_LENGTH) {
+    return NextResponse.json({ error: `Message too long (max ${MESSAGE_MAX_LENGTH} chars)` }, { status: 400 });
+  }
+
+  // Rate limit: count messages sent in the last hour
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+  const { count } = await supabase
+    .from("girlmate_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("from_user_id", user.id)
+    .gte("created_at", windowStart);
+
+  if ((count ?? 0) >= RATE_LIMIT_MAX) {
+    return NextResponse.json(
+      { error: "Too many messages. Please wait before sending more." },
+      { status: 429 }
+    );
+  }
+
+  // Verify recipient has an active listing (can only message active listings)
+  const { data: listing } = await supabase
+    .from("girlmate_profiles")
+    .select("id, is_active")
+    .eq("user_id", body.to_user_id)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!listing) {
+    return NextResponse.json({ error: "Recipient does not have an active listing" }, { status: 400 });
   }
 
   const { error } = await supabase.from("girlmate_messages").insert({

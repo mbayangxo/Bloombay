@@ -3,6 +3,12 @@ import { buildSmsReminderBody, type ReminderKind } from "@/lib/sms/reminder-mess
 import { sendSmsForUser } from "@/lib/sms/send-for-user";
 import { createClient } from "@/lib/supabase/server";
 
+const VALID_KINDS: ReminderKind[] = ["calendar", "seat", "opt_in"];
+// Hard limit on title/place/when to prevent free-text injection
+const FIELD_MAX = 200;
+// Per-user daily SMS cap
+const SMS_DAILY_LIMIT = 10;
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -14,7 +20,6 @@ export async function POST(request: Request) {
   }
 
   let body: {
-    message?: string;
     kind?: ReminderKind;
     title?: string;
     when?: string;
@@ -26,28 +31,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  let message = body.message?.trim();
-
-  if (!message && body.kind) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const firstName = (profile?.full_name as string | null)?.trim().split(/\s+/)[0];
-    message = buildSmsReminderBody({
-      firstName,
-      kind: body.kind,
-      title: body.title?.trim(),
-      when: body.when?.trim(),
-      place: body.place?.trim(),
-    });
+  // Only template-based sends are allowed — no arbitrary message field
+  if (!body.kind || !VALID_KINDS.includes(body.kind)) {
+    return NextResponse.json({ ok: false, error: `kind must be one of: ${VALID_KINDS.join(", ")}` }, { status: 400 });
   }
 
-  if (!message) {
-    return NextResponse.json({ ok: false, error: "message or kind required" }, { status: 400 });
+  // Sanitise and cap structured fields
+  const kind = body.kind;
+  const title = body.title?.trim().slice(0, FIELD_MAX);
+  const when  = body.when?.trim().slice(0, FIELD_MAX);
+  const place = body.place?.trim().slice(0, FIELD_MAX);
+
+  // Daily rate limit per user
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const { count } = await supabase
+    .from("sms_log")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("sent_at", dayStart.toISOString());
+
+  if ((count ?? 0) >= SMS_DAILY_LIMIT) {
+    return NextResponse.json({ ok: true, skipped: true, reason: "daily_limit" });
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const firstName = (profile?.full_name as string | null)?.trim().split(/\s+/)[0];
+  const message = buildSmsReminderBody({ firstName, kind, title, when, place });
 
   const result = await sendSmsForUser(supabase, user.id, message);
 

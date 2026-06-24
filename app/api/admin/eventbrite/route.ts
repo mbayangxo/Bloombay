@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_API_KEY;
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     "location.address":      city,
     "location.within":       "25mi",
     "start_date.range_start": startDate,
-    "categories":            "110,116,105,103,111", // Charity, Food, Nightlife, Music, Lifestyle
+    "categories":            "110,116,105,103,111",
     "sort_by":               "date",
     "expand":                "venue,ticket_availability,logo",
     "page_size":             "20",

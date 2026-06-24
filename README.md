@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BloomBay
 
-## Getting Started
+BloomBay is a members-only social platform for women — combining curated clubs, a city guide, girlmate (roommate) matching, and Yande, an AI companion.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router)
+- **Supabase** — Auth, Postgres, RLS, Storage
+- **Stripe** — membership and event ticketing
+- **Anthropic Claude** — Yande AI, humanized messaging
+- **Twilio** — SMS notifications
+- **Resend** — transactional email
+- **Vercel** — hosting and cron jobs
+
+## Project structure
+
+```
+app/                    Next.js App Router
+  api/                  API routes
+    admin/              Admin-only endpoints (Supabase session auth)
+    cron/               Scheduled jobs (x-cron-secret auth)
+    girlmate/           Girlmate listing and messaging
+    member/             Member portal endpoints
+    payments/           Stripe checkout
+  components/           Shared UI components
+  member/               Member portal pages
+lib/                    Shared utilities
+  admin-auth.ts         Admin session verification (Supabase role-based)
+  cron-guard.ts         Cron kill switch and logging
+  humanize.ts           AI text humanizer (11 modes, memory-aware)
+  payments.ts           Stripe helpers
+mcp/                    MCP server for Yande AI (Claude Desktop)
+supabase/
+  migrations/           Database migrations (run in order)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=        # server-side only, never NEXT_PUBLIC_
+ANTHROPIC_API_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+RESEND_API_KEY=
+ADMIN_PASSWORD=                   # login to /founder dashboard
+CRON_SECRET=                      # Vercel Cron header secret
+CRON_ENABLED=true                 # set to "false" to kill all cron jobs
+CRON_MAX_RECORDS=100              # max records per cron run
+EVENTBRITE_API_KEY=               # optional
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Cron kill switch
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set `CRON_ENABLED=false` in environment variables to pause all scheduled jobs without a deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Admin access
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Admin routes require a Supabase session where the user's `profiles.role` is `admin` or `founder`. There is no header-based password access.

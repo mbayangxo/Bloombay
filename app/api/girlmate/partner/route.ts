@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -57,9 +58,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data ?? []);
   }
 
-  // Admin-only: full list
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
+  // Admin-only: full list requires Supabase session with admin/founder role
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const supabase = admin();

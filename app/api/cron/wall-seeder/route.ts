@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cronGuard, logCronRun } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -81,12 +82,11 @@ function weightedCategory(): string {
 }
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = cronGuard(req, "wall-seeder");
+  if (guard) return guard;
 
   if (!process.env.ANTHROPIC_API_KEY) {
+    await logCronRun("wall-seeder", "skipped", { reason: "no anthropic key" });
     return NextResponse.json({ skipped: "no anthropic key" });
   }
 
@@ -138,7 +138,11 @@ Return ONLY the post text. No quotes, no labels, nothing else.`;
     seed_author: "Yande ✦",
   });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    await logCronRun("wall-seeder", "error", { error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
+  await logCronRun("wall-seeder", "ok", { category, preview: text.slice(0, 80) });
   return NextResponse.json({ ok: true, category, preview: text.slice(0, 80) });
 }

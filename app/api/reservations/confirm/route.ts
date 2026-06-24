@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendSMS } from "@/lib/notifications/sms";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -10,8 +11,7 @@ function admin() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

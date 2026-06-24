@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -8,13 +9,9 @@ function admin() {
   );
 }
 
-function checkAdmin(req: NextRequest) {
-  return req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD;
-}
-
 // POST — create a curated event (manual or imported from Eventbrite)
 export async function POST(req: NextRequest) {
-  if (!checkAdmin(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json() as {
     title: string;
@@ -25,10 +22,10 @@ export async function POST(req: NextRequest) {
     neighborhood?: string;
     city: string;
     image_url?: string;
-    ticket_price_cents?: number;      // BloomBay's own price
+    ticket_price_cents?: number;
     is_free?: boolean;
-    external_url?: string;            // Eventbrite URL for reference
-    external_source?: string;         // "eventbrite" | "manual"
+    external_url?: string;
+    external_source?: string;
     max_attendees?: number;
     tags?: string[];
   };
@@ -63,7 +60,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE — remove a curated event
 export async function DELETE(req: NextRequest) {
-  if (!checkAdmin(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
@@ -76,7 +73,7 @@ export async function DELETE(req: NextRequest) {
 
 // GET — list all curated events
 export async function GET(req: NextRequest) {
-  if (!checkAdmin(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const db = admin();
   const { data, error } = await db
     .from("gatherings")

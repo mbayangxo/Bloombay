@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { createMembership, chargeTicket, chargeClubMembership } from "@/lib/payments";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as adminClient } from "@supabase/supabase-js";
+
+function admin() {
+  return adminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
 
 type MembershipBody = {
   type: "membership";
@@ -11,8 +20,6 @@ type MembershipBody = {
 type TicketBody = {
   type: "ticket";
   eventId: string;
-  eventName: string;
-  amountCents: number;
   quantity?: number;
 };
 
@@ -43,15 +50,28 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.type === "ticket") {
-    const { eventId, eventName, amountCents, quantity } = body;
+    const { eventId, quantity } = body;
     if (!eventId) return NextResponse.json({ error: "eventId required" }, { status: 400 });
-    if (!eventName) return NextResponse.json({ error: "eventName required" }, { status: 400 });
-    if (!amountCents) return NextResponse.json({ error: "amountCents required" }, { status: 400 });
+
+    // Always fetch price and name server-side — never trust the client
+    const db = admin();
+    const { data: event, error } = await db
+      .from("gatherings")
+      .select("id, title, ticket_price_cents, is_free")
+      .eq("id", eventId)
+      .single();
+
+    if (error || !event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+    if (event.is_free || !event.ticket_price_cents) {
+      return NextResponse.json({ error: "Event is free" }, { status: 400 });
+    }
 
     const { url } = await chargeTicket({
-      eventId,
-      eventName,
-      amountCents,
+      eventId: event.id,
+      eventName: event.title,
+      amountCents: event.ticket_price_cents,
       quantity: quantity ?? 1,
       userId: user.id,
       userEmail: user.email ?? "",

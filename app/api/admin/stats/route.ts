@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -8,12 +9,8 @@ function admin() {
   );
 }
 
-function verifyAdmin(req: NextRequest) {
-  return req.headers.get("x-admin-password") === process.env.ADMIN_PASSWORD;
-}
-
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

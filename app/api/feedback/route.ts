@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -39,6 +40,9 @@ export async function POST(req: NextRequest) {
   if (!body.message?.trim()) {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
+  if (body.message.length > 2000) {
+    return NextResponse.json({ error: "Message too long (max 2000 chars)" }, { status: 400 });
+  }
 
   const db = admin();
   const { error } = await db.from("user_feedback").insert({
@@ -57,8 +61,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/feedback — admin only, list feedback
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -81,8 +84,7 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/feedback — admin update status/notes
 export async function PATCH(req: NextRequest) {
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
+  if (!await verifyAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
