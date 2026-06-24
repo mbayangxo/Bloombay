@@ -1,4 +1,4 @@
-import type { Band } from "./tokens";
+import type { Band, CityCategory } from "./tokens";
 
 // ── Neighborhood search index ─────────────────────────────────────────────────
 export const HOOD_INDEX = [
@@ -30,7 +30,7 @@ export const BANDS: Band[] = [
 // ── Skyline building configs ──────────────────────────────────────────────────
 export interface BuildingConfig {
   id: string;
-  category?: string;
+  category?: CityCategory;
   label?: string;
   subLabel?: string;
   width: number;
