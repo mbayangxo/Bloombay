@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PushPin } from "../scrapbook";
 import { ReserveTableSheet } from "../reserve-table-sheet";
 import {
@@ -104,9 +104,8 @@ export function MenuTemplate({ partner: p }: { partner: EatsPartner }) {
   );
 }
 
-export function EatsPartnerCard({ partner: p, noteCount, onOpen, onReserve }: { partner: EatsPartner; noteCount: number; onOpen: () => void; onReserve: () => void }) {
+export function EatsPartnerCard({ partner: p, noteCount, saved, onToggleSave, onOpen, onReserve }: { partner: EatsPartner; noteCount: number; saved: boolean; onToggleSave: () => void; onOpen: () => void; onReserve: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const typeLabel: Record<RestaurantType, string> = {
     fine_dining: "FINE DINING", café: "CAFÉ", bar: "BAR", bakery: "BAKERY", casual: "CASUAL",
@@ -131,7 +130,7 @@ export function EatsPartnerCard({ partner: p, noteCount, onOpen, onReserve }: { 
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>{typeLabel[p.type]}</span>
         </div>
         {/* Save */}
-        <button onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }} style={{ position: "absolute", top: 10, right: 78, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <button onClick={(e) => { e.stopPropagation(); onToggleSave(); }} style={{ position: "absolute", top: 10, right: 78, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
         {/* Pinned bloom notes stack — only renders when real notes exist */}
@@ -224,20 +223,26 @@ export function EatsPage({ onBack }: { onBack: () => void }) {
   function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   useEffect(() => {
-    // Fetch real restaurant partners from DB
+    let cancelled = false;
     import("@/lib/supabase/client").then(({ createClient }) => {
       createClient()
         .from("restaurant_partners")
         .select("*")
         .order("bloom_notes", { ascending: false })
         .limit(20)
-        .then(({ data }) => {
-          if (data && data.length > 0) {
-            setRealPartners((data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i)));
-          }
+        .then(({ data, error }) => {
+          if (cancelled) return;
+          if (error) console.error("[EatsPage] restaurant_partners:", error.message);
+          const partners = data && data.length > 0
+            ? (data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i))
+            : null;
+          if (partners) setRealPartners(partners);
+          // Use whichever partner list will actually be displayed
+          const slugs = (partners ?? EATS_PARTNERS).map(p => toSlug(p.name));
+          getNoteCountsByPlace(slugs).then(counts => { if (!cancelled) setNoteCounts(counts); }).catch(() => {});
         });
     });
-    getNoteCountsByPlace(EATS_PARTNERS.map(p => toSlug(p.name))).then(setNoteCounts).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   const allPartners = realPartners.length > 0 ? realPartners : EATS_PARTNERS;
@@ -357,7 +362,7 @@ export function EatsPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
           {allPartners.map(p => (
-            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
+            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} saved={savedIds.includes(p.id)} onToggleSave={() => toggleSave(p.id)} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
           ))}
         </div>
       </div>

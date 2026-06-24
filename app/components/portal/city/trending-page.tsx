@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   PINK, DARK,
@@ -19,6 +19,7 @@ export function TrendingPage({ onBack }: { onBack: () => void }) {
   }>>([]);
 
   useEffect(() => {
+    let cancelled = false;
     const supabase = createClient();
     supabase
       .from("city_trending")
@@ -26,14 +27,15 @@ export function TrendingPage({ onBack }: { onBack: () => void }) {
       .eq("status", "approved")
       .order("rank_order", { ascending: true })
       .limit(10)
-      .then(({ data }) => { if (data && data.length > 0) setLiveItems(data); });
+      .then(({ data }) => { if (!cancelled && data && data.length > 0) setLiveItems(data); });
+    return () => { cancelled = true; };
   }, []);
 
   const displayItems = liveItems.length > 0
     ? liveItems.map((item, i) => ({
         rank: i + 1,
         name: item.name,
-        tag: item.category.toUpperCase(),
+        tag: (item.category ?? "").toUpperCase(),
         count: item.save_count,
         hot: i < 2,
         badge: item.badge,
