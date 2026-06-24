@@ -10,6 +10,9 @@ function admin() {
   );
 }
 
+// Yande must never auto-resolve tickets in these categories — always route to human
+const SENSITIVE_CATEGORIES = new Set(["billing", "safety", "ban", "refund", "identity"]);
+
 const FAQ_CONTEXT = `
 BloomBay is a women-only community platform in New York City.
 Key facts:
@@ -34,6 +37,27 @@ export async function answerSupportTicket(ticketId: string): Promise<{ ok: boole
     .single();
 
   if (!ticket) return { ok: false, needs_human: true };
+
+  // Sensitive categories always go to a human — Yande never auto-resolves these
+  if (SENSITIVE_CATEGORIES.has(ticket.category as string)) {
+    await supabase.from("support_tickets").update({ needs_human: true, status: "in_progress" }).eq("id", ticketId);
+    await supabase.from("notifications").insert({
+      user_id: ticket.user_id,
+      type: "support",
+      title: "We're looking into this ✦",
+      body: "We're connecting you with a human team member who can help with this. Expect a response within 24 hours.",
+      link: "/member/you",
+      data: { ticket_id: ticketId },
+    });
+    await logAction({
+      agent: "yande-customer-service",
+      action_type: "answer_ticket",
+      risk_level: "high",
+      target_user_id: ticket.user_id as string,
+      metadata: { ticket_id: ticketId, category: ticket.category, needs_human: true, reason: "sensitive_category" },
+    }, "completed");
+    return { ok: true, needs_human: true };
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     await supabase.from("support_tickets").update({ needs_human: true, status: "in_progress" }).eq("id", ticketId);

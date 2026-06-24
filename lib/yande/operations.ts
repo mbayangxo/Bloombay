@@ -55,7 +55,7 @@ export async function processEventWaitlists(): Promise<{ processed: number; prom
 
       if (!error) {
         await supabase.from("event_waitlist").delete().eq("id", entry.id);
-        await supabase.from("events").update({ attending_count: attending + 1 }).eq("id", event.id);
+        await supabase.rpc("increment_attending_count", { p_event_id: event.id });
 
         await supabase.from("notifications").insert({
           user_id: entry.user_id,

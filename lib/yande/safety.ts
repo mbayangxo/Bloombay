@@ -62,15 +62,30 @@ Be objective. BloomBay is a women-only community — safety is the top priority.
         }
       }
 
-      const newStatus = isHighSeverity ? "reviewed" : "reviewed";
+      const newStatus = isHighSeverity ? "escalated" : "reviewed";
 
       await supabase.from("member_reports").update({
         status: newStatus,
         yande_summary: yandeAnalysis || `${totalReports} report(s) on file. Auto-reviewed by Yande.`,
       }).eq("id", report.id);
 
-      // Alert admin for high severity
       if (isHighSeverity) {
+        // Create human moderation task — Yande never auto-acts on high-severity reports
+        await supabase.from("moderation_tasks").insert({
+          task_type: "safety_report",
+          subject_id: report.reported_id as string,
+          priority: totalReports >= 5 ? "urgent" : "high",
+          metadata: {
+            report_id: report.id,
+            reporter_id: report.reporter_id,
+            reason: report.reason,
+            details: report.details,
+            prior_reports: priorCount,
+            yande_analysis: yandeAnalysis,
+          },
+        });
+
+        // Notify reporter that a human is reviewing
         await supabase.from("notifications").insert({
           user_id: report.reporter_id,
           type: "safety",

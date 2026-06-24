@@ -1,17 +1,17 @@
 // Yande — Community Coordinator
 //
 // Responsibilities:
-//   1. Welcome new members when they complete onboarding (SMS + in-app notification)
+//   1. Welcome new members when they complete onboarding (in-app notification)
 //   2. Day-3 nudge: "Have you found a club yet?"
 //   3. Day-7 nudge: "Your first week — here's what's happening"
 //
+// SMS is NOT used for community nudges. See YANDE_SMS_POLICY.md.
 // All actions are logged to yande_actions.
 // Member touches are deduplicated via yande_member_touches (idempotent).
 
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { sendSMS } from "@/lib/notifications/sms";
 import { logAction, recordMemberTouch, hasReceivedTouch } from "./core";
 
 const AGENT = "community_coordinator";
@@ -20,7 +20,6 @@ interface MemberProfile {
   id: string;
   first_name: string | null;
   full_name: string | null;
-  phone: string | null;
   neighborhood: string | null;
   created_at: string;
 }
@@ -31,16 +30,16 @@ function firstName(profile: MemberProfile): string {
 }
 
 // ── 1. Welcome message ────────────────────────────────────────────────────────
-// Called right after onboarding completes. Sends SMS + in-app notification.
+// Called right after onboarding completes. Sends in-app notification only.
 
 export async function welcomeNewMember(userId: string): Promise<void> {
-  const alreadySent = await hasReceivedTouch(userId, "welcome_sms");
+  const alreadySent = await hasReceivedTouch(userId, "welcome_notification");
   if (alreadySent) return;
 
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, first_name, full_name, phone, neighborhood, created_at")
+    .select("id, first_name, full_name, neighborhood, created_at")
     .eq("id", userId)
     .single();
 
@@ -48,7 +47,6 @@ export async function welcomeNewMember(userId: string): Promise<void> {
   const p = profile as MemberProfile;
   const name = firstName(p);
 
-  // In-app notification (always sent)
   await supabase.from("notifications").insert({
     user_id: userId,
     type: "intro",
@@ -57,29 +55,16 @@ export async function welcomeNewMember(userId: string): Promise<void> {
     action_url: "/member/home",
   });
 
-  // SMS (only if phone on file)
-  let smsOk = false;
-  if (p.phone) {
-    const message = `Hey ${name} ✦ Welcome to BloomBay. You're officially part of the first women building something real in NYC. Explore your clubs → bloombay.app/member/clubs`;
-    const result = await sendSMS(p.phone, message);
-    smsOk = result.ok;
-  }
-
   const actionId = await logAction({
     agent: AGENT,
     action_type: "welcome_message",
     risk_level: "low",
     target_user_id: userId,
-    metadata: {
-      name,
-      sms_sent: smsOk,
-      notification_sent: true,
-      phone_on_file: !!p.phone,
-    },
+    metadata: { name, notification_sent: true },
     triggered_by: "onboarding_complete",
   });
 
-  await recordMemberTouch(userId, "welcome_sms", actionId);
+  await recordMemberTouch(userId, "welcome_notification", actionId);
 }
 
 // ── 2. Day-3 nudge: find a club ───────────────────────────────────────────────
@@ -92,7 +77,7 @@ export async function nudgeDay3(userId: string): Promise<void> {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, first_name, full_name, phone")
+    .select("id, first_name, full_name")
     .eq("id", userId)
     .single();
 
@@ -108,19 +93,12 @@ export async function nudgeDay3(userId: string): Promise<void> {
     action_url: "/member/clubs",
   });
 
-  let smsOk = false;
-  if (p.phone) {
-    const message = `${name}, you've been on BloomBay for 3 days 🌸 Have you found your club yet? Women who join a club in week 1 stay 3× longer → bloombay.app/member/clubs`;
-    const result = await sendSMS(p.phone, message);
-    smsOk = result.ok;
-  }
-
   const actionId = await logAction({
     agent: AGENT,
     action_type: "day3_nudge",
     risk_level: "low",
     target_user_id: userId,
-    metadata: { name, sms_sent: smsOk },
+    metadata: { name },
     triggered_by: "scheduled",
   });
 
@@ -136,7 +114,7 @@ export async function nudgeDay7(userId: string): Promise<void> {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, first_name, full_name, phone")
+    .select("id, first_name, full_name")
     .eq("id", userId)
     .single();
 
@@ -152,19 +130,12 @@ export async function nudgeDay7(userId: string): Promise<void> {
     action_url: "/member/happenings",
   });
 
-  let smsOk = false;
-  if (p.phone) {
-    const message = `${name} ✦ One week on BloomBay. There are women in NYC gathering this weekend — come find them → bloombay.app/member/happenings`;
-    const result = await sendSMS(p.phone, message);
-    smsOk = result.ok;
-  }
-
   const actionId = await logAction({
     agent: AGENT,
     action_type: "day7_nudge",
     risk_level: "low",
     target_user_id: userId,
-    metadata: { name, sms_sent: smsOk },
+    metadata: { name },
     triggered_by: "scheduled",
   });
 
