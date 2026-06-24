@@ -35,7 +35,39 @@ Your editorial voice:
 
 Sections: style, culture, love, career, wellness, opinion
 
-You write 5 articles per week — one per section (choose 5 of the 6).`;
+You write 5 articles per week — one per section (choose 5 of the 6).
+
+IMPORTANT — factual discipline:
+- If you reference a real person, only describe things you are certain are accurate
+- If referencing a celebrity's specific outfit at a specific event, only do so if you are confident in the details (event, year, garment description)
+- When uncertain, write evocatively without pinning to unverifiable specifics ("in a gown that rewrote the grammar of the room" rather than "at the 2023 Grammys in a white gown")
+- Scientific claims (cortisol, psychology, neuroscience) should be broadly accurate — hedge appropriately when needed
+- Cultural observations and opinion are your main vehicle — lean on those, not on specific verifiable facts you may not have`;
+
+const FACT_CHECK_SYSTEM = `You are a rigorous fact-checker for a magazine. Review the article below and return a JSON object with:
+{
+  "flags": [
+    {
+      "claim": "exact text of the claim",
+      "risk": "high" | "medium" | "low",
+      "issue": "what specifically is uncertain or wrong",
+      "suggestion": "safer rewrite of just that phrase"
+    }
+  ],
+  "verdict": "pass" | "needs_review",
+  "summary": "one sentence overall assessment"
+}
+
+Flag only:
+- Named living people paired with specific events, dates, or garment descriptions
+- Specific statistics without a stated source
+- Scientific claims that overreach the evidence
+
+Do NOT flag:
+- Pure opinion and cultural observation
+- Metaphorical or clearly evocative language
+- Fictional composite characters presented as illustrative examples
+- Hedged language ("broadly", "often", "many women")`;
 
 const USER_PROMPT = (weekOf: string) => `Generate this week's 5 Bloombay Magazine articles for the week of ${weekOf}.
 
@@ -104,7 +136,29 @@ export async function POST() {
       featured: boolean;
     }>;
 
+    // ── Fact-check pass ─────────────────────────────────────────────────────────
+    // Each article gets a quick second-opinion review. High-risk flags get notes
+    // stored in meta so the human curator can spot and fix them before approving.
+    const factCheckResults = await Promise.all(articles.map(async (a) => {
+      try {
+        const fc = await client.messages.create({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 600,
+          system: FACT_CHECK_SYSTEM,
+          messages: [{ role: "user", content: `Headline: ${a.headline}\n\n${a.body}` }],
+        });
+        const fcText = fc.content[0].type === "text" ? fc.content[0].text : "{}";
+        const fcJson = fcText.match(/\{[\s\S]*\}/);
+        return fcJson ? JSON.parse(fcJson[0]) : null;
+      } catch {
+        return null;
+      }
+    }));
+
     const rows = articles.map((a, i) => {
+      const fcResult = factCheckResults[i];
+      const highFlags = (fcResult?.flags ?? []).filter((f: { risk: string }) => f.risk === "high");
+      const needsReview = fcResult?.verdict === "needs_review" || highFlags.length > 0;
       const [cover_a, cover_b] = COVER_PALETTES[a.section] ?? ["#1A0526", "#7B1FA2"];
       return {
         room: "magazine",
@@ -113,13 +167,15 @@ export async function POST() {
         body: a.body,
         source: "AI-generated",
         meta: {
-          section:    a.section,
-          dek:        a.dek,
-          read_time:  a.read_time,
-          author:     a.author,
+          section:       a.section,
+          dek:           a.dek,
+          read_time:     a.read_time,
+          author:        a.author,
           cover_a,
           cover_b,
-          featured:   a.featured ?? false,
+          featured:      a.featured ?? false,
+          fact_check:    fcResult ?? null,
+          needs_review:  needsReview,
         },
         yande_note:  a.yande_note,
         badge:       a.badge ?? null,
@@ -136,7 +192,16 @@ export async function POST() {
 
     if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
-    return NextResponse.json({ generated: inserted?.length ?? 0, articles: inserted, week_of: weekOf });
+    const flagged = (inserted ?? []).filter(r => r.meta?.needs_review);
+    return NextResponse.json({
+      generated:  inserted?.length ?? 0,
+      flagged:    flagged.length,
+      articles:   inserted,
+      week_of:    weekOf,
+      note: flagged.length > 0
+        ? `${flagged.length} article(s) flagged for review — check meta.fact_check before approving.`
+        : "All articles passed fact-check. Approve via Supabase dashboard to publish.",
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Generation failed";
     return NextResponse.json({ error: msg }, { status: 500 });
