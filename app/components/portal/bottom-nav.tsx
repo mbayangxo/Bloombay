@@ -493,9 +493,15 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   return (
     <>
-      {/* ══════ TOP BAR — fixed, always visible, never transparent ══════ */}
-      <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
+      {/* ══════ TOP BAR — pinned to viewport top, never scrolls ══════ */}
+      <div
+        className="md:hidden"
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
           background: isDarkPage
             ? "rgba(26,4,20,0.92)"
             : "rgba(255,240,246,0.95)",
@@ -535,12 +541,15 @@ export function BottomNav({ user }: { user?: NavUser }) {
           Each destination grows from the stem like a bud.
       */}
       <div
-        className="fixed z-50 md:hidden"
+        className="md:hidden"
         style={{
-          bottom: 0, left: 0, right: 0,
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
           height: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
           pointerEvents: "none",
-          // zero background — the stem IS the navigation
         }}
       >
         {/* ─ Organic wavy botanical stem ─ */}
