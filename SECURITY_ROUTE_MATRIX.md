@@ -105,7 +105,7 @@ Generated from codebase audit. Last updated: 2026-06-24.
 | Severity | Count | Notes |
 |----------|-------|-------|
 | CRITICAL | 0 | All previously critical items resolved |
-| HIGH | 3 | hanger/checkout (client price), /api/bloom-request (old route, check if active), comments (service role) |
+| HIGH | 0 | All HIGH items resolved |
 | MEDIUM | ~35 | User text without explicit length caps; service role on some read paths |
 | LOW | ~80 | Properly guarded; read-only or bounded |
 
@@ -114,12 +114,7 @@ Generated from codebase audit. Last updated: 2026-06-24.
 ## Remaining Action Items
 
 ### HIGH priority
-| Route | Issue | Fix |
-|-------|-------|-----|
-| `/api/hanger/checkout` | Trusts client-supplied `price_cents` | Fetch item price server-side by item ID |
-| `/api/bloom-request` | Legacy route — check if still active; lacks block check | Verify if superseded by `/api/member/bloom-requests` |
-| `/api/comments` | Uses service role for all reads | Restrict to anon client + RLS |
-| `/api/member/profile/[username]` | Public read uses service role | Limit fields returned; use anon client |
+All HIGH items resolved — see Resolved section below.
 
 ### MEDIUM priority
 - Add explicit length caps to user-text fields in: intro bios, memories, stories, wall posts, pin-drop captions
@@ -128,6 +123,10 @@ Generated from codebase audit. Last updated: 2026-06-24.
 - `/api/careers/apply` — public route accepts cover letter; add max length + honeypot
 
 ### Resolved since audit
+- ✅ `/api/hanger/checkout` already fetches price server-side (was already fixed; matrix was stale)
+- ✅ `/api/bloom-request` deleted — unreferenced legacy route superseded by `/api/member/bloom-requests`
+- ✅ `/api/comments` GET: requires auth, capped at 200 results; POST: 1000-char body cap, 20/hr rate limit
+- ✅ `/api/member/profile/[username]` now requires auth; strips `role` from response (returns `isVerified` bool only)
 - ✅ All `x-admin-password` header auth removed
 - ✅ Admin routes use Supabase session + profiles.role check
 - ✅ Stripe ticket checkout fetches price/name server-side
