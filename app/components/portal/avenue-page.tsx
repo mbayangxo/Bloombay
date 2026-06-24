@@ -20,6 +20,15 @@ interface AvenueConfig {
 
 const AVENUES: AvenueConfig[] = [
   {
+    signLine1: "DROP ZONE",
+    signLine2: "BLOOM DROPS BLVD.",
+    title: "Drops",
+    tagline: "Only the good stuff. ✿",
+    href: "/member/drops",
+    accent: PINK,
+    count: null,
+  },
+  {
     signLine1: "EATS AVE.",
     signLine2: "GIRL EATS BLVD.",
     title: "Eats",

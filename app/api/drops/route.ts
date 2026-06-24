@@ -11,8 +11,9 @@ export async function GET() {
   const [{ data: drops }, { data: myClaims }] = await Promise.all([
     supabase
       .from("bloom_drops")
-      .select("id, title, description, partner_name, partner_type, neighborhood, total_qty, claimed_qty, valid_until, cover_color_a, cover_color_b, instructions")
+      .select("id, title, description, partner_name, partner_type, neighborhood, total_qty, claimed_qty, valid_until, cover_color_a, cover_color_b, instructions, category, badge_text, is_featured")
       .eq("is_active", true)
+      .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase
       .from("drop_claims")

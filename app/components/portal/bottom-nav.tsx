@@ -673,6 +673,16 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <BBLogo size={26} pinkColor={PINK} />
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <TopTile href="/member/drops" label="Drops">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                {[0,72,144,216,288].map(a => (
+                  <ellipse key={a} cx="12" cy="4.5" rx="2.3" ry="5.2"
+                    fill={isDarkPage ? "rgba(255,220,235,0.9)" : PINK}
+                    transform={`rotate(${a} 12 12)`} opacity="0.85"/>
+                ))}
+                <circle cx="12" cy="12" r="3.5" fill={isDarkPage ? "rgba(255,220,235,0.9)" : PINK}/>
+              </svg>
+            </TopTile>
             <TopTile href="/member/apartment" label="Apartment">
               <IconApt c={isDarkPage ? "rgba(255,220,235,0.95)" : PINK} />
             </TopTile>
