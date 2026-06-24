@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/auth/get-user";
+import { logModeration, type FactCheckFlag } from "@/lib/fact-check";
 
 function admin() {
   return createClient(
@@ -192,6 +193,25 @@ export async function POST() {
 
     if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
+    // Log any flagged articles into the central moderation queue
+    await Promise.all((inserted ?? []).map(async (row, i) => {
+      const fcResult = factCheckResults[i];
+      if (!fcResult || fcResult.verdict === "pass") return;
+      await logModeration(supabase, {
+        sourceTable: "avenue_content",
+        sourceId: row.id,
+        contentType: "magazine_article",
+        contentText: articles[i]?.body ?? "",
+        result: {
+          flags: fcResult.flags as FactCheckFlag[],
+          verdict: fcResult.verdict,
+          summary: fcResult.summary ?? "",
+          risk_score: (fcResult.flags ?? []).filter((f: { risk: string }) => f.risk === "high").length * 35 +
+                      (fcResult.flags ?? []).filter((f: { risk: string }) => f.risk === "medium").length * 15,
+        },
+      });
+    }));
+
     const flagged = (inserted ?? []).filter(r => r.meta?.needs_review);
     return NextResponse.json({
       generated:  inserted?.length ?? 0,
@@ -199,8 +219,8 @@ export async function POST() {
       articles:   inserted,
       week_of:    weekOf,
       note: flagged.length > 0
-        ? `${flagged.length} article(s) flagged for review — check meta.fact_check before approving.`
-        : "All articles passed fact-check. Approve via Supabase dashboard to publish.",
+        ? `${flagged.length} article(s) flagged for review — check Founder Portal › Content before approving.`
+        : "All articles passed fact-check. Approve via Founder Portal › Content to publish.",
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Generation failed";

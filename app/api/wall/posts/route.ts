@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as adminClient } from "@supabase/supabase-js";
+import { factCheck, logModeration } from "@/lib/fact-check";
 
 function admin() {
   return adminClient(
@@ -48,5 +49,19 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Background fact-check — don't block the response
+  if (data?.id) {
+    factCheck(body.text.trim(), { contentType: "wall_post" }).then(async (result) => {
+      await logModeration(admin(), {
+        sourceTable: "wall_posts",
+        sourceId: data.id,
+        contentType: "wall_post",
+        contentText: body.text.trim(),
+        result,
+      });
+    }).catch(() => {});
+  }
+
   return NextResponse.json(data);
 }

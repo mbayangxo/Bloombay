@@ -72,6 +72,7 @@ export const MC_NAV: {
       { label: "Hosts", path: "/club-hosts", cap: "hosts" },
       { label: "Verification", path: "/verification", cap: "verification" },
       { label: "Safety", path: "/safety", cap: "safety" },
+      { label: "Content Review", path: "/content", cap: "content_moderation" },
     ],
   },
   {
