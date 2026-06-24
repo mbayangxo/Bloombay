@@ -318,76 +318,149 @@ function IconHappenings({ c }: SVGProps) {
 
 // ── Top bar icons ─────────────────────────────────────────────────────────────
 function IconApt({ c }: SVGProps) {
-  // Filled apartment building with windows + door
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="6" width="18" height="15" rx="1" fill={c} opacity="0.88"/>
-      <path d="M2 7.5 L12 2.5 L22 7.5" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      <rect x="4" y="7" width="16" height="3.5" rx="0.5" fill="white" opacity="0.16"/>
-      <rect x="5.5"  y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
-      <rect x="10.5" y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
-      <rect x="15.5" y="11" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.55"/>
-      <rect x="5.5"  y="15" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.4"/>
-      <rect x="15.5" y="15" width="3"   height="2.5" rx="0.4" fill="white" opacity="0.4"/>
-      <rect x="10"   y="17" width="4"   height="4"   rx="0.5" fill="white" opacity="0.6"/>
-      <circle cx="13.2" cy="19" r="0.5" fill={c}/>
-      <line x1="1.5" y1="21" x2="22.5" y2="21" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Ground shadow */}
+      <ellipse cx="12.5" cy="23" rx="7" ry="0.75" fill="rgba(0,0,0,0.12)"/>
+      {/* Right side face — 3D depth */}
+      <path d="M20 5 L23 6.5 L23 22.5 L20 22 Z" fill={c} opacity="0.42"/>
+      {/* Side windows */}
+      <rect x="20.5" y="9"  width="2" height="1.8" rx="0.2" fill="white" opacity="0.32"/>
+      <rect x="20.5" y="13" width="2" height="1.8" rx="0.2" fill="white" opacity="0.28"/>
+      {/* Front face */}
+      <rect x="3.5" y="5" width="16.5" height="17.5" rx="0.6" fill={c}/>
+      {/* Left-side lit highlight */}
+      <rect x="3.5" y="5" width="2.8" height="17.5" rx="0.6" fill="rgba(255,255,255,0.17)"/>
+      {/* Roof parapet */}
+      <rect x="3" y="3.8" width="17" height="1.9" rx="0.4" fill={c}/>
+      <rect x="3.5" y="4"  width="15" height="0.7" rx="0.2" fill="rgba(255,255,255,0.3)"/>
+      {/* Floor 1 windows */}
+      <rect x="6.5"  y="8"   width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.68"/>
+      <rect x="11"   y="8"   width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.68"/>
+      <rect x="15.5" y="8"   width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.68"/>
+      {/* Floor 1 inner highlight */}
+      <rect x="6.8"  y="8.3"  width="1.3" height="0.8" rx="0.1" fill="white" opacity="0.45"/>
+      <rect x="11.3" y="8.3"  width="1.3" height="0.8" rx="0.1" fill="white" opacity="0.45"/>
+      <rect x="15.8" y="8.3"  width="1.3" height="0.8" rx="0.1" fill="white" opacity="0.45"/>
+      {/* Floor 2 windows */}
+      <rect x="6.5"  y="12.5" width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.55"/>
+      <rect x="11"   y="12.5" width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.55"/>
+      <rect x="15.5" y="12.5" width="3.2" height="2.8" rx="0.4" fill="white" opacity="0.55"/>
+      {/* Front door — arched */}
+      <path d="M11 22.5 L11 18 Q11 16.5 12.5 16.5 Q14 16.5 14 18 L14 22.5 Z" fill="rgba(0,0,0,0.4)"/>
+      <path d="M11 18 Q11 16.5 12.5 16.5 Q14 16.5 14 18" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" fill="none"/>
+      <circle cx="13.5" cy="20" r="0.45" fill="rgba(255,255,255,0.42)"/>
     </svg>
   );
 }
 function IconPin({ c }: SVGProps) {
-  // Filled teardrop map pin with 3D highlight
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      {/* Drop shadow */}
+      <ellipse cx="12" cy="23" rx="3.5" ry="0.7" fill="rgba(0,0,0,0.13)"/>
+      {/* Pin body — glossy teardrop */}
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={c}/>
-      <circle cx="12" cy="9" r="2.8" fill="white" opacity="0.32"/>
-      <circle cx="12" cy="9" r="1.4" fill="white" opacity="0.5"/>
-      <ellipse cx="9.8" cy="6.5" rx="1.8" ry="1.2" fill="white" opacity="0.3" transform="rotate(-20 9.8 6.5)"/>
-      <ellipse cx="12" cy="22.5" rx="3" ry="0.8" fill={c} opacity="0.2"/>
+      {/* Right shadow edge */}
+      <path d="M15.5 3.8 Q19 5.8 19 9 C19 12.8 15 18.5 12 22 C14.5 18.5 17.5 13 17.5 9 Q17.5 5.8 15.5 3.8Z"
+        fill="rgba(0,0,0,0.22)"/>
+      {/* Main specular highlight */}
+      <ellipse cx="9.4" cy="6.2" rx="2.9" ry="1.8" fill="white" opacity="0.42" transform="rotate(-28 9.4 6.2)"/>
+      {/* Bright specular point */}
+      <ellipse cx="9.7" cy="5.3" rx="1.5" ry="0.9" fill="white" opacity="0.62" transform="rotate(-22 9.7 5.3)"/>
+      {/* Outer ring shadow */}
+      <circle cx="12" cy="9" r="3.2" fill="rgba(0,0,0,0.28)"/>
+      {/* Inner white circle */}
+      <circle cx="12" cy="9" r="2.5" fill="white" opacity="0.9"/>
+      {/* Centre pip */}
+      <circle cx="12" cy="9" r="1.3" fill={c} opacity="0.82"/>
+      {/* Inner specular */}
+      <circle cx="11.3" cy="8.3" r="0.58" fill="white" opacity="0.78"/>
     </svg>
   );
 }
 function IconMail({ c }: SVGProps) {
-  // Realistic British-style pillar post box with letter slot and envelope
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      {/* Post box body — arched top, rounded sides */}
-      <path d="M4.5 10 Q4.5 3 12 3 Q19.5 3 19.5 10 L19.5 20 Q19.5 21 18.5 21 L5.5 21 Q4.5 21 4.5 20 Z" fill={c}/>
-      {/* 3D dome sheen — top-left arc highlight */}
-      <path d="M6 10 Q6 5 12 5 Q16 5 17.5 8" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.3" fill="none"/>
-      {/* Left-side vertical shine */}
-      <path d="M6 10 L6 18" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.18"/>
-      {/* Letter slot — wide horizontal slit */}
-      <rect x="6.5" y="10.5" width="11" height="2" rx="1" fill="rgba(0,0,0,0.35)"/>
-      <rect x="7" y="10.8" width="10" height="0.8" rx="0.4" fill="rgba(0,0,0,0.25)"/>
-      {/* Envelope peeking out of slot */}
-      <rect x="9" y="9.5" width="6" height="3.5" rx="0.4" fill="white" opacity="0.9"/>
-      <line x1="9" y1="9.5" x2="12" y2="11.5" stroke={c} strokeWidth="0.7" opacity="0.7"/>
-      <line x1="15" y1="9.5" x2="12" y2="11.5" stroke={c} strokeWidth="0.7" opacity="0.7"/>
-      {/* Wax seal dot on envelope */}
-      <circle cx="12" cy="11.5" r="0.9" fill={c} opacity="0.85"/>
-      {/* Royal cypher / circular placard in middle of box */}
-      <circle cx="12" cy="15.5" r="1.8" fill="rgba(0,0,0,0.2)"/>
-      <circle cx="12" cy="15.5" r="1.2" fill="rgba(255,255,255,0.12)"/>
-      {/* Keyhole at base */}
-      <circle cx="12" cy="19" r="0.6" fill="rgba(0,0,0,0.3)"/>
-      <rect x="11.6" y="19" width="0.8" height="0.8" rx="0.1" fill="rgba(0,0,0,0.25)"/>
+      {/* Ground shadow */}
+      <ellipse cx="13.5" cy="23.1" rx="5.5" ry="0.65" fill="rgba(0,0,0,0.12)"/>
+
+      {/* ── Pillar post box ── */}
+      {/* Main body — arched dome, straight sides */}
+      <path d="M6 12.5 Q6 2.5 13.5 2.5 Q21 2.5 21 12.5 L21 22 Q21 23 19.5 23 L7.5 23 Q6 23 6 22 Z"
+        fill={c}/>
+      {/* Right shadow strip — 3D cylinder depth */}
+      <path d="M19.5 10 L21 10 L21 23 L19.5 23 Z" fill="rgba(0,0,0,0.22)"/>
+      {/* Left lit strip */}
+      <path d="M7.3 12.5 Q7.3 6 8.8 4.8" stroke="rgba(255,255,255,0.3)" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      {/* Dome arc highlight */}
+      <path d="M8.5 11 Q8.5 5 13.5 5 Q18 5 20 8.5" stroke="rgba(255,255,255,0.18)" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
+
+      {/* ── Letter slot ── */}
+      <rect x="7"   y="13.5" width="13" height="3.8" rx="1.2" fill="rgba(0,0,0,0.3)"/>
+      <rect x="7.7" y="14.2" width="11.6" height="2.2" rx="0.5" fill="rgba(0,0,0,0.62)"/>
+      {/* Slot top lip shimmer */}
+      <rect x="7.7" y="14.1" width="11.6" height="0.4" rx="0.2" fill="rgba(255,255,255,0.06)"/>
+
+      {/* ── Main envelope — large, peeking from slot at 13° ── */}
+      <g transform="rotate(13, 14, 13.5)">
+        <rect x="7.5" y="9.5" width="13" height="8.5" rx="0.6" fill="#FAF6F0"/>
+        {/* Cream shadow on lower half */}
+        <rect x="7.5" y="15" width="13" height="3" rx="0.6" fill="rgba(0,0,0,0.05)"/>
+        {/* V-fold flap */}
+        <path d="M7.5 9.5 L14 14.5 L20.5 9.5" stroke="#D0AABC" strokeWidth="0.75" fill="none"/>
+        {/* Wax seal */}
+        <circle cx="14" cy="15.2" r="2.4" fill="#B07840"/>
+        <circle cx="14" cy="15.2" r="1.5" fill="#D09858"/>
+        {/* Rose imprint in seal */}
+        <circle cx="14" cy="15.2" r="0.55" fill="#B07840"/>
+        <path d="M13.2 14.6 L14 15 L14.8 14.6 L14 14 Z" fill="#C08848" opacity="0.85"/>
+        {/* Envelope paper edge highlight */}
+        <line x1="8" y1="10" x2="10.5" y2="10" stroke="rgba(255,255,255,0.7)" strokeWidth="0.5" strokeLinecap="round"/>
+      </g>
+
+      {/* ── Small floating envelope — lower-left, −22° ── */}
+      <g transform="rotate(-22, 4, 19)">
+        <rect x="0.5" y="16.5" width="7.5" height="5.2" rx="0.5" fill="#FAF6F0" opacity="0.97"/>
+        <rect x="0.5" y="19.5" width="7.5" height="2.2" rx="0.5" fill="rgba(0,0,0,0.05)"/>
+        <path d="M0.5 16.5 L4.25 19.2 L8 16.5" stroke="#D0AABC" strokeWidth="0.65" fill="none"/>
+        <circle cx="4.25" cy="19.5" r="1.6" fill="#B07840"/>
+        <circle cx="4.25" cy="19.5" r="1"   fill="#D09858"/>
+        <circle cx="4.25" cy="19.5" r="0.42" fill="#B07840"/>
+      </g>
+
+      {/* ── Door panel ── */}
+      <line x1="7" y1="17.8" x2="21" y2="17.8" stroke="rgba(0,0,0,0.13)" strokeWidth="0.6"/>
+      {/* Keyhole */}
+      <circle cx="14" cy="20.2" r="1.2" fill="rgba(0,0,0,0.38)"/>
+      <path d="M13.35 21 L13.35 22.4 L14.65 22.4 L14.65 21 Z" fill="rgba(0,0,0,0.38)"/>
     </svg>
   );
 }
 function IconChatBubble({ c }: SVGProps) {
-  // Filled dual speech bubbles with message dots
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      {/* Back bubble */}
       <path d="M21 13.5 a2 2 0 0 1-2 2 H17 l-2 3.5 v-3.5 H9 a2 2 0 0 1-2-2 V8 a2 2 0 0 1 2-2 h10 a2 2 0 0 1 2 2Z"
-        fill={c} opacity="0.5"/>
+        fill={c} opacity="0.4"/>
+      {/* Back bubble top highlight */}
+      <path d="M21 9 Q21 7.5 19.5 7.5 H14" stroke="rgba(255,255,255,0.28)" strokeWidth="0.8" strokeLinecap="round" fill="none"/>
+      {/* Front bubble — main */}
       <path d="M4 16.5 H14 a2 2 0 0 0 2-2 V9 a2 2 0 0 0-2-2 H4 a2 2 0 0 0-2 2 v5.5 a2 2 0 0 0 2 2Z"
         fill={c}/>
-      <rect x="3" y="9.5" width="10" height="2.5" rx="1.2" fill="white" opacity="0.18"/>
-      <path d="M6 16.5 L4 21" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
-      <circle cx="6.5"  cy="13" r="1.05" fill="white" opacity="0.72"/>
-      <circle cx="9"    cy="13" r="1.05" fill="white" opacity="0.72"/>
-      <circle cx="11.5" cy="13" r="1.05" fill="white" opacity="0.72"/>
+      {/* Front bubble top sheen */}
+      <path d="M3 9.8 Q3 8 5 8 H12" stroke="rgba(255,255,255,0.26)" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+      {/* Bubble tail */}
+      <path d="M6 16.5 L4 21" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Tail depth shadow */}
+      <path d="M6.6 16.5 L4.9 20.2" stroke="rgba(0,0,0,0.12)" strokeWidth="1.2" strokeLinecap="round"/>
+      {/* Message dots */}
+      <circle cx="6.5"  cy="13" r="1.2" fill="white" opacity="0.88"/>
+      <circle cx="9"    cy="13" r="1.2" fill="white" opacity="0.88"/>
+      <circle cx="11.5" cy="13" r="1.2" fill="white" opacity="0.88"/>
+      {/* Dot specular */}
+      <circle cx="6.15"  cy="12.65" r="0.42" fill="white" opacity="0.52"/>
+      <circle cx="8.65"  cy="12.65" r="0.42" fill="white" opacity="0.52"/>
+      <circle cx="11.15" cy="12.65" r="0.42" fill="white" opacity="0.52"/>
     </svg>
   );
 }
