@@ -14,6 +14,21 @@ if (typeof document !== "undefined") {
     s.id = "bb-nav-style";
     s.textContent = `
       @keyframes pinkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.65;transform:scale(0.88)} }
+      @keyframes roseBloom {
+        0%   { transform: scale(0.15) rotate(-25deg); opacity: 0; }
+        55%  { transform: scale(1.18) rotate(5deg);  opacity: 1; }
+        75%  { transform: scale(0.94) rotate(-2deg); opacity: 1; }
+        100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+      }
+      @keyframes budSway {
+        0%,100% { transform: rotate(0deg) translateY(0px); }
+        30%     { transform: rotate(2deg) translateY(-0.5px); }
+        65%     { transform: rotate(-1.5deg) translateY(0.5px); }
+      }
+      @keyframes stemPulse {
+        0%,100% { opacity: 1; }
+        50%     { opacity: 0.7; }
+      }
     `;
     document.head.appendChild(s);
   }
@@ -408,6 +423,74 @@ function OpenRose() {
   );
 }
 
+// ── Active tab: open rose bloom ───────────────────────────────────────────────
+function MiniBloom() {
+  return (
+    <svg
+      width="26" height="26" viewBox="0 0 26 26" fill="none"
+      style={{ animation: "roseBloom 0.5s cubic-bezier(0.34,1.56,0.64,1) both", display: "block" }}
+    >
+      {/* Outer ring — 5 large open petals */}
+      {[0, 72, 144, 216, 288].map(a => (
+        <ellipse key={`o${a}`} cx="13" cy="5" rx="4" ry="8.5"
+          fill="#FF5B8D" opacity="0.60" transform={`rotate(${a} 13 13)`}/>
+      ))}
+      {/* Mid ring — 5 offset petals, deeper pink */}
+      {[36, 108, 180, 252, 324].map(a => (
+        <ellipse key={`m${a}`} cx="13" cy="7.5" rx="3.2" ry="6.5"
+          fill="#FF1F7D" opacity="0.88" transform={`rotate(${a} 13 13)`}/>
+      ))}
+      {/* Inner ring — tight curl petals */}
+      {[0, 72, 144, 216, 288].map(a => (
+        <ellipse key={`i${a}`} cx="13" cy="10" rx="2" ry="3.8"
+          fill="#C80060" opacity="0.95" transform={`rotate(${a} 13 13)`}/>
+      ))}
+      {/* Center disk */}
+      <circle cx="13" cy="13" r="4.2" fill="#8B0038"/>
+      {/* Stamen dome */}
+      <circle cx="13" cy="13" r="2.6" fill="#FF5FA5" opacity="0.9"/>
+      {/* Stamen dots */}
+      {[0, 60, 120, 180, 240, 300].map(a => {
+        const rad = a * Math.PI / 180;
+        return <circle key={a} cx={13 + 1.6 * Math.cos(rad)} cy={13 + 1.6 * Math.sin(rad)}
+          r="0.5" fill="#FFDD00" opacity="0.9"/>;
+      })}
+      {/* Specular highlight */}
+      <circle cx="11.8" cy="11.8" r="1.3" fill="rgba(255,255,255,0.55)"/>
+    </svg>
+  );
+}
+
+// ── Inactive tab: closed rosebud ──────────────────────────────────────────────
+function MiniBud({ isDark }: { isDark: boolean }) {
+  const outer = isDark ? "#FF9ABD" : "#FF7BAD";
+  const inner = isDark ? "#FF69B4" : "#FF1F7D";
+  return (
+    <svg
+      width="12" height="17" viewBox="0 0 12 18" fill="none"
+      style={{ transformOrigin: "bottom center", animation: "budSway 6s ease-in-out infinite" }}
+    >
+      {/* Calyx — 3 sepals */}
+      <path d="M6 14 C3.2 11.5 2.8 7 6 5 C9.2 7 8.8 11.5 6 14Z"
+        fill="#3A6B30" opacity="0.82"/>
+      {/* Side sepal leaves */}
+      <path d="M4.2 13.5 C2.5 15.5 1.8 17 1.5 18"
+        stroke="#3A6B30" strokeWidth="1" strokeLinecap="round" opacity="0.65"/>
+      <path d="M7.8 13.5 C9.5 15.5 10.2 17 10.5 18"
+        stroke="#3A6B30" strokeWidth="1" strokeLinecap="round" opacity="0.65"/>
+      {/* Outer bud petals */}
+      <ellipse cx="6" cy="7.5" rx="4.2" ry="7" fill={outer} opacity="0.85"/>
+      {/* Mid bud layer */}
+      <ellipse cx="6" cy="7.5" rx="2.8" ry="6" fill={inner} opacity="0.82"/>
+      {/* Inner spiral curl */}
+      <ellipse cx="6" cy="6.5" rx="1.5" ry="4" fill="#C80060" opacity="0.72"/>
+      {/* Tip specular */}
+      <ellipse cx="5.3" cy="3.5" rx="1.3" ry="2" fill="white" opacity="0.22"
+        transform="rotate(-12 5.3 3.5)"/>
+    </svg>
+  );
+}
+
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 const TABS = [
   { href: "/member/home",       key: "home"       },
@@ -548,7 +631,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           left: 0,
           right: 0,
           zIndex: 50,
-          height: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+          height: "calc(env(safe-area-inset-bottom, 0px) + 88px)",
           pointerEvents: "none",
         }}
       >
@@ -651,44 +734,47 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   fontFamily: "var(--font-jost)",
                   fontSize: "7px",
                   fontWeight: active ? 800 : 500,
-                  letterSpacing: "0.05em",
-                  color: active ? PINK : (isDarkPage ? "rgba(255,215,232,0.72)" : "rgba(100,30,65,0.58)"),
+                  letterSpacing: "0.06em",
+                  color: active ? PINK : (isDarkPage ? "rgba(255,215,232,0.65)" : "rgba(100,30,65,0.52)"),
                   lineHeight: 1,
                   whiteSpace: "nowrap" as const,
-                  marginBottom: 3,
+                  marginBottom: 4,
                 }}>
                   {tabLabel(tab.key).toUpperCase()}
                 </span>
 
-                {/* Icon */}
-                <div style={{
-                  width: 26, height: 26,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  marginBottom: 3,
-                }}>
-                  {renderIcon(tab.key, active)}
-                </div>
+                {/* Flower: open bloom when active (animates in), swaying bud when inactive */}
+                {active
+                  ? <MiniBloom key={`bloom-${tab.key}`} />
+                  : <MiniBud key={`bud-${tab.key}`} isDark={isDarkPage} />
+                }
 
-                {/* Branch — organic curved botanical stalk from icon down to horizontal stem */}
+                {/* Branch — botanical stalk connecting flower to the main stem */}
                 <svg
                   width="8"
-                  height={active ? 18 : 12}
-                  viewBox={`0 0 8 ${active ? 18 : 12}`}
+                  height={active ? 20 : 10}
+                  viewBox={`0 0 8 ${active ? 20 : 10}`}
                   fill="none"
                   style={{
                     marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 22px)",
-                    transition: "height 0.22s ease",
+                    transition: "height 0.3s ease",
                     overflow: "visible",
+                    marginTop: 1,
                   }}
                 >
                   <path
                     d={active
-                      ? "M4 0 C2 5 6 11 4 18"
-                      : "M4 0 C2.5 4 5.5 8 4 12"}
+                      ? "M4 0 C1.5 5 6.5 12 4 20"
+                      : "M4 0 C2.5 3 5.5 7 4 10"}
                     stroke={active ? PINK : branchC}
-                    strokeWidth={active ? 2.5 : 1.8}
+                    strokeWidth={active ? 2.8 : 1.6}
                     strokeLinecap="round"
                   />
+                  {/* Small leaf nub on active branch */}
+                  {active && (
+                    <path d="M4 8 C2 5 0 4 1 7 C2 9 4 8 4 8Z"
+                      fill="#3A6B30" opacity="0.65"/>
+                  )}
                 </svg>
               </Link>
             );
