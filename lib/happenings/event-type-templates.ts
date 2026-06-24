@@ -72,7 +72,7 @@ const STOCK = {
 };
 
 /** 2–3 poster variants per event type — distinct accent + stock photo */
-export const HAPPENING_VARIANTS: Record<PosterTemplateType, HappeningVariant[]> = {
+export const HAPPENING_VARIANTS: Partial<Record<PosterTemplateType, HappeningVariant[]>> = {
   party: [
     {
       id: "party-neon",
@@ -198,7 +198,7 @@ export function getEventTypeMeta(type: PosterTemplateType): HappeningEventType {
 }
 
 export function getVariantsForType(type: PosterTemplateType): HappeningVariant[] {
-  return HAPPENING_VARIANTS[type] ?? HAPPENING_VARIANTS.dinner;
+  return HAPPENING_VARIANTS[type] ?? HAPPENING_VARIANTS.dinner ?? [];
 }
 
 export function getVariant(type: PosterTemplateType, variantId: string): HappeningVariant {

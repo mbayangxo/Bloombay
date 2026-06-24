@@ -7,13 +7,13 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const clubId = params.id;
+  const { id: clubId } = await params;
 
   // Check membership tenure
   const { data: membership } = await supabase
@@ -109,17 +109,18 @@ export async function POST(
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
   const { data } = await supabase
     .from("patch_orders")
     .select("id, status, created_at, shipped_at, tracking_number")
     .eq("user_id", user.id)
-    .eq("club_id", params.id)
+    .eq("club_id", id)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

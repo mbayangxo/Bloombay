@@ -84,7 +84,8 @@ export async function factCheck(
 }
 
 export async function logModeration(
-  supabase: ReturnType<typeof import("@supabase/supabase-js").createClient>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: { from: (...args: any[]) => any },
   params: {
     sourceTable: string;
     sourceId: string;

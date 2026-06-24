@@ -7,17 +7,18 @@ function nameFromSlug(slug: string) {
   return slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
-export default async function PartnerEditPage({ params }: { params: { slug: string } }) {
+export default async function PartnerEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const user = await getAuthUser();
   if (!user) redirect("/member/login");
 
-  let partner = await getPartner(params.slug);
+  const { slug } = await params;
+  let partner = await getPartner(slug);
 
   // If no DB record yet, create one so the partner can start editing
   if (!partner) {
     const id = await createPartner({
-      slug: params.slug,
-      name: nameFromSlug(params.slug),
+      slug: slug,
+      name: nameFromSlug(slug),
       restaurant_type: "casual",
       city: "New York",
     });

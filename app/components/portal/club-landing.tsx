@@ -76,7 +76,16 @@ export interface ClubLandingData {
   neighborhood: string;
   memberCount: number;
   color: string;
+  accentColor?: string;
+  layoutKey?: string;
   crestBg?: string;
+  crestSymbol?: string;
+  crestAccent?: string;
+  coverUrl?: string;
+  logoUrl?: string;
+  logoTemplate?: "seal" | "wordmark" | "monogram";
+  logoText?: string;
+  crestImageUrl?: string;
   crestEmoji?: string;
   darkBg: boolean;
   mamaName: string;

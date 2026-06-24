@@ -60,7 +60,7 @@ export async function GET() {
       .in("club_id", clubIds)
       .order("sent_at", { ascending: false })
       .limit(20);
-    clubPins = (data ?? []) as ClubBroadcastRow[];
+    clubPins = (data ?? []) as unknown as ClubBroadcastRow[];
   }
 
   type ReceivedRow = {
@@ -78,7 +78,7 @@ export async function GET() {
 
   return NextResponse.json({
     mine: mine ?? [],
-    received: ((received ?? []) as ReceivedRow[])
+    received: ((received ?? []) as unknown as ReceivedRow[])
       .filter((r) => r.pin_drops && new Date(r.pin_drops.expires_at) > new Date())
       .map((r) => ({
         id: r.pin_drops!.id,

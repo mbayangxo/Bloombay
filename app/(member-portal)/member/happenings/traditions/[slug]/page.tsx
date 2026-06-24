@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, use } from "react";
 import Link from "next/link";
 import { getTraditionBySlug, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 
@@ -23,17 +23,18 @@ type TraditionGathering = {
 };
 type TraditionWithGatherings = Tradition & { gatherings?: TraditionGathering[] };
 
-export default function TraditionPage({ params }: { params: { slug: string } }) {
+export default function TraditionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [tradition, setTradition] = useState<TraditionWithGatherings | null>(null);
   const [loading, setLoading] = useState(true);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
-    getTraditionBySlug(params.slug).then(t => {
+    getTraditionBySlug(slug).then(t => {
       setTradition(t as typeof tradition);
       setLoading(false);
     });
-  }, [params.slug]);
+  }, [slug]);
 
   function follow() {
     if (!tradition) return;

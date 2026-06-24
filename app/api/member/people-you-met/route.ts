@@ -76,7 +76,7 @@ export async function GET() {
       profiles: { id: string; first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null } | null;
     };
 
-    for (const row of (coAttendees ?? []) as CoAttendeeRow[]) {
+    for (const row of (coAttendees ?? []) as unknown as CoAttendeeRow[]) {
       if (!row.profiles || alreadyBloomed.has(row.user_id)) continue;
       if (!metProfiles.has(row.user_id)) {
         metProfiles.set(row.user_id, {
@@ -111,7 +111,7 @@ export async function GET() {
       profiles: { id: string; first_name: string | null; full_name: string | null; avatar_url: string | null; neighborhood: string | null } | null;
     };
 
-    for (const row of (coEventees ?? []) as CoEventeeRow[]) {
+    for (const row of (coEventees ?? []) as unknown as CoEventeeRow[]) {
       if (!row.profiles || alreadyBloomed.has(row.user_id)) continue;
       if (!metProfiles.has(row.user_id)) {
         metProfiles.set(row.user_id, {

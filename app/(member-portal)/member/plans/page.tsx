@@ -1683,6 +1683,7 @@ function RecentConfirmationsStrip() {
 
 function PlansPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const theme = THEME;
 
   const [userId, setUserId] = useState<string | null>(null);

@@ -13,14 +13,14 @@ export interface MemberEntry {
   first_name: string;
   email: string;
   phone: string;
-  neighborhood: string;
   city: string;
-  country: string;
-  age_range: string;
   reasons: string[];
   interests: string[];
   founding_mother: boolean;
-  extra_notes: string;
+  neighborhood?: string;
+  country?: string;
+  age_range?: string;
+  extra_notes?: string;
 }
 
 // ── Club host entry ───────────────────────────────────────────

@@ -30,7 +30,7 @@ export async function GET() {
     } | null;
   };
 
-  const members = ((data ?? []) as BouquetRow[])
+  const members = ((data ?? []) as unknown as BouquetRow[])
     .filter((r) => r.profiles !== null)
     .map((r) => ({
       id: r.profiles!.id,

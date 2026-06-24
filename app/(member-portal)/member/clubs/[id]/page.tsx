@@ -4,14 +4,15 @@ import { getAuthUser } from "@/lib/auth/get-user";
 import { ClubLandingPage } from "@/app/components/portal/club-landing";
 import type { ClubLandingData, ClubTradition, ClubCustomization } from "@/app/components/portal/club-landing";
 
-export default async function ClubPage({ params }: { params: { id: string } }) {
+export default async function ClubPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthUser();
   if (!user) redirect("/member/login");
 
   const supabase = await createClient();
 
+  const { id } = await params;
   // Support both UUID-format IDs (legacy seed data) and slug-format
-  const isUuid = /^[0-9a-f-]{36}$/i.test(params.id);
+  const isUuid = /^[0-9a-f-]{36}$/i.test(id);
   const baseQuery = supabase
     .from("clubs")
     .select(`
@@ -23,8 +24,8 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     `);
 
   const { data: club, error: clubError } = isUuid
-    ? await baseQuery.eq("id", params.id).single()
-    : await baseQuery.eq("slug", params.id).single();
+    ? await baseQuery.eq("id", id).single()
+    : await baseQuery.eq("slug", id).single();
 
   if (clubError || !club) notFound();
 
@@ -36,7 +37,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     .single();
 
   // Check membership via club_memberships (Cursor's table, keyed by club_slug)
-  const clubSlug = (club.slug as string | null) ?? params.id;
+  const clubSlug = (club.slug as string | null) ?? id;
   const { data: membership } = await supabase
     .from("club_memberships")
     .select("joined_at")

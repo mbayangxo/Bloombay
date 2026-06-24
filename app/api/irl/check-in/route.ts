@@ -66,10 +66,9 @@ export async function POST(request: Request) {
           coAttendees.map(async (coAttendee) => {
             const [ua, ub] = [user.id, coAttendee.user_id].sort();
 
-            const coAttendanceUpdate = supabase.rpc("increment_co_attendance", {
-              uid_a: ua,
-              uid_b: ub,
-            }).then(() => null).catch(() => null);
+            const coAttendanceUpdate = Promise.resolve(
+              supabase.rpc("increment_co_attendance", { uid_a: ua, uid_b: ub })
+            ).then(() => null).catch(() => null);
 
             const streakUpdate = (async () => {
               const { data: existing } = await supabase

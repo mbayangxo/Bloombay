@@ -69,7 +69,8 @@ const HIGH_VALUE_EVENTS = new Set([
 async function refreshMemoryAsync(
   userId: string,
   feature: string,
-  db: ReturnType<typeof adminClient>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: { from: (...args: any[]) => any },
 ) {
   const month = new Date().toISOString().slice(0, 7); // "2026-06"
 
@@ -85,7 +86,8 @@ async function refreshMemoryAsync(
 
   if (!signals || signals.length === 0) return;
 
-  const counts = signals.reduce<Record<string, number>>((acc, s) => {
+  const typedSignals = signals as { event_type: string; target_id: string; created_at: string }[];
+  const counts = typedSignals.reduce<Record<string, number>>((acc, s) => {
     acc[s.event_type] = (acc[s.event_type] ?? 0) + 1;
     return acc;
   }, {});

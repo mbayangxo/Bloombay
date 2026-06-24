@@ -3,16 +3,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
   const { data: flower, error } = await supabase
     .from("bloom_flowers")
     .select("id, note, sent_at, from_user_id, gathering_id")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("to_user_id", user.id)
     .maybeSingle();
 

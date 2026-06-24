@@ -185,12 +185,11 @@ export default function YandePicksPage() {
                     fontWeight: 700,
                     fontSize: 13,
                     letterSpacing: "0.06em",
-                    border: "none",
                     cursor: "pointer",
                     transition: "all 0.18s",
                     ...(applied.has(club.id)
                       ? { background: `rgba(255,31,125,0.08)`, color: PINK, border: `1px solid ${PINK}30` }
-                      : { background: PINK, color: "white", boxShadow: `0 4px 14px ${PINK}40` }),
+                      : { background: PINK, color: "white", border: "none", boxShadow: `0 4px 14px ${PINK}40` }),
                   }}
                 >
                   {applied.has(club.id) ? "Applied ✓" : "Apply to Join →"}
