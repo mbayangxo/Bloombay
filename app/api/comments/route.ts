@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isBlocked } from "@/lib/auth/block-check";
 
-const COMMENT_MAX_LENGTH = 1000;
+const COMMENT_MAX_LENGTH = 500;
 const COMMENT_RATE_LIMIT_PER_HOUR = 20;
 
 // GET /api/comments?fashion_post_id=xxx  OR  ?wall_post_id=xxx  OR  ?avenue_content_id=xxx
@@ -17,12 +18,12 @@ export async function GET(req: NextRequest) {
   const wallPostId       = searchParams.get("wall_post_id");
   const avenueContentId  = searchParams.get("avenue_content_id");
 
-  if (!fashionPostId && !wallPostId && !avenueContentId) {
-    return NextResponse.json({ error: "Missing post reference" }, { status: 400 });
+  const targetCount = [fashionPostId, wallPostId, avenueContentId].filter(Boolean).length;
+  if (targetCount !== 1) {
+    return NextResponse.json({ error: "Exactly one post reference required" }, { status: 400 });
   }
 
-  // Use admin client for the profile join (cross-schema lookup), but only fetch
-  // safe public fields — no PII beyond what members already share in profiles.
+  // Admin client needed for cross-table profile join; auth is already verified above
   const db = createAdminClient();
   let q = db
     .from("post_comments")
@@ -59,8 +60,22 @@ export async function POST(req: NextRequest) {
   if (text.length > COMMENT_MAX_LENGTH) {
     return NextResponse.json({ error: `Comment too long (max ${COMMENT_MAX_LENGTH} chars)` }, { status: 400 });
   }
-  if (!fashion_post_id && !wall_post_id && !avenue_content_id) {
-    return NextResponse.json({ error: "Missing post reference" }, { status: 400 });
+
+  const targetCount = [fashion_post_id, wall_post_id, avenue_content_id].filter(Boolean).length;
+  if (targetCount !== 1) {
+    return NextResponse.json({ error: "Exactly one post reference required" }, { status: 400 });
+  }
+
+  // Block check for wall posts
+  if (wall_post_id) {
+    const { data: wallPost } = await supabase
+      .from("wall_posts")
+      .select("author_id")
+      .eq("id", wall_post_id)
+      .single();
+    if (wallPost?.author_id && await isBlocked(supabase, user.id, wallPost.author_id)) {
+      return NextResponse.json({ error: "Cannot comment on this post" }, { status: 403 });
+    }
   }
 
   // Hourly rate limit
@@ -74,14 +89,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Comment rate limit reached. Try again later." }, { status: 429 });
   }
 
-  const db = createAdminClient();
-  const { data, error } = await db.from("post_comments").insert({
-    author_id:        user.id,
-    body:             text.trim().slice(0, COMMENT_MAX_LENGTH),
-    fashion_post_id:  fashion_post_id ?? null,
-    wall_post_id:     wall_post_id ?? null,
+  const { data, error } = await supabase.from("post_comments").insert({
+    author_id:         user.id,
+    body:              text.trim().slice(0, COMMENT_MAX_LENGTH),
+    fashion_post_id:   fashion_post_id ?? null,
+    wall_post_id:      wall_post_id ?? null,
     avenue_content_id: avenue_content_id ?? null,
-    parent_id:        parent_id ?? null,
+    parent_id:         parent_id ?? null,
   }).select("id, body, created_at, parent_id").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,27 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as adminClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { factCheck, logModeration } from "@/lib/fact-check";
 
-function admin() {
-  return adminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
+const ALLOWED_CATEGORIES = new Set([
+  "wall", "closet", "vanity", "wellness", "reading-room", "screening", "working", "magazine",
+]);
+const POST_MAX_LENGTH = 500;
+const POST_RATE_LIMIT_PER_DAY = 10;
 
 // GET /api/wall/posts?category=all&limit=30&offset=0
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.onboarding_completed) {
+    return NextResponse.json({ error: "Complete onboarding first" }, { status: 403 });
+  }
+  if (profile.verification_status !== "verified") {
+    return NextResponse.json({ error: "Verified members only" }, { status: 403 });
+  }
+
   const category = req.nextUrl.searchParams.get("category") ?? "all";
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "30"), 50);
   const offset = Number(req.nextUrl.searchParams.get("offset") ?? "0");
 
-  const supabase = admin();
-  let query = supabase
+  const admin = createAdminClient();
+  let query = admin
     .from("wall_posts")
     .select(`
       id, category, text, blooms, created_at, is_seed, seed_author,
-      author:profiles!author_id ( id, first_name, full_name )
+      author:profiles!author_id ( first_name, full_name )
     `)
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -33,31 +49,65 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(data ?? []);
 }
 
-// POST /api/wall/posts — create a post (requires auth)
+// POST /api/wall/posts — create a post (requires verified + onboarded)
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json() as { category: string; text: string };
-  if (!body.text?.trim()) return NextResponse.json({ error: "Text required" }, { status: 400 });
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.onboarding_completed) {
+    return NextResponse.json({ error: "Complete onboarding first" }, { status: 403 });
+  }
+  if (profile.verification_status !== "verified") {
+    return NextResponse.json({ error: "Verified members only" }, { status: 403 });
+  }
+
+  const body = await req.json() as { category?: string; text?: string };
+  const text = body.text?.trim() ?? "";
+  if (!text) return NextResponse.json({ error: "Text required" }, { status: 400 });
+  if (text.length > POST_MAX_LENGTH) {
+    return NextResponse.json({ error: `Post too long (max ${POST_MAX_LENGTH} chars)` }, { status: 400 });
+  }
+
+  const category = body.category ?? "wall";
+  if (!ALLOWED_CATEGORIES.has(category)) {
+    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  }
+
+  // Daily rate limit
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count: dayCount } = await supabase
+    .from("wall_posts")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", user.id)
+    .gte("created_at", dayAgo);
+  if ((dayCount ?? 0) >= POST_RATE_LIMIT_PER_DAY) {
+    return NextResponse.json({ error: "Daily post limit reached. Try again tomorrow." }, { status: 429 });
+  }
 
   const { data, error } = await supabase
     .from("wall_posts")
-    .insert({ author_id: user.id, category: body.category ?? "mood", text: body.text.trim() })
-    .select(`id, category, text, blooms, created_at, author:profiles!author_id ( id, first_name, full_name )`)
+    .insert({ author_id: user.id, category, text })
+    .select(`id, category, text, blooms, created_at, author:profiles!author_id ( first_name, full_name )`)
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Background fact-check — don't block the response
   if (data?.id) {
-    factCheck(body.text.trim(), { contentType: "wall_post" }).then(async (result) => {
-      await logModeration(admin(), {
+    const admin = createAdminClient();
+    factCheck(text, { contentType: "wall_post" }).then(async (result) => {
+      await logModeration(admin, {
         sourceTable: "wall_posts",
         sourceId: data.id,
         contentType: "wall_post",
-        contentText: body.text.trim(),
+        contentText: text,
         result,
       });
     }).catch(() => {});
