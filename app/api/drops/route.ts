@@ -17,18 +17,19 @@ export async function GET() {
       .order("created_at", { ascending: false }),
     supabase
       .from("drop_claims")
-      .select("drop_id, claim_code")
+      .select("drop_id, claim_code, claimed_at")
       .eq("user_id", user.id),
   ]);
 
   const claimedMap = Object.fromEntries(
-    (myClaims ?? []).map(c => [c.drop_id, c.claim_code])
+    (myClaims ?? []).map(c => [c.drop_id, { code: c.claim_code, claimed_at: c.claimed_at }])
   );
 
   const enriched = (drops ?? []).map(d => ({
     ...d,
     remaining: d.total_qty - d.claimed_qty,
-    my_code: claimedMap[d.id] ?? null,
+    my_code: claimedMap[d.id]?.code ?? null,
+    my_claimed_at: claimedMap[d.id]?.claimed_at ?? null,
   }));
 
   return NextResponse.json({ drops: enriched });

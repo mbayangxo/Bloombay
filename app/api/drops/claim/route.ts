@@ -20,12 +20,16 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient();
   const code = generateCode();
+  const claimed_at = new Date().toISOString();
 
-  const { data, error } = await supabase.rpc("claim_bloom_drop", {
-    p_drop_id: dropId,
-    p_user_id: user.id,
-    p_code: code,
-  });
+  const [{ data, error }, { data: profile }] = await Promise.all([
+    supabase.rpc("claim_bloom_drop", {
+      p_drop_id: dropId,
+      p_user_id: user.id,
+      p_code: code,
+    }),
+    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+  ]);
 
   if (error) {
     if (error.message?.includes("drop_not_found")) {
@@ -37,5 +41,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not claim" }, { status: 500 });
   }
 
-  return NextResponse.json({ code: data as string });
+  const member_name = (profile?.full_name ?? "").split(" ")[0] || user.email?.split("@")[0] || "Bloomie";
+  return NextResponse.json({ code: data as string, member_name, claimed_at });
 }
