@@ -49,11 +49,12 @@ const AVENUES: AvenueConfig[] = [
   {
     signLine1: "FASHION AVE.",
     signLine2: "THE CLOSET BLVD.",
-    title: "The Closet",
-    tagline: "Fits. Advice. Style.",
-    href: "/member/avenue/closet",
+    title: "Fashion Avenue",
+    tagline: "Magazine. Style. Drops.",
+    href: "/member/avenue/fashion",
     accent: "#E8007A",
     count: 183,
+    icon: "magazine" as const,
   },
   {
     signLine1: "BLOOM BLVD.",

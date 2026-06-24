@@ -26,6 +26,7 @@ interface Article {
   section: MagSection;
   headline: string;
   dek: string;
+  body?: string;
   author: string;
   author_initial: string;
   author_color: string;
@@ -36,6 +37,7 @@ interface Article {
   blooms: number;
   timeAgo: string;
   label?: string;
+  yande_note?: string;
 }
 
 const MOCK_ARTICLES: Article[] = [
@@ -141,13 +143,20 @@ function FeaturedCard({ article }: { article: Article }) {
 
       {/* Content */}
       <div style={{ padding: "14px 18px 16px" }}>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.55)", lineHeight: 1.55, marginBottom: 14 }}>{article.dek}</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.55)", lineHeight: 1.55, marginBottom: article.yande_note ? 10 : 14 }}>{article.dek}</p>
+        {article.yande_note && (
+          <div style={{ background: `${GOLD}12`, borderRadius: 10, padding: "8px 11px", marginBottom: 12, borderLeft: `3px solid ${GOLD}` }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.55)", lineHeight: 1.5, fontStyle: "italic" }}>
+              ✦ {article.yande_note}
+            </p>
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 26, height: 26, borderRadius: "50%", background: `linear-gradient(135deg, ${article.author_color}, ${article.author_color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: "white" }}>{article.author_initial}</div>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: DARK, lineHeight: 1.2 }}>{article.author}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa" }}>{article.readTime} · {article.timeAgo}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#aaa" }}>{article.readTime}</p>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -215,25 +224,25 @@ export function MagazinePage() {
       .then(r => r.json())
       .then(d => {
         if (d.content?.length) {
-          setArticles(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            d.content.map((row: any): Article => ({
-              id: row.id,
-              headline: row.title ?? "",
-              dek: row.meta?.dek ?? "",
-              section: (row.meta?.section ?? "culture") as MagSection,
-              readTime: row.meta?.read_time ?? "",
-              author: row.author ?? "",
-              author_initial: (row.author ?? "?")[0],
-              author_color: GOLD,
-              cover_a: row.meta?.cover_a ?? "#333",
-              cover_b: row.meta?.cover_b ?? "#555",
-              featured: row.meta?.featured ?? false,
-              blooms: 0,
-              timeAgo: "",
-              label: undefined,
-            }))
-          );
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setArticles(d.content.map((row: any): Article => ({
+            id:             row.id,
+            headline:       row.headline ?? "",
+            dek:            row.dek ?? "",
+            body:           row.body ?? "",
+            section:        (row.section ?? "culture") as MagSection,
+            readTime:       row.read_time ?? "",
+            author:         row.author ?? "BloomBay",
+            author_initial: (row.author ?? "B")[0],
+            author_color:   GOLD,
+            cover_a:        row.cover_a ?? "#333",
+            cover_b:        row.cover_b ?? "#555",
+            featured:       row.featured ?? false,
+            blooms:         row.blooms ?? 0,
+            timeAgo:        "",
+            label:          row.badge ?? undefined,
+            yande_note:     row.yande_note ?? undefined,
+          })));
         }
       })
       .catch(() => {/* keep mock */});
