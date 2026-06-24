@@ -84,6 +84,7 @@ export const MC_NAV: {
       { label: "Messaging Studio", path: "/messaging", cap: "messaging" },
       { label: "Girls Working", path: "/girls-working", cap: "girls_working" },
       { label: "Submissions", path: "/submissions", cap: "submissions" },
+      { label: "Magazine Pitches", path: "/magazine-pitches", cap: "magazine_review" },
       { label: "Careers", path: "/careers", cap: "careers" },
     ],
   },

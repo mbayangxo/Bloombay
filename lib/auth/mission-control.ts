@@ -54,7 +54,8 @@ export type MissionControlCapability =
   | "create_space"
   | "messaging"
   | "girls_working"
-  | "content_moderation";
+  | "content_moderation"
+  | "magazine_review";
 
 const CAPS: Record<MissionControlCapability, UserRole[]> = {
   overview: ["founder", "admin", "moderator"],
@@ -81,6 +82,7 @@ const CAPS: Record<MissionControlCapability, UserRole[]> = {
   messaging: ["founder", "admin"],
   girls_working: ["founder", "admin"],
   content_moderation: ["founder", "admin", "moderator"],
+  magazine_review: ["founder", "admin", "curator"],
 };
 
 export type CuratorCapability = "overview" | "gatherings" | "women" | "events";
@@ -135,6 +137,7 @@ export function capabilityForStaffPath(
   if (p.startsWith("/admin/qa-lab")) return "qa_lab";
   if (p.startsWith("/admin/create")) return "create_space";
   if (p.startsWith("/admin/content")) return "content_moderation";
+  if (p.startsWith("/admin/magazine-pitches")) return "magazine_review";
   return null;
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -213,11 +214,157 @@ function ArticleCard({ article }: { article: Article }) {
   );
 }
 
+// ── Pitch modal ───────────────────────────────────────────────────────────────
+
+const PITCH_SECTIONS = ["style", "culture", "love", "career", "wellness", "opinion"] as const;
+
+function PitchModal({ onClose }: { onClose: () => void }) {
+  const [section, setSection] = useState<string>("");
+  const [headline, setHeadline] = useState("");
+  const [body, setBody] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function submit() {
+    if (!section || !headline.trim() || !body.trim()) {
+      setError("Please fill in all fields."); return;
+    }
+    setSubmitting(true); setError(null);
+    try {
+      let image_url: string | undefined;
+      if (imageFile) {
+        const supabase = createClient();
+        const ext = imageFile.name.split(".").pop() ?? "jpg";
+        const path = `magazine-pitches/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avenue-media").upload(path, imageFile, { contentType: imageFile.type });
+        if (upErr) throw new Error(upErr.message);
+        const { data } = supabase.storage.from("avenue-media").getPublicUrl(path);
+        image_url = data.publicUrl;
+      }
+
+      const res = await fetch("/api/avenue/magazine/pitch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, headline: headline.trim(), pitch_body: body.trim(), image_url }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to submit");
+      setDone(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+      style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+    >
+      <div style={{ width: "100%", maxWidth: 560, background: CREAM, borderRadius: "22px 22px 0 0", padding: "28px 22px calc(env(safe-area-inset-bottom, 0px) + 28px)", maxHeight: "90vh", overflowY: "auto" }}>
+        {/* Handle */}
+        <div style={{ width: 36, height: 4, background: "rgba(0,0,0,0.15)", borderRadius: 99, margin: "0 auto 20px" }} />
+
+        {done ? (
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <p style={{ fontSize: 40, marginBottom: 12 }}>✦</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 22, color: DARK, marginBottom: 8 }}>Pitch received.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.5)", lineHeight: 1.5, marginBottom: 24 }}>We read every pitch. If yours is a fit, you&apos;ll hear from the editorial team.</p>
+            <button onClick={onClose} style={{ padding: "12px 32px", borderRadius: 99, background: DARK, color: "white", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800 }}>Done</button>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, letterSpacing: "0.2em", color: "rgba(0,0,0,0.4)", marginBottom: 6 }}>BLOOMBAY MAGAZINE</p>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: DARK, marginBottom: 20, lineHeight: 1.2 }}>Pitch an article.</h2>
+
+            {/* Section */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(0,0,0,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>SECTION</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 20 }}>
+              {PITCH_SECTIONS.map(s => {
+                const meta = SECTION_META[s];
+                return (
+                  <button key={s} onClick={() => setSection(s)} style={{
+                    padding: "7px 14px", borderRadius: 99,
+                    background: section === s ? meta.color : "white",
+                    color: section === s ? "white" : "#888",
+                    border: `1.5px solid ${section === s ? meta.color : "rgba(0,0,0,0.1)"}`,
+                    fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                  }}>{meta.label}</button>
+                );
+              })}
+            </div>
+
+            {/* Headline */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(0,0,0,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>HEADLINE IDEA</p>
+            <input
+              value={headline}
+              onChange={e => setHeadline(e.target.value)}
+              placeholder="What's the article called?"
+              maxLength={140}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(0,0,0,0.1)", background: "white", fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: DARK, outline: "none", boxSizing: "border-box", marginBottom: 16 }}
+            />
+
+            {/* Pitch body */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(0,0,0,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>YOUR PITCH</p>
+            <textarea
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              placeholder="What's this article about? Why does it matter to Bloomies? (2–4 sentences)"
+              maxLength={1000}
+              rows={4}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(0,0,0,0.1)", background: "white", fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.75)", outline: "none", resize: "none", lineHeight: 1.55, boxSizing: "border-box", marginBottom: 4 }}
+            />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(0,0,0,0.3)", textAlign: "right", marginBottom: 20 }}>{body.length}/1000</p>
+
+            {/* Image */}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(0,0,0,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>REFERENCE IMAGE <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></p>
+            <input ref={fileRef} type="file" accept="image/*" onChange={pickImage} style={{ display: "none" }} />
+            {imagePreview ? (
+              <div style={{ position: "relative", marginBottom: 20 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imagePreview} alt="preview" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 12 }} />
+                <button onClick={() => { setImageFile(null); setImagePreview(null); }} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.55)", border: "none", cursor: "pointer", color: "white", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+              </div>
+            ) : (
+              <button onClick={() => fileRef.current?.click()} style={{ width: "100%", padding: "14px", borderRadius: 12, border: "1.5px dashed rgba(0,0,0,0.15)", background: "white", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.4)", marginBottom: 20 }}>
+                + Add a mood image or reference photo
+              </button>
+            )}
+
+            {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#C62828", marginBottom: 14 }}>{error}</p>}
+
+            <button
+              onClick={submit}
+              disabled={submitting}
+              style={{ width: "100%", padding: "14px", borderRadius: 99, background: submitting ? "rgba(0,0,0,0.1)" : `linear-gradient(135deg, ${PINK}, #C4005A)`, border: "none", cursor: submitting ? "not-allowed" : "pointer", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: submitting ? "#aaa" : "white", letterSpacing: "0.06em", boxShadow: submitting ? "none" : `0 4px 16px ${PINK}44` }}
+            >
+              {submitting ? "Sending…" : "Submit Pitch →"}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function MagazinePage() {
   const [activeSection, setActiveSection] = useState<MagSection>("all");
   const [articles, setArticles] = useState<Article[]>(MOCK_ARTICLES);
+  const [pitchOpen, setPitchOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/avenue/magazine")
@@ -301,10 +448,12 @@ export function MagazinePage() {
       <div style={{ margin: "24px 18px 0", borderRadius: 20, background: `${GRAIN}, ${DARK}`, backgroundSize: "200px 200px, auto", padding: "22px 20px", boxShadow: "0 8px 32px rgba(0,0,0,0.18)", border: `1px solid ${GOLD}18` }}>
         <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: "white", marginBottom: 4 }}>Write for BloomBay</p>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>Have something to say? Pitch us. Every issue features member voices.</p>
-        <button style={{ padding: "12px 22px", borderRadius: 50, background: `linear-gradient(135deg, ${PINK}, #C4005A)`, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: "white", letterSpacing: "0.06em", boxShadow: `0 4px 16px ${PINK}44` }}>
+        <button onClick={() => setPitchOpen(true)} style={{ padding: "12px 22px", borderRadius: 50, background: `linear-gradient(135deg, ${PINK}, #C4005A)`, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: "white", letterSpacing: "0.06em", boxShadow: `0 4px 16px ${PINK}44` }}>
           Submit a Pitch →
         </button>
       </div>
+
+      {pitchOpen && <PitchModal onClose={() => setPitchOpen(false)} />}
     </div>
   );
 }
