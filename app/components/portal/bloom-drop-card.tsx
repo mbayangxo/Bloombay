@@ -165,6 +165,16 @@ function DropCard({ drop, onClaimed }: { drop: Drop; onClaimed: (code: string) =
       </div>
 
       <div style={{ padding: "16px 18px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+          <div style={{ background: `${PINK}10`, borderRadius: 99, padding: "2px 8px", border: `1px solid ${PINK}20` }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: PINK, letterSpacing: "0.15em" }}>1 PER WEEK · FREE</p>
+          </div>
+          {drop.valid_until && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#bbb", fontWeight: 600 }}>
+              Ends {new Date(drop.valid_until).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+            </p>
+          )}
+        </div>
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.65)", lineHeight: 1.55, marginBottom: 14 }}>{drop.description}</p>
 
         {/* Remaining counter + progress bar */}
@@ -223,7 +233,7 @@ function DropCard({ drop, onClaimed }: { drop: Drop; onClaimed: (code: string) =
               boxShadow: loading ? "none" : `0 6px 20px ${drop.cover_color_a}55`,
               transition: "all 0.2s",
             }}
-          >{loading ? "Claiming…" : "Claim my free coffee ☕"}</button>
+          >{loading ? "Claiming…" : `Claim ${drop.title} →`}</button>
         )}
       </div>
     </div>

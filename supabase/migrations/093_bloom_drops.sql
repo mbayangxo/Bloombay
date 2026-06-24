@@ -88,10 +88,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ── Seed: 100 free coffees launch drop ────────────────────────────────────────
+-- ── Seed: launch week drop — 100 free coffees ────────────────────────────────
+-- Drops are weekly. One active drop at a time. One claim per member per drop.
 INSERT INTO bloom_drops (
   title, description, partner_name, partner_type,
-  neighborhood, total_qty, cover_color_a, cover_color_b, instructions
+  neighborhood, total_qty, cover_color_a, cover_color_b, instructions, valid_until
 ) VALUES (
   'Free Coffee ☕',
   '100 coffees on us from two of our favourite neighbourhood spots. First come, first served — claim your code and show it at the counter.',
@@ -101,5 +102,6 @@ INSERT INTO bloom_drops (
   100,
   '#6B3A2A',
   '#C87840',
-  'Show your BB code to the barista when you order. Valid for one regular coffee or espresso drink per member. Not redeemable for cash or exchangeable.'
+  'Show your BB code to the barista when you order. Valid for one regular coffee or espresso drink per member. Not redeemable for cash or exchangeable.',
+  NOW() + INTERVAL '7 days'
 );

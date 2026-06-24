@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { BloomDropSection } from "./bloom-drop-card";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -220,11 +219,6 @@ export function ShopPage() {
             }}>{meta.label}</button>
           ))}
         </div>
-      </div>
-
-      {/* Active Bloom Drops — shows free coffees etc. when live */}
-      <div style={{ padding: "18px 18px 0" }}>
-        <BloomDropSection />
       </div>
 
       {/* Grid */}
