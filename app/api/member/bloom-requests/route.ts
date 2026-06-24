@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
+import { isBlocked } from "@/lib/auth/block-check";
 
 type ProfileRow = {
   id: string;
@@ -108,6 +109,11 @@ export async function POST(request: Request) {
 
   if (body.toUserId === user.id) {
     return NextResponse.json({ ok: false, error: "Cannot bloom yourself" }, { status: 400 });
+  }
+
+  // Block check — don't allow blooms between blocked users
+  if (await isBlocked(supabase, user.id, body.toUserId)) {
+    return NextResponse.json({ ok: false, error: "Cannot send bloom request" }, { status: 403 });
   }
 
   if (body.note && body.note.length > NOTE_MAX_LENGTH) {

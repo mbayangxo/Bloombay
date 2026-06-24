@@ -58,7 +58,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/girlmate/home", request.url));
   }
 
-  const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/partner", "/curator"];
+  const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/partner", "/curator", "/portals"];
   const isProtected = PROTECTED.some(p => pathname.startsWith(p));
 
   const isLoginPath =
@@ -99,6 +99,22 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(
       new URL(homes[role] ?? "/member/home", request.url)
     );
+  }
+
+  // ── Admin/founder pages: verify role at the proxy level ──────────────────
+  // API routes do their own check too — this prevents page-level access by wrong roles.
+  const ADMIN_PREFIXES = ["/admin", "/founder"];
+  const isAdminPage = ADMIN_PREFIXES.some(p => pathname.startsWith(p)) && !isLoginPath;
+  if (user && isAdminPage) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    const role = profile?.role ?? "";
+    if (!["admin", "founder"].includes(role)) {
+      return NextResponse.redirect(new URL("/member/home", request.url));
+    }
   }
 
   // ── Member portal: onboarding gate + role mismatch ────────────────────────

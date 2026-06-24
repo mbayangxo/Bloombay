@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isBlocked } from "@/lib/auth/block-check";
 
 const MESSAGE_MAX_LENGTH = 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -57,6 +58,11 @@ export async function POST(req: NextRequest) {
       { error: "Too many messages. Please wait before sending more." },
       { status: 429 }
     );
+  }
+
+  // Block check — neither party can message if one has blocked the other
+  if (await isBlocked(supabase, user.id, body.to_user_id)) {
+    return NextResponse.json({ error: "Cannot send message" }, { status: 403 });
   }
 
   // Verify recipient has an active listing (can only message active listings)
