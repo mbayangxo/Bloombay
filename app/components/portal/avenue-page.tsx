@@ -3,145 +3,11 @@
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { useState, useEffect } from "react";
+import { AVENUES } from "@/lib/avenue/rooms";
+import { type AvenueConfig } from "@/lib/avenue/rooms";
+import { getPostDisplay, type WallPost, type PostDisplay } from "@/lib/avenue/post-display";
 
 const PINK = "#FF1F7D";
-
-// ── Avenue data ─────────────────────────────────────────────────────────────────
-interface AvenueConfig {
-  signLine1: string;
-  signLine2: string;
-  title: string;
-  tagline: string;
-  href: string;
-  accent: string;
-  count: number | null;
-  icon?: "magazine";
-}
-
-const AVENUES: AvenueConfig[] = [
-  {
-    signLine1: "DROP ZONE",
-    signLine2: "BLOOM DROPS BLVD.",
-    title: "Drops",
-    tagline: "Only the good stuff. ✿",
-    href: "/member/drops",
-    accent: PINK,
-    count: null,
-  },
-  {
-    signLine1: "EATS AVE.",
-    signLine2: "GIRL EATS BLVD.",
-    title: "Eats",
-    tagline: "Girl spots. Weekly drops. ☕",
-    href: "/member/avenue/eats",
-    accent: "#6B3A2A",
-    count: null,
-  },
-  {
-    signLine1: "WALL ST.",
-    signLine2: "THE WALL AVE.",
-    title: "The Wall",
-    tagline: "Post. Share. Vibe.",
-    href: "/member/avenue/wall",
-    accent: "#FF1F7D",
-    count: 247,
-  },
-  {
-    signLine1: "FASHION AVE.",
-    signLine2: "THE CLOSET BLVD.",
-    title: "Fashion Avenue",
-    tagline: "Magazine. Style. Drops.",
-    href: "/member/avenue/fashion",
-    accent: "#E8007A",
-    count: 183,
-    icon: "magazine" as const,
-  },
-  {
-    signLine1: "BLOOM BLVD.",
-    signLine2: "THE VANITY AVE.",
-    title: "The Vanity",
-    tagline: "Beauty. Glow. You.",
-    href: "/member/avenue/vanity",
-    accent: "#FF1F7D",
-    count: 76,
-  },
-  {
-    signLine1: "LIBRARY LANE",
-    signLine2: "READING ROOM RD.",
-    title: "The Reading Room",
-    tagline: "Books. Discuss. Share.",
-    href: "/member/avenue/reading-room",
-    accent: "#D4A853",
-    count: 54,
-  },
-  {
-    signLine1: "CINEMA ROW",
-    signLine2: "SCREENING ROOM ST.",
-    title: "The Screening Room",
-    tagline: "Film. Watch. Review.",
-    href: "/member/avenue/screening-room",
-    accent: "#FF1F7D",
-    count: 38,
-  },
-  {
-    signLine1: "FITNESS ROW",
-    signLine2: "GIRL FIT AVE.",
-    title: "Girl Fit",
-    tagline: "Move. Eat. Glow.",
-    href: "/member/avenue/wellness",
-    accent: "#4A7C59",
-    count: 156,
-  },
-  {
-    signLine1: "CAREER BLVD.",
-    signLine2: "GIRL WORKING ST.",
-    title: "Girl Working",
-    tagline: "Jobs. Money. Hot Takes.",
-    href: "/member/avenue/working",
-    accent: "#1A0A2E",
-    count: 94,
-  },
-];
-
-// ── Top Posts data ─────────────────────────────────────────────────────────────
-
-interface WallPost {
-  id: string;
-  text: string;
-  blooms: number;
-  category: string | null;
-  is_seed: boolean;
-  seed_author: string | null;
-  author: { id: string; first_name: string | null; full_name: string | null } | null;
-}
-
-const CATEGORY_ROOMS: Record<string, { title: string; href: string }> = {
-  wall:           { title: "The Wall",         href: "/member/avenue/wall" },
-  closet:         { title: "The Closet",        href: "/member/avenue/closet" },
-  vanity:         { title: "The Vanity",        href: "/member/avenue/vanity" },
-  wellness:       { title: "Girl Fit",           href: "/member/avenue/wellness" },
-  "reading-room": { title: "The Reading Room",  href: "/member/avenue/reading-room" },
-  screening:      { title: "The Screening Room", href: "/member/avenue/screening-room" },
-  working:        { title: "Girl Working",      href: "/member/avenue/working" },
-  magazine:       { title: "Magazine",          href: "/member/avenue/magazine" },
-};
-const AVATAR_COLORS = ["#FF1F7D", "#FF69B4", "#A855F7", "#E8A050", "#4A7C59", "#C4005A", "#1565C0", "#D4A853"];
-
-function getPostDisplay(post: WallPost, idx: number) {
-  const roomMeta = CATEGORY_ROOMS[post.category ?? "wall"] ?? { title: "The Wall", href: "/member/avenue/wall" };
-  const userName = post.is_seed && post.seed_author
-    ? post.seed_author
-    : (post.author?.first_name ?? post.author?.full_name?.split(" ")[0] ?? "Member");
-  return {
-    room: roomMeta.title,
-    roomHref: roomMeta.href,
-    user: userName,
-    initial: userName[0]?.toUpperCase() ?? "B",
-    color: AVATAR_COLORS[idx % AVATAR_COLORS.length],
-    text: post.text,
-    blooms: post.blooms,
-  };
-}
 
 // ── AvenueArrow ────────────────────────────────────────────────────────────────
 function AvenueArrow({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
@@ -208,9 +74,6 @@ function AvenueArrow({ avenue, flip = false }: { avenue: AvenueConfig; flip?: bo
 }
 
 // ── TopPostCard ────────────────────────────────────────────────────────────────
-interface PostDisplay {
-  room: string; roomHref: string; user: string; initial: string; color: string; text: string; blooms: number;
-}
 function TopPostCard({ post }: { post: PostDisplay }) {
   return (
     <Link href={post.roomHref} style={{ textDecoration: "none", flexShrink: 0 }}>
@@ -225,7 +88,6 @@ function TopPostCard({ post }: { post: PostDisplay }) {
         flexDirection: "column",
         gap: 9,
       }}>
-        {/* Room tag + avatar */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ background: "rgba(255,0,144,0.08)", borderRadius: 999, padding: "3px 8px" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: PINK, letterSpacing: "0.08em" }}>{post.room.toUpperCase()}</p>
@@ -235,7 +97,6 @@ function TopPostCard({ post }: { post: PostDisplay }) {
           </div>
         </div>
 
-        {/* Post text */}
         <p style={{
           fontFamily: "var(--font-caveat)",
           fontSize: 13,
@@ -244,7 +105,6 @@ function TopPostCard({ post }: { post: PostDisplay }) {
           flex: 1,
         }}>{post.text}</p>
 
-        {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: "rgba(0,0,0,0.35)" }}>{post.user}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -257,17 +117,70 @@ function TopPostCard({ post }: { post: PostDisplay }) {
   );
 }
 
-// ── AvenuePage ──────────────────────────────────────────────────────────────────
-export function AvenuePage() {
-  const [topPosts, setTopPosts] = useState<PostDisplay[]>([]);
+// ── TopPostsSkeleton ───────────────────────────────────────────────────────────
+function TopPostsSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} style={{
+          width: 180, height: 130, flexShrink: 0,
+          background: "rgba(26,26,26,0.06)", borderRadius: 18,
+          animation: "pulse 1.5s ease-in-out infinite",
+        }} />
+      ))}
+    </>
+  );
+}
+
+// ── TopPostsSection ────────────────────────────────────────────────────────────
+type LoadState = "loading" | "loaded" | "empty" | "error";
+
+function TopPostsSection() {
+  const [posts, setPosts] = useState<PostDisplay[]>([]);
+  const [state, setState] = useState<LoadState>("loading");
 
   useEffect(() => {
     fetch("/api/avenue/top-posts")
-      .then(r => r.ok ? r.json() : [])
-      .then((data: WallPost[]) => setTopPosts((data ?? []).map((p, i) => getPostDisplay(p, i))))
-      .catch(() => {});
+      .then(r => {
+        if (!r.ok) throw new Error("failed");
+        return r.json();
+      })
+      .then((data: WallPost[]) => {
+        const mapped = (data ?? []).map((p, i) => getPostDisplay(p, i));
+        setPosts(mapped);
+        setState(mapped.length === 0 ? "empty" : "loaded");
+      })
+      .catch(() => setState("error"));
   }, []);
 
+  return (
+    <div style={{ marginTop: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", marginBottom: 12 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.18em" }}>TOP POSTS</p>
+        <Link href="/member/avenue/wall" style={{ textDecoration: "none" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(26,26,26,0.35)" }}>all →</span>
+        </Link>
+      </div>
+      <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
+        {state === "loading" && <TopPostsSkeleton />}
+        {state === "loaded" && posts.map((post, i) => <TopPostCard key={i} post={post} />)}
+        {state === "empty" && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(26,26,26,0.3)", padding: "16px 0" }}>
+            Be the first to post something ✿
+          </p>
+        )}
+        {state === "error" && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(26,26,26,0.3)", padding: "16px 0" }}>
+            Couldn&apos;t load posts right now.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── AvenuePage ──────────────────────────────────────────────────────────────────
+export function AvenuePage() {
   return (
     <div style={{
       background: "#ffffff",
@@ -289,7 +202,6 @@ export function AvenuePage() {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, color: "rgba(26,26,26,0.4)", letterSpacing: "0.2em" }}>WHERE WOMEN CONNECT</p>
         </div>
 
-        {/* Title row — small title + publication objects side by side */}
         <div style={{ marginTop: 18, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 28, color: "#1A1A1A", lineHeight: 1, margin: 0 }}>The Avenue.</p>
@@ -298,7 +210,6 @@ export function AvenuePage() {
 
           {/* Publication objects — Magazine + The Column */}
           <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 2 }}>
-            {/* BloomBay Magazine */}
             <Link href="/member/avenue/magazine" style={{ textDecoration: "none" }}>
               <div style={{
                 width: 56, height: 74,
@@ -325,7 +236,6 @@ export function AvenuePage() {
               </div>
             </Link>
 
-            {/* The Column */}
             <Link href="/member/avenue/column" style={{ textDecoration: "none" }}>
               <div style={{
                 width: 56, height: 74,
@@ -351,27 +261,10 @@ export function AvenuePage() {
         </div>
       </div>
 
-      {/* ══ TOP POSTS — full-width horizontal scroll ═════════════════════════ */}
-      <div style={{ marginTop: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", marginBottom: 12 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.18em" }}>TOP POSTS</p>
-          <Link href="/member/avenue/wall" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(26,26,26,0.35)" }}>all →</span>
-          </Link>
-        </div>
-        <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
-          {topPosts.length === 0
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ width: 180, height: 130, background: "rgba(26,26,26,0.06)", borderRadius: 18, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
-              ))
-            : topPosts.map((post, i) => (
-                <TopPostCard key={i} post={post} />
-              ))
-          }
-        </div>
-      </div>
+      {/* ══ TOP POSTS ════════════════════════════════════════════════════════════ */}
+      <TopPostsSection />
 
-      {/* ══ THE AVENUE — arrow list ════════════════════════════════════════ */}
+      {/* ══ THE AVENUE — arrow list ════════════════════════════════════════════ */}
       <div style={{ marginTop: 32, paddingBottom: 8 }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.22em", marginBottom: 16, padding: "0 24px" }}>THE AVENUE</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>

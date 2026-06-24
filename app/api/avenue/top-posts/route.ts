@@ -1,22 +1,20 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-function admin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET /api/avenue/top-posts — top 4 wall posts by bloom count
+// Requires sign-in; author id is never returned to the client.
 export async function GET() {
-  const supabase = admin();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
 
-  const { data, error } = await supabase
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("wall_posts")
     .select(`
-      id, text, blooms, category, created_at, is_seed, seed_author,
-      author:profiles!author_id ( id, first_name, full_name )
+      id, text, blooms, category, is_seed, seed_author,
+      author:profiles!author_id ( first_name, full_name )
     `)
     .order("blooms", { ascending: false })
     .limit(4);
