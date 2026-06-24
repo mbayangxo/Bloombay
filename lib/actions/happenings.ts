@@ -62,29 +62,64 @@ export async function getEventById(id: string): Promise<HappeningEvent | null> {
   return (data as HappeningEvent | null) ?? null;
 }
 
+const SUSPICIOUS_PATTERNS = /\b(cash only|venmo me|wire transfer|onlyfans|telegram|whatsapp group|click this link|dm for info|pay to join|paypal)\b/i;
+const EVENT_RATE_LIMIT_PER_WEEK = 5;
+const TRUSTED_HOST_RATE_LIMIT = 20;
+
 export async function createEvent(input: CreateEventInput): Promise<string> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status, is_trusted_host")
+    .eq("id", user.id)
+    .single();
+  if (!profile?.onboarding_completed) throw new Error("Complete onboarding first");
+  if (profile.verification_status !== "verified") throw new Error("Verified members only");
+
+  // Required field validation
+  if (!input.title?.trim()) throw new Error("Event title is required");
+  if (!input.date_time) throw new Error("Event date and time are required");
+  if (!input.capacity || input.capacity < 1) throw new Error("Capacity is required");
+  if (!input.venue && !input.neighborhood) throw new Error("A location is required");
+
+  // Rate limit
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { count: weekCount } = await supabase
+    .from("events")
+    .select("id", { count: "exact", head: true })
+    .eq("created_by", user.id)
+    .gte("date_time", weekAgo);
+  const limit = (profile as { is_trusted_host?: boolean }).is_trusted_host
+    ? TRUSTED_HOST_RATE_LIMIT
+    : EVENT_RATE_LIMIT_PER_WEEK;
+  if ((weekCount ?? 0) >= limit) throw new Error("Weekly event creation limit reached");
+
+  // Auto-flag suspicious content — still publishes, but queues for admin review
+  const textToCheck = `${input.title} ${input.description ?? ""} ${input.host_note ?? ""}`;
+  const needsReview = SUSPICIOUS_PATTERNS.test(textToCheck);
+
   const { data, error } = await supabase
     .from("events")
     .insert({
-      title:        input.title,
-      description:  input.description ?? null,
+      title:        input.title.trim(),
+      description:  input.description?.trim() ?? null,
       venue:        input.venue ?? null,
       neighborhood: input.neighborhood ?? null,
       city:         "NYC",
       date_time:    input.date_time,
       end_time:     input.end_time ?? null,
       category:     input.category ?? null,
-      capacity:     input.capacity ?? null,
+      capacity:     input.capacity,
       price_cents:  input.price_cents ?? 0,
       accent_color: input.accent_color ?? "#FF1F7D",
-      host_note:    input.host_note ?? null,
+      host_note:    input.host_note?.trim() ?? null,
       photo_url:    input.photo_url ?? null,
       created_by:   user.id,
       is_published: true,
+      needs_review: needsReview,
     })
     .select("id")
     .single();
@@ -92,7 +127,6 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
   if (error) throw error;
   revalidatePath("/member/happenings");
   const eventId = (data as { id: string }).id;
-  // Fire-and-forget streak notification (don't await — non-blocking)
   checkAndNotifyStreak().catch(() => {});
   return eventId;
 }
@@ -206,9 +240,37 @@ export async function leaveHostReview(
   if (!user) return { ok: false, error: "Not signed in." };
   if (user.id === hostId) return { ok: false, error: "Can't review yourself." };
 
+  // Rating must be 1–5
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return { ok: false, error: "Rating must be between 1 and 5." };
+  }
+  // Content max 500 chars
+  const trimmedContent = content?.trim() ?? null;
+  if (trimmedContent && trimmedContent.length > 500) {
+    return { ok: false, error: "Review too long (max 500 chars)." };
+  }
+
+  // Reviewer must have attended the event
+  const { data: attendance } = await supabase
+    .from("gathering_attendance")
+    .select("gathering_id")
+    .eq("gathering_id", eventId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!attendance) return { ok: false, error: "You must have attended this event to leave a review." };
+
+  // No duplicate review
+  const { data: existing } = await supabase
+    .from("host_reviews")
+    .select("id")
+    .eq("event_id", eventId)
+    .eq("reviewer_id", user.id)
+    .maybeSingle();
+  if (existing) return { ok: false, error: "You've already reviewed this event." };
+
   const { error } = await supabase.from("host_reviews").insert({
     event_id: eventId, host_id: hostId, reviewer_id: user.id,
-    rating, content: content?.trim() || null,
+    rating, content: trimmedContent,
   });
   return error ? { ok: false, error: error.message } : { ok: true };
 }
