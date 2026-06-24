@@ -558,7 +558,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
             position: "absolute",
             left: 46,
             right: 0,
-            bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)",
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 9px)",
             width: "calc(100% - 46px)",
             height: 32,
             overflow: "visible",
@@ -570,40 +570,47 @@ export function BottomNav({ user }: { user?: NavUser }) {
         >
           <defs>
             <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={PINK} stopOpacity="0.8"/>
-              <stop offset="30%" stopColor={isDarkPage ? "rgba(255,180,210,0.5)" : "rgba(200,80,120,0.4)"}/>
-              <stop offset="100%" stopColor={isDarkPage ? "rgba(255,180,210,0.35)" : "rgba(180,60,100,0.3)"}/>
+              <stop offset="0%" stopColor={PINK} stopOpacity="0.85"/>
+              <stop offset="30%" stopColor={isDarkPage ? "rgba(255,180,210,0.55)" : "rgba(200,80,120,0.45)"}/>
+              <stop offset="100%" stopColor={isDarkPage ? "rgba(255,180,210,0.40)" : "rgba(180,60,100,0.35)"}/>
             </linearGradient>
           </defs>
-          {/* Main wavy stem */}
+          {/* Main wavy stem — gentler undulation so branches connect cleanly */}
           <path
-            d="M0 20 C18 16 36 24 64 19 C92 14 110 22 140 18 C168 14 186 22 214 18 C240 14 258 21 290 17 C305 15 314 19 320 18"
+            d="M0 19 C18 17 36 21 64 18 C92 15 110 19 140 17 C168 15 186 20 214 17 C240 15 258 19 290 17 C305 16 314 17 320 17"
             stroke="url(#stemGrad)"
-            strokeWidth="2.2"
+            strokeWidth="2.5"
             strokeLinecap="round"
           />
           {/* Leaf at ~30% */}
           <path
-            d="M88 19 C90 10 100 8 104 14 C100 18 92 20 88 19Z"
-            fill={isDarkPage ? "rgba(160,210,140,0.45)" : "rgba(70,120,55,0.35)"}
+            d="M88 18 C90 9 100 7 104 13 C100 17 92 19 88 18Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.50)" : "rgba(70,130,55,0.42)"}
           />
           {/* Thorn at ~60% */}
           <path
-            d="M188 18 C190 12 196 11 194 18Z"
-            fill={isDarkPage ? "rgba(160,210,140,0.4)" : "rgba(70,120,55,0.3)"}
+            d="M188 17 C190 11 196 10 194 17Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.45)" : "rgba(70,130,55,0.35)"}
           />
           {/* Small leaf at ~80% */}
           <path
-            d="M254 17 C256 10 264 9 266 15 C263 17 257 18 254 17Z"
-            fill={isDarkPage ? "rgba(160,210,140,0.35)" : "rgba(70,120,55,0.25)"}
+            d="M254 17 C256 9 264 8 266 14 C263 16 257 18 254 17Z"
+            fill={isDarkPage ? "rgba(160,210,140,0.40)" : "rgba(70,130,55,0.30)"}
           />
+          {/* Junction buds where branches meet the stem (approx tab x-positions) */}
+          {[32, 96, 160, 224, 289].map((x, i) => (
+            <circle key={i} cx={x} cy={17} r="3.2"
+              fill={isDarkPage ? "rgba(255,31,125,0.55)" : "rgba(255,31,125,0.45)"}
+              stroke={isDarkPage ? "rgba(255,180,210,0.4)" : "rgba(255,255,255,0.6)"}
+              strokeWidth="1"/>
+          ))}
         </svg>
 
-        {/* ─ Open rose at the left end ─ */}
+        {/* ─ Open rose at the left end — center aligned to stem (bottom + 5px = center at 22px from physical bottom) ─ */}
         <div style={{
           position: "absolute",
           left: 8,
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 9px)",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 5px)",
           width: 34,
           height: 34,
           zIndex: 2,
@@ -662,24 +669,24 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   {renderIcon(tab.key, active)}
                 </div>
 
-                {/* Branch — organic curved stem connecting icon to horizontal stem */}
+                {/* Branch — organic curved botanical stalk from icon down to horizontal stem */}
                 <svg
-                  width="6"
+                  width="8"
                   height={active ? 18 : 12}
-                  viewBox={`0 0 6 ${active ? 18 : 12}`}
+                  viewBox={`0 0 8 ${active ? 18 : 12}`}
                   fill="none"
                   style={{
-                    marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 23px)",
+                    marginBottom: "calc(env(safe-area-inset-bottom, 0px) + 22px)",
                     transition: "height 0.22s ease",
                     overflow: "visible",
                   }}
                 >
                   <path
                     d={active
-                      ? "M3 0 C1.5 4 4.5 10 3 18"
-                      : "M3 0 C2 3 4 8 3 12"}
+                      ? "M4 0 C2 5 6 11 4 18"
+                      : "M4 0 C2.5 4 5.5 8 4 12"}
                     stroke={active ? PINK : branchC}
-                    strokeWidth={active ? 2 : 1.5}
+                    strokeWidth={active ? 2.5 : 1.8}
                     strokeLinecap="round"
                   />
                 </svg>
