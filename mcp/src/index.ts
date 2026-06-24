@@ -15,6 +15,9 @@ import { eventTools,    handleEventTool    } from "./tools/events.js";
 import { girlmateTools, handleGirlmateTool } from "./tools/girlmates.js";
 import { reportTools,   handleReportTool   } from "./tools/reports.js";
 import { humanizeTools, handleHumanizeTool } from "./tools/humanize.js";
+import { draftTools,    handleDraftTool    } from "./tools/drafts.js";
+import { actionTools,   handleActionTool   } from "./tools/actions.js";
+import { agentTools,    handleAgentTool    } from "./tools/agents.js";
 
 // ── Tool registry ─────────────────────────────────────────────────────────────
 
@@ -25,6 +28,9 @@ const ALL_TOOLS: Tool[] = [
   ...girlmateTools,
   ...reportTools,
   ...humanizeTools,
+  ...draftTools,
+  ...actionTools,
+  ...agentTools,
 ];
 
 type ToolHandler = (name: string, args: Record<string, unknown>) => Promise<{ content: { type: "text"; text: string }[] }>;
@@ -36,6 +42,9 @@ const HANDLERS: [Set<string>, ToolHandler][] = [
   [new Set(girlmateTools.map(t => t.name)), handleGirlmateTool],
   [new Set(reportTools.map(t => t.name)),   handleReportTool],
   [new Set(humanizeTools.map(t => t.name)), handleHumanizeTool],
+  [new Set(draftTools.map(t => t.name)),    handleDraftTool],
+  [new Set(actionTools.map(t => t.name)),   handleActionTool],
+  [new Set(agentTools.map(t => t.name)),    handleAgentTool],
 ];
 
 function route(name: string): ToolHandler | null {
