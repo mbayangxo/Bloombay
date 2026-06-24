@@ -53,6 +53,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Sign in required" }, { status: 401 });
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status")
+    .eq("id", user.id)
+    .single();
+  if (!profile?.onboarding_completed) {
+    return NextResponse.json({ ok: false, error: "Complete onboarding first" }, { status: 403 });
+  }
+  if (profile.verification_status !== "verified") {
+    return NextResponse.json({ ok: false, error: "Verified members only" }, { status: 403 });
+  }
+
   let body: {
     title?: string;
     startsAt?: string;

@@ -96,6 +96,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Sign in required" }, { status: 401 });
   }
 
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed, verification_status, first_name, full_name")
+    .eq("id", user.id)
+    .single();
+  if (!senderProfile?.onboarding_completed) {
+    return NextResponse.json({ ok: false, error: "Complete onboarding first" }, { status: 403 });
+  }
+  if (senderProfile.verification_status !== "verified") {
+    return NextResponse.json({ ok: false, error: "Verified members only" }, { status: 403 });
+  }
+
   let body: { toUserId?: string; context?: string; note?: string; template?: string };
   try {
     body = await request.json();
@@ -174,13 +186,7 @@ export async function POST(request: Request) {
 
   await logBehaviorSignal(supabase, user.id, "bloom_request_sent", { requestId: data.id });
 
-  // Send notification to recipient
-  const { data: senderProfile } = await supabase
-    .from("profiles")
-    .select("first_name, full_name")
-    .eq("id", user.id)
-    .maybeSingle();
-
+  // Send notification to recipient (use already-fetched profile)
   const senderName = senderProfile?.first_name || senderProfile?.full_name?.split(" ")[0] || "Someone";
 
   await supabase.from("notifications").insert({

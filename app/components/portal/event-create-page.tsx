@@ -86,7 +86,7 @@ const KIND_PRESETS: Record<string, { photoId?: string; eventType?: EventType }> 
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: string; initialTitle?: string } = {}) {
+export function EventCreatePage({ initialKind, initialTitle, govIdVerified = false }: { initialKind?: string; initialTitle?: string; govIdVerified?: boolean } = {}) {
   const preset = initialKind ? KIND_PRESETS[initialKind] : undefined;
   const router = useRouter();
   const [step, setStep]             = useState(1);
@@ -410,11 +410,33 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
           ))}
         </div>
 
+        {/* ID gate notice */}
+        {!govIdVerified && (
+          <div style={{
+            background: "#FFF8E7",
+            border: "1.5px solid #F0C040",
+            borderRadius: 14,
+            padding: "14px 16px",
+            display: "flex",
+            gap: 10,
+          }}>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>🪪</span>
+            <div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800, color: "#8A6000", marginBottom: 3 }}>
+                Upload ID to publish this event.
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#8A6000", lineHeight: 1.4 }}>
+                Your event is saved as a draft until your ID is verified. Head to your profile to complete verification.
+              </p>
+            </div>
+          </div>
+        )}
+
         {publishError && (
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#C01040", textAlign: "center" }}>{publishError}</p>
         )}
 
-        {/* Publish */}
+        {/* Save / Publish button */}
         <button
           disabled={publishing}
           onClick={async () => {
@@ -434,7 +456,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
               });
               router.push("/member/happenings");
             } catch (e) {
-              setPublishError((e as Error).message ?? "Failed to publish. Try again.");
+              setPublishError((e as Error).message ?? "Failed to save. Try again.");
               setPublishing(false);
             }
           }}
@@ -445,7 +467,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
           }}
         >
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "13px", fontWeight: 900, letterSpacing: "0.1em", color: "white" }}>
-            {publishing ? "PUBLISHING…" : "PUBLISH EVENT →"}
+            {publishing ? "SAVING…" : govIdVerified ? "PUBLISH EVENT →" : "SAVE DRAFT →"}
           </p>
         </button>
       </div>

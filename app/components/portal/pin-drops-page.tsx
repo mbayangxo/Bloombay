@@ -81,17 +81,23 @@ const SCATTER = [
 ];
 
 function ScatteredPills({ pins }: { pins: PinItem[] }) {
-  const items = pins.length > 0 ? pins : [
-    { id: "p1", kind: "received" as const, location: "Le Coucou", caption: "saved you a seat ♡", sender_name: "Amara K.", expires_at: "", sent_at: "", sender_avatar: null },
-    { id: "p2", kind: "club" as const, location: "Rooftop at 7pm", caption: "Dinner tonight!", club_name: "Dinner Society", sent_at: "", type: "club" as const },
-    { id: "p3", kind: "personal" as const, location: "The Loft, SoHo", caption: null, expires_at: new Date(Date.now() + 7200000).toISOString(), created_at: new Date().toISOString() },
-    { id: "p4", kind: "received" as const, location: "Book Club @ 6", caption: null, sender_name: "Sofia M.", expires_at: "", sent_at: new Date(Date.now() - 3600000).toISOString(), sender_avatar: null },
-    { id: "p5", kind: "club" as const, location: "Museum First Friday", caption: "RSVP opens now", club_name: "Museum Girls", sent_at: new Date(Date.now() - 1800000).toISOString(), type: "club" as const },
-  ] as PinItem[];
+  if (pins.length === 0) {
+    return (
+      <div style={{ height: 180, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 8 }}>
+        <span style={{ fontSize: 36 }}>📍</span>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "rgba(28,27,28,0.4)", textAlign: "center", margin: 0 }}>
+          No pin drops yet
+        </p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(28,27,28,0.28)", textAlign: "center", margin: 0, maxWidth: 220, lineHeight: 1.5 }}>
+          Drop a pin to let your bouquet know where you are right now.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: "relative", height: 320, marginBottom: 8 }}>
-      {items.slice(0, 8).map((pin, i) => {
+      {pins.slice(0, 8).map((pin, i) => {
         const s = SCATTER[i % SCATTER.length];
         const v = PILL_STYLES[i % PILL_STYLES.length];
         const location = pin.location;

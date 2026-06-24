@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const POST_MAX_LENGTH   = 300;
-const ACTIVITY_MAX      = 50;
-const WHEN_TEXT_MAX     = 80;
+const POST_MAX_LENGTH    = 300;
+const WHEN_TEXT_MAX      = 80;
 const RATE_LIMIT_PER_DAY = 5;
+const MAX_ACTIVE_POSTS   = 5;
+
+const VALID_ACTIVITIES = new Set([
+  "coffee", "museum", "walk", "brunch", "shopping", "coworking", "other",
+]);
 
 export async function GET(_req: NextRequest) {
   const supabase = await createClient();
@@ -52,8 +56,8 @@ export async function POST(req: NextRequest) {
 
   if (!activity || typeof activity !== "string" || !activity.trim())
     return NextResponse.json({ error: "activity is required" }, { status: 400 });
-  if (activity.trim().length > ACTIVITY_MAX)
-    return NextResponse.json({ error: `activity must be ${ACTIVITY_MAX} characters or less` }, { status: 400 });
+  if (!VALID_ACTIVITIES.has(activity.trim().toLowerCase()))
+    return NextResponse.json({ error: `activity must be one of: ${[...VALID_ACTIVITIES].join(", ")}` }, { status: 400 });
 
   if (when_text !== undefined && when_text !== null) {
     if (typeof when_text !== "string" || when_text.trim().length > WHEN_TEXT_MAX)
@@ -72,6 +76,15 @@ export async function POST(req: NextRequest) {
     .gte("created_at", since);
   if ((count ?? 0) >= RATE_LIMIT_PER_DAY)
     return NextResponse.json({ error: "Rate limit reached — try again tomorrow" }, { status: 429 });
+
+  // Max 5 active (non-expired) posts at any time
+  const { count: activeCount } = await supabase
+    .from("come_with_me_posts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gt("expires_at", new Date().toISOString());
+  if ((activeCount ?? 0) >= MAX_ACTIVE_POSTS)
+    return NextResponse.json({ error: "You already have the maximum number of active posts (5)" }, { status: 429 });
 
   const safeEmoji = (typeof emoji === "string" && emoji.length <= 8) ? emoji : "🌸";
 

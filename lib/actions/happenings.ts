@@ -39,6 +39,23 @@ export interface CreateEventInput {
   photo_url?: string;
 }
 
+export interface CreateEventResult {
+  id: string;
+  publishStatus: "live" | "pending_id_verification";
+}
+
+export async function getMyGovIdStatus(): Promise<"not_submitted" | "pending" | "verified" | "rejected"> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return "not_submitted";
+  const { data } = await supabase
+    .from("profiles")
+    .select("gov_id_verification_status")
+    .eq("id", user.id)
+    .single();
+  return (data as { gov_id_verification_status?: string } | null)?.gov_id_verification_status as "not_submitted" | "pending" | "verified" | "rejected" ?? "not_submitted";
+}
+
 export async function getUpcomingEvents(limit = 30): Promise<HappeningEvent[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -66,14 +83,14 @@ const SUSPICIOUS_PATTERNS = /\b(cash only|venmo me|wire transfer|onlyfans|telegr
 const EVENT_RATE_LIMIT_PER_WEEK = 5;
 const TRUSTED_HOST_RATE_LIMIT = 20;
 
-export async function createEvent(input: CreateEventInput): Promise<string> {
+export async function createEvent(input: CreateEventInput): Promise<CreateEventResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_completed, verification_status, is_trusted_host")
+    .select("onboarding_completed, verification_status, is_trusted_host, gov_id_verification_status")
     .eq("id", user.id)
     .single();
   if (!profile?.onboarding_completed) throw new Error("Complete onboarding first");
@@ -82,8 +99,6 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
   // Required field validation
   if (!input.title?.trim()) throw new Error("Event title is required");
   if (!input.date_time) throw new Error("Event date and time are required");
-  if (!input.capacity || input.capacity < 1) throw new Error("Capacity is required");
-  if (!input.venue && !input.neighborhood) throw new Error("A location is required");
 
   // Rate limit
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -97,38 +112,92 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
     : EVENT_RATE_LIMIT_PER_WEEK;
   if ((weekCount ?? 0) >= limit) throw new Error("Weekly event creation limit reached");
 
-  // Auto-flag suspicious content — still publishes, but queues for admin review
+  // Auto-flag suspicious content
   const textToCheck = `${input.title} ${input.description ?? ""} ${input.host_note ?? ""}`;
   const needsReview = SUSPICIOUS_PATTERNS.test(textToCheck);
+
+  // Publishing gate: gov ID verification required to go live
+  const govIdStatus = (profile as { gov_id_verification_status?: string }).gov_id_verification_status ?? "not_submitted";
+  const isLive = govIdStatus === "verified";
+  const publishStatus = isLive ? "live" : "pending_id_verification";
 
   const { data, error } = await supabase
     .from("events")
     .insert({
-      title:        input.title.trim(),
-      description:  input.description?.trim() ?? null,
-      venue:        input.venue ?? null,
-      neighborhood: input.neighborhood ?? null,
-      city:         "NYC",
-      date_time:    input.date_time,
-      end_time:     input.end_time ?? null,
-      category:     input.category ?? null,
-      capacity:     input.capacity,
-      price_cents:  input.price_cents ?? 0,
-      accent_color: input.accent_color ?? "#FF1F7D",
-      host_note:    input.host_note?.trim() ?? null,
-      photo_url:    input.photo_url ?? null,
-      created_by:   user.id,
-      is_published: true,
-      needs_review: needsReview,
+      title:           input.title.trim(),
+      description:     input.description?.trim() ?? null,
+      venue:           input.venue ?? null,
+      neighborhood:    input.neighborhood ?? null,
+      city:            "NYC",
+      date_time:       input.date_time,
+      end_time:        input.end_time ?? null,
+      category:        input.category ?? null,
+      capacity:        input.capacity ?? null,
+      price_cents:     input.price_cents ?? 0,
+      accent_color:    input.accent_color ?? "#FF1F7D",
+      host_note:       input.host_note?.trim() ?? null,
+      photo_url:       input.photo_url ?? null,
+      created_by:      user.id,
+      creator_user_id: user.id,
+      is_published:    isLive,
+      needs_review:    needsReview,
+      publish_status:  publishStatus,
     })
     .select("id")
     .single();
 
   if (error) throw error;
-  revalidatePath("/member/happenings");
+
   const eventId = (data as { id: string }).id;
+
+  // Audit log
+  await supabase.from("event_audit_log").insert({
+    event_id: eventId,
+    user_id:  user.id,
+    action:   "event_created",
+    meta:     { title: input.title.trim(), publish_status: publishStatus },
+  }).throwOnError();
+
+  revalidatePath("/member/happenings");
+  if (isLive) checkAndNotifyStreak().catch(() => {});
+  return { id: eventId, publishStatus: isLive ? "live" : "pending_id_verification" };
+}
+
+export async function publishEvent(eventId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("gov_id_verification_status")
+    .eq("id", user.id)
+    .single();
+
+  const govIdStatus = (profile as { gov_id_verification_status?: string } | null)?.gov_id_verification_status;
+  if (govIdStatus !== "verified") throw new Error("Upload ID to publish this event.");
+
+  const { data: ev } = await supabase
+    .from("events")
+    .select("created_by")
+    .eq("id", eventId)
+    .single();
+  if (!ev || (ev as { created_by: string }).created_by !== user.id) throw new Error("Not your event");
+
+  await supabase.from("events")
+    .update({ is_published: true, publish_status: "live" })
+    .eq("id", eventId)
+    .throwOnError();
+
+  await supabase.from("event_audit_log").insert({
+    event_id: eventId,
+    user_id:  user.id,
+    action:   "event_published",
+    meta:     {},
+  }).throwOnError();
+
+  revalidatePath("/member/happenings");
   checkAndNotifyStreak().catch(() => {});
-  return eventId;
 }
 
 export async function rsvpEvent(eventId: string): Promise<void> {
