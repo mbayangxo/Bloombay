@@ -18,8 +18,8 @@ export interface ThemePalette {
 }
 
 const DAY: ThemePalette = {
-  pageBg:        "#FFF0F6",
-  card:          "#FFFFFF",
+  pageBg:        "#FFF0F6",                   // blush pink — every page
+  card:          "#FFFFFF",                   // white cards float on blush
   cardElevated:  "#FFF8FB",
   textPrimary:   "#1C1B1C",
   textSecondary: "rgba(28,27,28,0.65)",
@@ -28,21 +28,21 @@ const DAY: ThemePalette = {
   babyPink:      "#FF69B4",
   border:        "rgba(255,31,125,0.12)",
   borderStrong:  "rgba(255,31,125,0.30)",
-  isNight: false,
+  isNight:       false,
 };
 
 const NIGHT: ThemePalette = {
-  pageBg:        "#1A0414",
+  pageBg:        "#1A0414",                   // deep dark rose — same DNA, just dark
   card:          "#260A1C",
   cardElevated:  "#320C24",
   textPrimary:   "rgba(255,235,245,0.95)",
   textSecondary: "rgba(255,200,230,0.70)",
   textMuted:     "rgba(255,180,215,0.42)",
-  pink:          "#FF1F7D",
+  pink:          "#FF1F7D",                   // same hot pink — glows on dark
   babyPink:      "#FF69B4",
   border:        "rgba(255,31,125,0.20)",
   borderStrong:  "rgba(255,31,125,0.45)",
-  isNight: true,
+  isNight:       true,
 };
 
 interface ThemeContextValue {

@@ -8,19 +8,19 @@
 [data-theme="night"] {
   color-scheme: dark;
 
-  /* Dark rose — same pink family as day, just darker and easier on eyes */
+  /* Dark rose night — same DNA as blush pink day, just deep */
   --bb-page-bg: #1A0414;
   --bb-page-bg-soft: #220618;
   --bb-page-surface: #2A0A1C;
   --bb-page-ink: rgba(255,235,245,0.95);
   --bb-page-muted: rgba(255,200,230,0.52);
   --bb-page-accent: #FF1F7D;
-  --bb-page-accent-soft: #3D0A28;
+  --bb-page-accent-soft: #2A0A20;
   --bb-page-rose: #FF69B4;
 
   --bb-satin: linear-gradient(165deg, #220618 0%, #1A0414 50%, #120210 100%);
   --bb-glass: rgba(26, 4, 20, 0.88);
-  --bb-glass-border: rgba(255, 31, 125, 0.18);
+  --bb-glass-border: rgba(255, 31, 125, 0.20);
   --bb-glass-blur: blur(12px);
   --bb-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.4);
   --bb-shadow-lift: 0 10px 32px rgba(0, 0, 0, 0.5);
