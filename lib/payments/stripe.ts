@@ -7,8 +7,6 @@ import type {
   TicketParams,
 } from "./types";
 
-// Lazily initialised so the module can be imported without STRIPE_SECRET_KEY
-// being set at build time.
 let _stripe: Stripe | null = null;
 function getStripe(): Stripe {
   if (!_stripe) {
@@ -21,6 +19,10 @@ function getStripe(): Stripe {
 
 function baseUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
+
+function defaultCurrency() {
+  return (process.env.STRIPE_CURRENCY ?? "usd").toLowerCase();
 }
 
 // ── Platform membership (Stripe Billing subscription) ─────────────────────────
@@ -46,6 +48,7 @@ export async function stripeMembershipCheckout(
     metadata: {
       user_id: params.userId,
       type: "platform_membership",
+      ...(params.pendingOrderId ? { pending_order_id: params.pendingOrderId } : {}),
     },
     success_url: `${baseUrl()}/member/thank-you?type=membership`,
     cancel_url: `${baseUrl()}/join?cancelled=true`,
@@ -59,13 +62,15 @@ export async function stripeMembershipCheckout(
 export async function stripeTicketCheckout(
   params: TicketParams
 ): Promise<CheckoutResult> {
+  const currency = (params.currency ?? defaultCurrency()).toLowerCase();
+
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
     customer_email: params.userEmail,
     line_items: [
       {
         price_data: {
-          currency: "gbp",
+          currency,
           unit_amount: params.amountCents,
           product_data: { name: params.eventName },
         },
@@ -76,26 +81,30 @@ export async function stripeTicketCheckout(
       user_id: params.userId,
       event_id: params.eventId,
       type: "event_ticket",
+      ...(params.pendingOrderId ? { pending_order_id: params.pendingOrderId } : {}),
     },
-    success_url: `${baseUrl()}/member/thank-you?type=ticket&name=${encodeURIComponent(params.eventName)}&back=${encodeURIComponent('/member/happenings/' + params.eventId)}`,
+    success_url: `${baseUrl()}/member/thank-you?type=ticket&name=${encodeURIComponent(params.eventName)}&back=${encodeURIComponent("/member/happenings/" + params.eventId)}`,
     cancel_url: `${baseUrl()}/member/happenings/${params.eventId}`,
   });
 
   return { url: session.url!, sessionId: session.id };
 }
 
-// ── Club membership (one-time payment, migrated from Whop) ────────────────────
+// ── Club membership (one-time payment) ────────────────────────────────────────
 
 export async function stripeClubCheckout(
   params: ClubMembershipParams
 ): Promise<CheckoutResult> {
+  const currency = (params.currency ?? defaultCurrency()).toLowerCase();
+  const clubPath = params.clubSlug ?? params.clubId;
+
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
     customer_email: params.userEmail,
     line_items: [
       {
         price_data: {
-          currency: "gbp",
+          currency,
           unit_amount: params.priceCents,
           product_data: { name: `${params.clubName} — Club Membership` },
         },
@@ -105,10 +114,12 @@ export async function stripeClubCheckout(
     metadata: {
       user_id: params.userId,
       club_id: params.clubId,
+      club_slug: params.clubSlug,
       type: "club_membership",
+      ...(params.pendingOrderId ? { pending_order_id: params.pendingOrderId } : {}),
     },
-    success_url: `${baseUrl()}/member/thank-you?type=club&name=${encodeURIComponent(params.clubName)}&back=${encodeURIComponent('/member/clubs/' + params.clubId)}`,
-    cancel_url: `${baseUrl()}/member/clubs/${params.clubId}`,
+    success_url: `${baseUrl()}/member/thank-you?type=club&name=${encodeURIComponent(params.clubName)}&back=${encodeURIComponent("/member/clubs/" + clubPath)}`,
+    cancel_url: `${baseUrl()}/member/clubs/${clubPath}`,
   });
 
   return { url: session.url!, sessionId: session.id };
@@ -117,10 +128,12 @@ export async function stripeClubCheckout(
 // ── Refund ─────────────────────────────────────────────────────────────────────
 
 export async function stripeRefund(
-  paymentIntentId: string
+  paymentIntentId: string,
+  reason?: Stripe.RefundCreateParams.Reason
 ): Promise<PaymentResult> {
   const refund = await getStripe().refunds.create({
     payment_intent: paymentIntentId,
+    ...(reason ? { reason } : {}),
   });
 
   return {
@@ -128,7 +141,5 @@ export async function stripeRefund(
     transactionId: refund.id,
   };
 }
-
-// ── Export raw client for webhook signature verification ──────────────────────
 
 export { getStripe };

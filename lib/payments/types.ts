@@ -13,14 +13,18 @@ export interface MembershipParams {
   userId: string;
   userEmail: string;
   plan: "monthly" | "biannual" | "annual";
+  pendingOrderId?: string;
 }
 
 export interface ClubMembershipParams {
   userId: string;
   userEmail: string;
   clubId: string;
+  clubSlug: string;
   clubName: string;
   priceCents: number;
+  currency?: string;
+  pendingOrderId?: string;
 }
 
 export interface TicketParams {
@@ -29,7 +33,9 @@ export interface TicketParams {
   eventId: string;
   eventName: string;
   amountCents: number;
+  currency?: string;
   quantity?: number;
+  pendingOrderId?: string;
 }
 
 export interface HostPayoutParams {

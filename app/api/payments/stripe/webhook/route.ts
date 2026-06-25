@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/payments/stripe";
-import { createClient } from "@/lib/supabase/server";
-import { sendSMS, formatWelcomeSMS, formatTicketConfirmSMS, formatClubWelcomeSMS } from "@/lib/notifications/sms";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -21,17 +20,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 
-  const supabase = await createClient();
+  // All webhook DB writes use the service-role client — Stripe events are
+  // system events, not a logged-in user session.
+  const db = createAdminClient();
 
   switch (event.type) {
+
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       const meta = session.metadata ?? {};
       const type = meta.type;
+      const pendingOrderId = meta.pending_order_id ?? null;
+
+      // ── Idempotency: skip if this session was already processed ──────────────
+      if (pendingOrderId) {
+        const { data: existing } = await db
+          .from("pending_orders")
+          .select("status")
+          .eq("id", pendingOrderId)
+          .single();
+
+        if (existing?.status === "paid") {
+          return NextResponse.json({ received: true });
+        }
+      }
 
       if (type === "platform_membership") {
-        // Grant platform membership access
-        await supabase
+        await db
           .from("profiles")
           .update({
             is_member: true,
@@ -40,7 +55,7 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", meta.user_id);
 
-        await supabase.from("notifications").insert({
+        await db.from("notifications").insert({
           user_id: meta.user_id,
           type: "membership_confirmed",
           title: "Welcome to BloomBay!",
@@ -48,31 +63,41 @@ export async function POST(req: NextRequest) {
           link: "/member/avenue",
         });
 
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("first_name, full_name, phone_number")
-          .eq("id", meta.user_id)
-          .single();
-
-        if (profile?.phone_number) {
-          const name = profile.first_name ?? profile.full_name?.split(" ")[0] ?? "";
-          await sendSMS(profile.phone_number, formatWelcomeSMS(name));
+        if (pendingOrderId) {
+          await db
+            .from("pending_orders")
+            .update({ status: "paid", stripe_session_id: session.id, updated_at: new Date().toISOString() })
+            .eq("id", pendingOrderId);
         }
+
+        await db.from("payment_audit_logs").insert({
+          pending_order_id: pendingOrderId,
+          user_id: meta.user_id,
+          event_type: "payment_completed",
+          stripe_session_id: session.id,
+          stripe_payment_intent: typeof session.payment_intent === "string" ? session.payment_intent : null,
+          amount_cents: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          meta: { type: "platform_membership" },
+        });
       }
 
       if (type === "event_ticket") {
-        // Record the ticket — silently skips if the tickets table isn't migrated yet
-        await supabase.from("tickets").upsert({
-          user_id: meta.user_id,
-          event_id: meta.event_id,
-          stripe_session_id: session.id,
-          amount_paid: session.amount_total ?? 0,
-          currency: session.currency ?? "usd",
-          status: "confirmed",
-          purchased_at: new Date().toISOString(),
-        }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+        await db.from("tickets").upsert(
+          {
+            user_id: meta.user_id,
+            event_id: meta.event_id,
+            pending_order_id: pendingOrderId,
+            stripe_session_id: session.id,
+            amount_paid: session.amount_total ?? 0,
+            currency: session.currency ?? "usd",
+            status: "confirmed",
+            purchased_at: new Date().toISOString(),
+          },
+          { onConflict: "stripe_session_id", ignoreDuplicates: true }
+        );
 
-        await supabase.from("notifications").insert({
+        await db.from("notifications").insert({
           user_id: meta.user_id,
           type: "ticket_confirmed",
           title: "You're going!",
@@ -81,28 +106,29 @@ export async function POST(req: NextRequest) {
           data: { event_id: meta.event_id },
         });
 
-        const [{ data: profile }, { data: ev }] = await Promise.all([
-          supabase.from("profiles").select("first_name, full_name, phone_number").eq("id", meta.user_id).single(),
-          supabase.from("gatherings").select("title, starts_at").eq("id", meta.event_id).single(),
-        ]);
-
-        if (profile?.phone_number && ev) {
-          const name = profile.first_name ?? profile.full_name?.split(" ")[0] ?? "";
-          const dateStr = new Date(ev.starts_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-          await sendSMS(profile.phone_number, formatTicketConfirmSMS(name, ev.title, dateStr));
+        if (pendingOrderId) {
+          await db
+            .from("pending_orders")
+            .update({ status: "paid", stripe_session_id: session.id, updated_at: new Date().toISOString() })
+            .eq("id", pendingOrderId);
         }
+
+        await db.from("payment_audit_logs").insert({
+          pending_order_id: pendingOrderId,
+          user_id: meta.user_id,
+          event_type: "payment_completed",
+          stripe_session_id: session.id,
+          stripe_payment_intent: typeof session.payment_intent === "string" ? session.payment_intent : null,
+          amount_cents: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          meta: { type: "event_ticket", event_id: meta.event_id },
+        });
       }
 
       if (type === "club_membership") {
-        const { data: club } = await supabase
-          .from("clubs")
-          .select("slug")
-          .eq("id", meta.club_id)
-          .single();
+        const clubSlug = meta.club_slug ?? meta.club_id;
 
-        const clubSlug = (club as { slug: string } | null)?.slug ?? meta.club_id;
-
-        await supabase.from("club_memberships").upsert(
+        await db.from("club_memberships").upsert(
           {
             user_id: meta.user_id,
             club_slug: clubSlug,
@@ -112,14 +138,14 @@ export async function POST(req: NextRequest) {
           { onConflict: "user_id,club_slug" }
         );
 
-        await supabase
+        await db
           .from("club_applications")
           .update({ status: "accepted" })
           .eq("club_id", meta.club_id)
           .eq("user_id", meta.user_id)
           .eq("status", "pending");
 
-        await supabase.from("notifications").insert({
+        await db.from("notifications").insert({
           user_id: meta.user_id,
           type: "club_accepted",
           title: "Payment confirmed — you're in!",
@@ -128,20 +154,38 @@ export async function POST(req: NextRequest) {
           data: { club_id: meta.club_id },
         });
 
-        const { data: memberProfile } = await supabase
-          .from("profiles")
-          .select("first_name, full_name, phone_number")
-          .eq("id", meta.user_id)
-          .single();
-
-        if (memberProfile?.phone_number) {
-          const name = memberProfile.first_name ?? memberProfile.full_name?.split(" ")[0] ?? "";
-          const { data: clubInfo } = await supabase.from("clubs").select("name").eq("id", meta.club_id).single();
-          const clubDisplayName = (clubInfo as { name: string } | null)?.name ?? "your club";
-          await sendSMS(memberProfile.phone_number, formatClubWelcomeSMS(name, clubDisplayName));
+        if (pendingOrderId) {
+          await db
+            .from("pending_orders")
+            .update({ status: "paid", stripe_session_id: session.id, updated_at: new Date().toISOString() })
+            .eq("id", pendingOrderId);
         }
+
+        await db.from("payment_audit_logs").insert({
+          pending_order_id: pendingOrderId,
+          user_id: meta.user_id,
+          event_type: "payment_completed",
+          stripe_session_id: session.id,
+          stripe_payment_intent: typeof session.payment_intent === "string" ? session.payment_intent : null,
+          amount_cents: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          meta: { type: "club_membership", club_id: meta.club_id, club_slug: clubSlug },
+        });
       }
 
+      break;
+    }
+
+    case "checkout.session.expired": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const pendingOrderId = session.metadata?.pending_order_id ?? null;
+      if (pendingOrderId) {
+        await db
+          .from("pending_orders")
+          .update({ status: "failed", updated_at: new Date().toISOString() })
+          .eq("id", pendingOrderId)
+          .eq("status", "pending");
+      }
       break;
     }
 
@@ -149,7 +193,7 @@ export async function POST(req: NextRequest) {
       const sub = event.data.object as Stripe.Subscription;
       const subMeta = sub.metadata ?? {};
       if (subMeta.user_id) {
-        await supabase
+        await db
           .from("profiles")
           .update({ is_member: false, membership_type: null })
           .eq("id", subMeta.user_id);
