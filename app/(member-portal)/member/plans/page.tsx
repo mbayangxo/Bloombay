@@ -13,8 +13,9 @@ import { DayScheduleView } from "@/app/components/portal/plans/day-schedule-view
 import { DayEditorSheet } from "@/app/components/portal/plans/day-editor-sheet";
 import { WalletTickets } from "@/app/components/portal/plans/wallet-tickets";
 import type { PlanRoom, View, DayContent } from "@/lib/plans/types";
-import { MEMORY_EVENTS, POLAROID_ROTS } from "@/lib/plans/mock-data";
 import { PINK } from "@/lib/plans/constants";
+
+const POLAROID_ROTS = [-1.5, 1.2, -0.8, 1.8, -1.1, 0.9, -1.7, 1.4, -0.6, 1.6, -1.3, 0.7];
 
 function PlansPageInner() {
   const searchParams = useSearchParams();
@@ -27,6 +28,8 @@ function PlansPageInner() {
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [planRooms, setPlanRooms]     = useState<PlanRoom[]>([]);
+  const [memories, setMemories]       = useState<{ id: string; name: string; date: string; poster: string | null; note: string }[]>([]);
+  const [plansError, setPlansError]   = useState<string | null>(null);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editorDay, setEditorDay]     = useState<string | null>(null);
@@ -37,11 +40,12 @@ function PlansPageInner() {
       createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
     });
     fetch("/api/member/plans")
-      .then(r => r.ok ? r.json() : null)
-      .then((json: { plans?: PlanRoom[] } | null) => {
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("Failed to load plans")))
+      .then((json: { plans?: PlanRoom[]; memories?: typeof memories }) => {
         if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+        if (json?.memories) setMemories(json.memories);
       })
-      .catch(() => {});
+      .catch((err: Error) => setPlansError(err.message));
   }, []);
 
   useEffect(() => {
@@ -87,6 +91,12 @@ function PlansPageInner() {
       </div>
 
       <div style={{ paddingTop: 54 }}>
+
+        {plansError && (
+          <div style={{ padding: "10px 16px", background: "rgba(255,31,125,0.07)", borderBottom: "1px solid rgba(255,31,125,0.12)" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#FF1F7D", textAlign: "center" }}>{plansError}</p>
+          </div>
+        )}
 
         {/* Editorial header */}
         <div style={{ position: "relative", overflow: "hidden", paddingBottom: 8 }}>
@@ -190,30 +200,39 @@ function PlansPageInner() {
         </div>
 
         {/* Memories polaroid grid */}
-        <div style={{ padding: "0 16px 40px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
-              <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
-            </div>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-            {MEMORY_EVENTS.map((ev, i) => (
-              <div key={ev.id} style={{ transform: `rotate(${POLAROID_ROTS[i]}deg)`, transformOrigin: "center bottom", transition: "transform 0.2s" }}>
-                <div style={{ background: "white", borderRadius: 4, padding: "5px 5px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.12), 0 1px 0 rgba(0,0,0,0.06)" }}>
-                  <div style={{ width: "100%", aspectRatio: "1", borderRadius: 2, overflow: "hidden", background: "#F0E8E0", position: "relative" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 50%, ${ev.color}44 100%)` }} />
-                  </div>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
-                </div>
+        {memories.length > 0 && (
+          <div style={{ padding: "0 16px 40px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <div>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
+                <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
               </div>
-            ))}
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>{memories.length} moments ✦</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+              {memories.map((ev, i) => (
+                <div key={ev.id} style={{ transform: `rotate(${POLAROID_ROTS[i % POLAROID_ROTS.length]}deg)`, transformOrigin: "center bottom", transition: "transform 0.2s" }}>
+                  <div style={{ background: "white", borderRadius: 4, padding: "5px 5px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.12), 0 1px 0 rgba(0,0,0,0.06)" }}>
+                    <div style={{ width: "100%", aspectRatio: "1", borderRadius: 2, overflow: "hidden", background: "#F0E8E0", position: "relative" }}>
+                      {ev.poster
+                        ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span style={{ fontSize: 24 }}>✦</span>
+                          </div>
+                        )
+                      }
+                    </div>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Calendar overlay */}
@@ -266,9 +285,13 @@ function PlansPageInner() {
       )}
 
       {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} onCreated={() => {
-        fetch("/api/member/plans").then(r => r.ok ? r.json() : null).then((json: { plans?: PlanRoom[] } | null) => {
-          if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
-        }).catch(() => {});
+        fetch("/api/member/plans")
+          .then(r => r.ok ? r.json() : Promise.reject(new Error("Failed to reload plans")))
+          .then((json: { plans?: PlanRoom[]; memories?: typeof memories }) => {
+            if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+            if (json?.memories) setMemories(json.memories);
+          })
+          .catch((err: Error) => setPlansError(err.message));
       }} />}
 
       <style>{`

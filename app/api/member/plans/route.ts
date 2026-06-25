@@ -89,7 +89,31 @@ export async function GET() {
     status: p.status,
   }));
 
-  return NextResponse.json({ plans: result });
+  // Fetch past gatherings the user attended (memories)
+  const { data: attendanceRows } = await supabase
+    .from("gathering_attendance")
+    .select("checked_in_at, gatherings(id, title, starts_at, image_url, venue, neighborhood)")
+    .eq("user_id", user.id)
+    .order("checked_in_at", { ascending: false })
+    .limit(12);
+
+  type GatheringRow = { id: string; title: string; starts_at: string; image_url: string | null; venue: string | null; neighborhood: string | null };
+  const memories = (attendanceRows ?? [])
+    .map(row => {
+      const raw = (row as unknown as { gatherings: GatheringRow | GatheringRow[] | null }).gatherings;
+      const g = Array.isArray(raw) ? raw[0] ?? null : raw;
+      if (!g) return null;
+      return {
+        id: g.id,
+        name: g.title,
+        date: new Date(g.starts_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        poster: g.image_url ?? null,
+        note: g.venue ?? g.neighborhood ?? "",
+      };
+    })
+    .filter(Boolean);
+
+  return NextResponse.json({ plans: result, memories });
 }
 
 export async function POST(req: Request) {
