@@ -1,9 +1,13 @@
 # BloomBay Architecture Decisions
 
+> **Don’t build more systems. Finish defining the systems you already have.**
+
 > **Rules, not discussions.** One line per decision. Update when the founder approves a change — never fork parallel systems silently.
 
-**Last updated:** 2026-06-25 (Wall Posts correction — Avenue conversation layer)
+**Last updated:** 2026-06-25 (Knowledge domain; product pillars)  
 **Review with:** `DOMAIN_BOUNDARIES.md`, `DATABASE_ARCHITECTURE.md`, ChatGPT + Cursor review sessions
+
+**Workflow:** Product questions get **grounded** in schema/code before anyone writes features. You define → ChatGPT pressure-tests → Cursor verifies → Claude implements only after a decision lands here.
 
 ---
 
@@ -86,13 +90,27 @@ New **curated** room content → `avenue_content` (approval workflow, `week_of`,
 
 ---
 
-## Bloom Notes (domain clarification)
+## Bloom Notes = Knowledge (not “content”)
 
-Bloom Notes are **place-based knowledge**, not social posts or editorial content.
+Bloom Notes are **place-based knowledge** women leave for other women — not posts, not reviews, not editorial.
 
-Examples: order this dish, best table, solo-work hours, safety after 10pm, good first meetup spot.
+| Layer | What it is |
+|-------|------------|
+| Wall | Conversation |
+| Avenue | Publishing / rooms |
+| Magazine | Editorial |
+| Moments | Private memory |
+| **Bloom Notes** | **Knowledge** |
 
-**Rule:** Bloom Notes deserve their own domain, API, and product surface long-term. Do not merge into `wall_posts` or `avenue_content`.
+**Own:** product experience, API, business logic (`bloom_notes`, place indexing, search, helpful votes over time).  
+**Share:** comments, moderation, reactions, permissions, notifications (infrastructure only).
+
+Knowledge behaviors (build over time): location indexing, search, trust/reputation on notes, freshness, helpful votes, map integration, recommendations. These are **not** feed behaviors.
+
+**Beta:** Knowledge lives as its own product lane; may appear under the Content pillar in diagrams for simplicity.  
+**Post-beta:** Knowledge may become a top-level pillar alongside Content if the city guide grows.
+
+**Rule:** Do not merge into `wall_posts` or `avenue_content`. Do not describe as a content feed.
 
 ---
 
@@ -191,7 +209,7 @@ Examples: order this dish, best table, solo-work hours, safety after 10pm, good 
 |------|----------|
 | 2026-06-25 | Gatherings canonical; events legacy freeze |
 | 2026-06-25 | Avenue = rooms + culture; Wall Posts = Avenue conversation layer (not personal updates) |
-| 2026-06-25 | Bloom Notes = place knowledge domain, not social or editorial |
+| 2026-06-25 | Bloom Notes = Knowledge domain (own product; shared infra only) |
 | 2026-06-25 | Connect = one product, four layers, separate tables |
 | 2026-06-25 | Reports consolidation P0 before launch |
 | 2026-06-25 | community_posts frozen |

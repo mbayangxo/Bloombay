@@ -1,10 +1,30 @@
 # BloomBay Domain Boundaries
 
+> **Don’t build more systems. Finish defining the systems you already have.**
+
 > **Product ownership map** — not schema detail, not code layout.  
 > Before creating `new_table`, answer: **Which domain owns this?**  
 > If you can't answer, the table probably shouldn't exist.
 
 **Companion docs:** `DECISIONS.md` · `PRODUCT_ARCHITECTURE.md` · `DATABASE_ARCHITECTURE.md`
+
+---
+
+## Product pillars
+
+Almost every future feature should fit one pillar:
+
+| Pillar | Includes | Canonical examples |
+|--------|----------|-------------------|
+| **Content** | Avenue rooms, Wall, Magazine | `avenue_content`, `wall_posts`, `fashion_posts` |
+| **Knowledge** | Bloom Notes — place intelligence for women | `bloom_notes` |
+| **Social** | Clubs, Connect, Girlmates | `clubs`, `bloom_requests`, `girlmate_profiles` |
+| **IRL** | Gatherings, Plans, Tickets | `gatherings`, `bloomies_plans`, `tickets` |
+| **Memory** | Moments, Yande | `moments`, `member_behavior_signals`, `yande_user_context` |
+| **Commerce** | Shops, Drops, Partners, Hanger | `bloom_drops`, `hanger_listings`, Stripe orders |
+| **Safety** | Verification, Moderation, Reports | `profiles.verified`, `moderation_cases`, reports (P0 unify) |
+
+**Content vs Knowledge:** Wall = conversation. Avenue = publishing. Magazine = editorial. Moments = private memory. **Bloom Notes = knowledge** — different behaviors (search, map, trust on tips, freshness). Knowledge may become a top-level pillar post-beta; treat as its own lane now.
 
 ---
 
@@ -25,12 +45,13 @@ BloomBay Platform
 ├── IRL ─────────────────── gatherings, seats, attendance, witnesses
 ├── COMMUNITY ───────────── clubs, memberships, applications, broadcasts
 ├── CONNECT ─────────────── introductions, come_with_me, bloom_requests, friendship_scores
+├── KNOWLEDGE ───────────── bloom_notes (place intelligence — not a content feed)
 ├── AVENUE ──────────────── rooms (editorial) + wall_posts (conversation layer)
-├── CONTENT (non-Avenue) ── bloom_notes, moments
+├── MEMORY ──────────────── moments, yande signals/context
 ├── MESSAGING ───────────── conversations, girlmate_messages, notifications
 ├── GIRLMATES ───────────── girlmate_profiles, listings, housing search
 ├── SAFETY ──────────────── reports, blocks, moderation_cases, audit logs
-├── YANDE ───────────────── behavior signals, user context, match queue, crons
+├── YANDE ───────────────── match queue, crons (steering from memory pillar)
 ├── COMMERCE ────────────── tickets, orders, drops, hanger
 ├── PLANS ───────────────── bloomies_plans, calendar, plan rooms
 └── OPS ──────────────────── mission control, admin audit, cron logs
@@ -141,14 +162,29 @@ Avenue
 
 ---
 
+### Knowledge (Bloom Notes)
+**Owner:** City / place intelligence product  
+**Job:** What women should know about a place — left for the next woman. Not conversation, not editorial, not private memory.
+
+| Canonical | Purpose |
+|-----------|---------|
+| `bloom_notes` | Place-tied knowledge snippets |
+| (future) place pages, helpful votes, map index | Knowledge-system behaviors |
+
+**Own:** product surface, API, business logic.  
+**Share:** comments, flowers, moderation, notifications, permissions.
+
+**Not content-feed behaviors:** Knowledge wants search, location indexing, trust on tips, freshness, map integration, recommendations.
+
+**Boundaries:** Separate from Avenue, Wall, Moments. See `DECISIONS.md`.
+
+---
+
 ### Content (outside Avenue)
 
 | Sub-domain | Canonical | Job |
 |------------|-----------|-----|
-| **Bloom Notes** | `bloom_notes` | Place-based knowledge women leave for other women — not posts, not reviews |
 | **Moments** | `moments` | Private memories in the Lounge (author-only RLS) |
-
-**Bloom Notes** are location intelligence (order this, best table, safety tip, solo-work hours) — own domain, own API, own product surface long-term.
 
 **Frozen:** `community_posts` — early experiment; no new features.
 
