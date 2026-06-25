@@ -25,62 +25,7 @@ const CATEGORY_META: Record<Category, { label: string; emoji: string; color: str
 // ── Mock posts ──────────────────────────────────────────────────────────────────
 type MockPost = WellnessPost & { gradientA: string; gradientB: string };
 
-const MOCK_POSTS: MockPost[] = [
-  {
-    id: "1", author_id: "u1", author_name: "Zara F.", author_avatar: null,
-    category: "juice", title: "Anti-Inflammatory Glow Juice",
-    content: "This one changed my skin in 2 weeks. Drink it in the morning on an empty stomach.",
-    ingredients: ["2 carrots", "1 inch ginger", "1 lemon", "1 apple", "handful turmeric root", "pinch black pepper"],
-    steps: ["Wash and chop all produce", "Feed through juicer in order", "Stir and add black pepper to activate turmeric", "Drink immediately or store up to 24h"],
-    image_url: null, saves_count: 312, created_at: "2026-06-10T08:00:00Z",
-    gradientA: "#A8E063", gradientB: "#56AB2F",
-  },
-  {
-    id: "2", author_id: "u2", author_name: "Amara T.", author_avatar: null,
-    category: "smoothie", title: "Hormone Balance Smoothie",
-    content: "Maca + ashwagandha are doing the most right now. Creamy, earthy, actually delicious.",
-    ingredients: ["1 frozen banana", "1 tbsp maca powder", "1 tsp ashwagandha", "1 cup oat milk", "1 tbsp almond butter", "pinch cinnamon", "1 date (pitted)"],
-    steps: ["Add all ingredients to blender", "Blend on high 45 seconds", "Taste and adjust sweetness with date", "Serve cold"],
-    image_url: null, saves_count: 247, created_at: "2026-06-09T14:00:00Z",
-    gradientA: "#D4A574", gradientB: "#C68642",
-  },
-  {
-    id: "3", author_id: "u3", author_name: "Kezia M.", author_avatar: null,
-    category: "tip", title: "The 5-minute morning ritual that actually works",
-    content: "I've done this every morning for 6 months. No skipping, no excuses.",
-    ingredients: [],
-    steps: ["Warm lemon water before anything else", "10 deep breaths at the window", "Write 3 things you're grateful for", "No phone for the first 20 minutes", "Move your body even for 5 minutes"],
-    image_url: null, saves_count: 489, created_at: "2026-06-08T07:00:00Z",
-    gradientA: "#FFB3D9", gradientB: "#FF1F7D",
-  },
-  {
-    id: "4", author_id: "u4", author_name: "Nia B.", author_avatar: null,
-    category: "skincare", title: "DIY Honey Turmeric Mask",
-    content: "For melanin skin. Brightens without bleaching. Do this 2x a week.",
-    ingredients: ["1 tbsp raw honey", "½ tsp turmeric", "1 tsp plain yogurt", "3 drops rosehip oil"],
-    steps: ["Mix all ingredients in a small bowl", "Apply to clean dry face", "Leave 15-20 minutes", "Rinse with warm water, pat dry", "Follow with moisturiser"],
-    image_url: null, saves_count: 178, created_at: "2026-06-07T11:00:00Z",
-    gradientA: "#F9D423", gradientB: "#F83600",
-  },
-  {
-    id: "5", author_id: "u5", author_name: "Lena P.", author_avatar: null,
-    category: "meal", title: "High-Protein Jollof Bowls",
-    content: "Meal-prepped this for the whole week. Filling, tasty, and 35g protein per bowl.",
-    ingredients: ["1 cup brown rice", "200g chicken thighs", "2 plum tomatoes", "1 red bell pepper", "1 onion", "scotch bonnet (half)", "chicken stock cube", "smoked paprika", "thyme", "black beans"],
-    steps: ["Blend tomatoes, pepper, scotch bonnet and set aside", "Brown chicken in oil, set aside", "Fry onion until golden, add blended mix", "Cook down 15 min, add stock cube and spices", "Add rice and chicken, cook until tender", "Top with black beans and fresh coriander"],
-    image_url: null, saves_count: 203, created_at: "2026-06-06T12:00:00Z",
-    gradientA: "#F7971E", gradientB: "#FFD200",
-  },
-  {
-    id: "6", author_id: "u1", author_name: "Zara F.", author_avatar: null,
-    category: "juice", title: "Deep Sleep Nighttime Tonic",
-    content: "Tart cherry + magnesium glycinate changed my sleep. This is the gentler food version.",
-    ingredients: ["100ml tart cherry juice", "200ml warm chamomile tea", "1 tsp honey", "pinch nutmeg", "pinch cinnamon"],
-    steps: ["Brew chamomile, let cool slightly", "Stir in cherry juice and honey", "Add spices", "Drink 30-45 min before bed"],
-    image_url: null, saves_count: 134, created_at: "2026-06-05T20:00:00Z",
-    gradientA: "#6B2FA0", gradientB: "#9B59B6",
-  },
-];
+const MOCK_POSTS: MockPost[] = [];
 
 // ── PostCard ────────────────────────────────────────────────────────────────────
 function PostCard({ post, saved, onToggleSave }: { post: MockPost; saved: boolean; onToggleSave: () => void }) {

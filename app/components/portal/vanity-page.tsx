@@ -35,50 +35,7 @@ interface VanityPost {
   timeAgo: string;
 }
 
-const MOCK_POSTS: VanityPost[] = [
-  {
-    id: "1", author_name: "Sofia W.", author_initial: "S", author_color: "#FF69B4",
-    category: "skincare", title: "The holy grail routine for melanin skin",
-    text: "3 years of testing to find this routine. My skin has never looked better. The key is layering correctly.",
-    products: ["Klairs Supple Prep Toner", "Ordinary Niacinamide 10%", "Fenty Skin Hydra Vizor SPF30", "Paula's Choice BHA"],
-    saves: 312, gradientA: "#F9D423", gradientB: "#F83600", timeAgo: "2h ago",
-  },
-  {
-    id: "2", author_name: "Zara F.", author_initial: "Z", author_color: PINK,
-    category: "makeup", title: "The 'no-makeup' makeup look breakdown",
-    text: "I get asked about this every single time I do it. Literally takes 8 minutes.",
-    products: ["Charlotte Tilbury Flawless Filter", "Rare Beauty blush", "Jones Road Miracle Balm", "Benefit Brow Pencil"],
-    saves: 247, gradientA: "#FFB3D9", gradientB: PINK, timeAgo: "5h ago",
-  },
-  {
-    id: "3", author_name: "Nia B.", author_initial: "N", author_color: "#C084FC",
-    category: "haircare", title: "How I grew 4 inches in 6 months (4C hair)",
-    text: "I genuinely thought length retention wasn't for me. Then I changed my whole approach.",
-    products: ["Mielle Rosemary Oil", "Shea Moisture Curl Cream", "Satya hemp milk", "Rice water rinse (DIY)"],
-    saves: 489, gradientA: "#A18CD1", gradientB: "#FBC2EB", timeAgo: "1d ago",
-  },
-  {
-    id: "4", author_name: "Amara T.", author_initial: "A", author_color: "#E8A050",
-    category: "fragrance", title: "My entire signature scent collection",
-    text: "I rotate 5 perfumes by mood + season. People always ask what I'm wearing. Here's the breakdown.",
-    products: ["Maison Margiela Replica - Flower Market", "Carolina Herrera Good Girl", "Sol de Janeiro 62", "Kayali Vanilla 28", "D&G Light Blue"],
-    saves: 178, gradientA: "#F7971E", gradientB: "#FFD200", timeAgo: "2d ago",
-  },
-  {
-    id: "5", author_name: "Kezia M.", author_initial: "K", author_color: "#FF5BAD",
-    category: "nails", title: "Press-ons that actually last 3 weeks",
-    text: "I've been doing my own nails at home for 2 years and I finally cracked the code.",
-    products: ["imPRESS Pro nails", "Nailboo powder (for prep)", "Bondaid dehydrator", "KDS UV/LED gel top coat"],
-    saves: 134, gradientA: "#FF9A9E", gradientB: "#FAD0C4", timeAgo: "3d ago",
-  },
-  {
-    id: "6", author_name: "Temi A.", author_initial: "T", author_color: "#83C5A0",
-    category: "skincare", title: "Slugging changed my life — here's how to do it right",
-    text: "The Korean skincare hack that gives you glass skin overnight. Yes it works. No it won't cause breakouts if you do it correctly.",
-    products: ["La Roche-Posay Cicaplast Baume B5", "Vaseline (unscented)", "Drunk Elephant Protini moisturiser"],
-    saves: 201, gradientA: "#84FAB0", gradientB: "#8FD3F4", timeAgo: "4d ago",
-  },
-];
+const MOCK_POSTS: VanityPost[] = [];
 
 // ── Post card ─────────────────────────────────────────────────────────────────
 

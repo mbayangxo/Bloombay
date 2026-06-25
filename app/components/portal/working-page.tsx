@@ -51,48 +51,7 @@ interface CareerItem {
   yande_note: string; cover_a: string; cover_b: string; featured?: boolean;
 }
 
-const CAREER_ITEMS: CareerItem[] = [
-  {
-    id: "c1", category: "job", industry: "tech",
-    title: "UX Research Lead — Figma · $145K–$175K",
-    body: "Figma's NYC office is hiring a senior UX researcher to lead consumer insights. Hybrid 3 days. 4 of 6 research leads are women. Equity included.",
-    badge: "HOT JOB", badge_color: "#0F4C81",
-    yande_note: "Real growth built in — leading a team within 18 months, not individual contributor work forever.",
-    cover_a: "#0F4C81", cover_b: "#1565C0", featured: true,
-  },
-  {
-    id: "c2", category: "hot_take", industry: "all",
-    title: "The 'Culture Fit' Interview Is a Trap",
-    body: "'Culture fit' usually means will you tolerate dysfunction without complaining. Counter: ask them to describe a time someone gave critical feedback upward and what happened next.",
-    badge: "HOT TAKE", badge_color: PINK,
-    yande_note: "If they can't answer that question well, you already know the culture.",
-    cover_a: PLUM, cover_b: "#4A0070",
-  },
-  {
-    id: "c3", category: "salary", industry: "media",
-    title: "Marketing Managers Are Leaving $18K on the Table in NYC",
-    body: "Market rate: $88K–$112K. Most women accept $74K. Counter at 15% above, cite market data, stop apologizing. Silence after you name the number is fine.",
-    badge: "NEGOTIATE THIS", badge_color: "#2E7D32",
-    yande_note: "Discomfort of negotiating lasts 30 seconds. Regret lasts years.",
-    cover_a: "#1B5E20", cover_b: "#2E7D32",
-  },
-  {
-    id: "c4", category: "event", industry: "all",
-    title: "She Builds Summit — Brooklyn Navy Yard",
-    body: "Annual summit for women building in NYC. This Saturday. Founders, VCs, operators who are actually doing it. $35 general admission, limited seats.",
-    badge: "THIS WEEKEND", badge_color: "#C4005A",
-    yande_note: "Networking here is real — actual connections, not business cards.",
-    cover_a: "#880E4F", cover_b: "#C4005A",
-  },
-  {
-    id: "c5", category: "career_move", industry: "tech",
-    title: "The PM Cert That FAANG Actually Respects",
-    body: "PMP certification = $22K more salary on average for NYC women in tech-adjacent roles. 3 months prep, $555 exam. ROI is immediate.",
-    badge: "ELEVATE", badge_color: "#5B2D8E",
-    yande_note: "If you've been in ops or coordinator role for 2+ years and feel stuck, this is the signal that unlocks the next door.",
-    cover_a: "#4A148C", cover_b: "#7B1FA2",
-  },
-];
+const CAREER_ITEMS: CareerItem[] = [];
 
 // ── Entrepreneur content (Girltrepreneur tab) ─────────────────────────────────
 type TrepCat = "all" | "funding" | "launch" | "legal" | "growth" | "mindset";
@@ -112,48 +71,7 @@ interface TrepItem {
   yande_note: string; cover_a: string; cover_b: string; featured?: boolean;
 }
 
-const TREP_ITEMS: TrepItem[] = [
-  {
-    id: "t1", category: "funding",
-    title: "How to Get Into an Accelerator With No Revenue Yet",
-    body: "YC, First Round, Forerunner, and Female Founders Fund all accept pre-revenue companies. What they want: a clear problem, a convincing founder, and evidence you've talked to real customers. Applications open now.",
-    badge: "FUNDING", badge_color: "#7B1FA2",
-    yande_note: "The biggest mistake pre-revenue founders make is waiting to have more. Apply now and let the application sharpen your thinking.",
-    cover_a: "#4A148C", cover_b: "#7B1FA2", featured: true,
-  },
-  {
-    id: "t2", category: "legal",
-    title: "LLC vs S-Corp — Which One to Pick as a Solo Founder",
-    body: "If you're making under $80K/year: LLC. Over $80K: talk to an accountant about S-Corp election — you could save $8K–$15K in self-employment tax. Don't just Googling this. One consultation with a CPA is worth $300.",
-    badge: "LEGAL", badge_color: "#2E7D32",
-    yande_note: "Most women wait too long to set up the right structure and it costs them real money. Do this before you need to.",
-    cover_a: "#1B5E20", cover_b: "#388E3C",
-  },
-  {
-    id: "t3", category: "launch",
-    title: "The NYC Pop-Up Strategy That Gets You First Customers",
-    body: "Event-based pop-ups are how NYC founders validate before investing in inventory. Find a host venue (coffee shop, gallery, boutique), bring 20–30 products, charge full price. If you sell out in 3 hours, you have a business.",
-    badge: "LAUNCH", badge_color: "#0F4C81",
-    yande_note: "Don't overthink the brand deck. Your first test is whether strangers will pay real money right in front of you.",
-    cover_a: "#0D47A1", cover_b: "#1565C0",
-  },
-  {
-    id: "t4", category: "growth",
-    title: "The Email List Is Still the Biggest Asset You Own",
-    body: "Instagram can deplatform you. TikTok can ban you. Your email list is yours. Women-founded brands that grew from 0 to $1M — nearly all of them credit email marketing as the highest ROI channel. Start now.",
-    badge: "GROWTH", badge_color: "#C4005A",
-    yande_note: "Every Bloomie who follows you on Instagram should also be on your email list. That's the move.",
-    cover_a: "#880E4F", cover_b: "#C4005A",
-  },
-  {
-    id: "t5", category: "mindset",
-    title: "You Don't Need to Be Ready. You Need to Be Honest.",
-    body: "The question isn't whether you're ready to launch. It's whether you can honestly articulate the problem you're solving and who has it. That's it. Everything else is learned.",
-    badge: "MINDSET", badge_color: GOLD,
-    yande_note: "Readiness is a feeling. Clarity is a decision. Start with clarity.",
-    cover_a: "#BF6F00", cover_b: GOLD,
-  },
-];
+const TREP_ITEMS: TrepItem[] = [];
 
 // ── Influencer / Creator content (Girl Fluencer tab) ─────────────────────────
 type FluCat = "all" | "growth" | "monetize" | "brand_deal" | "content" | "platform";
@@ -173,55 +91,9 @@ interface FluItem {
   yande_note: string; cover_a: string; cover_b: string; featured?: boolean;
 }
 
-const FLU_ITEMS: FluItem[] = [
-  {
-    id: "f1", category: "monetize",
-    title: "The Rate Card Every NYC Creator Should Have",
-    body: "NYC creator rates: 10K–50K followers → $500–$2K per sponsored post. 50K–200K → $2K–$8K. 200K+ → negotiate. Stop undercharging because someone said you're 'micro.' Micro with high engagement outperforms macro every time.",
-    badge: "RATE CARD", badge_color: "#2E7D32",
-    yande_note: "Your engagement rate is the number brands actually care about. Calculate it and know it before every conversation.",
-    cover_a: "#1B5E20", cover_b: "#388E3C", featured: true,
-  },
-  {
-    id: "f2", category: "brand_deal",
-    title: "How to Pitch a Brand Deal (Without an Agent)",
-    body: "Email subject: '[Your name] × [Brand Name] — partnership proposal.' Two paragraphs: who you are and why this brand aligns with your audience specifically. Attach your media kit. Always propose 3 tiers of partnership at 3 prices.",
-    badge: "BRAND DEAL", badge_color: "#0F4C81",
-    yande_note: "The brand already knows they want to reach your audience. You're not asking for a favor — you're proposing a business deal.",
-    cover_a: "#0D47A1", cover_b: "#1565C0",
-  },
-  {
-    id: "f3", category: "growth",
-    title: "The TikTok Hook Formula That's Actually Working Right Now",
-    body: "First 1.5 seconds: state the problem your viewer has right now. Not your solution — their problem. 'If you're doing X, stop.' or 'The reason Y keeps happening is...' Then deliver. No 10-second intros.",
-    badge: "CONTENT TIP", badge_color: "#C4005A",
-    yande_note: "The algorithm doesn't reward pretty — it rewards watch time. Hook first, everything else second.",
-    cover_a: "#880E4F", cover_b: "#C4005A",
-  },
-  {
-    id: "f4", category: "platform",
-    title: "Substack Is Having a Moment — Here's Why Creators Are Moving There",
-    body: "Creators with 10K+ TikTok or Instagram followers are launching Substack newsletters and hitting $2K–$5K/month within 6 months. It's owned content, no algorithm, direct to your audience. The free tier grows the paid.",
-    badge: "PLATFORM PICK", badge_color: GOLD,
-    yande_note: "Every creator should have an email list or a Substack. One policy change on TikTok and your audience disappears — own the relationship.",
-    cover_a: "#BF6F00", cover_b: GOLD,
-  },
-  {
-    id: "f5", category: "content",
-    title: "The Content Calendar System That Actually Works for Solo Creators",
-    body: "Batch 4 weeks of content in one Sunday. Theme each week (product week, personal story week, tips week, community week). Film everything in one day per week. If you're posting daily without batching, you'll burn out.",
-    badge: "WORKFLOW", badge_color: "#5B2D8E",
-    yande_note: "Consistency beats volume. Three times a week, batched in advance, beats daily chaos.",
-    cover_a: "#4A148C", cover_b: "#7B1FA2",
-  },
-];
+const FLU_ITEMS: FluItem[] = [];
 
-// ── Demo coworkers ────────────────────────────────────────────────────────────
-const COWORKERS = [
-  { name: "Amara T.", initial: "A", color: "#0F4C81", role: "Tech · Product",    status: "online" },
-  { name: "Nia B.",   initial: "N", color: "#7B1FA2", role: "Founder · Beauty",  status: "online" },
-  { name: "Kezia M.", initial: "K", color: "#C4005A", role: "Creator · Lifestyle", status: "online" },
-];
+const COWORKERS: { name: string; initial: string; color: string; role: string; status: string }[] = [];
 
 // ── Card components ───────────────────────────────────────────────────────────
 

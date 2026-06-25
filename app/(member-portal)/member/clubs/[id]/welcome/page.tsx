@@ -6,8 +6,7 @@ import Link from "next/link";
 const PINK = "#FF1F7D";
 const CREAM = "#FAF6F0";
 
-// Mock club name — real data layer comes later via Supabase
-const MOCK_CLUB_NAME = "Museum Girls";
+const MOCK_CLUB_NAME = "";
 
 const RULES = [
   "What happens in the club stays in the club — be a safe space for everyone",

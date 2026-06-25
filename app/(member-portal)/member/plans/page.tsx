@@ -13,7 +13,7 @@ import { DayScheduleView } from "@/app/components/portal/plans/day-schedule-view
 import { DayEditorSheet } from "@/app/components/portal/plans/day-editor-sheet";
 import { WalletTickets } from "@/app/components/portal/plans/wallet-tickets";
 import type { PlanRoom, View, DayContent } from "@/lib/plans/types";
-import { PLAN_ROOMS, MEMORY_EVENTS, POLAROID_ROTS } from "@/lib/plans/mock-data";
+import { MEMORY_EVENTS, POLAROID_ROTS } from "@/lib/plans/mock-data";
 import { PINK } from "@/lib/plans/constants";
 
 function PlansPageInner() {
@@ -26,7 +26,7 @@ function PlansPageInner() {
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>(PLAN_ROOMS);
+  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>([]);
   const [read, setRead]               = useState<Set<number>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editorDay, setEditorDay]     = useState<string | null>(null);

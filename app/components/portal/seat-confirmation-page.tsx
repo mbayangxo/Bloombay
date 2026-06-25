@@ -8,38 +8,28 @@ const PLUM  = "#1A0A2E";
 const IVORY = "#fdf4ec";
 const INK   = "#111111";
 
-// ── Demo seat data ────────────────────────────────────────────────────────────
+interface SeatData {
+  happening: string;
+  venue: string;
+  neighborhood: string;
+  date: string;
+  time: string;
+  table: string;
+  seat: string;
+  rsvpStatus: string;
+  price: number;
+  serviceFee: number;
+  total: number;
+  companions: { initial: string; color: string; name: string; chem: number }[];
+  yandeNote: string;
+}
 
-const SEAT = {
-  happening: "Dinner Society: June Edition",
-  venue: "Carbone",
-  neighborhood: "West Village",
-  date: "Saturday, June 21",
-  time: "7:00 PM",
-  table: "07",
-  seat: "B",
-  rsvpStatus: "CONFIRMED",
-  price: 65,
-  serviceFee: 5,
-  total: 70,
-  companions: [
-    { initial: "M", color: "#FF1F7D",  name: "Maya K.",   chem: 94 },
-    { initial: "A", color: "#C084FC",  name: "Amara D.",  chem: 88 },
-    { initial: "L", color: "#FF69B4",  name: "Leila M.",  chem: 79 },
-    { initial: "T", color: "#D97706",  name: "Tara L.",   chem: 85 },
-  ],
-  yandeNote: "You and Maya are 94% compatible — same clubs, same saved places. She's going to love that you're there.",
-};
 
 // ── Invite Sheet ──────────────────────────────────────────────────────────────
 
 function InviteSheet({ onClose }: { onClose: () => void }) {
   const [sent, setSent] = useState(false);
-  const candidates = [
-    { initial: "Z", color: "#0EA5E9", name: "Zara F.", chem: 91, clubs: ["Museum Girls", "Dinner Society"] },
-    { initial: "N", color: "#8B5CF6", name: "Naomi B.", chem: 83, clubs: ["Girl Tech Collective"] },
-    { initial: "F", color: "#FF69B4", name: "Fatima A.", chem: 76, clubs: ["African Girls Club"] },
-  ];
+  const candidates: { initial: string; color: string; name: string; chem: number; clubs: string[] }[] = [];
 
   return (
     <>
@@ -84,7 +74,8 @@ function InviteSheet({ onClose }: { onClose: () => void }) {
 
 export function SeatConfirmationPage() {
   const [showInvite, setShowInvite] = useState(false);
-  const s = SEAT;
+  const [s] = useState<SeatData | null>(null);
+  if (!s) return null;
 
   return (
     <div style={{ minHeight: "100dvh", background: IVORY }}>

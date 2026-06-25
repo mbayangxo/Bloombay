@@ -26,7 +26,7 @@ export function HappeningsInvitations({
         <p className="bb-accent-sm bb-happenings-confetti__intro">
           Celebrate the woman — open her invitation, join her night, or send a wish if you can&apos;t go.
         </p>
-        <Link href={`/member/happenings/confetti/${CONFETTI_INVITATIONS[0]?.id ?? "cf-birthday-lexi"}`} className="bb-confetti-hero-tile">
+        <Link href="/member/happenings/confetti" className="bb-confetti-hero-tile">
           <span className="bb-confetti-hero-tile__sparkle" aria-hidden>
             ✦
           </span>

@@ -1053,11 +1053,7 @@ function FlowerGallery({ earned }: { earned: EarnedFlower[] }) {
 // MAIN PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MOCK_EARNED: EarnedFlower[] = [
-  { flowerId: "pink-rose",      eventName: "Girls Dinner",  date: "May 10",   count: 3 },
-  { flowerId: "cherry-blossom", eventName: "Dinner Society",date: "May 2",    count: 1 },
-  { flowerId: "pink-tulip",     eventName: "Museum Girls",  date: "Apr 28",   count: 1 },
-];
+const MOCK_EARNED: EarnedFlower[] = [];
 
 export default function PassportPage() {
   const [templateIdx, setTemplateIdx] = useState(0);

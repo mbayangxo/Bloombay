@@ -38,12 +38,8 @@ const POLAROID_GRADIENTS = [
   "linear-gradient(135deg,#E8D4FF,#C4A0F0)",
 ];
 
-const MOCK_NOTES = [
-  { id: "1", author: "Amara K.", initial: "A", color: "#FF1F7D", text: "The oat milk latte here is genuinely life-changing. The barista remembered my name on the third visit ♡", time: "2h", gradient: POLAROID_GRADIENTS[0] },
-  { id: "2", author: "Nadia L.", initial: "N", color: "#A855F7", text: "Best corner spot for your creative mornings. I wrote half my thesis proposal here", time: "1d", gradient: POLAROID_GRADIENTS[1] },
-  { id: "3", author: "Zoe M.", initial: "Z", color: "#E87040", text: "Came for coffee stayed for the aesthetic. 10/10 would recommend for a solo date ✨", time: "3d", gradient: POLAROID_GRADIENTS[2] },
-  { id: "4", author: "Kemi B.", initial: "K", color: "#2E6B9E", text: "Saturday mornings with a cold brew and a book. This is my happy place", time: "5d", gradient: POLAROID_GRADIENTS[3] },
-];
+interface PlaceNote { id: string; author: string; initial: string; color: string; text: string; time: string; gradient: string; }
+const MOCK_NOTES: PlaceNote[] = [];
 
 type Tab = "overview" | "notes" | "photos" | "trail";
 
@@ -64,7 +60,7 @@ function Stars({ n, size = 11 }: { n: number; size?: number }) {
   );
 }
 
-function PolaroidNote({ note, index }: { note: typeof MOCK_NOTES[0]; index: number }) {
+function PolaroidNote({ note, index }: { note: PlaceNote; index: number }) {
   const rotations = ["-1.2deg","1.4deg","-0.7deg","1.1deg"];
   return (
     <div style={{

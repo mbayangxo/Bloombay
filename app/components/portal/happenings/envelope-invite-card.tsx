@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { INVITE_DEMO } from "@/lib/events/mock-data";
+import type { EventInvite } from "@/lib/events/mock-data";
 
-export function EnvelopeInviteCard({ c, onOpen }: { c: typeof INVITE_DEMO[0]; onOpen: () => void }) {
+export function EnvelopeInviteCard({ c, onOpen }: { c: EventInvite; onOpen: () => void }) {
   const [opened, setOpened] = useState(false);
 
   function handleOpen() {

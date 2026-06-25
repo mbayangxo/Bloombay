@@ -494,16 +494,10 @@ function WeeklyScheduleMenu({ items, brandName, tagline, accentColor, fontFamily
 
 // ── 5. DailySpecialsMenu ──────────────────────────────────────────────────
 
-const MOCK_ITEMS: MenuItem[] = [
-  { item: "Espresso", price: "$4.50", note: "Double shot, silky micro-foam" },
-  { item: "Butter Croissant", price: "$3.75", note: "Laminated, baked fresh at 6am" },
-  { item: "Avocado Toast", price: "$12.00", note: "Sourdough, chili flake, lemon" },
-];
-
 function DailySpecialsMenu({ items, brandName, accentColor, fontFamily }: MenuTemplateProps) {
   const accent = accentColor ?? PINK;
   const titleFont = fontFamily ?? "var(--font-playfair)";
-  const displayed = (items.length > 0 ? items : MOCK_ITEMS).slice(0, 4);
+  const displayed = items.slice(0, 4);
 
   return (
     <div style={{

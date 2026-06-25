@@ -6,17 +6,12 @@ import Link from "next/link";
 const PINK = "#FF1F7D";
 const CREAM = "#FAF6F0";
 
-// Mock club data — real data layer comes later via Supabase
 const MOCK_CLUB = {
-  name: "Museum Girls",
+  name: "",
   membershipType: "Application Only" as "Free" | "Application Only",
   isPaid: false,
   price: null as number | null,
-  rules: [
-    "Respect every woman's story — no unsolicited advice",
-    "What's shared in the club stays in the club",
-    "Show up with intention. Quality over quantity.",
-  ],
+  rules: [] as string[],
 };
 
 type Step = 1 | 2 | 3;

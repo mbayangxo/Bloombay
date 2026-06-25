@@ -37,50 +37,7 @@ interface ShopItem {
   sharedClub?: string;
 }
 
-const MOCK_ITEMS: ShopItem[] = [
-  {
-    id: "1", brand: "Glow by Nia", seller: "Nia B.", seller_initial: "N", seller_color: PINK,
-    category: "beauty", name: "Melanin Glow Oil",
-    description: "Small-batch face oil formulated for dark skin tones. Uses Marula, Baobab + Rosehip. No synthetics.",
-    price: "£42", gradientA: "#F7971E", gradientB: "#FFD200",
-    badge: "BB FOUNDER", saves: 89, sharedClub: "The Reading Room",
-  },
-  {
-    id: "2", brand: "Zara Styles", seller: "Zara F.", seller_initial: "Z", seller_color: "#C084FC",
-    category: "fashion", name: "Vintage Styling Session",
-    description: "1hr virtual wardrobe audit. She'll help you shop your own closet before buying anything new.",
-    price: "£55", gradientA: "#C084FC", gradientB: "#818CF8",
-    badge: "TOP SELLER", saves: 134, sharedClub: "The Closet",
-  },
-  {
-    id: "3", brand: "Amara's Kitchen", seller: "Amara T.", seller_initial: "A", seller_color: "#E8A050",
-    category: "food", name: "West African Spice Bundle",
-    description: "Hand-blended suya spice, egusi mix, and jollof seasoning. Ships UK-wide.",
-    price: "£18", gradientA: "#F7971E", gradientB: "#F44336",
-    saves: 67, sharedClub: "African Girls Club",
-  },
-  {
-    id: "4", brand: "Temi Digital", seller: "Temi A.", seller_initial: "T", seller_color: "#83C5A0",
-    category: "digital", name: "Natural Hair Care Guide PDF",
-    description: "57-page guide covering porosity, growth, protective styles, and product ingredients to avoid.",
-    price: "£12", gradientA: "#84FAB0", gradientB: "#8FD3F4",
-    badge: "NEW", saves: 201,
-  },
-  {
-    id: "5", brand: "Studio Sofia", seller: "Sofia W.", seller_initial: "S", seller_color: "#FF69B4",
-    category: "wellness", name: "1:1 Pilates Drop-In",
-    description: "Private reformer session in Williamsburg. Beginner-friendly. DM to book.",
-    price: "$65", gradientA: "#FFB3D9", gradientB: PINK,
-    saves: 45, sharedClub: "Wellness & Pilates",
-  },
-  {
-    id: "6", brand: "Kezia Creates", seller: "Kezia M.", seller_initial: "K", seller_color: "#EC4899",
-    category: "fashion", name: "Custom Press-On Nails",
-    description: "Bespoke handmade press-ons. You send her your inspo, she builds the set. 2-week turnaround.",
-    price: "£35", gradientA: "#FF9A9E", gradientB: "#FAD0C4",
-    saves: 178, sharedClub: "Beauty & Nails",
-  },
-];
+const MOCK_ITEMS: ShopItem[] = [];
 
 // ── Shop card ─────────────────────────────────────────────────────────────────
 

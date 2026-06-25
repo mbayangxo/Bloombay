@@ -99,50 +99,7 @@ function rowToFilmPost(row: ScreeningRow): FilmPost {
 
 // ── Fallback mock posts (used if API is unavailable) ─────────────────────────
 
-const MOCK_POSTS: FilmPost[] = [
-  {
-    id: "1", author_name: "Amara T.", author_initial: "A", author_color: REEL,
-    category: "drama", title: "Caramel", year: 2007,
-    text: "Nadine Labaki filmed this in actual salons with real customers in the background. You feel everything. Lebanese cinema doesn't get enough shine.",
-    rating: 5, blooms: 204, poster_a: "#B8860B", poster_b: "#8B4513",
-    timeAgo: "2h ago", platform: "MUBI",
-  },
-  {
-    id: "2", author_name: "Nia B.", author_initial: "N", author_color: "#C084FC",
-    category: "thriller", title: "Parasite", year: 2019,
-    text: "The third time hits different. First time you're tense. Second time you notice every plant. Third time you're just sitting there thinking about your own class anxiety.",
-    rating: 5, blooms: 341, poster_a: "#1A237E", poster_b: "#283593",
-    timeAgo: "5h ago", platform: "Netflix",
-  },
-  {
-    id: "3", author_name: "Kezia M.", author_initial: "K", author_color: PINK,
-    category: "romance", title: "Portrait of a Lady on Fire", year: 2019,
-    text: "I was not prepared. I had to sit in silence for 20 minutes after. The way longing can be a whole film. The score. The look at the end. Lord.",
-    rating: 5, blooms: 398, poster_a: "#C62828", poster_b: "#D32F2F",
-    timeAgo: "1d ago", platform: "MUBI",
-  },
-  {
-    id: "4", author_name: "Temi A.", author_initial: "T", author_color: "#83C5A0",
-    category: "documentary", title: "Miss Americana", year: 2020,
-    text: "I know. I know. But genuinely — there's a scene where she talks about learning to have opinions and I felt it. Also the eating disorder part is handled carefully.",
-    rating: 4, blooms: 112, poster_a: "#F9A825", poster_b: "#F57F17",
-    timeAgo: "2d ago", platform: "Netflix",
-  },
-  {
-    id: "5", author_name: "Sofia W.", author_initial: "S", author_color: "#FF69B4",
-    category: "horror", title: "Midsommar", year: 2019,
-    text: "Ari Aster made grief look like a horror film and I think about the flower crown scene constantly. This is actually a breakup movie and I stand by that.",
-    rating: 4, blooms: 178, poster_a: "#33691E", poster_b: "#558B2F",
-    timeAgo: "3d ago", platform: "Amazon",
-  },
-  {
-    id: "6", author_name: "Zara F.", author_initial: "Z", author_color: "#E8A050",
-    category: "indie", title: "Moonlight", year: 2016,
-    text: "The non-linear structure. The colour grading in each chapter. Barry Jenkins does more with silence than most directors do with dialogue. Rewatched 4 times.",
-    rating: 5, blooms: 267, poster_a: "#0D47A1", poster_b: "#1565C0",
-    timeAgo: "4d ago", platform: "Prime",
-  },
-];
+const MOCK_POSTS: FilmPost[] = [];
 
 // ── Film card ─────────────────────────────────────────────────────────────────
 
