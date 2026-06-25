@@ -7,6 +7,7 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
 import { welcomeNewMember } from "@/lib/yande/community-coordinator";
+import { compressImage, blobToFile } from "@/lib/images/compress";
 
 // ─── STATIC DATA ────────────────────────────────────────────────────────────
 
@@ -885,18 +886,21 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selfieFile) {
-        const ext = selfieFile.name.split(".").pop() ?? "jpg";
+        // Compress via canvas — strips EXIF and forces WebP
+        const compressed = await compressImage(selfieFile, { maxWidthPx: 1400, maxSizeKB: 800 });
+        const webpFile = blobToFile(compressed, `${crypto.randomUUID()}.webp`);
+        // UUID filename in user's folder — no predictable path, no extension spoofing
+        const storagePath = `${user.id}/${crypto.randomUUID()}.webp`;
         const { data: upload, error: upErr } = await supabase.storage
           .from("verification")
-          .upload(`${user.id}/selfie.${ext}`, selfieFile, { upsert: true });
+          .upload(storagePath, webpFile, { upsert: false, contentType: "image/webp" });
         if (!upErr && upload) {
-          const { data: urlData } = supabase.storage.from("verification").getPublicUrl(upload.path);
+          // Store storage path, not a public URL — bucket is private; signed URLs via admin API
           await supabase.from("profiles").update({
-            verification_photo_url: urlData.publicUrl,
+            verification_photo_url: upload.path,
             verification_status: "pending",
           }).eq("id", user.id);
         } else {
-          // Storage not ready — mark pending anyway
           await supabase.from("profiles").update({ verification_status: "pending" }).eq("id", user.id);
         }
       }
