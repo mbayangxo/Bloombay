@@ -82,29 +82,28 @@
   --radius-lg:   20px;
   --radius-pill: 100px;
 
-  /* ── Universal page tokens (switch in night mode) ── */
-  --bb-page-bg:        #FFF0F6;   /* blush pink — every page background */
-  --bb-page-card:      #FFFFFF;   /* white cards on blush */
-  --bb-page-card-up:   #FFF8FB;   /* elevated card */
-  --bb-page-text:      #1C1B1C;   /* near-black text */
-  --bb-page-text-2:    rgba(28,27,28,0.65);
-  --bb-page-text-muted:rgba(28,27,28,0.40);
-  --bb-page-pink:      #FF1F7D;   /* hot pink — universal accent */
-  --bb-page-barbie:    #FF69B4;   /* Barbie pink */
-  --bb-page-border:    rgba(255,31,125,0.12);
+  /* ── Universal page tokens (Pretty in Pink) ──── */
+  --bb-page-bg:          #FFF0F6;
+  --bb-page-card:        #FFFFFF;
+  --bb-page-card-up:     #FFF8FB;
+  --bb-page-text:        #1C1B1C;
+  --bb-page-text-2:      rgba(28,27,28,0.65);
+  --bb-page-text-muted:  rgba(28,27,28,0.40);
+  --bb-page-pink:        #FF1F7D;
+  --bb-page-barbie:      #FF69B4;
+  --bb-page-border:      rgba(255,31,125,0.12);
   --bb-page-border-strong: rgba(255,31,125,0.30);
 }
 
-/* ── Night mode overrides ── */
 [data-theme="night"] {
-  --bb-page-bg:         #1A0414;                /* deep dark rose */
-  --bb-page-card:       #260A1C;
-  --bb-page-card-up:    #320C24;
-  --bb-page-text:       rgba(255,235,245,0.95);
-  --bb-page-text-2:     rgba(255,200,230,0.70);
-  --bb-page-text-muted: rgba(255,180,215,0.42);
-  --bb-page-pink:       #FF1F7D;
-  --bb-page-barbie:     #FF69B4;
-  --bb-page-border:     rgba(255,31,125,0.20);
+  --bb-page-bg:          #1A0414;
+  --bb-page-card:        #260A1C;
+  --bb-page-card-up:     #320C24;
+  --bb-page-text:        rgba(255,235,245,0.95);
+  --bb-page-text-2:      rgba(255,200,230,0.70);
+  --bb-page-text-muted:  rgba(255,180,215,0.42);
+  --bb-page-pink:        #FF1F7D;
+  --bb-page-barbie:      #FF69B4;
+  --bb-page-border:      rgba(255,31,125,0.20);
   --bb-page-border-strong: rgba(255,31,125,0.45);
 }
