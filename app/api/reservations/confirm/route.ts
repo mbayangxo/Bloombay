@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendSMS } from "@/lib/notifications/sms";
 import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
@@ -27,24 +26,10 @@ export async function PATCH(req: NextRequest) {
     .from("table_reservations")
     .update(update)
     .eq("id", body.id)
-    .select("*, profiles(first_name, full_name, phone_number)")
+    .select("*")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Notify user via SMS
-  const res = reservation as {
-    restaurant_name: string; date: string; time: string; party_size: number;
-    profiles: { first_name: string | null; full_name: string | null; phone_number: string | null } | null;
-  };
-  const profile = res.profiles;
-  if (profile?.phone_number) {
-    const name = profile.first_name ?? profile.full_name?.split(" ")[0] ?? "Bloomie";
-    const smsBody = body.status === "confirmed"
-      ? `Hey ${name} 🌸\n\nYour table at ${res.restaurant_name} is confirmed! ✓\n\n📅 ${res.date} at ${res.time} for ${res.party_size}\n\nSee you there ✿\n\nbloombay.app`
-      : `Hey ${name} 🌸\n\nUnfortunately ${res.restaurant_name} couldn't accommodate your request for ${res.date}. We're sorry!\n\nBrowse more options → bloombay.app/member/city`;
-    await sendSMS(profile.phone_number, smsBody);
-  }
 
   // In-app notification
   const resAny = reservation as { user_id: string; restaurant_name: string; date: string; time: string };

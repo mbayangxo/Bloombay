@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { sendSMS } from "@/lib/notifications/sms";
 import { getAuthUser } from "@/lib/auth/get-user";
 
 function admin() {
@@ -52,19 +51,6 @@ export async function POST(req: NextRequest) {
     body: `We've sent your request to ${body.restaurant_name} for ${body.date} at ${body.time}. We'll confirm within 24h.`,
     link: "/member/lounge",
   });
-
-  // Fetch user phone for SMS confirmation
-  const { data: profile } = await db
-    .from("profiles")
-    .select("first_name, full_name, phone_number")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.phone_number) {
-    const name = profile.first_name ?? profile.full_name?.split(" ")[0] ?? "Bloomie";
-    const smsBody = `Hey ${name} 🌸\n\nYour table request at ${body.restaurant_name} for ${body.party_size} on ${body.date} at ${body.time} is in!\n\nWe'll confirm within 24 hours.\n\nbloombay.app`;
-    await sendSMS(profile.phone_number, smsBody);
-  }
 
   return NextResponse.json({ ok: true, id: (data as { id: string }).id });
 }

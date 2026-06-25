@@ -4,8 +4,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendSMS } from "@/lib/notifications/sms";
-
 function admin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -102,13 +100,6 @@ export async function POST(req: NextRequest) {
         action_url: "/member/clubs",
       });
 
-      let smsOk = false;
-      if (p.phone) {
-        const msg = `${name}, you've been on BloomBay for 3 days 🌸 Have you found your club yet? Women who join in week 1 stay 3× longer → bloombay.app/member/clubs`;
-        const result = await sendSMS(p.phone, msg);
-        smsOk = result.ok;
-      }
-
       const { data: action } = await supabase.from("yande_actions").insert({
         agent: "community_coordinator",
         action_type: "day3_nudge",
@@ -116,7 +107,7 @@ export async function POST(req: NextRequest) {
         status: "completed",
         target_user_id: p.id,
         triggered_by: "scheduled",
-        metadata: { name, sms_sent: smsOk, phone_on_file: !!p.phone },
+        metadata: { name },
       }).select("id").single();
 
       await recordTouch(supabase, p.id, "day3_nudge", (action as { id: string } | null)?.id);
@@ -140,13 +131,6 @@ export async function POST(req: NextRequest) {
         action_url: "/member/happenings",
       });
 
-      let smsOk = false;
-      if (p.phone) {
-        const msg = `${name} ✦ One week on BloomBay. There are women in NYC gathering this weekend — come find them → bloombay.app/member/happenings`;
-        const result = await sendSMS(p.phone, msg);
-        smsOk = result.ok;
-      }
-
       const { data: action } = await supabase.from("yande_actions").insert({
         agent: "community_coordinator",
         action_type: "day7_nudge",
@@ -154,7 +138,7 @@ export async function POST(req: NextRequest) {
         status: "completed",
         target_user_id: p.id,
         triggered_by: "scheduled",
-        metadata: { name, sms_sent: smsOk, phone_on_file: !!p.phone },
+        metadata: { name },
       }).select("id").single();
 
       await recordTouch(supabase, p.id, "day7_nudge", (action as { id: string } | null)?.id);
