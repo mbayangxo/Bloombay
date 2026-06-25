@@ -8,6 +8,7 @@ import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
 import { welcomeNewMember } from "@/lib/yande/community-coordinator";
 import { compressImage, blobToFile } from "@/lib/images/compress";
+import { validateUpload } from "@/lib/storage/validate";
 
 // ─── STATIC DATA ────────────────────────────────────────────────────────────
 
@@ -886,16 +887,30 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selfieFile) {
+        // Validate before touching storage
+        const valid = await validateUpload(selfieFile, "verification");
+        if (!valid.ok) throw new Error(valid.error);
+
         // Compress via canvas — strips EXIF and forces WebP
         const compressed = await compressImage(selfieFile, { maxWidthPx: 1400, maxSizeKB: 800 });
         const webpFile = blobToFile(compressed, `${crypto.randomUUID()}.webp`);
-        // UUID filename in user's folder — no predictable path, no extension spoofing
+
+        // Delete any previous verification files for this user before uploading
+        const { data: existingFiles } = await supabase.storage
+          .from("verification")
+          .list(user.id);
+        if (existingFiles && existingFiles.length > 0) {
+          const paths = existingFiles.map(f => `${user.id}/${f.name}`);
+          await supabase.storage.from("verification").remove(paths);
+        }
+
+        // UUID filename — no predictable path, no extension spoofing
         const storagePath = `${user.id}/${crypto.randomUUID()}.webp`;
         const { data: upload, error: upErr } = await supabase.storage
           .from("verification")
           .upload(storagePath, webpFile, { upsert: false, contentType: "image/webp" });
         if (!upErr && upload) {
-          // Store storage path, not a public URL — bucket is private; signed URLs via admin API
+          // Store storage path, not a public URL — bucket is private; admin accesses via signed URL
           await supabase.from("profiles").update({
             verification_photo_url: upload.path,
             verification_status: "pending",
