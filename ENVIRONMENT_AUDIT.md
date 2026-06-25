@@ -101,7 +101,7 @@ Run audit log table: `cron_logs` (see `CRON_AUDIT.md`).
 
 | Variable | Status | Action |
 |----------|--------|--------|
-| `ADMIN_PASSWORD` | **Deprecated** | Not read from `process.env` anywhere. `/api/admin/login` returns `410`. Admin uses Supabase auth at `/admin/login`. Remove from README and stale UI copy when approved. |
+| `ADMIN_PASSWORD` | **Removed** | Not read from `process.env`. `/api/admin/login` returns `410`. Do not set in Vercel. |
 | `WHOP_*` | Legacy | Migrate fully to Stripe or document as optional |
 | `lib/supabase.ts` | Legacy client | Prefer `lib/supabase/server` + `client` |
 
@@ -188,7 +188,7 @@ Rotate immediately if a key appeared in Claude chats, screenshots, or Git histor
 
 ## Follow-up (requires approval — no UI)
 
-1. Remove `ADMIN_PASSWORD` mentions from `README.md`, `lib/auth/session.ts`, `bloombay-login.tsx`
-2. Remove dead `signInFounderWithDashboardPassword` path in `session.ts`
+1. ~~Remove `ADMIN_PASSWORD` mentions from `README.md`~~ ✅
+2. Remove stale copy in `lib/auth/session.ts`, `bloombay-login.tsx` if any remains
 3. Add `.env.example` with non-secret placeholders only
 4. Consolidate `TWILIO_PHONE_NUMBER` vs `TWILIO_FROM_NUMBER` naming
