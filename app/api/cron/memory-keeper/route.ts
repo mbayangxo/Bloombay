@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runMemoryKeeper } from "@/lib/yande/memory-keeper";
 import { createClient } from "@supabase/supabase-js";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -14,21 +15,29 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = cronGuard(req, "memory-keeper");
+  if (guard) return guard;
+
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
   }
 
-  const result = await runMemoryKeeper();
+  try {
+    const result = await runMemoryKeeper();
 
-  await admin().from("yande_actions").insert({
-    agent: "memory_keeper",
-    action_type: "daily_memory_sweep",
-    risk_level: "low",
-    status: "completed",
-    triggered_by: "scheduled",
-    metadata: result,
-  });
+    await admin().from("yande_actions").insert({
+      agent: "memory_keeper",
+      action_type: "daily_memory_sweep",
+      risk_level: "low",
+      status: "completed",
+      triggered_by: "scheduled",
+      metadata: result,
+    });
 
-  return NextResponse.json({ ok: true, ...result });
+    await logCronRun("memory-keeper", "ok", result as Record<string, unknown>);
+    return NextResponse.json({ ok: true, ...result });
+  } catch (err) {
+    await logCronRun("memory-keeper", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

@@ -4,6 +4,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cronGuard, isDryRun, logCronRun, cronMaxRecords } from "@/lib/cron-guard";
+
 function admin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,13 +43,16 @@ async function recordTouch(supabase: ReturnType<typeof admin>, userId: string, t
 }
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = cronGuard(req, "community-coordinator");
+  if (guard) return guard;
+
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
   }
 
   const supabase = admin();
   const now = new Date();
+  const max = cronMaxRecords(50);
 
   // Members who joined 3 days ago (±12h window)
   const day3Start = new Date(now.getTime() - 3.5 * 86400000).toISOString();
@@ -57,107 +62,115 @@ export async function POST(req: NextRequest) {
   const day7Start = new Date(now.getTime() - 7.5 * 86400000).toISOString();
   const day7End   = new Date(now.getTime() - 6.5 * 86400000).toISOString();
 
-  const [{ data: day3 }, { data: day7 }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, first_name, full_name, phone")
-      .eq("onboarding_completed", true)
-      .gte("created_at", day3Start)
-      .lt("created_at", day3End),
-    supabase
-      .from("profiles")
-      .select("id, first_name, full_name, phone")
-      .eq("onboarding_completed", true)
-      .gte("created_at", day7Start)
-      .lt("created_at", day7End),
-  ]);
+  try {
+    const [{ data: day3 }, { data: day7 }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, first_name, full_name, phone")
+        .eq("onboarding_completed", true)
+        .gte("created_at", day3Start)
+        .lt("created_at", day3End)
+        .limit(max),
+      supabase
+        .from("profiles")
+        .select("id, first_name, full_name, phone")
+        .eq("onboarding_completed", true)
+        .gte("created_at", day7Start)
+        .lt("created_at", day7End)
+        .limit(max),
+    ]);
 
-  // Filter out anyone who already received the touch
-  const [{ data: existing3 }, { data: existing7 }] = await Promise.all([
-    supabase.from("yande_member_touches").select("user_id").eq("touch_type", "day3_nudge").in("user_id", (day3 ?? []).map(p => p.id)),
-    supabase.from("yande_member_touches").select("user_id").eq("touch_type", "day7_nudge").in("user_id", (day7 ?? []).map(p => p.id)),
-  ]);
+    // Filter out anyone who already received the touch
+    const [{ data: existing3 }, { data: existing7 }] = await Promise.all([
+      supabase.from("yande_member_touches").select("user_id").eq("touch_type", "day3_nudge").in("user_id", (day3 ?? []).map(p => p.id)),
+      supabase.from("yande_member_touches").select("user_id").eq("touch_type", "day7_nudge").in("user_id", (day7 ?? []).map(p => p.id)),
+    ]);
 
-  const sent3 = new Set((existing3 ?? []).map((r: { user_id: string }) => r.user_id));
-  const sent7 = new Set((existing7 ?? []).map((r: { user_id: string }) => r.user_id));
+    const sent3 = new Set((existing3 ?? []).map((r: { user_id: string }) => r.user_id));
+    const sent7 = new Set((existing7 ?? []).map((r: { user_id: string }) => r.user_id));
 
-  const pending3 = (day3 ?? []).filter(p => !sent3.has(p.id)) as Profile[];
-  const pending7 = (day7 ?? []).filter(p => !sent7.has(p.id)) as Profile[];
+    const pending3 = (day3 ?? []).filter(p => !sent3.has(p.id)) as Profile[];
+    const pending7 = (day7 ?? []).filter(p => !sent7.has(p.id)) as Profile[];
 
-  let processed = 0;
-  let errors = 0;
+    let processed = 0;
+    let errors = 0;
 
-  // ── Day-3 nudges ─────────────────────────────────────────────────────────
-  for (const p of pending3) {
-    try {
-      const name = firstName(p);
+    // ── Day-3 nudges ─────────────────────────────────────────────────────────
+    for (const p of pending3) {
+      try {
+        const name = firstName(p);
 
-      await supabase.from("notifications").insert({
-        user_id: p.id,
-        type: "intro",
-        title: "Find your people. 🌺",
-        body: "You've been here 3 days — have you joined a club yet? Women who join a club in their first week are 3× more likely to attend a gathering.",
-        action_url: "/member/clubs",
-      });
+        await supabase.from("notifications").insert({
+          user_id: p.id,
+          type: "intro",
+          title: "Find your people. 🌺",
+          body: "You've been here 3 days — have you joined a club yet? Women who join a club in their first week are 3× more likely to attend a gathering.",
+          action_url: "/member/clubs",
+        });
 
-      const { data: action } = await supabase.from("yande_actions").insert({
-        agent: "community_coordinator",
-        action_type: "day3_nudge",
-        risk_level: "low",
-        status: "completed",
-        target_user_id: p.id,
-        triggered_by: "scheduled",
-        metadata: { name },
-      }).select("id").single();
+        const { data: action } = await supabase.from("yande_actions").insert({
+          agent: "community_coordinator",
+          action_type: "day3_nudge",
+          risk_level: "low",
+          status: "completed",
+          target_user_id: p.id,
+          triggered_by: "scheduled",
+          metadata: { name },
+        }).select("id").single();
 
-      await recordTouch(supabase, p.id, "day3_nudge", (action as { id: string } | null)?.id);
-      processed++;
-    } catch (err) {
-      console.error("[Community Coordinator] day3 error for", p.id, err);
-      errors++;
+        await recordTouch(supabase, p.id, "day3_nudge", (action as { id: string } | null)?.id);
+        processed++;
+      } catch (err) {
+        console.error("[Community Coordinator] day3 error for", p.id, err);
+        errors++;
+      }
     }
-  }
 
-  // ── Day-7 nudges ─────────────────────────────────────────────────────────
-  for (const p of pending7) {
-    try {
-      const name = firstName(p);
+    // ── Day-7 nudges ─────────────────────────────────────────────────────────
+    for (const p of pending7) {
+      try {
+        const name = firstName(p);
 
-      await supabase.from("notifications").insert({
-        user_id: p.id,
-        type: "celebrate",
-        title: `One week in, ${name}. ✦`,
-        body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
-        action_url: "/member/happenings",
-      });
+        await supabase.from("notifications").insert({
+          user_id: p.id,
+          type: "celebrate",
+          title: `One week in, ${name}. ✦`,
+          body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
+          action_url: "/member/happenings",
+        });
 
-      const { data: action } = await supabase.from("yande_actions").insert({
-        agent: "community_coordinator",
-        action_type: "day7_nudge",
-        risk_level: "low",
-        status: "completed",
-        target_user_id: p.id,
-        triggered_by: "scheduled",
-        metadata: { name },
-      }).select("id").single();
+        const { data: action } = await supabase.from("yande_actions").insert({
+          agent: "community_coordinator",
+          action_type: "day7_nudge",
+          risk_level: "low",
+          status: "completed",
+          target_user_id: p.id,
+          triggered_by: "scheduled",
+          metadata: { name },
+        }).select("id").single();
 
-      await recordTouch(supabase, p.id, "day7_nudge", (action as { id: string } | null)?.id);
-      processed++;
-    } catch (err) {
-      console.error("[Community Coordinator] day7 error for", p.id, err);
-      errors++;
+        await recordTouch(supabase, p.id, "day7_nudge", (action as { id: string } | null)?.id);
+        processed++;
+      } catch (err) {
+        console.error("[Community Coordinator] day7 error for", p.id, err);
+        errors++;
+      }
     }
-  }
 
-  await logAction(supabase, {
-    action_type: "daily_nudge_batch",
-    metadata: {
-      processed,
+    await logAction(supabase, {
+      action_type: "daily_nudge_batch",
+      metadata: { processed, errors, day3_candidates: pending3.length, day7_candidates: pending7.length },
+    });
+
+    await logCronRun("community-coordinator", "ok", {
+      records_processed: processed,
       errors,
-      day3_candidates: pending3.length,
-      day7_candidates: pending7.length,
-    },
-  });
-
-  return NextResponse.json({ ok: true, processed, errors });
+      day3: pending3.length,
+      day7: pending7.length,
+    });
+    return NextResponse.json({ ok: true, processed, errors });
+  } catch (err) {
+    await logCronRun("community-coordinator", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

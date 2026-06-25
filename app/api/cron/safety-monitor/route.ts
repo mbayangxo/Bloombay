@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reviewPendingReports } from "@/lib/yande/safety";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = cronGuard(req, "safety-monitor");
+  if (guard) return guard;
+
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
   }
 
-  const result = await reviewPendingReports();
-  return NextResponse.json({ ok: true, ...result });
+  try {
+    const result = await reviewPendingReports();
+    await logCronRun("safety-monitor", "ok", result as Record<string, unknown>);
+    return NextResponse.json({ ok: true, ...result });
+  } catch (err) {
+    await logCronRun("safety-monitor", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

@@ -13,13 +13,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
+import { cronGuard, isDryRun, logCronRun, cronMaxRecords } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = cronGuard(req, "city-intelligence");
+  if (guard) return guard;
+
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
   }
 
   const supabase = createClient(
@@ -27,37 +28,48 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
+  // Cap per-source inserts to prevent runaway writes on large scrape runs
+  const maxPerSource = cronMaxRecords(30);
+
   const results: { source: string; found: number; inserted: number }[] = [];
 
-  // Run all sources in parallel for speed
-  const [tiktokItems, yelpItems, googleItems, eventbriteItems, eaterItems, timeoutItems] = await Promise.all([
-    scrapeTikTokNYC(),       // TikTok: trending hashtags → what women are posting about
-    scrapeYelpNYC(),         // Yelp: top-rated & recently opened NYC spots
-    scrapeGooglePlaces(),    // Google Places: trending NYC places by category
-    scrapeEventbrite(),      // Eventbrite: pop-ups, festivals, brand activations
-    scrapeEaterNYC(),        // Eater NYC: new openings + restaurant news
-    scrapeTimeOut(),         // Time Out NYC: curated weekly picks
-  ]);
+  try {
+    // Run all sources in parallel for speed
+    const [tiktokItems, yelpItems, googleItems, eventbriteItems, eaterItems, timeoutItems] = await Promise.all([
+      scrapeTikTokNYC(),
+      scrapeYelpNYC(),
+      scrapeGooglePlaces(),
+      scrapeEventbrite(),
+      scrapeEaterNYC(),
+      scrapeTimeOut(),
+    ]);
 
-  const [ti, yi, gi, ei, eati, toi] = await Promise.all([
-    insertSpots(supabase, tiktokItems,     "TikTok NYC"),
-    insertSpots(supabase, yelpItems,       "Yelp"),
-    insertSpots(supabase, googleItems,     "Google Places"),
-    insertSpots(supabase, eventbriteItems, "Eventbrite"),
-    insertSpots(supabase, eaterItems,      "Eater NYC"),
-    insertSpots(supabase, timeoutItems,    "Time Out NYC"),
-  ]);
+    const [ti, yi, gi, ei, eati, toi] = await Promise.all([
+      insertSpots(supabase, tiktokItems.slice(0, maxPerSource),     "TikTok NYC"),
+      insertSpots(supabase, yelpItems.slice(0, maxPerSource),       "Yelp"),
+      insertSpots(supabase, googleItems.slice(0, maxPerSource),     "Google Places"),
+      insertSpots(supabase, eventbriteItems.slice(0, maxPerSource), "Eventbrite"),
+      insertSpots(supabase, eaterItems.slice(0, maxPerSource),      "Eater NYC"),
+      insertSpots(supabase, timeoutItems.slice(0, maxPerSource),    "Time Out NYC"),
+    ]);
 
-  results.push(
-    { source: "TikTok NYC",    found: tiktokItems.length,     inserted: ti   },
-    { source: "Yelp",          found: yelpItems.length,        inserted: yi   },
-    { source: "Google Places", found: googleItems.length,      inserted: gi   },
-    { source: "Eventbrite",    found: eventbriteItems.length,  inserted: ei   },
-    { source: "Eater NYC",     found: eaterItems.length,       inserted: eati },
-    { source: "Time Out NYC",  found: timeoutItems.length,     inserted: toi  },
-  );
+    const totalInserted = ti + yi + gi + ei + eati + toi;
 
-  return NextResponse.json({ ok: true, results, week_of: currentMonday() });
+    results.push(
+      { source: "TikTok NYC",    found: tiktokItems.length,     inserted: ti   },
+      { source: "Yelp",          found: yelpItems.length,        inserted: yi   },
+      { source: "Google Places", found: googleItems.length,      inserted: gi   },
+      { source: "Eventbrite",    found: eventbriteItems.length,  inserted: ei   },
+      { source: "Eater NYC",     found: eaterItems.length,       inserted: eati },
+      { source: "Time Out NYC",  found: timeoutItems.length,     inserted: toi  },
+    );
+
+    await logCronRun("city-intelligence", "ok", { results, records_processed: totalInserted, week_of: currentMonday() });
+    return NextResponse.json({ ok: true, results, week_of: currentMonday() });
+  } catch (err) {
+    await logCronRun("city-intelligence", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }
 
 // ── TikTok via Apify ─────────────────────────────────────────────────────────

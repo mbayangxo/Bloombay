@@ -35,6 +35,11 @@ export function cronMaxRecords(fallback = 100): number {
   return isNaN(val) ? fallback : val;
 }
 
+/** Returns true when CRON_DRY_RUN=true — gate all writes behind this. */
+export function isDryRun(): boolean {
+  return process.env.CRON_DRY_RUN === "true";
+}
+
 /** Log a cron run result to the cron_logs table (best-effort, never throws). */
 export async function logCronRun(
   job: string,
@@ -46,8 +51,10 @@ export async function logCronRun(
     await db.from("cron_logs").insert({
       job,
       result,
-      details: details ?? null,
-      ran_at: new Date().toISOString(),
+      details:           details ?? null,
+      records_processed: typeof details?.records_processed === "number" ? details.records_processed : null,
+      error_message:     typeof details?.error === "string" ? details.error : null,
+      ran_at:            new Date().toISOString(),
     });
   } catch {
     // Never let logging break the cron job itself

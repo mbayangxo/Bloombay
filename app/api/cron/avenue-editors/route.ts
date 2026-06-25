@@ -16,11 +16,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { buildEditorContext } from "@/lib/actions/editor-instructions";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = cronGuard(req, "avenue-editors");
+  if (guard) return guard;
+
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
   }
 
   const supabase = createClient(
@@ -30,22 +33,28 @@ export async function POST(req: NextRequest) {
 
   const results: Record<string, number> = {};
 
-  // Scrape TikTok for work sentiment before generating Girl Working content
-  const workTrends = await scrapeWorkTikTok();
+  try {
+    const workTrends = await scrapeWorkTikTok();
 
-  await Promise.all([
-    runEditor(supabase, MAGAZINE_EDITOR).then(n  => { results.magazine  = n; }),
-    runEditor(supabase, BOOK_EDITOR).then(n       => { results.book      = n; }),
-    runEditor(supabase, SCREENING_EDITOR).then(n  => { results.screening = n; }),
-    runEditor(supabase, WELLNESS_EDITOR).then(n   => { results.wellness  = n; }),
-    runEditor(supabase, HANGER_EDITOR).then(n     => { results.hanger    = n; }),
-    runEditor(supabase, VANITY_EDITOR).then(n     => { results.vanity    = n; }),
-    runEditor(supabase, WALL_EDITOR).then(n       => { results.wall      = n; }),
-    runEditor(supabase, buildWorkingEditor(workTrends)).then(n => { results.working = n; }),
-    runEditor(supabase, COLUMN_EDITOR).then(n     => { results.column    = n; }),
-  ]);
+    await Promise.all([
+      runEditor(supabase, MAGAZINE_EDITOR).then(n  => { results.magazine  = n; }),
+      runEditor(supabase, BOOK_EDITOR).then(n       => { results.book      = n; }),
+      runEditor(supabase, SCREENING_EDITOR).then(n  => { results.screening = n; }),
+      runEditor(supabase, WELLNESS_EDITOR).then(n   => { results.wellness  = n; }),
+      runEditor(supabase, HANGER_EDITOR).then(n     => { results.hanger    = n; }),
+      runEditor(supabase, VANITY_EDITOR).then(n     => { results.vanity    = n; }),
+      runEditor(supabase, WALL_EDITOR).then(n       => { results.wall      = n; }),
+      runEditor(supabase, buildWorkingEditor(workTrends)).then(n => { results.working = n; }),
+      runEditor(supabase, COLUMN_EDITOR).then(n     => { results.column    = n; }),
+    ]);
 
-  return NextResponse.json({ ok: true, results, week_of: currentMonday() });
+    const totalInserted = Object.values(results).reduce((a, b) => a + b, 0);
+    await logCronRun("avenue-editors", "ok", { results, records_processed: totalInserted, week_of: currentMonday() });
+    return NextResponse.json({ ok: true, results, week_of: currentMonday() });
+  } catch (err) {
+    await logCronRun("avenue-editors", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }
 
 // ── Room editor configs ───────────────────────────────────────────────────────
