@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { MagicLinkCallback } from "@/app/components/auth/magic-link-callback";
 import { BBLogo } from "@/app/components/portal/bb-logo";
 import { login, type LoginState } from "@/lib/auth/actions";
 
@@ -11,6 +12,7 @@ export default function MemberLoginPage() {
     login,
     null
   );
+  const [magicError, setMagicError] = useState("");
 
   return (
     <div
@@ -40,13 +42,15 @@ export default function MemberLoginPage() {
           </p>
         </div>
 
+        <MagicLinkCallback portal="member" onError={setMagicError} />
+
         {/* Error */}
-        {state?.error && (
+        {(state?.error || magicError) && (
           <div
             className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium"
             style={{ background: "#FFE0EE", color: "#FF1F7D" }}
           >
-            {state.error}
+            {state?.error ?? magicError}
           </div>
         )}
 

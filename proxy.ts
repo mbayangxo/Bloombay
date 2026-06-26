@@ -1,5 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { safePathAfterLogin } from "@/lib/auth/redirect";
+import {
+  homeForRole,
+  normalizeRole,
+  portalFromPath,
+  type PortalId,
+  type UserRole,
+} from "@/lib/auth/roles";
 
 const ROLE_PORTAL: Record<string, string> = {
   founder:    "/founder",
@@ -88,17 +96,21 @@ export default async function proxy(request: NextRequest) {
       .select("role")
       .eq("id", user.id)
       .single();
-    const role = profile?.role ?? "member";
-    const homes: Record<string, string> = {
-      founder:    "/founder/dashboard",
-      admin:      "/admin/dashboard",
-      club_owner: "/club-owner/dashboard",
-      partner:    "/partner/dashboard",
-      curator:    "/curator/dashboard",
-    };
-    return NextResponse.redirect(
-      new URL(homes[role] ?? "/member/home", request.url)
-    );
+    const role = normalizeRole(profile?.role as string) as UserRole;
+    const portal = portalFromPath(pathname) as PortalId | null;
+    const redirectParam =
+      request.nextUrl.searchParams.get("redirect") ??
+      request.nextUrl.searchParams.get("next");
+    let dest = homeForRole(role);
+    if (portal && redirectParam) {
+      try {
+        const next = decodeURIComponent(redirectParam);
+        dest = safePathAfterLogin(role, portal, next);
+      } catch {
+        dest = safePathAfterLogin(role, portal, redirectParam);
+      }
+    }
+    return NextResponse.redirect(new URL(dest, request.url));
   }
 
   // ── Admin/founder pages: verify role at the proxy level ──────────────────

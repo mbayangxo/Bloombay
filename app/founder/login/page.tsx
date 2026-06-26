@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { MagicLinkCallback } from "@/app/components/auth/magic-link-callback";
 import { BBLogo } from "@/app/components/portal/bb-logo";
 import { login, type LoginState } from "@/lib/auth/actions";
 
 export default function FounderLoginPage() {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(login, null);
+  const [magicError, setMagicError] = useState("");
 
   return (
     <div
@@ -29,9 +31,11 @@ export default function FounderLoginPage() {
           </p>
         </div>
 
-        {state?.error && (
+        <MagicLinkCallback portal="founder" onError={setMagicError} />
+
+        {(state?.error || magicError) && (
           <div className="mb-4 px-4 py-3 rounded-2xl text-sm font-medium" style={{ background: "#1a0010", color: "#FF1F7D" }}>
-            {state.error}
+            {state?.error ?? magicError}
           </div>
         )}
 
