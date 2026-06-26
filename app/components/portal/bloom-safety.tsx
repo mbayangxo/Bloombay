@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  MEMBER_REPORT_REASONS,
+  type MemberReportReason,
+  resolveMemberId,
+  submitMemberReport,
+} from "@/lib/member-safety-client";
 
 const PINK = "#FF1F7D";
 const PLUM = "#1A0A2E";
@@ -53,9 +59,13 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
   const [pingsSent, setPingsSent]         = useState(false);
   const [contactName,  setContactName]    = useState("");
   const [contactPhone, setContactPhone]   = useState("");
-  const [reportOpen,   setReportOpen]     = useState(false);
-  const [reportText,   setReportText]     = useState("");
-  const [reportSent,   setReportSent]     = useState(false);
+  const [reportOpen,     setReportOpen]     = useState(false);
+  const [reportTarget,   setReportTarget]   = useState("");
+  const [reportCategory, setReportCategory] = useState<MemberReportReason>("other");
+  const [reportText,     setReportText]     = useState("");
+  const [reportSent,     setReportSent]     = useState(false);
+  const [reportLoading,  setReportLoading]  = useState(false);
+  const [reportError,    setReportError]    = useState<string | null>(null);
 
   function activateCheckIn(h: CheckInDuration) {
     setCheckInHours(h);
@@ -74,10 +84,35 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
     // which triggers a notification to each girl.
   }
 
-  function sendReport() {
-    if (!reportText.trim()) return;
-    setReportSent(true);
-    setTimeout(() => { setReportOpen(false); setReportText(""); setReportSent(false); }, 2000);
+  function resetReportForm() {
+    setReportOpen(false);
+    setReportTarget("");
+    setReportCategory("other");
+    setReportText("");
+    setReportSent(false);
+    setReportLoading(false);
+    setReportError(null);
+  }
+
+  async function sendReport() {
+    if (!reportTarget.trim() || !reportText.trim() || reportLoading) return;
+    setReportLoading(true);
+    setReportError(null);
+    try {
+      const reported_id = await resolveMemberId(reportTarget);
+      await submitMemberReport({
+        reported_id,
+        reason: reportCategory,
+        details: reportText,
+        source_type: "bloom_safety",
+      });
+      setReportSent(true);
+      setTimeout(resetReportForm, 2000);
+    } catch (e) {
+      setReportError(e instanceof Error ? e.message : "Could not submit report");
+    } finally {
+      setReportLoading(false);
+    }
   }
 
   return (
@@ -462,6 +497,35 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
               </p>
               {!reportSent && (
                 <>
+                  <input
+                    value={reportTarget}
+                    onChange={e => setReportTarget(e.target.value)}
+                    placeholder="Member username (required)"
+                    style={{
+                      width: "100%", padding: "11px 14px", borderRadius: 12,
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: "rgba(255,255,255,0.06)",
+                      color: "white", fontFamily: "var(--font-jost)", fontSize: "13px",
+                      outline: "none", boxSizing: "border-box", marginBottom: 10,
+                    }}
+                  />
+                  <select
+                    value={reportCategory}
+                    onChange={e => setReportCategory(e.target.value as MemberReportReason)}
+                    style={{
+                      width: "100%", padding: "11px 14px", borderRadius: 12,
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: "rgba(255,255,255,0.06)",
+                      color: "white", fontFamily: "var(--font-jost)", fontSize: "13px",
+                      outline: "none", boxSizing: "border-box", marginBottom: 10,
+                    }}
+                  >
+                    {MEMBER_REPORT_REASONS.map(r => (
+                      <option key={r.value} value={r.value} style={{ color: "#111" }}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
                   <textarea
                     value={reportText}
                     onChange={e => setReportText(e.target.value)}
@@ -476,21 +540,31 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
                       lineHeight: 1.5, marginBottom: 10,
                     }}
                   />
+                  {reportError && (
+                    <p style={{
+                      fontFamily: "var(--font-jost)", fontSize: "11px", color: "#f87171",
+                      marginBottom: 10, lineHeight: 1.4,
+                    }}>
+                      {reportError}
+                    </p>
+                  )}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       onClick={sendReport}
+                      disabled={reportLoading || !reportTarget.trim() || !reportText.trim()}
                       style={{
                         flex: 1, padding: "11px 0", borderRadius: 999, border: "none",
-                        background: reportText.trim() ? PINK : "rgba(255,255,255,0.08)",
-                        color: reportText.trim() ? "white" : "rgba(255,255,255,0.3)",
+                        background: (reportTarget.trim() && reportText.trim() && !reportLoading) ? PINK : "rgba(255,255,255,0.08)",
+                        color: (reportTarget.trim() && reportText.trim() && !reportLoading) ? "white" : "rgba(255,255,255,0.3)",
                         fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800,
-                        cursor: reportText.trim() ? "pointer" : "default",
+                        cursor: (reportTarget.trim() && reportText.trim() && !reportLoading) ? "pointer" : "default",
                       }}
                     >
-                      Submit report
+                      {reportLoading ? "Sending…" : "Submit report"}
                     </button>
                     <button
-                      onClick={() => { setReportOpen(false); setReportText(""); }}
+                      onClick={resetReportForm}
+                      disabled={reportLoading}
                       style={{
                         padding: "11px 16px", borderRadius: 999,
                         border: "1px solid rgba(255,255,255,0.1)",

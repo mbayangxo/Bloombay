@@ -12,6 +12,15 @@ import { SocialProofSection } from "./social-proof-section";
 import { QuestionSheCaries } from "./question-she-carries";
 import { FoundingFlower } from "@/app/components/shared/founding-flower";
 import { CreateMomentSheet } from "@/app/components/portal/create-moment-sheet";
+import {
+  MEMBER_REPORT_REASONS,
+  type MemberReportReason,
+  blockMember,
+  fetchBlockedMembers,
+  resolveMemberId,
+  submitMemberReport,
+  unblockMember,
+} from "@/lib/member-safety-client";
 
 const PINK = "#FF1F7D";
 
@@ -1212,13 +1221,20 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const [contactBusy,    setContactBusy]    = useState(false);
 
   // Report a user
-  const [reportUser,     setReportUser]     = useState("");
-  const [reportReason,   setReportReason]   = useState("");
-  const [reportSent,     setReportSent]     = useState(false);
+  const [reportUser,       setReportUser]       = useState("");
+  const [reportCategory,   setReportCategory]   = useState<MemberReportReason | "">("");
+  const [reportDetails,    setReportDetails]    = useState("");
+  const [reportSent,       setReportSent]       = useState(false);
+  const [reportBusy,       setReportBusy]       = useState(false);
+  const [reportError,      setReportError]      = useState<string | null>(null);
 
   // Block
-  const [blockInput,     setBlockInput]     = useState("");
-  const [blockedUsers,   setBlockedUsers]   = useState<string[]>([]);
+  const [blockInput,       setBlockInput]       = useState("");
+  const [blockedUsers,     setBlockedUsers]     = useState<{ id: string; label: string }[]>([]);
+  const [blocksLoading,    setBlocksLoading]    = useState(false);
+  const [blockBusy,        setBlockBusy]        = useState(false);
+  const [blockError,       setBlockError]       = useState<string | null>(null);
+  const [unblockBusyId,    setUnblockBusyId]    = useState<string | null>(null);
 
   // Delete account
   const [deleteConfirm,  setDeleteConfirm]  = useState("");
@@ -1330,6 +1346,80 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       setStats({ clubs: clubs.count ?? 0, events: events.count ?? 0 });
     });
   }, [user.id]);
+
+  useEffect(() => {
+    if (activeTab !== "settings") return;
+    setBlocksLoading(true);
+    setBlockError(null);
+    fetchBlockedMembers()
+      .then(rows => {
+        setBlockedUsers(rows.map(row => ({
+          id: row.blocked_id,
+          label: `···${row.blocked_id.slice(-6)}`,
+        })));
+      })
+      .catch(e => {
+        setBlockError(e instanceof Error ? e.message : "Could not load blocked users");
+      })
+      .finally(() => setBlocksLoading(false));
+  }, [activeTab, user.id]);
+
+  async function handleSubmitReport() {
+    if (!reportUser.trim() || !reportCategory || !reportDetails.trim() || reportBusy) return;
+    setReportBusy(true);
+    setReportError(null);
+    try {
+      const reported_id = await resolveMemberId(reportUser);
+      await submitMemberReport({
+        reported_id,
+        reason: reportCategory,
+        details: reportDetails,
+        source_type: "settings",
+      });
+      setReportSent(true);
+      setReportUser("");
+      setReportCategory("");
+      setReportDetails("");
+    } catch (e) {
+      setReportError(e instanceof Error ? e.message : "Could not submit report");
+    } finally {
+      setReportBusy(false);
+    }
+  }
+
+  async function handleBlockUser() {
+    if (!blockInput.trim() || blockBusy) return;
+    setBlockBusy(true);
+    setBlockError(null);
+    try {
+      const blocked_id = await resolveMemberId(blockInput);
+      await blockMember(blocked_id);
+      const label = blockInput.trim().replace(/^@/, "");
+      setBlockedUsers(prev => {
+        if (prev.some(u => u.id === blocked_id)) return prev;
+        return [...prev, { id: blocked_id, label }];
+      });
+      setBlockInput("");
+    } catch (e) {
+      setBlockError(e instanceof Error ? e.message : "Could not block member");
+    } finally {
+      setBlockBusy(false);
+    }
+  }
+
+  async function handleUnblockUser(blocked_id: string) {
+    if (unblockBusyId) return;
+    setUnblockBusyId(blocked_id);
+    setBlockError(null);
+    try {
+      await unblockMember(blocked_id);
+      setBlockedUsers(prev => prev.filter(u => u.id !== blocked_id));
+    } catch (e) {
+      setBlockError(e instanceof Error ? e.message : "Could not unblock member");
+    } finally {
+      setUnblockBusyId(null);
+    }
+  }
 
   function openLightbox(index: number) {
     setLightboxStart(index);
@@ -2692,23 +2782,43 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                       onChange={e => setReportUser(e.target.value)}
                       placeholder="Who are you reporting?"
                       style={inputStyle}
+                      disabled={reportBusy}
                     />
+                  </Field>
+                  <Field label="REASON">
+                    <select
+                      value={reportCategory}
+                      onChange={e => setReportCategory(e.target.value as MemberReportReason)}
+                      style={inputStyle}
+                      disabled={reportBusy}
+                    >
+                      <option value="">Select a reason</option>
+                      {MEMBER_REPORT_REASONS.map(r => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
                   </Field>
                   <Field label="WHAT HAPPENED">
                     <textarea
-                      value={reportReason}
-                      onChange={e => setReportReason(e.target.value)}
+                      value={reportDetails}
+                      onChange={e => setReportDetails(e.target.value)}
                       placeholder="Describe the situation…"
                       rows={3}
                       style={{ ...inputStyle, resize: "none" } as React.CSSProperties}
+                      disabled={reportBusy}
                     />
                   </Field>
+                  {reportError && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#ef4444", lineHeight: 1.4 }}>
+                      {reportError}
+                    </p>
+                  )}
                   <button
-                    onClick={() => { if (reportUser.trim() && reportReason.trim()) setReportSent(true); }}
-                    disabled={!reportUser.trim() || !reportReason.trim()}
-                    style={{ ...outlineBtn, opacity: (reportUser.trim() && reportReason.trim()) ? 1 : 0.45 } as React.CSSProperties}
+                    onClick={handleSubmitReport}
+                    disabled={reportBusy || !reportUser.trim() || !reportCategory || !reportDetails.trim()}
+                    style={{ ...outlineBtn, opacity: (reportUser.trim() && reportCategory && reportDetails.trim() && !reportBusy) ? 1 : 0.45 } as React.CSSProperties}
                   >
-                    Submit Report
+                    {reportBusy ? "Submitting…" : "Submit Report"}
                   </button>
                 </div>
               )}
@@ -2727,36 +2837,42 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                   onChange={e => setBlockInput(e.target.value)}
                   placeholder="Username to block"
                   style={{ ...inputStyle, flex: 1 } as React.CSSProperties}
+                  disabled={blockBusy || blocksLoading}
                   onKeyDown={e => {
-                    if (e.key === "Enter" && blockInput.trim()) {
-                      setBlockedUsers(prev => [...prev, blockInput.trim()]);
-                      setBlockInput("");
-                    }
+                    if (e.key === "Enter") void handleBlockUser();
                   }}
                 />
                 <button
-                  onClick={() => { if (blockInput.trim()) { setBlockedUsers(prev => [...prev, blockInput.trim()]); setBlockInput(""); } }}
-                  style={{ ...outlineBtn, flexShrink: 0, padding: "12px 16px" } as React.CSSProperties}
+                  onClick={() => void handleBlockUser()}
+                  disabled={blockBusy || blocksLoading || !blockInput.trim()}
+                  style={{ ...outlineBtn, flexShrink: 0, padding: "12px 16px", opacity: (blockInput.trim() && !blockBusy) ? 1 : 0.45 } as React.CSSProperties}
                 >
-                  Block
+                  {blockBusy ? "Blocking…" : "Block"}
                 </button>
               </div>
-              {blockedUsers.length > 0 && (
+              {blockError && (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#ef4444", marginBottom: 12, lineHeight: 1.4 }}>
+                  {blockError}
+                </p>
+              )}
+              {blocksLoading ? (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#ccc", fontStyle: "italic" }}>Loading blocked users…</p>
+              ) : blockedUsers.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {blockedUsers.map(u => (
-                    <div key={u} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 12, background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#555", fontWeight: 500 }}>@{u}</p>
+                    <div key={u.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 12, background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#555", fontWeight: 500 }}>@{u.label}</p>
                       <button
-                        onClick={() => setBlockedUsers(prev => prev.filter(x => x !== u))}
+                        onClick={() => void handleUnblockUser(u.id)}
+                        disabled={unblockBusyId === u.id}
                         style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: "11px", color: "#bbb", fontWeight: 600 }}
                       >
-                        Unblock
+                        {unblockBusyId === u.id ? "…" : "Unblock"}
                       </button>
                     </div>
                   ))}
                 </div>
-              )}
-              {blockedUsers.length === 0 && (
+              ) : (
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#ccc", fontStyle: "italic" }}>No blocked users.</p>
               )}
             </div>
