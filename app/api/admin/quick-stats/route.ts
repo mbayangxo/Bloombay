@@ -11,7 +11,6 @@ function adminClient() {
 }
 
 export async function GET(_req: NextRequest) {
-  // Session-based auth: verify the caller is admin or founder
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -41,7 +40,11 @@ export async function GET(_req: NextRequest) {
     admin.from("member_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("clubs").select("id", { count: "exact", head: true }).eq("is_active", true),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("is_member", true).gte("membership_started_at", weekAgo),
-    admin.from("events").select("id", { count: "exact", head: true }).gt("date_time", now),
+    admin
+      .from("gatherings")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "live")
+      .gt("starts_at", now),
   ]);
 
   return NextResponse.json({

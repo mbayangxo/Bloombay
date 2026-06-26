@@ -1,5 +1,6 @@
 "use server";
 
+// LEGACY(events): member create/publish paths still write to `events`; migrate to `gatherings`.
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 

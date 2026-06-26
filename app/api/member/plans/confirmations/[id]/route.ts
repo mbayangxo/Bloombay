@@ -55,42 +55,5 @@ export async function GET(
     });
   }
 
-  // Fall back to events table
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, title, venue, neighborhood, date_time, photo_url, accent_color")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
-
-  // Check if user is attending
-  const { data: attendance } = await supabase
-    .from("gathering_attendance")
-    .select("id, checked_in_at")
-    .eq("gathering_id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  const confirmationCode = attendance
-    ? `BB-${attendance.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`
-    : `BB-${user.id.replace(/-/g, "").slice(0, 4).toUpperCase()}-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
-
-  return NextResponse.json({
-    type: "event",
-    confirmed: true,
-    event: {
-      id: event.id,
-      title: event.title,
-      venue: event.venue ?? event.neighborhood ?? null,
-      starts_at: event.date_time,
-      slug: null,
-      poster: event.photo_url ?? null,
-      accent: event.accent_color ?? "#FF1F7D",
-    },
-    confirmation_code: confirmationCode,
-    reservation_id: attendance?.id ?? null,
-    confirmed_at: attendance?.checked_in_at ?? null,
-    attendee_count: 0,
-  });
+  return NextResponse.json({ error: "Event not found" }, { status: 404 });
 }

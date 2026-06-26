@@ -28,13 +28,14 @@ export async function GET() {
       .order("updated_at", { ascending: false })
       .limit(6),
 
-    // Events with open seats (capacity set, not full, upcoming)
+    // Gatherings with open seats (capacity set, not full, upcoming)
     db
-      .from("events")
-      .select("id, title, date_time, capacity, attending_count, accent_color, venue, neighborhood")
+      .from("gatherings")
+      .select("id, title, starts_at, capacity, spots_left, accent_color, venue, area")
+      .eq("publish_status", "live")
       .not("capacity", "is", null)
-      .gte("date_time", now)
-      .order("date_time", { ascending: true })
+      .gte("starts_at", now)
+      .order("starts_at", { ascending: true })
       .limit(8),
 
     // Top venues for Yande's rotating daily pick
@@ -48,15 +49,19 @@ export async function GET() {
 
   // Filter open seats to only those that actually have seats left
   const openSeats = (openSeatsRes.data ?? [])
-    .filter(e => e.capacity !== null && e.attending_count < e.capacity!)
+    .filter((g) => {
+      if (g.capacity === null) return false;
+      const spotsLeft = g.spots_left ?? g.capacity;
+      return spotsLeft > 0;
+    })
     .slice(0, 3)
-    .map(e => ({
-      id: e.id,
-      title: e.title,
-      date_time: e.date_time,
-      seats_left: (e.capacity as number) - e.attending_count,
-      accent_color: e.accent_color ?? "#FF1F7D",
-      venue: e.venue ?? e.neighborhood ?? null,
+    .map((g) => ({
+      id: g.id,
+      title: g.title,
+      date_time: g.starts_at,
+      seats_left: g.spots_left ?? g.capacity ?? 0,
+      accent_color: g.accent_color ?? "#FF1F7D",
+      venue: g.venue ?? g.area ?? null,
     }));
 
   // Rotate Yande's pick by day of year so it changes daily

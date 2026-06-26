@@ -15,7 +15,7 @@ export async function processEventWaitlists(): Promise<{ processed: number; prom
   const now = new Date();
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
 
-  // Events within 48h that have open capacity
+  // LEGACY(events): waitlist/rsvp tables still keyed on event_id — migrate with gatherings.
   const { data: events } = await supabase
     .from("events")
     .select("id, title, capacity, attending_count, created_by")
@@ -90,6 +90,7 @@ export async function checkCapacityAlerts(): Promise<{ alerted: number }> {
   const now = new Date();
   const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
+  // LEGACY(events): capacity alerts still keyed on legacy events table.
   const { data: events } = await supabase
     .from("events")
     .select("id, title, capacity, attending_count, created_by")

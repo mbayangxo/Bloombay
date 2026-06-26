@@ -26,7 +26,7 @@ export async function nudgeClubsWithNoUpcomingEvents(): Promise<{ nudged: number
   let nudged = 0;
 
   for (const club of clubs) {
-    // Check if they have any event in next 30 days
+    // LEGACY(events): club nudge still counts legacy events — migrate to gatherings.
     const { count: upcomingCount } = await supabase
       .from("events")
       .select("id", { count: "exact", head: true })
@@ -102,7 +102,7 @@ export async function suggestRecurringEvents(): Promise<{ suggested: number }> {
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Find events that ran successfully (90%+ full) in the last 30 days
+  // LEGACY(events): recurring suggestions still read legacy events table.
   const { data: successfulEvents } = await supabase
     .from("events")
     .select("id, title, created_by, attending_count, capacity, category")
