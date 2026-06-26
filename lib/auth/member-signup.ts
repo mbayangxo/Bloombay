@@ -36,23 +36,21 @@ export async function signUpMember(input: MemberSignUpInput) {
 
   if (error) throw error;
 
-  void fetch("/api/member/welcome", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      fullName,
-      phone,
-      city,
-      neighborhood,
-      userId: data.user?.id,
-    }),
-  }).catch(() => {
-    /* welcome pack is best-effort — signup still succeeds */
-  });
-
-  // Persist profile when session exists (email confirm off). Otherwise trigger + callback handle it.
   if (data.session) {
+    void fetch("/api/member/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        fullName,
+        phone,
+        city,
+        neighborhood,
+      }),
+    }).catch(() => {
+      /* welcome pack is best-effort — signup still succeeds */
+    });
+
     const res = await fetch("/api/member/profile/bootstrap", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -8,6 +8,15 @@ function isValidEmail(email: string) {
 
 /** Legacy path — delegates to full welcome pack (email + SMS + mailbox). */
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Sign in required" }, { status: 401 });
+  }
+
   let body: {
     email?: string;
     fullName?: string;
@@ -22,24 +31,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  const email = body.email?.trim().toLowerCase();
+  if (body.userId && body.userId !== user.id) {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+
+  const email = (body.email?.trim().toLowerCase() || user.email?.toLowerCase() || "");
   const fullName = body.fullName?.trim() ?? "";
 
   if (!email || !isValidEmail(email)) {
     return NextResponse.json({ ok: false, error: "Valid email required" }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user?.email && user.email.toLowerCase() !== email) {
+  if (user.email && user.email.toLowerCase() !== email) {
     return NextResponse.json({ ok: false, error: "Email mismatch" }, { status: 403 });
   }
 
   const result = await sendMemberWelcome({
-    userId: body.userId ?? user?.id,
+    userId: user.id,
     email,
     fullName,
     phone: body.phone?.trim(),

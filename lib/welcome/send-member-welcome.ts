@@ -9,7 +9,8 @@ import { getAdminClient } from "@/lib/supabase-admin";
 import { sendSms } from "@/lib/sms/twilio-client";
 
 export type MemberWelcomeInput = {
-  userId?: string;
+  /** Server-derived from auth.uid() — never from client body. */
+  userId: string;
   email: string;
   fullName: string;
   phone?: string;
@@ -124,7 +125,8 @@ export async function sendMemberWelcome(
   }
 
   if (!input.userId) {
-    result.skipped!.mailbox = "userId required";
+    result.ok = false;
+    result.error = "userId required";
     return result;
   }
 
