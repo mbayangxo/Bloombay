@@ -5,12 +5,12 @@ import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 
 const GOALS = [
-  { icon: "📚", label: "I want to join a book club" },
-  { icon: "🤝", label: "I want more friendships" },
-  { icon: "🥂", label: "I want fun gatherings & dinners" },
-  { icon: "🏙️", label: "I moved to the city" },
-  { icon: "🌿", label: "I want wellness & self care" },
-  { icon: "📵", label: "I want to stop scrolling & start living" },
+  { icon: "🤝", label: "More real friendships", sub: "Deep connections, not just followers" },
+  { icon: "🥂", label: "Fun gatherings & dinners", sub: "Curated events with women like me" },
+  { icon: "📚", label: "Join a book club or circle", sub: "Intellectual and creative community" },
+  { icon: "🏙️", label: "I'm new to this city", sub: "Find my footing and my people" },
+  { icon: "🌿", label: "Wellness & self care", sub: "A softer, more intentional lifestyle" },
+  { icon: "✨", label: "A life I'm excited about", sub: "Stop scrolling, start living" },
 ];
 
 const INTERESTS = [
@@ -25,22 +25,19 @@ const INTERESTS = [
 const AGE_RANGES = ["18–24", "25–30", "31–35", "36–40", "40+"];
 
 const CITIES = [
-  { city: "New York City", country: "USA", count: 1847 },
-  { city: "Los Angeles", country: "USA", count: 412 },
-  { city: "Chicago", country: "USA", count: 289 },
-  { city: "Atlanta", country: "USA", count: 201 },
-  { city: "Miami", country: "USA", count: 178 },
-  { city: "London", country: "UK", count: 634 },
-  { city: "Toronto", country: "Canada", count: 321 },
-  { city: "Paris", country: "France", count: 198 },
-  { city: "Lagos", country: "Nigeria", count: 445 },
-  { city: "Accra", country: "Ghana", count: 213 },
-  { city: "Dubai", country: "UAE", count: 167 },
-  { city: "Sydney", country: "Australia", count: 145 },
+  { city: "New York City", country: "USA" },
+  { city: "Los Angeles", country: "USA" },
+  { city: "Chicago", country: "USA" },
+  { city: "Atlanta", country: "USA" },
+  { city: "Miami", country: "USA" },
+  { city: "London", country: "UK" },
+  { city: "Toronto", country: "Canada" },
+  { city: "Paris", country: "France" },
+  { city: "Lagos", country: "Nigeria" },
+  { city: "Accra", country: "Ghana" },
+  { city: "Dubai", country: "UAE" },
+  { city: "Sydney", country: "Australia" },
 ];
-
-const WAITLIST_GOAL = 2500;
-const WAITLIST_CURRENT = 1847;
 
 function WaxSeal({ size = "lg" }: { size?: "sm" | "lg" }) {
   const outer = size === "lg" ? "w-24 h-24" : "w-14 h-14";
@@ -63,25 +60,11 @@ function WaxSeal({ size = "lg" }: { size?: "sm" | "lg" }) {
   );
 }
 
-function ProgressBar({ current, goal }: { current: number; goal: number }) {
-  const pct = Math.min(100, (current / goal) * 100);
+function WaitlistBadge() {
   return (
-    <div className="w-full">
-      <div className="flex justify-between text-xs mb-2 font-semibold" style={{ color: "#888" }}>
-        <span>{current.toLocaleString()} women in</span>
-        <span>Goal: {goal.toLocaleString()}</span>
-      </div>
-      <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: "#FFE0EE" }}>
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${pct}%`,
-            background: "linear-gradient(90deg,#FF1F7D,#FF69B4)",
-            boxShadow: "0 0 10px rgba(255,31,125,0.6)",
-            transition: "width 1s ease",
-          }}
-        />
-      </div>
+    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full" style={{ background: "#FFF0F5", border: "1px solid #FFE0EE" }}>
+      <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />
+      <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.06em" }}>Private waitlist · NYC</span>
     </div>
   );
 }
@@ -112,7 +95,7 @@ export function WaitlistFlow() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedCity, setSelectedCity] = useState<typeof CITIES[0] | null>(null);
+  const [selectedCity, setSelectedCity] = useState<{ city: string; country: string } | null>(null);
   const [cityQuery, setCityQuery] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [ageRange, setAgeRange] = useState("");
@@ -162,7 +145,6 @@ export function WaitlistFlow() {
     setStep(3);
   }
 
-  const cityCount = selectedCity?.count ?? WAITLIST_CURRENT;
 
   return (
     <div className="min-h-screen flex flex-col items-center" style={{ background: "#FFF5F8" }}>
@@ -257,9 +239,9 @@ export function WaitlistFlow() {
                 ))}
               </div>
 
-              {/* Progress bar with glow */}
-              <div className="w-full">
-                <ProgressBar current={WAITLIST_CURRENT} goal={WAITLIST_GOAL} />
+              {/* Waitlist badge */}
+              <div className="flex justify-center">
+                <WaitlistBadge />
               </div>
             </div>
           </div>
@@ -307,53 +289,42 @@ export function WaitlistFlow() {
               1
             </div>
             <div>
-              <h2 className="text-2xl font-black" style={{ color: "#111111" }}>
-                Why Women Join BloomBay
+              <h2 className="text-2xl font-black" style={{ color: "#111111", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                What feels like you?
               </h2>
-              <p className="text-sm text-gray-400 mt-0.5">What are you looking for? Choose all that apply.</p>
+              <p className="text-sm text-gray-400 mt-0.5">Choose all that apply.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="flex flex-col gap-3 mb-8">
             {GOALS.map((g, i) => {
               const on = goals.has(i);
               return (
                 <button
                   key={i}
                   onClick={() => toggleGoal(i)}
-                  className="rounded-3xl p-5 flex flex-col gap-3 text-left transition-all relative overflow-hidden"
+                  className="w-full rounded-2xl px-4 py-4 flex items-center gap-4 text-left transition-all relative overflow-hidden"
                   style={{
                     background: on ? "#FF1F7D" : "white",
                     border: `2px solid ${on ? "#FF1F7D" : "#F0F0F0"}`,
-                    boxShadow: on
-                      ? "0 8px 24px rgba(255,31,125,0.3)"
-                      : "0 1px 6px rgba(0,0,0,0.04)",
-                    transform: on ? "scale(1.01)" : "scale(1)",
+                    boxShadow: on ? "0 6px 20px rgba(255,31,125,0.28)" : "0 1px 6px rgba(0,0,0,0.04)",
                   }}
                 >
                   {on && (
-                    <div
-                      className="absolute inset-0 pointer-events-none opacity-15"
-                      style={{ background: "radial-gradient(circle at 30% 20%, white 0%, transparent 60%)" }}
-                    />
+                    <div className="absolute inset-0 pointer-events-none opacity-15" style={{ background: "radial-gradient(circle at 20% 50%, white 0%, transparent 60%)" }} />
                   )}
+                  <span className="text-2xl flex-shrink-0 relative">{g.icon}</span>
+                  <div className="flex-1 relative">
+                    <p className="text-sm font-bold leading-tight" style={{ color: on ? "white" : "#111111" }}>{g.label}</p>
+                    <p className="text-xs mt-0.5" style={{ color: on ? "rgba(255,255,255,0.75)" : "#aaa" }}>{g.sub}</p>
+                  </div>
                   {on && (
-                    <div
-                      className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ background: "rgba(255,255,255,0.3)" }}
-                    >
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ background: "rgba(255,255,255,0.3)" }}>
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="white">
                         <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                       </svg>
                     </div>
                   )}
-                  <span className="text-2xl relative">{g.icon}</span>
-                  <p
-                    className="text-xs font-semibold leading-snug relative"
-                    style={{ color: on ? "white" : "#111111" }}
-                  >
-                    {g.label}
-                  </p>
                 </button>
               );
             })}
@@ -555,17 +526,12 @@ export function WaitlistFlow() {
                             <p className="font-semibold text-sm" style={{ color: "#111111" }}>{c.city}</p>
                             <p className="text-xs text-gray-400">{c.country}</p>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs font-black" style={{ color: "#FF1F7D" }}>
-                              {c.count.toLocaleString()}
-                            </p>
-                            <p className="text-xs text-gray-400">waiting</p>
-                          </div>
+                          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#FF1F7D" strokeWidth="1.5" strokeLinecap="round" /></svg>
                         </button>
                       ))}
                       {filteredCities.length === 0 && (
                         <button
-                          onMouseDown={() => setSelectedCity({ city: cityQuery, country: "Other", count: 12 })}
+                          onMouseDown={() => setSelectedCity({ city: cityQuery, country: "Other" })}
                           className="w-full px-4 py-3 text-left transition-colors hover:bg-pink-50"
                         >
                           <p className="font-semibold text-sm" style={{ color: "#111111" }}>"{cityQuery}"</p>
@@ -815,25 +781,14 @@ export function WaitlistFlow() {
             </div>
           </div>
 
-          {/* City waitlist count card */}
-          <div
-            className="w-full rounded-3xl p-6 mb-5"
-            style={{
-              background: "white",
-              boxShadow: "0 4px 24px rgba(255,31,125,0.1)",
-              border: "1px solid #FFE0EE",
-            }}
-          >
-            <p className="text-xs font-black tracking-widest uppercase text-gray-400 mb-3">
-              WAITLIST — {selectedCity?.city?.toUpperCase() ?? "NEW YORK CITY"}
-            </p>
-            <ProgressBar
-              current={cityCount + 1}
-              goal={WAITLIST_GOAL}
-            />
-            <p className="text-xs font-semibold text-center mt-2.5" style={{ color: "#FF1F7D" }}>
-              You are #{(cityCount + 1).toLocaleString()} in your city
-            </p>
+          {/* City badge */}
+          <div className="flex justify-center mb-5">
+            <div className="flex items-center gap-2.5 px-5 py-3 rounded-full" style={{ background: "#FFF0F5", border: "1px solid #FFE0EE" }}>
+              <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />
+              <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.06em" }}>
+                Private waitlist · {selectedCity?.city ?? "New York City"}
+              </span>
+            </div>
           </div>
 
           {/* What you get */}
