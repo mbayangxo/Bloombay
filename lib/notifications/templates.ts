@@ -14,18 +14,26 @@ export type NotificationType =
   | "club_joined"
   | "club_application_approved"
   | "club_application_rejected"
+  | "club_accepted"
+  | "club_update"
   | "event_reminder"
   | "ticket_confirmed"
   | "membership_activated"
+  | "membership_confirmed"
+  | "member_approved"
   | "girlmate_message"
   | "bloom_request"
   | "bloom_request_accepted"
   | "day3_nudge"
   | "day7_nudge"
+  | "yande_nudge"
+  | "yande_question"
+  | "celebrate"
   | "verification_submitted"
   | "verification_approved"
   | "verification_rejected"
-  | "intro";
+  | "intro"
+  | "report_submitted";
 
 // Types that may use SMS — admin/founder must explicitly opt in to SMS channel
 export const SMS_PERMITTED_TYPES = new Set<NotificationType>([
@@ -162,6 +170,41 @@ export function renderTemplate(
         link: "/member",
       };
 
+    case "membership_confirmed":
+      return {
+        title: "Welcome to BloomBay!",
+        body: "Your membership is confirmed. The Avenue is yours.",
+        link: "/member/avenue",
+      };
+
+    case "member_approved":
+      return {
+        title: "You're in. ✦",
+        body: data.message ?? "You're officially a BloomBay member.",
+        link: "/member/home",
+      };
+
+    case "club_accepted":
+      return {
+        title: "Payment confirmed — you're in!",
+        body: "Your membership was confirmed. Welcome.",
+        link: data.clubName ? `/member/clubs/${data.clubName}` : "/member/clubs",
+      };
+
+    case "celebrate":
+      return {
+        title: data.message ? `One week in, ${name}. ✦` : "BloomBay update",
+        body: data.message ?? "You have a new notification.",
+        link: "/member/happenings",
+      };
+
+    case "yande_question":
+      return {
+        title: "Yande has a question for you two 🌸",
+        body: data.message ?? "Open the app to answer together.",
+        link: "/member/introductions",
+      };
+
     // ── Social ─────────────────────────────────────────────────────────────
     case "girlmate_message":
       return {
@@ -204,6 +247,13 @@ export function renderTemplate(
         title: "Find your people. 🌺",
         body: "You've been here 3 days — have you joined a club yet? Women who join a club in their first week are 3× more likely to attend a gathering.",
         link: "/member/clubs",
+      };
+
+    case "report_submitted":
+      return {
+        title: "Report received",
+        body: "Thank you for helping keep BloomBay safe. Our team will review your report.",
+        link: "/member/settings",
       };
 
     // ── Verification ───────────────────────────────────────────────────────

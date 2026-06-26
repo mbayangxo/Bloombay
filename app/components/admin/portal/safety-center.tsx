@@ -1,39 +1,105 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { McLink } from "../mc-link";
 import {
   BLOCKED_MEMBERS,
   SAFETY_HEALTH,
-  SAFETY_QUEUE,
 } from "@/lib/mission-control-data";
 import { TickerNumber } from "./ticker-number";
 
+type ModerationCase = {
+  id: string;
+  source_type: string;
+  severity: string;
+  status: string;
+  reported_user_id: string | null;
+  reporter_id: string | null;
+  yande_recommendation: string | null;
+  created_at: string;
+};
+
+type QueueItem = {
+  id: string;
+  type: string;
+  reporter: string;
+  reported: string;
+  evidence: string;
+  date: string;
+  status: string;
+};
+
+const REASON_LABELS: Record<string, string> = {
+  harassment: "Harassment",
+  hate_speech: "Hate Speech",
+  scam: "Scam",
+  fake_profile: "Fake Profile",
+  inappropriate_content: "Inappropriate",
+  spam: "Spam",
+  other: "Other",
+};
+
+function formatCase(c: ModerationCase): QueueItem {
+  const reasonKey = c.source_type.replace("_report", "");
+  return {
+    id: c.id,
+    type: REASON_LABELS[reasonKey] ?? c.severity ?? "Report",
+    reporter: c.reporter_id ? c.reporter_id.slice(0, 8) : "Unknown",
+    reported: c.reported_user_id ? c.reported_user_id.slice(0, 8) : "Unknown",
+    evidence: c.yande_recommendation ?? `${c.source_type} · ${c.severity} severity`,
+    date: new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    status: c.status,
+  };
+}
+
 const MAIN_CATEGORIES = [
-  { type: "Harassment", count: 2 },
-  { type: "Fake Profile", count: 1 },
-  { type: "Bullying", count: 1 },
+  { type: "Harassment", count: 0 },
+  { type: "Fake Profile", count: 0 },
+  { type: "Hate Speech", count: 0 },
   { type: "Spam", count: 0 },
 ] as const;
 
 export function SafetyCenter() {
-  const [queue, setQueue] = useState(SAFETY_QUEUE);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<string | null>(null);
   const [showBlockedList, setShowBlockedList] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/moderation/cases")
+      .then((r) => r.json())
+      .then((data: { cases?: ModerationCase[] }) => {
+        setQueue((data.cases ?? []).map(formatCase));
+      })
+      .catch(() => setQueue([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() => {
+    return MAIN_CATEGORIES.map((c) => ({
+      ...c,
+      count: queue.filter((q) => q.type === c.type).length,
+    }));
+  }, [queue]);
 
   const filtered = useMemo(
     () => (category ? queue.filter((q) => q.type === category) : []),
     [queue, category]
   );
 
-  function resolve(id: string) {
+  async function resolve(id: string, action: "dismiss" | "ban") {
+    await fetch("/api/admin/moderation/cases", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, action }),
+    });
     setQueue((q) => q.filter((item) => item.id !== id));
   }
 
   const score = SAFETY_HEALTH.safetyScore;
   const circumference = 2 * Math.PI * 44;
   const dash = (score / 100) * circumference;
+  const openReports = queue.length;
 
   return (
     <div className="fp-portal-page fp-safety-page">
@@ -63,7 +129,7 @@ export function SafetyCenter() {
       <div className="fp-safety-metrics-row">
         <div className="fp-safety-metric-card fp-safety-metric-card--compact">
           <TickerNumber
-            value={SAFETY_HEALTH.openReports}
+            value={openReports}
             className="fp-safety-metric-card__num"
           />
           <span className="fp-safety-metric-card__label">Open reports</span>
@@ -77,9 +143,11 @@ export function SafetyCenter() {
         </div>
       </div>
 
-      {!category ? (
+      {loading ? (
+        <p className="fp-portal-muted">Loading moderation queue…</p>
+      ) : !category ? (
         <div className="fp-safety-category-grid fp-safety-category-grid--compact">
-          {MAIN_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.type}
               type="button"
@@ -108,10 +176,10 @@ export function SafetyCenter() {
                   </p>
                   <p className="fp-portal-muted">{r.evidence}</p>
                   <div className="fp-safety-report__actions">
-                    <button type="button" className="fp-portal-btn" onClick={() => resolve(r.id)}>
+                    <button type="button" className="fp-portal-btn" onClick={() => resolve(r.id, "dismiss")}>
                       Dismiss
                     </button>
-                    <button type="button" className="fp-portal-btn fp-portal-btn--pink" onClick={() => resolve(r.id)}>
+                    <button type="button" className="fp-portal-btn fp-portal-btn--pink" onClick={() => resolve(r.id, "ban")}>
                       Ban
                     </button>
                   </div>

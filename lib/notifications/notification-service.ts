@@ -1,198 +1,376 @@
 // Central notification service — all notifications must flow through here.
 // Routes should never call Twilio/Resend/insert-into-notifications directly.
-// This service enforces: channel policy, user preferences, rate limits, and logging.
 
+import { getResendClient, resendFromAddress } from "@/lib/email/resend-client";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { writeAdminAuditLog } from "@/lib/admin/audit-log";
 import {
-  NotificationType,
-  SMS_PERMITTED_TYPES,
-  TemplateData,
+  type NotificationChannel,
+  defaultChannelsForType,
+  isChannelEnabled,
+  isSmsBlocked,
+  isTopicEnabled,
+  requiresAdminActor,
+  resolveChannels,
+} from "./channel-rules";
+import { ADMIN_SMS_BATCH_LIMIT, isRateLimited } from "./rate-limits";
+import { sendSMS } from "./sms";
+import {
+  type NotificationType,
+  type TemplateData,
   renderTemplate,
 } from "./templates";
 
-export type NotificationChannel = "in_app" | "email" | "sms";
+export type { NotificationChannel, NotificationType };
 
-export interface NotificationRequest {
+export interface CreateNotificationInput {
   userId: string;
   type: NotificationType;
-  channels: NotificationChannel[];
-  data?: TemplateData;
-  link?: string;
-  // For SMS-permitted types triggered by admins/founders
+  channels?: NotificationChannel[];
+  payload: {
+    title?: string;
+    body?: string;
+    link?: string;
+    templateId?: string;
+    templateVars?: Record<string, string>;
+    subject?: string;
+    html?: string;
+    data?: Record<string, unknown>;
+  };
+  /** Skip preference check (urgent safety only) */
+  force?: boolean;
+  /** Required for admin-triggered SMS */
   actorId?: string;
   actorRole?: string;
 }
 
-// Rate limits: max sends per user per channel per 24h
-const RATE_LIMITS: Record<NotificationChannel, number> = {
-  in_app: 50,
-  email:  5,
-  sms:    3,   // admin-triggered only, but still capped
-};
-
-async function isRateLimited(
-  db: ReturnType<typeof createAdminClient>,
-  userId: string,
-  channel: NotificationChannel
-): Promise<boolean> {
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const { count } = await db
-    .from("notification_events")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("channel", channel)
-    .in("status", ["sent", "pending"])
-    .gte("created_at", since);
-
-  return (count ?? 0) >= RATE_LIMITS[channel];
+export interface AdminWaitlistSmsInput {
+  template: "private_beta_accepted" | "app_launch";
+  targets: Array<{
+    waitlistId: string;
+    phoneNumber: string;
+    firstName?: string | null;
+    email?: string;
+  }>;
+  actorId: string;
+  actorRole: "admin" | "founder";
+  dryRun?: boolean;
 }
 
-async function getUserPreferences(
-  db: ReturnType<typeof createAdminClient>,
-  userId: string
-) {
+interface RenderedContent {
+  title: string;
+  body: string;
+  smsBody?: string;
+  link?: string;
+  subject?: string;
+  html?: string;
+}
+
+function templateDataFromPayload(
+  payload: CreateNotificationInput["payload"],
+): TemplateData {
+  const vars = payload.templateVars ?? {};
+  return {
+    name: vars.name ?? vars.firstName,
+    restaurantName: vars.restaurantName,
+    date: vars.date,
+    time: vars.time,
+    partySize: vars.partySize ? Number(vars.partySize) : undefined,
+    clubName: vars.clubName,
+    eventTitle: vars.eventTitle ?? vars.title,
+    appUrl: vars.appUrl,
+    code: vars.code,
+    message: vars.message ?? payload.body,
+  };
+}
+
+function resolveContent(
+  type: NotificationType,
+  payload: CreateNotificationInput["payload"],
+): RenderedContent {
+  const rendered = renderTemplate(type, templateDataFromPayload(payload));
+  return {
+    title: payload.title ?? rendered.title,
+    body: payload.body ?? rendered.body,
+    smsBody: rendered.smsBody,
+    link: payload.link ?? rendered.link,
+    subject: payload.subject ?? rendered.title,
+    html: payload.html,
+  };
+}
+
+async function getUserPreferences(db: ReturnType<typeof createAdminClient>, userId: string) {
   const { data } = await db
     .from("notification_preferences")
     .select("*")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
   return data;
 }
 
-async function logEvent(
+async function getUserContact(
+  db: ReturnType<typeof createAdminClient>,
+  userId: string,
+): Promise<{ email: string | null; phone: string | null }> {
+  const { data } = await db
+    .from("profiles")
+    .select("email, phone")
+    .eq("id", userId)
+    .maybeSingle();
+  return {
+    email: (data?.email as string | null) ?? null,
+    phone: (data?.phone as string | null) ?? null,
+  };
+}
+
+async function insertPendingEvent(
   db: ReturnType<typeof createAdminClient>,
   userId: string,
   type: NotificationType,
   channel: NotificationChannel,
   payload: Record<string, unknown>,
-  status: "sent" | "failed" | "skipped",
-  errorMessage?: string
-) {
-  await db.from("notification_events").insert({
-    user_id: userId,
-    type,
-    channel,
-    payload,
-    status,
-    error_message: errorMessage ?? null,
-    sent_at: status === "sent" ? new Date().toISOString() : null,
-  });
+): Promise<string | null> {
+  const { data, error } = await db
+    .from("notification_events")
+    .insert({
+      user_id: userId,
+      type,
+      channel,
+      payload,
+      status: "pending",
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("[notification-service] failed to insert event:", error.message);
+    return null;
+  }
+  return (data as { id: string }).id;
 }
 
-// ── Channel senders ───────────────────────────────────────────────────────────
+async function updateEventStatus(
+  db: ReturnType<typeof createAdminClient>,
+  eventId: string | null,
+  status: "sent" | "failed" | "skipped",
+  errorMessage?: string,
+) {
+  if (!eventId) return;
+  await db
+    .from("notification_events")
+    .update({
+      status,
+      error_message: errorMessage ?? null,
+      sent_at: status === "sent" ? new Date().toISOString() : null,
+    })
+    .eq("id", eventId);
+}
 
 async function sendInApp(
   db: ReturnType<typeof createAdminClient>,
   userId: string,
   type: NotificationType,
-  rendered: ReturnType<typeof renderTemplate>
+  content: RenderedContent,
+  data?: Record<string, unknown>,
 ): Promise<"sent" | "failed"> {
   const { error } = await db.from("notifications").insert({
     user_id: userId,
     type,
-    title: rendered.title,
-    body: rendered.body,
-    link: rendered.link ?? null,
+    title: content.title,
+    body: content.body,
+    link: content.link ?? null,
+    data: data ?? null,
   });
   return error ? "failed" : "sent";
 }
 
 async function sendEmail(
-  _db: ReturnType<typeof createAdminClient>,
-  _userId: string,
-  _type: NotificationType,
-  _rendered: ReturnType<typeof renderTemplate>
-): Promise<"sent" | "failed"> {
-  // TODO: integrate Resend/SendGrid here
-  // const email = await getUserEmail(db, userId);
-  // await resend.emails.send({ to: email, subject: rendered.title, html: ... });
-  return "sent"; // stub — mark as sent until email provider is wired
+  db: ReturnType<typeof createAdminClient>,
+  userId: string,
+  content: RenderedContent,
+): Promise<"sent" | "failed" | "skipped"> {
+  const resend = getResendClient();
+  if (!resend) return "skipped";
+
+  const { email } = await getUserContact(db, userId);
+  if (!email) return "skipped";
+
+  const { error } = await resend.emails.send({
+    from: resendFromAddress(),
+    to: email,
+    subject: content.subject ?? content.title,
+    html: content.html ?? `<p>${content.body}</p>`,
+  });
+
+  return error ? "failed" : "sent";
 }
 
-async function sendSms(
-  _db: ReturnType<typeof createAdminClient>,
-  _userId: string,
-  _type: NotificationType,
-  _rendered: ReturnType<typeof renderTemplate>
+async function sendSmsToPhone(
+  phone: string,
+  content: RenderedContent,
 ): Promise<"sent" | "failed"> {
-  if (!_rendered.smsBody) return "failed";
-  // TODO: call Twilio via lib/sms/twilio-client.ts
-  // const phone = await getUserPhone(db, userId);
-  // await sendSmsViaTwilio(phone, rendered.smsBody);
-  return "sent"; // stub
+  if (!content.smsBody) return "failed";
+  const result = await sendSMS(phone, content.smsBody);
+  return result.ok ? "sent" : "failed";
 }
 
-// ── Main entry point ──────────────────────────────────────────────────────────
+async function sendSmsForUser(
+  db: ReturnType<typeof createAdminClient>,
+  userId: string,
+  content: RenderedContent,
+): Promise<"sent" | "failed" | "skipped"> {
+  const { phone } = await getUserContact(db, userId);
+  if (!phone) return "skipped";
+  return sendSmsToPhone(phone, content);
+}
 
-export async function sendNotification(req: NotificationRequest): Promise<void> {
+function isAdminRole(role?: string): boolean {
+  return role === "admin" || role === "founder";
+}
+
+/** Core entry point — creates events, applies rules, sends, and logs outcomes. */
+export async function createNotificationEvent(
+  input: CreateNotificationInput,
+): Promise<{ eventIds: string[] }> {
   const db = createAdminClient();
-  const rendered = renderTemplate(req.type, req.data ?? {});
-  const prefs = await getUserPreferences(db, req.userId);
+  const channels = resolveChannels(input.type, input.channels);
+  const content = resolveContent(input.type, input.payload);
+  const prefs = await getUserPreferences(db, input.userId);
+  const eventIds: string[] = [];
 
-  for (const channel of req.channels) {
-    const payload = {
-      type: req.type,
+  for (const channel of channels) {
+    const eventPayload = {
+      type: input.type,
       channel,
-      data: req.data ?? {},
-      actorId: req.actorId ?? null,
+      payload: input.payload,
+      actorId: input.actorId ?? null,
     };
 
-    // ── SMS gate: only permitted types, only admin/founder-triggered ──────
     if (channel === "sms") {
-      if (!SMS_PERMITTED_TYPES.has(req.type)) {
-        await logEvent(db, req.userId, req.type, "sms", payload, "skipped",
-          "SMS not permitted for this notification type");
+      if (isSmsBlocked(input.type)) {
+        const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+        await updateEventStatus(db, eventId, "skipped", "SMS not permitted for this notification type");
+        if (eventId) eventIds.push(eventId);
         continue;
       }
-      if (!req.actorId || !["admin", "founder"].includes(req.actorRole ?? "")) {
-        await logEvent(db, req.userId, req.type, "sms", payload, "skipped",
-          "SMS requires admin or founder actor");
-        continue;
-      }
-    }
-
-    // ── User preference gate ─────────────────────────────────────────────
-    if (prefs) {
-      if (channel === "in_app" && !prefs.in_app_enabled) {
-        await logEvent(db, req.userId, req.type, channel, payload, "skipped", "user disabled in_app");
-        continue;
-      }
-      if (channel === "email" && !prefs.email_enabled) {
-        await logEvent(db, req.userId, req.type, channel, payload, "skipped", "user disabled email");
-        continue;
-      }
-      if (channel === "sms" && !prefs.sms_enabled) {
-        await logEvent(db, req.userId, req.type, channel, payload, "skipped", "user disabled sms");
+      if (requiresAdminActor(input.type, channel) && !isAdminRole(input.actorRole)) {
+        const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+        await updateEventStatus(db, eventId, "skipped", "SMS requires admin or founder actor");
+        if (eventId) eventIds.push(eventId);
         continue;
       }
     }
 
-    // ── Rate limit gate ───────────────────────────────────────────────────
-    if (await isRateLimited(db, req.userId, channel)) {
-      await logEvent(db, req.userId, req.type, channel, payload, "skipped",
-        `rate limit exceeded for ${channel}`);
+    if (!input.force) {
+      if (!isTopicEnabled(prefs, input.type)) {
+        const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+        await updateEventStatus(db, eventId, "skipped", "user disabled topic");
+        if (eventId) eventIds.push(eventId);
+        continue;
+      }
+      if (!isChannelEnabled(prefs, channel)) {
+        const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+        await updateEventStatus(db, eventId, "skipped", `user disabled ${channel}`);
+        if (eventId) eventIds.push(eventId);
+        continue;
+      }
+    }
+
+    const rate = await isRateLimited(db, input.userId, channel);
+    if (rate.limited) {
+      const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+      await updateEventStatus(db, eventId, "skipped", rate.reason);
+      if (eventId) eventIds.push(eventId);
       continue;
     }
 
-    // ── Send ──────────────────────────────────────────────────────────────
-    let status: "sent" | "failed";
+    const eventId = await insertPendingEvent(db, input.userId, input.type, channel, eventPayload);
+    if (eventId) eventIds.push(eventId);
+
+    let status: "sent" | "failed" | "skipped" = "failed";
     let errorMessage: string | undefined;
 
     try {
       if (channel === "in_app") {
-        status = await sendInApp(db, req.userId, req.type, rendered);
+        status = await sendInApp(db, input.userId, input.type, content, input.payload.data);
       } else if (channel === "email") {
-        status = await sendEmail(db, req.userId, req.type, rendered);
+        status = await sendEmail(db, input.userId, content);
       } else {
-        status = await sendSms(db, req.userId, req.type, rendered);
+        status = await sendSmsForUser(db, input.userId, content);
       }
     } catch (err) {
       status = "failed";
       errorMessage = err instanceof Error ? err.message : String(err);
     }
 
-    await logEvent(db, req.userId, req.type, channel, payload, status, errorMessage);
+    await updateEventStatus(db, eventId, status, errorMessage);
   }
+
+  return { eventIds };
+}
+
+/** Admin batch SMS for waitlist members (no profile user_id). */
+export async function sendAdminWaitlistSmsBatch(
+  input: AdminWaitlistSmsInput,
+): Promise<{ sent: number; failed: number; errors: string[]; sentWaitlistIds: string[]; dryRun?: boolean }> {
+  if (!isAdminRole(input.actorRole)) {
+    return { sent: 0, failed: 0, errors: ["SMS requires admin or founder actor"], sentWaitlistIds: [] };
+  }
+
+  const targets = input.targets.slice(0, ADMIN_SMS_BATCH_LIMIT);
+
+  if (input.dryRun) {
+    return {
+      sent: 0,
+      failed: 0,
+      errors: [],
+      sentWaitlistIds: [],
+      dryRun: true,
+    };
+  }
+
+  const db = createAdminClient();
+  let sent = 0;
+  let failed = 0;
+  const errors: string[] = [];
+  const sentWaitlistIds: string[] = [];
+
+  for (const row of targets) {
+    const content = resolveContent(input.template, {
+      templateVars: { name: row.firstName ?? "Bloomie", appUrl: "bloombay.app/join" },
+    });
+
+    const result = await sendSMS(row.phoneNumber, content.smsBody ?? content.body);
+    if (result.ok) {
+      sent++;
+      sentWaitlistIds.push(row.waitlistId);
+    } else {
+      failed++;
+      errors.push(`${row.email ?? row.waitlistId}: ${result.error}`);
+    }
+  }
+
+  await writeAdminAuditLog({
+    actorId: input.actorId,
+    actorRole: input.actorRole,
+    action: "waitlist_sms_batch",
+    resourceType: "waitlist",
+    metadata: {
+      template: input.template,
+      sent,
+      failed,
+      targetCount: targets.length,
+    },
+  });
+
+  await db.from("cron_logs").insert({
+    job: `admin-waitlist-notify:${input.template}`,
+    result: failed === 0 ? "ok" : "error",
+    details: { sent, failed, errors: errors.slice(0, 20) },
+    ran_at: new Date().toISOString(),
+  }).maybeSingle();
+
+  return { sent, failed, errors, sentWaitlistIds };
 }
 
 // ── Convenience wrappers ──────────────────────────────────────────────────────
@@ -200,34 +378,22 @@ export async function sendNotification(req: NotificationRequest): Promise<void> 
 export function notifyInApp(
   userId: string,
   type: NotificationType,
-  data?: TemplateData,
-  link?: string
+  payload: CreateNotificationInput["payload"],
 ) {
-  return sendNotification({ userId, type, channels: ["in_app"], data, link });
+  return createNotificationEvent({ userId, type, channels: ["in_app"], payload });
 }
 
 export function notifyMember(
   userId: string,
   type: NotificationType,
-  data?: TemplateData
+  payload: CreateNotificationInput["payload"],
 ) {
-  return sendNotification({ userId, type, channels: ["in_app", "email"], data });
-}
-
-// SMS-permitted types only — requires admin/founder actor
-export function notifySmsBeta(
-  userId: string,
-  type: "private_beta_accepted" | "app_launch" | "urgent_safety",
-  actorId: string,
-  actorRole: "admin" | "founder",
-  data?: TemplateData
-) {
-  return sendNotification({
+  return createNotificationEvent({
     userId,
     type,
-    channels: ["in_app", "sms"],
-    data,
-    actorId,
-    actorRole,
+    channels: defaultChannelsForType(type).includes("email")
+      ? ["in_app", "email"]
+      : ["in_app"],
+    payload,
   });
 }
