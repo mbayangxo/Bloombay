@@ -1,12 +1,11 @@
-import { getResendClient, resendFromAddress } from "@/lib/email/resend-client";
 import {
   emailHtmlFromText,
   renderTemplateString,
   welcomeTemplateVars,
 } from "@/lib/message-templates/render";
 import { resolveMessageTemplate } from "@/lib/message-templates/resolve";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import { getAdminClient } from "@/lib/supabase-admin";
-import { sendSms } from "@/lib/sms/twilio-client";
 
 export type MemberWelcomeInput = {
   /** Server-derived from auth.uid() — never from client body. */
@@ -58,12 +57,31 @@ async function welcomeAlreadySent(userId: string) {
   }
 }
 
+async function channelStatuses(userId: string, eventIds: string[]) {
+  if (!eventIds.length) {
+    return { email: "skipped" as const, in_app: "skipped" as const, sms: "skipped" as const };
+  }
+  const admin = getAdminClient();
+  const { data } = await admin
+    .from("notification_events")
+    .select("channel, status")
+    .eq("user_id", userId)
+    .in("id", eventIds);
+  const rows = data ?? [];
+  const statusFor = (channel: string) =>
+    rows.find((r) => r.channel === channel)?.status ?? "skipped";
+  return {
+    email: statusFor("email"),
+    in_app: statusFor("in_app"),
+    sms: statusFor("sms"),
+  };
+}
+
 export async function sendMemberWelcome(
-  input: MemberWelcomeInput
+  input: MemberWelcomeInput,
 ): Promise<MemberWelcomeResult> {
   const email = input.email.trim().toLowerCase();
   const fullName = input.fullName.trim();
-  const phone = input.phone?.trim();
   const vars = welcomeTemplateVars({
     fullName,
     email,
@@ -79,95 +97,68 @@ export async function sendMemberWelcome(
     skipped: {},
   };
 
-  if (input.userId && (await welcomeAlreadySent(input.userId))) {
-    result.skipped = { email: "Already welcomed", sms: "Already welcomed", mailbox: "Already welcomed" };
-    return result;
-  }
-
-  const emailTemplate = await resolveMessageTemplate("member_welcome_email", vars);
-  const smsTemplate = await resolveMessageTemplate("member_welcome_sms", vars);
-  const inAppTemplate = await resolveMessageTemplate("member_welcome_in_app", vars);
-
-  const resend = getResendClient();
-  if (!email || !isValidEmail(email)) {
-    result.skipped!.email = "No valid email";
-  } else if (!resend) {
-    result.skipped!.email = "RESEND_API_KEY not configured";
-  } else {
-    const subject =
-      emailTemplate.subject ?? renderTemplateString("Welcome to BloomBay, {{first_name}}", vars);
-    const { error } = await resend.emails.send({
-      from: resendFromAddress(),
-      to: email,
-      subject,
-      html: emailHtmlFromText(emailTemplate.body),
-      text: emailTemplate.body,
-    });
-    if (error) {
-      result.ok = false;
-      result.error = error.message;
-      return result;
-    }
-    result.emailSent = true;
-  }
-
-  if (phone) {
-    const sms = await sendSms(phone, smsTemplate.body);
-    if (sms.ok) {
-      result.smsSent = true;
-    } else if (sms.skipped) {
-      result.skipped!.sms = sms.error ?? "Twilio not configured";
-    } else {
-      result.skipped!.sms = sms.error ?? "SMS failed";
-    }
-  } else {
-    result.skipped!.sms = "No phone on signup";
-  }
-
   if (!input.userId) {
     result.ok = false;
     result.error = "userId required";
     return result;
   }
 
+  if (await welcomeAlreadySent(input.userId)) {
+    result.skipped = {
+      email: "Already welcomed",
+      sms: "SMS not used for member welcome",
+      mailbox: "Already welcomed",
+    };
+    return result;
+  }
+
+  const emailTemplate = await resolveMessageTemplate("member_welcome_email", vars);
+  const inAppTemplate = await resolveMessageTemplate("member_welcome_in_app", vars);
+  const mailboxSubject =
+    inAppTemplate.subject ?? renderTemplateString("Welcome to BloomBay, {{first_name}}", vars);
+  const emailSubject =
+    emailTemplate.subject ?? renderTemplateString("Welcome to BloomBay, {{first_name}}", vars);
+
   try {
-    const admin = getAdminClient();
-    const { data: existing } = await admin
-      .from("member_mailbox_messages")
-      .select("id")
-      .eq("user_id", input.userId)
-      .eq("message_type", "welcome")
-      .maybeSingle();
-
-    if (existing?.id) {
-      result.skipped!.mailbox = "Welcome already in mailbox";
-      return result;
-    }
-
-    const mailboxSubject =
-      inAppTemplate.subject ?? renderTemplateString("Welcome to BloomBay, {{first_name}}", vars);
-
-    const { error: insertErr } = await admin.from("member_mailbox_messages").insert({
-      user_id: input.userId,
-      from_name: "BloomBay",
-      subject: mailboxSubject,
-      body: inAppTemplate.body,
-      message_type: "welcome",
-      href: appHomeHref(),
+    const { eventIds } = await createNotificationEvent({
+      userId: input.userId,
+      type: "member_welcome",
+      channels: ["in_app", "email"],
+      payload: {
+        title: mailboxSubject,
+        body: inAppTemplate.body,
+        link: appHomeHref(),
+        subject: emailSubject,
+        html: emailHtmlFromText(emailTemplate.body),
+        recipientEmail: isValidEmail(email) ? email : undefined,
+        templateVars: vars,
+      },
     });
 
-    if (insertErr) {
-      if (insertErr.message.includes("does not exist")) {
-        result.skipped!.mailbox = "Run supabase/migrations/011_member_mailbox.sql";
-      } else {
-        result.skipped!.mailbox = insertErr.message;
-      }
+    const statuses = await channelStatuses(input.userId, eventIds);
+    result.mailboxSaved = statuses.in_app === "sent";
+    result.emailSent = statuses.email === "sent";
+    result.smsSent = false;
+    result.skipped!.sms = "SMS not permitted for member_welcome";
+
+    if (statuses.email === "skipped") {
+      result.skipped!.email = isValidEmail(email)
+        ? "RESEND not configured or user email disabled"
+        : "No valid email";
+    } else if (statuses.email === "failed") {
+      result.ok = false;
+      result.error = "Welcome email failed";
       return result;
     }
 
-    result.mailboxSaved = true;
+    if (statuses.in_app === "skipped") {
+      result.skipped!.mailbox = "Welcome already in mailbox or table missing";
+    } else if (statuses.in_app === "failed") {
+      result.skipped!.mailbox = "Mailbox insert failed";
+    }
   } catch (e) {
-    result.skipped!.mailbox = e instanceof Error ? e.message : "Mailbox insert failed";
+    result.ok = false;
+    result.error = e instanceof Error ? e.message : "Welcome failed";
   }
 
   return result;

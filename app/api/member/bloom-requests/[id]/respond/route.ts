@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 export async function POST(
   request: Request,
@@ -61,21 +62,28 @@ export async function POST(
         const question = questions[Math.floor(Math.random() * questions.length)];
         const fromUserId = row.from_user_id;
         const toUserId = user.id;
+        const prompt = question.prompt.slice(0, 140);
 
-        void supabase.from("notifications").insert({
-          user_id: toUserId,
+        void createNotificationEvent({
+          userId: toUserId,
           type: "yande_question",
-          title: "Yande has a question for you two 🌸",
-          body: question.prompt.slice(0, 140),
-          data: { question_id: question.id, bloomie_id: fromUserId },
+          channels: ["in_app"],
+          payload: {
+            title: "Yande has a question for you two 🌸",
+            body: prompt,
+            data: { question_id: question.id, bloomie_id: fromUserId },
+          },
         });
 
-        void supabase.from("notifications").insert({
-          user_id: fromUserId,
+        void createNotificationEvent({
+          userId: fromUserId,
           type: "yande_question",
-          title: "Yande has a question for you two 🌸",
-          body: question.prompt.slice(0, 140),
-          data: { question_id: question.id, bloomie_id: toUserId },
+          channels: ["in_app"],
+          payload: {
+            title: "Yande has a question for you two 🌸",
+            body: prompt,
+            data: { question_id: question.id, bloomie_id: toUserId },
+          },
         });
       }
     } catch {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 function verifyWhopSignature(body: string, header: string | null, secret: string): boolean {
   if (!header || !secret) return false;
@@ -61,13 +62,16 @@ export async function POST(req: NextRequest) {
         .eq("user_id", user_id)
         .eq("status", "pending");
 
-      await supabase.from("notifications").insert({
-        user_id,
+      await createNotificationEvent({
+        userId: user_id,
         type: "club_accepted",
-        title: "Payment confirmed — you're in!",
-        body: `Your membership was confirmed. Welcome.`,
-        link: `/member/clubs/${clubSlug}`,
-        data: { club_id },
+        channels: ["in_app"],
+        payload: {
+          title: "Payment confirmed — you're in!",
+          body: "Your membership was confirmed. Welcome.",
+          link: `/member/clubs/${clubSlug}`,
+          data: { club_id },
+        },
       });
     }
   }

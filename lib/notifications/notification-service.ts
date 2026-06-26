@@ -35,6 +35,8 @@ export interface CreateNotificationInput {
     templateVars?: Record<string, string>;
     subject?: string;
     html?: string;
+    /** Use when profile email is not yet persisted (e.g. signup welcome). */
+    recipientEmail?: string;
     data?: Record<string, unknown>;
   };
   /** Skip preference check (urgent safety only) */
@@ -166,13 +168,58 @@ async function updateEventStatus(
     .eq("id", eventId);
 }
 
+async function insertWelcomeMailbox(
+  db: ReturnType<typeof createAdminClient>,
+  userId: string,
+  content: RenderedContent,
+): Promise<"sent" | "skipped" | "failed"> {
+  const { data: existing } = await db
+    .from("member_mailbox_messages")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("message_type", "welcome")
+    .maybeSingle();
+
+  if (existing?.id) return "skipped";
+
+  const { error } = await db.from("member_mailbox_messages").insert({
+    user_id: userId,
+    from_name: "BloomBay",
+    subject: content.title,
+    body: content.body,
+    message_type: "welcome",
+    href: content.link ?? "/member/home",
+  });
+
+  if (error) {
+    if (error.message.includes("does not exist")) return "skipped";
+    return "failed";
+  }
+  return "sent";
+}
+
 async function sendInApp(
   db: ReturnType<typeof createAdminClient>,
   userId: string,
   type: NotificationType,
   content: RenderedContent,
   data?: Record<string, unknown>,
-): Promise<"sent" | "failed"> {
+): Promise<"sent" | "failed" | "skipped"> {
+  if (type === "member_welcome") {
+    const mailboxStatus = await insertWelcomeMailbox(db, userId, content);
+    const { error } = await db.from("notifications").insert({
+      user_id: userId,
+      type,
+      title: content.title,
+      body: content.body,
+      link: content.link ?? null,
+      data: data ?? null,
+    });
+    if (mailboxStatus === "sent") return "sent";
+    if (mailboxStatus === "skipped" && !error) return "sent";
+    return error ? "failed" : mailboxStatus;
+  }
+
   const { error } = await db.from("notifications").insert({
     user_id: userId,
     type,
@@ -188,11 +235,13 @@ async function sendEmail(
   db: ReturnType<typeof createAdminClient>,
   userId: string,
   content: RenderedContent,
+  payload: CreateNotificationInput["payload"],
 ): Promise<"sent" | "failed" | "skipped"> {
   const resend = getResendClient();
   if (!resend) return "skipped";
 
-  const { email } = await getUserContact(db, userId);
+  const { email: profileEmail } = await getUserContact(db, userId);
+  const email = payload.recipientEmail?.trim().toLowerCase() || profileEmail;
   if (!email) return "skipped";
 
   const { error } = await resend.emails.send({
@@ -200,6 +249,7 @@ async function sendEmail(
     to: email,
     subject: content.subject ?? content.title,
     html: content.html ?? `<p>${content.body}</p>`,
+    text: content.html ? undefined : content.body,
   });
 
   return error ? "failed" : "sent";
@@ -294,7 +344,7 @@ export async function createNotificationEvent(
       if (channel === "in_app") {
         status = await sendInApp(db, input.userId, input.type, content, input.payload.data);
       } else if (channel === "email") {
-        status = await sendEmail(db, input.userId, content);
+        status = await sendEmail(db, input.userId, content, input.payload);
       } else {
         status = await sendSmsForUser(db, input.userId, content);
       }
