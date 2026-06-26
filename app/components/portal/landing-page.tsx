@@ -245,8 +245,8 @@ function EnvelopeInvitation() {
               </div>
             </div>
 
-            {/* ── INNER INVITATION CARD ── */}
-            <div style={{ padding: "96px 16px 22px", position: "relative", zIndex: 3 }}>
+            {/* ── INNER INVITATION CARD — hidden until flap opens ── */}
+            <div style={{ padding: "96px 16px 22px", position: "relative", zIndex: 3, opacity: opening ? 1 : 0, transition: "opacity 0.25s ease 0.38s" }}>
               <div style={{
                 background: "#FFFFFF",
                 borderRadius: 12,
@@ -396,7 +396,7 @@ export function LandingPage() {
       ══════════════════════════════════════════════════════ */}
       {/* ── Mobile black circle — matches the desktop circular motif ── */}
       <section className="bb-mobile-only" style={{ background: IVORY, flexDirection: "column", justifyContent: "flex-start", overflow: "visible", position: "relative", padding: "20px 18px" }}>
-        <div style={{ background: "#0A0A0A", borderRadius: 36, overflow: "hidden", position: "relative" }}>
+        <div style={{ background: PINK, borderRadius: 36, overflow: "hidden", position: "relative" }}>
           {/* Subtle pink glow */}
           <div style={{ position: "absolute", bottom: -60, left: -60, width: 280, height: 280, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}20 0%, transparent 70%)`, pointerEvents: "none" }} />
           {/* Top bar: BBLogo + LOG IN + JOIN NOW */}
@@ -443,19 +443,15 @@ export function LandingPage() {
             <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 10.5vw, 52px)", lineHeight: 0.9, letterSpacing: "-0.035em" }}>
               <span style={{ color: "#0A0A0A" }}>Women</span><span style={{ color: "rgba(255,255,255,0.82)" }}> are</span>
             </div>
-            <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 12.5vw, 64px)", color: "white", lineHeight: 0.84, letterSpacing: "-0.04em", marginTop: 6 }}>
+            <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: "clamp(46px, 13vw, 68px)", color: "white", lineHeight: 0.88, letterSpacing: "-0.02em", marginTop: 6 }}>
               gathering…
             </div>
           </div>
 
-          {/* Club pills */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
-            {["Dinner Society", "Museum Girls", "Book Club", "Sunday Walks"].map((name) => (
-              <div key={name} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "5px 12px", backdropFilter: "blur(8px)" }}>
-                <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>{name}</span>
-              </div>
-            ))}
-          </div>
+          {/* Descriptor line */}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.75)", marginBottom: 28 }}>
+            Happenings · Clubs · Plans
+          </p>
 
           {/* Envelope invitation — tappable, opens and navigates to waitlist */}
           <EnvelopeInvitation />
@@ -711,7 +707,7 @@ export function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+          <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
             {[
               {
                 emoji: "🏠", label: "GIRLMATE", name: "Find Your Roommate",
@@ -756,7 +752,7 @@ export function LandingPage() {
             ].map(f => (
               <Link key={f.name} href={f.href} style={{ textDecoration: "none" }}>
                 <div style={{
-                  borderRadius: 20, padding: "24px 22px", height: "100%", boxSizing: "border-box",
+                  borderRadius: 20, padding: "24px 22px", width: 240, flexShrink: 0, boxSizing: "border-box",
                   background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
                   transition: "border-color 0.15s", cursor: "pointer",
                 }}>
@@ -802,7 +798,7 @@ export function LandingPage() {
             </h2>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: "20px", color: "#aaa", transform: "rotate(-1deg)" }}>find your people. build your world.</p>
           </div>
-          <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, flexWrap: "nowrap" }}>
             {CLUBS.map((club, i) => <ClubCard key={i} name={club.name} dark={club.dark} outline={club.outline} icon={club.icon} />)}
           </div>
         </div>
@@ -832,14 +828,14 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           HOW IT WORKS (light, editorial steps)
       ══════════════════════════════════════════════════════ */}
-      <section style={{ padding: "80px 22px", background: "white" }}>
+      <section style={{ padding: "80px 22px", background: PINK }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 12, textAlign: "center" }}>HOW IT WORKS</p>
-          <h2 style={{ fontWeight: 900, fontSize: "clamp(22px,3.5vw,36px)", color: INK, marginBottom: 8, textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.7)", marginBottom: 12, textAlign: "center" }}>HOW IT WORKS</p>
+          <h2 style={{ fontWeight: 900, fontSize: "clamp(22px,3.5vw,36px)", color: "white", marginBottom: 8, textAlign: "center" }}>
             From stranger to{" "}
-            <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>sister</span>.
+            <span style={{ color: INK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>community</span>.
           </h2>
-          <div style={{ width: 32, height: 2, background: PINK, margin: "0 auto 48px" }} />
+          <div style={{ width: 32, height: 2, background: "rgba(255,255,255,0.5)", margin: "0 auto 48px" }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 28 }}>
             {[
@@ -848,38 +844,13 @@ export function LandingPage() {
               { step: "03", title: "Show up", body: "Attend IRL events with real women who actually show up. No flaking, no randos." },
               { step: "04", title: "Make it yours", body: "Start your own club, host your first gathering, build something that lasts." },
             ].map((item) => (
-              <div key={item.step} style={{ textAlign: "left", padding: "22px 20px", background: IVORY, borderRadius: 18, position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: -8, right: 8, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "64px", fontWeight: 300, color: "rgba(255,31,125,0.08)", lineHeight: 1 }}>{item.step}</div>
-                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "28px", fontWeight: 300, color: PINK, marginBottom: 8, lineHeight: 1, position: "relative" }}>{item.step}</p>
-                <p style={{ fontWeight: 800, fontSize: "13px", color: INK, marginBottom: 6, position: "relative" }}>{item.title}</p>
-                <p style={{ fontSize: "12px", color: "#888", lineHeight: 1.6, position: "relative" }}>{item.body}</p>
+              <div key={item.step} style={{ textAlign: "left", padding: "22px 20px", background: "rgba(255,255,255,0.15)", borderRadius: 18, position: "relative", overflow: "hidden", backdropFilter: "blur(8px)" }}>
+                <div style={{ position: "absolute", top: -8, right: 8, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "64px", fontWeight: 300, color: "rgba(255,255,255,0.12)", lineHeight: 1 }}>{item.step}</div>
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "28px", fontWeight: 300, color: "rgba(255,255,255,0.7)", marginBottom: 8, lineHeight: 1, position: "relative" }}>{item.step}</p>
+                <p style={{ fontWeight: 800, fontSize: "13px", color: "white", marginBottom: 6, position: "relative" }}>{item.title}</p>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, position: "relative" }}>{item.body}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          PARTNERS SECTION
-      ══════════════════════════════════════════════════════ */}
-      <section style={{ padding: "64px 22px", background: IVORY }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <div style={{ background: INK, borderRadius: 24, padding: "48px 36px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, right: 0, width: 300, height: 300, background: `radial-gradient(circle, rgba(255,31,125,0.2) 0%, transparent 70%)`, pointerEvents: "none" }} />
-            <div style={{ position: "relative" }}>
-              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.3)", marginBottom: 16 }}>✦ &nbsp;FOR GROUP OWNERS</p>
-              <h2 style={{ fontWeight: 900, fontSize: "clamp(22px,4vw,34px)", color: "white", marginBottom: 12, lineHeight: 1.15 }}>
-                Run a housing group?<br />
-                <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>Bring your women here.</span>
-              </h2>
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", lineHeight: 1.7, maxWidth: 480, marginBottom: 28 }}>
-                If you manage a Facebook group, WhatsApp chat, or community for women, you can become a <strong style={{ color: "white" }}>BloomBay Partner</strong>. Your members get a verified, safer space — and you get tools to manage it.
-              </p>
-              <Link href="/start-a-club" style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", borderRadius: 999, background: PINK, color: "white", fontWeight: 900, fontSize: "12px", letterSpacing: "0.12em", textDecoration: "none", boxShadow: "0 6px 24px rgba(255,31,125,0.4)" }}>
-                START A CLUB
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
@@ -893,9 +864,9 @@ export function LandingPage() {
         <div style={{ position: "relative", textAlign: "center", maxWidth: 580 }}>
           <Sparkle color="#FF69B4" size={22} />
           <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.4)", fontSize: "clamp(14px,2vw,18px)", margin: "14px 0 6px", letterSpacing: "0.04em" }}>You haven&apos;t met your people yet.</p>
-          <p style={{ fontWeight: 900, color: "white", fontSize: "clamp(32px,6vw,60px)", lineHeight: 1.05, marginBottom: 10 }}>
-            Your place is{" "}
-            <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>here.</span>
+          <p style={{ fontWeight: 900, color: "white", fontSize: "clamp(28px,5.5vw,56px)", lineHeight: 1.05, marginBottom: 10 }}>
+            A beautiful social life{" "}
+            <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>starts here.</span>
           </p>
           <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. New York City.</p>
           <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
@@ -906,16 +877,16 @@ export function LandingPage() {
       </section>
 
       {/* ══ FOOTER ══ */}
-      <footer style={{ background: IVORY, borderTop: "1px solid #ecddd4" }}>
+      <footer style={{ background: "#FFF0F6", borderTop: "1px solid #FFD6E7" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 22px 36px" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 28, marginBottom: 48, paddingBottom: 40, borderBottom: "1px solid #ecddd4" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 28, marginBottom: 48, paddingBottom: 40, borderBottom: "1px solid #FFD6E7" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                 <BBLogo size={32} />
                 <BBWordmark size={24} />
               </div>
-              <p style={{ fontSize: "14px", color: "#888", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 4 }}>A world built for women.</p>
-              <p style={{ fontSize: "12px", color: "#bbb" }}>New York City · Est. 2025</p>
+              <p style={{ fontSize: "14px", color: "#c4005a", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 4 }}>A world built for women.</p>
+              <p style={{ fontSize: "12px", color: "rgba(28,0,14,0.45)" }}>New York City · Est. 2025</p>
             </div>
             <div style={{ display: "flex", gap: 20 }}>
               {[
@@ -938,21 +909,21 @@ export function LandingPage() {
               { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Press", h: "/contact" }] },
             ].map((col) => (
               <div key={col.title}>
-                <p style={{ fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: INK, marginBottom: 14 }}>{col.title}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 14 }}>{col.title}</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {col.links.map((link) => (
-                    <Link key={link.l} href={link.h} style={{ fontSize: "13px", color: "#888", textDecoration: "none" }}>{link.l}</Link>
+                    <Link key={link.l} href={link.h} style={{ fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(28,0,14,0.6)", textDecoration: "none" }}>{link.l}</Link>
                   ))}
                 </div>
               </div>
             ))}
           </div>
 
-          <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", borderTop: "1px solid #ecddd4" }}>
-            <p style={{ fontSize: "11px", color: "#bbb" }}>© 2026 BloomBay, Inc. All rights reserved.</p>
+          <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", borderTop: "1px solid #FFD6E7" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(28,0,14,0.4)" }}>© 2026 BloomBay, Inc. All rights reserved.</p>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
               {[{ l: "Privacy Policy", h: "/privacy" }, { l: "Terms of Service", h: "/terms" }, { l: "Safety", h: "/safety" }, { l: "Girl Rights", h: "/girl-rights" }].map((link) => (
-                <Link key={link.l} href={link.h} style={{ fontSize: "11px", color: "#bbb", textDecoration: "none" }}>{link.l}</Link>
+                <Link key={link.l} href={link.h} style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(28,0,14,0.4)", textDecoration: "none" }}>{link.l}</Link>
               ))}
             </div>
           </div>
