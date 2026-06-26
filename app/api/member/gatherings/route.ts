@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
+import { internalError } from "@/lib/api/error-response";
+import { logError } from "@/lib/logger";
 
 /** Upcoming gatherings for member feed (authenticated). */
 export async function GET() {
@@ -19,16 +21,18 @@ export async function GET() {
     .select(
       "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_key, event_type, poster_variant, image_url, description, price_cents, host_name"
     )
+    .eq("publish_status", "live")
     .gte("starts_at", now)
     .not("event_type", "is", null)
     .order("starts_at", { ascending: true })
     .limit(40);
 
   if (error) {
+    logError("supabase", "gatherings list failed", { message: error.message });
     if (error.message.includes("does not exist")) {
       return NextResponse.json({ gatherings: [], source: "demo" });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return internalError("Could not load gatherings");
   }
 
   return NextResponse.json({ gatherings: data ?? [], source: "db" });

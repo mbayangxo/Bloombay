@@ -32,6 +32,7 @@ export async function getEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from("gatherings")
     .select("*")
+    .eq("publish_status", "live")
     .not("event_type", "is", null)
     .order("starts_at", { ascending: true });
 

@@ -32,12 +32,14 @@ export async function GET(_req: NextRequest) {
   const [
     { count: totalMembers },
     { count: pendingApplications },
+    { count: pendingClubMama },
     { count: activeClubs },
     { count: newThisWeek },
     { count: upcomingEvents },
   ] = await Promise.all([
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("is_member", true),
     admin.from("member_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    admin.from("club_mama_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("clubs").select("id", { count: "exact", head: true }).eq("is_active", true),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("is_member", true).gte("membership_started_at", weekAgo),
     admin
@@ -50,6 +52,7 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({
     totalMembers: totalMembers ?? 0,
     pendingApplications: pendingApplications ?? 0,
+    pendingClubMama: pendingClubMama ?? 0,
     activeClubs: activeClubs ?? 0,
     newThisWeek: newThisWeek ?? 0,
     upcomingEvents: upcomingEvents ?? 0,

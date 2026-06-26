@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getMemberPhone } from "@/lib/irl/member-phone";
-import { sendMemberSmsReminder } from "@/lib/sms/send-member-reminder";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import { createClient } from "@/lib/supabase/server";
+import { isBlocked } from "@/lib/auth/block-check";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
 import { resolveGatheringId } from "@/lib/truth/resolve-gathering";
 
@@ -29,11 +30,24 @@ export async function POST(request: Request) {
 
   const gatheringId = resolved.id;
 
-  const { data: capRow } = await supabase
+  const { data: gatheringMeta } = await supabase
     .from("gatherings")
-    .select("spots_left")
+    .select("spots_left, host_id, created_by")
     .eq("id", gatheringId)
     .maybeSingle();
+
+  const hostId = (gatheringMeta?.host_id ?? gatheringMeta?.created_by) as string | null;
+  if (hostId && hostId !== user.id && await isBlocked(supabase, user.id, hostId)) {
+    return NextResponse.json({ ok: false, error: "Cannot reserve this event" }, { status: 403 });
+  }
+
+  const { data: capRow } = gatheringMeta
+    ? { data: { spots_left: gatheringMeta.spots_left } }
+    : await supabase
+      .from("gatherings")
+      .select("spots_left")
+      .eq("id", gatheringId)
+      .maybeSingle();
   if (capRow && (capRow.spots_left as number) <= 0) {
     return NextResponse.json({ ok: false, error: "No seats left" }, { status: 409 });
   }
@@ -57,12 +71,22 @@ export async function POST(request: Request) {
 
   const phone = await getMemberPhone(supabase, user.id, user.phone);
 
-  const { error: insertErr } = await supabase.from("seat_reservations").insert({
+  const reservationRow: Record<string, unknown> = {
     gathering_id: gatheringId,
     user_id: user.id,
     status: "reserved",
-    phone,
-  });
+  };
+  if (phone) reservationRow.phone = phone;
+
+  let { error: insertErr } = await supabase.from("seat_reservations").insert(reservationRow);
+
+  if (insertErr?.message.includes("'phone' column")) {
+    ({ error: insertErr } = await supabase.from("seat_reservations").insert({
+      gathering_id: gatheringId,
+      user_id: user.id,
+      status: "reserved",
+    }));
+  }
 
   if (insertErr) {
     if (insertErr.message.includes("does not exist")) {
@@ -101,11 +125,19 @@ export async function POST(request: Request) {
       })
     : undefined;
 
-  void sendMemberSmsReminder(supabase, user.id, {
-    kind: "seat",
-    title: gathering.title as string,
-    when: whenLabel,
-    place: (gathering.area as string) ?? undefined,
+  void createNotificationEvent({
+    userId: user.id,
+    type: "ticket_confirmed",
+    channels: ["in_app"],
+    payload: {
+      title: `You're going to ${gathering.title as string}!`,
+      templateVars: {
+        eventTitle: gathering.title as string,
+        date: whenLabel ?? "TBD",
+        place: (gathering.area as string) ?? "",
+      },
+      link: `/member/happenings`,
+    },
   });
 
   return NextResponse.json({ ok: true, gathering });

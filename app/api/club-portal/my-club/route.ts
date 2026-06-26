@@ -20,7 +20,7 @@ export async function GET() {
   const [memberRes, pendingRes, upcomingRes, ownerRes] = await Promise.all([
     supabase.from("club_memberships").select("*", { count: "exact", head: true }).eq("club_id", club.id),
     supabase.from("club_applications").select("*", { count: "exact", head: true }).eq("club_id", club.id).eq("status", "pending"),
-    supabase.from("gatherings").select("*", { count: "exact", head: true }).eq("club_id", club.id).gte("starts_at", new Date().toISOString()),
+    supabase.from("gatherings").select("*", { count: "exact", head: true }).eq("club_slug", club.slug).gte("starts_at", new Date().toISOString()),
     supabase.from("profiles").select("full_name, first_name, avatar_url").eq("id", user.id).maybeSingle(),
   ]);
 
