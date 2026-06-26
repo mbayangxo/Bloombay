@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   hasAuthCallback,
   processMagicLinkCallback,
@@ -15,16 +15,15 @@ export function MagicLinkCallback({
   onError?: (message: string) => void;
 }) {
   const [processing, setProcessing] = useState(false);
-  const started = useRef(false);
 
   useEffect(() => {
-    if (started.current) return;
     if (!hasAuthCallback(window.location.search, window.location.hash)) return;
 
-    started.current = true;
+    let cancelled = false;
     setProcessing(true);
 
     void processMagicLinkCallback(portal).then((result) => {
+      if (cancelled) return;
       if (result.status === "error") {
         setProcessing(false);
         onError?.(result.message);
@@ -32,6 +31,10 @@ export function MagicLinkCallback({
         setProcessing(false);
       }
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [portal, onError]);
 
   if (!processing) return null;
