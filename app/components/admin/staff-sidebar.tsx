@@ -8,6 +8,7 @@ import { MC_NAV } from "@/lib/portal-navigation";
 import { useMissionControlRole } from "./mission-control-provider";
 
 const ICONS: Record<string, string> = {
+  "/beta-launch": "☑",
   "/dashboard": "✦",
   "/people": "♣",
   "/cities": "◆",

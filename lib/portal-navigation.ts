@@ -56,6 +56,7 @@ export const MC_NAV: {
   {
     title: "Mission",
     items: [
+      { label: "Beta launch", path: "/beta-launch", cap: "beta_launch" },
       { label: "Overview", path: "/dashboard", cap: "overview" },
       { label: "Women", path: "/people", cap: "women" },
       { label: "Cities", path: "/cities", cap: "cities" },

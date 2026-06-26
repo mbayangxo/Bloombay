@@ -31,6 +31,7 @@ export function isModerator(role: UserRole): boolean {
 }
 
 export type MissionControlCapability =
+  | "beta_launch"
   | "overview"
   | "women"
   | "cities"
@@ -58,6 +59,7 @@ export type MissionControlCapability =
   | "magazine_review";
 
 const CAPS: Record<MissionControlCapability, UserRole[]> = {
+  beta_launch: ["founder"],
   overview: ["founder", "admin", "moderator"],
   women: ["founder", "admin"],
   cities: ["founder", "admin"],
@@ -112,6 +114,7 @@ export function capabilityForStaffPath(
   portal: "founder" | "admin"
 ): MissionControlCapability | null {
   const p = pathToMcCap(pathname, portal === "founder" ? "/founder" : "/admin");
+  if (p.startsWith("/admin/beta-launch")) return "beta_launch";
   if (p.startsWith("/admin/dashboard")) return "overview";
   if (p.startsWith("/admin/people")) return "women";
   if (p.startsWith("/admin/cities")) return "cities";

@@ -1,5 +1,6 @@
 import { FounderShell } from "@/app/components/admin/founder-shell";
 import { DashboardOverview } from "@/app/components/admin/dashboard-overview";
+import { BetaLaunchChecklist } from "@/app/components/founder/beta-launch-checklist";
 import {
   cohortWithFallback,
   fetchCohort14FromDb,
@@ -42,6 +43,7 @@ export default async function AdminDashboardPage() {
           <code>.env.local</code> and run <code>supabase/apply-all.sql</code>.
         </p>
       ) : null}
+      <BetaLaunchChecklist compact />
       <DashboardOverview
         rows={rows}
         cohort14={cohort14}
