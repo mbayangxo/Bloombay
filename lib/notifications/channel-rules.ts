@@ -28,6 +28,8 @@ export const SMS_BLOCKED_TYPES = new Set<string>([
   "yande_question",
   "celebrate",
   "report_submitted",
+  "member_welcome",
+  "flower_received",
 ]);
 
 /** Admin/founder-only SMS types (must use approved templates). */
@@ -49,6 +51,9 @@ export interface NotificationPreferences {
 }
 
 export function defaultChannelsForType(type: NotificationType): NotificationChannel[] {
+  if (type === "member_welcome") {
+    return ["in_app", "email"];
+  }
   if (SMS_PERMITTED_TYPES.has(type)) {
     return ["in_app", "email"];
   }

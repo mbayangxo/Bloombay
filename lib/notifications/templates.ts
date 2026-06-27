@@ -33,7 +33,9 @@ export type NotificationType =
   | "verification_approved"
   | "verification_rejected"
   | "intro"
-  | "report_submitted";
+  | "report_submitted"
+  | "member_welcome"
+  | "flower_received";
 
 // Types that may use SMS — admin/founder must explicitly opt in to SMS channel
 export const SMS_PERMITTED_TYPES = new Set<NotificationType>([
@@ -254,6 +256,20 @@ export function renderTemplate(
         title: "Report received",
         body: "Thank you for helping keep BloomBay safe. Our team will review your report.",
         link: "/member/settings",
+      };
+
+    case "member_welcome":
+      return {
+        title: "Welcome to BloomBay",
+        body: data.message ?? `Welcome, ${name}. Your BloomBay home is ready.`,
+        link: "/member/home",
+      };
+
+    case "flower_received":
+      return {
+        title: data.message ? String(data.message) : "Someone sent you flowers 🌸",
+        body: "Open the app to see who noticed you.",
+        link: "/member/lounge",
       };
 
     // ── Verification ───────────────────────────────────────────────────────
