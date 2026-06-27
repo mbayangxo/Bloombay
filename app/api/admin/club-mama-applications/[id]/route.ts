@@ -134,8 +134,8 @@ export async function POST(
     payload: {
       title: `You're approved — ${app.club_name}`,
       body: created
-        ? "Your Club Mama application was approved. Open the Clubhouse portal to finish setup and plan your first gathering."
-        : "Your Club Mama application was approved. Your club profile is updated — head to the Clubhouse portal.",
+        ? "Your Club Mama application was approved. Open the Club Mama portal to finish setup and plan your first gathering."
+        : "Your Club Mama application was approved. Your club profile is updated — head to the Club Mama portal.",
       link: "/club-owner/dashboard",
       templateVars: { clubName: app.club_name as string },
       data: { club_id: clubId, club_slug: clubSlug, application_id: id },

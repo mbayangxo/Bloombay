@@ -15,7 +15,7 @@ function roleLabel(role: string): string {
   switch (role) {
     case "founder":     return "Founding Member";
     case "admin":       return "Team";
-    case "club_owner":  return "Club Owner";
+    case "club_owner":  return "Club Mama";
     case "partner":     return "Partner";
     case "curator":     return "Curator";
     default:            return "Member";

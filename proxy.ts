@@ -8,6 +8,7 @@ import {
   type PortalId,
   type UserRole,
 } from "@/lib/auth/roles";
+import { LEGACY_LOGIN_REDIRECTS, ROLE_LOGIN } from "@/lib/product-role-labels";
 
 const ROLE_PORTAL: Record<string, string> = {
   founder:    "/founder",
@@ -51,6 +52,11 @@ export default async function proxy(request: NextRequest) {
   if (oldToNew[pathname]) {
     return NextResponse.redirect(new URL(oldToNew[pathname], request.url));
   }
+  if (LEGACY_LOGIN_REDIRECTS[pathname]) {
+    const dest = new URL(LEGACY_LOGIN_REDIRECTS[pathname], request.url);
+    request.nextUrl.searchParams.forEach((v, k) => dest.searchParams.set(k, v));
+    return NextResponse.redirect(dest);
+  }
 
   // ── GirlMate auth gates ───────────────────────────────────────────────────
   const GM_PROTECTED = ["/girlmate/home", "/girlmate/post", "/girlmate/inbox", "/girlmate/partner/dashboard"];
@@ -66,22 +72,25 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/girlmate/home", request.url));
   }
 
-  const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/partner", "/curator", "/portals"];
+  const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/club-mama", "/host", "/partner", "/curator", "/portals"];
   const isProtected = PROTECTED.some(p => pathname.startsWith(p));
 
   const isLoginPath =
-    pathname === "/member/login" ||
+    pathname === ROLE_LOGIN.member ||
     pathname === "/admin/login" ||
+    pathname === ROLE_LOGIN.clubMama ||
     pathname === "/club-owner/login" ||
+    pathname === ROLE_LOGIN.host ||
     pathname === "/partner/login" ||
     pathname === "/curator/login" ||
-    pathname === "/founder/login";
+    pathname === ROLE_LOGIN.founder;
 
   // ── Unauthenticated → redirect to login ───────────────────────────────────
   if (isProtected && !isLoginPath && !user) {
     let loginPath = "/member/login";
     if (pathname.startsWith("/admin"))      loginPath = "/admin/login";
-    else if (pathname.startsWith("/club-owner")) loginPath = "/club-owner/login";
+    else if (pathname.startsWith("/club-owner") || pathname.startsWith("/club-mama")) loginPath = ROLE_LOGIN.clubMama;
+    else if (pathname.startsWith("/host")) loginPath = ROLE_LOGIN.host;
     else if (pathname.startsWith("/partner"))    loginPath = "/partner/login";
     else if (pathname.startsWith("/curator"))    loginPath = "/curator/login";
     else if (pathname.startsWith("/founder"))    loginPath = "/founder/login";

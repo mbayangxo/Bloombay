@@ -40,7 +40,7 @@ export default function ClubOwnerDashboardPage() {
         </p>
         <h1 className="co-page-head__title co-dash-club-name">{club?.name ?? "Your club"}</h1>
         <p className="co-page-head__sub">
-          Clubhouse portal — your club, not a venue partner. Health {analytics.healthScore}% ·{" "}
+          Club Mama portal — your club, not a venue partner. Health {analytics.healthScore}% ·{" "}
           {analytics.activeDaily} active today · ${analytics.revenue.totalMtd.toLocaleString()} MTD
         </p>
         {(pending > 0 || zonesPending > 0) && (

@@ -38,7 +38,7 @@ export const QA_PORTAL_OPTIONS: { id: QaPortalId; label: string; hint: string }[
   { id: "member", label: "Member", hint: "Women in the city — clubs, happenings, apartment" },
   { id: "founder", label: "Founder", hint: "Mission Control — Yande, markets, QA" },
   { id: "admin", label: "Operations", hint: "Admin / moderator tooling" },
-  { id: "club_owner", label: "Clubhouse", hint: "Club hosts — events, members" },
+  { id: "club_owner", label: "Club Mama", hint: "Club Mamas — events, members, applications" },
   { id: "partner", label: "Partner", hint: "Venues — bookings & revenue" },
   { id: "curator", label: "Curator", hint: "Field curators — gatherings & women" },
   { id: "public", label: "Public & logins", hint: "Portals index and sign-in screens" },
@@ -104,7 +104,7 @@ const PUBLIC_QA_ROUTES: QaRoute[] = [
   { id: "pub-portals", label: "All portals", path: "/portals", portal: "public" },
   { id: "pub-founder-login", label: "Founder login", path: PORTALS.founder.login, portal: "public" },
   { id: "pub-admin-login", label: "Operations login", path: PORTALS.admin.login, portal: "public" },
-  { id: "pub-club-login", label: "Clubhouse login", path: PORTALS.clubhouse.login, portal: "public" },
+  { id: "pub-club-login", label: "Club Mama login", path: PORTALS.clubhouse.login, portal: "public" },
   { id: "pub-partner-login", label: "Partner login", path: PORTALS.partner.login, portal: "public" },
   { id: "pub-member-landing", label: "Member landing", path: "/member", portal: "public" },
 ];

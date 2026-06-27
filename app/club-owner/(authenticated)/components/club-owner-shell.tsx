@@ -52,7 +52,7 @@ export function ClubOwnerShell({
           </div>
         </header>
         <div className="co-content">{children}</div>
-        <nav className="co-bottom-nav" aria-label="Clubhouse portal">
+        <nav className="co-bottom-nav" aria-label="Club Mama portal">
           {CLUB_OWNER_NAV.slice(0, 6).map((item) => {
             const tourId = NAV_TOUR_IDS[item.href];
             return (

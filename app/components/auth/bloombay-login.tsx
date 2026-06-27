@@ -54,7 +54,7 @@ const COPY: Record<
   },
   club_owner: {
     eyebrow: `${PORTALS.clubhouse.name} portal`,
-    title: "Clubhouse",
+    title: "Club Mama",
     sub: `${PORTALS.clubhouse.tagline} ${PORTALS.clubhouse.notFor}`,
     layout: "ticket",
   },
@@ -168,7 +168,7 @@ export function BloomBayLogin({
   useEffect(() => {
     if (searchParams.get("error") === "wrong_portal") {
       setError(
-        "You're signed in with a different portal. Sign out below, or use the founder dashboard password from .env.local (ADMIN_PASSWORD).",
+        "You're signed in with a different portal. Sign out below, then sign in with the correct work email at /company.",
       );
     }
   }, [searchParams]);

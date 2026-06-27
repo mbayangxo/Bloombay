@@ -52,7 +52,7 @@ export default function HostResourcesPage() {
             Everything you need<br />to host well.
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed max-w-xl mx-auto">
-            Guides, tools, and training for BloomBay club owners and hosts. You bring the vision — we give you the infrastructure.
+            Guides, tools, and training for BloomBay Club Mamas and hosts. You bring the vision — we give you the infrastructure.
           </p>
         </div>
 

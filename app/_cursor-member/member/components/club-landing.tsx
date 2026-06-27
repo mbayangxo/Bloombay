@@ -73,7 +73,7 @@ export function ClubLanding({ club }: { club: ClubProfile }) {
 
       {!isClubDiscoverable(club.id) ? (
         <p className="mp-club-cred__warn" style={{ margin: "0 1.25rem" }}>
-          This club is resting in discovery — no gathering in 45+ days. Hosts can revive it from the club owner portal.
+          This club is resting in discovery — no gathering in 45+ days. Hosts can revive it from the Club Mama portal.
         </p>
       ) : null}
 

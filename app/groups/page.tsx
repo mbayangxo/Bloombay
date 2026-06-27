@@ -23,7 +23,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   instagram: {
     title: "Bring your IG community to BloomBay",
     steps: [
-      { action: "Apply as a Club Owner", detail: "Tell us about your community — we'll set up your club in 24 hours." },
+      { action: "Become a Club Mama", detail: "Tell us about your community — we'll set up your club in 24 hours." },
       { action: "Add your club link to your bio", detail: "Your personal BloomBay club URL goes in your IG bio. Women tap once to join." },
       { action: "Post a story announcement", detail: "We'll give you ready-to-post story templates. One swipe up and they're in." },
       { action: "Your community moves with you", detail: "Your followers join your club, RSVP to your events, and find each other in the app." },
@@ -32,7 +32,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   facebook: {
     title: "Move your Facebook group to BloomBay",
     steps: [
-      { action: "Apply as a Club Owner", detail: "We review your group, set up your BloomBay club, and migrate the vibe — not just the names." },
+      { action: "Become a Club Mama", detail: "We review your group, set up your BloomBay club, and migrate the vibe — not just the names." },
       { action: "Pin an announcement post", detail: "We write the post for you. Pin it. Your members know where to go." },
       { action: "Share your club link in the group", detail: "One link. They click, they join. No onboarding friction." },
       { action: "Keep running both for 30 days", detail: "Let your community settle in before you sunset the FB group. We'll guide the transition." },
@@ -41,7 +41,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   tiktok: {
     title: "Turn your TikTok audience into a real community",
     steps: [
-      { action: "Apply as a Club Owner", detail: "Your audience already knows you. BloomBay gives them a place to meet each other." },
+      { action: "Become a Club Mama", detail: "Your audience already knows you. BloomBay gives them a place to meet each other." },
       { action: "Add your club link to your bio", detail: "One tap from your TikTok bio directly into your club." },
       { action: "Post a video announcing the move", detail: "We'll give you a script. Your audience converts because they trust you." },
       { action: "Host your first IRL event", detail: "Your followers finally meet — and BloomBay handles all the logistics." },
@@ -50,7 +50,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   whatsapp: {
     title: "Give your WhatsApp group a real home",
     steps: [
-      { action: "Apply as a Club Owner", detail: "WhatsApp groups get chaotic. BloomBay gives your community structure and events." },
+      { action: "Become a Club Mama", detail: "WhatsApp groups get chaotic. BloomBay gives your community structure and events." },
       { action: "Share your club link in the chat", detail: "Drop the link. Women join in one tap. No app download required to RSVP." },
       { action: "Move events and planning to BloomBay", detail: "Stop coordinating in thread. Events, RSVPs, and attendance all in one place." },
       { action: "Keep WhatsApp for casual chat", detail: "They work together. BloomBay for plans, WhatsApp for the fun stuff." },
@@ -59,7 +59,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   newsletter: {
     title: "Bring your readers into a real room",
     steps: [
-      { action: "Apply as a Club Owner", detail: "Your readers already love your voice. A club gives them a place to connect with each other." },
+      { action: "Become a Club Mama", detail: "Your readers already love your voice. A club gives them a place to connect with each other." },
       { action: "Dedicate one email to the launch", detail: "We write the copy. You send it. Your readers join your club in one click." },
       { action: "Add the club link to your site and every email footer", detail: "Passive discovery — readers find you on their own timeline." },
       { action: "Host your first reader meetup", detail: "The event every newsletter writer wants to throw. BloomBay makes it easy." },
@@ -68,7 +68,7 @@ const ONBOARDING: Record<Platform, { title: string; steps: { action: string; det
   other: {
     title: "Whatever you've built, bring it here",
     steps: [
-      { action: "Apply as a Club Owner", detail: "Tell us about your community. We'll figure out the right onboarding path together." },
+      { action: "Become a Club Mama", detail: "Tell us about your community. We'll figure out the right onboarding path together." },
       { action: "We'll set up your club", detail: "Your club is live in 24 hours. Customized for how your community actually works." },
       { action: "Share your club link wherever your community is", detail: "One link works everywhere — IG, Twitter, Reddit, Discord, email, anywhere." },
       { action: "We support the transition", detail: "You don't have to figure this out alone. We've done this before." },
@@ -176,7 +176,7 @@ export default function GroupsPage() {
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.6)", marginBottom: 8 }}>READY?</p>
                 <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px, 3vw, 26px)", color: "white", lineHeight: 1.2 }}>
-                  Apply as a Club Owner. We&apos;ll have your community set up within 24 hours.
+                  Become a Club Mama. We&apos;ll have your community set up within 24 hours.
                 </p>
               </div>
               <Link href="/start-a-club" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", borderRadius: 999, background: "white", color: PINK, fontWeight: 900, fontSize: "12px", letterSpacing: "0.12em", textDecoration: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}>

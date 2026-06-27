@@ -1,4 +1,5 @@
 import { COMPANY_LOGIN, MEMBER_LOGIN } from "@/lib/auth/roles";
+import { ROLE_LOGIN } from "@/lib/product-role-labels";
 
 /** BloomBay — separate portal apps, one company sign-in. */
 
@@ -13,7 +14,7 @@ export const PORTALS = {
   },
   clubhouse: {
     name: "Club Mama",
-    login: COMPANY_LOGIN,
+    login: ROLE_LOGIN.clubMama,
     home: "/club-owner/dashboard",
     tagline: "Customize your club, set house rules, run women & gatherings.",
     who: "Club Mamas & hosts",
@@ -25,7 +26,7 @@ export const PORTALS = {
     home: "/partner",
     tagline: "Your venue — bookings, hosted events, revenue.",
     who: "Restaurants, salons, studios, and venues",
-    notFor: "Club hosts (use /club-owner/login)",
+    notFor: "Club hosts (use /club-mama/login)",
   },
   founder: {
     name: "Founder",

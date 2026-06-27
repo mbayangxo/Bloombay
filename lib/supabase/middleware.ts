@@ -60,7 +60,16 @@ function portalFromLoginPath(pathname: string): PortalId | null {
   return null;
 }
 
-const LOGIN_PATHS = new Set([COMPANY_LOGIN, "/member/login", "/founder/login", "/admin/login", "/club-owner/login", "/partner/login"]);
+const LOGIN_PATHS = new Set([
+  COMPANY_LOGIN,
+  "/member/login",
+  "/founder/login",
+  "/admin/login",
+  "/club-owner/login",
+  "/club-mama/login",
+  "/host/login",
+  "/partner/login",
+]);
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === "/") return true;

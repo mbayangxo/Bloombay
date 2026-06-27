@@ -21,8 +21,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "BloomBay — Clubhouse",
-  description: "Club host portal — women, open seats, gatherings. Not the Partner (venue) portal.",
+  title: "BloomBay — Club Mama",
+  description: "Club Mama portal — women, open seats, gatherings. Not the Partner (venue) portal.",
 };
 
 export default function ClubOwnerLayout({

@@ -9,7 +9,7 @@ export type HubCard = {
 
 /** Can I run a thriving club? — grouped mission for hosts */
 export const CLUB_OWNER_HUB: HubCard[] = [
-  { title: "Clubhouse", desc: "Pulse · growth · what needs you", href: "/club-owner/dashboard", accent: "hot" },
+  { title: "Club Mama Dashboard", desc: "Pulse · growth · what needs you", href: "/club-owner/dashboard", accent: "hot" },
   { title: "Analytics", desc: "Women, attendance %, retention", href: "/club-owner/analytics", accent: "hot" },
   { title: "Health alerts", desc: "Weak signals before they spread", href: "/club-owner/alerts", accent: "hot" },
   { title: "Club name & join", desc: "Open, paid, landing", href: "/club-owner/settings", accent: "barbie" },

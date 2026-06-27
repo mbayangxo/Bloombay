@@ -5,7 +5,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Login only — no clubhouse app chrome. */
-export default function ClubOwnerLoginLayout({ children }: { children: React.ReactNode }) {
+export default function ClubMamaLoginLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

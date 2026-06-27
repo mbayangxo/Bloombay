@@ -1,4 +1,5 @@
 import { CLUBS } from "@/app/member/clubs/club-data";
+import { ROLE_LOGIN } from "@/lib/product-role-labels";
 
 /** BloomBay portal roles — profiles.role in Supabase */
 
@@ -25,7 +26,7 @@ export const PORTAL_LOGIN: Record<PortalId, string> = {
   member: MEMBER_LOGIN,
   founder: COMPANY_LOGIN,
   admin: COMPANY_LOGIN,
-  club_owner: COMPANY_LOGIN,
+  club_owner: ROLE_LOGIN.clubMama,
   partner: COMPANY_LOGIN,
   curator: COMPANY_LOGIN,
 };
@@ -63,7 +64,7 @@ export function portalFromPath(pathname: string): PortalId | null {
   if (pathname.startsWith("/member")) return "member";
   if (pathname.startsWith("/founder")) return "founder";
   if (pathname.startsWith("/admin")) return "admin";
-  if (pathname.startsWith("/club-owner")) return "club_owner";
+  if (pathname.startsWith("/club-owner") || pathname.startsWith("/club-mama")) return "club_owner";
   if (pathname.startsWith("/partner")) return "partner";
   if (pathname.startsWith("/curator")) return "curator";
   return null;
@@ -113,7 +114,7 @@ export function portalLabel(portal: PortalId): string {
     member: "Member",
     founder: "Founder",
     admin: "Admin",
-    club_owner: "Clubhouse",
+    club_owner: "Club Mama",
     partner: "Partner",
     curator: "Curator",
   };

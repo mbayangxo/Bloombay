@@ -155,7 +155,7 @@ export const ROLE_DISPLAY: Record<UserRole, string> = {
   admin: "Admin",
   moderator: "Moderator",
   member: "Member",
-  club_owner: "Club owner",
+  club_owner: "Club Mama",
   partner: "Partner",
   curator: "Curator",
 };
