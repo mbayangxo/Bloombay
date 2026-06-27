@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: club } = await supabase
     .from("clubs")
-    .select("id, name, price_cents, is_paid")
+    .select("id, name, slug, price_cents, is_paid")
     .eq("id", clubId)
     .single();
 
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
 
   const { url } = await chargeClubMembership({
     clubId: club.id,
+    clubSlug: club.slug ?? club.id,
     clubName: club.name,
     priceCents: club.price_cents ?? 1000,
     userId: user.id,
