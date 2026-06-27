@@ -87,6 +87,10 @@ export function getGatheringPlan(gatheringId: string): GatheringPlan | undefined
   return read().find((p) => p.gatheringId === gatheringId);
 }
 
+export function removeGatheringPlan(gatheringId: string) {
+  write(read().filter((p) => p.gatheringId !== gatheringId));
+}
+
 export function hasPlanRoomAccess(gatheringId: string): boolean {
   const p = getGatheringPlan(gatheringId);
   return p?.commitment === "going";

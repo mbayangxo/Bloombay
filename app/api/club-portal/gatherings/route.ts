@@ -28,6 +28,7 @@ function fmt(iso: string) {
 function mapGathering(g: Record<string, unknown>) {
   return {
     id: g.id as string,
+    slug: (g.slug as string | null) ?? "",
     title: g.title as string,
     date: fmt(g.starts_at as string),
     starts_at: g.starts_at as string,
@@ -68,7 +69,7 @@ export async function GET() {
     db
       .from("gatherings")
       .select(
-        "id, title, starts_at, venue, neighborhood, capacity, publish_status, event_type",
+        "id, slug, title, starts_at, venue, neighborhood, capacity, publish_status, event_type",
       )
       .eq("club_slug", club.slug)
       .gte("starts_at", now)

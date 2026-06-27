@@ -12,6 +12,7 @@ import {
 import {
   gatheringPlanFromDb,
   getGatheringPlan,
+  removeGatheringPlan,
   saveGatheringPlan,
   type GatheringCommitment,
 } from "@/lib/member-gathering-plans";
@@ -100,6 +101,21 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
     setRsvpBusy(false);
   }
 
+  async function cancelRsvp() {
+    if (!gathering) return;
+    setRsvpBusy(true);
+    const res = await fetch("/api/member/calendar/rsvp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gathering_id: gathering.id, action: "leave" }),
+    });
+    setRsvpBusy(false);
+    if (!res.ok) return;
+    removeGatheringPlan(gathering.id);
+    setExisting(null);
+    setPhase("choose");
+  }
+
   if (phase === "confirm") {
     const confirmPlan =
       getGatheringPlan(gathering.id) ?? gatheringPlanFromDb(gathering, "going");
@@ -179,6 +195,15 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
             >
               View in Plans
             </Link>
+            <button
+              type="button"
+              disabled={rsvpBusy}
+              onClick={() => void cancelRsvp()}
+              className="w-full py-3.5 rounded-2xl font-bold text-center disabled:opacity-50"
+              style={{ background: "white", color: "#888", border: "1.5px solid #E8E8E8" }}
+            >
+              {rsvpBusy ? "Cancelling…" : "Cancel reservation"}
+            </button>
           </div>
         ) : existing === "debating" ? (
           <div className="flex flex-col gap-2.5">

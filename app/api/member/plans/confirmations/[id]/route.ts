@@ -14,7 +14,7 @@ export async function GET(
   // Try gatherings first (IRL events with seat reservations)
   const { data: gathering } = await supabase
     .from("gatherings")
-    .select("id, title, starts_at, area, venue, slug, club_slug")
+    .select("id, title, starts_at, area, venue, slug, club_slug, capacity, spots_left")
     .eq("id", id)
     .maybeSingle();
 
@@ -27,11 +27,9 @@ export async function GET(
       .eq("status", "reserved")
       .maybeSingle();
 
-    const { count: attendeeCount } = await supabase
-      .from("seat_reservations")
-      .select("id", { count: "exact", head: true })
-      .eq("gathering_id", id)
-      .eq("status", "reserved");
+    const capacity = (gathering.capacity as number) ?? 0;
+    const spotsLeft = (gathering.spots_left as number) ?? capacity;
+    const attendeeCount = Math.max(0, capacity - spotsLeft);
 
     const confirmationCode = reservation
       ? `BB-${reservation.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`

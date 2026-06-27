@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
@@ -739,6 +739,9 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
 
 export function OnboardFlow() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPathRaw = searchParams.get("redirect") ?? searchParams.get("next") ?? "";
+  const returnPath = returnPathRaw.startsWith("/member") ? returnPathRaw : "/member/preferences";
   const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -887,30 +890,25 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selfieFile) {
-        // Validate before touching storage
         const valid = await validateUpload(selfieFile, "verification");
         if (!valid.ok) throw new Error(valid.error);
 
-        // Compress via canvas — strips EXIF and forces WebP
         const compressed = await compressImage(selfieFile, { maxWidthPx: 1400, maxSizeKB: 800 });
         const webpFile = blobToFile(compressed, `${crypto.randomUUID()}.webp`);
 
-        // Delete any previous verification files for this user before uploading
         const { data: existingFiles } = await supabase.storage
           .from("verification")
           .list(user.id);
         if (existingFiles && existingFiles.length > 0) {
-          const paths = existingFiles.map(f => `${user.id}/${f.name}`);
+          const paths = existingFiles.map((f) => `${user.id}/${f.name}`);
           await supabase.storage.from("verification").remove(paths);
         }
 
-        // UUID filename — no predictable path, no extension spoofing
         const storagePath = `${user.id}/${crypto.randomUUID()}.webp`;
         const { data: upload, error: upErr } = await supabase.storage
           .from("verification")
           .upload(storagePath, webpFile, { upsert: false, contentType: "image/webp" });
         if (!upErr && upload) {
-          // Store storage path, not a public URL — bucket is private; admin accesses via signed URL
           await supabase.from("profiles").update({
             verification_photo_url: upload.path,
             verification_status: "pending",
@@ -1011,8 +1009,7 @@ export function OnboardFlow() {
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
       // Fire-and-forget: Yande sends the welcome message
       welcomeNewMember(user.id).catch(() => {});
-      // Send to preferences step so Yande can learn who she is
-      router.push("/member/preferences");
+      router.push(returnPath);
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {

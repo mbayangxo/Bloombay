@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../supabase/server";
+import { safePathAfterLogin } from "./redirect";
 import { getPortalHomeForRole, UserRole } from "./get-user";
 
 export async function updateProfileInfo(formData: FormData): Promise<{ error?: string }> {
@@ -74,9 +75,19 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     .single();
 
   const role = (profile?.role ?? "member") as UserRole;
+  const redirectRaw = (formData.get("redirect") as string | null)?.trim();
+  const nextPath =
+    redirectRaw && redirectRaw.startsWith("/") ? redirectRaw : undefined;
+
   revalidatePath("/", "layout");
   if (role === "member" && !profile?.onboarding_completed) {
-    redirect("/onboard");
+    const onboardUrl = nextPath
+      ? `/onboard?redirect=${encodeURIComponent(nextPath)}`
+      : "/onboard";
+    redirect(onboardUrl);
+  }
+  if (nextPath) {
+    redirect(safePathAfterLogin(role, "member", nextPath));
   }
   redirect(getPortalHomeForRole(role));
 }

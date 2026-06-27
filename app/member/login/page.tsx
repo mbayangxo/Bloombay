@@ -1,13 +1,16 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { Suspense, useActionState, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { MagicLinkCallback } from "@/app/components/auth/magic-link-callback";
 import { BBLogo } from "@/app/components/portal/bb-logo";
 import { login, type LoginState } from "@/lib/auth/actions";
 
 
-export default function MemberLoginPage() {
+function MemberLoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? searchParams.get("next") ?? "";
   const [state, formAction, pending] = useActionState<LoginState, FormData>(
     login,
     null
@@ -56,6 +59,9 @@ export default function MemberLoginPage() {
 
         {/* Form */}
         <form action={formAction} className="flex flex-col gap-4">
+          {redirectTo.startsWith("/") ? (
+            <input type="hidden" name="redirect" value={redirectTo} />
+          ) : null}
           <div>
             <label
               className="block text-xs font-semibold tracking-widest uppercase mb-2"
@@ -115,7 +121,15 @@ export default function MemberLoginPage() {
 
         <p className="text-center mt-5 text-sm text-gray-400">
           Not a member yet?{" "}
-          <Link href="/onboard" className="font-semibold underline" style={{ color: "var(--bb-pink)" }}>
+          <Link
+            href={
+              redirectTo.startsWith("/")
+                ? `/onboard?redirect=${encodeURIComponent(redirectTo)}`
+                : "/onboard"
+            }
+            className="font-semibold underline"
+            style={{ color: "var(--bb-pink)" }}
+          >
             Join BloomBay
           </Link>
         </p>
@@ -160,5 +174,19 @@ export default function MemberLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MemberLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--pale-pink-bg)" }}>
+          Loading…
+        </div>
+      }
+    >
+      <MemberLoginForm />
+    </Suspense>
   );
 }

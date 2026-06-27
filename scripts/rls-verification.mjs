@@ -34,7 +34,7 @@ const SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 const MEMBER_A_EMAIL = env.MEMBER_A_EMAIL || "dmbayang@gmail.com";
 const MEMBER_B_ID = env.MEMBER_B_ID || "c420d66b-26ad-49f4-b81d-945bb8713222";
 const STAFF_EMAIL = env.STAFF_EMAIL || MEMBER_A_EMAIL;
-const RESTORE_STAFF_ROLE = env.RESTORE_STAFF_ROLE === "true";
+const RESTORE_STAFF_ROLE = env.RESTORE_STAFF_ROLE === "true" || env.RESTORE_STAFF_ROLE === "1";
 
 const STAFF_ROLES = new Set(["admin", "founder", "moderator"]);
 
@@ -239,6 +239,27 @@ async function main() {
   if (mod01.status === 401 || mod01.status === 403) pass("MOD-01", `member blocked (${mod01.status})`);
   else fail("MOD-01", `HTTP ${mod01.status}`);
 
+  // ── 8. Reservations (before staff promotion — must test as normal member) ─
+  const { data: resA } = await sbA.from("seat_reservations").select("id, user_id");
+  const badRes = (resA ?? []).filter((r) => r.user_id !== memberAId);
+  if (!badRes.length) pass("RS-01", `${resA?.length ?? 0} reservations, own only`);
+  else fail("RS-01", `foreign rows: ${badRes.length}`);
+
+  const { data: resB } = await sbA
+    .from("seat_reservations")
+    .select("id")
+    .eq("user_id", MEMBER_B_ID);
+  if (!resB?.length) pass("RS-02", "A cannot read B reservations");
+  else fail("RS-02", `got ${resB.length}`);
+
+  need("RS-03", "needs active gathering + reserve flow");
+  const { error: rs04Err } = await sbA
+    .from("seat_reservations")
+    .update({ status: "cancelled" })
+    .eq("user_id", MEMBER_B_ID);
+  if (rs04Err) pass("RS-04", "Cannot cancel B reservation");
+  else pass("RS-04", "zero rows updated (blocked)");
+
   // ── R-05: promote staff account temporarily ───────────────────────────────
   let restoredRole;
   if (!STAFF_ROLES.has(originalStaffRole)) {
@@ -412,27 +433,6 @@ async function main() {
     }
     need("PL-03", "needs invite fixture");
   }
-
-  // ── 8. Reservations ───────────────────────────────────────────────────────
-  const { data: resA } = await sbA.from("seat_reservations").select("id, user_id");
-  const badRes = (resA ?? []).filter((r) => r.user_id !== memberAId);
-  if (!badRes.length) pass("RS-01", `${resA?.length ?? 0} reservations, own only`);
-  else fail("RS-01", `foreign rows: ${badRes.length}`);
-
-  const { data: resB } = await sbA
-    .from("seat_reservations")
-    .select("id")
-    .eq("user_id", MEMBER_B_ID);
-  if (!resB?.length) pass("RS-02", "A cannot read B reservations");
-  else fail("RS-02", `got ${resB.length}`);
-
-  need("RS-03", "needs active gathering + reserve flow");
-  const { error: rs04Err } = await sbA
-    .from("seat_reservations")
-    .update({ status: "cancelled" })
-    .eq("user_id", MEMBER_B_ID);
-  if (rs04Err) pass("RS-04", "Cannot cancel B reservation");
-  else pass("RS-04", "zero rows updated (blocked)");
 
   // ── Club Mama (club_owner) ────────────────────────────────────────────────
   const { data: clubOwners } = await admin

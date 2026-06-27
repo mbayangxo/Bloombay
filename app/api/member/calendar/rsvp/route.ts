@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -41,18 +42,29 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true, is_rsvpd: true });
-  } else {
-    // Cancel reservation
-    const { error } = await supabase
-      .from("seat_reservations")
-      .update({ status: "cancelled" })
-      .eq("gathering_id", body.gathering_id)
-      .eq("user_id", user.id);
+  }
 
-    if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
-    }
+  const { data: active } = await supabase
+    .from("seat_reservations")
+    .select("id")
+    .eq("gathering_id", body.gathering_id)
+    .eq("user_id", user.id)
+    .eq("status", "reserved")
+    .maybeSingle();
 
+  if (!active) {
     return NextResponse.json({ ok: true, is_rsvpd: false });
   }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("seat_reservations")
+    .update({ status: "cancelled" })
+    .eq("id", active.id);
+
+  if (error) {
+    return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true, is_rsvpd: false });
 }

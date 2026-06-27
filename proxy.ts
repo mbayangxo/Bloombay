@@ -131,7 +131,6 @@ export default async function proxy(request: NextRequest) {
 
   // ── Member portal: onboarding gate + role mismatch ────────────────────────
   if (user && pathname.startsWith("/member") &&
-      !pathname.startsWith("/member/onboard") &&
       !pathname.startsWith("/member/login")) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -140,7 +139,9 @@ export default async function proxy(request: NextRequest) {
       .single();
 
     if (profile && !profile.onboarding_completed) {
-      return NextResponse.redirect(new URL("/member/onboard", request.url));
+      const returnPath = `${pathname}${request.nextUrl.search}`;
+      const redirectTo = encodeURIComponent(returnPath);
+      return NextResponse.redirect(new URL(`/onboard?redirect=${redirectTo}`, request.url));
     }
 
     const role = profile?.role as string | undefined;

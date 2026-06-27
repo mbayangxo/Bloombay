@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 const SELECT =
-  "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_type, poster_variant, image_url, description, price_cents, host_name";
+  "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_type, poster_variant, image_url, description, price_cents, host_name, publish_status";
 
 export async function GET(
   _request: Request,
@@ -25,5 +25,10 @@ export async function GET(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ gathering: data, source: data ? "db" : "none" });
+  if (!data || data.publish_status !== "live") {
+    return NextResponse.json({ gathering: null, source: "none" }, { status: 404 });
+  }
+
+  const { publish_status: _status, ...publicGathering } = data;
+  return NextResponse.json({ gathering: publicGathering, source: "db" });
 }

@@ -11,6 +11,7 @@ import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
 
 type Gathering = {
   id: string;
+  slug: string;
   title: string;
   date: string;
   starts_at: string;
@@ -19,6 +20,16 @@ type Gathering = {
   capacity: number;
   publish_status: string;
 };
+
+type Attendee = { user_id: string; name: string; reserved_at: string };
+
+function memberShareUrl(slug: string): string {
+  const base =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000");
+  return `${base.replace(/\/$/, "")}/member/happenings/${slug}`;
+}
 
 type PastGathering = { id: string; title: string; date: string; venue: string };
 
@@ -37,6 +48,9 @@ export default function ClubOwnerGatheringsPage() {
   const [saving, setSaving] = useState(false);
   const [acting, setActing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attendeesById, setAttendeesById] = useState<Record<string, Attendee[]>>({});
+  const [attendeesOpen, setAttendeesOpen] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -137,6 +151,36 @@ export default function ClubOwnerGatheringsPage() {
     }
   }
 
+  async function loadAttendees(id: string) {
+    if (attendeesById[id]) {
+      setAttendeesOpen(attendeesOpen === id ? null : id);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/club-portal/gatherings/${id}/attendees`);
+      const json = (await res.json().catch(() => ({}))) as {
+        attendees?: Attendee[];
+        error?: string;
+      };
+      if (!res.ok) throw new Error(json.error ?? "Could not load attendees");
+      setAttendeesById((prev) => ({ ...prev, [id]: json.attendees ?? [] }));
+      setAttendeesOpen(id);
+    } catch (e: unknown) {
+      setError((e as Error).message);
+    }
+  }
+
+  async function copyShareLink(ev: Gathering) {
+    if (!ev.slug) return;
+    try {
+      await navigator.clipboard.writeText(memberShareUrl(ev.slug));
+      setCopiedId(ev.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      setError("Could not copy link");
+    }
+  }
+
   return (
     <ClubOwnerShell title="Gatherings" backHref="/club-owner/dashboard">
       <ClubOwnerPageTitle
@@ -164,9 +208,29 @@ export default function ClubOwnerGatheringsPage() {
                 </p>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {ev.publish_status === "live" && ev.slug ? (
+                  <button
+                    type="button"
+                    className="co-btn co-btn--ghost"
+                    style={{ padding: "0.35rem 0.65rem", fontSize: "0.65rem" }}
+                    onClick={() => void copyShareLink(ev)}
+                  >
+                    {copiedId === ev.id ? "Copied!" : "Copy link"}
+                  </button>
+                ) : null}
                 <Link href={`/club-owner/events/${ev.id}`} className="co-link">
                   QR
                 </Link>
+                {ev.publish_status === "live" ? (
+                  <button
+                    type="button"
+                    className="co-btn co-btn--ghost"
+                    style={{ padding: "0.35rem 0.65rem", fontSize: "0.65rem" }}
+                    onClick={() => void loadAttendees(ev.id)}
+                  >
+                    Attendees{attendeesById[ev.id] ? ` (${attendeesById[ev.id].length})` : ""}
+                  </button>
+                ) : null}
                 {ev.publish_status !== "live" ? (
                   <button
                     type="button"
@@ -188,6 +252,19 @@ export default function ClubOwnerGatheringsPage() {
                   Cancel
                 </button>
               </div>
+              {attendeesOpen === ev.id ? (
+                <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                  {(attendeesById[ev.id] ?? []).length === 0 ? (
+                    <p className="co-hint">No reservations yet.</p>
+                  ) : (
+                    (attendeesById[ev.id] ?? []).map((a) => (
+                      <p key={a.user_id} className="co-hint" style={{ margin: "0.15rem 0" }}>
+                        {a.name || a.user_id.slice(0, 8)}
+                      </p>
+                    ))
+                  )}
+                </div>
+              ) : null}
             </div>
           ))
         )}
