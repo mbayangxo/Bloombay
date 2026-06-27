@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       })
     : undefined;
 
-  void createNotificationEvent({
+  await createNotificationEvent({
     userId: user.id,
     type: "ticket_confirmed",
     channels: ["in_app"],

@@ -134,6 +134,16 @@ async function main() {
     return `sb-${ref}-auth-token=${val}`;
   })();
   await probe("legacy cookie raw JSON (no encode)", rawJson, null);
+
+  const dbg = await fetch(`${APP_URL}/api/debug/auth-session`, {
+    headers: { Cookie: ssrHeader },
+  });
+  if (dbg.status === 200) {
+    console.log("\n/api/debug/auth-session (with SSR cookie):");
+    console.log(await dbg.text());
+  } else {
+    console.log(`\n/api/debug/auth-session: HTTP ${dbg.status}`);
+  }
 }
 
 main().catch((e) => {
