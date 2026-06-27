@@ -14,7 +14,7 @@ import { normalizeRole } from "@/lib/auth/roles";
 
 type GuardSuccess = { user: { id: string; email?: string }; role: UserRole; error: null };
 type GuardFailure = { user: null; role: null; error: NextResponse };
-type GuardResult = GuardSuccess | GuardFailure;
+export type GuardResult = GuardSuccess | GuardFailure;
 
 function supabaseFromRequest(req: NextRequest) {
   return createServerClient(
