@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { getStripe } from "@/lib/payments/stripe";
+import { betaPaymentsDisabledResponse, isBetaPaymentsDisabled } from "@/lib/payments/beta-guard";
 
 function baseUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 }
 
 export async function POST(req: NextRequest) {
+  if (isBetaPaymentsDisabled()) return betaPaymentsDisabledResponse();
+
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

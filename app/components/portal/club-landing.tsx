@@ -9,6 +9,10 @@ import { applyToClub } from "@/lib/actions/clubs";
 import { ClubMediaSection } from "./club-media-section";
 import { CrestSVG } from "./club-crest-generator";
 import type { CrestConfig } from "./club-crest-generator";
+import {
+  BETA_PAYMENTS_PILOT_MESSAGE,
+  isBetaPaymentsDisabledClient,
+} from "@/lib/payments/beta-guard-client";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -926,11 +930,19 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [ownerFilter, setOwnerFilter] = useState<"all" | "flagged" | "blocked">("all");
 
   const brandColor = customization?.accent_color ?? club.color;
+  const paymentsDisabled = isBetaPaymentsDisabledClient();
   const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
-  const ctaLabel = isPaid ? "JOIN · CHECKOUT →" : (club.entryStyle === "open" ? "JOIN THE CLUB" : "APPLY TO JOIN");
+  const checkoutBlocked = isPaid && paymentsDisabled;
+  const ctaLabel = checkoutBlocked
+    ? "APPLY TO JOIN"
+    : isPaid
+      ? "JOIN · CHECKOUT →"
+      : club.entryStyle === "open"
+        ? "JOIN THE CLUB"
+        : "APPLY TO JOIN";
 
   async function handleCTA() {
-    if (isPaid) {
+    if (isPaid && !paymentsDisabled) {
       // Stripe checkout for paid clubs
       try {
         const res = await fetch("/api/payments/stripe/checkout", {

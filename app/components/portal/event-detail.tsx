@@ -3,6 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  BETA_PAYMENTS_PILOT_MESSAGE,
+  isBetaPaymentsDisabledClient,
+} from "@/lib/payments/beta-guard-client";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -316,6 +320,7 @@ function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void
 // ── EventDetail ───────────────────────────────────────────────────────────────
 
 export function EventDetail({ event, onBack }: { event: EventData; onBack: () => void }) {
+  const paymentsDisabled = isBetaPaymentsDisabledClient();
   const ext = fallbackExtended(event.id);
   const isFree = event.price === 0;
   const [rsvpState, setRsvpState] = useState<"idle" | "paying" | "confirmed">("idle");
@@ -329,9 +334,17 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
 
   function handleRSVP() {
     if (isFree) { setRsvpState("confirmed"); return; }
+    if (paymentsDisabled) {
+      setPayError(BETA_PAYMENTS_PILOT_MESSAGE);
+      return;
+    }
     setRsvpState("paying");
   }
   async function handlePay() {
+    if (paymentsDisabled) {
+      setPayError(BETA_PAYMENTS_PILOT_MESSAGE);
+      return;
+    }
     setPaying(true);
     setPayError(null);
     try {
@@ -697,11 +710,15 @@ export function EventDetail({ event, onBack }: { event: EventData; onBack: () =>
 
           <button
             onClick={handlePay}
-            disabled={paying}
+            disabled={paying || paymentsDisabled}
             className="w-full rounded-2xl text-base font-bold text-white transition-all active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: "#FF1F7D", boxShadow: "0 6px 20px rgba(255,31,125,0.35)", padding: "18px" }}
           >
-            {paying ? "Sending you to checkout…" : `Pay £${total} — Secure My Seat ✿`}
+            {paymentsDisabled
+              ? "Checkout paused for beta"
+              : paying
+                ? "Sending you to checkout…"
+                : `Pay £${total} — Secure My Seat ✿`}
           </button>
           <p className="text-[10px] text-center" style={{ color: "#ccc" }}>✿ All women are verified. All vibes are real.</p>
         </div>

@@ -5,13 +5,17 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
 import { createHangerListing, getMyHangerListings } from "@/lib/actions/hanger";
-import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
-import { HangerInquirySheet } from "@/app/components/portal/hanger-inquiry-sheet";
-import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
-import { HangerListingSheet } from "@/app/components/portal/hanger-listing-sheet";
-import type { ListingDetail } from "@/app/components/portal/hanger-listing-sheet";
+import { FashionPostSheet } from "@/app/components/avenue/fashion-post-sheet";
+import { HangerInquirySheet } from "@/app/components/avenue/hanger-inquiry-sheet";
+import type { InquiryListing } from "@/app/components/avenue/hanger-inquiry-sheet";
+import { HangerListingSheet } from "@/app/components/avenue/hanger-listing-sheet";
+import type { ListingDetail } from "@/app/components/avenue/hanger-listing-sheet";
 import { SectionHeader, HeaderBtn } from "@/app/components/shared/section-header";
 import { HangerCardSkeleton } from "@/app/components/shared/skeleton";
+import {
+  BETA_PAYMENTS_PILOT_MESSAGE,
+  isBetaPaymentsDisabledClient,
+} from "@/lib/payments/beta-guard-client";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -93,6 +97,7 @@ export function HangerPage() {
   const [myListings,     setMyListings]        = useState<HangerListing[]>([]);
   const [myListingsLoading, setMyListingsLoading] = useState(false);
   const [listingsLoading, setListingsLoading]  = useState(true);
+  const paymentsDisabled = isBetaPaymentsDisabledClient();
 
   useEffect(() => {
     void (async () => {
@@ -134,6 +139,10 @@ export function HangerPage() {
   }, [activeTab, myListings.length]);
 
   async function handleBuy(listingId: string) {
+    if (paymentsDisabled) {
+      setBuyError(BETA_PAYMENTS_PILOT_MESSAGE);
+      return;
+    }
     setBuyingId(listingId);
     setBuyError(null);
     try {
@@ -699,10 +708,10 @@ export function HangerPage() {
                   <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
                     <button
                       onClick={() => void handleBuy(listing.id)}
-                      disabled={buyingId === listing.id}
-                      style={{ flex: 1, background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
+                      disabled={paymentsDisabled || buyingId === listing.id}
+                      style={{ flex: 1, background: paymentsDisabled || buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: paymentsDisabled || buyingId === listing.id ? "not-allowed" : "pointer" }}
                     >
-                      {buyingId === listing.id ? "…" : `Buy · ${price}`}
+                      {buyingId === listing.id ? "…" : paymentsDisabled ? "Paused" : `Buy · ${price}`}
                     </button>
                     <button
                       onClick={() => { setInquiryMode("swap_offer"); setInquiryListing(listing); }}
@@ -714,10 +723,10 @@ export function HangerPage() {
                 ) : (
                   <button
                     onClick={() => void handleBuy(listing.id)}
-                    disabled={buyingId === listing.id}
-                    style={{ marginTop: "auto", width: "100%", background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
+                    disabled={paymentsDisabled || buyingId === listing.id}
+                    style={{ marginTop: "auto", width: "100%", background: paymentsDisabled || buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: paymentsDisabled || buyingId === listing.id ? "not-allowed" : "pointer" }}
                   >
-                    {buyingId === listing.id ? "…" : `Buy · ${price}`}
+                    {buyingId === listing.id ? "…" : paymentsDisabled ? "Buy paused" : `Buy · ${price}`}
                   </button>
                 )}
               </div>

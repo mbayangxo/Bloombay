@@ -2,6 +2,10 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import {
+  BETA_PAYMENTS_PILOT_MESSAGE,
+  isBetaPaymentsDisabledClient,
+} from "@/lib/payments/beta-guard-client";
 
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
@@ -44,8 +48,10 @@ const MOCK_ITEMS: ShopItem[] = [];
 function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onSave: () => void }) {
   const meta = CAT_META[item.category];
   const [buying, setBuying] = useState(false);
+  const paymentsDisabled = isBetaPaymentsDisabledClient();
 
   const handleBuy = useCallback(async () => {
+    if (paymentsDisabled) return;
     if (buying) return;
     setBuying(true);
     try {
@@ -59,7 +65,7 @@ function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onS
     } finally {
       setBuying(false);
     }
-  }, [item.id, buying]);
+  }, [item.id, buying, paymentsDisabled]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -111,17 +117,17 @@ function ShopCard({ item, saved, onSave }: { item: ShopItem; saved: boolean; onS
               </button>
               <button
                 onClick={handleBuy}
-                disabled={buying}
+                disabled={paymentsDisabled || buying}
                 style={{
                   padding: "7px 14px", borderRadius: 99,
-                  background: buying ? "rgba(0,0,0,0.08)" : `linear-gradient(135deg, ${PINK}, #C4005A)`,
-                  border: "none", cursor: buying ? "default" : "pointer",
+                  background: paymentsDisabled || buying ? "rgba(0,0,0,0.08)" : `linear-gradient(135deg, ${PINK}, #C4005A)`,
+                  border: "none", cursor: paymentsDisabled || buying ? "default" : "pointer",
                   fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800,
-                  color: buying ? "#aaa" : "white",
-                  boxShadow: buying ? "none" : `0 3px 12px ${PINK}40`,
+                  color: paymentsDisabled || buying ? "#aaa" : "white",
+                  boxShadow: paymentsDisabled || buying ? "none" : `0 3px 12px ${PINK}40`,
                   transition: "all 0.15s",
                 }}>
-                {buying ? "…" : "Shop →"}
+                {paymentsDisabled ? "Paused" : buying ? "…" : "Shop →"}
               </button>
             </div>
           </div>

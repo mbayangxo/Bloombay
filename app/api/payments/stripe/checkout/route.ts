@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { createMembership, chargeTicket, chargeClubMembership } from "@/lib/payments";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { betaPaymentsDisabledResponse, isBetaPaymentsDisabled } from "@/lib/payments/beta-guard";
 
 type MembershipBody = { type: "membership"; plan: "monthly" | "biannual" | "annual" };
 type TicketBody    = { type: "ticket"; eventId: string; quantity?: number };
@@ -9,6 +10,8 @@ type ClubBody      = { type: "club"; clubId: string };
 type RequestBody   = MembershipBody | TicketBody | ClubBody;
 
 export async function POST(req: NextRequest) {
+  if (isBetaPaymentsDisabled()) return betaPaymentsDisabledResponse();
+
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import {
+  BETA_PAYMENTS_PILOT_MESSAGE,
+  isBetaPaymentsDisabledClient,
+} from "@/lib/payments/beta-guard-client";
 
 const PINK = "#FF1F7D";
 const PLUM = "#1A0A2E";
@@ -42,11 +46,16 @@ const PERKS = [
 ];
 
 export default function UpgradePage() {
+  const paymentsDisabled = isBetaPaymentsDisabledClient();
   const [selected, setSelected] = useState<"monthly" | "biannual" | "annual">("annual");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleCheckout() {
+    if (paymentsDisabled) {
+      setError(BETA_PAYMENTS_PILOT_MESSAGE);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -149,6 +158,11 @@ export default function UpgradePage() {
 
       {/* CTA */}
       <div style={{ maxWidth: 480, margin: "28px auto 0", padding: "0 24px" }}>
+        {paymentsDisabled && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#666", marginBottom: 12, textAlign: "center", lineHeight: 1.5 }}>
+            {BETA_PAYMENTS_PILOT_MESSAGE}
+          </p>
+        )}
         {error && (
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#e53e3e", marginBottom: 12, textAlign: "center" }}>
             {error}
@@ -156,17 +170,17 @@ export default function UpgradePage() {
         )}
         <button
           onClick={() => void handleCheckout()}
-          disabled={loading}
+          disabled={loading || paymentsDisabled}
           style={{
             width: "100%", padding: "18px", borderRadius: 999,
-            background: loading ? "rgba(255,31,125,0.5)" : PINK,
-            color: "white", border: "none", cursor: loading ? "not-allowed" : "pointer",
+            background: loading || paymentsDisabled ? "rgba(255,31,125,0.5)" : PINK,
+            color: "white", border: "none", cursor: loading || paymentsDisabled ? "not-allowed" : "pointer",
             fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 800,
             boxShadow: "0 6px 24px rgba(255,31,125,0.35)",
             transition: "all 0.15s",
           }}
         >
-          {loading ? "Taking you to checkout…" : `Join — ${selected === "annual" ? "£79 / year" : selected === "biannual" ? "£44 / 6 months" : "£9 / month"} →`}
+          {loading ? "Taking you to checkout…" : paymentsDisabled ? "Membership checkout paused for beta" : `Join — ${selected === "annual" ? "£79 / year" : selected === "biannual" ? "£44 / 6 months" : "£9 / month"} →`}
         </button>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 12, lineHeight: 1.5 }}>
           Secure payment via Stripe. Cancel anytime. No hidden fees.
