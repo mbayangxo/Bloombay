@@ -5,11 +5,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { HangerListing } from "@/lib/actions/hanger";
 import { createHangerListing, getMyHangerListings } from "@/lib/actions/hanger";
-import { FashionPostSheet } from "@/app/components/avenue/fashion-post-sheet";
-import { HangerInquirySheet } from "@/app/components/avenue/hanger-inquiry-sheet";
-import type { InquiryListing } from "@/app/components/avenue/hanger-inquiry-sheet";
-import { HangerListingSheet } from "@/app/components/avenue/hanger-listing-sheet";
-import type { ListingDetail } from "@/app/components/avenue/hanger-listing-sheet";
+import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
+import { HangerInquirySheet } from "@/app/components/portal/hanger-inquiry-sheet";
+import type { InquiryListing } from "@/app/components/portal/hanger-inquiry-sheet";
+import { HangerListingSheet } from "@/app/components/portal/hanger-listing-sheet";
+import type { ListingDetail } from "@/app/components/portal/hanger-listing-sheet";
 import { SectionHeader, HeaderBtn } from "@/app/components/shared/section-header";
 import { HangerCardSkeleton } from "@/app/components/shared/skeleton";
 import {
