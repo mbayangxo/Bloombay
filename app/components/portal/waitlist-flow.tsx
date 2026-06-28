@@ -64,7 +64,7 @@ function WaitlistBadge() {
   return (
     <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full" style={{ background: "#FFF0F5", border: "1px solid #FFE0EE" }}>
       <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />
-      <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.06em" }}>Private waitlist · NYC</span>
+      <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.06em" }}>NYC private beta waitlist</span>
     </div>
   );
 }
@@ -216,7 +216,7 @@ export function WaitlistFlow() {
                   A NEW KIND OF SOCIAL LIFE FOR WOMEN
                 </p>
                 <p className="text-sm text-gray-500 leading-relaxed">
-                  BloomBay is a living social world for women in cities to find clubs, gatherings, celebrations, and real friendships.
+                  BloomBay is a private beta for women in New York City — clubs, gatherings, celebrations, and real friendships, starting in NYC.
                 </p>
               </div>
 
@@ -249,7 +249,7 @@ export function WaitlistFlow() {
           {/* CTA button — very prominent */}
           <div className="w-full mt-8 flex flex-col items-center gap-3">
             <p className="text-xs text-gray-400 italic" style={{ fontFamily: "var(--font-playfair)" }}>
-              Ready to open your invitation?
+              Join the NYC private beta waitlist?
             </p>
             <button
               onClick={() => { setOpened(true); setStep(1); }}
@@ -459,8 +459,11 @@ export function WaitlistFlow() {
             {/* City */}
             <div>
               <label className="block text-xs font-black tracking-widest uppercase mb-1.5" style={{ color: "#bbb" }}>
-                Where Are You?
+                Where in NYC?
               </label>
+              <p className="text-xs text-gray-400 mb-2">
+                We&apos;re launching in New York City first. Tell us your borough or neighborhood.
+              </p>
               {selectedCity ? (
                 <div
                   className="w-full rounded-2xl px-4 py-3.5 flex items-center justify-between"
@@ -487,7 +490,7 @@ export function WaitlistFlow() {
                   <input
                     value={cityQuery}
                     onChange={(e) => setCityQuery(e.target.value)}
-                    placeholder="Search city or country…"
+                    placeholder="Brooklyn, Manhattan, or search a city…"
                     className="w-full rounded-2xl px-4 py-3.5 text-base outline-none border-2 transition-all"
                     style={{
                       color: "#111111",
@@ -772,11 +775,13 @@ export function WaitlistFlow() {
                 Welcome to BloomBay.
               </p>
               <p className="text-white/65 text-sm leading-relaxed">
-                You&apos;ll be the first to know when we open in{" "}
-                <strong className="text-white">
-                  {selectedCity?.city ?? "New York City"}
-                </strong>
-                .
+                You&apos;re on the NYC private beta waitlist
+                {selectedCity?.city ? (
+                  <>
+                    {" "}for <strong className="text-white">{selectedCity.city}</strong>
+                  </>
+                ) : null}
+                . We&apos;ll reach out when invitations open.
               </p>
             </div>
           </div>
@@ -786,7 +791,7 @@ export function WaitlistFlow() {
             <div className="flex items-center gap-2.5 px-5 py-3 rounded-full" style={{ background: "#FFF0F5", border: "1px solid #FFE0EE" }}>
               <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D", boxShadow: "0 0 6px rgba(255,31,125,0.6)" }} />
               <span className="text-xs font-bold" style={{ color: "#FF1F7D", letterSpacing: "0.06em" }}>
-                Private waitlist · {selectedCity?.city ?? "New York City"}
+                NYC private beta · {selectedCity?.city ?? "New York City"}
               </span>
             </div>
           </div>
@@ -802,8 +807,8 @@ export function WaitlistFlow() {
               },
               {
                 icon: "⚡",
-                title: "Early access to cities",
-                sub: "Be first in line when BloomBay opens near you.",
+                title: "First access in NYC",
+                sub: "Be first in line for the New York City private beta.",
               },
               {
                 icon: "🌸",
