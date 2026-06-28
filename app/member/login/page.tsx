@@ -25,22 +25,41 @@ function MemberLoginForm() {
       <div className="w-full max-w-sm">
         {/* Logo + wordmark */}
         <div className="flex flex-col items-center mb-10">
-          <div className="mb-4">
-            <BBLogo size={52} />
+          <div
+            className="relative mb-5 flex items-center justify-center"
+            style={{ width: 132, height: 132 }}
+          >
+            {/* soft pink halo */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(255,31,125,0.22) 0%, transparent 70%)" }}
+            />
+            {/* logo disc */}
+            <div
+              className="relative flex items-center justify-center rounded-full"
+              style={{
+                width: 104,
+                height: 104,
+                background: "#fff",
+                boxShadow: "0 12px 40px rgba(255,31,125,0.20), inset 0 0 0 1px rgba(255,31,125,0.08)",
+              }}
+            >
+              <BBLogo size={64} />
+            </div>
           </div>
           <h1
-            className="text-2xl font-bold tracking-tight"
+            className="text-3xl font-bold tracking-tight"
             style={{ color: "var(--bb-black)" }}
           >
             Bloom<span style={{ color: "var(--bb-pink)" }}>Bay</span>
           </h1>
           <p
-            className="text-base font-semibold mt-1"
-            style={{ color: "var(--bb-black)" }}
+            className="text-xl mt-2"
+            style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", color: "var(--bb-pink)" }}
           >
             Welcome home.
           </p>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm text-gray-400 mt-1">
             Your city is waiting.
           </p>
         </div>
@@ -133,45 +152,6 @@ function MemberLoginForm() {
             Join BloomBay
           </Link>
         </p>
-
-        {/* Social proof */}
-        <div
-          className="mt-8 rounded-3xl p-4"
-          style={{ background: "var(--light-pink)" }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            {[
-              { i: "A", c: "#FF1F7D" },
-              { i: "S", c: "#FF69B4" },
-              { i: "P", c: "#FF1F7D" },
-              { i: "K", c: "#FF69B4" },
-              { i: "C", c: "#111111" },
-            ].map((a) => (
-              <div
-                key={a.i}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                style={{ background: a.c }}
-              >
-                {a.i}
-              </div>
-            ))}
-          </div>
-          <p
-            className="text-sm font-semibold"
-            style={{ color: "var(--bb-black)" }}
-          >
-            100 Founding Mothers · NYC
-          </p>
-          <p
-            className="text-xs italic mt-0.5"
-            style={{
-              fontFamily: "var(--font-playfair)",
-              color: "var(--bb-pink)",
-            }}
-          >
-            &ldquo;First birthday I actually celebrated.&rdquo; — Aaliyah
-          </p>
-        </div>
       </div>
     </div>
   );

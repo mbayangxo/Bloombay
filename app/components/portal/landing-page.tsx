@@ -7,7 +7,7 @@ import { BBLogo, BBWordmark } from "./bb-logo";
 
 const PINK  = "#FF1F7D";
 const INK   = "#111111";
-const IVORY = "#fdf4ec";
+const IVORY = "#FFFFFF";
 
 const CLUBS = [
   { name: "DINNER\nSOCIETY", dark: false, icon: "wine" },
@@ -69,7 +69,7 @@ const TESTIMONIALS = [
   },
   {
     quote: "I joined for the dinners. I stayed for the friendships. I have a group chat with these women that is more active than any I've ever had.",
-    name: "Lena W.", location: "Williamsburg", tag: "Dinner Society", color: "#60A5FA",
+    name: "Lena W.", location: "Williamsburg", tag: "Dinner Society", color: "#FF69B4",
   },
   {
     quote: "BloomBay gave me a table in this city. Not just a seat — a whole table, full of women who actually show up for each other.",
@@ -134,7 +134,7 @@ function TestimonialsSection() {
             { name: "Amara", city: "Crown Heights", clubs: ["Book Club", "Museum Girls"], color: "#FF1F7D", bg: "#1e0a18" },
             { name: "Jade",  city: "West Village",  clubs: ["Dinner Society", "Pilates"], color: "#C084FC", bg: "#0e0a1e" },
             { name: "Sofia", city: "Upper East",    clubs: ["Gallery Girls", "Jazz Night"], color: "#34D399", bg: "#0a1e14" },
-            { name: "Lena",  city: "Williamsburg",  clubs: ["Sunday Walks", "Book Club"], color: "#60A5FA", bg: "#0a1220" },
+            { name: "Lena",  city: "Williamsburg",  clubs: ["Sunday Walks", "Book Club"], color: "#FF69B4", bg: "#0a1220" },
             { name: "Yemi",  city: "Harlem",        clubs: ["Dinner Society", "Travel"], color: "#F59E0B", bg: "#1e140a" },
             { name: "Zara",  city: "Fort Greene",   clubs: ["Wellness", "Sunday Walks"], color: "#FB7185", bg: "#1e0a10" },
           ].map((m) => (
@@ -170,7 +170,7 @@ function EnvelopeInvitation() {
   return (
     <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 0 52px", maxWidth: 370, margin: "0 auto", width: "100%" }}>
       {/* Handwritten "tap to open" prompt */}
-      <p style={{ textAlign: "center", fontFamily: "var(--font-caveat)", fontSize: "16px", color: "rgba(255,255,255,0.65)", marginBottom: 10 }}>
+      <p style={{ textAlign: "center", fontFamily: "var(--font-caveat)", fontSize: "30px", fontWeight: 700, color: "rgba(255,255,255,0.92)", marginBottom: 16 }}>
         tap to open ♡
       </p>
 
@@ -196,21 +196,6 @@ function EnvelopeInvitation() {
             <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: "42%", background: "linear-gradient(to right, rgba(200,40,100,0.08) 0%, transparent 100%)", pointerEvents: "none", zIndex: 2 }} />
             {/* Right fold shadow */}
             <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "42%", background: "linear-gradient(to left, rgba(200,40,100,0.08) 0%, transparent 100%)", pointerEvents: "none", zIndex: 2 }} />
-
-            {/* Bottom V-fold — hot pink gusset */}
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: "45%",
-              clipPath: "polygon(0 100%, 50% 9%, 100% 100%)",
-              background: "linear-gradient(170deg, #FFBDD6 0%, #FFA8C8 50%, #FF8DB5 100%)",
-              zIndex: 1,
-            }} />
-            {/* Fold crease line */}
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: "45%",
-              clipPath: "polygon(calc(50% - 0.5px) 9%, calc(50% + 0.5px) 9%, calc(50% + 0.5px) 11%, calc(50% - 0.5px) 11%)",
-              background: "rgba(160,40,80,0.3)",
-              zIndex: 3,
-            }} />
 
             {/* Interior liner — diagonal stripe (visible when flap lifts) */}
             <div style={{
@@ -301,7 +286,7 @@ function EnvelopeInvitation() {
                         <circle cx="3" cy="7" r="1" fill={PINK} opacity="0.4" />
                         <circle cx="15" cy="3" r="1" fill={PINK} opacity="0.4" />
                       </svg>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "4.5px", fontWeight: 900, color: "rgba(255,31,125,0.45)", letterSpacing: "0.06em" }}>NYC</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "rgba(255,31,125,0.45)", letterSpacing: "0.06em" }}>✦</span>
                     </div>
                   </div>
 
@@ -411,14 +396,16 @@ export function LandingPage() {
               </Link>
             </div>
           </div>
-          {/* Headline — It's a woman's world. We're it. */}
-          <div style={{ padding: "40px 28px 52px" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
-              It&apos;s a<br />woman&apos;s<br />world.
-            </p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>
-              We&apos;re it.
-            </p>
+          {/* Headline — It's a woman's world. We're it. (black panel inside the pink box) */}
+          <div style={{ padding: "26px 22px 32px" }}>
+            <div style={{ background: INK, borderRadius: 28, padding: "38px 26px" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(44px, 13vw, 68px)", color: "white", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 14 }}>
+                It&apos;s a<br />woman&apos;s<br />world.
+              </p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 11vw, 58px)", color: PINK, lineHeight: 1, letterSpacing: "-0.02em" }}>
+                We&apos;re it.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -464,7 +451,7 @@ export function LandingPage() {
           <div style={{ display: "flex", alignItems: "center", paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
             {[
               { num: "3 in 5", label: "WOMEN FEEL LONELY IN CITIES" },
-              { num: "100K+", label: "WOMEN MOVE TO NYC YEARLY" },
+              { num: "100K+", label: "WOMEN IN A NEW CITY YEARLY" },
               { num: "After 25", label: "MAKING FRIENDS GETS HARDER" },
             ].map((s, i) => (
               <div key={s.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, borderRight: i < 2 ? "1px solid rgba(255,255,255,0.15)" : "none" }}>
@@ -605,7 +592,7 @@ export function LandingPage() {
                 <span style={{ fontSize: "20px" }}>🏙️</span>
               </div>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
-                Over <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>100,000 women</strong> move to New York City every year — and most of them know almost nobody.
+                Over <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>100,000 women</strong> move to a new city every year — and most of them know almost nobody.
               </p>
             </div>
 
@@ -717,7 +704,7 @@ export function LandingPage() {
               {
                 emoji: "🎉", label: "HOST AN EVENT", name: "Become a Host",
                 desc: "Host dinners, walks, gallery trips, or anything you love. We handle RSVPs, payments, and logistics.",
-                color: "#A855F7", href: "/start-a-club",
+                color: PINK, href: "/start-a-club",
               },
               {
                 emoji: "🗺️", label: "THE CITY", name: "City Discovery",
@@ -865,10 +852,10 @@ export function LandingPage() {
           <Sparkle color="#FF69B4" size={22} />
           <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.4)", fontSize: "clamp(14px,2vw,18px)", margin: "14px 0 6px", letterSpacing: "0.04em" }}>You haven&apos;t met your people yet.</p>
           <p style={{ fontWeight: 900, color: "white", fontSize: "clamp(28px,5.5vw,56px)", lineHeight: 1.05, marginBottom: 10 }}>
-            A beautiful social life{" "}
-            <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>starts here.</span>
+            Your social life{" "}
+            <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>is waiting.</span>
           </p>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. New York City.</p>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. Womanhood worldwide.</p>
           <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
             ACCEPT INVITATION
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
@@ -881,12 +868,12 @@ export function LandingPage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 22px 36px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 28, marginBottom: 48, paddingBottom: 40, borderBottom: "1px solid #FFD6E7" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <BBLogo size={32} />
-                <BBWordmark size={24} />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                <BBLogo size={52} />
+                <BBWordmark size={40} />
               </div>
-              <p style={{ fontSize: "14px", color: "#c4005a", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 4 }}>A world built for women.</p>
-              <p style={{ fontSize: "12px", color: "rgba(28,0,14,0.45)" }}>New York City · Est. 2025</p>
+              <p style={{ fontSize: "18px", color: "#c4005a", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 5 }}>A world built for women.</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.06em", color: "rgba(28,0,14,0.45)" }}>Womanhood worldwide · Est. 2024</p>
             </div>
             <div style={{ display: "flex", gap: 20 }}>
               {[
