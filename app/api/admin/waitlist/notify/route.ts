@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendSMS } from "@/lib/notifications/sms";
+import type { AllowedSmsType } from "@/lib/sms/policy";
 import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
@@ -27,6 +28,11 @@ const TEMPLATES: Record<string, (name: string) => string> = {
     `Hey ${name || "Bloomie"} 🌸\n\nYou're in — BloomBay private beta is open for you. Join here: bloombay.app/join\n\nWomen are gathering ✿`,
   launch_announcement: (name) =>
     `Hey ${name || "Bloomie"} 🌸\n\nBloomBay is officially live in your city. Come find your people: bloombay.app\n\nWomen are gathering ✿`,
+};
+
+const SMS_TYPE_BY_TEMPLATE: Record<keyof typeof TEMPLATES, AllowedSmsType> = {
+  private_beta_accepted: "private_beta_accepted",
+  launch_announcement: "app_launch",
 };
 
 const BATCH_LIMIT = 500; // max sends per invocation
@@ -89,7 +95,11 @@ export async function POST(req: NextRequest) {
   for (const row of targets) {
     if (!row.phone_number) continue;
     const name = row.first_name ?? "";
-    const result = await sendSMS(row.phone_number, buildTemplate(name));
+    const result = await sendSMS(
+      row.phone_number,
+      buildTemplate(name),
+      SMS_TYPE_BY_TEMPLATE[body.template as keyof typeof TEMPLATES],
+    );
 
     if (result.ok) {
       sent++;
