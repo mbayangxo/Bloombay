@@ -3,7 +3,7 @@ import { fetchWeatherForecast } from "@/lib/founder-create-space/weather";
 import { isFounderQaAuthorized } from "@/lib/founder-qa-auth";
 
 export async function GET(request: NextRequest) {
-  if (!isFounderQaAuthorized(request)) {
+  if (!await isFounderQaAuthorized(request)) {
     return NextResponse.json({ error: "Founder access required" }, { status: 401 });
   }
 
