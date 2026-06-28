@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireRole } from "@/lib/auth/require-role";
 
 export async function POST(req: NextRequest) {
+  const guard = await requireRole(req, ["partner", "admin", "founder"]);
+  if (guard.error) return guard.error;
+
   const { code } = await req.json() as { code?: string };
   if (!code) return NextResponse.json({ error: "code required" }, { status: 400 });
 
