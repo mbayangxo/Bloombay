@@ -78,6 +78,16 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: false, error: "slug and name required" }, { status: 400 });
   }
 
+  const { data: existing } = await supabase
+    .from("clubs")
+    .select("id, owner_id")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (existing && existing.owner_id !== user.id) {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+
   const row = {
     slug,
     owner_id: user.id,
