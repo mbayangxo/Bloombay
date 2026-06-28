@@ -12,7 +12,7 @@
  * LAUNCH_LOOP_MEMBER_EMAIL (or defaults from operator loop).
  */
 
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { createClient } from "@supabase/supabase-js";
 
 function loadEnv() {
@@ -87,6 +87,31 @@ if (clientSrc.includes("NEXT_PUBLIC_BETA_PAYMENTS_DISABLED")) {
   fail("guard:client", "beta-guard-client.ts missing public flag");
 }
 
+// ── Static: Whop payment routes disabled + lib removed ────────────────────────
+{
+  const checkoutSrc = readFileSync("app/api/whop/checkout/route.ts", "utf8");
+  // Disabled = returns 410 AND no longer imports the payments lib (so it cannot
+  // reach chargeClubMembership). The word may still appear in an explanatory comment.
+  if (checkoutSrc.includes("410") && !checkoutSrc.includes('from "@/lib/payments"')) {
+    pass("whop:checkout-disabled", "whop checkout returns 410, payments lib not imported");
+  } else {
+    fail("whop:checkout-disabled", "whop checkout still active or still imports @/lib/payments");
+  }
+
+  const webhookSrc = readFileSync("app/api/whop/webhook/route.ts", "utf8");
+  if (webhookSrc.includes("410") && !webhookSrc.includes("club_memberships")) {
+    pass("whop:webhook-disabled", "whop webhook returns 410, no membership writes");
+  } else {
+    fail("whop:webhook-disabled", "whop webhook still active or still writes memberships");
+  }
+
+  if (!existsSync("lib/whop.ts")) {
+    pass("whop:lib-removed", "lib/whop.ts removed");
+  } else {
+    fail("whop:lib-removed", "lib/whop.ts still present");
+  }
+}
+
 // ── Static: UI surfaces use client guard ──────────────────────────────────────
 for (const ui of [
   "app/(member-portal)/member/upgrade/page.tsx",
@@ -139,6 +164,20 @@ if (APP_URL) {
       }
     } catch (e) {
       fail(`http:${c.id}`, `fetch failed: ${e.message}`);
+    }
+  }
+
+  // ── Optional live: Whop routes disabled (410) ───────────────────────────────
+  for (const w of [
+    { id: "whop-checkout", path: "/api/whop/checkout", body: { clubId: "smoke-test" } },
+    { id: "whop-webhook", path: "/api/whop/webhook", body: {} },
+  ]) {
+    try {
+      const { status } = await postJson(w.path, w.body);
+      if (status === 410) pass(`http:${w.id}`, `POST ${w.path} → 410 (disabled)`);
+      else fail(`http:${w.id}`, `expected 410 (disabled), got ${status}`);
+    } catch (e) {
+      fail(`http:${w.id}`, `fetch failed: ${e.message}`);
     }
   }
 
