@@ -890,10 +890,11 @@ export function LandingPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 16px", marginBottom: 40 }}>
             {[
-              { title: "ABOUT",       links: [{ l: "Our Story", h: "/about" }, { l: "Safety", h: "/safety" }, { l: "Girl Rights", h: "/girl-rights" }, { l: "Careers", h: "/careers" }] },
-              { title: "COMMUNITY",   links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }] },
-              { title: "CLUB OWNERS", links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }, { l: "Partners", h: "/partner" }] },
-              { title: "SUPPORT",     links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Press", h: "/contact" }] },
+              { title: "ABOUT US",     links: [{ l: "Our Story", h: "/about" }, { l: "Press", h: "/press" }, { l: "Careers", h: "/careers" }, { l: "Bloom Rights", h: "/girl-rights" }] },
+              { title: "COMMUNITY",    links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }] },
+              { title: "FOR PARTNERS", links: [{ l: "Become a Partner", h: "/partner" }, { l: "Partner Login", h: "/partner/login" }] },
+              { title: "CLUB OWNERS",  links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }] },
+              { title: "SUPPORT",      links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Safety", h: "/safety" }] },
             ].map((col) => (
               <div key={col.title}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 14 }}>{col.title}</p>
@@ -909,7 +910,7 @@ export function LandingPage() {
           <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", borderTop: "1px solid #FFD6E7" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(28,0,14,0.4)" }}>© 2026 BloomBay, Inc. All rights reserved.</p>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-              {[{ l: "Privacy Policy", h: "/privacy" }, { l: "Terms of Service", h: "/terms" }, { l: "Safety", h: "/safety" }, { l: "Girl Rights", h: "/girl-rights" }].map((link) => (
+              {[{ l: "Privacy Policy", h: "/privacy" }, { l: "Terms of Service", h: "/terms" }, { l: "Safety", h: "/safety" }, { l: "Bloom Rights", h: "/girl-rights" }].map((link) => (
                 <Link key={link.l} href={link.h} style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(28,0,14,0.4)", textDecoration: "none" }}>{link.l}</Link>
               ))}
             </div>
