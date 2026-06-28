@@ -205,11 +205,11 @@ type TabKey = (typeof TABS)[number]["key"];
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
   const slab       = getSlab();
-  // Avenue has a full-screen pink gradient bg — use light icons there; everywhere else is white
-  const isDarkPage = pathname.startsWith("/member/avenue");
-  // hideTopBarActions hides the ACTION icons only (not the logo)
-  const hideTopBarActions = pathname.startsWith("/member/lounge")    ||
-                            pathname.startsWith("/member/happenings");
+  // Dark/coloured pages — use light icons
+  const isDarkPage = pathname.startsWith("/member/avenue") ||
+                     pathname.startsWith("/member/happenings");
+  // hideTopBarActions: never hide — icons always visible
+  const hideTopBarActions = false;
 
   function isActive(href: string) {
     if (href === "/member/happenings") return pathname.startsWith("/member/happenings");
@@ -237,8 +237,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
   }
 
   // Stem and branch colors — warm rose, adapted to bg
-  const stemC   = isDarkPage ? "rgba(255,190,210,0.28)" : "rgba(170,80,110,0.25)";
-  const branchC = isDarkPage ? "rgba(255,190,210,0.32)" : "rgba(170,80,110,0.28)";
+  const stemC   = isDarkPage ? "rgba(255,190,210,0.70)" : "rgba(160,60,95,0.45)";
+  const branchC = isDarkPage ? "rgba(255,190,210,0.80)" : "rgba(160,60,95,0.55)";
 
   function TopTile({ href, label, children, badge }: {
     href: string; label: string; children: React.ReactNode; badge?: "dot" | "number";
@@ -319,32 +319,42 @@ export function BottomNav({ user }: { user?: NavUser }) {
           // zero background — the stem IS the navigation
         }}
       >
-        {/* ─ Horizontal stem line (runs left-to-right, starts after the rose) ─ */}
-        <div style={{
-          position: "absolute",
-          left: 46,
-          right: 0,
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 26px)",
-          height: 1.5,
-          background: `linear-gradient(90deg, ${PINK}60 0%, ${stemC} 22%, ${stemC} 100%)`,
-          borderRadius: 1,
-        }} />
-
-        {/* ─ Small leaf/thorn on the stem (decorative) ─ */}
-        <div style={{
-          position: "absolute",
-          left: "28%",
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 27px)",
-          width: 10,
-          height: 6,
-          pointerEvents: "none",
-        }}>
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-            <path d="M0 6 C2 0 8 0 10 3 C7 5 2 6 0 6Z"
-              fill={isDarkPage ? "rgba(180,220,180,0.4)" : "rgba(80,130,70,0.3)"}
-            />
-          </svg>
-        </div>
+        {/* ─ Organic wavy stem (SVG path, not a div line) ─ */}
+        <svg
+          style={{
+            position: "absolute",
+            left: 42,
+            right: 0,
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
+            width: "calc(100% - 42px)",
+            height: 28,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+          viewBox="0 0 320 28"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          {/* Main wavy stem */}
+          <path
+            d="M0 18 C20 14 40 22 70 17 C100 12 120 20 150 16 C180 12 200 20 230 16 C255 13 275 19 320 16"
+            stroke={`url(#stemGrad)`}
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          {/* Small organic leaf left */}
+          <path d="M68 17 C72 8 82 9 80 17" stroke={isDarkPage ? "rgba(160,220,160,0.6)" : "rgba(60,130,60,0.45)"} strokeWidth="1.4" strokeLinecap="round" fill={isDarkPage ? "rgba(160,220,160,0.18)" : "rgba(100,180,80,0.15)"} />
+          {/* Small organic leaf right */}
+          <path d="M200 16 C204 7 214 8 212 16" stroke={isDarkPage ? "rgba(160,220,160,0.6)" : "rgba(60,130,60,0.45)"} strokeWidth="1.4" strokeLinecap="round" fill={isDarkPage ? "rgba(160,220,160,0.18)" : "rgba(100,180,80,0.15)"} />
+          {/* Tiny thorn nub */}
+          <path d="M140 16 L136 11" stroke={isDarkPage ? "rgba(160,220,160,0.45)" : "rgba(60,130,60,0.35)"} strokeWidth="1.2" strokeLinecap="round" />
+          <defs>
+            <linearGradient id="stemGrad" x1="0" y1="0" x2="320" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor={PINK} stopOpacity="0.9" />
+              <stop offset="100%" stopColor={stemC} />
+            </linearGradient>
+          </defs>
+        </svg>
 
         {/* ─ Open rose at the left end ─ */}
         <div style={{
@@ -389,10 +399,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 {/* Label */}
                 <span style={{
                   fontFamily: "var(--font-jost)",
-                  fontSize: "5.5px",
-                  fontWeight: active ? 800 : 500,
+                  fontSize: "7px",
+                  fontWeight: active ? 800 : 600,
                   letterSpacing: "0.05em",
-                  color: active ? PINK : (isDarkPage ? "rgba(255,255,255,0.3)" : "rgba(175,50,98,0.55)"),
+                  color: active ? PINK : (isDarkPage ? "rgba(255,255,255,0.7)" : "rgba(150,40,85,0.75)"),
                   lineHeight: 1,
                   whiteSpace: "nowrap" as const,
                   marginBottom: 3,
