@@ -1,18 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/admin/require-staff";
+// GET /api/curator/overview
+// Returns clubs, recent memberships, upcoming gatherings, and pending applications
+// for curator dashboard. Curators see all clubs system-wide.
+
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/curator/overview
-export async function GET(req: NextRequest) {
-  const guard = await requireRole(req, ["curator", "admin", "founder"]);
-  if (guard.error) return guard.error;
-
+export async function GET() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Verify curator/admin role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role, full_name, first_name, neighborhood, created_at")
-    .eq("id", guard.user.id)
+    .eq("id", user.id)
     .single();
+
+  const role = profile?.role as string | null;
+  if (!role || !["curator", "admin", "founder"].includes(role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const now = new Date().toISOString();
 
@@ -44,6 +52,7 @@ export async function GET(req: NextRequest) {
       .limit(20),
   ]);
 
+  // Get member counts per club
   const clubs = clubsRes.data ?? [];
   const clubIds = clubs.map(c => c.id);
 
@@ -69,6 +78,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // Enrich memberships with profile data
   const memberships = membershipsRes.data ?? [];
   const memberUserIds = [...new Set(memberships.map(m => m.user_id))];
   let memberProfileMap: Record<string, { full_name: string | null; first_name: string | null; neighborhood: string | null }> = {};
@@ -80,6 +90,7 @@ export async function GET(req: NextRequest) {
     memberProfileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
   }
 
+  // Enrich applications with profile data
   const apps = appsRes.data ?? [];
   const appUserIds = [...new Set(apps.map(a => a.user_id))];
   let appProfileMap: Record<string, { full_name: string | null; first_name: string | null; neighborhood: string | null }> = {};

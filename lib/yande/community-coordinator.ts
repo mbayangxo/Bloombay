@@ -13,7 +13,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { logAction, recordMemberTouch, hasReceivedTouch } from "./core";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 const AGENT = "community_coordinator";
 
@@ -48,15 +47,12 @@ export async function welcomeNewMember(userId: string): Promise<void> {
   const p = profile as MemberProfile;
   const name = firstName(p);
 
-  await createNotificationEvent({
-    userId,
+  await supabase.from("notifications").insert({
+    user_id: userId,
     type: "intro",
-    channels: ["in_app"],
-    payload: {
-      title: `Welcome to BloomBay, ${name}. ✦`,
-      body: "Your apartment is ready. Explore your clubs, find a gathering, and say hello to your bloomies.",
-      link: "/member/home",
-    },
+    title: `Welcome to BloomBay, ${name}. ✦`,
+    body: "Your apartment is ready. Explore your clubs, find a gathering, and say hello to your bloomies.",
+    action_url: "/member/home",
   });
 
   const actionId = await logAction({
@@ -89,14 +85,12 @@ export async function nudgeDay3(userId: string): Promise<void> {
   const p = profile as MemberProfile;
   const name = firstName(p);
 
-  await createNotificationEvent({
-    userId,
-    type: "day3_nudge",
-    channels: ["in_app"],
-    payload: {
-      templateVars: { name },
-      link: "/member/clubs",
-    },
+  await supabase.from("notifications").insert({
+    user_id: userId,
+    type: "intro",
+    title: "Find your people. 🌺",
+    body: "You've been here 3 days — have you joined a club yet? Women who join a club in their first week are 3× more likely to attend a gathering.",
+    action_url: "/member/clubs",
   });
 
   const actionId = await logAction({
@@ -128,15 +122,12 @@ export async function nudgeDay7(userId: string): Promise<void> {
   const p = profile as MemberProfile;
   const name = firstName(p);
 
-  await createNotificationEvent({
-    userId,
-    type: "day7_nudge",
-    channels: ["in_app"],
-    payload: {
-      title: `One week in, ${name}. ✦`,
-      body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
-      link: "/member/happenings",
-    },
+  await supabase.from("notifications").insert({
+    user_id: userId,
+    type: "celebrate",
+    title: `One week in, ${name}. ✦`,
+    body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
+    action_url: "/member/happenings",
   });
 
   const actionId = await logAction({

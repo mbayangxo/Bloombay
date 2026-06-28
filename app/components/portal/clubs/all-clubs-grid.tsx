@@ -2,20 +2,35 @@ import Link from "next/link";
 import Image from "next/image";
 import { ClubCrestSVG } from "../club-crest";
 import { thumbUrl } from "@/lib/images/supabase-transform";
-import { filterClubs, resolveClubCategoryFilter } from "@/lib/clubs/search";
 import { PINK, DARK, GRADS, type RealClub } from "./shared";
+
+const FILTER_TO_CATEGORY: Record<string, string> = {
+  Wellness:  "wellness",
+  Social:    "social",
+  Creative:  "creative",
+  Foodie:    "foodie",
+  Active:    "active",
+  Fashion:   "fashion",
+  Faith:     "faith",
+};
 
 export function AllClubsGrid({ clubs, searchQuery, activeFilter }: {
   clubs: RealClub[];
   searchQuery: string;
   activeFilter: string | null;
 }) {
-  const categoryFilter = resolveClubCategoryFilter(activeFilter);
+  const categoryFilter = activeFilter ? FILTER_TO_CATEGORY[activeFilter] ?? null : null;
 
-  const filtered = filterClubs(clubs, {
-    query: searchQuery || undefined,
-    category: categoryFilter ?? undefined,
-  });
+  const filtered = clubs
+    .filter(c =>
+      !searchQuery ||
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.description ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(c =>
+      !categoryFilter ||
+      (c.category ?? "").toLowerCase() === categoryFilter
+    );
 
   return (
     <section style={{ padding: "0 18px 28px" }}>
@@ -69,7 +84,7 @@ export function AllClubsGrid({ clubs, searchQuery, activeFilter }: {
         })}
         {filtered.length === 0 && (
           <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0", gridColumn: "span 2" }}>
-            {clubs.length === 0 ? "Clubs loading…" : "No clubs match your search."}
+            {clubs.length === 0 ? "Clubs loading…" : "No clubs match your filter."}
           </p>
         )}
       </div>

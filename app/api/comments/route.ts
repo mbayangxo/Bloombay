@@ -78,28 +78,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (fashion_post_id) {
-    const { data: post } = await supabase
-      .from("fashion_posts")
-      .select("author_id")
-      .eq("id", fashion_post_id)
-      .single();
-    if (post?.author_id && await isBlocked(supabase, user.id, post.author_id)) {
-      return NextResponse.json({ error: "Cannot comment on this post" }, { status: 403 });
-    }
-  }
-
-  if (avenue_content_id) {
-    const { data: content } = await supabase
-      .from("avenue_content")
-      .select("submitted_by")
-      .eq("id", avenue_content_id)
-      .single();
-    if (content?.submitted_by && await isBlocked(supabase, user.id, content.submitted_by)) {
-      return NextResponse.json({ error: "Cannot comment on this post" }, { status: 403 });
-    }
-  }
-
   // Hourly rate limit
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count: hourCount } = await supabase

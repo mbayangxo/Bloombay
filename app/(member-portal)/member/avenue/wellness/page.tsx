@@ -1,4 +1,4 @@
-import { HealthPage } from "@/app/components/avenue/health-page";
+import { HealthPage } from "@/app/components/portal/health-page";
 
 export default function HealthRoute() {
   return <HealthPage />;

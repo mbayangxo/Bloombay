@@ -4,7 +4,6 @@ export type BetaLaunchItemId =
   | "email"
   | "sms"
   | "magic_links"
-  | "launch_loop"
   | "reports"
   | "moderation_queue"
   | "club_mama_queue"
@@ -52,11 +51,6 @@ export const BETA_LAUNCH_ITEMS: BetaLaunchItem[] = [
     label: "Magic links working",
     hint: "Portal login completes session + redirect (founder, Club Mama, member).",
     href: "/founder/club-hosts",
-  },
-  {
-    id: "launch_loop",
-    label: "Club Mama launch loop",
-    hint: "Create → publish → share → member reserve → attendees → cancel. Run scripts/operator-beta-launch-loop.mjs.",
   },
   {
     id: "reports",

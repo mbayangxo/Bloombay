@@ -1110,8 +1110,10 @@ export default function PassportPage() {
       const sb = createClient();
       const { data: { user } } = await sb.auth.getUser();
       if (!user) return;
-      const { uploadAvatar } = await import("@/lib/storage/upload");
-      const publicUrl = await uploadAvatar(file, user.id);
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${user.id}/passport.${ext}`;
+      await sb.storage.from("avatars").upload(path, file, { upsert: true });
+      const { data: { publicUrl } } = sb.storage.from("avatars").getPublicUrl(path);
       await sb.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
       setProfile(p => p ? { ...p, avatar_url: publicUrl } : { avatar_url: publicUrl });
     } catch (err) {

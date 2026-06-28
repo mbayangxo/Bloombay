@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { requireAdmin } from "@/lib/admin/require-staff";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -61,8 +61,9 @@ export async function POST(req: NextRequest) {
 
 // GET /api/feedback — admin only, list feedback
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status") ?? "open";
@@ -83,8 +84,9 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/feedback — admin update status/notes
 export async function PATCH(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await req.json() as {
     id: string;

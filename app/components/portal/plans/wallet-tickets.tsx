@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import type { PlanRoom } from "@/lib/plans/types";
-import { ticketCodeForRoom } from "@/lib/plans/ticket-code";
+import { TICKET_IMAGES } from "@/lib/plans/mock-data";
 
 function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active" | "used" | "expired"; onOpen: () => void }) {
-  const img = room.poster;
-  const ticketCode = ticketCodeForRoom(room.id);
+  const img = TICKET_IMAGES[room.id];
+  const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
   const TH = 148;
   const isClickable = status === "active";
   const overlay = status === "used" ? "USED ✓" : status === "expired" ? "MISSED" : null;
@@ -108,7 +108,7 @@ export function WalletTickets({ rooms, onOpen }: { rooms: PlanRoom[]; onOpen: (r
 
           {stackItems.map((room, i) => {
             const s = STACK[Math.min(i, STACK.length - 1)];
-            const img = room.poster;
+            const img = TICKET_IMAGES[room.id];
             const isFront = i === stackItems.length - 1;
             return (
               <div key={room.id} style={{ position: "absolute", top: 0, left: 0, right: 0, height: PEEK + SLOT_DEPTH, borderRadius: "13px 13px 0 0", background: room.bg, transform: `rotate(${s.rot}deg) translateX(${s.x}px)`, zIndex: 2 + i, overflow: "hidden", boxShadow: "0 -5px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)" }}>

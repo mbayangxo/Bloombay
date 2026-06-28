@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/payments/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -56,15 +55,12 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", meta.user_id);
 
-        await createNotificationEvent({
-          userId: meta.user_id,
+        await db.from("notifications").insert({
+          user_id: meta.user_id,
           type: "membership_confirmed",
-          channels: ["in_app", "email"],
-          payload: {
-            title: "Welcome to BloomBay!",
-            body: "Your membership is confirmed. The Avenue is yours.",
-            link: "/member/avenue",
-          },
+          title: "Welcome to BloomBay!",
+          body: "Your membership is confirmed. The Avenue is yours.",
+          link: "/member/avenue",
         });
 
         if (pendingOrderId) {
@@ -101,16 +97,13 @@ export async function POST(req: NextRequest) {
           { onConflict: "stripe_session_id", ignoreDuplicates: true }
         );
 
-        await createNotificationEvent({
-          userId: meta.user_id,
+        await db.from("notifications").insert({
+          user_id: meta.user_id,
           type: "ticket_confirmed",
-          channels: ["in_app", "email"],
-          payload: {
-            title: "You're going!",
-            body: "Your ticket is confirmed.",
-            link: `/member/happenings/${meta.event_id}`,
-            data: { event_id: meta.event_id },
-          },
+          title: "You're going!",
+          body: "Your ticket is confirmed.",
+          link: `/member/happenings/${meta.event_id}`,
+          data: { event_id: meta.event_id },
         });
 
         if (pendingOrderId) {
@@ -152,17 +145,13 @@ export async function POST(req: NextRequest) {
           .eq("user_id", meta.user_id)
           .eq("status", "pending");
 
-        await createNotificationEvent({
-          userId: meta.user_id,
+        await db.from("notifications").insert({
+          user_id: meta.user_id,
           type: "club_accepted",
-          channels: ["in_app", "email"],
-          payload: {
-            title: "Payment confirmed — you're in!",
-            body: "Your membership was confirmed. Welcome.",
-            link: `/member/clubs/${clubSlug}`,
-            templateVars: { clubName: clubSlug },
-            data: { club_id: meta.club_id },
-          },
+          title: "Payment confirmed — you're in!",
+          body: "Your membership was confirmed. Welcome.",
+          link: `/member/clubs/${clubSlug}`,
+          data: { club_id: meta.club_id },
         });
 
         if (pendingOrderId) {

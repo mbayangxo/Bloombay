@@ -1,5 +1,5 @@
 export interface PlanRoom {
-  id: string;
+  id: number;
   name: string;
   emoji: string;
   bg: string;
@@ -9,25 +9,8 @@ export interface PlanRoom {
   date: string;
   venue?: string;
   time?: string;
+  eventId?: number;
   poster?: string;
-  plan_type?: string;
-  description?: string;
-  status?: string;
-}
-
-export interface PlanMemory {
-  id: string;
-  name: string;
-  date: string;
-  poster: string | null;
-  note: string;
-}
-
-export interface DayCalendarEvent {
-  emoji: string;
-  name: string;
-  time: string;
-  color: string;
 }
 
 export interface DayContent {

@@ -1,4 +1,4 @@
-import { AvenuePage } from "@/app/components/avenue/avenue-page";
+import { AvenuePage } from "@/app/components/portal/avenue-page";
 
 export default function MemberAvenuePage() {
   return <AvenuePage />;

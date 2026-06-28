@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/auth/get-user";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 function admin() {
   return createClient(
@@ -44,18 +43,13 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  void createNotificationEvent({
-    userId: user.id,
+  // Insert in-app notification
+  void db.from("notifications").insert({
+    user_id: user.id,
     type: "reservation_requested",
-    channels: ["in_app"],
-    payload: {
-      templateVars: {
-        restaurantName: body.restaurant_name,
-        date: body.date,
-        time: body.time,
-      },
-      link: "/member/lounge",
-    },
+    title: `Reservation request sent`,
+    body: `We've sent your request to ${body.restaurant_name} for ${body.date} at ${body.time}. We'll confirm within 24h.`,
+    link: "/member/lounge",
   });
 
   return NextResponse.json({ ok: true, id: (data as { id: string }).id });

@@ -2,10 +2,10 @@
 // Processes unprocessed memory_events and updates member_memory_graph.
 // This is the heartbeat of Yande's understanding of each member.
 
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { runMemoryKeeper } from "@/lib/yande/memory-keeper";
 import { createClient } from "@supabase/supabase-js";
-import { runCronJob } from "@/lib/cron-guard";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -15,11 +15,14 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  return runCronJob(req, "memory-keeper", async (ctx) => {
-    if (ctx.dryRun) {
-      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
-    }
+  const guard = cronGuard(req, "memory-keeper");
+  if (guard) return guard;
 
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
+  }
+
+  try {
     const result = await runMemoryKeeper();
 
     await admin().from("yande_actions").insert({
@@ -31,14 +34,10 @@ export async function POST(req: NextRequest) {
       metadata: result,
     });
 
-    const r = result as Record<string, unknown>;
-    const processed =
-      typeof r.processed === "number"
-        ? r.processed
-        : typeof r.records_processed === "number"
-          ? r.records_processed
-          : 0;
-
-    return { recordsProcessed: processed, ...result };
-  });
+    await logCronRun("memory-keeper", "ok", result as Record<string, unknown>);
+    return NextResponse.json({ ok: true, ...result });
+  } catch (err) {
+    await logCronRun("memory-keeper", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

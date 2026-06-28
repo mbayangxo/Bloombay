@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireFounderQaAccess } from "@/lib/founder-qa-auth";
+import { isFounderQaAuthorized } from "@/lib/founder-qa-auth";
 import { buildCursorQaPrompt, buildQaReport, runSmokeChecks } from "@/lib/founder-qa-engine";
 import type { QaViewportId } from "@/lib/founder-qa-routes";
 
 export async function POST(request: NextRequest) {
-  const guard = await requireFounderQaAccess(request);
-  if (guard.error) return guard.error;
+  if (!isFounderQaAuthorized(request)) {
+    return NextResponse.json({ error: "Founder access required" }, { status: 401 });
+  }
 
   const body = (await request.json().catch(() => ({}))) as {
     action?: "smoke" | "ask";

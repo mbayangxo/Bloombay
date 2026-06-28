@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireFounder } from "@/lib/admin/require-staff";
 import { createClient } from "@supabase/supabase-js";
+import { getMissionControlRole } from "@/lib/auth/get-mc-role";
+import { canSignInFounderPortal } from "@/lib/auth/mission-control";
 
 function admin() {
   return createClient(
@@ -36,8 +37,11 @@ Rules:
 Start by introducing yourself briefly and asking the first question.`;
 
 export async function POST(req: NextRequest) {
-  const guard = await requireFounder(req);
-  if (guard.error) return guard.error;
+  // Auth check
+  const role = await getMissionControlRole();
+  if (!role || !canSignInFounderPortal(role)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { message, session_id: incomingSession } = await req.json().catch(() => ({})) as {
     message?: string;

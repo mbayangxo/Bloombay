@@ -30,11 +30,6 @@ CREATE TABLE IF NOT EXISTS public.club_customization (
 
 ALTER TABLE public.club_customization ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "club_customization_select_members" ON public.club_customization;
-DROP POLICY IF EXISTS "club_customization_insert_owner" ON public.club_customization;
-DROP POLICY IF EXISTS "club_customization_update_owner" ON public.club_customization;
-DROP POLICY IF EXISTS "club_customization_delete_owner" ON public.club_customization;
-
 -- All authenticated users (members) can read club customizations
 CREATE POLICY "club_customization_select_members"
   ON public.club_customization

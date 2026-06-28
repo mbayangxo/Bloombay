@@ -35,6 +35,15 @@ export async function fetchUserRole(): Promise<UserRole | null> {
   return role;
 }
 
+async function signInFounderWithDashboardPassword(password: string): Promise<boolean> {
+  const res = await fetch("/api/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  return res.ok;
+}
+
 export async function signInAndRedirect(
   email: string,
   password: string,
@@ -43,8 +52,19 @@ export async function signInAndRedirect(
 ) {
   const supabase = createClient();
 
+  if (portal === "founder" && (await signInFounderWithDashboardPassword(password))) {
+    await supabase.auth.signOut();
+    setRoleCookiesClient("bb-founder-password", "founder");
+    const next =
+      fallbackNext && fallbackNext.startsWith("/founder") ? fallbackNext : "/founder/dashboard";
+    window.location.href = next;
+    return;
+  }
+
   if (portal === "founder" && !email.trim()) {
-    throw new Error("Enter founder@bloombay.app with your Supabase account password.");
+    throw new Error(
+      "Enter founder@bloombay.app (Supabase password), or set ADMIN_PASSWORD in .env.local and use that as the password."
+    );
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -52,7 +72,7 @@ export async function signInAndRedirect(
   if (error) {
     if (portal === "founder") {
       throw new Error(
-        "Founder sign-in failed. Use founder@bloombay.app with your Supabase account password."
+        "Founder sign-in failed. Use founder@bloombay.app with your Supabase password, or set ADMIN_PASSWORD in .env.local and sign in with that password (email optional)."
       );
     }
     throw error;
@@ -88,8 +108,15 @@ export async function signInCompanyPortal(
 
   const supabase = createClient();
 
+  if (!email.trim() && (await signInFounderWithDashboardPassword(password))) {
+    await supabase.auth.signOut();
+    setRoleCookiesClient("bb-founder-password", "founder");
+    window.location.href = homeAfterCompanyLogin("founder", fallbackNext);
+    return;
+  }
+
   if (!email.trim()) {
-    throw new Error("Enter your work email and Supabase account password.");
+    throw new Error("Enter your work email, or use the founder dashboard password from .env.local.");
   }
 
   const { error } = await supabase.auth.signInWithPassword({

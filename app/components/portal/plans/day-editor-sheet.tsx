@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { DayCalendarEvent, DayContent, DayEditorTab } from "@/lib/plans/types";
+import type { DayContent, DayEditorTab } from "@/lib/plans/types";
 import { PINK, MONTH_NAMES, DAY_FULL } from "@/lib/plans/constants";
+import { EVENT_DATES } from "@/lib/plans/mock-data";
 import { StickerKeyboard } from "./sticker-keyboard";
 
 const WAVE_HEIGHTS = [8,14,22,18,10,26,16,8,20,12,26,8,18,24,10,16,22,8,14,18];
 
-export function DayEditorSheet({ dayKey, content, eventsToday = [], onUpdate, onClose }: {
+export function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   dayKey: string;
   content: DayContent;
-  eventsToday?: DayCalendarEvent[];
   onUpdate: (c: DayContent) => void;
   onClose: () => void;
 }) {
@@ -31,6 +31,8 @@ export function DayEditorSheet({ dayKey, content, eventsToday = [], onUpdate, on
   const dayNum    = date.getDate();
   const dayLabel  = DAY_FULL[date.getDay()];
   const monthLabel = MONTH_NAMES[date.getMonth()];
+  const eventsToday = EVENT_DATES[dayKey] ?? [];
+
   function save(overrides: Partial<DayContent> = {}) {
     onUpdate({ text: textRef.current, stickers: stickersRef.current, photos: photosRef.current, voiceCount: voiceRef.current, ...overrides });
   }

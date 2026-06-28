@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import { logAction, recordMemberTouch } from "./core";
 
 function admin() {
@@ -11,37 +10,14 @@ function admin() {
   );
 }
 
-async function notifyStaff(title: string, body: string, data: Record<string, unknown>) {
-  const supabase = admin();
-  const { data: staff } = await supabase
-    .from("profiles")
-    .select("id")
-    .in("role", ["admin", "founder", "moderator"]);
-
-  if (!staff?.length) return;
-
-  await Promise.all(
-    staff.map((s) =>
-      createNotificationEvent({
-        userId: s.id,
-        type: "urgent_safety",
-        channels: ["in_app"],
-        payload: { title, body, data },
-      }),
-    ),
-  );
-}
-
-export async function reviewPendingReports(
-  maxRecords = 20,
-): Promise<{ reviewed: number; escalated: number }> {
+export async function reviewPendingReports(): Promise<{ reviewed: number; escalated: number }> {
   const supabase = admin();
   const { data: reports } = await supabase
     .from("member_reports")
     .select("*")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
-    .limit(maxRecords);
+    .limit(20);
 
   if (!reports?.length) return { reviewed: 0, escalated: 0 };
 
@@ -50,6 +26,7 @@ export async function reviewPendingReports(
 
   for (const report of reports) {
     try {
+      // Count prior reports against the same member
       const { count: priorCount } = await supabase
         .from("member_reports")
         .select("id", { count: "exact", head: true })
@@ -74,8 +51,7 @@ export async function reviewPendingReports(
             max_tokens: 120,
             system: `You are Yande, BloomBay's safety agent. Assess this member report briefly.
 Output format: SEVERITY: [low/medium/high] | ACTION: [monitor/warn/deactivate] | SUMMARY: [1 sentence]
-Be objective. BloomBay is a women-only community — safety is the top priority.
-Recommend only — never auto-ban.`,
+Be objective. BloomBay is a women-only community — safety is the top priority.`,
             messages: [{ role: "user", content: `Reason: ${report.reason}\nDetails: ${report.details ?? "none"}\nPrior reports against this member: ${priorCount ?? 0}` }],
           }),
         });
@@ -86,47 +62,39 @@ Recommend only — never auto-ban.`,
         }
       }
 
+      const newStatus = isHighSeverity ? "escalated" : "reviewed";
+
+      await supabase.from("member_reports").update({
+        status: newStatus,
+        yande_summary: yandeAnalysis || `${totalReports} report(s) on file. Auto-reviewed by Yande.`,
+      }).eq("id", report.id);
+
       if (isHighSeverity) {
-        // High severity: queue for human review — Yande recommends only, no auto-ban
-        await supabase.from("member_reports").update({
-          status: "human_review_required",
-          yande_summary: yandeAnalysis || `${totalReports} report(s) on file. Flagged for human review.`,
-        }).eq("id", report.id);
-
-        await supabase.from("moderation_cases").insert({
-          source_type: "member_report",
-          source_id: String(report.id),
-          reported_user_id: report.reported_id as string,
-          reporter_id: report.reporter_id as string,
-          severity: "high",
-          status: "human_review_required",
-          yande_recommendation: yandeAnalysis || null,
-        });
-
-        void createNotificationEvent({
-          userId: report.reporter_id as string,
-          type: "report_submitted",
-          channels: ["in_app"],
-          payload: {
-            title: "Safety report under review ✦",
-            body: "We've flagged this for human review. Our team will take action within 24 hours.",
-            data: { report_id: report.id },
+        // Create human moderation task — Yande never auto-acts on high-severity reports
+        await supabase.from("moderation_tasks").insert({
+          task_type: "safety_report",
+          subject_id: report.reported_id as string,
+          priority: totalReports >= 5 ? "urgent" : "high",
+          metadata: {
+            report_id: report.id,
+            reporter_id: report.reporter_id,
+            reason: report.reason,
+            details: report.details,
+            prior_reports: priorCount,
+            yande_analysis: yandeAnalysis,
           },
         });
 
-        await notifyStaff(
-          "Safety case needs review",
-          `High-severity report: ${report.reason}`,
-          { report_id: report.id, reported_id: report.reported_id },
-        );
+        // Notify reporter that a human is reviewing
+        await supabase.from("notifications").insert({
+          user_id: report.reporter_id,
+          type: "safety",
+          title: "Safety report under review ✦",
+          body: "We've flagged this for human review. Our team will take action within 24 hours.",
+          data: { report_id: report.id },
+        });
 
         escalated++;
-      } else {
-        // Low/medium: Yande recommendation only — mark reviewed
-        await supabase.from("member_reports").update({
-          status: "reviewed",
-          yande_summary: yandeAnalysis || `${totalReports} report(s) on file. Auto-reviewed by Yande.`,
-        }).eq("id", report.id);
       }
 
       await logAction({
@@ -148,6 +116,7 @@ Recommend only — never auto-ban.`,
 }
 
 export async function deactivateForSafety(userId: string, reason: string): Promise<{ ok: boolean }> {
+  // HIGH RISK — logs as pending_approval; a human must approve in the admin panel
   const action = await logAction({
     agent: "yande-safety",
     action_type: "deactivate_member",
@@ -156,14 +125,12 @@ export async function deactivateForSafety(userId: string, reason: string): Promi
     metadata: { reason },
   }, "pending_approval");
 
-  void createNotificationEvent({
-    userId,
-    type: "urgent_safety",
-    channels: ["in_app"],
-    payload: {
-      title: "Account action required",
-      body: "Your account has been temporarily restricted pending review. Please contact support.",
-    },
+  const supabase = admin();
+  await supabase.from("notifications").insert({
+    user_id: userId,
+    type: "safety",
+    title: "Account action required",
+    body: "Your account has been temporarily restricted pending review. Please contact support.",
   });
 
   return { ok: !!action };
@@ -173,13 +140,11 @@ export async function sendSafetyConfirmation(reporterId: string): Promise<void> 
   const touched = await recordMemberTouch(reporterId, "safety_confirmation");
   if (!touched) return;
 
-  void createNotificationEvent({
-    userId: reporterId,
-    type: "report_submitted",
-    channels: ["in_app"],
-    payload: {
-      title: "We received your report ✦",
-      body: "Thank you for keeping BloomBay safe. We take every report seriously and will follow up within 48 hours.",
-    },
+  const supabase = admin();
+  await supabase.from("notifications").insert({
+    user_id: reporterId,
+    type: "safety",
+    title: "We received your report ✦",
+    body: "Thank you for keeping BloomBay safe. We take every report seriously and will follow up within 48 hours.",
   });
 }

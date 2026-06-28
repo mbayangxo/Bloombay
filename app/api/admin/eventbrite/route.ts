@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin/require-staff";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_API_KEY;
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   if (!EVENTBRITE_TOKEN) {
     return NextResponse.json({ error: "EVENTBRITE_API_KEY not set" }, { status: 503 });

@@ -1,90 +1,76 @@
--- Profile privacy hardening (schema-tolerant)
--- Safe on early profiles schema (002): id, full_name, city, neighborhood, role, created_at
+-- Profile privacy hardening
+-- Replace the open profiles_read_all policy with a restricted one.
+-- Public consumers get a limited view; full profile data is self-only or admin.
 
--- ── Profiles RLS ──────────────────────────────────────────────────────────────
-DROP POLICY IF EXISTS "profiles_read_all" ON public.profiles;
-DROP POLICY IF EXISTS "public_profiles_read" ON public.profiles;
-DROP POLICY IF EXISTS "Profiles read own" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_read_own" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_read_admin" ON public.profiles;
+-- Drop the old open policy if it exists
+DROP POLICY IF EXISTS "profiles_read_all" ON profiles;
+DROP POLICY IF EXISTS "public_profiles_read" ON profiles;
 
+-- Users can always read their own full profile
 CREATE POLICY "profiles_read_own"
-  ON public.profiles FOR SELECT
+  ON profiles FOR SELECT
   USING (auth.uid() = id);
 
+-- Admins and founders can read all profiles
 CREATE POLICY "profiles_read_admin"
-  ON public.profiles FOR SELECT
+  ON profiles FOR SELECT
   USING (
     EXISTS (
-      SELECT 1 FROM public.profiles p
+      SELECT 1 FROM profiles p
       WHERE p.id = auth.uid()
-        AND p.role::text IN ('admin', 'founder')
+      AND p.role IN ('admin', 'founder')
     )
   );
 
--- ── Safe public profiles view (minimal columns) ─────────────────────────────
-DROP VIEW IF EXISTS public.public_profiles;
+-- Members can read a safe subset of other members via a view (see below)
+-- Direct table selects of other users' rows are blocked unless they are admin/founder.
 
-CREATE VIEW public.public_profiles AS
+-- ── Safe public profiles view ─────────────────────────────────────────────────
+-- Exposes only non-sensitive fields for member discovery features.
+CREATE OR REPLACE VIEW public_profiles AS
   SELECT
-    p.id,
-    p.full_name,
-    p.role,
-    p.created_at
-  FROM public.profiles p
-  WHERE p.role::text = 'member';
+    id,
+    first_name,
+    full_name,
+    avatar_url,
+    city,
+    is_member,
+    neighborhood,
+    role,
+    created_at
+  FROM profiles
+  WHERE is_member = true;
 
-GRANT SELECT ON public.public_profiles TO authenticated;
+-- Members can select from public_profiles view
+GRANT SELECT ON public_profiles TO authenticated;
 
--- ── Club membership privacy (only if club_memberships + clubs exist) ──────────
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'club_memberships'
-  ) THEN
-    RAISE NOTICE '102: skipping club_memberships policies — table missing';
-    RETURN;
-  END IF;
+-- ── Club membership privacy ───────────────────────────────────────────────────
+-- Drop over-permissive open club membership policy
+DROP POLICY IF EXISTS "user_clubs_read_all" ON club_memberships;
 
-  DROP POLICY IF EXISTS "user_clubs_read_all" ON public.club_memberships;
-  DROP POLICY IF EXISTS "memberships_read_all" ON public.club_memberships;
-  DROP POLICY IF EXISTS "club_memberships_read_own" ON public.club_memberships;
-  DROP POLICY IF EXISTS "club_memberships_read_club_owner" ON public.club_memberships;
-  DROP POLICY IF EXISTS "club_memberships_read_admin" ON public.club_memberships;
+-- Members see only their own club memberships
+CREATE POLICY "club_memberships_read_own"
+  ON club_memberships FOR SELECT
+  USING (auth.uid() = user_id);
 
-  CREATE POLICY "club_memberships_read_own"
-    ON public.club_memberships FOR SELECT
-    USING (auth.uid() = user_id);
+-- Club owners see their own club's members
+CREATE POLICY "club_memberships_read_club_owner"
+  ON club_memberships FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM clubs
+      WHERE clubs.slug = club_memberships.club_slug
+      AND clubs.host_id = auth.uid()
+    )
+  );
 
-  CREATE POLICY "club_memberships_read_admin"
-    ON public.club_memberships FOR SELECT
-    USING (
-      EXISTS (
-        SELECT 1 FROM public.profiles
-        WHERE id = auth.uid()
-          AND role::text IN ('admin', 'founder')
-      )
-    );
-
-  -- Owner policy only when clubs.slug + clubs.owner_id exist
-  IF EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'clubs' AND column_name = 'owner_id'
-  ) AND EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'clubs' AND column_name = 'slug'
-  ) THEN
-    CREATE POLICY "club_memberships_read_club_owner"
-      ON public.club_memberships FOR SELECT
-      USING (
-        EXISTS (
-          SELECT 1 FROM public.clubs
-          WHERE clubs.slug = club_memberships.club_slug
-            AND clubs.owner_id = auth.uid()
-        )
-      );
-  ELSE
-    RAISE NOTICE '102: skipping club_memberships_read_club_owner — clubs.owner_id or slug missing';
-  END IF;
-END $$;
+-- Admins/founders see all memberships
+CREATE POLICY "club_memberships_read_admin"
+  ON club_memberships FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid()
+      AND role IN ('admin', 'founder')
+    )
+  );

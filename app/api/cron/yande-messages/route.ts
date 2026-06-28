@@ -2,10 +2,10 @@
 // Sends re-engagement messages to members going quiet,
 // and celebration messages for recent milestones.
 
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { runReEngagementBatch, sendYandeMessage } from "@/lib/yande/messages";
 import { createClient } from "@supabase/supabase-js";
-import { runCronJob } from "@/lib/cron-guard";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -15,13 +15,16 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  return runCronJob(req, "yande-messages", async (ctx) => {
-    if (ctx.dryRun) {
-      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
-    }
+  const guard = cronGuard(req, "yande-messages");
+  if (guard) return guard;
 
-    const supabase = admin();
-    const batchLimit = Math.min(ctx.maxRecords, 20);
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
+  }
+
+  const supabase = admin();
+
+  try {
     // ── 1. Re-engagement batch ─────────────────────────────────────────────────
     const reEngagement = await runReEngagementBatch();
 
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
       .from("member_memory_graph")
       .select("user_id, milestones")
       .gte("first_event_at", yesterday)
-      .limit(batchLimit);
+      .limit(20);
 
     let celebrated = 0;
     for (const member of (firstTimers ?? [])) {
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
       .select("user_id, milestones")
       .not("milestones->first_bloomie", "is", null)
       .gte("updated_at", yesterday)
-      .limit(batchLimit);
+      .limit(20);
 
     let newBloomieMessages = 0;
     for (const member of (newBloomies ?? [])) {
@@ -92,11 +95,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return {
-      recordsProcessed: celebrated + newBloomieMessages,
+    await logCronRun("yande-messages", "ok", {
+      records_processed: celebrated + newBloomieMessages,
+      celebrated,
+      new_bloomie_messages: newBloomieMessages,
+    });
+    return NextResponse.json({
+      ok: true,
       re_engagement: reEngagement,
       milestones_celebrated: celebrated,
       new_bloomie_messages: newBloomieMessages,
-    };
-  });
+    });
+  } catch (err) {
+    await logCronRun("yande-messages", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

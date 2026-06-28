@@ -4,12 +4,6 @@ import { useState } from "react";
 import type { NewPlanStep } from "@/lib/plans/types";
 import { BLOOMIES_LIST, CLUBS_LIST } from "@/lib/plans/mock-data";
 
-const CHOOSE_OPTIONS: { s: NewPlanStep; emoji: string; label: string; sub: string }[] = [
-  { s: "room", emoji: "🗓", label: "Plan Room", sub: "Collaborative planning board for an event or trip" },
-  { s: "bloomie", emoji: "🌸", label: "Invite Bloomies", sub: "Send a plan directly to specific friends" },
-  { s: "club", emoji: "💫", label: "Post to Club", sub: "Open invite — let club members say they're down" },
-];
-
 export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
   const [step, setStep]         = useState<NewPlanStep>("choose");
   const [name, setName]         = useState("");
@@ -19,13 +13,6 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
   const [clubId, setClubId]     = useState<number | null>(null);
   const [done, setDone]         = useState(false);
   const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-
-  const showBloomieFlow = BLOOMIES_LIST.length > 0;
-  const showClubFlow = CLUBS_LIST.length > 0;
-  const chooseOptions = CHOOSE_OPTIONS.filter(opt =>
-    opt.s === "room" || (opt.s === "bloomie" && showBloomieFlow) || (opt.s === "club" && showClubFlow),
-  );
 
   function toggleBloomie(id: number) {
     setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -34,24 +21,16 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
   async function createRoom() {
     if (!name.trim() || creating) return;
     setCreating(true);
-    setCreateError(null);
     try {
-      const res = await fetch("/api/member/plans", {
+      await fetch("/api/member/plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: name.trim(), description: details.trim() || undefined, plan_type: "hangout" }),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(body.error ?? "Failed to create plan");
-      }
       onCreated?.();
-      setDone(true);
-    } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Failed to create plan");
-    } finally {
-      setCreating(false);
-    }
+    } catch { /* ignore — plan created locally */ }
+    setCreating(false);
+    setDone(true);
   }
 
   if (done) return (
@@ -100,7 +79,11 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
 
         {step === "choose" && (
           <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
-            {chooseOptions.map(opt => (
+            {([
+              { s: "room" as NewPlanStep, emoji: "🗓", label: "Plan Room", sub: "Collaborative planning board for an event or trip" },
+              { s: "bloomie" as NewPlanStep, emoji: "🌸", label: "Invite Bloomies", sub: "Send a plan directly to specific friends" },
+              { s: "club" as NewPlanStep, emoji: "💫", label: "Post to Club", sub: "Open invite — let club members say they're down" },
+            ]).map(opt => (
               <button key={opt.s} onClick={() => setStep(opt.s)}
                 className="flex items-center gap-4 p-5 rounded-2xl text-left active:scale-[0.98] transition-transform"
                 style={{ background: "#FFF5F8", border: "1px solid rgba(255,31,125,0.2)" }}>
@@ -125,9 +108,6 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
               <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
             </div>
-            {createError && (
-              <p className="text-xs text-center" style={{ color: "#FF1F7D", fontFamily: "var(--font-jost)" }}>{createError}</p>
-            )}
             <button onClick={createRoom} disabled={!name.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold mt-2"
               style={name.trim() ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
               {creating ? "Creating…" : name.trim() ? "Create Plan Room →" : "Add a room name first"}
@@ -135,7 +115,7 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
           </div>
         )}
 
-        {step === "bloomie" && showBloomieFlow && (
+        {step === "bloomie" && (
           <>
             <div className="px-6 pt-4 pb-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>
@@ -168,7 +148,7 @@ export function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCr
           </>
         )}
 
-        {step === "club" && showClubFlow && (
+        {step === "club" && (
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "rgba(0,0,0,0.45)" }}>What&apos;s the plan?</p>

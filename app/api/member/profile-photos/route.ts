@@ -62,13 +62,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "imageUrl required" }, { status: 400 });
   }
 
-  if (imageUrl.startsWith("data:")) {
-    return NextResponse.json(
-      { ok: false, error: "Base64 image URLs are not allowed. Upload via /api/member/upload first." },
-      { status: 400 },
-    );
-  }
-
   const kind = body.kind === "avatar" ? "avatar" : "gallery";
 
   if (kind === "avatar") {

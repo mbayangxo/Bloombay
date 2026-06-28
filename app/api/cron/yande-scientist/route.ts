@@ -3,9 +3,9 @@
 // what neighborhoods are growing, what content generates the most blooms.
 // Writes a weekly insight report and stores it for the founder dashboard.
 
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { runCronJob } from "@/lib/cron-guard";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -36,19 +36,23 @@ async function callClaude(system: string, user: string): Promise<string | null> 
 }
 
 export async function POST(req: NextRequest) {
-  return runCronJob(req, "yande-scientist", async (ctx) => {
-    if (ctx.dryRun) {
-      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
-    }
+  const guard = cronGuard(req, "yande-scientist");
+  if (guard) return guard;
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return { skipped: true, recordsProcessed: 0, reason: "no anthropic key" };
-    }
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
+  }
 
-    const supabase = admin();
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ skipped: "no anthropic key" });
+  }
+
+  const supabase = admin();
   const weekAgo  = new Date(Date.now() - 7 * 86400000).toISOString();
-    const weekOf   = new Date().toISOString().split("T")[0];
+  const weekOf   = new Date().toISOString().split("T")[0];
 
+  try {
+    // ── Platform signals ───────────────────────────────────────────────────────
     const [
       { count: newMembers },
       { count: wallPosts },
@@ -77,13 +81,13 @@ export async function POST(req: NextRequest) {
 
       supabase.from("member_memory_graph")
         .select("friendship_score, churn_risk, clubs_joined")
-        .limit(ctx.maxRecords),
+        .limit(500),
 
       supabase.from("profiles")
         .select("neighborhood")
         .eq("is_member", true)
         .not("neighborhood", "is", null)
-        .limit(ctx.maxRecords),
+        .limit(500),
     ]);
 
     const graphs = (memoryStats ?? []) as { friendship_score: number; churn_risk: number; clubs_joined: number }[];
@@ -135,7 +139,8 @@ Plain text, no markdown, under 250 words. Write for a founder who has no time fo
     );
 
     if (!analysis) {
-      return { skipped: true, recordsProcessed: 0, reason: "claude api error" };
+      await logCronRun("yande-scientist", "skipped", { reason: "claude api error" });
+      return NextResponse.json({ skipped: "claude api error" });
     }
 
     await supabase.from("yande_scientist_reports").upsert(
@@ -175,6 +180,10 @@ Plain text, no markdown, under 250 words. Write for a founder who has no time fo
       metadata:     { week_of: weekOf, members_analyzed: graphs.length },
     });
 
-    return { recordsProcessed: 1, week_of: weekOf, preview: analysis.slice(0, 120) };
-  });
+    await logCronRun("yande-scientist", "ok", { records_processed: 1, week_of: weekOf, members_analyzed: graphs.length });
+    return NextResponse.json({ ok: true, week_of: weekOf, preview: analysis.slice(0, 120) });
+  } catch (err) {
+    await logCronRun("yande-scientist", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

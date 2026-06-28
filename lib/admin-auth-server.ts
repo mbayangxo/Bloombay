@@ -1,7 +1,7 @@
-import { getMissionControlRole } from "@/lib/auth/get-mc-role";
+import { cookies } from "next/headers";
+import { ADMIN_COOKIE, isFounderPasswordSession } from "@/lib/admin-auth";
 
-/** @deprecated Use getMissionControlRole() or requireAdmin() — password sessions are disabled. */
 export async function isAdminAuthenticated(): Promise<boolean> {
-  const role = await getMissionControlRole();
-  return role === "admin" || role === "founder";
+  const jar = await cookies();
+  return isFounderPasswordSession(jar.get(ADMIN_COOKIE)?.value);
 }

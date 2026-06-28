@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
 import { isBlocked } from "@/lib/auth/block-check";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 type ProfileRow = {
   id: string;
@@ -190,19 +189,14 @@ export async function POST(request: Request) {
   // Send notification to recipient (use already-fetched profile)
   const senderName = senderProfile?.first_name || senderProfile?.full_name?.split(" ")[0] || "Someone";
 
-  await createNotificationEvent({
-    userId: body.toUserId,
+  await supabase.from("notifications").insert({
+    user_id: body.toUserId,
     type: "bloom_request",
-    channels: ["in_app", "email"],
-    payload: {
-      title: `${senderName} sent you a bloom request 🌸`,
-      body: body.note
-        ? `"${body.note.slice(0, 80)}${body.note.length > 80 ? "…" : ""}"`
-        : "She sees something in you.",
-      link: "/member/introductions",
-      data: { request_id: data.id, sender_id: user.id },
-    },
-  });
+    title: `${senderName} sent you a bloom request 🌸`,
+    body: body.note ? `"${body.note.slice(0, 80)}${body.note.length > 80 ? "…" : ""}"` : "She sees something in you.",
+    link: "/member/introductions",
+    data: { request_id: data.id, sender_id: user.id },
+  }).maybeSingle();
 
   return NextResponse.json({ ok: true, request: data });
 }

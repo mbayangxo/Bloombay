@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { requireAdmin } from "@/lib/admin/require-staff";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -59,8 +59,9 @@ export async function GET(req: NextRequest) {
   }
 
   // Admin-only: full list requires Supabase session with admin/founder role
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const supabase = admin();
   const { data, error } = await supabase
     .from("girlmate_partner_applications")

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { requireAdmin } from "@/lib/admin/require-staff";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -11,8 +10,9 @@ function admin() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await req.json() as { id: string; status: "confirmed" | "cancelled" };
   if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
@@ -31,19 +31,16 @@ export async function PATCH(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  // In-app notification
   const resAny = reservation as { user_id: string; restaurant_name: string; date: string; time: string };
-  void createNotificationEvent({
-    userId: resAny.user_id,
+  void db.from("notifications").insert({
+    user_id: resAny.user_id,
     type: body.status === "confirmed" ? "reservation_confirmed" : "reservation_cancelled",
-    channels: ["in_app", "email"],
-    payload: {
-      templateVars: {
-        restaurantName: resAny.restaurant_name,
-        date: resAny.date,
-        time: resAny.time,
-      },
-      link: "/member/city",
-    },
+    title: body.status === "confirmed" ? `Table confirmed at ${resAny.restaurant_name}!` : `Reservation update`,
+    body: body.status === "confirmed"
+      ? `Your table for ${resAny.date} at ${resAny.time} is confirmed. See you there ✦`
+      : `Your request at ${resAny.restaurant_name} for ${resAny.date} couldn't be accommodated.`,
+    link: "/member/city",
   });
 
   return NextResponse.json({ ok: true });

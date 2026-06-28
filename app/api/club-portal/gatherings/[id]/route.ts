@@ -9,44 +9,6 @@ function admin() {
   );
 }
 
-/** GET /api/club-portal/gatherings/[id] — single gathering for club owner */
-export async function GET(
-  _req: Request,
-  context: { params: Promise<{ id: string }> },
-) {
-  const { id } = await context.params;
-  const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const db = admin();
-
-  const { data: gathering } = await db
-    .from("gatherings")
-    .select("id, slug, title, starts_at, venue, neighborhood, capacity, publish_status, club_slug")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (!gathering) {
-    return NextResponse.json({ error: "Gathering not found" }, { status: 404 });
-  }
-
-  const { data: club } = await db
-    .from("clubs")
-    .select("id")
-    .eq("slug", gathering.club_slug)
-    .eq("owner_id", user.id)
-    .maybeSingle();
-
-  if (!club) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  return NextResponse.json({ gathering });
-}
-
 /** PATCH /api/club-portal/gatherings/[id] — cancel gathering */
 export async function PATCH(
   _req: Request,

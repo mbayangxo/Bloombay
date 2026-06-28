@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { requireAdmin } from "@/lib/admin/require-staff";
-import { writeAdminAuditLog } from "@/lib/admin/audit-log";
-import { notFound } from "@/lib/api/error-response";
-import { logInfo } from "@/lib/logger";
-import { createNotificationEvent } from "@/lib/notifications/notification-service";
+import { verifyAdminRequest } from "@/lib/admin-auth";
 
 function admin() {
   return createClient(
@@ -62,8 +58,9 @@ Sound like a friend who already knows them, not a brand. No emojis. No "Welcome 
 
 // POST /api/admin/approve-member
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await req.json() as {
     applicationId: string;
@@ -80,10 +77,9 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (fetchErr || !app) {
-    return notFound("Application not found");
+    return NextResponse.json({ error: "Application not found" }, { status: 404 });
   }
 
-  const beforeState = { status: app.status, reviewed_at: app.reviewed_at };
   const now = new Date().toISOString();
 
   if (body.action === "approve") {
@@ -104,15 +100,12 @@ export async function POST(req: NextRequest) {
 
       const welcomeBody = await yandeWelcome(app);
 
-      await createNotificationEvent({
-        userId: app.user_id,
-        type: "member_approved",
-        channels: ["in_app"],
-        payload: {
-          title: "You're in. ✦",
-          body: welcomeBody,
-          link: "/member/home",
-        },
+      await supabase.from("notifications").insert({
+        user_id: app.user_id,
+        type:    "celebrate",
+        title:   "You're in. ✦",
+        body:    welcomeBody,
+        link:    "/member/home",
       });
     }
   } else {
@@ -126,30 +119,14 @@ export async function POST(req: NextRequest) {
       .eq("id", body.applicationId);
   }
 
-  await writeAdminAuditLog({
-    actorId: guard.user.id,
-    actorRole: guard.role,
-    action: `member_application.${body.action}`,
-    resourceType: "member_application",
-    resourceId: body.applicationId,
-    before: beforeState,
-    after: { status: body.action === "approve" ? "approved" : "declined", reviewed_at: now },
-    req,
-    metadata: body.declineNote ? { decline_note: body.declineNote } : undefined,
-  });
-
-  logInfo("admin", `Member application ${body.action}`, {
-    applicationId: body.applicationId,
-    action: body.action,
-  });
-
   return NextResponse.json({ ok: true });
 }
 
 // GET /api/admin/approve-member — list applications
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin(req);
-  if (guard.error) return guard.error;
+  if (!await verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const status = req.nextUrl.searchParams.get("status") ?? "pending";
   const { data, error } = await admin()

@@ -1,2 +1,2 @@
-import { VanityPage } from "@/app/components/avenue/vanity-page";
+import { VanityPage } from "@/app/components/portal/vanity-page";
 export default function VanityRoute() { return <VanityPage />; }

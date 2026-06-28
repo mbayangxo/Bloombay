@@ -1,20 +1,24 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { nudgeClubsWithNoUpcomingEvents, suggestRecurringEvents } from "@/lib/yande/scheduling";
-import { runCronJob } from "@/lib/cron-guard";
+import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  return runCronJob(req, "scheduling", async (ctx) => {
-    if (ctx.dryRun) {
-      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
-    }
+  const guard = cronGuard(req, "scheduling");
+  if (guard) return guard;
 
+  if (isDryRun()) {
+    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
+  }
+
+  try {
     const [clubs, recurring] = await Promise.all([
       nudgeClubsWithNoUpcomingEvents(),
       suggestRecurringEvents(),
     ]);
-
-    const processed = clubs.nudged + recurring.suggested;
-
-    return { recordsProcessed: processed, clubs, recurring };
-  });
+    await logCronRun("scheduling", "ok", { clubs, recurring });
+    return NextResponse.json({ ok: true, clubs, recurring });
+  } catch (err) {
+    await logCronRun("scheduling", "error", { error: String(err) });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }
