@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isAllowedSmsType, smsPolicyError } from "@/lib/sms/policy";
 import { sendSms } from "@/lib/sms/twilio-client";
 
 type ProfileSmsRow = {
@@ -6,12 +7,20 @@ type ProfileSmsRow = {
   sms_notifications: boolean | null;
 };
 
-/** Send SMS only when profiles.sms_notifications is true and phone is set. */
+/**
+ * Send SMS to a profile when sms_notifications is enabled.
+ * Requires an allowed SMS policy type — arbitrary bodies are blocked.
+ */
 export async function sendSmsForUser(
   supabase: SupabaseClient,
   userId: string,
-  body: string
-): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  body: string,
+  smsType: string,
+): Promise<{ ok: boolean; skipped?: boolean; blocked?: boolean; error?: string }> {
+  if (!isAllowedSmsType(smsType)) {
+    return { ok: false, blocked: true, error: smsPolicyError(smsType) };
+  }
+
   const { data: profile, error: readErr } = await supabase
     .from("profiles")
     .select("phone, sms_notifications")
@@ -30,5 +39,5 @@ export async function sendSmsForUser(
     return { ok: true, skipped: true };
   }
 
-  return sendSms(row.phone, body);
+  return sendSms(row.phone, body, smsType);
 }

@@ -15,6 +15,7 @@ import {
 } from "./channel-rules";
 import { ADMIN_SMS_BATCH_LIMIT, isRateLimited } from "./rate-limits";
 import { sendSMS } from "./sms";
+import type { AllowedSmsType } from "@/lib/sms/policy";
 import {
   type NotificationType,
   type TemplateData,
@@ -258,9 +259,11 @@ async function sendEmail(
 async function sendSmsToPhone(
   phone: string,
   content: RenderedContent,
-): Promise<"sent" | "failed"> {
+  smsType: NotificationType,
+): Promise<"sent" | "failed" | "skipped"> {
   if (!content.smsBody) return "failed";
-  const result = await sendSMS(phone, content.smsBody);
+  const result = await sendSMS(phone, content.smsBody, smsType as AllowedSmsType);
+  if (result.blocked) return "skipped";
   return result.ok ? "sent" : "failed";
 }
 
@@ -268,10 +271,11 @@ async function sendSmsForUser(
   db: ReturnType<typeof createAdminClient>,
   userId: string,
   content: RenderedContent,
+  smsType: NotificationType,
 ): Promise<"sent" | "failed" | "skipped"> {
   const { phone } = await getUserContact(db, userId);
   if (!phone) return "skipped";
-  return sendSmsToPhone(phone, content);
+  return sendSmsToPhone(phone, content, smsType);
 }
 
 function isAdminRole(role?: string): boolean {
@@ -346,7 +350,7 @@ export async function createNotificationEvent(
       } else if (channel === "email") {
         status = await sendEmail(db, input.userId, content, input.payload);
       } else {
-        status = await sendSmsForUser(db, input.userId, content);
+        status = await sendSmsForUser(db, input.userId, content, input.type);
       }
     } catch (err) {
       status = "failed";
@@ -390,7 +394,16 @@ export async function sendAdminWaitlistSmsBatch(
       templateVars: { name: row.firstName ?? "Bloomie", appUrl: "bloombay.app/join" },
     });
 
-    const result = await sendSMS(row.phoneNumber, content.smsBody ?? content.body);
+    const result = await sendSMS(
+      row.phoneNumber,
+      content.smsBody ?? content.body,
+      input.template as AllowedSmsType,
+    );
+    if (result.blocked) {
+      failed++;
+      errors.push(`${row.email ?? row.waitlistId}: ${result.error}`);
+      continue;
+    }
     if (result.ok) {
       sent++;
       sentWaitlistIds.push(row.waitlistId);

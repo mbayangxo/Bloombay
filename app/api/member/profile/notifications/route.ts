@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/phone/normalize";
-import { sendMemberSmsReminder } from "@/lib/sms/send-member-reminder";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import { createClient } from "@/lib/supabase/server";
 
 type NotificationPrefs = {
@@ -113,7 +113,7 @@ export async function PATCH(request: Request) {
 
   if (nextSms && !resolvedPhone) {
     return NextResponse.json(
-      { ok: false, error: "Add a phone number before enabling SMS reminders" },
+      { ok: false, error: "Add a phone number before enabling SMS preferences" },
       { status: 400 }
     );
   }
@@ -134,8 +134,18 @@ export async function PATCH(request: Request) {
   }
 
   const turnedOnSms = nextSms && !current.smsNotifications;
+  // SMS opt-in acknowledgment is in-app only — event/seat SMS is blocked by channel policy.
   if (turnedOnSms) {
-    void sendMemberSmsReminder(supabase, user.id, { kind: "opt_in" });
+    void createNotificationEvent({
+      userId: user.id,
+      type: "intro",
+      channels: ["in_app"],
+      payload: {
+        title: "SMS preferences saved",
+        body: "SMS preferences saved. BloomBay only texts for verification and urgent safety — reminders stay in the app.",
+        link: "/member/settings",
+      },
+    });
   }
 
   return NextResponse.json({

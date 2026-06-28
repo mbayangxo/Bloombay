@@ -1,9 +1,17 @@
 import { normalizePhone } from "@/lib/phone/normalize";
+import { isAllowedSmsType, smsPolicyError } from "@/lib/sms/policy";
 
 type TwilioConfig = {
   accountSid: string;
   authToken: string;
   fromNumber: string;
+};
+
+export type SendSmsResult = {
+  ok: boolean;
+  skipped?: boolean;
+  blocked?: boolean;
+  error?: string;
 };
 
 export function getTwilioConfig(): TwilioConfig | null {
@@ -14,10 +22,19 @@ export function getTwilioConfig(): TwilioConfig | null {
   return { accountSid, authToken, fromNumber };
 }
 
+/**
+ * Send SMS via Twilio. All sends must declare an allowed policy type.
+ * Direct Twilio calls outside this function are forbidden.
+ */
 export async function sendSms(
   to: string,
-  body: string
-): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  body: string,
+  smsType: string,
+): Promise<SendSmsResult> {
+  if (!isAllowedSmsType(smsType)) {
+    return { ok: false, blocked: true, error: smsPolicyError(smsType) };
+  }
+
   const config = getTwilioConfig();
   if (!config) {
     return { ok: false, skipped: true, error: "Twilio not configured" };
@@ -42,7 +59,7 @@ export async function sendSms(
         From: config.fromNumber,
         Body: body,
       }),
-    }
+    },
   );
 
   if (!res.ok) {
