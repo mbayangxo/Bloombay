@@ -1,15 +1,19 @@
 // Shared design tokens — import these everywhere instead of inline hex strings.
 // Changes here propagate to the whole app.
 
-/** Page-level backgrounds
- *  Day:   pure white  — Barbie / pretty-in-pink aesthetic
- *  Night: deep dark   — nighttime easy-on-eyes version  */
-export const PAGE_BG      = "#FFFFFF";    // white — all light/day pages
-export const PAGE_BG_DARK = "#0D0D0D";   // near-black — Hanger + night pages
+/** Page-level backgrounds — Barbie world / pretty in pink.
+ *  Mirrors the canonical brand tokens in app/styles/bloom-brand.css:
+ *    page  = soft blush wash   (white + baby pink read together)
+ *    card  = crisp white       (floats on the blush, keeps it premium)
+ *  Day:   blush page + white cards + hot/baby pink accents + black text
+ *  Night: deep dark rose — easy on the eyes, same DNA  */
+export const PAGE_BG      = "#FFF0F6";    // soft baby-pink blush — day pages
+export const PAGE_CARD    = "#FFFFFF";    // white cards on the blush
+export const PAGE_BG_DARK = "#1A0414";   // deep dark rose — night pages
 
 /** Brand colours */
-export const PINK        = "#FF1F7D";   // hot pink
-export const BABY_PINK   = "#FF69B4";   // baby pink
+export const PINK        = "#FF1F7D";   // hot pink — energy / primary actions
+export const BABY_PINK   = "#FF69B4";   // baby pink — soft accents
 export const TEAL        = "#00C6A7";
 export const GREEN       = "#16A34A";
 

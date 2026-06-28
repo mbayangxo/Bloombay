@@ -18,9 +18,9 @@ export interface ThemePalette {
 }
 
 const DAY: ThemePalette = {
-  pageBg:        "#FFFFFF",                   // white — every page (black/white/hot-pink/baby-pink)
-  card:          "#FFFFFF",                   // white cards
-  cardElevated:  "#FFF5F8",
+  pageBg:        "#FFF0F6",                   // soft blush wash — Barbie world / pretty in pink
+  card:          "#FFFFFF",                   // crisp white cards float on the blush
+  cardElevated:  "#FFF8FB",
   textPrimary:   "#1C1B1C",
   textSecondary: "rgba(28,27,28,0.65)",
   textMuted:     "rgba(28,27,28,0.40)",

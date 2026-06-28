@@ -31,7 +31,7 @@ export function SectionHeader({
 
   const headerBg = bg ?? (isDark
     ? "rgba(13,13,13,0.92)"
-    : "rgba(255,255,255,0.92)");
+    : "rgba(255,240,246,0.92)");
 
   const titleColor  = isDark ? "#fff"                  : "#111111";
   const subColor    = isDark ? "rgba(255,255,255,0.38)" : "rgba(17,17,17,0.45)";

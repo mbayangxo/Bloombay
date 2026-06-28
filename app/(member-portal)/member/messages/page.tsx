@@ -137,7 +137,7 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
   const envColor = isInvitation ? (item.color ?? PINK) : "#C8546A";
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 100, background: "#FFFFFF" }}>
+    <div style={{ minHeight: "100vh", paddingBottom: 100, background: "#FFF0F6" }}>
       <style>{`
         @keyframes flapOpen {
           0%   { transform: perspective(700px) rotateX(0deg);    }
@@ -479,7 +479,7 @@ function MailboxHub({
   const recentLetter = letters.find(i => !openedItems.has(i.id)) ?? letters[0];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FFFFFF", paddingBottom: 120 }}>
+    <div style={{ minHeight: "100vh", background: "#FFF0F6", paddingBottom: 120 }}>
       <style>{`
         @keyframes hubCardIn { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .hub-card { animation: hubCardIn 0.38s ease both; }

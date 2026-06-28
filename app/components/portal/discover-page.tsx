@@ -11,14 +11,14 @@ export function DiscoverPage() {
   const [tab, setTab] = useState<Tab>("happenings");
 
   return (
-    <div style={{ background: "#ffffff", minHeight: "100vh", paddingBottom: 120 }}>
+    <div style={{ background: "#FFF0F6", minHeight: "100vh", paddingBottom: 120 }}>
 
       {/* Sticky tab toggle — sits flush under the fixed top bar */}
       <div style={{
         position: "sticky",
         top: "calc(env(safe-area-inset-top, 0px) + 48px)",
         zIndex: 30,
-        background: "rgba(255,255,255,0.95)",
+        background: "rgba(255,240,246,0.95)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         borderBottom: "1px solid rgba(26,26,26,0.08)",

@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A social world for women — friends, clubs, and real-life connection.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
+    background_color: "#FFF0F6",
     theme_color: "#FF1F7D",
     orientation: "portrait",
     categories: ["social", "lifestyle"],

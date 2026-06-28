@@ -241,7 +241,7 @@ export function WallPage() {
       />
 
       {/* ── Category filter ── */}
-      <div style={{ position: "sticky", top: 60, zIndex: 20, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(26,26,26,0.08)", padding: "10px 18px" }}>
+      <div style={{ position: "sticky", top: 60, zIndex: 20, background: "rgba(255,240,246,0.95)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(26,26,26,0.08)", padding: "10px 18px" }}>
         <div style={{ display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none" }}>
           {(Object.keys(CATEGORY_META) as Category[]).map(c => {
             const m = CATEGORY_META[c];
