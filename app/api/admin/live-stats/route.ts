@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifyAdminRequest } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin/require-staff";
 
 function adminClient() {
   return createClient(
@@ -11,9 +11,8 @@ function adminClient() {
 
 // GET /api/admin/live-stats — real stats for the admin dashboard
 export async function GET(req: NextRequest) {
-  if (!await verifyAdminRequest(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin(req);
+  if (guard.error) return guard.error;
 
   const supabase = adminClient();
   const weekAgo  = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();

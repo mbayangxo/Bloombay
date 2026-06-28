@@ -11,29 +11,25 @@
 //   EVENTBRITE_API_KEY   — Eventbrite event search (free tier)
 //   SUPABASE_SERVICE_ROLE_KEY — bypasses RLS for server inserts
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun, cronMaxRecords } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "city-intelligence");
-  if (guard) return guard;
+  return runCronJob(req, "city-intelligence", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
-
-  const supabase = createClient(
+    const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   // Cap per-source inserts to prevent runaway writes on large scrape runs
-  const maxPerSource = cronMaxRecords(30);
+    const maxPerSource = Math.min(ctx.maxRecords, 30);
 
-  const results: { source: string; found: number; inserted: number }[] = [];
-
-  try {
+    const results: { source: string; found: number; inserted: number }[] = [];
     // Run all sources in parallel for speed
     const [tiktokItems, yelpItems, googleItems, eventbriteItems, eaterItems, timeoutItems] = await Promise.all([
       scrapeTikTokNYC(),
@@ -64,12 +60,8 @@ export async function POST(req: NextRequest) {
       { source: "Time Out NYC",  found: timeoutItems.length,     inserted: toi  },
     );
 
-    await logCronRun("city-intelligence", "ok", { results, records_processed: totalInserted, week_of: currentMonday() });
-    return NextResponse.json({ ok: true, results, week_of: currentMonday() });
-  } catch (err) {
-    await logCronRun("city-intelligence", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+    return { recordsProcessed: totalInserted, results, week_of: currentMonday() };
+  });
 }
 
 // ── TikTok via Apify ─────────────────────────────────────────────────────────

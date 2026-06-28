@@ -1,4 +1,4 @@
-import { WallPage } from "@/app/components/portal/wall-page";
+import { WallPage } from "@/app/components/avenue/wall-page";
 
 export default function WallRoute() {
   return <WallPage />;

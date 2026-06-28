@@ -1,26 +1,62 @@
 -- Auth hardening: lock down profile self-update to prevent privilege escalation
+-- Schema-tolerant: only guards columns that exist on profiles (002+ early schemas OK)
 
--- Drop the broad update policy that allowed users to change any column on their own row
 DROP POLICY IF EXISTS "profiles_update_own" ON public.profiles;
 DROP POLICY IF EXISTS "Profiles update own" ON public.profiles;
 
--- Replacement: users can update their own profile but cannot change admin-controlled fields.
--- WITH CHECK subqueries verify that sensitive columns remain equal to their stored values.
-CREATE POLICY "profiles_update_own"
-  ON public.profiles FOR UPDATE
-  USING (auth.uid() = id)
-  WITH CHECK (
+DO $$
+DECLARE
+  checks text := $policy$
     auth.uid() = id
-    -- Role cannot be self-elevated
     AND role = (SELECT role FROM public.profiles WHERE id = auth.uid())
-    -- Verification status is set only by service role / admin
-    AND verification_status = (SELECT verification_status FROM public.profiles WHERE id = auth.uid())
-    -- Gov ID verification status is set only by the verification service
-    AND gov_id_verification_status = (SELECT gov_id_verification_status FROM public.profiles WHERE id = auth.uid())
-    -- Bloom points are awarded only by the platform
-    AND bloom_points = (SELECT bloom_points FROM public.profiles WHERE id = auth.uid())
-    -- Membership flags are set only by admin approval flow
-    AND is_member = (SELECT is_member FROM public.profiles WHERE id = auth.uid())
-    AND membership_type IS NOT DISTINCT FROM (SELECT membership_type FROM public.profiles WHERE id = auth.uid())
-    AND membership_started_at IS NOT DISTINCT FROM (SELECT membership_started_at FROM public.profiles WHERE id = auth.uid())
-  );
+  $policy$;
+  col text;
+BEGIN
+  -- Equality guard for non-null admin-controlled columns
+  FOREACH col IN ARRAY ARRAY[
+    'verification_status',
+    'gov_id_verification_status',
+    'bloom_points',
+    'is_member'
+  ] LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'profiles'
+        AND column_name = col
+    ) THEN
+      checks := checks || format(
+        ' AND %I = (SELECT %I FROM public.profiles WHERE id = auth.uid())',
+        col, col
+      );
+    ELSE
+      RAISE NOTICE '107: skipping profiles.% guard — column missing', col;
+    END IF;
+  END LOOP;
+
+  -- Nullable membership fields
+  FOREACH col IN ARRAY ARRAY['membership_type', 'membership_started_at'] LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'profiles'
+        AND column_name = col
+    ) THEN
+      checks := checks || format(
+        ' AND %I IS NOT DISTINCT FROM (SELECT %I FROM public.profiles WHERE id = auth.uid())',
+        col, col
+      );
+    ELSE
+      RAISE NOTICE '107: skipping profiles.% guard — column missing', col;
+    END IF;
+  END LOOP;
+
+  EXECUTE format($sql$
+    CREATE POLICY "profiles_update_own"
+      ON public.profiles FOR UPDATE
+      USING (auth.uid() = id)
+      WITH CHECK (%s)
+  $sql$, checks);
+
+  RAISE NOTICE '107: profiles_update_own policy created';
+END $$;

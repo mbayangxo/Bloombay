@@ -1,14 +1,18 @@
 -- BloomBay 071: Club Mama broadcast system
 -- Stores broadcasts sent from Club Mamas to their club members.
 
-CREATE TYPE IF NOT EXISTS broadcast_type AS ENUM (
-  'ping',         -- instant text message
-  'photo',        -- photo drop with optional caption
-  'poll',         -- multiple choice poll
-  'question',     -- open question (members can reply)
-  'event_invite', -- invite to an upcoming gathering
-  'pin_drop'      -- location pin shared to members' pin drops feed
-);
+do $$ begin
+  create type broadcast_type as enum (
+    'ping',
+    'photo',
+    'poll',
+    'question',
+    'event_invite',
+    'pin_drop'
+  );
+exception
+  when duplicate_object then null;
+end $$;
 
 CREATE TABLE IF NOT EXISTS public.club_broadcasts (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,6 +54,12 @@ ALTER TABLE public.club_broadcasts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.broadcast_poll_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.broadcast_replies ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "club_owner_broadcasts_all" ON public.club_broadcasts;
+DROP POLICY IF EXISTS "club_members_read_broadcasts" ON public.club_broadcasts;
+DROP POLICY IF EXISTS "ops_read_broadcasts" ON public.club_broadcasts;
+DROP POLICY IF EXISTS "member_poll_responses" ON public.broadcast_poll_responses;
+DROP POLICY IF EXISTS "member_broadcast_replies" ON public.broadcast_replies;
+
 -- Club owner can read/write broadcasts for their own club
 CREATE POLICY "club_owner_broadcasts_all"
   ON public.club_broadcasts FOR ALL
@@ -69,16 +79,17 @@ CREATE POLICY "club_owner_broadcasts_all"
     )
   );
 
--- Members of the club can read broadcasts
+-- Members of the club can read broadcasts (club_memberships uses club_slug)
 CREATE POLICY "club_members_read_broadcasts"
   ON public.club_broadcasts FOR SELECT
   TO authenticated
   USING (
     EXISTS (
-      SELECT 1 FROM public.club_memberships
-      WHERE club_memberships.club_id = club_broadcasts.club_id
-        AND club_memberships.user_id = auth.uid()
-        AND club_memberships.status = 'active'
+      SELECT 1
+      FROM public.club_memberships cm
+      INNER JOIN public.clubs c ON c.slug = cm.club_slug
+      WHERE c.id = club_broadcasts.club_id
+        AND cm.user_id = auth.uid()
     )
   );
 

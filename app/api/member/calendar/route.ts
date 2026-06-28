@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sendMemberSmsReminder } from "@/lib/sms/send-member-reminder";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 import { createClient } from "@/lib/supabase/server";
 import { logBehaviorSignal } from "@/lib/truth/behavior";
 
@@ -101,11 +101,18 @@ export async function POST(request: Request) {
   await logBehaviorSignal(supabase, user.id, "calendar_add", { sourceId: body.sourceId, title: body.title });
 
   if (body.remind ?? true) {
-    void sendMemberSmsReminder(supabase, user.id, {
-      kind: "calendar",
-      title: body.title,
-      when: body.when,
-      place: body.place,
+    void createNotificationEvent({
+      userId: user.id,
+      type: "event_reminder",
+      channels: ["in_app"],
+      payload: {
+        templateVars: {
+          eventTitle: body.title,
+          date: body.when,
+          place: body.place ?? "",
+        },
+        link: body.href,
+      },
     });
   }
 
@@ -157,11 +164,17 @@ export async function PATCH(request: Request) {
   }
 
   if (body.remind && !existing.remind) {
-    void sendMemberSmsReminder(supabase, user.id, {
-      kind: "calendar",
-      title: existing.title as string,
-      when: existing.when_label as string,
-      place: (existing.place as string) ?? "",
+    void createNotificationEvent({
+      userId: user.id,
+      type: "event_reminder",
+      channels: ["in_app"],
+      payload: {
+        templateVars: {
+          eventTitle: existing.title as string,
+          date: existing.when_label as string,
+          place: (existing.place as string) ?? "",
+        },
+      },
     });
   }
 

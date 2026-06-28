@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifyAdminRequest } from "@/lib/admin-auth";
+import { requireAdmin, requireFounder } from "@/lib/admin/require-staff";
+import { writeAdminAuditLog } from "@/lib/admin/audit-log";
 
 function admin() {
   return createClient(
@@ -11,7 +12,8 @@ function admin() {
 
 // POST — create a curated event (manual or imported from Eventbrite)
 export async function POST(req: NextRequest) {
-  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = await requireAdmin(req);
+  if (guard.error) return guard.error;
 
   const body = await req.json() as {
     title: string;
@@ -55,25 +57,57 @@ export async function POST(req: NextRequest) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, id: (data as { id: string }).id });
+
+  const eventId = (data as { id: string }).id;
+  await writeAdminAuditLog({
+    actorId: guard.user.id,
+    actorRole: guard.role,
+    action: "event.create",
+    resourceType: "gathering",
+    resourceId: eventId,
+    after: { title: body.title, city: body.city, starts_at: body.starts_at },
+    req,
+  });
+
+  return NextResponse.json({ ok: true, id: eventId });
 }
 
-// DELETE — remove a curated event
+// DELETE — remove a curated event (founder-only destructive)
 export async function DELETE(req: NextRequest) {
-  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = await requireFounder(req);
+  if (guard.error) return guard.error;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
   const db = admin();
+  const { data: before } = await db
+    .from("gatherings")
+    .select("id, title, starts_at, city")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await db.from("gatherings").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await writeAdminAuditLog({
+    actorId: guard.user.id,
+    actorRole: guard.role,
+    action: "event.delete",
+    resourceType: "gathering",
+    resourceId: id,
+    before: before as Record<string, unknown> | null,
+    req,
+  });
+
   return NextResponse.json({ ok: true });
 }
 
 // GET — list all curated events
 export async function GET(req: NextRequest) {
-  if (!await verifyAdminRequest(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const guard = await requireAdmin(req);
+  if (guard.error) return guard.error;
   const db = admin();
   const { data, error } = await db
     .from("gatherings")

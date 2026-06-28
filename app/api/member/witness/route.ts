@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -60,12 +61,15 @@ export async function POST(request: Request) {
 
   const senderName = senderProfile?.first_name || senderProfile?.full_name?.split(" ")[0] || "Someone";
 
-  void supabase.from("notifications").insert({
-    user_id: body.subject_user_id,
-    type: "witness",
-    title: `${senderName} witnessed something about you ✦`,
-    link: `/member/witness/${witness.id}`,
-    data: { witness_id: witness.id, sender_id: user.id },
+  void createNotificationEvent({
+    userId: body.subject_user_id,
+    type: "celebrate",
+    channels: ["in_app"],
+    payload: {
+      title: `${senderName} witnessed something about you ✦`,
+      link: `/member/witness/${witness.id}`,
+      data: { witness_id: witness.id, sender_id: user.id },
+    },
   });
 
   void supabase.from("member_milestones").insert({

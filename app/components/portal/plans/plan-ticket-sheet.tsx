@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PlanRoom } from "@/lib/plans/types";
+import { ticketCodeForRoom, hashRoomId } from "@/lib/plans/ticket-code";
 import { InviteBloomieSheet } from "./invite-bloomie-sheet";
 
 function QRCodeVisual({ seed }: { seed: number }) {
@@ -25,7 +26,7 @@ function QRCodeVisual({ seed }: { seed: number }) {
 
 export function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClose: () => void; onOpenRoom: () => void }) {
   const [showInvite, setShowInvite] = useState(false);
-  const ticketCode = `BB-${room.id.toString().padStart(2, "0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+  const ticketCode = ticketCodeForRoom(room.id);
 
   if (showInvite) return <InviteBloomieSheet room={room} onClose={onClose} onBack={() => setShowInvite(false)} />;
 
@@ -60,7 +61,7 @@ export function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom;
                 <p className="text-[9px] font-semibold" style={{ color: "#999" }}>{room.members} women · Show at door</p>
               </div>
               <div className="flex-shrink-0 rounded-xl overflow-hidden p-2" style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)" }}>
-                <QRCodeVisual seed={room.id * 13 + 42} />
+                <QRCodeVisual seed={hashRoomId(room.id) + 42} />
               </div>
             </div>
           </div>

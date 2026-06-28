@@ -2,9 +2,9 @@
 // For each active member, summarises their social activity into a Yande memory.
 // Powers personalisation: match notes, friendship health, event suggestions.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -14,31 +14,32 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "memory-layer");
-  if (guard) return guard;
+  return runCronJob(req, "memory-layer", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { skipped: true, recordsProcessed: 0, reason: "no anthropic key" };
+    }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ skipped: "no anthropic key" });
-  }
+    const supabase = admin();
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const monthOf = new Date().toISOString().slice(0, 7);
 
-  const supabase = admin();
-  const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const monthOf  = new Date().toISOString().slice(0, 7); // "2026-06"
-
-  try {
     const { data: members, error: membersErr } = await supabase
       .from("profiles")
       .select("id, first_name, full_name")
       .eq("is_member", true)
-      .limit(200);
+      .limit(ctx.maxRecords);
 
     if (membersErr || !members?.length) {
-      await logCronRun("memory-layer", "skipped", { reason: "no members", error: membersErr?.message });
-      return NextResponse.json({ skipped: "no members", error: membersErr?.message });
+      return {
+        skipped: true,
+        recordsProcessed: 0,
+        reason: "no members",
+        error: membersErr?.message,
+      };
     }
 
     let processed = 0;
@@ -140,10 +141,6 @@ No labels or prefixes — just the note itself.`,
       }
     }
 
-    await logCronRun("memory-layer", "ok", { records_processed: processed, skipped, month_of: monthOf });
-    return NextResponse.json({ ok: true, processed, skipped, month_of: monthOf });
-  } catch (err) {
-    await logCronRun("memory-layer", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+    return { recordsProcessed: processed, skippedCount: skipped, month_of: monthOf };
+  });
 }

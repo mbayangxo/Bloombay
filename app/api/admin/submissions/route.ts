@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { isAdminAuthenticated } from "@/lib/admin-auth-server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin/require-staff";
 import { fetchAllWaitlistRows } from "@/lib/supabase-admin";
 import {
   filterRows,
@@ -8,10 +8,9 @@ import {
   type WaitlistStatus,
 } from "@/lib/waitlist-admin";
 
-export async function GET(request: Request) {
-  if (!(await isAdminAuthenticated())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(request: NextRequest) {
+  const guard = await requireAdmin(request);
+  if (guard.error) return guard.error;
 
   const { searchParams } = new URL(request.url);
   const filters: WaitlistFilters = {

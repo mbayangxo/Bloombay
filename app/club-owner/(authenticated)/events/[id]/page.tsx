@@ -1,22 +1,78 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ClubOwnerShell } from "../../components/club-owner-shell";
 import { QrDisplay } from "@/app/member/components/qr-display";
-import { DEMO_HOST_EVENTS } from "@/lib/qr-codes";
+
+type Gathering = {
+  id: string;
+  title: string;
+  starts_at: string;
+  venue: string;
+  publish_status: string;
+};
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 export default function ClubOwnerEventQrPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const ev = DEMO_HOST_EVENTS.find((e) => e.id === id) ?? DEMO_HOST_EVENTS[0];
+  const [ev, setEv] = useState<Gathering | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch(`/api/club-portal/gatherings/${id}`);
+      const json = (await res.json().catch(() => ({}))) as {
+        gathering?: Gathering;
+        error?: string;
+      };
+      if (!res.ok) {
+        setError(json.error ?? "Could not load gathering");
+        return;
+      }
+      setEv(json.gathering ?? null);
+    })();
+  }, [id]);
+
+  if (error) {
+    return (
+      <ClubOwnerShell title="Event" backHref="/club-owner/gatherings">
+        <p style={{ color: "#c00" }}>{error}</p>
+        <Link href="/club-owner/gatherings" className="co-link">
+          ← Back to gatherings
+        </Link>
+      </ClubOwnerShell>
+    );
+  }
+
+  if (!ev) {
+    return (
+      <ClubOwnerShell title="Event" backHref="/club-owner/gatherings">
+        <p className="co-hint">Loading…</p>
+      </ClubOwnerShell>
+    );
+  }
 
   return (
-    <ClubOwnerShell title={ev.title} backHref="/club-owner/dashboard">
-      <Link href="/club-owner/events" className="co-link">
-        ← All event QR codes
+    <ClubOwnerShell title={ev.title} backHref="/club-owner/gatherings">
+      <Link href="/club-owner/gatherings" className="co-link">
+        ← All gatherings
       </Link>
       <h1 style={{ fontSize: "1.35rem", margin: "1rem 0 0.25rem" }}>{ev.title}</h1>
-      <p style={{ color: "rgba(0,0,0,0.5)", margin: "0 0 1.5rem" }}>{ev.date}</p>
+      <p style={{ color: "rgba(0,0,0,0.5)", margin: "0 0 1.5rem" }}>
+        {fmtDate(ev.starts_at)}
+        {ev.venue ? ` · ${ev.venue}` : ""}
+        {ev.publish_status === "live" ? " · live" : ` · ${ev.publish_status}`}
+      </p>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
         <QrDisplay

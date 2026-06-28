@@ -3,9 +3,9 @@
 // Topics: ~30% NYC-specific, ~70% universal girl life.
 // These are clearly Yande's voice — conversation starters, not fake user posts.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -82,15 +82,16 @@ function weightedCategory(): string {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "wall-seeder");
-  if (guard) return guard;
+  return runCronJob(req, "wall-seeder", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    await logCronRun("wall-seeder", "skipped", { reason: "no anthropic key" });
-    return NextResponse.json({ skipped: "no anthropic key" });
-  }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { skipped: true, recordsProcessed: 0, reason: "no anthropic key" };
+    }
 
-  const supabase = admin();
+    const supabase = admin();
 
   // Pick a random topic and category for this run
   const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
@@ -125,24 +126,21 @@ Return ONLY the post text. No quotes, no labels, nothing else.`;
     }),
   });
 
-  if (!res.ok) return NextResponse.json({ error: "Claude API error" }, { status: 500 });
-  const data = await res.json() as { content: { type: string; text: string }[] };
-  const text = data.content[0]?.text?.trim() ?? "";
-  if (!text) return NextResponse.json({ skipped: "empty response" });
+    if (!res.ok) throw new Error("Claude API error");
+    const data = (await res.json()) as { content: { type: string; text: string }[] };
+    const text = data.content[0]?.text?.trim() ?? "";
+    if (!text) return { skipped: true, recordsProcessed: 0, reason: "empty response" };
 
-  const { error } = await supabase.from("wall_posts").insert({
-    author_id:   null,
-    category,
-    text,
-    is_seed:     true,
-    seed_author: "Yande ✦",
+    const { error } = await supabase.from("wall_posts").insert({
+      author_id: null,
+      category,
+      text,
+      is_seed: true,
+      seed_author: "Yande ✦",
+    });
+
+    if (error) throw new Error(error.message);
+
+    return { recordsProcessed: 1, category, preview: text.slice(0, 80) };
   });
-
-  if (error) {
-    await logCronRun("wall-seeder", "error", { error: error.message });
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  await logCronRun("wall-seeder", "ok", { category, preview: text.slice(0, 80) });
-  return NextResponse.json({ ok: true, category, preview: text.slice(0, 80) });
 }

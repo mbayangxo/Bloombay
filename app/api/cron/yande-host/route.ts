@@ -2,9 +2,9 @@
 // Analyzes event host performance and sends coaching insights.
 // Helps hosts understand what's working and what to improve.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -35,33 +35,29 @@ async function callClaude(system: string, user: string): Promise<string | null> 
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "yande-host");
-  if (guard) return guard;
+  return runCronJob(req, "yande-host", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { skipped: true, recordsProcessed: 0, reason: "no anthropic key" };
+    }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ skipped: "no anthropic key" });
-  }
+    const supabase = admin();
+    const weekAgo   = new Date(Date.now() - 7 * 86400000).toISOString();
+    const monthAgo  = new Date(Date.now() - 30 * 86400000).toISOString();
 
-  const supabase  = admin();
-  const weekAgo   = new Date(Date.now() - 7 * 86400000).toISOString();
-  const monthAgo  = new Date(Date.now() - 30 * 86400000).toISOString();
-
-  try {
     const { data: hostedEvents } = await supabase
       .from("gatherings")
       .select("id, host_id, title, date, capacity, status")
       .gte("date", monthAgo)
       .not("host_id", "is", null)
       .order("date", { ascending: false })
-      .limit(50);
+      .limit(ctx.maxRecords);
 
     if (!hostedEvents?.length) {
-      await logCronRun("yande-host", "skipped", { reason: "no recent hosted events" });
-      return NextResponse.json({ ok: true, skipped: "no recent hosted events" });
+      return { skipped: true, recordsProcessed: 0, reason: "no recent hosted events" };
     }
 
     const byHost = new Map<string, typeof hostedEvents>();
@@ -155,10 +151,6 @@ Not cheerleader energy. More like a smart friend who helps you run better events
       metadata:     { coached, errors, hosts_checked: byHost.size },
     });
 
-    await logCronRun("yande-host", "ok", { records_processed: coached, errors, hosts_checked: byHost.size });
-    return NextResponse.json({ ok: true, coached, errors });
-  } catch (err) {
-    await logCronRun("yande-host", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+    return { recordsProcessed: coached, errors, hosts_checked: byHost.size };
+  });
 }

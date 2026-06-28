@@ -2,9 +2,9 @@
 // Pulls a week of real data from Supabase, writes a Yande-voiced digest,
 // stores it in founder_analyst_reports, then sends to founder via notification.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -14,21 +14,17 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "founder-analyst");
-  if (guard) return guard;
+  return runCronJob(req, "founder-analyst", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { skipped: true, recordsProcessed: 0, reason: "no anthropic key" };
+    }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ skipped: "no anthropic key" });
-  }
-
-  const supabase = admin();
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-
-  try {
+    const supabase = admin();
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     // ── Pull raw data ──────────────────────────────────────────────────────────
     const [
       { count: newMembers },
@@ -118,16 +114,12 @@ Use plain text. No markdown headers. Short paragraphs. Real talk. Under 280 word
       }),
     });
 
-    if (!res.ok) {
-      await logCronRun("founder-analyst", "error", { error: "Claude API error" });
-      return NextResponse.json({ error: "Claude API error" }, { status: 500 });
-    }
+    if (!res.ok) throw new Error("Claude API error");
 
     const aiData = await res.json() as { content: { type: string; text: string }[] };
     const report = aiData.content[0]?.text?.trim() ?? "";
     if (!report) {
-      await logCronRun("founder-analyst", "skipped", { reason: "empty response" });
-      return NextResponse.json({ skipped: "empty response" });
+      return { skipped: true, recordsProcessed: 0, reason: "empty response" };
     }
 
     const weekOf = new Date().toISOString().split("T")[0];
@@ -147,10 +139,7 @@ Use plain text. No markdown headers. Short paragraphs. Real talk. Under 280 word
         created_at: new Date().toISOString(),
       }, { onConflict: "week_of" });
 
-    if (insertError) {
-      await logCronRun("founder-analyst", "error", { error: insertError.message });
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
-    }
+    if (insertError) throw new Error(insertError.message);
 
     if (process.env.FOUNDER_USER_ID) {
       await supabase.from("notifications").insert({
@@ -162,10 +151,6 @@ Use plain text. No markdown headers. Short paragraphs. Real talk. Under 280 word
       });
     }
 
-    await logCronRun("founder-analyst", "ok", { records_processed: 1, week_of: weekOf });
-    return NextResponse.json({ ok: true, week_of: weekOf, preview: report.slice(0, 120) });
-  } catch (err) {
-    await logCronRun("founder-analyst", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+    return { recordsProcessed: 1, week_of: weekOf, preview: report.slice(0, 120) };
+  });
 }

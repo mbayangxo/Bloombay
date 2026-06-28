@@ -3,15 +3,17 @@
 import { useState } from "react";
 import type { PlanRoom } from "@/lib/plans/types";
 import { THEME, PINK } from "@/lib/plans/constants";
-import { PLAN_TODOS, PLAN_NOTES, BLOOMIES_LIST } from "@/lib/plans/mock-data";
 import { PlanTicketSheet } from "./plan-ticket-sheet";
 
+type TodoItem = { id: number; text: string; done: boolean };
+type NoteItem = { id: number; text: string };
+
+// PROTOTYPE_ONLY: todos, notes, and member avatars are local UI until plan room APIs exist.
 export function PlanRoomBoard({ room, onBack }: { room: PlanRoom; onBack: () => void }) {
   const theme = THEME;
-  const initialTodos = PLAN_TODOS[room.id] ?? [];
-  const [todos, setTodos] = useState(initialTodos);
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [notes] = useState<NoteItem[]>([]);
   const [showTicket, setShowTicket] = useState(false);
-  const notes = PLAN_NOTES[room.id] ?? [];
 
   function toggleTodo(id: number) {
     setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
@@ -73,39 +75,38 @@ export function PlanRoomBoard({ room, onBack }: { room: PlanRoom; onBack: () => 
 
         <div style={{ marginBottom: 16 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: theme.label, marginBottom: 10, paddingLeft: 2 }}>WHO&apos;S IN</p>
-          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
-            {BLOOMIES_LIST.map(b => (
-              <div key={b.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white", border: "2.5px solid rgba(255,255,255,0.7)", boxShadow: `0 2px 10px ${b.color}44` }}>
-                  {b.initial}
-                </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: theme.subText, paddingLeft: 2 }}>
+            {room.members} {room.members === 1 ? "woman" : "women"} in this room
+          </p>
         </div>
 
         <div style={{ background: theme.sectionBg, backdropFilter: "blur(8px)", borderRadius: 20, padding: "16px 18px", marginBottom: 16, border: `1px solid ${theme.cardBorder}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: PINK }}>CHECKLIST</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 60, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
-                <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg,${PINK},#FF69B4)`, borderRadius: 99, transition: "width 0.3s" }} />
-              </div>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {todos.map(t => (
-              <button key={t.id} onClick={() => toggleTodo(t.id)}
-                style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                <div style={{ width: 22, height: 22, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: t.done ? PINK : "transparent", border: t.done ? "none" : "2px solid rgba(0,0,0,0.15)", transition: "all 0.15s" }}>
-                  {t.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
+            {todos.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 60, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg,${PINK},#FF69B4)`, borderRadius: 99, transition: "width 0.3s" }} />
                 </div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: t.done ? theme.subText : theme.heading, fontWeight: t.done ? 400 : 500, textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.text}</p>
-              </button>
-            ))}
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 12, color: theme.subText }}>{done}/{todos.length}</p>
+              </div>
+            )}
           </div>
+          {todos.length === 0 ? (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: theme.subText }}>No checklist items yet.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {todos.map(t => (
+                <button key={t.id} onClick={() => toggleTodo(t.id)}
+                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: t.done ? PINK : "transparent", border: t.done ? "none" : "2px solid rgba(0,0,0,0.15)", transition: "all 0.15s" }}>
+                    {t.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  </div>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: t.done ? theme.subText : theme.heading, fontWeight: t.done ? 400 : 500, textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.text}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {notes.length > 0 && (

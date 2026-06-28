@@ -6,25 +6,76 @@
 > Before creating `new_table`, answer: **Which domain owns this?**  
 > If you can't answer, the table probably shouldn't exist.
 
-**Companion docs:** `DECISIONS.md` · `PRODUCT_ARCHITECTURE.md` · `DATABASE_ARCHITECTURE.md`
+**Companion docs:** `DECISIONS.md` · `PRODUCT_ARCHITECTURE.md` · `DATABASE_ARCHITECTURE.md` · `DATABASE_PRINCIPLES.md`
+
+---
+
+## V1 frozen — four layers
+
+Do not conflate these:
+
+| Layer | Example |
+|-------|---------|
+| **Pillar** | Home, Happenings, City, Clubs, Avenue, Plans |
+| **Bottom nav** | V1: 5 tabs in code; Avenue pillar may not have a slot yet |
+| **Route** | `/member/home`, `/member/avenue/wall` |
+| **Label** | Home tab shows time-of-day (*Tonight*, *This Evening*) — never “Home” on the bar |
+
+**Pillars ≠ bottom nav.** Avenue is a first-class pillar; nav placement is a product decision. Introductions are contextual surfaces, not a nav world.
 
 ---
 
 ## Product pillars
 
-Almost every future feature should fit one pillar:
+Six product worlds. Healthy IA — do not collapse into one funnel.
 
-| Pillar | Includes | Canonical examples |
-|--------|----------|-------------------|
-| **Content** | Avenue rooms, Wall, Magazine | `avenue_content`, `wall_posts`, `fashion_posts` |
-| **Knowledge** | Bloom Notes — place intelligence for women | `bloom_notes` |
-| **Social** | Clubs, Connect, Girlmates | `clubs`, `bloom_requests`, `girlmate_profiles` |
-| **IRL** | Gatherings, Plans, Tickets | `gatherings`, `bloomies_plans`, `tickets` |
-| **Memory** | Moments, Yande | `moments`, `member_behavior_signals`, `yande_user_context` |
-| **Commerce** | Shops, Drops, Partners, Hanger | `bloom_drops`, `hanger_listings`, Stripe orders |
-| **Safety** | Verification, Moderation, Reports | `profiles.verified`, `moderation_cases`, reports (P0 unify) |
+| Pillar | Question | Dimension | Route | Nav label (V1) |
+|--------|----------|-----------|-------|----------------|
+| **Home** | What's happening in *my* BloomBay? | Personal | `/member/home` | Time-of-day (never “Home”) |
+| **Happenings** | What can I do? | Time | `/member/happenings` | Happenings |
+| **City** | Where should I go? | Place | `/member/city` | City |
+| **Clubs** | Who do I belong with? | Community | `/member/clubs` | Clubs |
+| **Avenue** | What are women talking about? | Culture | `/member/avenue` | Not in bottom nav V1* |
+| **Plans** | What have I committed to? | Commitments | `/member/plans` | Plans |
 
-**Content vs Knowledge:** Wall = conversation. Avenue = publishing. Magazine = editorial. Moments = private memory. **Bloom Notes = knowledge** — different behaviors (search, map, trust on tips, freshness). Knowledge may become a top-level pillar post-beta; treat as its own lane now.
+\*Avenue is first-class in architecture; reach via Home, notifications, deep links until promoted to tab #6.
+
+| Pillar | Includes |
+|--------|----------|
+| **Home** | Yande, plans, invitations, friend activity, recommendations, attention |
+| **Happenings** | Today, weekend, open seats, festivals — **all gatherings live here** |
+| **City** | Maps, eats, solo, girl gems, favorites, trending, Bloom Notes |
+| **Clubs** | Discover, my clubs, walls, members, traditions, **contextual Introductions** |
+| **Avenue** | Wall, Fashion, Reading Room, Screening Room, Girl Working, Magazine |
+| **Plans** | Upcoming, hosting, saved, past, invitations, calendar |
+
+**BloomBay OS:** A social operating system with six pillars converging in **real life** (attending gatherings) and **relationships** (Connect, trust). Any tab is a valid entry point — not a single “loop.”
+
+| Cross-cutting (schema / infra — not nav pillars) | Examples |
+|--------------------------------------------------|----------|
+| **Knowledge** | `bloom_notes` (place intelligence) |
+| **Social** | `introductions`, `bloom_requests`, `girlmate_profiles` |
+| **Memory** | `moments`, `member_behavior_signals` |
+| **Commerce** | `bloom_drops`, `tickets` |
+| **Safety** | `moderation_cases`, reports |
+
+**Gatherings:** BloomBay word for events. **`gatherings`** table is canonical in code/schema. **Happenings** is the primary product home; City and Clubs may surface or link gatherings — not a fourth nav pillar.
+
+**Introductions V1:** **Contextual** in Clubs, Happenings, and City — not a standalone nav world. Graduate to broader Connect post-beta.
+
+---
+
+## Three discovery dimensions (subset of six pillars)
+
+Happenings, City, and Clubs answer **When / Where / Who**.
+
+| Dimension | Tab | Question | Gatherings |
+|-----------|-----|----------|------------|
+| Time | Happenings | What can I do? | **Primary home** — today, weekend, open seats, festivals, all gatherings |
+| Place | City | Where should I go? | May link gatherings at a city spot |
+| Community | Clubs | Who do I belong with? | May surface club-hosted gatherings |
+
+Same gathering: lives in **Happenings**, may be hosted by a Club, at a City spot. One `gatherings` row.
 
 ---
 
@@ -39,23 +90,43 @@ Almost every future feature should fit one pillar:
 ## Domain map
 
 ```
+              HOME (personal)
+                    │
+    ┌───────┬───────┼───────┬───────┐
+    │       │       │       │       │
+HAPPENINGS CITY  CLUBS  AVENUE  PLANS
+  (When) (Where) (Who) (Culture)(Commit)
+    │
+ gatherings live here
+    │
+ City & Clubs ── surface / link
+                    │
+         CONNECT · TRUST · MEMORY
+                    │
+    KNOWLEDGE · COMMERCE · SAFETY · OPS
+```
+
+**Identity** (`profiles`) connects every pillar. **Discovery** (Happenings, City, Clubs) is three dimensions — not a linear loop. **Gathering** = BloomBay word for event; **`gatherings`** table is canonical.
+
+```
 BloomBay Platform
 │
 ├── IDENTITY ───────────── profiles, waitlist, member_applications, verification
-├── IRL ─────────────────── gatherings, seats, attendance, witnesses
-├── COMMUNITY ───────────── clubs, memberships, applications, broadcasts
-├── CONNECT ─────────────── introductions, come_with_me, bloom_requests, friendship_scores
-├── KNOWLEDGE ───────────── bloom_notes (place intelligence — not a content feed)
-├── AVENUE ──────────────── rooms (editorial) + wall_posts (conversation layer)
-├── MEMORY ──────────────── moments, yande signals/context
+├── HOME ───────────────── dashboard, Yande home surface, attention
+├── DISCOVERY ──────────── Happenings (when + gatherings) · City (where) · Clubs (who + Introductions V1)
+├── AVENUE ─────────────── rooms (editorial) + wall_posts (conversation)
+├── PLANS ───────────────── bloomies_plans, calendar, hosting
+├── CONNECT ────────────── introductions (Clubs V1), come_with_me, bloom_requests
+├── KNOWLEDGE ──────────── bloom_notes (place intelligence)
+├── MEMORY ─────────────── moments, yande signals/context
 ├── MESSAGING ───────────── conversations, girlmate_messages, notifications
-├── GIRLMATES ───────────── girlmate_profiles, listings, housing search
-├── SAFETY ──────────────── reports, blocks, moderation_cases, audit logs
-├── YANDE ───────────────── match queue, crons (steering from memory pillar)
+├── GIRLMATES ───────────── girlmate_profiles, listings
+├── SAFETY ──────────────── reports, blocks, moderation_cases
 ├── COMMERCE ────────────── tickets, orders, drops, hanger
-├── PLANS ───────────────── bloomies_plans, calendar, plan rooms
-└── OPS ──────────────────── mission control, admin audit, cron logs
+└── OPS ──────────────────── mission control, audit, cron logs
 ```
+
+**IRL schema** (`gatherings`, seats, attendance, witnesses) is owned by the **Happenings** product domain — not a separate nav pillar.
 
 ---
 
@@ -76,9 +147,9 @@ BloomBay Platform
 
 ---
 
-### IRL
-**Owner:** Happenings / Events product  
-**Job:** Scheduled real-world experiences with seats, check-in, social proof.
+### IRL (gatherings schema — Happenings product)
+**Owner:** Happenings product  
+**Job:** Scheduled real-world experiences with seats, check-in, social proof. **Gathering** = BloomBay word for event.
 
 | Canonical | Purpose |
 |-----------|---------|
@@ -89,13 +160,42 @@ BloomBay Platform
 
 **Legacy (freeze):** `events`, `event_attendees` — no new writes.
 
-**Boundaries:** Not the same as Plans (personal coordination) or Club posts (community feed).
+**Boundaries:** Not the same as Plans (personal coordination) or Club posts (community feed). Not a separate nav pillar.
+
+**Product IA:** **Happenings** is the primary home for gatherings. **City** and **Clubs** are sibling discovery surfaces that may link or surface gatherings (where, who) — geography and host club are attributes of the gathering, not parent pages.
+
+---
+
+### City
+**Owner:** City / Explore product  
+**Discovery dimension:** **Where should I go?**
+
+| Canonical | Purpose |
+|-----------|---------|
+| City data, `city_trending` | Neighborhoods, eats, solo, girl gems, maps, favorites |
+| `bloom_notes` | Place knowledge (Knowledge pillar) |
+
+**Boundaries:** City is not Clubs. Not a funnel step before clubs. May link gatherings at a place — discovery of gatherings primarily flows through Happenings.
+
+---
+
+### Happenings
+**Owner:** Happenings product  
+**Discovery dimension:** **What can I do?** (when)  
+**Primary home for gatherings** — BloomBay word for events.
+
+| Canonical | Purpose |
+|-----------|---------|
+| `gatherings` | Real-world events — tonight, weekend, open seats, festivals, club-hosted, independent |
+| `seat_reservations` | RSVP |
+
+**Boundaries:** Happenings **is** where gatherings live in the product — not a separate event entity or cross-cutting IRL pillar. Club-hosted and independent gatherings both appear here. City and Clubs may surface or link to the same `gatherings` row.
 
 ---
 
 ### Community (Clubs)
 **Owner:** Clubhouse / Club Mama  
-**Job:** Recurring women's groups with culture, members, and hosted gatherings.
+**Discovery dimension:** **Who do I belong with?**
 
 | Canonical | Purpose |
 |-----------|---------|
@@ -105,7 +205,7 @@ BloomBay Platform
 | `club_broadcasts` | Club → members messaging |
 | `club_posts` | Club-scoped feed (separate from Wall) |
 
-**Boundaries:** Club Owner portal owns this domain. Member Host creates `gatherings` but doesn't own club entity.
+**Boundaries:** Club Owner portal owns this domain. Member Host creates `gatherings` but doesn't own club entity. Club pages may surface club-hosted gatherings — primary calendar remains **Happenings**.
 
 ---
 
@@ -319,6 +419,7 @@ See consolidation review for per-table checks.
 
 ## Anti-patterns (do not do)
 
+- Describing gatherings as a fourth nav pillar or peer cross-cutting “IRL object” (they live in **Happenings**; City/Clubs link/surface only)
 - Describing Wall Posts as personal activity / "what I'm doing" updates
 - New report table without Safety domain review
 - New `events` writes

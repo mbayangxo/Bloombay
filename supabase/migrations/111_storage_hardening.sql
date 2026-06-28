@@ -1,11 +1,7 @@
 -- Storage hardening — Migration 111
--- 1. Create buckets referenced in code but missing from migration 014
--- 2. Add admin read access to verification bucket (service role bypasses RLS
---    but explicit policy documents the intent and covers future use)
--- 3. Create upload_audit_logs table for sensitive uploads
+-- Idempotent: safe to re-run after partial apply.
 
 -- ── MISSING BUCKETS ──────────────────────────────────────────────────────────
--- club-covers: club cover/banner/crest images (includes svg for crests)
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
   ('club-covers',    'club-covers',    true,  10485760,
@@ -22,7 +18,22 @@ values
     array['image/jpeg','image/png','image/webp'])
 on conflict (id) do nothing;
 
--- Public read for all new public buckets
+-- ── Storage policies (drop + recreate) ───────────────────────────────────────
+drop policy if exists "club-covers public read" on storage.objects;
+drop policy if exists "club-covers auth upload" on storage.objects;
+drop policy if exists "club-covers auth update" on storage.objects;
+drop policy if exists "hanger public read" on storage.objects;
+drop policy if exists "hanger auth upload" on storage.objects;
+drop policy if exists "event-media public read" on storage.objects;
+drop policy if exists "event-media auth upload" on storage.objects;
+drop policy if exists "avenue-media public read" on storage.objects;
+drop policy if exists "avenue-media auth upload" on storage.objects;
+drop policy if exists "girlmate-media public read" on storage.objects;
+drop policy if exists "girlmate-media auth upload" on storage.objects;
+drop policy if exists "media public read" on storage.objects;
+drop policy if exists "media auth upload" on storage.objects;
+drop policy if exists "Verification admin read" on storage.objects;
+
 create policy "club-covers public read"
   on storage.objects for select to public
   using (bucket_id = 'club-covers');
@@ -75,9 +86,6 @@ create policy "media auth upload"
   on storage.objects for insert to authenticated
   with check (bucket_id = 'media');
 
--- ── VERIFICATION BUCKET: admin/founder read ──────────────────────────────────
--- Admins use the service role client which bypasses RLS entirely.
--- This policy provides belt-and-suspenders access for future anon-key admin tools.
 create policy "Verification admin read"
   on storage.objects for select
   to authenticated
@@ -86,12 +94,11 @@ create policy "Verification admin read"
     and exists (
       select 1 from public.profiles
       where id = auth.uid()
-      and role in ('admin', 'founder')
+        and role::text in ('admin', 'founder')
     )
   );
 
 -- ── UPLOAD AUDIT LOGS ────────────────────────────────────────────────────────
--- Tracks sensitive uploads: verification selfies, gov IDs, moderation evidence.
 create table if not exists public.upload_audit_logs (
   id           uuid        primary key default gen_random_uuid(),
   user_id      uuid        not null references public.profiles(id) on delete cascade,
@@ -113,15 +120,13 @@ create index if not exists upload_audit_bucket_idx
 
 alter table public.upload_audit_logs enable row level security;
 
--- Only admins/founders can query upload audit logs
+drop policy if exists "Upload audit admin read" on public.upload_audit_logs;
 create policy "Upload audit admin read"
   on public.upload_audit_logs for select
   using (
     exists (
       select 1 from public.profiles
       where id = auth.uid()
-      and role in ('admin', 'founder')
+        and role::text in ('admin', 'founder')
     )
   );
-
--- Inserts happen via service role from API routes only

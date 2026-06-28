@@ -2,6 +2,7 @@
 // POST: upsert own introduction (verified + onboarded; edit cooldown applies)
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isBlocked } from "@/lib/auth/block-check";
 
 const BIO_MIN              = 10;
 const BIO_MAX              = 500;
@@ -38,7 +39,15 @@ export async function GET(_req: NextRequest) {
     .order("created_at", { ascending: false })
     .limit(20);
 
-  return NextResponse.json(data ?? []);
+  const rows = data ?? [];
+  const filtered = [];
+  for (const row of rows) {
+    const otherId = row.user_id as string;
+    if (otherId !== user.id && await isBlocked(supabase, user.id, otherId)) continue;
+    filtered.push(row);
+  }
+
+  return NextResponse.json(filtered);
 }
 
 export async function POST(req: NextRequest) {

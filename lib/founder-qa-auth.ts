@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server";
-import { isFounderPasswordSessionFromRequest } from "@/lib/admin-auth";
-import { normalizeRole } from "@/lib/auth/roles";
+import { requireRole } from "@/lib/auth/require-role";
 
-/** Founder QA API — founder password session or bb_role=founder|admin */
-export function isFounderQaAuthorized(request: NextRequest): boolean {
-  if (isFounderPasswordSessionFromRequest(request)) return true;
-  const role = normalizeRole(request.cookies.get("bb_role")?.value);
-  return role === "founder" || role === "admin";
+/** Founder QA / create-space APIs — Supabase session with founder or admin role. */
+export async function requireFounderQaAccess(req: NextRequest) {
+  return requireRole(req, ["founder", "admin"]);
 }

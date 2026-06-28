@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthUser } from "@/lib/auth/get-user";
+import { requireRole } from "@/lib/admin/require-staff";
+import { writeAdminAuditLog } from "@/lib/admin/audit-log";
 
 function admin() {
   return createClient(
@@ -9,22 +10,19 @@ function admin() {
   );
 }
 
-const STAFF_ROLES = ["admin", "founder", "moderator", "curator"];
+const STAFF_READ = ["admin", "founder", "moderator", "curator"] as const;
+const STAFF_REVIEW = ["admin", "founder", "curator"] as const;
+const STAFF_MODERATE = ["admin", "founder", "moderator"] as const;
 
 // GET /api/founder/pitches?status=pending&limit=50
 export async function GET(req: NextRequest) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const supabase = admin();
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!STAFF_ROLES.includes(profile?.role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const guard = await requireRole(req, [...STAFF_READ]);
+  if (guard.error) return guard.error;
 
   const status = req.nextUrl.searchParams.get("status") ?? "pending";
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "50"), 100);
 
+  const supabase = admin();
   let query = supabase
     .from("magazine_pitches")
     .select(`
@@ -45,30 +43,44 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/founder/pitches — approve or reject
 export async function PATCH(req: NextRequest) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const supabase = admin();
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!["admin", "founder", "curator"].includes(profile?.role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const guard = await requireRole(req, [...STAFF_REVIEW]);
+  if (guard.error) return guard.error;
 
   const body = await req.json() as { id: string; status: "approved" | "rejected"; reviewer_note?: string };
   if (!body.id || !["approved", "rejected"].includes(body.status)) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  const supabase = admin();
+  const { data: before } = await supabase
+    .from("magazine_pitches")
+    .select("id, status, reviewer_note")
+    .eq("id", body.id)
+    .maybeSingle();
+
+  const reviewedAt = new Date().toISOString();
   const { error } = await supabase
     .from("magazine_pitches")
     .update({
       status: body.status,
       reviewer_note: body.reviewer_note ?? null,
-      reviewed_by: user.id,
-      reviewed_at: new Date().toISOString(),
+      reviewed_by: guard.user.id,
+      reviewed_at: reviewedAt,
     })
     .eq("id", body.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await writeAdminAuditLog({
+    actorId: guard.user.id,
+    actorRole: guard.role,
+    action: `magazine_pitch.${body.status}`,
+    resourceType: "magazine_pitch",
+    resourceId: body.id,
+    before: before as Record<string, unknown> | null,
+    after: { status: body.status, reviewed_at: reviewedAt },
+    req,
+  });
+
   return NextResponse.json({ ok: true });
 }

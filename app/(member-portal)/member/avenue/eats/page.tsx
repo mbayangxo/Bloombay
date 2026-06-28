@@ -1,4 +1,4 @@
-import { EatsPage } from "@/app/components/portal/eats-page";
+import { EatsPage } from "@/app/components/avenue/eats-page";
 
 export default function EatsRoute() {
   return <EatsPage />;

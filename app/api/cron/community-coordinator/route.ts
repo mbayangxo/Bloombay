@@ -2,9 +2,10 @@
 // Sends day-3 and day-7 nudges to members who are due for them.
 // Protected by CRON_SECRET header.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun, cronMaxRecords } from "@/lib/cron-guard";
+import { runCronJob, type CronContext, type CronJobResult } from "@/lib/cron-guard";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 function admin() {
   return createClient(
@@ -43,26 +44,23 @@ async function recordTouch(supabase: ReturnType<typeof admin>, userId: string, t
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "community-coordinator");
-  if (guard) return guard;
+  return runCronJob(req, "community-coordinator", runCommunityCoordinator);
+}
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
+async function runCommunityCoordinator(ctx: CronContext): Promise<CronJobResult> {
+  if (ctx.dryRun) {
+    return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
   }
 
   const supabase = admin();
   const now = new Date();
-  const max = cronMaxRecords(50);
+  const max = ctx.maxRecords;
 
-  // Members who joined 3 days ago (±12h window)
   const day3Start = new Date(now.getTime() - 3.5 * 86400000).toISOString();
-  const day3End   = new Date(now.getTime() - 2.5 * 86400000).toISOString();
-
-  // Members who joined 7 days ago (±12h window)
+  const day3End = new Date(now.getTime() - 2.5 * 86400000).toISOString();
   const day7Start = new Date(now.getTime() - 7.5 * 86400000).toISOString();
-  const day7End   = new Date(now.getTime() - 6.5 * 86400000).toISOString();
+  const day7End = new Date(now.getTime() - 6.5 * 86400000).toISOString();
 
-  try {
     const [{ data: day3 }, { data: day7 }] = await Promise.all([
       supabase
         .from("profiles")
@@ -100,12 +98,14 @@ export async function POST(req: NextRequest) {
       try {
         const name = firstName(p);
 
-        await supabase.from("notifications").insert({
-          user_id: p.id,
-          type: "intro",
-          title: "Find your people. 🌺",
-          body: "You've been here 3 days — have you joined a club yet? Women who join a club in their first week are 3× more likely to attend a gathering.",
-          action_url: "/member/clubs",
+        await createNotificationEvent({
+          userId: p.id,
+          type: "day3_nudge",
+          channels: ["in_app"],
+          payload: {
+            templateVars: { name },
+            link: "/member/clubs",
+          },
         });
 
         const { data: action } = await supabase.from("yande_actions").insert({
@@ -131,12 +131,15 @@ export async function POST(req: NextRequest) {
       try {
         const name = firstName(p);
 
-        await supabase.from("notifications").insert({
-          user_id: p.id,
-          type: "celebrate",
-          title: `One week in, ${name}. ✦`,
-          body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
-          action_url: "/member/happenings",
+        await createNotificationEvent({
+          userId: p.id,
+          type: "day7_nudge",
+          channels: ["in_app"],
+          payload: {
+            title: `One week in, ${name}. ✦`,
+            body: "You made it through your first week. There are gatherings this weekend — one of them has your name on it.",
+            link: "/member/happenings",
+          },
         });
 
         const { data: action } = await supabase.from("yande_actions").insert({
@@ -162,15 +165,11 @@ export async function POST(req: NextRequest) {
       metadata: { processed, errors, day3_candidates: pending3.length, day7_candidates: pending7.length },
     });
 
-    await logCronRun("community-coordinator", "ok", {
-      records_processed: processed,
-      errors,
-      day3: pending3.length,
-      day7: pending7.length,
-    });
-    return NextResponse.json({ ok: true, processed, errors });
-  } catch (err) {
-    await logCronRun("community-coordinator", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+  return {
+    recordsProcessed: processed,
+    processed,
+    errors,
+    day3: pending3.length,
+    day7: pending7.length,
+  };
 }

@@ -76,9 +76,22 @@ async function main() {
     return !error;
   });
 
-  await check("120", "notification_events.notification_type column", async () => {
-    const { error } = await admin.from("notification_events").select("notification_type").limit(1);
-    return !error;
+  await check("120", "notifications.type allows report_submitted", async () => {
+    const { data: prof } = await admin.from("profiles").select("id").limit(1).maybeSingle();
+    if (!prof?.id) return false;
+    const { data: row, error } = await admin
+      .from("notifications")
+      .insert({
+        user_id: prof.id,
+        type: "report_submitted",
+        title: "_migration_120_probe",
+        body: "probe",
+      })
+      .select("id")
+      .single();
+    if (error) return false;
+    await admin.from("notifications").delete().eq("id", row.id);
+    return true;
   });
 
   const privateBuckets = [

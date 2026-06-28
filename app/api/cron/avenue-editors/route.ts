@@ -13,27 +13,24 @@
 //   Working    → career editor, jobs + opportunities + NYC events + hot takes
 //   Column     → Zuri's weekly personal column ("I Couldn't Help But Wonder...")
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { buildEditorContext } from "@/lib/actions/editor-instructions";
-import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "avenue-editors");
-  if (guard) return guard;
+  return runCronJob(req, "avenue-editors", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
-
-  const supabase = createClient(
+    const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   const results: Record<string, number> = {};
 
-  try {
     const workTrends = await scrapeWorkTikTok();
 
     await Promise.all([
@@ -49,12 +46,13 @@ export async function POST(req: NextRequest) {
     ]);
 
     const totalInserted = Object.values(results).reduce((a, b) => a + b, 0);
-    await logCronRun("avenue-editors", "ok", { results, records_processed: totalInserted, week_of: currentMonday() });
-    return NextResponse.json({ ok: true, results, week_of: currentMonday() });
-  } catch (err) {
-    await logCronRun("avenue-editors", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+
+    return {
+      recordsProcessed: totalInserted,
+      results,
+      week_of: currentMonday(),
+    };
+  });
 }
 
 // ── Room editor configs ───────────────────────────────────────────────────────

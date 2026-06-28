@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireFounderOrAdmin } from "@/lib/auth/require-founder-admin";
+import { writeAdminAuditLog } from "@/lib/admin/audit-log";
 import { defaultTemplateForKey } from "@/lib/message-templates/defaults";
 import { getAdminClient } from "@/lib/supabase-admin";
 
@@ -84,6 +85,10 @@ export async function PATCH(request: Request) {
     let query = admin.from("message_templates").update(patch);
     query = body.id ? query.eq("id", body.id) : query.eq("key", body.key!);
 
+    const { data: beforeRow } = body.id
+      ? await admin.from("message_templates").select("id, key, body, is_active").eq("id", body.id).maybeSingle()
+      : await admin.from("message_templates").select("id, key, body, is_active").eq("key", body.key!).maybeSingle();
+
     const { data, error } = await query
       .select("id, key, channel, subject, body, is_active, updated_at")
       .maybeSingle();
@@ -117,8 +122,26 @@ export async function PATCH(request: Request) {
       if (insertErr) {
         return NextResponse.json({ ok: false, error: insertErr.message }, { status: 400 });
       }
+      await writeAdminAuditLog({
+        actorId: gate.userId,
+        actorRole: gate.role,
+        action: "message_template.create",
+        resourceType: "message_template",
+        resourceId: (inserted as { id: string }).id,
+        after: patch,
+      });
       return NextResponse.json({ ok: true, template: mapRow(inserted as Record<string, unknown>) });
     }
+
+    await writeAdminAuditLog({
+      actorId: gate.userId,
+      actorRole: gate.role,
+      action: "message_template.update",
+      resourceType: "message_template",
+      resourceId: (data as { id: string }).id,
+      before: beforeRow as Record<string, unknown> | null,
+      after: patch,
+    });
 
     return NextResponse.json({ ok: true, template: mapRow(data as Record<string, unknown>) });
   } catch (e) {

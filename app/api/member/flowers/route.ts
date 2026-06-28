@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isBlocked } from "@/lib/auth/block-check";
+import { createNotificationEvent } from "@/lib/notifications/notification-service";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -24,6 +26,10 @@ export async function POST(request: Request) {
 
   if (body.to_user_id === user.id) {
     return NextResponse.json({ ok: false, error: "Cannot send flowers to yourself" }, { status: 400 });
+  }
+
+  if (await isBlocked(supabase, user.id, body.to_user_id)) {
+    return NextResponse.json({ ok: false, error: "Cannot send flowers to this member" }, { status: 403 });
   }
 
   if (body.note && body.note.length > 120) {
@@ -53,12 +59,15 @@ export async function POST(request: Request) {
 
   const senderName = senderProfile?.first_name || senderProfile?.full_name?.split(" ")[0] || "Someone";
 
-  void supabase.from("notifications").insert({
-    user_id: body.to_user_id,
-    type: "flower",
-    title: `${senderName} sent you flowers 🌸`,
-    link: `/member/flowers/${flowers.id}`,
-    data: { sender_id: user.id, flower_id: flowers.id },
+  void createNotificationEvent({
+    userId: body.to_user_id,
+    type: "flower_received",
+    channels: ["in_app"],
+    payload: {
+      title: `${senderName} sent you flowers 🌸`,
+      link: `/member/flowers/${flowers.id}`,
+      data: { sender_id: user.id, flower_id: flowers.id },
+    },
   });
 
   const { data: existingFlowers } = await supabase

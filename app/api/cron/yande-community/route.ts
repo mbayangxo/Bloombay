@@ -3,11 +3,11 @@
 // Writes suggestions as yande_messages so members find them in their inbox.
 // Uses the compatibility matching engine for real introductions.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { sendYandeMessage } from "@/lib/yande/messages";
 import { findTopMatches } from "@/lib/yande/matching";
 import { createClient } from "@supabase/supabase-js";
-import { cronGuard, isDryRun, logCronRun } from "@/lib/cron-guard";
+import { runCronJob } from "@/lib/cron-guard";
 
 function admin() {
   return createClient(
@@ -17,17 +17,14 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = cronGuard(req, "yande-community");
-  if (guard) return guard;
+  return runCronJob(req, "yande-community", async (ctx) => {
+    if (ctx.dryRun) {
+      return { recordsProcessed: 0, dry_run: true, message: "Dry run — no data written" };
+    }
 
-  if (isDryRun()) {
-    return NextResponse.json({ ok: true, dry_run: true, message: "Dry run — no data written" });
-  }
-
-  const supabase = admin();
-  const weekAgo  = new Date(Date.now() - 7 * 86400000).toISOString();
-
-  try {
+    const supabase = admin();
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const batchLimit = Math.min(ctx.maxRecords, 20);
     // ── 1. Find members who need introductions ─────────────────────────────────
     const { data: candidates } = await supabase
       .from("member_memory_graph")
@@ -36,7 +33,7 @@ export async function POST(req: NextRequest) {
       .lt("bloom_received", 3)
       .gt("clubs_joined", 0)
       .order("friendship_score", { ascending: true })
-      .limit(20);
+      .limit(batchLimit);
 
     let introductions = 0;
     for (const member of (candidates ?? [])) {
@@ -78,7 +75,7 @@ export async function POST(req: NextRequest) {
       .select("user_id, attendance_count, friendship_score")
       .gte("friendship_score", 40)
       .gte("last_active_at", weekAgo)
-      .limit(20);
+      .limit(batchLimit);
 
     let suggestions = 0;
     for (const active of (actives ?? [])) {
@@ -108,7 +105,7 @@ export async function POST(req: NextRequest) {
     const { data: clubCounts } = await supabase
       .from("club_memberships")
       .select("club_id")
-      .limit(500);
+      .limit(batchLimit);
 
     const clubPopularity: Record<string, number> = {};
     for (const row of (clubCounts ?? [])) {
@@ -165,15 +162,11 @@ export async function POST(req: NextRequest) {
       metadata:     { introductions, suggestions, insights, candidates_checked: candidates?.length ?? 0 },
     });
 
-    await logCronRun("yande-community", "ok", {
-      records_processed: introductions + suggestions + insights,
+    return {
+      recordsProcessed: introductions + suggestions + insights,
       introductions,
       suggestions,
       insights,
-    });
-    return NextResponse.json({ ok: true, introductions, suggestions, insights });
-  } catch (err) {
-    await logCronRun("yande-community", "error", { error: String(err) });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+    };
+  });
 }

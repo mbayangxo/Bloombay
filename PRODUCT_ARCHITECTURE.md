@@ -243,7 +243,8 @@ flowchart TB
 ### Gatherings vs Events vs Happenings
 | | Today | Recommendation |
 |---|-------|----------------|
-| **Product language** | "Happenings" and "gatherings" (World Bible); "Events" avoided in copy | Standardize on **Happenings** (member-facing) and **gatherings** (data model) |
+| **Product language** | "Happenings" and "gatherings" (World Bible); "Events" avoided in copy | Standardize on **Happenings** (member-facing home) and **gatherings** (data model). **Gathering** = BloomBay word for event |
+| **Product IA** | Happenings tab owns the gathering calendar; City/Clubs may link/surface | Do not describe gatherings as a fourth nav pillar or peer cross-cutting IRL object |
 | **Database** | `gatherings` is canonical for member IRL; legacy `public.events` still exists with admin/founder routes | **Merge conceptually** — one Happening model; deprecate `events` table after migration |
 | **Code** | `lib/actions/events.ts` already reads `gatherings`; UI route is `/member/happenings` | Finish founder/club-owner sync off localStorage (`bloombay-events-store`) |
 

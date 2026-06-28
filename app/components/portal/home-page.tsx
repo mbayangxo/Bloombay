@@ -80,7 +80,7 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
             {pending ? "Saving…" : "SAVE CHANGES"}
           </button>
         </div>
-      </div>
+    </div>
     </>
   );
 }
@@ -306,7 +306,7 @@ export function HomePage() {
                   : events.length <= 7
                   ? (tod === "night" || tod === "evening" ? "Good energy tonight ✦" : "Things are picking up today")
                   : "Packed night in the city 🔥"}
-              </span>
+          </span>
             </div>
 
             {/* Stat pills */}
@@ -346,7 +346,7 @@ export function HomePage() {
             <div style={{ marginTop: 10 }}>
               <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", display: "inline-block" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.12em" }}>VIEW →</span>
-              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@ export function HomePage() {
                   Complete your profile →
                 </span>
               </Link>
-            </div>
+          </div>
             <button
               onClick={() => setShowPreferencesBanner(false)}
               style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid rgba(255,31,125,0.15)", background: "rgba(255,31,125,0.04)", cursor: "pointer", fontSize: 14, color: "#FF1F7D", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
@@ -416,7 +416,7 @@ export function HomePage() {
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>UP NEXT</p>
             <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
-          </div>
+            </div>
 
           {/* Two-column: dark moody card + TONIGHT ticket */}
           <div style={{ display: "flex", gap: 10 }}>
@@ -453,7 +453,7 @@ export function HomePage() {
                       {upNextEv.attending_count} women going
                     </p>
                   )}
-                </div>
+                    </div>
                 {/* Carousel dots */}
                 {upNextEvents.length > 1 && (
                   <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4 }}>
@@ -591,9 +591,9 @@ export function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
+              </div>
+            </div>
+          )}
 
       {/* ══ AROUND THE CITY — real event objects ══════════════════════════════ */}
       {events.length > 0 && (
@@ -639,9 +639,9 @@ export function HomePage() {
                     <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>{n}</p>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{lbl}</p>
                   </div>
-                ))}
-              </div>
+              ))}
             </div>
+          </div>
 
             {/* Memory text */}
             <div style={{ flex: 1, borderLeft: "1px solid rgba(255,31,125,0.1)", paddingLeft: 14 }}>
@@ -650,7 +650,7 @@ export function HomePage() {
               </p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700 }}>— Yande</p>
             </div>
-          </div>
+            </div>
         </div>
       </div>
 

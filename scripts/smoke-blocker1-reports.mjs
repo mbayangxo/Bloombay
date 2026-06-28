@@ -42,7 +42,7 @@ const MEMBER_A_EMAIL = env.MEMBER_A_EMAIL || "member-a@staging.test";
 const MEMBER_A_PASSWORD = env.MEMBER_A_PASSWORD || env.ADMIN_PASSWORD || "StagingTest123!";
 const MEMBER_B_ID = env.MEMBER_B_ID;
 const MEMBER_B_EMAIL = env.MEMBER_B_EMAIL || "member-b@staging.test";
-const ADMIN_EMAIL = env.ADMIN_EMAIL || env.FOUNDER_EMAIL || "mbayangskin@gmail.com";
+const ADMIN_EMAIL = env.ADMIN_EMAIL || env.FOUNDER_EMAIL || env.MEMBER_A_EMAIL || "dmbayang@gmail.com";
 const ADMIN_PASSWORD = env.ADMIN_PASSWORD || env.FOUNDER_PASSWORD;
 
 const results = [];

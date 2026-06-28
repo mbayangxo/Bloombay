@@ -2,12 +2,23 @@
 -- Seed Bloombay HQ curated clubs
 -- owner_id = NULL → owned by system / Bloombay HQ
 -- Run once; safe to re-run (on conflict do nothing)
+-- Schema-tolerant: adds optional club columns if missing (003/005 parity)
 
-insert into public.clubs (
+ALTER TABLE public.clubs
+  ADD COLUMN IF NOT EXISTS emoji            text DEFAULT '🌸',
+  ADD COLUMN IF NOT EXISTS category         text,
+  ADD COLUMN IF NOT EXISTS membership_type  text DEFAULT 'open',
+  ADD COLUMN IF NOT EXISTS is_active        boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS tagline          text,
+  ADD COLUMN IF NOT EXISTS primary_color    text DEFAULT '#ff0055',
+  ADD COLUMN IF NOT EXISTS accent_color     text DEFAULT '#ffb7ce',
+  ADD COLUMN IF NOT EXISTS description      text;
+
+INSERT INTO public.clubs (
   id, name, slug, description, category,
   primary_color, accent_color, emoji,
   membership_type, is_active, tagline
-) values
+) VALUES
 
   ('bb000001-0000-0000-0000-000000000001',
    'Walk & Talk Club', 'walk-and-talk',
@@ -84,4 +95,4 @@ insert into public.clubs (
    'Workout, stretch, then matcha. The morning routine that actually sticks when you do it together.',
    'wellness', '#4A7C59', '#2A4A34', '🍵', 'open', true, 'Move. Sip. Repeat.')
 
-on conflict (id) do nothing;
+ON CONFLICT (id) DO NOTHING;
