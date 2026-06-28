@@ -12,13 +12,15 @@ export async function GET(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id: clubId } = await params;
+  // The [id] segment is the club slug (club routes are slug-based);
+  // club_memberships is keyed by club_slug.
+  const { id: clubSlug } = await params;
 
   const { data: membership } = await supabase
     .from("club_memberships")
-    .select("created_at")
+    .select("joined_at")
     .eq("user_id", user.id)
-    .eq("club_id", clubId)
+    .eq("club_slug", clubSlug)
     .maybeSingle();
 
   if (!membership) {
@@ -26,11 +28,11 @@ export async function GET(
   }
 
   const months_in_club =
-    (Date.now() - new Date(membership.created_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
+    (Date.now() - new Date(membership.joined_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
 
   return NextResponse.json({
     is_member: true,
     months_in_club,
-    joined_at: membership.created_at,
+    joined_at: membership.joined_at,
   });
 }

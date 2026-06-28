@@ -132,7 +132,6 @@ export async function POST(req: NextRequest) {
           {
             user_id: meta.user_id,
             club_slug: clubSlug,
-            club_id: meta.club_id,
             joined_at: new Date().toISOString(),
           },
           { onConflict: "user_id,club_slug" }

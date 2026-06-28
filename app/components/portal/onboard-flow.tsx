@@ -66,12 +66,12 @@ const SCHEDULE = [
 const BOROUGHS = ["Manhattan", "Brooklyn", "Queens", "The Bronx", "Staten Island"];
 
 const CLUBS = [
-  { id: "11111111-1111-1111-1111-111111111111", name: "Dinner Society",  desc: "Girls dinners, reservations, and table talks", count: 312 },
-  { id: "22222222-2222-2222-2222-222222222222", name: "Museum Girls",    desc: "Culture, art, and city walks together",         count: 187 },
-  { id: "33333333-3333-3333-3333-333333333333", name: "Book Club",       desc: "Reading, reflection, and good conversations",   count: 156 },
-  { id: "44444444-4444-4444-4444-444444444444", name: "Wellness Circle", desc: "Pilates, yoga, and feeling good together",      count: 203 },
-  { id: "55555555-5555-5555-5555-555555555555", name: "Sunday Walks",    desc: "Morning walks, coffee, and fresh air",          count: 142 },
-  { id: "66666666-6666-6666-6666-666666666666", name: "Travel Girls",    desc: "Plan trips, share spots, explore together",     count: 98  },
+  { id: "11111111-1111-1111-1111-111111111111", slug: "dinner-society",  name: "Dinner Society",  desc: "Girls dinners, reservations, and table talks", count: 312 },
+  { id: "22222222-2222-2222-2222-222222222222", slug: "museum-girls",    name: "Museum Girls",    desc: "Culture, art, and city walks together",         count: 187 },
+  { id: "33333333-3333-3333-3333-333333333333", slug: "book-club",       name: "Book Club",       desc: "Reading, reflection, and good conversations",   count: 156 },
+  { id: "44444444-4444-4444-4444-444444444444", slug: "wellness-circle", name: "Wellness Circle", desc: "Pilates, yoga, and feeling good together",      count: 203 },
+  { id: "55555555-5555-5555-5555-555555555555", slug: "sunday-walks",    name: "Sunday Walks",    desc: "Morning walks, coffee, and fresh air",          count: 142 },
+  { id: "66666666-6666-6666-6666-666666666666", slug: "travel-girls",    name: "Travel Girls",    desc: "Plan trips, share spots, explore together",     count: 98  },
 ];
 
 const TOTAL_STEPS = 9; // 0 = welcome, 1–8 = form steps
@@ -1113,9 +1113,19 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selectedClubs.size > 0) {
-        const rows = Array.from(selectedClubs).map((club_id) => ({ user_id: user.id, club_id }));
-        const { error: err } = await supabase.from("user_clubs").upsert(rows, { onConflict: "user_id,club_id" });
-        if (err) throw err;
+        // club_memberships is keyed by (user_id, club_slug) — map the selected
+        // club ids to their slugs and persist there.
+        const slugById = new Map(CLUBS.map((c) => [c.id, c.slug]));
+        const rows = Array.from(selectedClubs)
+          .map((id) => slugById.get(id))
+          .filter((slug): slug is string => Boolean(slug))
+          .map((club_slug) => ({ user_id: user.id, club_slug }));
+        if (rows.length > 0) {
+          const { error: err } = await supabase
+            .from("club_memberships")
+            .upsert(rows, { onConflict: "user_id,club_slug" });
+          if (err) throw err;
+        }
       }
       advance();
     } catch (e: unknown) {
@@ -1135,8 +1145,32 @@ export function OnboardFlow() {
       if (!user) throw new Error("Not signed in.");
       const valid = inviteEmails.filter((e) => e.includes("@"));
       if (valid.length > 0) {
-        await supabase.from("invites").insert(valid.map((e) => ({ inviter_id: user.id, email: e })));
+        const { error: inviteErr } = await supabase
+          .from("invites")
+          .upsert(
+            valid.map((e) => ({ inviter_id: user.id, email: e.trim().toLowerCase() })),
+            { onConflict: "inviter_id,email" }
+          );
+        // Non-blocking, but not swallowed: a failed invite save must not block
+        // onboarding completion.
+        if (inviteErr) console.warn("[onboarding] invites not saved:", inviteErr.message);
       }
+
+      // Record legal consent server-side (captures IP / user-agent). Non-blocking.
+      try {
+        await fetch("/api/member/consent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            types: ["terms", "privacy", "community_guidelines", "woman_affirmation"],
+            version: "1.0",
+            source: "onboarding",
+          }),
+        });
+      } catch (e) {
+        console.warn("[onboarding] consent not recorded:", (e as Error).message);
+      }
+
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
       // Fire-and-forget: Yande sends the welcome message
       welcomeNewMember(user.id).catch(() => {});
