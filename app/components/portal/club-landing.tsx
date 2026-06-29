@@ -707,21 +707,27 @@ function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub
 
 // ─── Leave Club ───────────────────────────────────────────────────────────────
 
-function LeaveClubButton({ clubName }: { clubName: string }) {
+function LeaveClubButton({ clubName, clubSlug }: { clubName: string; clubSlug: string }) {
   const [confirm, setConfirm] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [left, setLeft] = useState(false);
 
   async function handleLeave() {
+    if (!clubSlug) { setLeaving(false); return; }
     setLeaving(true);
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      // Try both membership tables (slug-based and id-based)
-      await supabase.from("club_memberships").delete().eq("user_id", user.id);
-      await supabase.from("user_clubs").delete().eq("user_id", user.id);
+      if (!user) { setLeaving(false); return; }
+      // Scope the delete to THIS club only — never wipe all of a user's memberships.
+      // club_memberships is keyed by club_slug (see migration 003_irl_core.sql).
+      const { error } = await supabase
+        .from("club_memberships")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("club_slug", clubSlug);
+      if (error) { setLeaving(false); return; }
       setLeft(true);
     } catch {
       setLeaving(false);
@@ -1386,7 +1392,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               )}
 
               {/* Leave club — quiet, at the bottom, requires confirmation */}
-              <LeaveClubButton clubName={club.name} />
+              <LeaveClubButton clubName={club.name} clubSlug={club.id} />
             </div>
           )}
 
