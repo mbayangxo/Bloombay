@@ -64,15 +64,6 @@ const LIVE_FEED = [
 ];
 
 
-const HOT_CLUBS = [
-  { name: "WALK & TALK CLUB", fire: 58, grad: "linear-gradient(135deg,#2D6A4F,#1A3D2C)", href: "/member/clubs/walk-and-talk" },
-  { name: "SUPPER CLUB NYC",  fire: 47, grad: "linear-gradient(135deg,#c9504a,#7a1c2e)", href: "/member/clubs/supper-club-nyc" },
-  { name: "MUSEUM GIRLS",     fire: 42, grad: "linear-gradient(135deg,#6b4fa0,#2d1a5e)", href: "/member/clubs/museum-girls" },
-  { name: "SOFT LIFE CLUB",   fire: 38, grad: "linear-gradient(135deg,#c96b9e,#7a2250)", href: "/member/clubs/soft-life-club" },
-  { name: "APERITIVO GIRLS",  fire: 31, grad: "linear-gradient(135deg,#e07040,#8a3810)", href: "/member/clubs/aperitivo-girls" },
-  { name: "BOOK SOCIETY",     fire: 29, grad: "linear-gradient(135deg,#b5451b,#6a2210)", href: "/member/clubs/book-society" },
-];
-
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [clubs, setClubs] = useState<RealClub[]>([]);
@@ -662,30 +653,8 @@ export function ClubsPage() {
         </div>
       </section>
 
-      {/* ── HOT RIGHT NOW ── */}
-      <section style={{ padding: "0 18px 32px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 14 }}>🔥</span>
-          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: PINK }}>HOT RIGHT NOW</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {HOT_CLUBS.map((club, i) => (
-            <Link key={i} href={club.href} style={{ textDecoration: "none" }}>
-              <div style={{ background: club.grad, borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
-                <div>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "white", lineHeight: 1 }}>{club.name}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>🔥 {club.fire} active today</p>
-                </div>
-                <div style={{ background: "rgba(255,255,255,0.18)", borderRadius: 999, padding: "8px 16px" }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white" }}>JOIN →</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
 
-      {/* ── CLUB RANKINGS ── */}
+      {/* Club rankings — real data TBD */}
       <section style={{ padding: "0 18px 24px" }}>
         <Link href="/member/clubs/rankings" style={{ textDecoration: "none" }}>
           <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 18, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 14 }}>

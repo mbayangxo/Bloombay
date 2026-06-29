@@ -136,18 +136,6 @@ export function PinDropsPage() {
 
   useEffect(() => { loadPins(); }, [loadPins]);
 
-  // Fallback preview pills when no real data
-  const PREVIEW_PILLS = [
-    { label: "Dinner Society", sub: "SoHo · tonight" },
-    { label: "Museum Meetup",  sub: "Sofia K. · 2h ago" },
-    { label: "Rooftop Girls",  sub: "Club · 5m ago" },
-    { label: "Book Night",     sub: "You · expires in 3h" },
-    { label: "Wine & Style",   sub: "Priya K. · 1h ago" },
-    { label: "Sunday Brunch",  sub: "Club Mama · now" },
-    { label: "Gallery Walk",   sub: "Amara · 30m ago" },
-    { label: "Soft Life Club", sub: "You · expires in 6h" },
-  ];
-
   return (
     <div style={{
       background: BG,
@@ -189,7 +177,7 @@ export function PinDropsPage() {
       {/* Scattered pills */}
       <div style={{
         position: "relative",
-        height: loading ? 300 : Math.max(500, (pins.length || PREVIEW_PILLS.length) * 70),
+        height: loading ? 300 : Math.max(320, pins.length * 70),
         margin: "0 0 20px",
       }}>
         {loading ? (
@@ -199,27 +187,23 @@ export function PinDropsPage() {
         ) : pins.length > 0 ? (
           pins.map((pin, i) => <PinPill key={pin.id} pin={pin} idx={i} />)
         ) : (
-          /* Preview mode — show what it'll look like */
-          PREVIEW_PILLS.map((p, i) => {
-            const pos   = SCATTER[i % SCATTER.length];
-            const color = PILL_COLORS[i % PILL_COLORS.length];
-            return (
-              <div key={i} style={{
-                position: "absolute",
-                top: pos.top, left: pos.left,
-                transform: `rotate(${pos.rot}deg)`,
-                background: color.bg,
-                border: `1.5px solid ${color.border}`,
-                borderRadius: 999,
-                padding: "10px 18px",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                opacity: 0.72,
-              }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: color.text, margin: 0, whiteSpace: "nowrap" }}>{p.label}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.35)", margin: "3px 0 0", whiteSpace: "nowrap" }}>{p.sub}</p>
-              </div>
-            );
-          })
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: 280,
+            padding: "0 24px",
+            textAlign: "center",
+          }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.85)", margin: 0 }}>
+                No pin drops yet
+              </p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 10, lineHeight: 1.5 }}>
+                Drop a pin for your bouquet, or wait for one from your club.
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>

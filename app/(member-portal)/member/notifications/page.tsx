@@ -18,92 +18,7 @@ interface Notif {
   witnessId?: string;
 }
 
-/* ── Data ───────────────────────────────────────────────────────── */
-const INITIAL_NOW: Notif[] = [
-  {
-    id: 0, type: "club_accepted",
-    title: "You're in. Welcome to Lens & Light.",
-    body: "Your application was accepted. Check your mailbox for a welcome note from the club.",
-    time: "just now", unread: true,
-    clubName: "Lens & Light", clubCrest: "📸",
-  },
-  {
-    id: 1, type: "flower",
-    title: "Kezia A. gave you a flower 🌸",
-    body: '"She makes every table feel full."',
-    time: "4m ago", unread: true,
-    witnessId: "kezia",
-  },
-  {
-    id: 2, type: "seat",
-    title: "You grabbed a seat",
-    body: "Girls dinner · Carbone · Tonight 7:30PM",
-    time: "12m ago", unread: true,
-  },
-  {
-    id: 3, type: "flower",
-    title: "Sofia K. gave you a flower 🌸",
-    body: '"You made the whole table feel like home."',
-    time: "28m ago", unread: true,
-    witnessId: "sofia",
-  },
-  {
-    id: 4, type: "event",
-    title: "Paint + sip + dinner is almost full",
-    body: "2 seats left · Tonight 7PM",
-    time: "45m ago", unread: true,
-  },
-];
-
-const INITIAL_EARLIER: Notif[] = [
-  {
-    id: 5, type: "celebrate",
-    title: "Show up for Aaliyah M.",
-    body: "Birthday picnic · Sat 2PM · Prospect Park · 4 seats",
-    time: "2h ago", unread: true,
-  },
-  {
-    id: 6, type: "club",
-    title: "Dinner Society posted a new seat",
-    body: "Girls brunch · Ladurée SoHo · Sat 11AM · $1 deposit",
-    time: "4h ago", unread: false,
-  },
-  {
-    id: 7, type: "flower",
-    title: "Priya R. gave you a flower 🌸",
-    body: '"You made everyone feel welcome. That\'s a rare thing."',
-    time: "5h ago", unread: false,
-    witnessId: "priya",
-  },
-  {
-    id: 8, type: "event",
-    title: "Wine & Style Night · Dinner Society",
-    body: "Tomorrow 7PM · 4 seats left",
-    time: "5h ago", unread: false,
-  },
-  {
-    id: 9, type: "intro",
-    title: "Yande thinks you and Kezia N. would vibe",
-    body: '"You both love museums and independent bookstores."',
-    time: "1d ago", unread: false,
-  },
-  {
-    id: 10, type: "message",
-    title: "New message from Naomi B.",
-    body: "Quick question about the rooftop gathering...",
-    time: "1d ago", unread: false,
-  },
-  {
-    id: 11, type: "seat",
-    title: "Your seat was confirmed",
-    body: "Pilates + matcha morning · Sunday 9AM · Studio Bloom",
-    time: "2d ago", unread: false,
-  },
-];
-
-/* ── Design ─────────────────────────────────────────────────────── */
 const PINK = "#FF1F7D";
-
 
 /* ── Section label ───────────────────────────────────────────────── */
 function TapeLabel({ text, faint }: { text: string; faint?: boolean }) {
@@ -250,23 +165,20 @@ function dbNotifToUI(n: DBNotif, idx: number): Notif {
 
 /* ── Page ────────────────────────────────────────────────────────── */
 export default function NotificationsPage() {
-  const [nowItems, setNowItems]         = useState<Notif[]>(INITIAL_NOW);
-  const [earlierItems, setEarlierItems] = useState<Notif[]>(INITIAL_EARLIER);
+  const [nowItems, setNowItems]         = useState<Notif[]>([]);
+  const [earlierItems, setEarlierItems] = useState<Notif[]>([]);
   const [loaded, setLoaded]             = useState(false);
 
   const unreadCount = [...nowItems, ...earlierItems].filter(n => n.unread).length;
   const totalItems  = nowItems.length + earlierItems.length;
 
-  // Load real notifications from DB; fall back to demo data if none
   useEffect(() => {
     getMyNotifications(40).then(data => {
-      if (data.length > 0) {
-        const cutoff = Date.now() - 3 * 3600000; // 3 hours ago
-        const now     = data.filter(n => new Date(n.created_at).getTime() > cutoff).map(dbNotifToUI);
-        const earlier = data.filter(n => new Date(n.created_at).getTime() <= cutoff).map(dbNotifToUI);
-        setNowItems(now);
-        setEarlierItems(earlier);
-      }
+      const cutoff = Date.now() - 3 * 3600000;
+      const now     = data.filter(n => new Date(n.created_at).getTime() > cutoff).map(dbNotifToUI);
+      const earlier = data.filter(n => new Date(n.created_at).getTime() <= cutoff).map(dbNotifToUI);
+      setNowItems(now);
+      setEarlierItems(earlier);
       setLoaded(true);
     }).catch(() => setLoaded(true));
   }, []);
@@ -276,7 +188,6 @@ export default function NotificationsPage() {
     setEarlierItems(p => p.map(n => ({ ...n, unread: false })));
     markAllReadDB().catch(console.error);
   }
-  useEffect(() => { if (loaded) markAllRead(); }, [loaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderSection(items: Notif[], label: string, faint?: boolean) {
     if (items.length === 0) return null;
@@ -337,7 +248,11 @@ export default function NotificationsPage() {
       </div>
 
       {/* Notes */}
-      {totalItems > 0 ? (
+      {!loaded ? (
+        <p style={{ padding: "40px 24px", textAlign: "center", fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.4)" }}>
+          Loading…
+        </p>
+      ) : totalItems > 0 ? (
         <>
           {renderSection(nowItems, "✦ right now")}
           {renderSection(earlierItems, "earlier today", true)}
