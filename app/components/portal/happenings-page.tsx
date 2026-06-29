@@ -1069,86 +1069,6 @@ function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }
   );
 }
 
-/* ── Invitation card (envelope look) ───────────────────────── */
-function EnvelopeInviteCard({ c, onOpen }: { c: typeof INVITE_DEMO[0]; onOpen: () => void }) {
-  const [opened, setOpened] = useState(false);
-
-  function handleOpen() {
-    setOpened(true);
-    onOpen();
-  }
-
-  return (
-    <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, overflow: "hidden", position: "relative" }}>
-      {/* Top color band */}
-      <div style={{ height: 4, background: `linear-gradient(90deg, ${c.color}, ${c.color}55)` }} />
-
-      {/* Envelope flap graphic */}
-      {!opened && (
-        <div style={{ padding: "16px 16px 0" }}>
-          <div style={{ position: "relative", height: 54, background: `linear-gradient(145deg, ${c.color}22, ${c.color}08)`, border: `1px solid ${c.color}30`, borderRadius: "14px 14px 0 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {/* Envelope V flap */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "60%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}18`, borderBottom: `1px solid ${c.color}22` }} />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "50%", clipPath: "polygon(0 0, 50% 100%, 100% 0)", background: `${c.color}12` }} />
-            <span style={{ fontSize: 18, zIndex: 1 }}>💌</span>
-          </div>
-          <div style={{ height: 32, background: `${c.color}08`, border: `1px solid ${c.color}22`, borderTop: "none", borderRadius: "0 0 10px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: `${c.color}99` }}>SEALED WITH LOVE</p>
-          </div>
-        </div>
-      )}
-
-      <div style={{ padding: opened ? "16px 16px 14px" : "12px 16px 14px" }}>
-        {/* Type + date */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-          <div style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 999, padding: "3px 8px", display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ fontSize: 10 }}>{c.type === "Birthday" ? "🎂" : c.type === "Wins" ? "✨" : "🌸"}</span>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: c.color, letterSpacing: "0.08em" }}>{c.type.toUpperCase()}</p>
-          </div>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.4)" }}>{c.date} · {c.time}</p>
-        </div>
-
-        {/* Host + event */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}, ${c.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 900, color: "white" }}>{c.initials}</span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.55)", marginBottom: 2 }}>{c.name} is celebrating</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 17, color: "white", lineHeight: 1.1 }}>{c.what}</p>
-          </div>
-        </div>
-
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.38)", marginBottom: 12 }}>{c.venue}</p>
-
-        {/* Attendees */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
-          {[0,1,2].map(i => (
-            <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg, ${c.color}AA, ${c.color}55)`, border: "1.5px solid rgba(255,255,255,0.15)", marginLeft: i > 0 ? -10 : 0 }} />
-          ))}
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginLeft: 4 }}>{c.confirmed} showing up for her</p>
-        </div>
-
-        {/* Open invite button (triggers RSVP sheet) */}
-        <button
-          onClick={handleOpen}
-          style={{ width: "100%", padding: "11px", borderRadius: 14, background: opened ? `${c.color}22` : c.color, border: opened ? `1.5px solid ${c.color}55` : "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: opened ? c.color : "white", boxShadow: opened ? "none" : `0 4px 18px ${c.color}55`, transition: "all 0.18s" }}
-        >
-          {opened ? "Invitation opened ✓" : "Open the invitation →"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-const INVITE_DEMO = [
-  { id: "c1", type: "Birthday" as const,   name: "Sofia K.",  what: "30th Birthday Dinner",   venue: "Carbone, West Village",   date: "SAT JUL 5",  time: "8 PM",    initials: "SK", color: "#FF1F7D", confirmed: 12 },
-  { id: "c2", type: "Wins" as const,       name: "Amara T.",  what: "New Job Celebration",     venue: "Ladurée SoHo",            date: "FRI JUL 11", time: "7:30 PM", initials: "AT", color: "#FF69B4", confirmed: 8  },
-  { id: "c3", type: "Milestones" as const, name: "Nadia O.",  what: "New Apartment Warming",   venue: "Her new place · Tribeca", date: "SUN JUL 13", time: "3 PM",    initials: "NO", color: "#E8006A", confirmed: 18 },
-  { id: "c4", type: "Birthday" as const,   name: "Lena R.",   what: "Birthday Brunch",         venue: "Sadelle's, SoHo",         date: "SUN JUL 20", time: "11 AM",   initials: "LR", color: "#C80060", confirmed: 7  },
-  { id: "c5", type: "Wins" as const,       name: "Zora M.",   what: "Book Deal Dinner",        venue: "Via Carota",              date: "THU JUL 24", time: "7 PM",    initials: "ZM", color: "#FF1F7D", confirmed: 5  },
-  { id: "c6", type: "Milestones" as const, name: "Fatima A.", what: "Engagement Dinner",       venue: "The Jane NYC",            date: "SAT JUL 26", time: "6 PM",    initials: "FA", color: "#A8004C", confirmed: 22 },
-] as const;
 type InviteType = "All" | "Birthday" | "Wins" | "Milestones";
 
 function CelebrationInvitationsView({ events, joined, onToggle }: {
@@ -1158,21 +1078,20 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
 }) {
   const [typeFilter, setTypeFilter] = useState<InviteType>("All");
   const [rsvpEv, setRsvpEv] = useState<Event | null>(null);
-  const [rsvpDemo, setRsvpDemo] = useState<string | null>(null);
 
-  const demo = typeFilter === "All" ? INVITE_DEMO : INVITE_DEMO.filter(c => c.type === typeFilter);
-
-  const demoAsEvent = (c: typeof INVITE_DEMO[0]): Event => ({
-    id: c.id, title: c.what, host_name: c.name, venue: c.venue, starts_at: new Date().toISOString(),
-    event_type: "invitation", attending_count: c.confirmed, spots_left: null, neighborhood: null, city: null,
-    slug: null, badge: null, image_url: null, accent_color: c.color,
-  } as unknown as Event);
+  const filteredEvents = typeFilter === "All"
+    ? events
+    : events.filter((ev) => {
+        const t = (ev.event_type ?? "").toLowerCase();
+        if (typeFilter === "Birthday") return t.includes("birthday");
+        if (typeFilter === "Wins") return t.includes("win") || t.includes("celebrat");
+        if (typeFilter === "Milestones") return t.includes("milestone") || t.includes("apartment") || t.includes("engagement");
+        return true;
+      });
 
   return (
     <div style={{ padding: "0 0 24px" }}>
-      {/* RSVP sheet */}
       {rsvpEv && <InvitationRsvpSheet ev={rsvpEv} onClose={() => setRsvpEv(null)} />}
-      {rsvpDemo && <InvitationRsvpSheet ev={demoAsEvent((INVITE_DEMO.find(c => c.id === rsvpDemo) ?? INVITE_DEMO[0]) as typeof INVITE_DEMO[0])} onClose={() => setRsvpDemo(null)} />}
 
       {/* Header */}
       <div style={{ padding: "18px 16px 14px" }}>
@@ -1195,11 +1114,11 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
       </div>
 
       {/* Real invitation events with RSVP options */}
-      {events.length > 0 && (
+      {filteredEvents.length > 0 ? (
         <div style={{ padding: "0 14px 14px" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>YOUR INVITATIONS</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {events.map(ev => (
+            {filteredEvents.map(ev => (
               <div key={ev.id} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 18, overflow: "hidden" }}>
                 <div style={{ height: 3, background: `linear-gradient(90deg, ${PINK}, ${PINK}44)` }} />
                 <div style={{ padding: "14px 16px" }}>
@@ -1224,38 +1143,16 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
             ))}
           </div>
         </div>
+      ) : (
+        <div style={{ padding: "32px 24px", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "rgba(255,238,220,0.92)" }}>
+            No invitations yet
+          </p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 8, lineHeight: 1.5 }}>
+            When someone invites you to celebrate, it&apos;ll show up here.
+          </p>
+        </div>
       )}
-
-      {/* Demo invitation cards (envelope look) */}
-      <div style={{ padding: "0 14px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>OPEN INVITATIONS</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {(demo as typeof INVITE_DEMO[number][]).map(c => (
-            <EnvelopeInviteCard key={c.id} c={c as typeof INVITE_DEMO[0]} onOpen={() => setRsvpDemo(c.id)} />
-          ))}
-        </div>
-      </div>
-
-      {/* Confetti strip — recently sent */}
-      <div style={{ margin: "20px 14px 0", padding: "16px", background: "rgba(255,255,255,0.06)", borderRadius: 18, border: "1px solid rgba(255,255,255,0.1)" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>🎊 CONFETTI SENT</p>
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" as const }}>
-          {[
-            { name: "Maya B.", what: "New job 🎉", color: "#FF1F7D" },
-            { name: "Temi O.", what: "Birthday 🎂", color: "#FF69B4" },
-            { name: "Jade R.", what: "New keys 🏠", color: "#E8006A" },
-            { name: "Sade L.", what: "Book deal 📚", color: "#C80060" },
-          ].map((r, i) => (
-            <div key={i} style={{ flexShrink: 0, width: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${r.color}, ${r.color}66)`, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.12)" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 900, color: "white" }}>{r.name[0]}</span>
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 1.2 }}>{r.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "rgba(255,255,255,0.38)", textAlign: "center", lineHeight: 1.3 }}>{r.what}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Drop confetti CTA */}
       <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}28`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>

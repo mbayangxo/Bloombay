@@ -31,13 +31,6 @@ const GRADS = [
 
 const VIBES = ["creative", "wellness", "adventure", "career", "night out", "faith", "fashion", "foodie"];
 
-const NEAR_YOU_FALLBACK = [
-  { name: "SoHo",           clubs: 0, grad: "linear-gradient(135deg,#FF85C0,#FFB3D9)" },
-  { name: "Williamsburg",   clubs: 0, grad: "linear-gradient(135deg,#E8006A,#FF5BAD)" },
-  { name: "West Village",   clubs: 0, grad: "linear-gradient(135deg,#C80060,#FF1F7D)" },
-  { name: "Brooklyn Hts",   clubs: 0, grad: "linear-gradient(135deg,#FF1F7D,#FF85C0)" },
-  { name: "Harlem",         clubs: 0, grad: "linear-gradient(135deg,#A8004C,#E8006A)" },
-];
 const NEAR_YOU_GRADS = [
   "linear-gradient(135deg,#FF85C0,#FFB3D9)",
   "linear-gradient(135deg,#E8006A,#FF5BAD)",
@@ -53,22 +46,11 @@ const ONBOARDING_STEPS = [
   "Introduce yourself",
 ];
 
-const LIVE_FEED = [
-  { action: "joined",  who: "Amara K.", club: "SUPPER CLUB",    time: "now",   color: "#c9504a" },
-  { action: "posted",  who: "Temi A.",  club: "MUSEUM GIRLS",   time: "2m",    color: "#6b4fa0" },
-  { action: "joined",  who: "Kemi B.",  club: "BOOK GIRLS",     time: "5m",    color: "#3e7c6b" },
-  { action: "shared",  who: "Ife O.",   club: "RUN CLUB",       time: "8m",    color: "#e07b39" },
-  { action: "joined",  who: "Nadia S.", club: "SOFT LIFE CLUB", time: "12m",   color: "#c96b9e" },
-  { action: "posted",  who: "Zara M.",  club: "MUSEUM GIRLS",   time: "15m",   color: "#6b4fa0" },
-  { action: "joined",  who: "Chisom E.","club": "SUPPER CLUB",  time: "18m",   color: "#c9504a" },
-];
-
-
 export function ClubsPage() {
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
   const [clubs, setClubs] = useState<RealClub[]>([]);
   const [happenings, setHappenings] = useState<RealGathering[]>([]);
-  const [nearYou, setNearYou] = useState(NEAR_YOU_FALLBACK);
+  const [nearYou, setNearYou] = useState<{ name: string; clubs: number; grad: string }[]>([]);
   const [checkedSteps, setCheckedSteps] = useState<boolean[]>([false, false, false, false]);
   const allDone = checkedSteps.every(Boolean);
   const [searchQuery, setSearchQuery] = useState("");
@@ -591,6 +573,7 @@ export function ClubsPage() {
       </section>
 
       {/* ══════════ NEAR YOU — polaroid neighbourhood cards ══════════ */}
+      {nearYou.length > 0 && (
       <section style={{ padding: "0 0 60px" }}>
         <div style={{ padding: "0 18px", display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, boxShadow: `0 0 8px ${PINK}` }} />
@@ -629,30 +612,7 @@ export function ClubsPage() {
           })}
         </div>
       </section>
-
-      {/* ── LIVE ACTIVITY — compact strip ── */}
-      <section style={{ padding: "0 18px 20px" }}>
-        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>
-          <div style={{ display: "flex", position: "relative" as const }}>
-            {LIVE_FEED.slice(0, 4).map((item, i) => (
-              <div key={i} style={{ width: 26, height: 26, borderRadius: "50%", background: item.color, border: `2px solid ${BOARD}`, marginLeft: i > 0 ? -9 : 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 10, color: "white", flexShrink: 0, zIndex: 4 - i }}>
-                {item.who[0]}
-              </div>
-            ))}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 2px rgba(34,197,94,0.25)" }} />
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)" }}>LIVE ACTIVITY</p>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 2 }}>
-              {LIVE_FEED.length} members active now
-            </p>
-          </div>
-          <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l4 4.5-4 4.5"/></svg>
-        </div>
-      </section>
-
+      )}
 
       {/* Club rankings — real data TBD */}
       <section style={{ padding: "0 18px 24px" }}>

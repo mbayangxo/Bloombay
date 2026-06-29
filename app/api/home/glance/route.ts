@@ -14,7 +14,7 @@ export async function GET() {
       profilePhotos: [],
       memories: [],
       clubCovers: [],
-      source: "demo",
+      source: "empty",
     });
   }
 
@@ -51,7 +51,7 @@ export async function GET() {
       profilePhotos: [],
       memories: [],
       clubCovers: [],
-      source: "demo",
+      source: "empty",
       warning: "Run supabase/migrations/013_member_media.sql",
     });
   }
