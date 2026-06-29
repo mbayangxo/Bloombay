@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth-server";
-import { devRoleFromServerCookie, roleFromServerCookies } from "@/lib/auth/role-cookie-server";
+import { devRoleFromServerCookie } from "@/lib/auth/role-cookie-server";
 import { normalizeRole, roleFromEmailAddress, type UserRole } from "@/lib/auth/roles";
 
-/** Align with middleware `resolveRole` — cookies and dev overrides before profiles. */
+/** Mission Control role from Supabase session + profiles (no bb_role cookie trust). */
 export async function getMissionControlRole(): Promise<UserRole | null> {
   if (await isAdminAuthenticated()) return "founder";
 
@@ -16,9 +16,6 @@ export async function getMissionControlRole(): Promise<UserRole | null> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-
-  const cached = await roleFromServerCookies(user.id);
-  if (cached) return cached;
 
   const devOverride = await devRoleFromServerCookie();
   if (devOverride) return devOverride;

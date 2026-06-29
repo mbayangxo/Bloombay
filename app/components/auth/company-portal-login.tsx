@@ -7,11 +7,8 @@ import { useSearchParams } from "next/navigation";
 import { PortalAccessNotice } from "@/app/components/auth/portal-access-notice";
 import { signInCompanyPortal } from "@/lib/auth/session";
 import { signOutCompanyPortal } from "@/lib/auth/portal-sign-out";
-import {
-  decodePortalInvite,
-  inviteMatchesEmail,
-  roleLabelForInvite,
-} from "@/lib/auth/portal-invites";
+import { inviteMatchesEmail, roleLabelForInvite } from "@/lib/auth/portal-invites";
+import type { UserRole } from "@/lib/auth/roles";
 import { BLOOM_OBJECTS } from "@/lib/bloom-object-assets";
 import { COMPANY_LOGIN } from "@/lib/auth/roles";
 import "@/app/styles/bb-login.css";
@@ -20,11 +17,28 @@ function CompanyLoginInner() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? undefined;
   const inviteToken = searchParams.get("invite");
-  const invite = decodePortalInvite(inviteToken);
-  const [email, setEmail] = useState(invite?.email ?? "");
+  const [invite, setInvite] = useState<{ role: UserRole; email: string | null; label: string } | null>(null);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!inviteToken) return;
+    let active = true;
+    (async () => {
+      const res = await fetch(`/api/auth/portal-invite?token=${encodeURIComponent(inviteToken)}`);
+      const data = await res.json() as { valid?: boolean; role?: UserRole; email?: string | null; label?: string };
+      if (!active || !res.ok || !data.valid || !data.role) return;
+      setInvite({
+        role: data.role,
+        email: data.email ?? null,
+        label: data.label ?? roleLabelForInvite(data.role),
+      });
+      if (data.email) setEmail(data.email);
+    })();
+    return () => { active = false; };
+  }, [inviteToken]);
 
   useEffect(() => {
     const notice = searchParams.get("notice");
@@ -43,7 +57,7 @@ function CompanyLoginInner() {
       setError("Enter your password.");
       return;
     }
-    if (invite && email.trim() && !inviteMatchesEmail(invite, email)) {
+    if (invite && email.trim() && !inviteMatchesEmail({ role: invite.role, exp: 0, email: invite.email ?? undefined }, email)) {
       setError(`This invite is for ${invite.email}. Use that email or ask your founder for a new link.`);
       return;
     }

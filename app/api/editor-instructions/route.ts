@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireRole } from "@/lib/auth/require-role";
 
 function admin() {
   return createClient(
@@ -10,6 +11,9 @@ function admin() {
 
 // GET /api/editor-instructions?editor=magazine
 export async function GET(req: NextRequest) {
+  const guard = await requireRole(req, ["admin", "founder", "curator"]);
+  if (guard.error) return guard.error;
+
   const editor = req.nextUrl.searchParams.get("editor");
   if (!editor) return NextResponse.json({ error: "Missing editor param" }, { status: 400 });
 
@@ -25,6 +29,9 @@ export async function GET(req: NextRequest) {
 
 // POST /api/editor-instructions
 export async function POST(req: NextRequest) {
+  const guard = await requireRole(req, ["admin", "founder", "curator"]);
+  if (guard.error) return guard.error;
+
   const body = await req.json() as {
     editor_name: string;
     instruction_type: string;

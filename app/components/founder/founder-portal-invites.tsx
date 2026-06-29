@@ -1,33 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import {
-  INVITEABLE_ROLES,
-  companySignupUrl,
-  createPortalInvite,
-  encodePortalInvite,
-  roleLabelForInvite,
-} from "@/lib/auth/portal-invites";
+import { INVITEABLE_ROLES, roleLabelForInvite } from "@/lib/auth/portal-invites";
 import type { UserRole } from "@/lib/auth/roles";
-import { COMPANY_LOGIN, suggestClubMamaEmail } from "@/lib/auth/roles";
+import { suggestClubMamaEmail } from "@/lib/auth/roles";
+
+type InviteLinks = {
+  signup: string;
+  signin: string;
+  token: string;
+  payload: { role: UserRole; email: string | null; label: string };
+};
 
 export function FounderPortalInvites() {
   const [role, setRole] = useState<UserRole>("club_owner");
   const [email, setEmail] = useState("");
   const [label, setLabel] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [links, setLinks] = useState<InviteLinks | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
 
-  function buildLinks() {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const payload = createPortalInvite({
-      role,
-      email: email.trim() || undefined,
-      label: label.trim() || undefined,
-    });
-    const token = encodePortalInvite(payload);
-    const signup = `${origin}${companySignupUrl(token)}`;
-    const signin = `${origin}${COMPANY_LOGIN}?invite=${encodeURIComponent(token)}`;
-    return { signup, signin, token, payload };
+  async function buildLinks(): Promise<InviteLinks | null> {
+    setGenerating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/founder/portal-invites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          role,
+          email: email.trim() || undefined,
+          label: label.trim() || undefined,
+        }),
+      });
+      const data = await res.json() as InviteLinks & { error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Could not create invite");
+        return null;
+      }
+      setLinks(data);
+      return data;
+    } catch {
+      setError("Could not create invite");
+      return null;
+    } finally {
+      setGenerating(false);
+    }
   }
 
   function copy(text: string, key: string) {
@@ -36,7 +55,9 @@ export function FounderPortalInvites() {
     setTimeout(() => setCopied(null), 2000);
   }
 
-  const { signup, signin, payload } = buildLinks();
+  const payload = links?.payload ?? { role, email: email.trim() || null, label: label.trim() || roleLabelForInvite(role) };
+  const signup = links?.signup ?? "";
+  const signin = links?.signin ?? "";
 
   return (
     <section className="fp-invites">
@@ -46,9 +67,10 @@ export function FounderPortalInvites() {
       </p>
       <form
         className="fp-invites__form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          copy(signup, "signup");
+          const built = links ?? await buildLinks();
+          if (built) copy(built.signup, "signup");
         }}
       >
         <label>
@@ -102,31 +124,38 @@ export function FounderPortalInvites() {
             Invite as <strong>{roleLabelForInvite(payload.role)}</strong> · expires in 14 days
           </p>
         ) : null}
+        {error ? <p className="fp-invites__hint" style={{ color: "var(--bb-hot)" }}>{error}</p> : null}
         <div className="fp-invites__actions">
-          <button type="submit" className="fp-invites__btn fp-invites__btn--hot">
-            {copied === "signup" ? "Copied create-account link" : "Copy create-account link"}
+          <button type="submit" className="fp-invites__btn fp-invites__btn--hot" disabled={generating}>
+            {generating ? "Generating…" : copied === "signup" ? "Copied create-account link" : "Copy create-account link"}
           </button>
           <button
             type="button"
             className="fp-invites__btn"
-            onClick={() => copy(signin, "signin")}
+            disabled={generating}
+            onClick={async () => {
+              const built = links ?? await buildLinks();
+              if (built) copy(built.signin, "signin");
+            }}
           >
             {copied === "signin" ? "Copied sign-in link" : "Copy sign-in link"}
           </button>
         </div>
       </form>
-      <div className="fp-invites__preview">
-        <p>
-          <strong>Create account</strong>
-          <br />
-          <code className="fp-invites__code">{signup}</code>
-        </p>
-        <p>
-          <strong>Sign in (existing users)</strong>
-          <br />
-          <code className="fp-invites__code">{signin}</code>
-        </p>
-      </div>
+      {signup ? (
+        <div className="fp-invites__preview">
+          <p>
+            <strong>Create account</strong>
+            <br />
+            <code className="fp-invites__code">{signup}</code>
+          </p>
+          <p>
+            <strong>Sign in (existing users)</strong>
+            <br />
+            <code className="fp-invites__code">{signin}</code>
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 }

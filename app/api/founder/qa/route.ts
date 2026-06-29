@@ -4,7 +4,7 @@ import { buildCursorQaPrompt, buildQaReport, runSmokeChecks } from "@/lib/founde
 import type { QaViewportId } from "@/lib/founder-qa-routes";
 
 export async function POST(request: NextRequest) {
-  if (!isFounderQaAuthorized(request)) {
+  if (!await isFounderQaAuthorized(request)) {
     return NextResponse.json({ error: "Founder access required" }, { status: 401 });
   }
 

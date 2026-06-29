@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireRole } from "@/lib/auth/require-role";
 
 function admin() {
   return createClient(
@@ -10,6 +11,9 @@ function admin() {
 
 // PATCH /api/editor-instructions/[id] — toggle active
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requireRole(req, ["admin", "founder", "curator"]);
+  if (guard.error) return guard.error;
+
   const { id } = await params;
   const body = await req.json() as { active: boolean };
   const { error } = await admin().from("editor_instructions").update({ active: body.active }).eq("id", id);
@@ -18,7 +22,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 // DELETE /api/editor-instructions/[id]
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requireRole(req, ["admin", "founder", "curator"]);
+  if (guard.error) return guard.error;
+
   const { id } = await params;
   const { error } = await admin().from("editor_instructions").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

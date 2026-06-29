@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole, roleFromEmailAddress, type UserRole } from "@/lib/auth/roles";
-import { devRoleFromServerCookie, roleFromServerCookies } from "@/lib/auth/role-cookie-server";
+import { devRoleFromServerCookie } from "@/lib/auth/role-cookie-server";
 
 export async function getClubOwnerRole(): Promise<UserRole | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -12,9 +12,6 @@ export async function getClubOwnerRole(): Promise<UserRole | null> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-
-  const cached = await roleFromServerCookies(user.id);
-  if (cached) return cached;
 
   const devOverride = await devRoleFromServerCookie();
   if (devOverride) return devOverride;

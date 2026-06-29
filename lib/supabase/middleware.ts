@@ -101,40 +101,6 @@ function loginRedirectFromCookies(request: NextRequest): NextResponse | null {
     return redirect;
   }
 
-  const uid = request.cookies.get("bb_uid")?.value;
-  const roleRaw = request.cookies.get("bb_role")?.value;
-  if (!uid || !roleRaw) return null;
-
-  const role = normalizeRole(roleRaw);
-
-  if (isCompanyAuthPath(pathname)) {
-    const url = request.nextUrl.clone();
-    if (!canUseCompanyPortal(role)) {
-      url.pathname = MEMBER_LOGIN;
-      url.searchParams.set("notice", "member_not_company");
-    } else {
-      url.pathname = homeForRole(role);
-      url.searchParams.delete("next");
-    }
-    url.searchParams.delete("error");
-    url.searchParams.delete("from");
-    const redirect = NextResponse.redirect(url);
-    applyRoleCookies(redirect, uid, role);
-    return redirect;
-  }
-
-  const loginPortal = portalFromLoginPath(pathname);
-  if (loginPortal && canAccessPortal(role, loginPortal)) {
-    const url = request.nextUrl.clone();
-    url.pathname = homeForRole(role);
-    url.searchParams.delete("next");
-    url.searchParams.delete("error");
-    url.searchParams.delete("from");
-    const redirect = NextResponse.redirect(url);
-    applyRoleCookies(redirect, uid, role);
-    return redirect;
-  }
-
   return null;
 }
 
@@ -144,9 +110,6 @@ async function resolveRole(
   userId: string,
   email?: string
 ): Promise<UserRole> {
-  const cached = roleFromRequestCookies(request, userId);
-  if (cached) return cached;
-
   const { data } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
   const role = data?.role
     ? normalizeRole(data.role as string)

@@ -3,7 +3,7 @@ import { generateCreateContent, type GenerateInput } from "@/lib/founder-create-
 import { isFounderQaAuthorized } from "@/lib/founder-qa-auth";
 
 export async function POST(request: NextRequest) {
-  if (!isFounderQaAuthorized(request)) {
+  if (!await isFounderQaAuthorized(request)) {
     return NextResponse.json({ error: "Founder access required" }, { status: 401 });
   }
 

@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { requireAdmin } from "@/lib/auth/require-role";
 
 function admin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
+}
+
+async function sessionUser(req: NextRequest) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll(); },
+        setAll() {},
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
 }
 
 export async function POST(req: NextRequest) {
@@ -45,23 +62,28 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email");
 
-  // Public email lookup — used by the partner dashboard to check approval status
   if (email) {
+    const user = await sessionUser(req);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const normalized = email.trim().toLowerCase();
+    if (normalized !== (user.email ?? "").trim().toLowerCase()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const supabase = admin();
     const { data, error } = await supabase
       .from("girlmate_partner_applications")
       .select("id,contact_name,email,group_name,platform,group_size,cities,status,partner_code")
-      .eq("email", email.trim().toLowerCase())
+      .eq("email", normalized)
       .order("submitted_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data ?? []);
   }
 
-  // Admin-only: full list
-  const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin(req);
+  if (guard.error) return guard.error;
   const supabase = admin();
   const { data, error } = await supabase
     .from("girlmate_partner_applications")

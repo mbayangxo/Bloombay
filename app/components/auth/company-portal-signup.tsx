@@ -1,27 +1,62 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signUpCompanyPortal } from "@/lib/auth/session";
-import {
-  decodePortalInvite,
-  inviteMatchesEmail,
-  roleLabelForInvite,
-} from "@/lib/auth/portal-invites";
+import { inviteMatchesEmail, roleLabelForInvite } from "@/lib/auth/portal-invites";
+import type { UserRole } from "@/lib/auth/roles";
 import { BLOOM_OBJECTS } from "@/lib/bloom-object-assets";
 import "@/app/styles/bb-login.css";
+
+type ValidInvite = {
+  role: UserRole;
+  email: string | null;
+  label: string;
+};
 
 function SignupInner() {
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get("invite");
-  const invite = decodePortalInvite(inviteToken);
+  const [invite, setInvite] = useState<ValidInvite | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(Boolean(inviteToken));
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState(invite?.email ?? "");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!inviteToken) {
+      setInviteLoading(false);
+      return;
+    }
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch(`/api/auth/portal-invite?token=${encodeURIComponent(inviteToken)}`);
+        const data = await res.json() as { valid?: boolean; role?: UserRole; email?: string | null; label?: string };
+        if (!active) return;
+        if (res.ok && data.valid && data.role) {
+          const valid: ValidInvite = {
+            role: data.role,
+            email: data.email ?? null,
+            label: data.label ?? roleLabelForInvite(data.role),
+          };
+          setInvite(valid);
+          if (valid.email) setEmail(valid.email);
+        }
+      } finally {
+        if (active) setInviteLoading(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [inviteToken]);
+
+  if (inviteLoading) {
+    return <div style={{ minHeight: "100dvh" }} />;
+  }
 
   if (!invite) {
     return (
@@ -48,7 +83,7 @@ function SignupInner() {
       setError("Fill in name, email, and password.");
       return;
     }
-    if (!inviteMatchesEmail(invite, email)) {
+    if (!inviteMatchesEmail({ role: invite.role, exp: 0, email: invite.email ?? undefined }, email)) {
       setError(`This invite is locked to ${invite.email}.`);
       return;
     }
@@ -75,7 +110,7 @@ function SignupInner() {
         <p className="bb-login__eyebrow">BloomBay company portal</p>
         <h1 className="bb-login__title">Create your account</h1>
         <p className="bb-login__sub">
-          You&apos;re joining as <strong>{invite.label ?? roleLabelForInvite(invite.role)}</strong>. After this,
+          You&apos;re joining as <strong>{invite.label}</strong>. After this,
           sign in at the company portal — we&apos;ll take you to the right app automatically.
         </p>
         <div className="bb-login__panel">
