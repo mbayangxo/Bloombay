@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PINK = "#FF1F7D";
@@ -30,15 +30,15 @@ function BloomShieldFilled({ size = 22, color = PINK }: { size?: number; color?:
   );
 }
 
-// ── Demo bouquet (until Supabase bloom_bouquet table is wired) ────────────────
-const DEMO_BOUQUET = [
-  { id: "1", name: "Aaliyah",  initial: "A", color: "#7B2FF7" },
-  { id: "2", name: "Sofia",    initial: "S", color: "#FF69B4" },
-  { id: "3", name: "Kelechi",  initial: "K", color: "#D4A853" },
-  { id: "4", name: "Naomi",    initial: "N", color: "#2EC4B6" },
-  { id: "5", name: "Temi",     initial: "T", color: "#E63946" },
-  { id: "6", name: "Zara",     initial: "Z", color: "#FF1F7D" },
-];
+// ── Bouquet (the member's real safety circle, from Supabase bloom_bouquet) ─────
+type BouquetMember = { id: string; name: string; initial: string; color: string };
+
+const BOUQUET_COLORS = ["#7B2FF7", "#FF69B4", "#D4A853", "#2EC4B6", "#E63946", "#FF1F7D", "#1565C0", "#16A34A"];
+function colorForId(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return BOUQUET_COLORS[h % BOUQUET_COLORS.length];
+}
 
 type CheckInDuration = 1 | 2 | 4;
 
@@ -51,11 +51,37 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
   const [checkInActive, setCheckInActive] = useState(false);
   const [checkedInSafe, setCheckedInSafe] = useState(false);
   const [pingsSent, setPingsSent]         = useState(false);
+  const [pinging,   setPinging]           = useState(false);
+  const [pingError, setPingError]         = useState<string | null>(null);
   const [contactName,  setContactName]    = useState("");
   const [contactPhone, setContactPhone]   = useState("");
   const [reportOpen,   setReportOpen]     = useState(false);
   const [reportText,   setReportText]     = useState("");
   const [reportSent,   setReportSent]     = useState(false);
+  const [reporting,    setReporting]      = useState(false);
+  const [reportError,  setReportError]    = useState<string | null>(null);
+
+  // The member's real safety circle.
+  const [bouquet, setBouquet] = useState<BouquetMember[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/member/bouquet");
+        if (!res.ok) return;
+        const data = await res.json() as {
+          members: { id: string; first_name: string | null; full_name: string | null }[];
+        };
+        if (!active) return;
+        setBouquet((data.members ?? []).map((m) => {
+          const name = m.first_name ?? m.full_name?.split(" ")[0] ?? "Friend";
+          return { id: m.id, name, initial: (name[0] ?? "?").toUpperCase(), color: colorForId(m.id) };
+        }));
+      } catch { /* leave bouquet empty; UI shows the add-someone state */ }
+    })();
+    return () => { active = false; };
+  }, []);
 
   function activateCheckIn(h: CheckInDuration) {
     setCheckInHours(h);
@@ -68,16 +94,56 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
     setTimeout(() => onClose(), 1200);
   }
 
-  function pingBouquet() {
-    setPingsSent(true);
-    // In production: insert into safety_pings for each bouquet member,
-    // which triggers a notification to each girl.
+  async function pingBouquet() {
+    if (pinging) return;
+    setPinging(true);
+    setPingError(null);
+    try {
+      const res = await fetch("/api/member/safety-pings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({})) as { ok?: boolean; pinged?: number; error?: string };
+      if (!res.ok || !data.ok) {
+        setPingError(data.error ?? "Couldn't send the ping. Try again.");
+        return;
+      }
+      if ((data.pinged ?? 0) === 0) {
+        // Honest: nobody in the bouquet — never claim "they know".
+        setPingError("Add someone to your bouquet first so we know who to reach.");
+        return;
+      }
+      setPingsSent(true);
+    } catch {
+      setPingError("Couldn't send the ping. Try again.");
+    } finally {
+      setPinging(false);
+    }
   }
 
-  function sendReport() {
-    if (!reportText.trim()) return;
-    setReportSent(true);
-    setTimeout(() => { setReportOpen(false); setReportText(""); setReportSent(false); }, 2000);
+  async function sendReport() {
+    if (!reportText.trim() || reporting) return;
+    setReporting(true);
+    setReportError(null);
+    try {
+      const res = await fetch("/api/member/safety-reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: "safety", body: reportText.trim() }),
+      });
+      const data = await res.json().catch(() => ({})) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setReportError(data.error ?? "Couldn't submit your report. Please try again.");
+        return;
+      }
+      setReportSent(true);
+      setTimeout(() => { setReportOpen(false); setReportText(""); setReportSent(false); }, 2400);
+    } catch {
+      setReportError("Couldn't submit your report. Please try again.");
+    } finally {
+      setReporting(false);
+    }
   }
 
   return (
@@ -140,7 +206,9 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>
                   {pingsSent
                     ? "Your girls have been quietly notified ✦"
-                    : "Your 12 closest Bloomies. They'll get a quiet ping."}
+                    : bouquet.length === 0
+                      ? "Add your closest Bloomies so they can get a quiet ping."
+                      : `Your ${bouquet.length} closest ${bouquet.length === 1 ? "Bloomie" : "Bloomies"}. They'll get a quiet ping.`}
                 </p>
               </div>
               <Link
@@ -155,9 +223,9 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
               </Link>
             </div>
 
-            {/* Girl avatars */}
+            {/* Girl avatars — the member's real bouquet */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
-              {DEMO_BOUQUET.map(girl => (
+              {bouquet.map(girl => (
                 <div key={girl.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: "50%",
@@ -173,8 +241,8 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
                   </p>
                 </div>
               ))}
-              {/* Add slot */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              {/* Add slot — links to where the bouquet is managed */}
+              <Link href="/member/lounge/bloomies" onClick={onClose} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, textDecoration: "none" }}>
                 <div style={{
                   width: 40, height: 40, borderRadius: "50%",
                   border: "1.5px dashed rgba(255,255,255,0.15)",
@@ -187,26 +255,35 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.2)", textAlign: "center" }}>
                   Add
                 </p>
-              </div>
+              </Link>
             </div>
 
             {!pingsSent ? (
-              <button
-                onClick={pingBouquet}
-                style={{
-                  width: "100%", padding: "13px 0",
-                  borderRadius: 999,
-                  border: "none",
-                  background: PINK,
-                  color: "white",
-                  fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 6px 20px ${PINK}44`,
-                  letterSpacing: "0.04em",
-                }}
-              >
-                Ping my bouquet quietly ✦
-              </button>
+              <>
+                <button
+                  onClick={pingBouquet}
+                  disabled={pinging}
+                  style={{
+                    width: "100%", padding: "13px 0",
+                    borderRadius: 999,
+                    border: "none",
+                    background: PINK,
+                    color: "white",
+                    fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800,
+                    cursor: pinging ? "default" : "pointer",
+                    opacity: pinging ? 0.7 : 1,
+                    boxShadow: `0 2px 0 rgba(150,0,55,0.8), 0 6px 20px ${PINK}44`,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {pinging ? "Sending…" : "Ping my bouquet quietly ✦"}
+                </button>
+                {pingError && (
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#FFB3C7", textAlign: "center", marginTop: 8, lineHeight: 1.4 }}>
+                    {pingError}
+                  </p>
+                )}
+              </>
             ) : (
               <div style={{
                 textAlign: "center", padding: "12px",
@@ -476,18 +553,25 @@ export function BloomSafetySheet({ onClose }: BloomSafetySheetProps) {
                       lineHeight: 1.5, marginBottom: 10,
                     }}
                   />
+                  {reportError && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#FFB3C7", marginBottom: 8, lineHeight: 1.4 }}>
+                      {reportError}
+                    </p>
+                  )}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       onClick={sendReport}
+                      disabled={!reportText.trim() || reporting}
                       style={{
                         flex: 1, padding: "11px 0", borderRadius: 999, border: "none",
                         background: reportText.trim() ? PINK : "rgba(255,255,255,0.08)",
                         color: reportText.trim() ? "white" : "rgba(255,255,255,0.3)",
                         fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 800,
-                        cursor: reportText.trim() ? "pointer" : "default",
+                        cursor: (reportText.trim() && !reporting) ? "pointer" : "default",
+                        opacity: reporting ? 0.7 : 1,
                       }}
                     >
-                      Submit report
+                      {reporting ? "Sending…" : "Submit report"}
                     </button>
                     <button
                       onClick={() => { setReportOpen(false); setReportText(""); }}
