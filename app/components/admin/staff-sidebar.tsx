@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { canMissionControl, ROLE_DISPLAY } from "@/lib/auth/mission-control";
 import { MC_NAV } from "@/lib/portal-navigation";
+import { MobilePortalNav } from "../portal/mobile-portal-nav";
 import { useMissionControlRole } from "./mission-control-provider";
 
 const ICONS: Record<string, string> = {
@@ -48,8 +50,29 @@ export function StaffSidebar({
     return pathname === full || pathname.startsWith(`${full}/`);
   }
 
+  const mobileItems = useMemo(
+    () =>
+      MC_NAV.flatMap((section) =>
+        section.items
+          .filter((item) => canMissionControl(role, item.cap))
+          .map((item) => ({
+            href: `${basePath}${item.path}`,
+            label: item.label,
+            n: ICONS[item.path] ?? "•",
+          }))
+      ),
+    [basePath, role]
+  );
+
   return (
-    <aside className="bb-admin-sidebar bb-mission-sidebar">
+    <>
+      <MobilePortalNav
+        portalLabel={portalTitle}
+        theme="dark"
+        items={mobileItems}
+        userRole={ROLE_DISPLAY[role]}
+      />
+    <aside className="bb-admin-sidebar bb-mission-sidebar hidden md:flex">
       <div className="bb-admin-mark bb-admin-mark--logo">
         <Image
           src="/logosbloombay/Vector-1.svg"
@@ -94,5 +117,6 @@ export function StaffSidebar({
         })}
       </nav>
     </aside>
+    </>
   );
 }

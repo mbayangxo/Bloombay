@@ -150,7 +150,8 @@ export function MobilePortalNav({ portalLabel, items, theme, userName, userIniti
         {/* Nav items */}
         <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
           {items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href.split("?")[0] + (item.href.includes("?") ? "" : "/"));
+            const base = item.href.split("?")[0];
+            const active = pathname === base || pathname.startsWith(`${base}/`);
             return (
               <Link
                 key={item.href}

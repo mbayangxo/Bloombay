@@ -243,9 +243,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
   function TopTile({ href, label, children, badge }: {
     href: string; label: string; children: React.ReactNode; badge?: "dot" | "number";
   }) {
-    const active = pathname.startsWith(href);
+    const active = pathname === href || pathname.startsWith(`${href}/`);
     return (
-      <Link href={href} aria-label={label} style={{ textDecoration: "none", position: "relative" }}>
+      <Link href={href} aria-label={label} style={{ textDecoration: "none", position: "relative", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{
           width: 40, height: 40, borderRadius: 13,
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -378,6 +378,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           bottom: 0,
           display: "flex",
           pointerEvents: "auto",
+          zIndex: 3,
         }}>
           {TABS.map((tab) => {
             const active = isActive(tab.href);
@@ -394,6 +395,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
                   alignItems: "center",
                   justifyContent: "flex-end",
                   WebkitTapHighlightColor: "transparent",
+                  minHeight: 44,
+                  minWidth: 44,
+                  position: "relative",
+                  zIndex: 1,
                 }}
               >
                 {/* Label */}
