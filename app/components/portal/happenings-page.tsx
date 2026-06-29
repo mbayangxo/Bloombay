@@ -8,7 +8,6 @@ import { getEvents, getJoinedEventIds, joinEvent, leaveEvent, type Event } from 
 import { EventCard, type EventCardData, type EventType } from "@/app/components/portal/event-card-templates";
 import {
   joinWaitlist, leaveWaitlist, getWaitlistCounts, getMyWaitlistIds,
-  witnessAttendee, getWitnessedIds,
   leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
   toggleGatheringFlower, getGatheringFlowersForUser,
 } from "@/lib/actions/happenings";
@@ -505,22 +504,6 @@ function InviteFriendSheet({ ev, onClose }: { ev: Event; onClose: () => void }) 
 
 /* ── Post-event witness sheet ──────────────────────────────── */
 function WitnessSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
-  const [witnessed, setWitnessed] = useState<Set<string>>(new Set());
-  const DEMO_ATTENDEES = [
-    { id: "a1", name: "Mia", color: PINK },
-    { id: "a2", name: "Zara", color: "#C084FC" },
-    { id: "a3", name: "Sofia", color: "#FF69B4" },
-  ];
-
-  useEffect(() => {
-    getWitnessedIds(ev.id).then(ids => setWitnessed(new Set(ids)));
-  }, [ev.id]);
-
-  async function toggle(userId: string) {
-    setWitnessed(prev => { const s = new Set(prev); s.has(userId) ? s.delete(userId) : s.add(userId); return s; });
-    await witnessAttendee(ev.id, userId);
-  }
-
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
       <div style={{ background: "rgba(0,0,0,0.5)", position: "absolute", inset: 0 }}/>
@@ -529,25 +512,9 @@ function WitnessSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>WHO DID YOU MEET?</p>
         <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 16 }}>{ev.title}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {DEMO_ATTENDEES.map(a => (
-            <button key={a.id} onClick={() => toggle(a.id)} style={{
-              display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12,
-              background: witnessed.has(a.id) ? `${PINK}15` : "white",
-              border: witnessed.has(a.id) ? `1.5px solid ${PINK}` : "1px solid rgba(0,0,0,0.08)",
-              cursor: "pointer", textAlign: "left" as const,
-            }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${a.color}, ${a.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: "white" }}>{a.name[0]}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C" }}>{a.name}</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#9A8070", marginTop: 1 }}>was there with you</p>
-              </div>
-              {witnessed.has(a.id) && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-              )}
-            </button>
-          ))}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#9A8070", lineHeight: 1.55, textAlign: "center", padding: "12px 8px 4px" }}>
+            No attendee list for this gathering yet. Witness notes will appear here once members check in.
+          </p>
         </div>
       </div>
     </div>
@@ -1410,9 +1377,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
     void toggleFollowTradition(id);
   }
 
-  const tickerItems = events.length > 0
-    ? events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.starts_at)}`)
-    : ["GIRLS NIGHT OUT ✦ ITALIAN DINNER SOCIETY ✦ ROOFTOP SESSIONS ✦ VINYL NIGHT ✦ SUNDAY BRUNCH CLUB ✦ FILM NIGHT ✦ DANCE ALL NIGHT"];
+  const tickerItems = events.map(ev => `${ev.title.toUpperCase()} · ${ev.neighborhood ?? ev.city} · ${fmtTime(ev.starts_at)}`);
 
   return (
     <div className="bloom-world-enter" style={{ background: getPageBg(), minHeight: standalone ? "100vh" : "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 130px)" }}>
@@ -1668,24 +1633,30 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </>
             )}
 
-            {/* Ticker */}
-            <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,31,125,0.07)", padding: "7px 0", marginBottom: 12 }}>
-              <div style={{ display: "flex", animation: "ticker 28s linear infinite", width: "max-content" }}>
-                {[...tickerItems, ...tickerItems].map((item, i) => (
-                  <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", padding: "0 24px" }}>
-                    {item} <span style={{ color: PINK }}>✦</span>
-                  </span>
-                ))}
+            {/* Ticker — real gatherings only */}
+            {!loading && tickerItems.length > 0 && (
+              <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,31,125,0.07)", padding: "7px 0", marginBottom: 12 }}>
+                <div style={{ display: "flex", animation: "ticker 28s linear infinite", width: "max-content" }}>
+                  {[...tickerItems, ...tickerItems].map((item, i) => (
+                    <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", padding: "0 24px" }}>
+                      {item} <span style={{ color: PINK }}>✦</span>
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Count label */}
-            <div style={{ padding: "0 14px 10px", display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)" }}>
-                {loading ? "LOADING…" : events.length === 0 ? "UPCOMING THIS WEEK" : filter === "All" ? `${events.length} HAPPENINGS` : `${filtered.length} ${filter.toUpperCase()}`}
-              </span>
-            </div>
+            {(loading || events.length > 0) && (
+              <div style={{ padding: "0 14px 10px", display: "flex", alignItems: "center", gap: 8 }}>
+                {!loading && (
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK, animation: "livePulse 1.4s ease-in-out infinite" }}/>
+                )}
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)" }}>
+                  {loading ? "LOADING…" : filter === "All" ? `${events.length} HAPPENINGS` : `${filtered.length} ${filter.toUpperCase()}`}
+                </span>
+              </div>
+            )}
 
             {/* Loading skeletons */}
             {loading && (

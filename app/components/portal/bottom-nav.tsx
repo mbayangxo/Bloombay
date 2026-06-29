@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
@@ -204,7 +205,8 @@ type TabKey = (typeof TABS)[number]["key"];
 // ── Main component ────────────────────────────────────────────────────────────
 export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
-  const slab       = getSlab();
+  const [slab, setSlab] = useState<Slab>("afternoon");
+  useEffect(() => { setSlab(getSlab()); }, []);
   // Dark/coloured pages — use light icons
   const isDarkPage = pathname.startsWith("/member/avenue") ||
                      pathname.startsWith("/member/happenings");
