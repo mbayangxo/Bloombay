@@ -720,7 +720,7 @@ function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub
 
 // ─── Leave Club ───────────────────────────────────────────────────────────────
 
-function LeaveClubButton({ clubName }: { clubName: string }) {
+function LeaveClubButton({ clubName, clubSlug }: { clubName: string; clubSlug: string }) {
   const [confirm, setConfirm] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [left, setLeft] = useState(false);
@@ -732,9 +732,11 @@ function LeaveClubButton({ clubName }: { clubName: string }) {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      // Try both membership tables (slug-based and id-based)
-      await supabase.from("club_memberships").delete().eq("user_id", user.id);
-      await supabase.from("user_clubs").delete().eq("user_id", user.id);
+      await supabase
+        .from("club_memberships")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("club_slug", clubSlug);
       setLeft(true);
     } catch {
       setLeaving(false);
@@ -911,7 +913,7 @@ export interface ClubCustomization {
   cover_url?: string;
 }
 
-export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false, customization }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
+export function ClubLandingPage({ club = DEFAULT_CLUB, clubSlug, isMember = false, daysInClub = 0, isOwner = false, customization }: { club?: ClubLandingData; clubSlug?: string; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
   const [brandPhotos, setBrandPhotos] = useState<string[]>([]);
   const brandPhotoInputRef = useRef<HTMLInputElement>(null);
   const [applied, setApplied] = useState(false);
@@ -1444,7 +1446,7 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
               )}
 
               {/* Leave club — quiet, at the bottom, requires confirmation */}
-              <LeaveClubButton clubName={club.name} />
+              <LeaveClubButton clubName={club.name} clubSlug={clubSlug ?? club.id} />
             </div>
           )}
 

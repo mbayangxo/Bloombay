@@ -110,7 +110,7 @@ export default async function ClubPage({ params }: { params: Promise<{ id: strin
   };
 
   const isOwner = club.owner_id === user.id;
-  return <ClubLandingPage club={clubData} isMember={isMember} daysInClub={daysInClub} isOwner={isOwner} customization={customization} />;
+  return <ClubLandingPage club={clubData} clubSlug={clubSlug} isMember={isMember} daysInClub={daysInClub} isOwner={isOwner} customization={customization} />;
 }
 
 function extractTagline(description: string | null): string {
