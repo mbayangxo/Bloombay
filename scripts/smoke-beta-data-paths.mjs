@@ -8,6 +8,8 @@
  *   3. invites table exists (inviter_id, email, status)   — onboarding invites
  *   4. user_consents table exists (consent columns)       — legal consent log
  *   5. user_clubs table does NOT exist                    — confirms nothing depends on it
+ *   6. club_applications is keyed by club_slug            — Club Mama approvals
+ *   7. gatherings uses club_slug                          — gathering creation / discovery
  *
  * Usage: NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/smoke-beta-data-paths.mjs
  * Without those env vars it prints SKIP and exits 0 (so CI without secrets is green).
@@ -63,6 +65,18 @@ const run = async () => {
   {
     const r = await probe("user_clubs", "user_id");
     r.ok ? fail("user_clubs should NOT exist (onboarding must not depend on it)") : pass("user_clubs is absent (nothing depends on it)");
+  }
+
+  // 6. club_applications keyed by club_slug
+  {
+    const r = await probe("club_applications", "club_slug, user_id, status");
+    r.ok ? pass("club_applications(club_slug, user_id, status) exists") : fail("club_applications club_slug", r.error);
+  }
+
+  // 7. gatherings keyed by club_slug
+  {
+    const r = await probe("gatherings", "club_slug, title, starts_at");
+    r.ok ? pass("gatherings(club_slug, title, starts_at) exists") : fail("gatherings club_slug", r.error);
   }
 
   if (failures > 0) {
