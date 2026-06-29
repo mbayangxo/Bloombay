@@ -9,14 +9,14 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: club } = await supabase.from("clubs").select("id").eq("owner_id", user.id).maybeSingle();
-  if (!club) return NextResponse.json({ error: "No club" }, { status: 404 });
+  const { data: club } = await supabase.from("clubs").select("id, slug").eq("owner_id", user.id).maybeSingle();
+  if (!club?.slug) return NextResponse.json({ error: "No club" }, { status: 404 });
 
   const { data: memberships } = await supabase
     .from("club_memberships")
-    .select("user_id, joined_at, created_at")
-    .eq("club_id", club.id)
-    .order("created_at", { ascending: true });
+    .select("user_id, joined_at")
+    .eq("club_slug", club.slug)
+    .order("joined_at", { ascending: true });
 
   if (!memberships?.length) return NextResponse.json([]);
 
@@ -30,7 +30,7 @@ export async function GET() {
 
   return NextResponse.json(memberships.map(m => {
     const p = pm.get(m.user_id);
-    const joinedAt = m.joined_at ?? m.created_at;
+    const joinedAt = m.joined_at;
     return {
       user_id: m.user_id,
       name: (p?.full_name as string | null) ?? (p?.first_name as string | null) ?? "Member",

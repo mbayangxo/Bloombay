@@ -17,9 +17,10 @@ export async function GET() {
 
   if (!club) return NextResponse.json({ error: "No club found" }, { status: 404 });
 
+  const clubSlug = club.slug as string;
   const [memberRes, pendingRes, upcomingRes, ownerRes] = await Promise.all([
-    supabase.from("club_memberships").select("*", { count: "exact", head: true }).eq("club_id", club.id),
-    supabase.from("club_applications").select("*", { count: "exact", head: true }).eq("club_id", club.id).eq("status", "pending"),
+    supabase.from("club_memberships").select("*", { count: "exact", head: true }).eq("club_slug", clubSlug),
+    supabase.from("club_applications").select("*", { count: "exact", head: true }).eq("club_slug", clubSlug).eq("status", "pending"),
     supabase.from("gatherings").select("*", { count: "exact", head: true }).eq("club_slug", club.slug).gte("starts_at", new Date().toISOString()),
     supabase.from("profiles").select("full_name, first_name, avatar_url").eq("id", user.id).maybeSingle(),
   ]);
