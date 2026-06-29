@@ -111,10 +111,12 @@ function OverviewTab({ club, accent, onTabChange }: { club: ClubData; accent: st
 
   useEffect(() => {
     const supabase = createClient();
+    const slug = club.slug;
+    if (!slug) return;
     Promise.all([
-      supabase.from("club_memberships").select("id", { count: "exact", head: true }).eq("club_id", club.id),
-      supabase.from("gatherings").select("id", { count: "exact", head: true }).eq("club_id", club.id).gte("starts_at", new Date().toISOString()),
-      supabase.from("club_applications").select("id", { count: "exact", head: true }).eq("club_id", club.id).eq("status", "pending"),
+      supabase.from("club_memberships").select("id", { count: "exact", head: true }).eq("club_slug", slug),
+      supabase.from("gatherings").select("id", { count: "exact", head: true }).eq("club_slug", slug).gte("starts_at", new Date().toISOString()),
+      supabase.from("club_applications").select("id", { count: "exact", head: true }).eq("club_slug", slug).eq("status", "pending"),
     ]).then(([members, gatherings, apps]) => {
       setStats({
         members:      String(members.count   ?? 0),
@@ -122,7 +124,7 @@ function OverviewTab({ club, accent, onTabChange }: { club: ClubData; accent: st
         applications: String(apps.count       ?? 0),
       });
     });
-  }, [club.id]);
+  }, [club.slug]);
 
   const actions: { label: string; sub: string; tab: ManageTab; emoji: string }[] = [
     { label: "Review Members",   sub: "Accept or reject applications", tab: "members",   emoji: "👥" },
