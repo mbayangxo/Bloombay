@@ -13,7 +13,11 @@ export default function FounderClubsPortfolioPage() {
     <div className="mc-page">
       <header className="mc-page__head">
         <h1>Multi-club portfolio</h1>
-        <p>Shared view for founders and multi-club owners — events, growth, attention needed, and approvals.</p>
+        <p>
+          <strong>Demo metrics</strong> — local portfolio store only. Use{" "}
+          <a href="/founder/club-hosts">Club Hosts</a> for live waitlist + DB clubs, and{" "}
+          <code>/member/clubs/&#123;slug&#125;/manage</code> for Club Mama operations.
+        </p>
       </header>
 
       <div className="co-ops-grid" style={{ marginBottom: "1.5rem" }}>
@@ -48,7 +52,7 @@ export default function FounderClubsPortfolioPage() {
                 </p>
               ))}
               {s.pendingApprovals > 0 ? (
-                <Link href="/club-owner/applications" style={{ fontSize: "0.78rem" }}>
+                <Link href="/founder/applications?type=club_host" style={{ fontSize: "0.78rem" }}>
                   Review {s.pendingApprovals} applications →
                 </Link>
               ) : null}

@@ -1,120 +1,226 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { McLink } from "../mc-link";
-import {
-  BLOCKED_MEMBERS,
-  SAFETY_HEALTH,
-  SAFETY_QUEUE,
-} from "@/lib/mission-control-data";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { TickerNumber } from "./ticker-number";
 
-const MAIN_CATEGORIES = [
-  { type: "Harassment", count: 2 },
-  { type: "Fake Profile", count: 1 },
-  { type: "Bullying", count: 1 },
-  { type: "Spam", count: 0 },
-] as const;
+type SafetyReport = {
+  id: string;
+  userId: string | null;
+  email: string | null;
+  category: string;
+  body: string;
+  status: string;
+  createdAt: string;
+};
+
+type SafetyPing = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  senderName: string;
+  recipientName: string;
+  status: string;
+  eventName: string | null;
+  createdAt: string;
+};
+
+type Tab = "reports" | "pings";
+
+function formatWhen(iso: string) {
+  try {
+    return new Date(iso).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export function SafetyCenter() {
-  const [queue, setQueue] = useState(SAFETY_QUEUE);
-  const [category, setCategory] = useState<string | null>(null);
-  const [showBlockedList, setShowBlockedList] = useState(false);
+  const [tab, setTab] = useState<Tab>("reports");
+  const [reports, setReports] = useState<SafetyReport[]>([]);
+  const [pings, setPings] = useState<SafetyPing[]>([]);
+  const [openReports, setOpenReports] = useState(0);
+  const [recentPings, setRecentPings] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
 
-  const filtered = useMemo(
-    () => (category ? queue.filter((q) => q.type === category) : []),
-    [queue, category]
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/founder/safety");
+      const data = await res.json() as {
+        reports?: SafetyReport[];
+        pings?: SafetyPing[];
+        openReports?: number;
+        recentPings?: number;
+        warning?: string | null;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error ?? "Could not load safety data");
+      setReports(data.reports ?? []);
+      setPings(data.pings ?? []);
+      setOpenReports(data.openReports ?? 0);
+      setRecentPings(data.recentPings ?? 0);
+      setWarning(data.warning ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load safety data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const openReportRows = useMemo(
+    () => reports.filter((r) => r.status === "open"),
+    [reports]
   );
 
-  function resolve(id: string) {
-    setQueue((q) => q.filter((item) => item.id !== id));
+  async function setReportStatus(id: string, status: "reviewed" | "closed") {
+    setUpdating(id);
+    try {
+      const res = await fetch("/api/founder/safety", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json() as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error ?? "Update failed");
+      setReports((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      );
+      setOpenReports((n) => Math.max(0, n - 1));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Update failed");
+    } finally {
+      setUpdating(null);
+    }
   }
-
-  const score = SAFETY_HEALTH.safetyScore;
-  const circumference = 2 * Math.PI * 44;
-  const dash = (score / 100) * circumference;
 
   return (
     <div className="fp-portal-page fp-safety-page">
       <header className="fp-safety-header">
         <div className="fp-safety-header__copy">
           <p className="fp-portal-hero__kicker">Safety</p>
-          <h2 className="fp-portal-hero__title">Women must feel safe here</h2>
-        </div>
-        <div className="fp-trust-meter fp-trust-meter--compact" aria-label={`Safety score ${score}`}>
-          <svg viewBox="0 0 120 120" className="fp-trust-meter__svg">
-            <circle cx="60" cy="60" r="44" className="fp-trust-meter__track" />
-            <circle
-              cx="60"
-              cy="60"
-              r="44"
-              className="fp-trust-meter__fill"
-              style={{ strokeDasharray: `${dash} ${circumference}` }}
-            />
-          </svg>
-          <div className="fp-trust-meter__center">
-            <span className="fp-trust-meter__label">Safety score</span>
-            <TickerNumber value={score} className="fp-trust-meter__value" />
-          </div>
+          <h2 className="fp-portal-hero__title">Live reports & bouquet pings</h2>
+          <p className="fp-portal-muted" style={{ marginTop: "0.35rem" }}>
+            Data from <code>safety_reports</code> and <code>safety_pings</code> — not demo queue.
+          </p>
         </div>
       </header>
 
+      {warning ? (
+        <p className="bb-admin-login-error" style={{ marginBottom: "1rem" }}>
+          {warning}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="bb-admin-login-error" style={{ marginBottom: "1rem" }}>
+          {error}
+        </p>
+      ) : null}
+
       <div className="fp-safety-metrics-row">
         <div className="fp-safety-metric-card fp-safety-metric-card--compact">
-          <TickerNumber
-            value={SAFETY_HEALTH.openReports}
-            className="fp-safety-metric-card__num"
-          />
+          <TickerNumber value={openReports} className="fp-safety-metric-card__num" />
           <span className="fp-safety-metric-card__label">Open reports</span>
         </div>
         <div className="fp-safety-metric-card fp-safety-metric-card--compact">
-          <span className="fp-safety-metric-card__num">
-            {SAFETY_HEALTH.avgResolutionHours}
-            <em>h</em>
-          </span>
-          <span className="fp-safety-metric-card__label">Avg resolution</span>
+          <TickerNumber value={recentPings} className="fp-safety-metric-card__num" />
+          <span className="fp-safety-metric-card__label">Pings (7 days)</span>
         </div>
       </div>
 
-      {!category ? (
-        <div className="fp-safety-category-grid fp-safety-category-grid--compact">
-          {MAIN_CATEGORIES.map((c) => (
-            <button
-              key={c.type}
-              type="button"
-              className="fp-safety-category-card fp-safety-category-card--compact"
-              onClick={() => setCategory(c.type)}
-            >
-              <h3>{c.type}</h3>
-              <TickerNumber value={c.count} className="fp-safety-category-card__count" />
-            </button>
-          ))}
-        </div>
-      ) : (
+      <div className="fp-app-gates" style={{ marginBottom: "1rem" }}>
+        <button
+          type="button"
+          className={`fp-app-gate${tab === "reports" ? " fp-app-gate--active" : ""}`}
+          onClick={() => setTab("reports")}
+        >
+          <h3>Reports</h3>
+          <TickerNumber value={openReportRows.length} className="fp-app-gate__count" />
+          <span className="fp-app-gate__waiting">open</span>
+        </button>
+        <button
+          type="button"
+          className={`fp-app-gate${tab === "pings" ? " fp-app-gate--active" : ""}`}
+          onClick={() => setTab("pings")}
+        >
+          <h3>Bouquet pings</h3>
+          <TickerNumber value={pings.length} className="fp-app-gate__count" />
+          <span className="fp-app-gate__waiting">recent</span>
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="fp-portal-muted">Loading safety data…</p>
+      ) : tab === "reports" ? (
         <section className="fp-safety-drilldown fp-surface-white">
-          <button type="button" className="fp-portal-link-btn" onClick={() => setCategory(null)}>
-            ← All categories
-          </button>
-          <h3 className="fp-portal-card__title">{category}</h3>
-          {filtered.length === 0 ? (
-            <p className="fp-portal-empty">No open reports.</p>
+          {reports.length === 0 ? (
+            <p className="fp-portal-empty">No safety reports yet.</p>
           ) : (
             <ul className="fp-safety-reports">
-              {filtered.map((r) => (
+              {reports.map((r) => (
                 <li key={r.id} className="fp-safety-report">
                   <p>
-                    <strong>{r.reporter}</strong> → {r.reported}
+                    <strong>{r.category}</strong>
+                    {r.status !== "open" ? ` · ${r.status}` : ""}
+                    <span className="fp-portal-muted"> · {formatWhen(r.createdAt)}</span>
                   </p>
-                  <p className="fp-portal-muted">{r.evidence}</p>
-                  <div className="fp-safety-report__actions">
-                    <button type="button" className="fp-portal-btn" onClick={() => resolve(r.id)}>
-                      Dismiss
-                    </button>
-                    <button type="button" className="fp-portal-btn fp-portal-btn--pink" onClick={() => resolve(r.id)}>
-                      Ban
-                    </button>
-                  </div>
+                  <p className="fp-portal-muted">
+                    {r.email ?? r.userId ?? "Anonymous member"}
+                  </p>
+                  <p>{r.body}</p>
+                  {r.status === "open" ? (
+                    <div className="fp-safety-report__actions">
+                      <button
+                        type="button"
+                        className="fp-portal-btn"
+                        disabled={updating === r.id}
+                        onClick={() => void setReportStatus(r.id, "reviewed")}
+                      >
+                        Mark reviewed
+                      </button>
+                      <button
+                        type="button"
+                        className="fp-portal-btn fp-portal-btn--pink"
+                        disabled={updating === r.id}
+                        onClick={() => void setReportStatus(r.id, "closed")}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : (
+        <section className="fp-safety-drilldown fp-surface-white">
+          {pings.length === 0 ? (
+            <p className="fp-portal-empty">No bouquet pings yet.</p>
+          ) : (
+            <ul className="fp-safety-reports">
+              {pings.map((p) => (
+                <li key={p.id} className="fp-safety-report">
+                  <p>
+                    <strong>{p.senderName}</strong> pinged <strong>{p.recipientName}</strong>
+                    <span className="fp-portal-muted"> · {formatWhen(p.createdAt)}</span>
+                  </p>
+                  <p className="fp-portal-muted">
+                    Status: {p.status}
+                    {p.eventName ? ` · at ${p.eventName}` : ""}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -122,36 +228,10 @@ export function SafetyCenter() {
         </section>
       )}
 
-      <div className="fp-safety-bottom-row">
-        <section className="fp-safety-blocked-mini fp-surface-white">
-          <h3>Blocked</h3>
-          <p>
-            <TickerNumber value={BLOCKED_MEMBERS.length} className="fp-safety-metric-card__num" />{" "}
-            total
-          </p>
-          <button type="button" className="fp-portal-btn fp-portal-btn--pink" onClick={() => setShowBlockedList((v) => !v)}>
-            {showBlockedList ? "Hide" : "View list"}
-          </button>
-        </section>
-        {BLOCKED_MEMBERS.slice(0, 3).map((m) => (
-          <div key={m.name} className="fp-safety-blocked-chip fp-surface-barbie">
-            <strong>{m.name}</strong>
-            <span>{m.status}</span>
-          </div>
-        ))}
-        <McLink href="/admin/inbox" className="fp-safety-blocked-chip fp-surface-barbie">
-          Inbox →
-        </McLink>
-      </div>
-      {showBlockedList ? (
-        <ul className="fp-safety-blocked-full">
-          {BLOCKED_MEMBERS.map((m) => (
-            <li key={m.name}>
-              <strong>{m.name}</strong> · {m.reason} · {m.status}
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <p className="fp-portal-muted" style={{ marginTop: "1.25rem", fontSize: "0.82rem" }}>
+        Demo-only panels (blocked-member chips, fake safety score) were removed for beta.
+        Member enforcement flows are Phase 2.
+      </p>
     </div>
   );
 }

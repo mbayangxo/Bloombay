@@ -12,6 +12,8 @@ type InviteLinks = {
   payload: { role: UserRole; email: string | null; label: string };
 };
 
+import { ClubMamaBetaPath } from "@/app/components/founder/club-mama-beta-path";
+
 export function FounderPortalInvites() {
   const [role, setRole] = useState<UserRole>("club_owner");
   const [email, setEmail] = useState("");
@@ -61,6 +63,7 @@ export function FounderPortalInvites() {
 
   return (
     <section className="fp-invites">
+      <ClubMamaBetaPath />
       <p className="fp-invites__lead">
         Send one link — they create an account with the right role, then always sign in at the{" "}
         <strong>BloomBay company portal</strong>. No role dropdown; email and profile decide where they land.
