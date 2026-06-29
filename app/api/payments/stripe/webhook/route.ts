@@ -139,8 +139,8 @@ export async function POST(req: NextRequest) {
 
         await db
           .from("club_applications")
-          .update({ status: "accepted" })
-          .eq("club_id", meta.club_id)
+          .update({ status: "approved", reviewed_at: new Date().toISOString() })
+          .eq("club_slug", clubSlug)
           .eq("user_id", meta.user_id)
           .eq("status", "pending");
 
