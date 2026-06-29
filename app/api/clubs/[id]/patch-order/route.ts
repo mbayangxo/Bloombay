@@ -15,7 +15,7 @@ export async function POST(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: segment } = await params;
-  const { data: club } = await resolveClubBySegment(supabase, segment, "id, slug");
+  const { data: club } = await resolveClubBySegment(supabase, segment);
   if (!club?.slug) {
     return NextResponse.json({ error: "Club not found." }, { status: 404 });
   }
@@ -118,7 +118,7 @@ export async function GET(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: segment } = await params;
-  const { data: club } = await resolveClubBySegment(supabase, segment, "id");
+  const { data: club } = await resolveClubBySegment(supabase, segment);
   if (!club) return NextResponse.json(null);
 
   const { data } = await supabase
