@@ -20,19 +20,18 @@ export async function GET(
   // 1. Get gathering details
   const { data: gathering, error: gErr } = await supabase
     .from("gatherings")
-    .select("id, title, starts_at, ends_at, venue, club_id")
+    .select("id, title, starts_at, ends_at, venue, club_slug")
     .eq("id", id)
     .maybeSingle();
 
-  if (gErr || !gathering) {
+  if (gErr || !gathering?.club_slug) {
     return NextResponse.json({ error: "Gathering not found" }, { status: 404 });
   }
 
-  // Validate club ownership
   const { data: club } = await supabase
     .from("clubs")
     .select("id")
-    .eq("id", gathering.club_id)
+    .eq("slug", gathering.club_slug)
     .eq("owner_id", user.id)
     .maybeSingle();
 

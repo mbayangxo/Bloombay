@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { resolveClubSlug } from "@/lib/clubs/resolve-slug";
 
 export interface ClubApplication {
   id: string;
@@ -29,30 +30,45 @@ export interface GatheringData {
   capacity?: number;
 }
 
+function mapApplicationStatus(status: string): ClubApplication["status"] {
+  if (status === "approved") return "accepted";
+  if (status === "denied") return "rejected";
+  return status as ClubApplication["status"];
+}
+
+function toDbStatus(status: "accepted" | "rejected"): "approved" | "denied" {
+  return status === "accepted" ? "approved" : "denied";
+}
+
 // ── Applications ──────────────────────────────────────────────────────────────
 
 export async function getClubApplications(clubId: string): Promise<ClubApplication[]> {
   const supabase = await createClient();
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) return [];
+
   const { data } = await supabase
     .from("club_applications")
-    .select("id, user_id, status, message, created_at")
-    .eq("club_id", clubId)
+    .select("id, user_id, status, why, applicant_name, created_at")
+    .eq("club_slug", slug)
     .order("created_at", { ascending: false });
 
   if (!data) return [];
 
-  // Fetch profiles for each applicant
-  const userIds = data.map(a => a.user_id);
+  const userIds = data.map((a) => a.user_id);
   const { data: profiles } = await supabase
     .from("profiles")
     .select("id, full_name, first_name, avatar_url")
     .in("id", userIds);
 
-  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
+  const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-  return data.map(a => ({
-    ...a,
-    status: a.status as ClubApplication["status"],
+  return data.map((a) => ({
+    id: a.id,
+    user_id: a.user_id,
+    status: mapApplicationStatus(a.status as string),
+    message: (a.why as string | null) ?? null,
+    created_at: a.created_at as string,
     profile: profileMap.get(a.user_id) ?? null,
   }));
 }
@@ -62,11 +78,30 @@ export async function updateApplicationStatus(
   status: "accepted" | "rejected",
 ): Promise<void> {
   const supabase = await createClient();
+  const dbStatus = toDbStatus(status);
+
+  const { data: app } = await supabase
+    .from("club_applications")
+    .select("user_id, club_slug")
+    .eq("id", applicationId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("club_applications")
-    .update({ status, updated_at: new Date().toISOString() })
+    .update({ status: dbStatus, reviewed_at: new Date().toISOString() })
     .eq("id", applicationId);
   if (error) throw error;
+
+  if (status === "accepted" && app?.club_slug) {
+    await supabase.from("club_memberships").upsert(
+      {
+        user_id: app.user_id,
+        club_slug: app.club_slug,
+        joined_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,club_slug", ignoreDuplicates: true },
+    );
+  }
 }
 
 export async function applyToClub(clubId: string, message?: string): Promise<void> {
@@ -74,12 +109,27 @@ export async function applyToClub(clubId: string, message?: string): Promise<voi
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { error } = await supabase.from("club_applications").upsert({
-    club_id: clubId,
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) throw new Error("Club not found");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, first_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const applicantName =
+    (profile?.full_name as string | null) ??
+    (profile?.first_name as string | null) ??
+    "Member";
+
+  const { error } = await supabase.from("club_applications").insert({
     user_id: user.id,
-    message: message ?? null,
+    club_slug: slug,
+    applicant_name: applicantName,
+    why: message ?? "",
     status: "pending",
-  }, { onConflict: "club_id,user_id" });
+  });
   if (error) throw error;
 }
 
@@ -87,13 +137,25 @@ export async function getMyApplication(clubId: string): Promise<ClubApplication 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
+
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) return null;
+
   const { data } = await supabase
     .from("club_applications")
-    .select("id, user_id, status, message, created_at")
-    .eq("club_id", clubId)
+    .select("id, user_id, status, why, created_at")
+    .eq("club_slug", slug)
     .eq("user_id", user.id)
     .maybeSingle();
-  return data ? { ...data, status: data.status as ClubApplication["status"], profile: null } : null;
+
+  return data
+    ? {
+        ...data,
+        status: mapApplicationStatus(data.status as string),
+        message: (data.why as string | null) ?? null,
+        profile: null,
+      }
+    : null;
 }
 
 // ── Club posts ────────────────────────────────────────────────────────────────
@@ -134,25 +196,32 @@ export async function createGathering(clubId: string, data: GatheringData): Prom
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
+
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) throw new Error("Club not found");
+
   const { error } = await supabase.from("gatherings").insert({
-    club_id: clubId,
+    club_slug: slug,
     title: data.title,
     starts_at: data.starts_at,
     venue: data.venue,
     neighborhood: data.neighborhood ?? null,
     description: data.description ?? null,
     capacity: data.capacity ?? null,
-    host_id: user.id,
+    created_by: user.id,
   });
   if (error) throw error;
 }
 
 export async function getClubGatherings(clubId: string) {
   const supabase = await createClient();
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) return [];
+
   const { data } = await supabase
     .from("gatherings")
     .select("id, title, starts_at, venue, neighborhood, description, capacity")
-    .eq("club_id", clubId)
+    .eq("club_slug", slug)
     .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true })
     .limit(10);
@@ -187,7 +256,7 @@ export async function removeClubPhoto(clubId: string, url: string): Promise<void
   const current = await getClubAlbum(clubId);
   const { error } = await supabase
     .from("clubs")
-    .update({ album_urls: current.filter(u => u !== url) })
+    .update({ album_urls: current.filter((u) => u !== url) })
     .eq("id", clubId);
   if (error) throw error;
 }

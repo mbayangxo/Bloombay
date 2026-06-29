@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
   const { data: club } = await supabase
     .from("clubs")
-    .select("id")
+    .select("id, slug")
     .eq("owner_id", user.id)
     .maybeSingle();
 
@@ -82,8 +82,7 @@ export async function POST(req: Request) {
   const { count: memberCount } = await supabase
     .from("club_memberships")
     .select("*", { count: "exact", head: true })
-    .eq("club_id", club.id)
-    .eq("status", "active");
+    .eq("club_slug", club.slug);
 
   // For pin_drop: title holds the location, body holds the caption
   const resolvedTitle = type === "pin_drop"

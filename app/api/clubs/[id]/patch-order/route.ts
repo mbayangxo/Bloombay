@@ -4,30 +4,35 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { resolveClubBySegment } from "@/lib/clubs/resolve-slug";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const clubId = params.id;
+  const { id: segment } = await params;
+  const { data: club } = await resolveClubBySegment(supabase, segment);
+  if (!club?.slug) {
+    return NextResponse.json({ error: "Club not found." }, { status: 404 });
+  }
 
-  // Check membership tenure
   const { data: membership } = await supabase
     .from("club_memberships")
-    .select("created_at")
+    .select("joined_at")
     .eq("user_id", user.id)
-    .eq("club_id", clubId)
+    .eq("club_slug", club.slug)
     .maybeSingle();
 
   if (!membership) {
     return NextResponse.json({ error: "You are not a member of this club." }, { status: 403 });
   }
 
-  const monthsInClub = (Date.now() - new Date(membership.created_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
+  const joinedAt = membership.joined_at as string;
+  const monthsInClub = (Date.now() - new Date(joinedAt).getTime()) / (30 * 24 * 60 * 60 * 1000);
   if (monthsInClub < 3) {
     const daysLeft = Math.ceil((3 * 30) - (monthsInClub * 30));
     return NextResponse.json({
@@ -36,12 +41,11 @@ export async function POST(
     }, { status: 403 });
   }
 
-  // Check they haven't already ordered one for this club
   const { data: existingOrder } = await supabase
     .from("patch_orders")
     .select("id, status")
     .eq("user_id", user.id)
-    .eq("club_id", clubId)
+    .eq("club_id", club.id)
     .not("status", "eq", "cancelled")
     .maybeSingle();
 
@@ -52,11 +56,10 @@ export async function POST(
     }, { status: 409 });
   }
 
-  // Fetch club crest customization for the order snapshot
   const { data: customization } = await supabase
     .from("club_customization")
     .select("crest_shape, crest_symbol, crest_color_primary, crest_color_secondary, crest_color_accent, crest_url")
-    .eq("club_id", clubId)
+    .eq("club_id", club.id)
     .maybeSingle();
 
   const body = await req.json();
@@ -78,7 +81,7 @@ export async function POST(
     .from("patch_orders")
     .insert({
       user_id:        user.id,
-      club_id:        clubId,
+      club_id:        club.id,
       crest_config,
       crest_svg_url:  customization?.crest_url ?? null,
       recipient_name,
@@ -95,7 +98,6 @@ export async function POST(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Notify the member
   await supabase.from("notifications").insert({
     user_id:    user.id,
     type:       "celebrate",
@@ -109,17 +111,21 @@ export async function POST(
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id: segment } = await params;
+  const { data: club } = await resolveClubBySegment(supabase, segment);
+  if (!club) return NextResponse.json(null);
+
   const { data } = await supabase
     .from("patch_orders")
     .select("id, status, created_at, shipped_at, tracking_number")
     .eq("user_id", user.id)
-    .eq("club_id", params.id)
+    .eq("club_id", club.id)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

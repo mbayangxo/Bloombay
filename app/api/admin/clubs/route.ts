@@ -21,26 +21,28 @@ export async function GET(req: NextRequest) {
 
   if (!clubs?.length) return NextResponse.json([]);
 
-  // Get member counts per club
+  // Get member counts per club (club_memberships is keyed by club_slug)
   const { data: allMemberships } = await supabase
     .from("club_memberships")
-    .select("club_id");
+    .select("club_slug");
 
+  const slugToId = Object.fromEntries(clubs.map((c) => [c.slug as string, c.id]));
   const memberCounts: Record<string, number> = {};
-  (allMemberships ?? []).forEach(m => {
-    memberCounts[m.club_id] = (memberCounts[m.club_id] ?? 0) + 1;
+  (allMemberships ?? []).forEach((m) => {
+    const clubId = slugToId[m.club_slug as string];
+    if (clubId) memberCounts[clubId] = (memberCounts[clubId] ?? 0) + 1;
   });
 
-  // Get upcoming gathering counts per club
   const now = new Date().toISOString();
   const { data: upcomingGatherings } = await supabase
     .from("gatherings")
-    .select("club_id")
+    .select("club_slug")
     .gte("starts_at", now);
 
   const upcomingCounts: Record<string, number> = {};
-  (upcomingGatherings ?? []).forEach(g => {
-    upcomingCounts[g.club_id] = (upcomingCounts[g.club_id] ?? 0) + 1;
+  (upcomingGatherings ?? []).forEach((g) => {
+    const clubId = slugToId[g.club_slug as string];
+    if (clubId) upcomingCounts[clubId] = (upcomingCounts[clubId] ?? 0) + 1;
   });
 
   // Get owner names

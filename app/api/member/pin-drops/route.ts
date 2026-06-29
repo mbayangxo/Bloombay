@@ -36,11 +36,10 @@ export async function GET() {
   // Get clubs the member belongs to for club mama pin drops
   const { data: memberships } = await supabase
     .from("club_memberships")
-    .select("club_id")
-    .eq("user_id", user.id)
-    .eq("status", "active");
+    .select("club_slug")
+    .eq("user_id", user.id);
 
-  const clubIds = (memberships ?? []).map((m: { club_id: string }) => m.club_id);
+  const clubSlugs = (memberships ?? []).map((m: { club_slug: string }) => m.club_slug).filter(Boolean);
 
   type ClubBroadcastRow = {
     id: string;
@@ -52,15 +51,22 @@ export async function GET() {
   };
 
   let clubPins: ClubBroadcastRow[] = [];
-  if (clubIds.length > 0) {
-    const { data } = await supabase
-      .from("club_broadcasts")
-      .select("id, club_id, title, body, sent_at, clubs ( name )")
-      .eq("type", "pin_drop")
-      .in("club_id", clubIds)
-      .order("sent_at", { ascending: false })
-      .limit(20);
-    clubPins = (data ?? []) as ClubBroadcastRow[];
+  if (clubSlugs.length > 0) {
+    const { data: clubs } = await supabase
+      .from("clubs")
+      .select("id")
+      .in("slug", clubSlugs);
+    const clubIds = (clubs ?? []).map((c: { id: string }) => c.id);
+    if (clubIds.length > 0) {
+      const { data } = await supabase
+        .from("club_broadcasts")
+        .select("id, club_id, title, body, sent_at, clubs ( name )")
+        .eq("type", "pin_drop")
+        .in("club_id", clubIds)
+        .order("sent_at", { ascending: false })
+        .limit(20);
+      clubPins = (data ?? []) as ClubBroadcastRow[];
+    }
   }
 
   type ReceivedRow = {
