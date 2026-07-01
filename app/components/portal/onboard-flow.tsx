@@ -2,16 +2,18 @@
 
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { createClient } from "@/lib/supabase/client";
 import { welcomeNewMember } from "@/lib/yande/community-coordinator";
+import { compressImage, blobToFile } from "@/lib/images/compress";
+import { validateUpload } from "@/lib/storage/validate";
 
 // ─── STATIC DATA ────────────────────────────────────────────────────────────
 
 const GOALS = [
-  "Find my people in NYC",
+  "Find my people",
   "Build real friendships",
   "Find my girl group",
   "Get out of my routine",
@@ -64,12 +66,12 @@ const SCHEDULE = [
 const BOROUGHS = ["Manhattan", "Brooklyn", "Queens", "The Bronx", "Staten Island"];
 
 const CLUBS = [
-  { id: "11111111-1111-1111-1111-111111111111", name: "Dinner Society",  desc: "Girls dinners, reservations, and table talks", count: 312 },
-  { id: "22222222-2222-2222-2222-222222222222", name: "Museum Girls",    desc: "Culture, art, and city walks together",         count: 187 },
-  { id: "33333333-3333-3333-3333-333333333333", name: "Book Club",       desc: "Reading, reflection, and good conversations",   count: 156 },
-  { id: "44444444-4444-4444-4444-444444444444", name: "Wellness Circle", desc: "Pilates, yoga, and feeling good together",      count: 203 },
-  { id: "55555555-5555-5555-5555-555555555555", name: "Sunday Walks",    desc: "Morning walks, coffee, and fresh air",          count: 142 },
-  { id: "66666666-6666-6666-6666-666666666666", name: "Travel Girls",    desc: "Plan trips, share spots, explore together",     count: 98  },
+  { id: "11111111-1111-1111-1111-111111111111", slug: "dinner-society",  name: "Dinner Society",  desc: "Girls dinners, reservations, and table talks", count: 312 },
+  { id: "22222222-2222-2222-2222-222222222222", slug: "museum-girls",    name: "Museum Girls",    desc: "Culture, art, and city walks together",         count: 187 },
+  { id: "33333333-3333-3333-3333-333333333333", slug: "book-club",       name: "Book Club",       desc: "Reading, reflection, and good conversations",   count: 156 },
+  { id: "44444444-4444-4444-4444-444444444444", slug: "wellness-circle", name: "Wellness Circle", desc: "Pilates, yoga, and feeling good together",      count: 203 },
+  { id: "55555555-5555-5555-5555-555555555555", slug: "sunday-walks",    name: "Sunday Walks",    desc: "Morning walks, coffee, and fresh air",          count: 142 },
+  { id: "66666666-6666-6666-6666-666666666666", slug: "travel-girls",    name: "Travel Girls",    desc: "Plan trips, share spots, explore together",     count: 98  },
 ];
 
 const TOTAL_STEPS = 9; // 0 = welcome, 1–8 = form steps
@@ -311,9 +313,9 @@ function ScatteredBlobs({ items, selected, toggle }: { items: string[]; selected
 const SLIDES = [
   {
     bg: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 60%, #FF4D8A 100%)",
-    kicker: "✦ New York City · 2026 ✦",
+    kicker: "✦ Womanhood Worldwide · 2026 ✦",
     headline: "A world built\nfor women.",
-    body: "BloomBay is the first real social platform just for women in New York City. No algorithms, no noise — just your people.",
+    body: "BloomBay is the first real social platform just for women — everywhere. No algorithms, no noise — just your people.",
     icon: "🌸",
   },
   {
@@ -333,8 +335,8 @@ const SLIDES = [
   {
     bg: "linear-gradient(158deg, #8E0040 0%, #C00055 18%, #FF1F7D 60%, #FF4D8A 100%)",
     kicker: "✦ YOU BELONG HERE ✦",
-    headline: "2,400+ women\nare waiting.",
-    body: "Your table is already set. Your people are already here. All you have to do is show up.",
+    headline: "Women are\ngathering.",
+    body: "At dinners. On Sunday walks. At club happenings. Your table is already set — all you have to do is show up.",
     icon: "✦",
     isFinal: true,
   },
@@ -505,12 +507,113 @@ function IntroSlides({ onDone }: { onDone: () => void }) {
   );
 }
 
+const LEGAL_DOCS: Record<"terms" | "privacy" | "rules", { title: string; body: string[] }> = {
+  terms: {
+    title: "Terms of Service",
+    body: [
+      "Welcome to BloomBay. By joining, you agree to use BloomBay to build genuine community with other women and girls, and to treat every member with kindness and respect.",
+      "BloomBay is a space for women and girls everywhere. You agree that the information you provide is truthful, and that you will not impersonate anyone or misrepresent who you are.",
+      "You are responsible for what you post and share. Content that is harassing, hateful, violent, sexually exploitative, or that endangers another member is not allowed and may result in removal.",
+      "BloomBay connects you to clubs, gatherings, and events. Your attendance and conduct at in-person events is your own responsibility — always meet safely and trust your instincts.",
+      "We may update these terms as BloomBay grows. We will let you know when something important changes, and continued use means you accept the current terms.",
+      "By tapping “I accept,” you confirm you have read and agree to these Terms of Service.",
+    ],
+  },
+  privacy: {
+    title: "Privacy Policy",
+    body: [
+      "Your privacy matters. BloomBay collects only what we need to give you a safe, personal experience — your name, contact details, city, and the preferences you choose to share.",
+      "We use your information to match you to clubs, gatherings, and women near you, and to keep the community safe. We do not sell your personal information.",
+      "You control your apartment, your board, and your Bloomies card — you decide what is public and what stays private. Anything you don’t add yourself stays inside the app.",
+      "We rely on trusted services to operate BloomBay (such as hosting and payments). They only access what is needed to provide their service.",
+      "You can request to see, update, or delete your information at any time. Some records may be kept where required for safety or legal reasons.",
+      "By tapping “I accept,” you confirm you have read and agree to this Privacy Policy.",
+    ],
+  },
+  rules: {
+    title: "Community Guidelines",
+    body: [
+      "BloomBay only works because of how we treat each other. These are the promises every member makes.",
+      "Lead with warmth. Assume good intent, welcome new women, and celebrate one another. Petals and flowers are for lifting each other up.",
+      "Keep each other safe. No harassment, hate, bullying, or sharing another woman’s private information or location without her consent.",
+      "Be real. Be yourself, show up when you RSVP, and honor the trust of an intimate, women-only space.",
+      "Protect the circle. Don’t bring anyone who isn’t meant to be here, and report anything that feels unsafe — we take it seriously.",
+      "By tapping “I accept,” you agree to uphold these Community Guidelines.",
+    ],
+  },
+};
+
+function LegalModal({
+  docKey,
+  onAccept,
+  onClose,
+}: {
+  docKey: "terms" | "privacy" | "rules";
+  onAccept: () => void;
+  onClose: () => void;
+}) {
+  const doc = LEGAL_DOCS[docKey];
+  const [atBottom, setAtBottom] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (el && el.scrollHeight <= el.clientHeight + 24) setAtBottom(true);
+  }, []);
+
+  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 24) setAtBottom(true);
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end" }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: "100%", maxHeight: "86vh", background: "white", borderRadius: "24px 24px 0 0", display: "flex", flexDirection: "column", overflow: "hidden" }}
+      >
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+          <div style={{ width: 40, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
+        </div>
+        <div style={{ padding: "8px 24px 12px" }}>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 26, color: "#1C1B1C", margin: 0 }}>{doc.title}</h2>
+        </div>
+        <div ref={scrollRef} onScroll={onScroll} style={{ flex: 1, overflowY: "auto", padding: "0 24px 16px" }}>
+          {doc.body.map((p, i) => (
+            <p key={i} style={{ fontFamily: "var(--font-jost)", fontSize: 13.5, lineHeight: 1.7, color: "rgba(0,0,0,0.66)", marginBottom: 14 }}>{p}</p>
+          ))}
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.3)", textAlign: "center", marginTop: 4 }}>Scroll to the end to accept</p>
+        </div>
+        <div style={{ padding: "12px 24px calc(env(safe-area-inset-bottom,0px) + 20px)", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+          <button
+            onClick={() => { onAccept(); onClose(); }}
+            disabled={!atBottom}
+            style={{
+              width: "100%", padding: "15px 0", borderRadius: 999, border: "none",
+              background: atBottom ? "#FF1F7D" : "rgba(255,31,125,0.18)",
+              color: atBottom ? "white" : "rgba(255,31,125,0.5)",
+              fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, letterSpacing: "0.1em",
+              cursor: atBottom ? "pointer" : "default",
+            }}
+          >
+            {atBottom ? "I ACCEPT" : "SCROLL DOWN TO ACCEPT"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WelcomeSplash({ onStart }: { onStart: () => void }) {
   const [agreeTerms, setAgreeTerms]     = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeRules, setAgreeRules]     = useState(false);
-  const [agreeAge, setAgreeAge]         = useState(false);
-  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+  const [agreeWoman, setAgreeWoman]     = useState(false);
+  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeWoman;
+  const [openDoc, setOpenDoc] = useState<null | "terms" | "privacy" | "rules">(null);
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden"
@@ -575,19 +678,21 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
         textTransform: "uppercase",
         whiteSpace: "nowrap",
         zIndex: 1,
-      }}>BLOOMBAY · NEW YORK CITY · 2026</div>
+      }}>BLOOMBAY · WOMANHOOD WORLDWIDE · 2026</div>
 
       {/* ── TOP NAV ── */}
       <div className="relative flex items-center justify-between px-6 pt-14 pb-2" style={{ zIndex: 2 }}>
-        <div className="flex items-center gap-2">
-          <BBLogo size={26} />
-          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "rgba(255,255,255,0.92)" }}>
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center rounded-full" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.24)", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}>
+            <BBLogo size={24} />
+          </div>
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "16px", color: "rgba(255,255,255,0.95)" }}>
             BloomBay
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.42)" }} />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.3em", color: "rgba(255,255,255,0.46)", textTransform: "uppercase" }}>NYC</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.46)", textTransform: "uppercase" }}>Womanhood worldwide</p>
         </div>
       </div>
 
@@ -665,7 +770,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
             ))}
           </div>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.58)", letterSpacing: "0.03em" }}>
-            2,400+ women in NYC
+            Women gathering worldwide
           </p>
         </div>
       </div>
@@ -681,15 +786,14 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
           zIndex: 2,
         }}>
 
-        {/* 2×2 checkbox grid — compact, not a legal wall */}
+        {/* Agreements — tap a policy to read it in full, then accept */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
-          {[
-            { key: "terms",   label: "Terms of Service",    val: agreeTerms,   set: setAgreeTerms },
-            { key: "privacy", label: "Privacy Policy",       val: agreePrivacy, set: setAgreePrivacy },
-            { key: "rules",   label: "Community Guidelines", val: agreeRules,   set: setAgreeRules },
-            { key: "age",     label: "18 or older",          val: agreeAge,     set: setAgreeAge },
-          ].map(item => (
-            <button key={item.key} onClick={() => item.set(!item.val)}
+          {([
+            { key: "terms" as const,   label: "Terms of Service",    val: agreeTerms },
+            { key: "privacy" as const, label: "Privacy Policy",       val: agreePrivacy },
+            { key: "rules" as const,   label: "Community Guidelines", val: agreeRules },
+          ]).map(item => (
+            <button key={item.key} onClick={() => setOpenDoc(item.key)}
               className="flex items-center gap-2.5 text-left py-0.5">
               <div className="flex-shrink-0 flex items-center justify-center"
                 style={{
@@ -703,9 +807,26 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
                   </svg>
                 )}
               </div>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>{item.label}</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)", textDecoration: "underline", textUnderlineOffset: 2 }}>{item.label}</span>
             </button>
           ))}
+          {/* I am a woman/girl — direct affirmation */}
+          <button onClick={() => setAgreeWoman(!agreeWoman)}
+            className="flex items-center gap-2.5 text-left py-0.5">
+            <div className="flex-shrink-0 flex items-center justify-center"
+              style={{
+                width: 18, height: 18, borderRadius: 5,
+                background: agreeWoman ? "white" : "rgba(255,255,255,0.12)",
+                border: `1.5px solid ${agreeWoman ? "white" : "rgba(255,255,255,0.28)"}`,
+              }}>
+              {agreeWoman && (
+                <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </div>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>I am a woman/girl</span>
+          </button>
         </div>
 
         <button
@@ -729,6 +850,18 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
           </Link>
         </p>
       </div>
+
+      {openDoc && (
+        <LegalModal
+          docKey={openDoc}
+          onClose={() => setOpenDoc(null)}
+          onAccept={() => {
+            if (openDoc === "terms") setAgreeTerms(true);
+            else if (openDoc === "privacy") setAgreePrivacy(true);
+            else setAgreeRules(true);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -737,6 +870,9 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
 
 export function OnboardFlow() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnPathRaw = searchParams.get("redirect") ?? searchParams.get("next") ?? "";
+  const returnPath = returnPathRaw.startsWith("/member") ? returnPathRaw : "/member/preferences";
   const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -885,18 +1021,30 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selfieFile) {
-        const ext = selfieFile.name.split(".").pop() ?? "jpg";
+        const valid = await validateUpload(selfieFile, "verification");
+        if (!valid.ok) throw new Error(valid.error);
+
+        const compressed = await compressImage(selfieFile, { maxWidthPx: 1400, maxSizeKB: 800 });
+        const webpFile = blobToFile(compressed, `${crypto.randomUUID()}.webp`);
+
+        const { data: existingFiles } = await supabase.storage
+          .from("verification")
+          .list(user.id);
+        if (existingFiles && existingFiles.length > 0) {
+          const paths = existingFiles.map((f) => `${user.id}/${f.name}`);
+          await supabase.storage.from("verification").remove(paths);
+        }
+
+        const storagePath = `${user.id}/${crypto.randomUUID()}.webp`;
         const { data: upload, error: upErr } = await supabase.storage
           .from("verification")
-          .upload(`${user.id}/selfie.${ext}`, selfieFile, { upsert: true });
+          .upload(storagePath, webpFile, { upsert: false, contentType: "image/webp" });
         if (!upErr && upload) {
-          const { data: urlData } = supabase.storage.from("verification").getPublicUrl(upload.path);
           await supabase.from("profiles").update({
-            verification_photo_url: urlData.publicUrl,
+            verification_photo_url: upload.path,
             verification_status: "pending",
           }).eq("id", user.id);
         } else {
-          // Storage not ready — mark pending anyway
           await supabase.from("profiles").update({ verification_status: "pending" }).eq("id", user.id);
         }
       }
@@ -965,9 +1113,19 @@ export function OnboardFlow() {
       const user = await getUser();
       if (!user) throw new Error("Not signed in.");
       if (selectedClubs.size > 0) {
-        const rows = Array.from(selectedClubs).map((club_id) => ({ user_id: user.id, club_id }));
-        const { error: err } = await supabase.from("user_clubs").upsert(rows, { onConflict: "user_id,club_id" });
-        if (err) throw err;
+        // club_memberships is keyed by (user_id, club_slug) — map the selected
+        // club ids to their slugs and persist there.
+        const slugById = new Map(CLUBS.map((c) => [c.id, c.slug]));
+        const rows = Array.from(selectedClubs)
+          .map((id) => slugById.get(id))
+          .filter((slug): slug is string => Boolean(slug))
+          .map((club_slug) => ({ user_id: user.id, club_slug }));
+        if (rows.length > 0) {
+          const { error: err } = await supabase
+            .from("club_memberships")
+            .upsert(rows, { onConflict: "user_id,club_slug" });
+          if (err) throw err;
+        }
       }
       advance();
     } catch (e: unknown) {
@@ -987,13 +1145,36 @@ export function OnboardFlow() {
       if (!user) throw new Error("Not signed in.");
       const valid = inviteEmails.filter((e) => e.includes("@"));
       if (valid.length > 0) {
-        await supabase.from("invites").insert(valid.map((e) => ({ inviter_id: user.id, email: e })));
+        const { error: inviteErr } = await supabase
+          .from("invites")
+          .upsert(
+            valid.map((e) => ({ inviter_id: user.id, email: e.trim().toLowerCase() })),
+            { onConflict: "inviter_id,email" }
+          );
+        // Non-blocking, but not swallowed: a failed invite save must not block
+        // onboarding completion.
+        if (inviteErr) console.warn("[onboarding] invites not saved:", inviteErr.message);
       }
+
+      // Record legal consent server-side (captures IP / user-agent). Non-blocking.
+      try {
+        await fetch("/api/member/consent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            types: ["terms", "privacy", "community_guidelines", "woman_affirmation"],
+            version: "1.0",
+            source: "onboarding",
+          }),
+        });
+      } catch (e) {
+        console.warn("[onboarding] consent not recorded:", (e as Error).message);
+      }
+
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
       // Fire-and-forget: Yande sends the welcome message
       welcomeNewMember(user.id).catch(() => {});
-      // Send to preferences step so Yande can learn who she is
-      router.push("/member/preferences");
+      router.push(returnPath);
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
