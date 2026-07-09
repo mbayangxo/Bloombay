@@ -11,6 +11,11 @@ function admin() {
 
 // GET /api/girlmate?tab=available|looking&city=New+York+City
 export async function GET(req: NextRequest) {
+  // Members only — this exposes roommate PII (lifestyle, voice/video intros).
+  const authed = await createClient();
+  const { data: { user } } = await authed.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const tab = req.nextUrl.searchParams.get("tab") ?? "available";
   const city = req.nextUrl.searchParams.get("city") ?? "New York City";
 
@@ -29,6 +34,7 @@ export async function GET(req: NextRequest) {
       profile:profiles!user_id ( id, first_name, full_name )
     `)
     .eq("is_active", true)
+    .eq("show_profile", true)
     .eq("city", city)
     .order("created_at", { ascending: false })
     .limit(30);

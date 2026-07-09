@@ -112,8 +112,14 @@ export async function createHangerListing(input: CreateHangerListingInput): Prom
   return error ? { ok: false, error: error.message } : { ok: true, id: (data as { id: string }).id };
 }
 
-export async function recordHangerSale(listingId: string, buyerId: string, amountCents: number): Promise<void> {
+export async function recordHangerSale(listingId: string, amountCents: number): Promise<void> {
   const supabase = await createClient();
+  // Require an authenticated buyer; derive buyer_id from the session rather
+  // than trusting a caller-supplied id. (This should ultimately be driven by
+  // the verified Stripe payment, not the client.)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
   const feeCents = Math.round(amountCents * HANGER_FEE_PCT);
   const payoutCents = amountCents - feeCents;
 
@@ -123,7 +129,7 @@ export async function recordHangerSale(listingId: string, buyerId: string, amoun
   await Promise.all([
     supabase.from("hanger_sales").insert({
       listing_id: listingId, seller_id: (listing as { seller_id: string }).seller_id,
-      buyer_id: buyerId, amount_cents: amountCents, fee_cents: feeCents, payout_cents: payoutCents,
+      buyer_id: user.id, amount_cents: amountCents, fee_cents: feeCents, payout_cents: payoutCents,
     }),
     supabase.from("hanger_listings").update({ status: "sold" }).eq("id", listingId),
   ]);
