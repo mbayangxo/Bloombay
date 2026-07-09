@@ -50,14 +50,13 @@ export async function POST(req: NextRequest) {
       await supabase.from("club_memberships").upsert({
         user_id,
         club_slug: clubSlug,
-        club_id,
         joined_at: new Date().toISOString(),
       }, { onConflict: "user_id,club_slug" });
 
       await supabase
         .from("club_applications")
-        .update({ status: "accepted" })
-        .eq("club_id", club_id)
+        .update({ status: "approved" })
+        .eq("club_slug", clubSlug)
         .eq("user_id", user_id)
         .eq("status", "pending");
 

@@ -3,22 +3,29 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { resolveClubSlug } from "@/lib/clubs/resolve-slug";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const clubId = params.id;
+  const { id } = await params;
+  const clubSlug = await resolveClubSlug(supabase, id);
+  if (!clubSlug) {
+    return NextResponse.json({ is_member: false, months_in_club: 0 });
+  }
 
+  // club_memberships is keyed by club_slug with a joined_at timestamp
+  // (no club_id / created_at columns exist).
   const { data: membership } = await supabase
     .from("club_memberships")
-    .select("created_at")
+    .select("joined_at")
     .eq("user_id", user.id)
-    .eq("club_id", clubId)
+    .eq("club_slug", clubSlug)
     .maybeSingle();
 
   if (!membership) {
@@ -26,11 +33,11 @@ export async function GET(
   }
 
   const months_in_club =
-    (Date.now() - new Date(membership.created_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
+    (Date.now() - new Date(membership.joined_at).getTime()) / (30 * 24 * 60 * 60 * 1000);
 
   return NextResponse.json({
     is_member: true,
     months_in_club,
-    joined_at: membership.created_at,
+    joined_at: membership.joined_at,
   });
 }
