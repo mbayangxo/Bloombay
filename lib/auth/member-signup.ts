@@ -36,21 +36,6 @@ export async function signUpMember(input: MemberSignUpInput) {
 
   if (error) throw error;
 
-  void fetch("/api/member/welcome", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      fullName,
-      phone,
-      city,
-      neighborhood,
-      userId: data.user?.id,
-    }),
-  }).catch(() => {
-    /* welcome pack is best-effort — signup still succeeds */
-  });
-
   // Persist profile when session exists (email confirm off). Otherwise trigger + callback handle it.
   if (data.session) {
     const res = await fetch("/api/member/profile/bootstrap", {
@@ -68,6 +53,18 @@ export async function signUpMember(input: MemberSignUpInput) {
     if (!res.ok || !json.ok) {
       throw new Error(json.error ?? "Profile could not be saved");
     }
+
+    // Welcome pack (email + SMS + mailbox) — best-effort, and only once the
+    // session cookie exists so the endpoint authenticates the recipient as
+    // this user (it derives email/phone from the session + profile, not the
+    // request body). Fired after profile bootstrap so the phone is present.
+    void fetch("/api/member/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullName, city, neighborhood }),
+    }).catch(() => {
+      /* welcome pack is best-effort — signup still succeeds */
+    });
   }
 
   return data;

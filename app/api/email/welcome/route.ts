@@ -2,31 +2,15 @@ import { NextResponse } from "next/server";
 import { sendMemberWelcome } from "@/lib/welcome/send-member-welcome";
 import { createClient } from "@/lib/supabase/server";
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-/** Legacy path — delegates to full welcome pack (email + SMS + mailbox). */
+/** Legacy path — delegates to full welcome pack (email + SMS + mailbox).
+ *  Recipient is ALWAYS the authenticated caller's own account, never
+ *  body-supplied, so it cannot be used to email/SMS arbitrary addresses. */
 export async function POST(request: Request) {
-  let body: {
-    email?: string;
-    fullName?: string;
-    phone?: string;
-    city?: string;
-    neighborhood?: string;
-    userId?: string;
-  };
+  let body: { fullName?: string; city?: string; neighborhood?: string };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
-  }
-
-  const email = body.email?.trim().toLowerCase();
-  const fullName = body.fullName?.trim() ?? "";
-
-  if (!email || !isValidEmail(email)) {
-    return NextResponse.json({ ok: false, error: "Valid email required" }, { status: 400 });
+    body = {};
   }
 
   const supabase = await createClient();
@@ -34,17 +18,28 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user?.email && user.email.toLowerCase() !== email) {
-    return NextResponse.json({ ok: false, error: "Email mismatch" }, { status: 403 });
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
+  const email = user.email ?? "";
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "No email on account" }, { status: 400 });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, first_name, phone_number, city, neighborhood")
+    .eq("id", user.id)
+    .maybeSingle();
+
   const result = await sendMemberWelcome({
-    userId: body.userId ?? user?.id,
+    userId: user.id,
     email,
-    fullName,
-    phone: body.phone?.trim(),
-    city: body.city?.trim(),
-    neighborhood: body.neighborhood?.trim(),
+    fullName: profile?.full_name ?? profile?.first_name ?? body.fullName?.trim() ?? "",
+    phone: profile?.phone_number ?? undefined,
+    city: profile?.city ?? body.city?.trim(),
+    neighborhood: profile?.neighborhood ?? body.neighborhood?.trim(),
   });
 
   if (!result.ok) {
@@ -52,11 +47,7 @@ export async function POST(request: Request) {
   }
 
   if (!result.emailSent && result.skipped?.email) {
-    return NextResponse.json({
-      ok: false,
-      skipped: true,
-      error: result.skipped.email,
-    });
+    return NextResponse.json({ ok: false, skipped: true, error: result.skipped.email });
   }
 
   return NextResponse.json({

@@ -2,56 +2,46 @@ import { NextResponse } from "next/server";
 import { sendMemberWelcome } from "@/lib/welcome/send-member-welcome";
 import { createClient } from "@/lib/supabase/server";
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-/** Welcome pack on member signup: email + SMS + in-app mailbox. */
+/** Welcome pack on member signup: email + SMS + in-app mailbox.
+ *  Recipient is ALWAYS the authenticated caller — never body-supplied —
+ *  so this cannot be used to bomb arbitrary emails/phones. */
 export async function POST(request: Request) {
-  let body: {
-    email?: string;
-    fullName?: string;
-    phone?: string;
-    city?: string;
-    neighborhood?: string;
-    userId?: string;
-  };
+  let body: { fullName?: string; city?: string; neighborhood?: string };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    body = {};
   }
-
-  const email = body.email?.trim().toLowerCase() ?? "";
-  const fullName = body.fullName?.trim() ?? "";
-  const phone = body.phone?.trim();
-  const userId = body.userId;
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const resolvedUserId = userId ?? user?.id;
-
-  if (!isValidEmail(email) && !(phone && resolvedUserId)) {
-    return NextResponse.json(
-      { ok: false, error: "Valid email required (or phone while signed in)" },
-      { status: 400 }
-    );
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  if (email && user?.email && user.email.toLowerCase() !== email) {
-    return NextResponse.json({ ok: false, error: "Email mismatch" }, { status: 403 });
+  // Recipient details come from the session + the caller's own profile,
+  // NOT from the request body.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, first_name, phone_number, city, neighborhood")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const email = user.email ?? "";
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "No email on account" }, { status: 400 });
   }
 
   const result = await sendMemberWelcome({
-    userId: resolvedUserId,
-    email: email || `${resolvedUserId ?? "member"}@signup.bloombay.local`,
-    fullName,
-    phone,
-    city: body.city?.trim(),
-    neighborhood: body.neighborhood?.trim(),
+    userId: user.id,
+    email,
+    fullName: profile?.full_name ?? profile?.first_name ?? body.fullName?.trim() ?? "",
+    phone: profile?.phone_number ?? undefined,
+    city: profile?.city ?? body.city?.trim(),
+    neighborhood: profile?.neighborhood ?? body.neighborhood?.trim(),
   });
 
   if (!result.ok) {
