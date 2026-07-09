@@ -6,16 +6,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
   const { data: witness, error } = await supabase
     .from("gathering_witnesses")
     .select("id, note, created_at, witness_user_id, gathering_id, subject_user_id")
-    .eq("id", params.id)
+    .eq("id", id)
     // Only the subject (recipient) of the witness can view it
     .eq("subject_user_id", user.id)
     .maybeSingle();
