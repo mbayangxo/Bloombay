@@ -2377,19 +2377,6 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${PINK}66, rgba(232,100,140,0.4), ${PINK}66, transparent)` }}/>
       </div>
 
-      {/* Community stats */}
-      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0810", padding: "14px 18px 12px", display: "flex", gap: 0 }}>
-        {[["1,240+", "saves this month"], ["324", "bloomies contributed"], ["6", "categories"]].map(([val, label], i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <div style={{ width: 1, background: "rgba(212,168,83,0.15)", margin: "0 16px" }}/>}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK }}>{val}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em", marginTop: 1 }}>{label}</p>
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-
       <div style={{ padding: "16px 14px 0" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 12 }}>THE BLOOMIES LIST</p>
 
@@ -2593,19 +2580,6 @@ function GirlFavsPage({ onBack }: { onBack: () => void }) {
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Most saved<br />this month.</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 5 }}>by the bloomies community ♡</p>
         </div>
-      </div>
-
-      {/* Stats bar */}
-      <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0818", padding: "12px 18px", display: "flex", gap: 0 }}>
-        {[["3,200+", "total saves"], ["847", "this month"], ["5", "top spots"]].map(([val, label], i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <div style={{ width: 1, background: "rgba(255,31,125,0.15)", margin: "0 16px" }} />}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: PINK }}>{val}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em", marginTop: 1 }}>{label}</p>
-            </div>
-          </React.Fragment>
-        ))}
       </div>
 
       {/* Ranked list */}
