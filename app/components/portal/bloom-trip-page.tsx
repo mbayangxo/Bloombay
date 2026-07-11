@@ -13,86 +13,6 @@ const DARK = "#1C1B1C";
 void CREAM;
 void DARK;
 
-// ── Mock trips ────────────────────────────────────────────────────────────────
-const MOCK_TRIPS: BloomTrip[] = [
-  {
-    id: "t1",
-    organizer_id: "p4",
-    organizer_name: "Nia B",
-    organizer_avatar: null,
-    title: "Morocco Girls Trip",
-    destination: "Casablanca → Marrakech",
-    description: "Sun, souks, and sisterhood. We explore Casablanca first, then take the train to Marrakech for the heart of the trip.",
-    departure_date: "2026-07-18",
-    return_date: "2026-07-25",
-    price_per_person_cents: 185000,
-    capacity: 8,
-    attending_count: 5,
-    includes: ["flights", "hotel", "guided tours"],
-    image_url: null,
-    accent_color: "#D2691E",
-    status: "open",
-    created_at: "2026-06-01",
-  },
-  {
-    id: "t2",
-    organizer_id: "p1",
-    organizer_name: "Amara K",
-    organizer_avatar: null,
-    title: "Tulum Reset",
-    destination: "Tulum, Mexico",
-    description: "A small group trip to decompress. Think cenotes, cacao ceremonies, and sleeping well for once.",
-    departure_date: "2026-08-03",
-    return_date: "2026-08-08",
-    price_per_person_cents: 120000,
-    capacity: 6,
-    attending_count: 3,
-    includes: ["hotel", "activities"],
-    image_url: null,
-    accent_color: "#00A693",
-    status: "open",
-    created_at: "2026-06-02",
-  },
-  {
-    id: "t3",
-    organizer_id: "p2",
-    organizer_name: "Zara M",
-    organizer_avatar: null,
-    title: "Paris Long Weekend",
-    destination: "Paris, France",
-    description: "Three nights in Paris. Markets, museums, and the best croissants you've ever had.",
-    departure_date: "2026-09-12",
-    return_date: "2026-09-15",
-    price_per_person_cents: 95000,
-    capacity: 10,
-    attending_count: 10,
-    includes: ["hotel"],
-    image_url: null,
-    accent_color: "#6A5ACD",
-    status: "full",
-    created_at: "2026-06-03",
-  },
-  {
-    id: "t4",
-    organizer_id: "p3",
-    organizer_name: "Sade T",
-    organizer_avatar: null,
-    title: "Italian Coast Drive",
-    destination: "Amalfi Coast, Italy",
-    description: "Seven days driving down the Amalfi Coast. We share the car, share the meals, and don't share the wifi password with anyone else.",
-    departure_date: "2026-10-04",
-    return_date: "2026-10-11",
-    price_per_person_cents: 240000,
-    capacity: 5,
-    attending_count: 1,
-    includes: ["flights", "hotel", "car rental", "meals"],
-    image_url: null,
-    accent_color: "#2E86AB",
-    status: "open",
-    created_at: "2026-06-04",
-  },
-];
-
 // ── Gradient map (trip id → CSS gradient) ────────────────────────────────────
 const TRIP_GRADIENTS: Record<string, string> = {
   t1: "linear-gradient(160deg, #8B4513, #D2691E, #CD853F)",
@@ -465,8 +385,9 @@ function CreateTripSheet({ onClose }: { onClose: () => void }) {
   };
 
   function handleLaunch() {
-    // In production, convert priceInput dollars → cents and call createBloomTrip
-    // For now, close the sheet optimistically
+    // No real trips backend yet: do NOT fabricate a local trip. Just close the
+    // sheet. Wire this to createBloomTrip (convert priceInput dollars → cents)
+    // once a real backend exists.
     onClose();
   }
 
@@ -744,7 +665,11 @@ export function BloomTripPage() {
 
   const filters: Array<"All" | "Open" | "Full"> = ["All", "Open", "Full"];
 
-  const filtered = MOCK_TRIPS.filter(trip => {
+  // No real trips backend yet — render an honest empty state instead of
+  // fabricated trips. Wire this to a real data source when one exists.
+  const trips: BloomTrip[] = [];
+
+  const filtered = trips.filter(trip => {
     if (activeFilter === "All") return true;
     if (activeFilter === "Open") return trip.status !== "full" && trip.attending_count < trip.capacity;
     if (activeFilter === "Full") return trip.status === "full" || trip.attending_count >= trip.capacity;
@@ -909,27 +834,44 @@ export function BloomTripPage() {
           <div
             style={{
               textAlign: "center",
-              padding: "56px 24px",
+              padding: "72px 28px",
             }}
           >
             <p
               style={{
-                fontFamily: "var(--font-caveat)",
-                fontSize: 20,
-                color: "rgba(255,255,255,0.3)",
+                fontFamily: "var(--font-playfair)",
+                fontStyle: "italic",
+                fontWeight: 700,
+                fontSize: 26,
+                color: "white",
+                margin: 0,
+                lineHeight: 1.15,
               }}
             >
-              No trips here right now.
+              No trips yet
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: 13,
+                color: "rgba(255,255,255,0.55)",
+                margin: "10px auto 0",
+                maxWidth: 300,
+                lineHeight: 1.5,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Bloom Trips are coming soon — group getaways planned with your girls.
             </p>
             <p
               style={{
                 fontFamily: "var(--font-caveat)",
                 fontSize: 15,
-                color: "rgba(255,255,255,0.2)",
-                marginTop: 4,
+                color: PINK,
+                marginTop: 14,
               }}
             >
-              Be the first to plan one.
+              travel with women who get it ✦
             </p>
           </div>
         )}

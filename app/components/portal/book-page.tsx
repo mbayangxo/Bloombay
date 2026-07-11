@@ -10,145 +10,24 @@ const CREAM = "#F6F1EB";
 const DARK = "#1C1B1C";
 const PAPER_TEXTURE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
-const MOCK_LISTINGS: BookListing[] = [
-  {
-    id: "1",
-    provider_id: "p1",
-    provider_name: "Amara K",
-    provider_avatar: null,
-    service_name: "Portrait Photography",
-    category: "Photography",
-    description: "Film and digital. Natural light only. I shoot the woman, not the pose.",
-    price_cents: 25000,
-    price_type: "fixed",
-    location: "West Village",
-    image_url: null,
-    created_at: "2026-01-01",
-  },
-  {
-    id: "2",
-    provider_id: "p2",
-    provider_name: "Zara M",
-    provider_avatar: null,
-    service_name: "Personal Styling Session",
-    category: "Styling",
-    description: "I'll go through your closet, tell you the truth, and help you figure out your actual style.",
-    price_cents: 15000,
-    price_type: "fixed",
-    location: "Your place or mine",
-    image_url: null,
-    created_at: "2026-01-02",
-  },
-  {
-    id: "3",
-    provider_id: "p3",
-    provider_name: "Sade T",
-    provider_avatar: null,
-    service_name: "Gel Nails (home visit)",
-    category: "Nails",
-    description: "I come to you. Full set or fill. Builder gel only — no acrylics.",
-    price_cents: 8500,
-    price_type: "fixed",
-    location: "Crown Heights + nearby",
-    image_url: null,
-    created_at: "2026-01-03",
-  },
-  {
-    id: "4",
-    provider_id: "p4",
-    provider_name: "Nia B",
-    provider_avatar: null,
-    service_name: "Financial Planning for Creatives",
-    category: "Finance",
-    description: "I help artists, freelancers and small business owners actually understand their money.",
-    price_cents: 20000,
-    price_type: "hourly",
-    location: "Remote",
-    image_url: null,
-    created_at: "2026-01-04",
-  },
-  {
-    id: "5",
-    provider_id: "p5",
-    provider_name: "Lena P",
-    provider_avatar: null,
-    service_name: "French + Italian Tutoring",
-    category: "Tutoring",
-    description: "PhD student, native French speaker. Patient. Focused on conversation.",
-    price_cents: 7500,
-    price_type: "hourly",
-    location: "Remote or Astoria",
-    image_url: null,
-    created_at: "2026-01-05",
-  },
-  {
-    id: "6",
-    provider_id: "p6",
-    provider_name: "Kemi O",
-    provider_avatar: null,
-    service_name: "Brow Shaping + Tint",
-    category: "Makeup",
-    description: "I only work with natural hair textures. No over-plucking.",
-    price_cents: 6500,
-    price_type: "fixed",
-    location: "Harlem",
-    image_url: null,
-    created_at: "2026-01-06",
-  },
-  {
-    id: "7",
-    provider_id: "p7",
-    provider_name: "Sofia R",
-    provider_avatar: null,
-    service_name: "Brand Photography",
-    category: "Photography",
-    description: "Content days for creatives and small brands. I make it look intentional.",
-    price_cents: 40000,
-    price_type: "fixed",
-    location: "NYC",
-    image_url: null,
-    created_at: "2026-01-07",
-  },
-];
+// ── Data ──────────────────────────────────────────────────────────────────────
+// There is no services backend yet. These stay empty until real listings,
+// reviews, and notes come from the database — nothing is fabricated for members.
+type BookReview = {
+  id: string;
+  name: string;
+  stars: number;
+  text: string;
+  date: string;
+  initials: string;
+  color: string;
+};
 
-// ── Mock reviews ──────────────────────────────────────────────────────────────
-const MOCK_REVIEWS = [
-  {
-    id: "r1",
-    name: "Jade A",
-    stars: 5,
-    text: "Absolutely incredible. She made me feel so at ease and the results were stunning. Worth every penny.",
-    date: "Dec 2025",
-    initials: "JA",
-    color: "#C084FC",
-  },
-  {
-    id: "r2",
-    name: "Mariam O",
-    stars: 5,
-    text: "Professional, warm, and talented. The best investment I've made in myself this year.",
-    date: "Nov 2025",
-    initials: "MO",
-    color: "#60A5FA",
-  },
-  {
-    id: "r3",
-    name: "Tolu E",
-    stars: 4,
-    text: "Really lovely experience. Would've liked a bit more time but the quality was top tier.",
-    date: "Oct 2025",
-    initials: "TE",
-    color: "#34D399",
-  },
-];
+type BookNote = { id: string; text: string; color: string };
 
-// ── Mock bloom notes ───────────────────────────────────────────────────────────
-const MOCK_NOTES = [
-  { id: "n1", text: "She remembered exactly how I like it done. No need to explain twice.", color: "#FEF9C3" },
-  { id: "n2", text: "The lighting in her studio is *chef's kiss*. Every photo looked editorial.", color: "#FCE7F3" },
-  { id: "n3", text: "Book her early — she fills up fast. Worth the wait though.", color: "#ECFDF5" },
-];
+const LISTINGS: BookListing[] = [];
+const REVIEWS: BookReview[] = [];
+const NOTES: BookNote[] = [];
 
 // ── Color swatches for brand color picker ─────────────────────────────────────
 const COLOR_SWATCHES = [
@@ -660,7 +539,7 @@ function DetailView({
         {/* REVIEWS */}
         {activeTab === "reviews" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {MOCK_REVIEWS.map(review => (
+            {REVIEWS.map(review => (
               <div
                 key={review.id}
                 style={{
@@ -735,7 +614,7 @@ function DetailView({
         {/* BLOOM NOTES */}
         {activeTab === "notes" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {MOCK_NOTES.map(note => (
+            {NOTES.map(note => (
               <div
                 key={note.id}
                 style={{
@@ -1218,8 +1097,8 @@ export function BookPage() {
 
   const filtered =
     activeCategory === "All"
-      ? MOCK_LISTINGS
-      : MOCK_LISTINGS.filter(l => l.category === activeCategory);
+      ? LISTINGS
+      : LISTINGS.filter(l => l.category === activeCategory);
 
   // Show detail view
   if (detailView) {
