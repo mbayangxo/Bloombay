@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { requireFounderOrAdmin } from "@/lib/auth/require-founder-admin";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireRole } from "@/lib/auth/require-role";
 import { defaultTemplateForKey } from "@/lib/message-templates/defaults";
 import { getAdminClient } from "@/lib/supabase-admin";
 
@@ -15,11 +15,9 @@ function mapRow(row: Record<string, unknown>) {
   };
 }
 
-export async function GET() {
-  const gate = await requireFounderOrAdmin();
-  if (!gate.ok) {
-    return NextResponse.json({ error: gate.error }, { status: 403 });
-  }
+export async function GET(req: NextRequest) {
+  const guard = await requireRole(req, ["founder", "admin"]);
+  if (guard.error) return guard.error;
 
   try {
     const admin = getAdminClient();
@@ -45,11 +43,9 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
-  const gate = await requireFounderOrAdmin();
-  if (!gate.ok) {
-    return NextResponse.json({ ok: false, error: gate.error }, { status: 403 });
-  }
+export async function PATCH(request: NextRequest) {
+  const guard = await requireRole(request, ["founder", "admin"]);
+  if (guard.error) return guard.error;
 
   let body: {
     id?: string;

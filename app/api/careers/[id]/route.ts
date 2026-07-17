@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { getMissionControlRole } from "@/lib/auth/get-mc-role";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireRole } from "@/lib/auth/require-role";
 import {
   CAREER_STATUSES,
   type CareerApplicationStatus,
@@ -7,13 +7,11 @@ import {
 import { updateCareerApplicationStatus } from "@/lib/supabase-admin";
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const role = await getMissionControlRole();
-  if (role !== "founder") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireRole(request, ["founder"]);
+  if (guard.error) return guard.error;
 
   const { id } = await context.params;
   const body = (await request.json().catch(() => ({}))) as { status?: string };
