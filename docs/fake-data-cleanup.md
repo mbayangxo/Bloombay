@@ -88,6 +88,16 @@ Legend: 🔴 critical (whole screen fake or user-blocking) · 🟠 high · 🟡 
 
 **The core anti-pattern everywhere:** `realData.length > 0 ? realData : MOCK`. The systematic fix is to drop every `: MOCK` fallback and let the (usually already-written) honest empty state show.
 
+### Happenings page (`app/components/portal/happenings-page.tsx` + detail/confirmation) — owner-flagged
+- **"FROM YOUR CITY" cards** (Sunset Walk · SUN 1PM, Natural Wine · TONIGHT, Rooftop Girls · SAT 8PM, with "7/6/12 going") are **hardcoded and non-functional** → wire to real events or honest empty state.
+- **Introductions card is misplaced** — it renders at the bottom of the Happenings feed; it shouldn't be there. Remove it from the Happenings feed (Introductions is its own surface).
+- **Nav overlap** — the BB logo overlaps the "Happenings" tab label (Happenings · Intros · Map), and the fake `TICKER_ITEMS` band sits under it. Fix the logo/tab overlap; drop the fake ticker.
+- **Create/new grid (page 4):** the "NEW" placeholder card is redundant next to the "+" add card — remove the "NEW" card, keep the "+" as the add action. "Morocco October / Ladies First / Oct 2026" cards are hardcoded → wire/empty.
+- **Confirmation screen (`happening-rsvp-confirmation.tsx` / `event-detail.tsx`):**
+  - **"YOUR CONFIRMATION" is doubled** — there are two confirmation blocks; remove the upper duplicate.
+  - The confirmation card is **too wide/long horizontally** — split it / constrain max-width so it's not a single long band.
+  - Fake data on it: "8 women", attendee initials "A Z T J S +3", "CHEMISTRY 94% Great energy" → wire to real RSVP/attendee data or remove the chemistry metric.
+
 ---
 
 ## ⚪ LOW (unreachable now, but fix before launch)
