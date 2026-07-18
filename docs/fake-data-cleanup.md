@@ -111,6 +111,16 @@ Legend: 🔴 critical (whole screen fake or user-blocking) · 🟠 high · 🟡 
 
 ---
 
+## Layout & UX refinements (owner review — not fake data)
+
+- **Wallet** (`app/(member-portal)/member/plans/page.tsx`) — too wide; make it smaller / less long horizontally.
+- **Memories** (`plans/page.tsx` / `lounge-page.tsx`) — currently fully expanded ("all out"); should be **collapsed**, press to open and view all.
+- **Club rankings** (`app/components/portal/clubs-page.tsx`) — don't render it inline down the page; make it a **top icon** users tap to navigate to the rankings screen.
+- **"Start your own club"** (`clubs-page.tsx`) — remove the section; the **"+" button alone is enough**.
+- **The Avenue** (`app/components/portal/avenue-page.tsx`) — too long; condense so members don't have to scroll far to see everything.
+- **Dark night theme (cross-cutting)** — dark-purple/dark-on-dark makes content unreadable; must be legible + pretty on every page (see owner's home-screen note).
+- **Waitlist** (`waitlist-flow.tsx`) — remove fabricated numbers (`WAITLIST_GOAL`/counts/ProgressBar).
+
 ## Prioritized order
 1. Plan room (input-blocked = users literally can't message) + its fake data
 2. `club-landing` chat + members tabs (fake people on every club)
