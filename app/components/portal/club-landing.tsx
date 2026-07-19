@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
@@ -95,130 +94,6 @@ export interface ClubLandingData {
   allowZoneRequests?: boolean;
   traditions?: ClubTradition[];
 }
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const DEFAULT_CLUB: ClubLandingData = {
-  id: "22222222-2222-2222-2222-222222222222",
-  name: "Museum Girls",
-  tagline: "art, culture + beautiful company",
-  aboutNote: "come for the art,\nstay for the girls ♡",
-  about:
-    "Museum Girls is for women who find magic in the details. We believe in slow days, beautiful places, good conversations, and growing together.",
-  whoItsFor:
-    "Women who wander museums, find beauty in the city, and make every day a little more inspiring.",
-  whatMembersDo: [
-    "Museum visits, gallery tours, and cultural moments",
-    "Small group outings — real friendships in the making",
-    "Photography and shared memory-keeping",
-    "Member-only events and exclusive evening previews",
-  ],
-  features: [
-    { emoji: "🏛️", title: "Curated Experiences", desc: "Museum visits, gallery tours, cultural moments in the city." },
-    { emoji: "♡",  title: "Meaningful Connections", desc: "Small groups, women building real friendships." },
-    { emoji: "📷", title: "Beautiful Memories", desc: "Document, share, and keep the good times alive." },
-    { emoji: "🎁", title: "Club Perks", desc: "Member-only events, exclusive surprise gifts + more." },
-  ],
-  tags: ["Art", "Culture", "NYC", "Social"],
-  city: "New York",
-  neighborhood: "All boroughs",
-  memberCount: 1600,
-  color: PINK,
-  crestBg: "#5c1a3a",
-  darkBg: false,
-  mamaName: "Yande O.",
-  mamaTitle: "Museum Girls Club Mama",
-  mamaBio:
-    "Art lover, slow wanderer, and firm believer that every museum visit deserves good company and a long lunch after.",
-  mamaVoiceSeconds: 42,
-  accessType: "free",
-  entryStyle: "open",
-  rules: [
-    "Arrive with curiosity, leave with conversation",
-    "No spoilers on what you've seen — let others discover",
-    "Photography encouraged. Tags optional.",
-    "Every woman here chose beauty. Honor that.",
-  ],
-  upcomingSeats: [
-    { title: "The Met: Impressionism", date: "Sat, May 24 · 10:00 AM", seats: 8, location: "The Metropolitan Museum of Art", going: 9 },
-    { title: "Coffee + Exhibit",       date: "Sat, May 31 · 11:00 AM", seats: 5, location: "The Whitney Museum", going: 6 },
-    { title: "Architecture Walk",      date: "Sat, Jun 07 · 10:00 AM", seats: 6, location: "SoHo, New York", going: 11 },
-  ],
-  photos: [
-    { grad: "linear-gradient(135deg,#6b4fa0 0%,#2d1a5e 100%)", label: "The Met Impressionism", date: "May 12", rot: -1.5 },
-    { grad: "linear-gradient(135deg,#c9504a 0%,#7a1c2e 100%)", label: "Whitney Museum Night",  date: "Apr 28", rot: 1 },
-    { grad: "linear-gradient(135deg,#4a6c8c 0%,#1a2d4a 100%)", label: "Architecture Walk",     date: "Apr 15", rot: -0.5 },
-    { grad: "linear-gradient(135deg,#3e7c6b 0%,#1a3d31 100%)", label: "Brooklyn Museum",        date: "Apr 3",  rot: 1.5 },
-    { grad: "linear-gradient(135deg,#b07856 0%,#7a3a1a 100%)", label: "Gallery Tour SoHo",      date: "Mar 22", rot: -1 },
-    { grad: "linear-gradient(135deg,#c96b9e 0%,#7a2250 100%)", label: "Museum Brunch",          date: "Mar 8",  rot: 0.5 },
-  ],
-  testimonials: [
-    {
-      initial: "O", name: "Olivia, Brooklyn", neighborhood: "Brooklyn", color: PINK,
-      quote: "I had no one to visit museums with. Museum Girls gave me my people, and now the city feels entirely different.",
-      event: "Gallery Night · March",
-    },
-    {
-      initial: "T", name: "Temi, Manhattan", neighborhood: "Manhattan", color: "#6b4fa0",
-      quote: "The best part isn't just the museums; it's the conversations and the connections.",
-      event: "Architecture Walk · April",
-    },
-    {
-      initial: "A", name: "Ashley, West Village", neighborhood: "West Village", color: "#3e7c6b",
-      quote: "Every event feels thoughtfully beautiful and so us.",
-      event: "Met Impressionism · May",
-    },
-  ],
-  zones: [
-    { id: "z1", name: "Slow Art Sundays",    emoji: "🎨", desc: "Unhurried Sunday gallery visits. No agenda, just looking.",                     memberCount: 48, joinType: "open",    zoneColor: "#7C3AED", activeThisWeek: 22, weeklyPrompt: "What's one artwork you couldn't stop thinking about this week?", lastMessage: "The Degas pastels at the Met — I never realized how textured they are in person.", lastMessageAuthor: "Aminah" },
-    { id: "z2", name: "After Dark Openings", emoji: "🌙", desc: "Evening preview openings and gallery events. Members-only access.",             memberCount: 22, price: 15, priceInterval: "monthly", joinType: "request", zoneColor: "#0EA5E9", activeThisWeek: 15, weeklyPrompt: "Which gallery opening this month surprised you most?", lastMessage: "Pace Gallery has a members-only preview Thursday — who's joining me?", lastMessageAuthor: "Fatima" },
-    { id: "z3", name: "Museum + Lunch",      emoji: "🥗", desc: "Art followed by a long lunch. Culture + food, always together.",                memberCount: 35, joinType: "open",    zoneColor: "#16A34A", activeThisWeek: 18, weeklyPrompt: "Best post-museum restaurant you've been to lately?", lastMessage: "After the Hockney show we went to Cafe Sabarsky downstairs — I'm not over it.", lastMessageAuthor: "Olivia" },
-    { id: "z4", name: "Collectors Corner",   emoji: "🖼️", desc: "For the girls seriously exploring art collecting and acquisition.",            memberCount: 11, price: 20, priceInterval: "monthly", joinType: "request", zoneColor: "#B45309", activeThisWeek: 9,  weeklyPrompt: "If you had $5K to spend on your first piece, where would you start?", lastMessage: "Started working with a private dealer last month — the access is completely different.", lastMessageAuthor: "Chidera" },
-  ],
-  allowZoneRequests: true,
-  traditions: [
-    { id: "t1", name: "The Long Friday Dinner", description: "Three courses, no phones, all conversation.", frequency: "Every third Friday", emoji: "🕯️", sinceYear: 2022 },
-    { id: "t2", name: "Sunday Morning Walk",    description: "Coffee, city air, and good company.",         frequency: "Every Sunday · 9 AM", emoji: "🌸", sinceYear: 2023 },
-    { id: "t3", name: "The Annual Evening",     description: "Our biggest night of the year.",              frequency: "Every December",       emoji: "✨", sinceYear: 2022 },
-    { id: "t4", name: "First Wednesday Welcome",description: "New members celebrated over cake.",           frequency: "First Wed / month",    emoji: "🎀", sinceYear: 2023 },
-  ],
-};
-
-// ─── Chat mock ────────────────────────────────────────────────────────────────
-
-interface ChatMessage {
-  id: number; author: string; initial: string; color: string;
-  text: string; time: string; mine?: boolean;
-  imageUrl?: string;
-  reactions?: { emoji: string; count: number }[];
-  type?: "welcome";
-  welcomeTag?: string;
-  welcomeInterests?: string[];
-}
-
-const CHAT_MESSAGES: ChatMessage[] = [
-  { id: 0, type: "welcome", author: "Yande O.", initial: "Y", color: "#FF1F7D", text: "Say hi to Bea! She just joined Museum Girls — she's an art lover, gallery hopper, and always down for a long lunch 🎨 Welcome her to the club!", time: "Yesterday", welcomeTag: "Just joined", welcomeInterests: ["Gallery openings", "Art collecting", "Museum lunches"] },
-  { id: 1, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "The Hockney retrospective at the Whitney is stunning. Has everyone been?", time: "2:14 PM" },
-  { id: 2, author: "Kelechi O.", initial: "K", color: "#FF69B4", text: "YES the scale of those pool paintings in person 😭 I cried a little tbh", time: "2:16 PM", reactions: [{ emoji: "♡", count: 4 }] },
-  { id: 3, author: "You", initial: "M", color: "#FF69B4", text: "Ok we need a club outing ASAP. I'm not missing this one", time: "2:17 PM", mine: true },
-  { id: 4, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "Thursday evening has member tickets btw!! Yande just posted 🎉", time: "2:19 PM", reactions: [{ emoji: "♡", count: 8 }, { emoji: "✦", count: 3 }] },
-  { id: 5, author: "Bea T.", initial: "B", color: "#FF69B4", text: "Thursday works! Are we doing dinner after?", time: "2:21 PM" },
-  { id: 6, author: "You", initial: "M", color: "#FF69B4", text: "Obviously. I vote the little wine bar on 77th", time: "2:22 PM", mine: true },
-  { id: 7, author: "Kelechi O.", initial: "K", color: "#FF69B4", text: "The one with the terrace? Perfect post-museum energy 🍷", time: "2:24 PM", reactions: [{ emoji: "♡", count: 5 }] },
-  { id: 8, author: "Fatima A.", initial: "F", color: "#FF1F7D", text: "I'll grab the tickets now — the 6pm slot has space", time: "2:25 PM" },
-  { id: 9, author: "Aminah C.", initial: "A", color: "#FF1F7D", text: "This is going to be so good. See everyone Thursday 🌸", time: "2:26 PM", reactions: [{ emoji: "♡", count: 11 }] },
-];
-
-const CLUB_MEMBERS = [
-  { id: "m1", initial: "Y", name: "Yande O.",    color: "#FF1F7D", role: "Club Mama", reports: 0 },
-  { id: "m2", initial: "A", name: "Aminah C.",   color: "#FF69B4", role: "Member",    reports: 0 },
-  { id: "m3", initial: "K", name: "Kelechi O.", color: "#FF69B4", role: "Member",    reports: 0 },
-  { id: "m4", initial: "B", name: "Bea T.",      color: "#FF69B4", role: "Member",    reports: 0 },
-  { id: "m5", initial: "F", name: "Fatima A.",   color: "#FF1F7D", role: "Member",    reports: 3 },
-  { id: "m6", initial: "T", name: "Temi A.",     color: "#6b4fa0", role: "Member",    reports: 1 },
-  { id: "m7", initial: "O", name: "Olivia K.",   color: "#3e7c6b", role: "Member",    reports: 0 },
-  { id: "m8", initial: "C", name: "Chidera L.",  color: "#0EA5E9", role: "Member",    reports: 0 },
-];
 
 type ClubTab = "about" | "chat" | "zones" | "events" | "members";
 
@@ -536,170 +411,32 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
 // ─── Club Chat ────────────────────────────────────────────────────────────────
 
 function ClubChat({ club, daysInClub = 99 }: { club: ClubLandingData; daysInClub?: number }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(CHAT_MESSAGES);
-  const [input, setInput] = useState("");
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-
-  function send() {
-    if (!input.trim() && !pendingImage) return;
-    setMessages(prev => [...prev, {
-      id: Date.now(), author: "You", initial: "M", color: "#FF69B4",
-      text: input.trim(), imageUrl: pendingImage ?? undefined,
-      time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-      mine: true,
-    }]);
-    setInput("");
-    setPendingImage(null);
-  }
-
-  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => { if (ev.target?.result) setPendingImage(ev.target.result as string); };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 280px)", minHeight: 400 }}>
-      <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
-
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 20px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-        <div style={{ display: "flex" }}>
-          {CLUB_MEMBERS.slice(0, 5).map(m => (
-            <div key={m.name} style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid white", marginLeft: -6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "white", background: m.color, flexShrink: 0 }}>{m.initial}</div>
-          ))}
-        </div>
-        <span style={{ fontSize: 12, color: "rgba(0,0,0,0.4)" }}>{CLUB_MEMBERS.length} members · <span style={{ color: club.color }}>5 online</span></span>
-      </div>
-
       <div style={{ flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: 16, background: "#FFF5F8" }}>
 
         {/* New member intro card — shown only in the first 7 days */}
         {daysInClub <= 7 && (
           <div style={{ borderRadius: 20, background: "linear-gradient(135deg, #FFF0F8 0%, #FFF9E6 100%)", border: `2px solid ${club.color}30`, padding: "16px 18px", boxShadow: "0 2px 16px rgba(255,31,125,0.08)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: club.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>Y</div>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: club.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{club.mamaName[0]?.toUpperCase() ?? "✦"}</div>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>{club.mamaName}</p>
                 <p style={{ fontSize: 10, color: "rgba(0,0,0,0.4)" }}>Club Mama · just now</p>
               </div>
               <div style={{ marginLeft: "auto", padding: "3px 10px", borderRadius: 20, background: `${club.color}15`, fontSize: 9, fontWeight: 700, color: club.color, letterSpacing: "0.1em" }}>NEW MEMBER</div>
             </div>
-            <div style={{ background: "white", borderRadius: 14, padding: "12px 14px", marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #FF1F7D, #FF69B4)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>M</div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#111", fontFamily: "var(--font-playfair)" }}>You</p>
-                  <p style={{ fontSize: 11, color: "rgba(0,0,0,0.4)" }}>Just joined {club.name} 🌸</p>
-                </div>
-              </div>
-              <p style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.55 }}>New to the club and excited to be here. Can't wait to meet everyone!</p>
-            </div>
-            <p style={{ fontSize: 13, color: "#111", lineHeight: 1.5 }}>Welcome to <strong>{club.name}</strong>! We're so happy you're here — say hi 🎉</p>
-            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-              {["♡ Welcome", "🌸 Say hi", "✦ Wave"].map(label => (
-                <button key={label} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${club.color}12`, color: club.color, border: `1px solid ${club.color}30`, cursor: "pointer" }}>{label}</button>
-              ))}
-            </div>
+            <p style={{ fontSize: 13, color: "#111", lineHeight: 1.5 }}>Welcome to <strong>{club.name}</strong>! We&apos;re so happy you&apos;re here — say hi 🎉</p>
           </div>
         )}
 
-        {messages.map(msg => {
-          if (msg.type === "welcome") {
-            return (
-              <div key={msg.id} style={{ borderRadius: 18, background: "white", border: "1.5px solid rgba(0,0,0,0.06)", overflow: "hidden", boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-                <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: msg.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{msg.initial}</div>
-                  <div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: msg.color }}>{msg.author}</span>
-                    <span style={{ fontSize: 10, color: "rgba(0,0,0,0.35)", marginLeft: 6 }}>introduced a new member · {msg.time}</span>
-                  </div>
-                </div>
-                <div style={{ padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #FF69B4, #FF1F7D)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{msg.author.slice(-3, -2).toUpperCase() || "B"}</div>
-                    <div>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{msg.author === "Yande O." ? "Bea T." : "New Member"}</p>
-                      {msg.welcomeTag && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: club.color, background: `${club.color}12`, padding: "2px 8px", borderRadius: 10 }}>{msg.welcomeTag.toUpperCase()}</span>}
-                    </div>
-                  </div>
-                  <p style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.5, marginBottom: 8 }}>{msg.text}</p>
-                  {msg.welcomeInterests && (
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {msg.welcomeInterests.map(i => (
-                        <span key={i} style={{ fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: `${club.color}10`, color: club.color }}>{i}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div style={{ padding: "8px 14px 10px", borderTop: "1px solid rgba(0,0,0,0.04)", display: "flex", gap: 8 }}>
-                  {["♡ Welcome her", "🌸 Say hi"].map(label => (
-                    <button key={label} onClick={() => setLikedIds(p => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: likedIds.has(msg.id) ? `${club.color}15` : "rgba(0,0,0,0.04)", color: likedIds.has(msg.id) ? club.color : "#888", border: "none", cursor: "pointer" }}>{label}</button>
-                  ))}
-                </div>
-              </div>
-            );
-          }
-          return (
-          <div key={msg.id} style={{ display: "flex", alignItems: "flex-end", gap: 12, flexDirection: msg.mine ? "row-reverse" : "row" }}>
-            {!msg.mine && <div style={{ width: 32, height: 32, borderRadius: "50%", background: msg.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0, marginBottom: 4 }}>{msg.initial}</div>}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: msg.mine ? "flex-end" : "flex-start", maxWidth: "75%" }}>
-              {!msg.mine && <span style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, marginLeft: 4, color: msg.color }}>{msg.author}</span>}
-              {msg.imageUrl && (
-                <div style={{ borderRadius: msg.mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", overflow: "hidden", marginBottom: msg.text ? 6 : 0, maxWidth: 220, position: "relative", height: 200 }}>
-                  <Image src={msg.imageUrl} alt="" fill unoptimized style={{ objectFit: "cover" }} />
-                </div>
-              )}
-              {msg.text && (
-                <div style={{ padding: "10px 16px", fontSize: 13, lineHeight: 1.5, background: msg.mine ? club.color : "white", color: msg.mine ? "white" : "#111", borderRadius: msg.mine ? "20px 20px 6px 20px" : "20px 20px 20px 6px", boxShadow: msg.mine ? `0 2px 12px ${club.color}40` : "0 1px 6px rgba(0,0,0,0.06)" }}>{msg.text}</div>
-              )}
-              {msg.reactions && (
-                <div style={{ display: "flex", gap: 6, marginTop: 6, marginLeft: 4 }}>
-                  {msg.reactions.map(r => (
-                    <button key={r.emoji} onClick={() => setLikedIds(p => { const n = new Set(p); n.has(msg.id) ? n.delete(msg.id) : n.add(msg.id); return n; })} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer", background: likedIds.has(msg.id) ? "#FFF0F5" : "rgba(0,0,0,0.05)", color: likedIds.has(msg.id) ? club.color : "#888" }}>
-                      {r.emoji} {likedIds.has(msg.id) ? r.count + 1 : r.count}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <span style={{ fontSize: 10, color: "rgba(0,0,0,0.3)", marginTop: 4, marginLeft: 4 }}>{msg.time}</span>
-            </div>
-          </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Pending image preview */}
-      {pendingImage && (
-        <div style={{ padding: "8px 16px 0", background: "white" }}>
-          <div style={{ position: "relative", width: 80, height: 80, borderRadius: 12, overflow: "hidden" }}>
-            <Image src={pendingImage} alt="" fill unoptimized style={{ objectFit: "cover" }} />
-            <button onClick={() => setPendingImage(null)} style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="7" height="7" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
-            </button>
-          </div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const, padding: "40px 20px" }}>
+          <p style={{ fontSize: 32, marginBottom: 8 }}>💬</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#111" }}>Club conversation isn&apos;t available yet</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", lineHeight: 1.6, marginTop: 8, maxWidth: 280 }}>
+            We&apos;re still building group chat for {club.name}. Check back soon.
+          </p>
         </div>
-      )}
-
-      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, borderTop: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
-        {/* Photo button */}
-        <button onClick={() => fileRef.current?.click()} style={{ width: 36, height: 36, borderRadius: "50%", background: `${club.color}12`, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={club.color} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </button>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", borderRadius: 24, padding: "10px 16px", background: "#FFF5F8", border: "1.5px solid #FFE0EE" }}>
-          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Say something…" style={{ flex: 1, background: "transparent", fontSize: 14, outline: "none", border: "none", color: "#111" }} />
-        </div>
-        <button onClick={send} disabled={!input.trim() && !pendingImage} style={{ width: 40, height: 40, borderRadius: "50%", background: club.color, border: "none", cursor: (input.trim() || pendingImage) ? "pointer" : "default", opacity: (input.trim() || pendingImage) ? 1 : 0.3, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
-        </button>
       </div>
     </div>
   );
@@ -904,7 +641,7 @@ export interface ClubCustomization {
   cover_url?: string;
 }
 
-export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInClub = 0, isOwner = false, customization }: { club?: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
+export function ClubLandingPage({ club, isMember = false, daysInClub = 0, isOwner = false, customization }: { club: ClubLandingData; isMember?: boolean; daysInClub?: number; isOwner?: boolean; customization?: ClubCustomization }) {
   const [applied, setApplied] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
@@ -912,13 +649,8 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
   const [clubTab, setClubTab] = useState<ClubTab>("about");
   const [introText, setIntroText] = useState("");
   const [, startT] = useTransition();
-  const [kickedIds, setKickedIds] = useState<Set<string>>(new Set());
-  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
-  const [memberMenu, setMemberMenu] = useState<string | null>(null);
   const [showMyCard, setShowMyCard] = useState(false);
   const [showClubKit, setShowClubKit] = useState(false);
-  const [memberSearch, setMemberSearch] = useState("");
-  const [ownerFilter, setOwnerFilter] = useState<"all" | "flagged" | "blocked">("all");
 
   const brandColor = customization?.accent_color ?? club.color;
   const isPaid = club.accessType === "one_time" || club.accessType === "subscription";
@@ -1002,22 +734,12 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   powered by Club Mama ♡
                 </p>
 
-                {/* Member faces + live pulse */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
-                  <div style={{ display: "flex" }}>
-                    {(["A","K","F","T","O"] as string[]).map((init, i) => (
-                      <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid #FFF0F8", marginLeft: i > 0 ? -7 : 0, background: [PINK,"#FF69B4","#6b4fa0","#3e7c6b","#b07856"][i], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "white", flexShrink: 0 }}>{init}</div>
-                    ))}
-                    <div style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid #FFF0F8", marginLeft: -7, background: "rgba(0,0,0,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 700, color: "rgba(0,0,0,0.4)", flexShrink: 0 }}>+{club.memberCount - 5}</div>
+                {/* Member count */}
+                {club.memberCount > 0 && (
+                  <div style={{ marginTop: 18 }}>
+                    <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.55)" }}>{club.memberCount.toLocaleString()} girls total</p>
                   </div>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", flexShrink: 0 }} />
-                      <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,0.55)" }}>47 active this week</p>
-                    </div>
-                    <p style={{ fontSize: 10, color: "rgba(0,0,0,0.36)", marginTop: 1 }}>{club.memberCount.toLocaleString()} girls total</p>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Right: stacked polaroids */}
@@ -1087,9 +809,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   );
                 })}
               </div>
-              <button style={{ marginTop: 18, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: club.color, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              <Link href="/member/happenings" style={{ display: "inline-block", marginTop: 18, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: club.color, textDecoration: "none" }}>
                 VIEW ALL EVENTS →
-              </button>
+              </Link>
             </div>
           </section>
 
@@ -1209,30 +931,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                   <div style={{ display: "inline-flex", background: `${club.color}`, borderRadius: 8, padding: "2px 8px", marginBottom: 8 }}>
                     <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.14em", color: "white" }}>THIS WEEK&apos;S PROMPT</span>
                   </div>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: 8 }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.78)", lineHeight: 1.55 }}>
                     &ldquo;{(club.zones ?? [])[0]?.weeklyPrompt ?? "What inspired you most this week?"}&rdquo;
                   </p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.32)" }}>
-                    14 zone members responded · <span style={{ color: club.color }}>join to read them</span>
-                  </p>
-                </div>
-
-                {/* Blurred activity previews */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, filter: "blur(3px)", userSelect: "none", pointerEvents: "none" }}>
-                  {[
-                    { init: "A", col: PINK, lines: ["The Degas pastels at the Met — I never realized", "how textured they are in person. I stood there for", "20 minutes and it changed something in me."], len: [180, 168, 152] },
-                    { init: "K", col: "#FF69B4", lines: ["I finally did a 30-minute sit with one painting at the", "Frick. Slow looking genuinely changes how you see."], len: [200, 175] },
-                  ].map((item, idx) => (
-                    <div key={idx} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 14, padding: "10px 12px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                        <div style={{ width: 26, height: 26, borderRadius: "50%", background: item.col, flexShrink: 0 }} />
-                        <div style={{ height: 8, width: 72, background: "rgba(255,255,255,0.25)", borderRadius: 4 }} />
-                      </div>
-                      {item.lines.map((_, li) => (
-                        <div key={li} style={{ height: 8, width: item.len[li], maxWidth: "100%", background: "rgba(255,255,255,0.16)", borderRadius: 4, marginBottom: li < item.lines.length - 1 ? 5 : 0 }} />
-                      ))}
-                    </div>
-                  ))}
                 </div>
 
                 <div style={{ marginTop: 14, textAlign: "center" }}>
@@ -1491,12 +1192,9 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                     <p style={{ fontSize: 11, color: "rgba(0,0,0,0.4)", marginTop: 2 }}>{seat.date}</p>
                     {seat.price && <p style={{ fontSize: 11, fontWeight: 600, marginTop: 3, color: club.color }}>{seat.price}</p>}
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 22, fontWeight: 700, color: club.color, lineHeight: 1 }}>{seat.seats}</p>
-                      <p style={{ fontSize: 10, color: "rgba(0,0,0,0.38)" }}>seats</p>
-                    </div>
-                    <button style={{ padding: "8px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: "white", background: club.color, border: "none", cursor: "pointer" }}>RSVP</button>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: 22, fontWeight: 700, color: club.color, lineHeight: 1 }}>{seat.seats}</p>
+                    <p style={{ fontSize: 10, color: "rgba(0,0,0,0.38)" }}>seats</p>
                   </div>
                 </div>
               ))}
@@ -1528,137 +1226,13 @@ export function ClubLandingPage({ club = DEFAULT_CLUB, isMember = false, daysInC
                 </div>
               )}
 
-              {/* Search bar */}
-              <div style={{ position: "relative" as const, marginBottom: 12 }}>
-                <svg style={{ position: "absolute" as const, left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input
-                  type="text"
-                  placeholder="Search members…"
-                  value={memberSearch}
-                  onChange={e => setMemberSearch(e.target.value)}
-                  style={{ width: "100%", padding: "10px 14px 10px 34px", borderRadius: 14, border: "1.5px solid rgba(0,0,0,0.08)", background: "white", fontFamily: "var(--font-jost)", fontSize: 13, color: "#111", outline: "none", boxSizing: "border-box" as const }}
-                />
-              </div>
-
-              {/* Owner filter tabs: All / Flagged / Blocked */}
-              {isOwner && (() => {
-                const flaggedCount = CLUB_MEMBERS.filter(m => m.reports > 0 && !kickedIds.has(m.id)).length;
-                const blockedCount = CLUB_MEMBERS.filter(m => blockedIds.has(m.id) && !kickedIds.has(m.id)).length;
-                const activeCount = CLUB_MEMBERS.filter(m => !kickedIds.has(m.id)).length;
-                return (
-                  <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-                    {([
-                      { id: "all",     label: `All (${activeCount})`,          alert: false },
-                      { id: "flagged", label: `Flagged (${flaggedCount})`,      alert: flaggedCount > 0 },
-                      { id: "blocked", label: `Blocked (${blockedCount})`,      alert: blockedCount > 0 },
-                    ] as { id: "all"|"flagged"|"blocked"; label: string; alert: boolean }[]).map(f => (
-                      <button key={f.id} onClick={() => setOwnerFilter(f.id)}
-                        style={{ padding: "6px 12px", borderRadius: 999, fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: "none", transition: "all 0.15s",
-                          background: ownerFilter === f.id ? (f.id === "flagged" ? "#FEF2F2" : f.id === "blocked" ? "#FFF7ED" : club.color) : "rgba(0,0,0,0.05)",
-                          color: ownerFilter === f.id ? (f.id === "flagged" ? "#ef4444" : f.id === "blocked" ? "#F59E0B" : "white") : (f.alert ? (f.id === "flagged" ? "#ef4444" : "#F59E0B") : "rgba(0,0,0,0.45)"),
-                        }}>
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: club.color, marginBottom: 12 }}>{club.memberCount.toLocaleString()} MEMBERS</p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {CLUB_MEMBERS
-                  .filter(m => !kickedIds.has(m.id))
-                  .filter(m => memberSearch === "" || m.name.toLowerCase().includes(memberSearch.toLowerCase()))
-                  .filter(m => {
-                    if (!isOwner) return true;
-                    if (ownerFilter === "flagged") return m.reports > 0;
-                    if (ownerFilter === "blocked") return blockedIds.has(m.id);
-                    return true;
-                  })
-                  .map(m => {
-                    const isMenuOpen = memberMenu === m.id;
-                    const isBlocked = blockedIds.has(m.id);
-                    const isMama = m.role === "Club Mama";
-                    const hasReports = m.reports > 0;
-                    return (
-                      <div key={m.name} style={{ background: "white", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: isOwner && hasReports ? "0 0 0 1.5px rgba(239,68,68,0.3), 0 2px 12px rgba(239,68,68,0.08)" : "0 1px 6px rgba(0,0,0,0.04)", opacity: isBlocked ? 0.5 : 1, position: "relative" as const }}>
-                        {/* Avatar with report badge */}
-                        <div style={{ position: "relative" as const, flexShrink: 0 }}>
-                          <div style={{ width: 40, height: 40, borderRadius: "50%", background: m.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white" }}>{m.initial}</div>
-                          {isOwner && hasReports && (
-                            <div style={{ position: "absolute" as const, top: -3, right: -3, width: 17, height: 17, borderRadius: "50%", background: "#ef4444", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white", lineHeight: 1 }}>{m.reports}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" as const }}>
-                            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 600, color: "#111" }}>{m.name}</p>
-                            {isBlocked && <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#F59E0B", background: "#FFF7ED", padding: "2px 7px", borderRadius: 999 }}>BLOCKED</span>}
-                            {isOwner && hasReports && <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#ef4444", background: "#FEF2F2", padding: "2px 7px", borderRadius: 999 }}>{m.reports} REPORT{m.reports !== 1 ? "S" : ""}</span>}
-                          </div>
-                          {isMama && <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: club.color }}>Club Mama</span>}
-                        </div>
-
-                        {/* Owner ··· menu → Block + Remove */}
-                        {isOwner && !isMama && (
-                          <div style={{ position: "relative" as const }}>
-                            <button onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
-                              style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                            </button>
-                            {isMenuOpen && (
-                              <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 160, zIndex: 20, overflow: "hidden" }}>
-                                <button onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
-                                  style={{ width: "100%", padding: "12px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
-                                </button>
-                                <button onClick={() => { setKickedIds(prev => new Set([...prev, m.id])); setMemberMenu(null); }}
-                                  style={{ width: "100%", padding: "12px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
-                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Remove from club</p>
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Regular member ··· menu */}
-                        {!isOwner && !isMama && (
-                          <div style={{ position: "relative" as const }}>
-                            <button onClick={() => setMemberMenu(isMenuOpen ? null : m.id)}
-                              style={{ width: 32, height: 32, borderRadius: "50%", background: isMenuOpen ? "#F0F0F0" : "transparent", border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#888" }}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                            </button>
-                            {isMenuOpen && (
-                              <div style={{ position: "absolute" as const, right: 0, top: 36, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", border: "1px solid rgba(0,0,0,0.08)", minWidth: 140, zIndex: 20, overflow: "hidden" }}>
-                                <button onClick={() => setMemberMenu(null)}
-                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#111" }}>Connect</p>
-                                </button>
-                                <button onClick={() => { setBlockedIds(prev => { const n = new Set(prev); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; }); setMemberMenu(null); }}
-                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 10 }}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isBlocked ? "#22c55e" : "#F59E0B"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: isBlocked ? "#22c55e" : "#F59E0B" }}>{isBlocked ? "Unblock" : "Block"}</p>
-                                </button>
-                                <button onClick={() => setMemberMenu(null)}
-                                  style={{ width: "100%", padding: "11px 16px", textAlign: "left" as const, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, color: "#ef4444" }}>Report</p>
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {!isOwner && isMama && (
-                          <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, color: club.color, background: `${club.color}10`, border: "none", cursor: "pointer" }}>Connect</button>
-                        )}
-                      </div>
-                    );
-                  })}
+              {/* Honest empty state — no member directory API for the member-facing club page yet */}
+              <div style={{ textAlign: "center" as const, padding: "48px 20px", background: "white", borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)" }}>
+                <p style={{ fontSize: 32, marginBottom: 8 }}>🌸</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: DARK, marginBottom: 6 }}>Member directory coming soon</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", lineHeight: 1.6 }}>
+                  {club.memberCount > 0 ? `${club.memberCount.toLocaleString()} women are in this club.` : "This club is just getting started."} We&apos;re not ready to show the member list here yet.
+                </p>
               </div>
             </div>
           )}
