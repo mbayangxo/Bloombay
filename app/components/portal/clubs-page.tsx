@@ -432,9 +432,9 @@ export function ClubsPage() {
                 );
               })}
             </div>
-            <button style={{ marginTop: 12, marginBottom: 10, fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <Link href="/member/happenings" style={{ display: "inline-block", marginTop: 12, marginBottom: 10, fontSize: 8, fontWeight: 800, letterSpacing: "0.14em", color: PINK, textDecoration: "none" }}>
               SEE FULL CALENDAR →
-            </button>
+            </Link>
             <TornEdge color={BOARD} height={14} style={{ marginLeft: -14, marginRight: -14 }} />
           </div>
         </div>
@@ -475,60 +475,8 @@ export function ClubsPage() {
                 );
               })}
             </div>
-            <button style={{ marginTop: 14, fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: PINK, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-              START YOUR JOURNEY →
-            </button>
           </div>
         )}
-      </section>
-
-      {/* ══════════ CLUB SPOTLIGHT ══════════ */}
-      <section style={{ padding: "0 18px 28px" }}>
-        <div style={{ position: "relative" }}>
-          {/* Tape on spotlight */}
-          <div style={{ position: "absolute", top: -10, left: 24, zIndex: 5 }}>
-            <WashiTape color="mint" width={48} height={18} rot={-2} />
-          </div>
-
-          <div style={{
-            background: PINK,
-            backgroundImage: PAPER_TEX,
-            backgroundSize: "200px 200px",
-            padding: "20px 18px",
-            boxShadow: `0 6px 32px ${PINK}55, 3px 5px 20px rgba(0,0,0,0.4)`,
-            transform: "rotate(-0.3deg)",
-            position: "relative",
-          }}>
-            {/* Torn top edge */}
-            <TornEdge color="transparent" height={8} style={{ position: "absolute", top: 0, left: 0, right: 0, transform: "scaleY(-1)" }} />
-
-            <p style={{ fontSize: 7, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>CLUB SPOTLIGHT</p>
-
-            <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "white", lineHeight: 1.4 }}>
-                  Museum Girls are going to The Met this weekend ♡
-                </p>
-                <button style={{ marginTop: 14, background: DARK, color: "white", border: "none", borderRadius: 20, padding: "8px 18px", fontWeight: 700, fontSize: 11, letterSpacing: "0.1em", cursor: "pointer" }}>
-                  I&apos;M IN
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, gap: 6 }}>
-                <p style={{ fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.1em", textAlign: "center", lineHeight: 1.4 }}>MEMBERS<br />GOING</p>
-                {/* Avatar stack */}
-                <div style={{ display: "flex" }}>
-                  {["A","M","J","L"].map((letter, i) => (
-                    <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: ["#C80060","#A8004C","#E8006A","#FF5BAD"][i], border: `2px solid ${PINK}`, marginLeft: i > 0 ? -8 : 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 10, color: "white", flexShrink: 0 }}>
-                      {letter}
-                    </div>
-                  ))}
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: `2px solid ${PINK}`, marginLeft: -8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "white", flexShrink: 0 }}>+28</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ══════════ EXPLORE BY VIBE ══════════ */}
@@ -578,7 +526,7 @@ export function ClubsPage() {
         <div style={{ padding: "0 18px", display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, boxShadow: `0 0 8px ${PINK}` }} />
           <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)" }}>NEAR YOU</span>
-          <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,105,180,0.8)" }}>📍 SoHo, NYC</span>
+          <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,105,180,0.8)" }}>📍 by neighborhood</span>
         </div>
 
         <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingLeft: 18, paddingRight: 18, paddingBottom: 16, scrollbarWidth: "none" as const }}>
@@ -628,25 +576,6 @@ export function ClubsPage() {
             <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l4 4.5-4 4.5"/></svg>
           </div>
         </Link>
-      </section>
-
-      {/* ── START YOUR OWN CLUB ── */}
-      <section style={{ padding: "0 18px 60px" }}>
-        <div style={{ background: DARK, borderRadius: 20, padding: "24px 20px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: `${PINK}18`, pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -10, left: 30, width: 60, height: 60, borderRadius: "50%", background: `${PINK}10`, pointerEvents: "none" }} />
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>CAN&apos;T FIND YOUR VIBE?</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 22, color: "white", lineHeight: 1.1, marginBottom: 10 }}>Start your own club.</p>
-          <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 20 }}>
-            Every great club started with one woman who said &quot;I wish there was a place for this.&quot;
-          </p>
-          <Link href="/member/clubs/create" style={{ textDecoration: "none" }}>
-            <div style={{ background: PINK, borderRadius: 999, padding: "14px 24px", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: `0 4px 20px ${PINK}55` }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>CREATE A CLUB</span>
-              <span style={{ fontSize: 14 }}>✦</span>
-            </div>
-          </Link>
-        </div>
       </section>
 
     </div>
