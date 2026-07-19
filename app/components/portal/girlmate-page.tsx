@@ -15,7 +15,7 @@ const INK   = "#111111";
 type Tab = "available" | "looking";
 
 interface Listing {
-  id: number;
+  id: string | number;
   type: "room" | "apartment" | "roommate-wanted";
   city: string;
   neighborhood: string;
@@ -29,8 +29,8 @@ interface Listing {
   weed: boolean;
   halalKitchen: boolean;
   description: string;
-  poster: { initial: string; color: string; name: string; showProfile: boolean; clubs?: string[] };
-  compatibility: number;
+  poster: { initial: string; color: string; name: string; showProfile: boolean; userId?: string; clubs?: string[] };
+  compatibility: number | null;
   yandeNote: string;
   ageRange?: string;
   lifestyleTags?: string[];
@@ -54,7 +54,7 @@ interface Listing {
 }
 
 interface Seeker {
-  id: number;
+  id: string | number;
   initial: string;
   color: string;
   name: string;
@@ -64,9 +64,10 @@ interface Seeker {
   moveIn: string;
   type: "room" | "apartment" | "co-search";
   showProfile: boolean;
+  userId?: string;
   clubs?: string[];
   note: string;
-  compatibility: number;
+  compatibility: number | null;
   yandeNote: string;
   ageRange?: string;
   lifestyleTags?: string[];
@@ -90,84 +91,6 @@ interface Seeker {
 }
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
-
-const LISTINGS: Listing[] = [
-  {
-    id: 1, type: "room",
-    city: "New York City", neighborhood: "Williamsburg",
-    price: 1450, availableFrom: "Aug 1", availableTo: "Nov 30",
-    furnished: true, bathroom: "private", pets: false, smoking: false, weed: false, halalKitchen: false,
-    description: "Sunny room in a 3BR with two other creatives. Great light, walk to the L. Looking for someone quiet, tidy, no smoking.",
-    poster: { initial: "A", color: "#FF1F7D", name: "Amara D.", showProfile: true, clubs: ["Book Girls", "Museum Girls"] },
-    compatibility: 91,
-    yandeNote: "You and Amara are both in Book Girls and have saved 4 of the same cafés. She saves quiet, non-smoking spaces almost exclusively.",
-  },
-  {
-    id: 2, type: "apartment",
-    city: "New York City", neighborhood: "Crown Heights",
-    price: 2800, availableFrom: "Sep 1", availableTo: "Dec 31",
-    furnished: false, bathroom: "private", pets: true, smoking: false, weed: false, halalKitchen: false,
-    description: "Full 1BR sublet while I'm traveling for work. Great block, laundry in building. Cat-friendly. No smoking.",
-    poster: { initial: "F", color: "#C084FC", name: "Fatima A.", showProfile: true, clubs: ["African Girls Club", "Travel Girls"] },
-    compatibility: 78,
-    yandeNote: "Fatima is in African Girls Club. You've both saved the same 2 restaurants in Crown Heights. Pet-friendly matches your answers.",
-  },
-  {
-    id: 3, type: "roommate-wanted",
-    city: "London", neighborhood: "Peckham",
-    price: 950, availableFrom: "Jul 15",
-    furnished: true, bathroom: "shared", pets: false, smoking: false, weed: true, halalKitchen: false,
-    description: "Looking for a third roommate in our flat. We're both early-30s, creative, social but respect space. Great area, tons of cafés.",
-    poster: { initial: "Z", color: "#0EA5E9", name: "Zara M.", showProfile: false },
-    compatibility: 65,
-    yandeNote: "Zara hasn't linked her BloomBay profile — compatibility is based on your quiz answers only. She allows weed use.",
-  },
-  {
-    id: 4, type: "room",
-    city: "New York City", neighborhood: "Astoria",
-    price: 1200, availableFrom: "Aug 15",
-    furnished: false, bathroom: "shared", pets: true, smoking: false, weed: false, halalKitchen: true,
-    description: "Large bedroom in a sunny 2BR with me and my dog. Halal kitchen, no pork in the apartment. Clean, quiet, warm vibes.",
-    poster: { initial: "N", color: "#FF69B4", name: "Nadia K.", showProfile: true, clubs: ["Wellness Girls", "Dinner Society"] },
-    compatibility: 84,
-    yandeNote: "Nadia keeps a halal kitchen — you marked that as important. She's in Dinner Society, and you've both saved the same spots in Astoria.",
-  },
-];
-
-const SEEKERS: Seeker[] = [
-  {
-    id: 1, initial: "I", color: "#FF1F7D", name: "Ifeoma O.",
-    city: "New York City", neighborhood: "Brooklyn (flexible)",
-    budget: 1500, moveIn: "Aug 1", type: "room", showProfile: true, clubs: ["African Girls Club"],
-    note: "Just moved from Lagos. Looking for a quiet, clean space. Halal kitchen preferred. Non-smoker.",
-    compatibility: 88,
-    yandeNote: "You and Ifeoma are both in African Girls Club. She has similar lifestyle answers — early riser, tidy, no smoking.",
-  },
-  {
-    id: 2, initial: "C", color: "#8B5CF6", name: "Camille D.",
-    city: "New York City", neighborhood: "West Village / SoHo",
-    budget: 2200, moveIn: "Sep 1", type: "apartment", showProfile: true, clubs: ["Soft Life Club NYC"],
-    note: "Relocated from Paris. Need a proper apartment, not just a room. Quiet, no parties, good taste.",
-    compatibility: 72,
-    yandeNote: "Camille recently moved from Paris. Detailed profile — good match on lifestyle even without shared clubs.",
-  },
-  {
-    id: 3, initial: "T", color: "#D97706", name: "Tara L.",
-    city: "New York City", neighborhood: "West Village",
-    budget: 1800, moveIn: "Flexible", type: "co-search", showProfile: true, clubs: ["Dinner Society", "Book Girls"],
-    note: "Looking for someone to apartment-hunt with in the West Village. Budget $1800 each. Let's find something good together.",
-    compatibility: 94,
-    yandeNote: "You and Tara are 94% compatible because you're both in Book Girls and Dinner Society, you've saved 6 of the same places, and you both tend to show up for the same type of events.",
-  },
-  {
-    id: 4, initial: "S", color: "#0EA5E9", name: "Sade T.",
-    city: "London", neighborhood: "Peckham / Brixton",
-    budget: 1100, moveIn: "Jul 1", type: "room", showProfile: true, clubs: ["Book Girls"],
-    note: "Just moved from New York. Need a room in south London. Quiet bookworm. Prefer no weed in the flat.",
-    compatibility: 80,
-    yandeNote: "Sade is in Book Girls. She's new to London — looking for community as much as a room.",
-  },
-];
 
 const QUIZ = [
   { id: "sleep", q: "Sleep schedule?", opts: ["Early bird (in by 10pm)", "Night owl (up past midnight)", "Flexible"] },
@@ -241,7 +164,8 @@ function Avatar({ initial, color, size = 40 }: { initial: string; color: string;
   );
 }
 
-function CompatBadge({ score }: { score: number }) {
+function CompatBadge({ score }: { score: number | null }) {
+  if (score === null) return null;
   const c = score >= 85 ? PINK : score >= 70 ? "#D97706" : "#6B7280";
   const bg = score >= 85 ? "#FFF0F5" : score >= 70 ? "#FFFBEB" : "#F9FAFB";
   return (
@@ -461,6 +385,21 @@ function SeekerCard({ s, onOpen }: { s: Seeker; onOpen: () => void }) {
   );
 }
 
+// ── Empty State ───────────────────────────────────────────────────────────────
+
+function EmptyGirlMateState({ title, body, onPost }: { title: string; body: string; onPost: () => void }) {
+  return (
+    <div style={{ textAlign: "center", padding: "48px 20px", background: "white", borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)" }}>
+      <p style={{ fontSize: 32, marginBottom: 8 }}>🏡</p>
+      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: INK, marginBottom: 6 }}>{title}</p>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", lineHeight: 1.6, marginBottom: 18 }}>{body}</p>
+      <button onClick={onPost} style={{ padding: "12px 24px", background: PINK, color: "white", border: "none", borderRadius: 999, fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+        + Post yours
+      </button>
+    </div>
+  );
+}
+
 // ── Detail Sheet (shared) ─────────────────────────────────────────────────────
 
 function DetailSheet({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
@@ -488,24 +427,74 @@ function YandeNote({ note }: { note: string }) {
   );
 }
 
-function SendButton({ name, sent, onSend }: { name: string; sent: boolean; onSend: () => void }) {
-  return sent ? (
-    <div style={{ textAlign: "center", padding: "16px 0" }}>
-      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: INK }}>Message sent. ✦</p>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", marginTop: 4 }}>You&apos;ll hear back through BloomBay messages.</p>
+function MessageComposer({ toUserId, listingId, label }: { toUserId?: string; listingId: string | number; label: string }) {
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!toUserId) {
+    return (
+      <div style={{ textAlign: "center", padding: "16px 0" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888" }}>
+          This Bloomie hasn&apos;t linked her BloomBay profile, so messaging isn&apos;t available yet.
+        </p>
+      </div>
+    );
+  }
+
+  if (sent) {
+    return (
+      <div style={{ textAlign: "center", padding: "16px 0" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, color: INK }}>Message sent. ✦</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#888", marginTop: 4 }}>You&apos;ll hear back through BloomBay messages.</p>
+      </div>
+    );
+  }
+
+  async function send() {
+    if (!message.trim() || sending) return;
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/girlmate/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to_user_id: toUserId, listing_id: String(listingId), body: message.trim() }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        setError(d.error ?? "Something went wrong");
+        setSending(false);
+        return;
+      }
+      setSent(true);
+      sendYandeSignal("girlmate", "message_sent", {
+        object_id: String(listingId),
+        object_type: "girlmate_listing",
+      });
+    } catch {
+      setError("Something went wrong");
+      setSending(false);
+    }
+  }
+
+  return (
+    <div>
+      <textarea value={message} onChange={e => setMessage(e.target.value)}
+        placeholder={`Write to ${label}…`} rows={3}
+        style={{ width: "100%", padding: "13px 14px", borderRadius: 12, border: "1.5px solid #F0EBE4", background: "white", fontFamily: "var(--font-jost)", fontSize: 14, color: INK, outline: "none", boxSizing: "border-box", resize: "none", lineHeight: 1.6, marginBottom: 10 }} />
+      {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#B71C1C", marginBottom: 8 }}>{error}</p>}
+      <button onClick={send} disabled={!message.trim() || sending} style={{ width: "100%", padding: "16px", background: message.trim() ? PINK : "#eee", color: message.trim() ? "white" : "#bbb", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", cursor: message.trim() && !sending ? "pointer" : "default", boxShadow: message.trim() ? `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` : "none" }}>
+        {sending ? "Sending…" : `Message ${label} →`}
+      </button>
     </div>
-  ) : (
-    <button onClick={onSend} style={{ width: "100%", padding: "16px", background: PINK, color: "white", border: "none", borderRadius: 14, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", cursor: "pointer", boxShadow: `0 3px 0 rgba(150,0,55,0.7), 0 6px 20px ${PINK}44` }}>
-      {name} →
-    </button>
   );
 }
 
 // ── Listing Detail ────────────────────────────────────────────────────────────
 
 function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
-  const [sent, setSent] = useState(false);
-
   useEffect(() => {
     sendYandeSignal("girlmate", "profile_viewed", {
       target_id: typeof l.poster === "object" ? undefined : undefined,
@@ -572,17 +561,10 @@ function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
         <ProfileTags l={l} />
         <VoiceVideoDisplay voiceNoteUrl={l.voiceNoteUrl} videoIntroUrl={l.videoIntroUrl} />
         <YandeNote note={l.yandeNote} />
-        <SendButton
-          name={`Message ${l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}`}
-          sent={sent}
-          onSend={() => {
-            setSent(true);
-            sendYandeSignal("girlmate", "message_sent", {
-              object_id: String(l.id),
-              object_type: "girlmate_listing",
-              meta: { compat_score: l.compatibility },
-            });
-          }}
+        <MessageComposer
+          toUserId={l.poster.userId}
+          listingId={l.id}
+          label={l.poster.showProfile ? l.poster.name.split(" ")[0] : "this Bloomie"}
         />
       </div>
     </DetailSheet>
@@ -592,7 +574,6 @@ function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
 // ── Seeker Detail ─────────────────────────────────────────────────────────────
 
 function SeekerDetail({ s, onClose }: { s: Seeker; onClose: () => void }) {
-  const [sent, setSent] = useState(false);
   return (
     <DetailSheet onClose={onClose}>
       <div style={{ padding: "16px 20px 48px" }}>
@@ -633,7 +614,11 @@ function SeekerDetail({ s, onClose }: { s: Seeker; onClose: () => void }) {
         <ProfileTags l={s} />
         <VoiceVideoDisplay voiceNoteUrl={s.voiceNoteUrl} videoIntroUrl={s.videoIntroUrl} />
         <YandeNote note={s.yandeNote} />
-        <SendButton name="Reach out" sent={sent} onSend={() => setSent(true)} />
+        <MessageComposer
+          toUserId={s.userId}
+          listingId={s.id}
+          label={s.showProfile ? s.name.split(" ")[0] : "this Bloomie"}
+        />
       </div>
     </DetailSheet>
   );
@@ -1278,8 +1263,8 @@ function apiToListing(r: any): Listing {
     weed: r.weed_ok ?? false,
     halalKitchen: r.halal_kitchen ?? false,
     description: r.description ?? "",
-    poster: { initial: name[0]?.toUpperCase() ?? "B", color: COLORS[colorIdx], name, showProfile: r.show_profile ?? true },
-    compatibility: 75,
+    poster: { initial: name[0]?.toUpperCase() ?? "B", color: COLORS[colorIdx], name, showProfile: r.show_profile ?? true, userId: r.profile?.id ?? undefined },
+    compatibility: null,
     yandeNote: r.yande_note ?? "A fellow Bloomie looking for the right match.",
     ageRange: r.age_range ?? undefined,
     lifestyleTags: r.lifestyle_tags ?? [],
@@ -1301,6 +1286,8 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
   const [showPost, setShowPost]               = useState(false);
   const [realListings, setRealListings]       = useState<Listing[]>([]);
   const [realSeekers, setRealSeekers]         = useState<Listing[]>([]);
+  const [loadingAvailable, setLoadingAvailable] = useState(true);
+  const [loadingLooking, setLoadingLooking]     = useState(true);
 
   async function loadListings(t: Tab) {
     try {
@@ -1312,6 +1299,10 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
       if (t === "available") setRealListings(mapped);
       else setRealSeekers(mapped);
     } catch { /* ignore */ }
+    finally {
+      if (t === "available") setLoadingAvailable(false);
+      else setLoadingLooking(false);
+    }
   }
 
   useEffect(() => {
@@ -1320,11 +1311,15 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const displayListings = realListings.length > 0 ? realListings : LISTINGS;
+  const displayListings = realListings;
   // Seekers from API are stored as Listing; cast to Seeker for compatibility view
-  const displaySeekers  = realSeekers.length  > 0
-    ? realSeekers.map(l => ({ id: l.id as unknown as number, initial: l.poster.initial, color: l.poster.color, name: l.poster.name, city: l.city, neighborhood: l.neighborhood, budget: l.price, moveIn: l.availableFrom, type: l.type as "room" | "apartment" | "co-search", showProfile: l.poster.showProfile, note: l.description, compatibility: l.compatibility, yandeNote: l.yandeNote }))
-    : SEEKERS;
+  const displaySeekers  = realSeekers.map(l => ({
+    id: l.id, initial: l.poster.initial, color: l.poster.color, name: l.poster.name,
+    city: l.city, neighborhood: l.neighborhood, budget: l.price, moveIn: l.availableFrom,
+    type: l.type as "room" | "apartment" | "co-search", showProfile: l.poster.showProfile, userId: l.poster.userId ?? undefined,
+    note: l.description, compatibility: l.compatibility, yandeNote: l.yandeNote,
+  }));
+  const loading = tab === "available" ? loadingAvailable : loadingLooking;
 
   return (
     <div style={{ minHeight: "100dvh", background: IVORY, paddingBottom: 120 }}>
@@ -1386,8 +1381,31 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
 
       {/* ── Feed ── */}
       <div style={{ padding: "18px 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
-        {tab === "available" && displayListings.map(l => <ListingCard key={l.id} l={l} onOpen={() => setSelectedListing(l)} />)}
-        {tab === "looking"   && displaySeekers.map(s  => <SeekerCard  key={s.id} s={s as unknown as Seeker} onOpen={() => setSelectedSeeker(s as unknown as Seeker)} />)}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb" }}>Loading…</p>
+          </div>
+        ) : tab === "available" ? (
+          displayListings.length > 0 ? (
+            displayListings.map(l => <ListingCard key={l.id} l={l} onOpen={() => setSelectedListing(l)} />)
+          ) : (
+            <EmptyGirlMateState
+              title="No listings yet"
+              body="When Bloomies post rooms, apartments, or sublets in your city, they'll show up here."
+              onPost={() => setShowPost(true)}
+            />
+          )
+        ) : (
+          displaySeekers.length > 0 ? (
+            displaySeekers.map(s => <SeekerCard key={s.id} s={s as unknown as Seeker} onOpen={() => setSelectedSeeker(s as unknown as Seeker)} />)
+          ) : (
+            <EmptyGirlMateState
+              title="No one's looking yet"
+              body="When Bloomies post that they need a room or a co-search partner, they'll show up here."
+              onPost={() => setShowPost(true)}
+            />
+          )
+        )}
       </div>
 
       {/* ── Sheets ── */}
