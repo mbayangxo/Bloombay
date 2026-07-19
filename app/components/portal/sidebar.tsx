@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
 
 const NAV = [
@@ -61,15 +62,24 @@ const NAV = [
   },
 ];
 
-export function Sidebar() {
+type SidebarUser = {
+  name: string;
+  initial: string;
+  neighborhood?: string | null;
+  isFoundingMother?: boolean;
+};
+
+export function Sidebar({ user }: { user?: SidebarUser }) {
   const pathname = usePathname();
+  const name = user?.name?.trim() || "Member";
+  const initial = user?.initial?.trim() || (name[0] ?? "?").toUpperCase();
+  const place = user?.neighborhood?.trim() || null;
 
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-full w-60 flex-col z-40"
       style={{ background: "#111111" }}
     >
-      {/* Logo */}
       <div className="px-6 py-7 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3 mb-1">
           <BBLogo size={28} light />
@@ -78,11 +88,10 @@ export function Sidebar() {
           BLOOM<span style={{ color: "#FF1F7D" }}>BAY</span>
         </p>
         <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-          Founding Members · NYC
+          Members · NYC
         </p>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-5 flex flex-col gap-1">
         {NAV.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -104,29 +113,33 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Founding badge */}
-      <div className="px-4 py-3 mx-3 mb-2 rounded-2xl" style={{ background: "rgba(255,31,125,0.12)" }}>
-        <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>FOUNDING MOTHER</p>
-        <p className="text-white text-xs mt-0.5 opacity-60">1 of 100 · NYC</p>
-      </div>
+      {user?.isFoundingMother && (
+        <div className="px-4 py-3 mx-3 mb-2 rounded-2xl" style={{ background: "rgba(255,31,125,0.12)" }}>
+          <p className="text-xs font-bold" style={{ color: "#FF1F7D" }}>FOUNDING MOTHER</p>
+          <p className="text-white text-xs mt-0.5 opacity-60">NYC</p>
+        </div>
+      )}
 
-      {/* User */}
       <div className="px-5 py-5 border-t flex items-center gap-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
           style={{ background: "#FF1F7D", color: "white" }}
         >
-          M
+          {initial}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold text-sm leading-none">Maya L.</p>
-          <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>Brooklyn · NYC</p>
+          <p className="text-white font-semibold text-sm leading-none">{name}</p>
+          {place && (
+            <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{place}</p>
+          )}
         </div>
-        <button style={{ color: "rgba(255,255,255,0.3)" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-          </svg>
-        </button>
+        <form action={logout}>
+          <button type="submit" aria-label="Log out" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+            </svg>
+          </button>
+        </form>
       </div>
     </aside>
   );
