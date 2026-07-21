@@ -313,7 +313,7 @@ export function LandingPage() {
           MOBILE — BLACK STATEMENT — first thing you see
       ══════════════════════════════════════════════════════ */}
       {/* ── Mobile black circle — matches the desktop circular motif ── */}
-      <section className="bb-mobile-only" style={{ background: IVORY, flexDirection: "column", justifyContent: "flex-start", overflow: "visible", position: "relative", padding: "20px 18px" }}>
+      <section className="bb-mobile-only" style={{ background: PINK, flexDirection: "column", justifyContent: "flex-start", overflow: "visible", position: "relative", padding: "20px 18px" }}>
         <div style={{ background: PINK, borderRadius: 36, overflow: "hidden", position: "relative" }}>
           {/* Subtle pink glow */}
           <div style={{ position: "absolute", bottom: -60, left: -60, width: 280, height: 280, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}20 0%, transparent 70%)`, pointerEvents: "none" }} />
