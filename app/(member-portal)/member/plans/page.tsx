@@ -1268,9 +1268,13 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
               </div>
               )}
             </div>
-            <button onClick={() => setDone(true)} disabled={!message.trim() || clubId === null || CLUBS_LIST.length === 0} className="w-full py-4 rounded-full text-sm font-bold"
-              style={message.trim() && clubId !== null && CLUBS_LIST.length > 0 ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-              {CLUBS_LIST.length === 0 ? "No clubs available" : message.trim() && clubId !== null ? `Post to ${CLUBS_LIST.find(c => c.id === clubId)?.name} →` : !message.trim() ? "Write your plan first" : "Choose a club"}
+            <button
+              type="button"
+              disabled
+              className="w-full py-4 rounded-full text-sm font-bold"
+              style={{ background: "#F5E8EE", color: "#C8A0B0" }}
+            >
+              Posting to clubs isn&apos;t available yet
             </button>
           </div>
         )}
