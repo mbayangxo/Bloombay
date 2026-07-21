@@ -2738,7 +2738,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             <div style={cardStyle}>
               <p style={sectionLabel}>BLOCKED USERS</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#aaa", marginBottom: 14, lineHeight: 1.5 }}>
-                Blocking sends a request to our safety team, who review and action it. You&apos;ll stop seeing them in this list right away.
+                Submit a block request to our safety team. This does not instantly hide them across BloomBay — our team reviews and actions each request.
               </p>
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 <input
@@ -2750,9 +2750,9 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                   onKeyDown={e => {
                     if (e.key === "Enter" && blockInput.trim()) {
                       const name = blockInput.trim();
-                      setBlockedUsers(prev => [...prev, name]);
                       setBlockInput("");
                       fetch("/api/member/safety-reports", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: "safety", body: `Block request: @${name}` }) }).catch(() => {});
+                      setBlockedUsers(prev => prev.includes(name) ? prev : [...prev, name]);
                     }
                   }}
                 />
@@ -2760,13 +2760,13 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                   onClick={() => {
                     if (!blockInput.trim()) return;
                     const name = blockInput.trim();
-                    setBlockedUsers(prev => [...prev, name]);
                     setBlockInput("");
                     fetch("/api/member/safety-reports", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: "safety", body: `Block request: @${name}` }) }).catch(() => {});
+                    setBlockedUsers(prev => prev.includes(name) ? prev : [...prev, name]);
                   }}
                   style={{ ...outlineBtn, flexShrink: 0, padding: "12px 16px" } as React.CSSProperties}
                 >
-                  Block
+                  Request block
                 </button>
               </div>
               {blockedUsers.length > 0 && (

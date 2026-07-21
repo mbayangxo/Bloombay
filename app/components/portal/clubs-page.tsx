@@ -17,7 +17,7 @@ const PAPER = "#FFFFFF";
 
 const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
 
-type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null; neighborhood?: string | null; category?: string | null };
+type RealClub = { id: string; name: string; description: string | null; primary_color: string | null; cover_url: string | null; slug: string | null; neighborhood?: string | null; category?: string | null; member_count?: number | null; created_at?: string | null };
 type RealGathering = { id: string; title: string; starts_at: string; venue: string | null; neighborhood: string | null };
 
 const ROTS = [-2, 1.5, -1, 2, -1.5, 0.5, -0.8];
@@ -61,7 +61,7 @@ export function ClubsPage() {
     const supabase = createClient();
     supabase
       .from("clubs")
-      .select("id, name, description, primary_color, cover_url, slug, neighborhood, category")
+      .select("id, name, description, primary_color, cover_url, slug, neighborhood, category, member_count, created_at")
       .eq("is_active", true)
       .order("member_count", { ascending: false })
       .limit(100)
@@ -93,23 +93,31 @@ export function ClubsPage() {
   }, []);
 
 
-  const filteredClubs = clubs.filter(c => {
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
-      const hay = `${c.name} ${c.description ?? ""} ${c.neighborhood ?? ""} ${c.category ?? ""}`.toLowerCase();
-      if (!hay.includes(q)) return false;
+  const filteredClubs = (() => {
+    let list = clubs.filter(c => {
+      const q = searchQuery.trim().toLowerCase();
+      if (q) {
+        const hay = `${c.name} ${c.description ?? ""} ${c.neighborhood ?? ""} ${c.category ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      const cat = (c.category ?? "").toLowerCase();
+      const blob = `${c.name} ${c.description ?? ""} ${c.category ?? ""}`.toLowerCase();
+      if (activeFilter && activeFilter !== "Most Popular" && activeFilter !== "New") {
+        if (!cat.includes(activeFilter.toLowerCase()) && !blob.includes(activeFilter.toLowerCase())) return false;
+      }
+      if (activeVibe) {
+        const vibe = activeVibe.toLowerCase();
+        if (!blob.includes(vibe) && !cat.includes(vibe)) return false;
+      }
+      return true;
+    });
+    if (activeFilter === "Most Popular") {
+      list = [...list].sort((a, b) => (b.member_count ?? 0) - (a.member_count ?? 0));
+    } else if (activeFilter === "New") {
+      list = [...list].sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
     }
-    const cat = (c.category ?? "").toLowerCase();
-    const blob = `${c.name} ${c.description ?? ""} ${c.category ?? ""}`.toLowerCase();
-    if (activeFilter && activeFilter !== "Most Popular" && activeFilter !== "New") {
-      if (!cat.includes(activeFilter.toLowerCase()) && !blob.includes(activeFilter.toLowerCase())) return false;
-    }
-    if (activeVibe) {
-      const vibe = activeVibe.toLowerCase();
-      if (!blob.includes(vibe) && !cat.includes(vibe)) return false;
-    }
-    return true;
-  });
+    return list;
+  })();
 
   return (
     <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>

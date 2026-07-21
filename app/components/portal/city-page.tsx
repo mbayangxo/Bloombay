@@ -2006,17 +2006,6 @@ function GoPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // TRENDING PAGE  —  electric pink-orange neon, live energy
 // ═══════════════════════════════════════════════════════════════════════════════
-const TICKER_ITEMS = ["VILLA PIZZA", "DIOR CAFÉ POP-UP", "JAZZ CLUB FRIDAYS", "ROOFTOP THURSDAYS", "PASTA NIGHT LES", "BROOKLYN FLEA", "MATCHA BARS", "HOTEL BARS", "WINE TASTING SOHO"];
-const TREND_LIST = [
-  { rank: 1,  name: "Italian in the West Village",    tag: "DINING",     count: 247, hot: true,  badge: "✦ MOST SEARCHED" },
-  { rank: 2,  name: "Dior Café Pop-Up on Madison",    tag: "POP-UP",     count: 188, hot: true,  badge: "✦ NEW" },
-  { rank: 3,  name: "Late Night Jazz in Harlem",       tag: "NIGHTLIFE",  count: 156, hot: false, badge: null },
-  { rank: 4,  name: "Rooftop Bars This Season",        tag: "DRINKS",     count: 134, hot: false, badge: null },
-  { rank: 5,  name: "Sunday Brunch: Best Spots",       tag: "BRUNCH",     count: 119, hot: false, badge: null },
-  { rank: 6,  name: "The Quiet Luxury Hotel Bars",     tag: "COCKTAILS",  count: 98,  hot: false, badge: null },
-  { rank: 7,  name: "Gallery Openings This Week",      tag: "ART",        count: 87,  hot: false, badge: null },
-  { rank: 8,  name: "Korean BBQ in Koreatown",         tag: "DINING",     count: 76,  hot: false, badge: null },
-];
 
 function TrendingPage({ onBack }: { onBack: () => void }) {
   // Live data from city_trending table; falls back to demo list when empty
