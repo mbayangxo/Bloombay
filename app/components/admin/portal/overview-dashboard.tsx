@@ -27,7 +27,6 @@ import { Cohort14Panel } from "./cohort14-panel";
 import { BloomScore } from "./bloom-score";
 import { ClubHealthPanel } from "./club-health-panel";
 import { HostLeaderboardPanel } from "./host-leaderboard-panel";
-import { LAUNCH_READINESS } from "@/lib/founder-insights";
 import { mcPath, type StaffBase } from "@/lib/mc-paths";
 import type { Cohort14Row } from "@/lib/founder-cohort14";
 import type { TodaysBloomLine } from "@/lib/founder-todays-bloom";
@@ -44,12 +43,7 @@ const CLUB_CATEGORIES = [
   "Mothers",
 ] as const;
 
-const CLUBS_WAITING_COMPACT = [
-  { name: "Founders Club", women: 398, status: "Need Host" },
-  { name: "Faith Club", women: 127, status: "Need Venue" },
-  { name: "Travel Club", women: 221, status: "Ready" },
-  { name: "Book Club", women: 312, status: "Searching" },
-];
+const CLUBS_WAITING_COMPACT: { name: string; women: number; status: string }[] = [];
 
 const ATTENTION_PILLS = [
   { count: 127, label: "Waiting verification", href: "/admin/verification" },
@@ -263,19 +257,12 @@ export function OverviewDashboard({
 
       <section className="fp-card">
         <h3 className="fp-card__title">Launch control</h3>
-        <p className="fp-sub">Should you open a city or wait?</p>
-        <ul className="fp-rank-list">
-          {LAUNCH_READINESS.map((c) => (
-            <li key={c.city}>
-              <span>
-                <strong>{c.city}</strong> · {c.women.toLocaleString()} women · {c.clubs} clubs
-              </span>
-              <span className={c.verdict === "Launch" ? "fp-tag-launch" : "fp-tag-wait"}>
-                {c.readiness}% · {c.verdict}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <p className="fp-sub">
+          City readiness scores are not wired to live waitlist or club data yet — do not use this panel to decide a launch.
+        </p>
+        <p className="fp-sub" style={{ marginTop: 8, opacity: 0.75 }}>
+          Use live waitlist totals below (when present) and real club/member queries instead of demo readiness lists.
+        </p>
       </section>
 
       <ClubHealthPanel staffBase={staffBase} />
@@ -291,16 +278,20 @@ export function OverviewDashboard({
         </div>
         <section className="fp-overview-card fp-overview-waiting-tiny fp-surface-white">
           <h3 className="fp-overview-card__title">Clubs waiting to bloom</h3>
-          <ul className="fp-overview-waiting-tiny__list">
-            {CLUBS_WAITING_COMPACT.map((c) => (
-              <li key={c.name}>
-                <strong>{c.name}</strong>
-                <span>
-                  {c.women} women · {c.status}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {CLUBS_WAITING_COMPACT.length === 0 ? (
+            <p className="fp-sub">No demo club queue — open Clubs for live club status.</p>
+          ) : (
+            <ul className="fp-overview-waiting-tiny__list">
+              {CLUBS_WAITING_COMPACT.map((c) => (
+                <li key={c.name}>
+                  <strong>{c.name}</strong>
+                  <span>
+                    {c.women} women · {c.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           <Link href={mcPath("/admin/clubs", staffBase)} className="fp-overview-link">
             View all clubs →
           </Link>

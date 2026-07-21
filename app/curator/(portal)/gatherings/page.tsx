@@ -20,6 +20,9 @@ export default function CuratorGatheringsPage() {
 
       <article className="cu-card">
         <h2>All gatherings</h2>
+        {CURATOR_GATHERINGS.length === 0 ? (
+          <p className="cu-note">No gatherings on your calendar yet.</p>
+        ) : (
         <ul className="cu-list">
           {CURATOR_GATHERINGS.map((g) => (
             <li key={g.id} className="cu-list__row">
@@ -40,6 +43,7 @@ export default function CuratorGatheringsPage() {
             </li>
           ))}
         </ul>
+        )}
       </article>
 
       <article className="cu-card">

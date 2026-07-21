@@ -20,6 +20,9 @@ export default function CuratorWomenPage() {
 
       <article className="cu-card">
         <h2>Your roster</h2>
+        {CURATOR_WOMEN.length === 0 ? (
+          <p className="cu-note">No women on your roster yet.</p>
+        ) : (
         <ul className="cu-list">
           {CURATOR_WOMEN.map((w) => (
             <li key={w.id} className="cu-list__row">
@@ -37,6 +40,7 @@ export default function CuratorWomenPage() {
             </li>
           ))}
         </ul>
+        )}
       </article>
     </CuratorShell>
   );

@@ -29,12 +29,12 @@ export default function CuratorPayPage() {
   return (
     <CuratorShell
       title="Pay"
-      subtitle="Founders pay you from Mission Control — demo payouts appear here when your email is on the team roster."
+      subtitle="Payouts appear here when founders pay you from Mission Control — no demo roster."
     >
       <div className="cu-stat-row">
         <div className="cu-stat">
           <strong>{payouts.length}</strong>
-          <span>Demo payouts</span>
+          <span>Payouts</span>
         </div>
         <div className="cu-stat">
           <strong>
@@ -61,7 +61,7 @@ export default function CuratorPayPage() {
         <article className="cu-card">
           <h2>Not on roster yet</h2>
           <p className="cu-note">
-            Sign in as <strong>{CURATOR_PROFILE.email}</strong> and ask a founder to assign you in{" "}
+            Ask a founder to add your signed-in email in{" "}
             <Link href="/founder/team" style={{ color: "var(--cu-hot)", fontWeight: 600 }}>
               Founder → Curators & pay
             </Link>
@@ -73,7 +73,7 @@ export default function CuratorPayPage() {
       <article className="cu-card">
         <h2>Payout history</h2>
         {payouts.length === 0 ? (
-          <p className="cu-note">No demo payouts yet. Founders tap Pay $75 / $150 / $300 on your row.</p>
+          <p className="cu-note">No payouts yet.</p>
         ) : (
           <ul className="cu-list">
             {payouts.map((p) => (

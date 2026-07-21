@@ -8,7 +8,6 @@ import { PortalFooter } from "@/app/components/portal/portal-footer";
 import { CURATOR_NAV } from "@/lib/portal-navigation";
 import { portalTourHref } from "@/lib/portal-tour";
 import { PortalOnboardingTour } from "@/app/components/portal/portal-onboarding-tour";
-import { CURATOR_PROFILE } from "@/lib/curator-portal-data";
 import "@/app/styles/portal-footer.css";
 
 export function CuratorShell({
@@ -54,9 +53,7 @@ export function CuratorShell({
             </Link>
           ))}
         </nav>
-        <p className="cu-sidebar__who">
-          {CURATOR_PROFILE.name} · {CURATOR_PROFILE.neighborhood}
-        </p>
+        <p className="cu-sidebar__who">Curator</p>
       </aside>
       <div className="cu-app__main">
         <header className="cu-topbar">
