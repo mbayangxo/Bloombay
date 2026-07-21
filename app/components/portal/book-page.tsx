@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { type BookListing, BOOK_CATEGORIES } from "@/lib/actions/book";
+import {
+  type BookListing,
+  BOOK_CATEGORIES,
+  getBookListings,
+  createBookListing,
+  sendBookRequest,
+} from "@/lib/actions/book";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK = "#FF1F7D";
@@ -25,7 +31,6 @@ type BookReview = {
 
 type BookNote = { id: string; text: string; color: string };
 
-const LISTINGS: BookListing[] = [];
 const REVIEWS: BookReview[] = [];
 const NOTES: BookNote[] = [];
 
@@ -139,6 +144,8 @@ function DetailView({
   accentColor: string;
 }) {
   const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "notes" | "inspiration">("overview");
+  const [bookStatus, setBookStatus] = useState<string | null>(null);
+  const [booking, startBooking] = useTransition();
   const priceStr = formatPriceShort(listing);
   const heroGradient = `linear-gradient(135deg, ${accentColor}CC 0%, ${accentColor}66 50%, #1C1B1C 100%)`;
 
@@ -149,9 +156,17 @@ function DetailView({
     { id: "inspiration" as const, label: "INSPIRATION" },
   ];
 
-  // Fake "friends who saved" avatars
-  const FRIEND_COLORS = ["#C084FC", "#60A5FA", "#34D399"];
-  const FRIEND_INITIALS = ["J", "M", "T"];
+  function handleBookNow() {
+    startBooking(async () => {
+      setBookStatus(null);
+      const result = await sendBookRequest(listing.id);
+      if (result.ok) {
+        setBookStatus("Request sent. They'll reach out soon.");
+      } else {
+        setBookStatus(result.error ?? "Couldn't send request. Try again.");
+      }
+    });
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: CREAM, backgroundImage: PAPER_TEXTURE, paddingBottom: 100 }}>
@@ -247,22 +262,22 @@ function DetailView({
           zIndex: 10,
         }}
       >
-        {/* BOOKED badge */}
+        {/* Category */}
         <div style={{ marginBottom: 12 }}>
           <span
             style={{
-              background: `${PINK}18`,
-              color: PINK,
+              background: `${accentColor}18`,
+              color: accentColor,
               fontFamily: "var(--font-jost)",
               fontWeight: 800,
               fontSize: 9,
               letterSpacing: "0.18em",
               padding: "4px 10px",
               borderRadius: 20,
-              border: `1px solid ${PINK}33`,
+              border: `1px solid ${accentColor}33`,
             }}
           >
-            BOOKED
+            {listing.category.toUpperCase()}
           </span>
         </div>
 
@@ -292,126 +307,28 @@ function DetailView({
         </p>
 
         {/* Provider row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
           <ProviderAvatar listing={listing} size={38} colorOverride={accentColor} />
           <div>
-            <p
-              style={{
-                fontFamily: "var(--font-jost)",
-                fontWeight: 700,
-                fontSize: 13,
-                color: DARK,
-                margin: 0,
-                lineHeight: 1.2,
-              }}
-            >
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 13, color: DARK, margin: 0, lineHeight: 1.2 }}>
               {listing.provider_name}
             </p>
-            <p
-              style={{
-                fontFamily: "var(--font-jost)",
-                fontSize: 11,
-                color: "#aaa",
-                margin: "1px 0 0",
-              }}
-            >
-              {listing.category} · {listing.location}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", margin: "1px 0 0" }}>
+              {listing.category}{listing.location ? ` · ${listing.location}` : ""}
             </p>
           </div>
         </div>
 
-        {/* Friends who saved */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <div style={{ display: "flex" }}>
-            {FRIEND_INITIALS.map((ini, i) => (
-              <div
-                key={i}
-                style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: "50%",
-                  background: FRIEND_COLORS[i],
-                  border: "2px solid white",
-                  marginLeft: i === 0 ? 0 : -8,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  fontFamily: "var(--font-jost)",
-                  fontWeight: 700,
-                  fontSize: 10,
-                  zIndex: 3 - i,
-                  position: "relative",
-                }}
-              >
-                {ini}
-              </div>
-            ))}
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: "50%",
-                background: "#F3F4F6",
-                border: "2px solid white",
-                marginLeft: -8,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#888",
-                fontFamily: "var(--font-jost)",
-                fontWeight: 700,
-                fontSize: 9,
-                position: "relative",
-                zIndex: 0,
-              }}
-            >
-              +12
-            </div>
-          </div>
-          <p
-            style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: 11,
-              color: "#aaa",
-              margin: 0,
-            }}
-          >
-            saved by friends
+        {bookStatus && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: bookStatus.startsWith("Request sent") ? "#16a34a" : "#ef4444", marginBottom: 12 }}>
+            {bookStatus}
           </p>
-        </div>
+        )}
 
-        {/* Date/time */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            background: "#F9FAFB",
-            borderRadius: 12,
-            padding: "10px 14px",
-            marginBottom: 16,
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
-          <p
-            style={{
-              fontFamily: "var(--font-jost)",
-              fontSize: 12,
-              color: DARK,
-              fontWeight: 600,
-              margin: 0,
-            }}
-          >
-            Tue, Dec 21 · 3:00–4:30 PM
-          </p>
-        </div>
-
-        {/* Book Now button */}
         <button
+          type="button"
+          onClick={handleBookNow}
+          disabled={booking}
           style={{
             width: "100%",
             padding: "15px 0",
@@ -423,14 +340,15 @@ function DetailView({
             fontWeight: 800,
             fontSize: 14,
             letterSpacing: "0.1em",
-            cursor: "pointer",
+            cursor: booking ? "default" : "pointer",
+            opacity: booking ? 0.7 : 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 10,
           }}
         >
-          <span>BOOK NOW</span>
+          <span>{booking ? "Sending…" : "BOOK NOW"}</span>
           {listing.price_cents != null && listing.price_type !== "contact" && (
             <>
               <span style={{ opacity: 0.4 }}>·</span>
@@ -539,7 +457,11 @@ function DetailView({
         {/* REVIEWS */}
         {activeTab === "reviews" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {REVIEWS.map(review => (
+            {REVIEWS.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#aaa", textAlign: "center", padding: "24px 12px" }}>
+                No reviews yet.
+              </p>
+            ) : REVIEWS.map(review => (
               <div
                 key={review.id}
                 style={{
@@ -614,7 +536,11 @@ function DetailView({
         {/* BLOOM NOTES */}
         {activeTab === "notes" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {NOTES.map(note => (
+            {NOTES.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#aaa", textAlign: "center", padding: "24px 12px" }}>
+                No Bloom Notes yet.
+              </p>
+            ) : NOTES.map(note => (
               <div
                 key={note.id}
                 style={{
@@ -644,52 +570,14 @@ function DetailView({
         {/* INSPIRATION */}
         {activeTab === "inspiration" && (
           <div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 10,
-              }}
-            >
-              {[
-                `linear-gradient(135deg, ${accentColor} 0%, #C084FC 100%)`,
-                "linear-gradient(135deg, #FB923C 0%, #FBBF24 100%)",
-                "linear-gradient(135deg, #60A5FA 0%, #34D399 100%)",
-                `linear-gradient(135deg, #F472B6 0%, ${accentColor} 100%)`,
-              ].map((grad, i) => (
-                <div
-                  key={i}
-                  style={{
-                    height: i % 2 === 0 ? 160 : 130,
-                    borderRadius: 16,
-                    background: grad,
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Heart icon */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      width: 28,
-                      height: 28,
-                      borderRadius: "50%",
-                      background: "rgba(255,255,255,0.3)",
-                      backdropFilter: "blur(6px)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white" opacity={0.9}>
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {listing.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={listing.image_url} alt={listing.service_name} style={{ width: "100%", borderRadius: 16, objectFit: "cover" }} />
+            ) : (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#aaa", textAlign: "center", padding: "24px 12px" }}>
+                No inspiration photos yet.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -838,13 +726,15 @@ function ListCard({ listing, onTap }: { listing: BookListing; onTap: () => void 
 }
 
 // ── List Service Sheet ────────────────────────────────────────────────────────
-function ListServiceSheet({ onClose }: { onClose: () => void }) {
+function ListServiceSheet({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const [serviceName, setServiceName] = useState("");
   const [category, setCategory] = useState(BOOK_CATEGORIES[0]);
   const [price, setPrice] = useState("");
   const [priceType, setPriceType] = useState<"fixed" | "hourly" | "contact">("fixed");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, startSubmit] = useTransition();
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -1050,7 +940,34 @@ function ListServiceSheet({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Submit button */}
+          {submitError && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#ef4444", marginBottom: 10 }}>{submitError}</p>
+          )}
           <button
+            type="button"
+            disabled={submitting || !serviceName.trim()}
+            onClick={() => {
+              startSubmit(async () => {
+                setSubmitError(null);
+                const priceCents = priceType === "contact" || !price.trim()
+                  ? undefined
+                  : Math.round(parseFloat(price) * 100);
+                const result = await createBookListing({
+                  service_name: serviceName,
+                  category,
+                  description,
+                  location,
+                  price_type: priceType,
+                  price_cents: Number.isFinite(priceCents) ? priceCents : undefined,
+                });
+                if (!result.ok) {
+                  setSubmitError(result.error ?? "Couldn't list your service.");
+                  return;
+                }
+                onCreated();
+                onClose();
+              });
+            }}
             style={{
               width: "100%",
               padding: "15px 0",
@@ -1062,11 +979,12 @@ function ListServiceSheet({ onClose }: { onClose: () => void }) {
               fontWeight: 700,
               fontSize: 14,
               letterSpacing: "0.05em",
-              cursor: "pointer",
+              cursor: submitting || !serviceName.trim() ? "default" : "pointer",
+              opacity: submitting || !serviceName.trim() ? 0.6 : 1,
               boxShadow: `0 6px 24px ${PINK}44`,
             }}
           >
-            List in The Book →
+            {submitting ? "Listing…" : "List in The Book →"}
           </button>
 
           <p
@@ -1092,13 +1010,28 @@ export function BookPage() {
   const [showListSheet, setShowListSheet] = useState(false);
   const [detailView, setDetailView] = useState<BookListing | null>(null);
   const [accentColor, setAccentColor] = useState<string>(PINK);
+  const [listings, setListings] = useState<BookListing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void getBookListings().then(data => {
+      setListings(data);
+      setLoading(false);
+    });
+  }, []);
+
+  function reloadListings() {
+    void getBookListings(activeCategory === "All" ? undefined : activeCategory).then(setListings);
+  }
+
+  useEffect(() => {
+    if (loading) return;
+    void getBookListings(activeCategory === "All" ? undefined : activeCategory).then(setListings);
+  }, [activeCategory, loading]);
 
   const FILTER_CATEGORIES = ["All", "Nails", "Hair", "Photography", "Styling", "Beauty", "Finance"];
 
-  const filtered =
-    activeCategory === "All"
-      ? LISTINGS
-      : LISTINGS.filter(l => l.category === activeCategory);
+  const filtered = listings;
 
   // Show detail view
   if (detailView) {
@@ -1304,7 +1237,7 @@ export function BookPage() {
           />
         ))}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div
             style={{
               textAlign: "center",
@@ -1335,7 +1268,12 @@ export function BookPage() {
       </div>
 
       {/* List service bottom sheet */}
-      {showListSheet && <ListServiceSheet onClose={() => setShowListSheet(false)} />}
+      {showListSheet && (
+        <ListServiceSheet
+          onClose={() => setShowListSheet(false)}
+          onCreated={reloadListings}
+        />
+      )}
     </div>
   );
 }

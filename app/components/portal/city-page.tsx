@@ -957,188 +957,15 @@ interface EatsPartner {
   visited: boolean;
 }
 
-const EATS_PARTNERS: EatsPartner[] = [
-  {
-    id: 10, name: "Bar Pisellino",    type: "bar",         hood: "West Village",
-    tagline: "Aperitivo hour, every hour",
-    tags: ["Italian", "Cocktails", "Date Night"],
-    saves: 847, rating: "4.7", priceRange: "$$",
-    heroColor: "#C84A18", accentColor: "#FF7040", textColor: "#FFF5EE",
-    menuHighlights: [
-      { item: "Negroni Sbagliato", price: "$18", note: "the one" },
-      { item: "Tramezzini",        price: "$14" },
-      { item: "Spritz Flight",     price: "$22", note: "3 variations" },
-    ],
-    bloomieNote: "Get there before 7pm for a seat at the bar.",
-    lovedBy: 847,
-    poem: "The kind of corner that turns a Tuesday into a little Italian holiday.",
-    polaroidCaption: "marble bar + a spritz + golden hour",
-    hostNote: { from: "Maya", text: "Order the Sbagliato and sit at the window. Watch the Village go by. Trust me." },
-    about: "A tiny all-day bar with Venetian soul and West Village charm. Espresso in the morning, spritzes from noon, and tramezzini whenever.",
-    tips: ["Go before 7pm. The bar seats are everything.", "Cash tips for the bartenders — they remember you."],
-    girlFavorites: [
-      { item: "Negroni Sbagliato", note: "the only answer",   tone: "#FFD8C0" },
-      { item: "Tramezzini",        note: "tiny + perfect",    tone: "#FFE8D8" },
-      { item: "Window Seat",       note: "best in the house", tone: "#FFF0E4" },
-    ],
-    reviews: [
-      { name: "Sara",  text: "My go-to before dinner anywhere in the Village. Never misses.", ago: "3 days ago" },
-      { name: "Jess",  text: "The bartender remembered my order from a month ago.",           ago: "1 week ago" },
-      { name: "Lina",  text: "Came alone with a book, stayed three hours.",                   ago: "2 weeks ago" },
-    ],
-    hours: "Daily, 8AM – 12AM", instagram: "@barpisellino", visited: true,
-  },
-  {
-    id: 11, name: "Café Kitsuné",     type: "café",        hood: "West Village",
-    tagline: "Matcha, sunshine & silence",
-    tags: ["Coffee", "Matcha", "Solo", "Pastries"],
-    saves: 623, rating: "4.8", priceRange: "$",
-    heroColor: "#3A6A38", accentColor: "#8AC878", textColor: "#F0FAF0",
-    menuHighlights: [
-      { item: "Matcha Latte",      price: "$8",  note: "oat milk" },
-      { item: "Croissant",         price: "$6",  note: "always fresh" },
-      { item: "Cold Brew",         price: "$7" },
-    ],
-    bloomieNote: "Garden seats fill by 11am on weekends.",
-    lovedBy: 623,
-    poem: "The kind of place that makes your weekday feel like a soft little secret.",
-    polaroidCaption: "sunlight + good coffee + therapy",
-    hostNote: { from: "Amina", text: "Order the pistachio matcha and sit by the front window. Go before 11am, trust me." },
-    about: "A cosy all-day café with Parisian soul and NYC energy. Perfect for slow mornings, long catch-ups, and solo coffee dates.",
-    tips: ["Go before 11am. The light is perfect.", "Ask for the patio in the back!"],
-    girlFavorites: [
-      { item: "Pistachio Matcha",  note: "most ordered",      tone: "#D8EED0" },
-      { item: "Almond Croissant",  note: "the classic",       tone: "#F4E8D0" },
-      { item: "Window Table",      note: "best seat in the house", tone: "#E4F0E0" },
-    ],
-    reviews: [
-      { name: "Sara",  text: "My go-to write, read, overthink, and glow spot. Never misses.", ago: "3 days ago" },
-      { name: "Jess",  text: "Almond croissant is insane. And the playlist? Chef's kiss.",    ago: "1 week ago" },
-      { name: "Lina",  text: "The girls who work here are angels. Feels like home.",          ago: "2 weeks ago" },
-    ],
-    hours: "Daily, 7AM – 7PM", instagram: "@cafekitsune.nyc", visited: true,
-  },
-  {
-    id: 12, name: "Via Carota",       type: "fine_dining", hood: "West Village",
-    tagline: "Italian soul, no reservations",
-    tags: ["Italian", "Dinner", "Date Night", "Brunch"],
-    saves: 591, rating: "4.9", priceRange: "$$$",
-    heroColor: "#5A1A0A", accentColor: "#D4602A", textColor: "#FFF4EE",
-    menuHighlights: [
-      { item: "Insalata Verde",    price: "$19", note: "legendary" },
-      { item: "Cacio e Pepe",      price: "$26" },
-      { item: "Bistecca",          price: "$58", note: "for two" },
-    ],
-    bloomieNote: "Walk in at 5:30pm or wait. Worth it.",
-    lovedBy: 591,
-    poem: "A candlelit corner of Tuscany that somehow landed on Grove Street.",
-    polaroidCaption: "candlelight + cacio e pepe + her",
-    hostNote: { from: "Dani", text: "Get the insalata verde even if it sounds boring. It will change you." },
-    about: "Jody Williams and Rita Sodi's beloved trattoria. No reservations, all heart. The most romantic walk-in in Manhattan.",
-    tips: ["Walk in at 5:30pm sharp or expect a wait.", "Sit at the bar if it's just two of you — faster."],
-    girlFavorites: [
-      { item: "Insalata Verde",    note: "legendary",       tone: "#E8D8C8" },
-      { item: "Cacio e Pepe",      note: "order two",        tone: "#F4E4D4" },
-      { item: "Bar Seats",         note: "skip the wait",    tone: "#EEDFD0" },
-    ],
-    reviews: [
-      { name: "Maya",  text: "Took my mom here. She cried. The salad did that.",          ago: "5 days ago" },
-      { name: "Aisha", text: "Waited 45 min and would do it again tomorrow.",             ago: "1 week ago" },
-      { name: "Noor",  text: "Date night gold. Candlelight does the flirting for you.",   ago: "3 weeks ago" },
-    ],
-    hours: "Daily, 5PM – 11PM", instagram: "@viacarota", visited: false,
-  },
-  {
-    id: 13, name: "Lucien",           type: "casual",      hood: "East Village",
-    tagline: "French bistro, no fuss",
-    tags: ["French", "Dinner", "Wine", "Classic"],
-    saves: 412, rating: "4.4", priceRange: "$$",
-    heroColor: "#1A1430", accentColor: "#8080C8", textColor: "#F4F0FF",
-    menuHighlights: [
-      { item: "Steak Frites",      price: "$38", note: "always" },
-      { item: "Moules Marinières", price: "$28" },
-      { item: "Crème Brûlée",      price: "$14" },
-    ],
-    bloomieNote: "Tiny, cash-only, magical. Go early.",
-    lovedBy: 412,
-    poem: "Paris squeezed into a shoebox on First Avenue, exactly as it should be.",
-    polaroidCaption: "red wine + steak frites + no rush",
-    hostNote: { from: "Camille", text: "Sit at the bar, order the steak frites, and let the night decide the rest." },
-    about: "A tiny, beloved French bistro that hasn't changed in decades — and that's exactly the point. Candle wax, red wine, good company.",
-    tips: ["Go early — it's tiny and fills fast.", "Bring cash. Seriously."],
-    girlFavorites: [
-      { item: "Steak Frites",      note: "always",          tone: "#E0D8F0" },
-      { item: "House Red",         note: "by the carafe",   tone: "#E8E0F4" },
-      { item: "Corner Booth",      note: "if you're lucky", tone: "#DDD4EE" },
-    ],
-    reviews: [
-      { name: "Ava",   text: "Felt like I was in a French film the entire dinner.",      ago: "2 days ago" },
-      { name: "Riley", text: "The crème brûlée crack is the best sound in NYC.",         ago: "1 week ago" },
-      { name: "Zoe",   text: "Came for one drink. Left at 1am. No regrets.",             ago: "2 weeks ago" },
-    ],
-    hours: "Daily, 6PM – 1AM", instagram: "@lucien.nyc", visited: false,
-  },
-  {
-    id: 14, name: "Russ & Daughters", type: "bakery",      hood: "Lower East Side",
-    tagline: "NYC institution since 1914",
-    tags: ["Brunch", "Bagels", "Breakfast", "Iconic"],
-    saves: 388, rating: "4.6", priceRange: "$",
-    heroColor: "#8B4513", accentColor: "#C87038", textColor: "#FFF8F0",
-    menuHighlights: [
-      { item: "Classic Bagel + Lox", price: "$22", note: "build your own" },
-      { item: "Appetizing Plate",    price: "$28", note: "serves two" },
-      { item: "Babka",               price: "$9",  note: "chocolate always" },
-    ],
-    bloomieNote: "The Appetizing Plate is non-negotiable.",
-    lovedBy: 388,
-    poem: "A hundred years of bagels and somehow it still tastes like the first.",
-    polaroidCaption: "lox + babka + a Sunday well spent",
-    hostNote: { from: "Rachel", text: "Get the appetizing plate, split it with your best friend, and thank me later." },
-    about: "Four generations of appetizing on the Lower East Side. The bagels, the lox, the babka — this is the city's breakfast soul.",
-    tips: ["Weekday mornings = no line.", "Chocolate babka. Always chocolate."],
-    girlFavorites: [
-      { item: "Appetizing Plate",  note: "serves two",       tone: "#F0DCC8" },
-      { item: "Chocolate Babka",   note: "always",           tone: "#E8D0B8" },
-      { item: "Everything Bagel",  note: "with scallion",    tone: "#F4E4D0" },
-    ],
-    reviews: [
-      { name: "Hana",  text: "Brought my whole book club. We did NOT share well.",       ago: "4 days ago" },
-      { name: "Tess",  text: "The babka sold me. I now plan weekends around it.",        ago: "1 week ago" },
-      { name: "Mara",  text: "100 years old and still the best bagel in the city.",      ago: "3 weeks ago" },
-    ],
-    hours: "Daily, 8AM – 4PM", instagram: "@russanddaughters", visited: true,
-  },
-  {
-    id: 15, name: "The Four Horsemen",type: "bar",         hood: "Williamsburg",
-    tagline: "Natural wine & good company",
-    tags: ["Wine Bar", "Williamsburg", "Dinner", "Natural Wine"],
-    saves: 334, rating: "4.5", priceRange: "$$$",
-    heroColor: "#1A2810", accentColor: "#6A9848", textColor: "#F4FEE8",
-    menuHighlights: [
-      { item: "Wine by the Glass",  price: "$16–$28" },
-      { item: "Charcuterie Board",  price: "$24" },
-      { item: "Seasonal Pasta",     price: "$32" },
-    ],
-    bloomieNote: "Ask the sommelier — they actually know.",
-    lovedBy: 334,
-    poem: "Where natural wine stops being a personality and starts being a pleasure.",
-    polaroidCaption: "orange wine + good lighting + your people",
-    hostNote: { from: "Sofia", text: "Tell them what you usually drink and let them pick. They've never been wrong." },
-    about: "James Murphy's Williamsburg wine bar with a Michelin star and zero pretension. Natural wines, seasonal plates, perfect acoustics.",
-    tips: ["Ask the sommelier — they actually know.", "The seasonal pasta changes weekly. Always order it."],
-    girlFavorites: [
-      { item: "Orange Wine",       note: "ask for funky",   tone: "#E4ECD4" },
-      { item: "Seasonal Pasta",    note: "changes weekly",  tone: "#ECF2DC" },
-      { item: "Back Corner",       note: "the cozy spot",   tone: "#DCE8CC" },
-    ],
-    reviews: [
-      { name: "Ines",  text: "The somm picked a bottle off one sentence. Perfection.",   ago: "6 days ago" },
-      { name: "Dree",  text: "Best date spot in Williamsburg, no debate.",               ago: "2 weeks ago" },
-      { name: "Kat",   text: "Music + wine + lighting = the whole vibe.",                ago: "1 month ago" },
-    ],
-    hours: "Daily, 5PM – 12AM", instagram: "@fourhorsemenbk", visited: false,
-  },
-];
+function filterEatsPartners(partners: EatsPartner[], filter: string): EatsPartner[] {
+  if (filter === "Tonight") return partners;
+  const needle = filter.toLowerCase();
+  return partners.filter(p =>
+    p.tags.some(tag => tag.toLowerCase().includes(needle)) ||
+    p.type.replace("_", " ").includes(needle) ||
+    p.hood.toLowerCase().includes(needle)
+  );
+}
 
 // Real partner row from restaurant_partners table
 interface RealPartnerRow {
@@ -1190,12 +1017,10 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
 
 function EatsPage({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("Tonight");
-  const [savedIds, setSaved] = useState<number[]>([]);
   const [profileId, setProfileId] = useState<number | null>(null);
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
   const [realPartners, setRealPartners] = useState<EatsPartner[]>([]);
   const [reserveTarget, setReserveTarget] = useState<{ id: string; name: string } | null>(null);
-  function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
 
   useEffect(() => {
     // Fetch real restaurant partners from DB
@@ -1207,14 +1032,15 @@ function EatsPage({ onBack }: { onBack: () => void }) {
         .limit(20)
         .then(({ data }) => {
           if (data && data.length > 0) {
-            setRealPartners((data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i)));
+            const mapped = (data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i));
+            setRealPartners(mapped);
+            getNoteCountsByPlace(mapped.map(p => toSlug(p.name))).then(setNoteCounts).catch(() => {});
           }
         });
     });
-    getNoteCountsByPlace(EATS_PARTNERS.map(p => toSlug(p.name))).then(setNoteCounts).catch(() => {});
   }, []);
 
-  const allPartners = realPartners.length > 0 ? realPartners : EATS_PARTNERS;
+  const allPartners = filterEatsPartners(realPartners, activeFilter);
   const openPartner = allPartners.find(p => p.id === profileId);
   if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} />;
 
@@ -1285,8 +1111,12 @@ function EatsPage({ onBack }: { onBack: () => void }) {
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "32px 20px 20px", color: "rgba(160,80,40,0.45)" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>Partners coming soon</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>CHECK BACK TONIGHT</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>
+              {realPartners.length === 0 ? "No partner spots yet" : `No spots for “${activeFilter}”`}
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>
+              {realPartners.length === 0 ? "CHECK BACK SOON" : "TRY ANOTHER FILTER"}
+            </p>
           </div>
         )}
 
@@ -1299,8 +1129,14 @@ function EatsPage({ onBack }: { onBack: () => void }) {
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#aaa", letterSpacing: "0.06em" }}>{p.hood.toUpperCase()}</p>
                 <div style={{ marginTop: 9, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#bbb" }}>{p.saves} saved</span>
-                  <button onClick={e => { e.stopPropagation(); toggleSave(p.id); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill={savedIds.includes(p.id) ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  <button
+                    type="button"
+                    disabled
+                    title="Saving spots isn't available yet"
+                    onClick={e => e.stopPropagation()}
+                    style={{ background: "none", border: "none", cursor: "not-allowed", padding: 2, opacity: 0.45 }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                 </div>
               </div>
@@ -1349,7 +1185,6 @@ function EatsPage({ onBack }: { onBack: () => void }) {
 
 function EatsPartnerCard({ partner: p, noteCount, onOpen, onReserve }: { partner: EatsPartner; noteCount: number; onOpen: () => void; onReserve: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const typeLabel: Record<RestaurantType, string> = {
     fine_dining: "FINE DINING", café: "CAFÉ", bar: "BAR", bakery: "BAKERY", casual: "CASUAL",
@@ -1373,9 +1208,15 @@ function EatsPartnerCard({ partner: p, noteCount, onOpen, onReserve }: { partner
         <div style={{ position: "absolute", top: 12, left: 14, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", borderRadius: 999, padding: "3px 10px" }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: "0.1em" }}>{typeLabel[p.type]}</span>
         </div>
-        {/* Save */}
-        <button onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }} style={{ position: "absolute", top: 10, right: 78, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#FF9B70" : "none"} stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        {/* Save — not wired yet */}
+        <button
+          type="button"
+          disabled
+          title="Saving spots isn't available yet"
+          onClick={(e) => e.stopPropagation()}
+          style={{ position: "absolute", top: 10, right: 78, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "not-allowed", opacity: 0.45 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9B70" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
         {/* Pinned bloom notes stack — only renders when real notes exist */}
         {noteCount > 0 && (
@@ -1656,8 +1497,6 @@ function BloomNotesBoard({ placeSlug, placeName, brand, accent }: { placeSlug: s
 }
 
 function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: EatsPartner; onBack: () => void; isOwner?: boolean }) {
-  const [savedToWorld, setSavedToWorld] = useState(false);
-
   // Brand palette derived from the partner
   const BRAND  = p.heroColor;
   const ACCENT = p.accentColor;
@@ -1909,17 +1748,15 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.88)" }}>{row.text}</span>
             </div>
           ))}
-          <button onClick={() => setSavedToWorld(s => !s)} style={{
+          <button type="button" disabled title="Saving to My World isn't available yet" style={{
             marginTop: 8, width: "100%",
-            background: savedToWorld ? "rgba(255,255,255,0.92)" : PINK,
-            color: savedToWorld ? BRAND : "white",
-            border: "none", borderRadius: 999, padding: "12px 0",
+            background: "rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.55)",
+            border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "12px 0",
             fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800,
-            letterSpacing: "0.12em", cursor: "pointer",
-            boxShadow: savedToWorld ? "none" : `0 4px 18px ${PINK}77`,
-            transition: "all 0.2s",
+            letterSpacing: "0.12em", cursor: "not-allowed",
           }}>
-            {savedToWorld ? "✓ SAVED TO MY WORLD" : "SAVE TO MY WORLD ♡"}
+            SAVE TO MY WORLD — COMING SOON
           </button>
         </div>
       </div>
@@ -2199,24 +2036,21 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
       .then(({ data }) => { if (data && data.length > 0) setLiveItems(data); });
   }, []);
 
-  const displayItems = liveItems.length > 0
-    ? liveItems.map((item, i) => ({
-        rank: i + 1,
-        name: item.name,
-        tag: item.category.toUpperCase(),
-        count: item.save_count,
-        hot: i < 2,
-        badge: item.badge,
-        description: item.description,
-        source: item.source,
-      }))
-    : TREND_LIST.map(item => ({ ...item, description: null, source: null }));
+  const displayItems = liveItems.map((item, i) => ({
+    rank: i + 1,
+    name: item.name,
+    tag: item.category.toUpperCase(),
+    count: item.save_count,
+    hot: i < 2,
+    badge: item.badge,
+    description: item.description,
+    source: item.source,
+  }));
 
-  const tickerNames = liveItems.length > 0
-    ? liveItems.map(i => i.name.toUpperCase())
-    : TICKER_ITEMS;
-
-  const tickerText = tickerNames.join("   ✦   ") + "   ✦   ";
+  const hasTrending = displayItems.length > 0;
+  const tickerText = hasTrending
+    ? liveItems.map(i => i.name.toUpperCase()).join("   ✦   ") + "   ✦   "
+    : "";
   const doubled = tickerText + tickerText;
 
   return (
@@ -2243,6 +2077,7 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Ticker tape */}
+      {hasTrending && (
       <div style={{ background: "#FF1F7D", overflow: "hidden", height: 28, display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap", animation: "tickerScroll 18s linear infinite" }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: "white", letterSpacing: "0.1em", paddingRight: 0 }}>
@@ -2250,9 +2085,21 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
           </span>
         </div>
       </div>
+      )}
 
       {/* Trending list */}
       <div style={{ padding: "16px 16px 0" }}>
+        {!hasTrending ? (
+          <div style={{ textAlign: "center", padding: "48px 24px 32px" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: DARK, marginBottom: 8 }}>
+              Nothing trending yet
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(120,60,80,0.55)", lineHeight: 1.55 }}>
+              When Bloomies save and share spots, the hot list will show up here.
+            </p>
+          </div>
+        ) : (
+        <>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,119,68,0.8)" }}>THIS WEEK&apos;S HOT LIST</p>
           <div style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "3px 10px" }}>
@@ -2319,14 +2166,12 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
           boxShadow: "0 4px 16px rgba(255,31,125,0.08)",
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#FF7744", marginBottom: 10 }}>WHAT BLOOMIES ARE DOING THIS WEEK</p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-            {["🍷 Wine tasting","🎭 Off-Broadway","🛍️ Vintage markets","🌙 Jazz nights","🍜 Ramen crawl"].map(item => (
-              <div key={item} style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 999, padding: "6px 13px" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(120,40,60,0.8)" }}>{item}</span>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(120,40,60,0.55)", lineHeight: 1.55 }}>
+            Activity highlights will appear here when members start sharing plans.
+          </p>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
@@ -2345,8 +2190,7 @@ const BLOOM_PICKS = [
 ];
 
 function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
-  const [saved, setSaved] = useState<number[]>([]);
-  function toggleSave(id: number) { setSaved(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]); }
+  const picks: typeof BLOOM_PICKS = [];
 
   return (
     <div style={{
@@ -2380,7 +2224,16 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
       <div style={{ padding: "16px 14px 0" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 12 }}>THE BLOOMIES LIST</p>
 
-        {BLOOM_PICKS.map((pick, i) => (
+        {picks.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 24px 32px" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "#4A2A18", marginBottom: 8 }}>
+              No community picks yet
+            </p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#8A6A4A", lineHeight: 1.6 }}>
+              When Bloomies save their favorite spots, curated picks will show up here.
+            </p>
+          </div>
+        ) : picks.map((pick, i) => (
           <div key={pick.id} style={{
             backgroundImage: `${DARK_GRAIN}`,
             backgroundSize: "160px 160px",
@@ -2409,8 +2262,8 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
                     <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 700, fontStyle: "italic", color: "rgba(255,245,235,0.9)", lineHeight: 1.1 }}>{pick.name}</p>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.08em", marginTop: 2 }}>{pick.hood}</p>
                   </div>
-                  <button onClick={() => toggleSave(pick.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill={saved.includes(pick.id) ? PINK : "none"} stroke={PINK} strokeWidth="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  <button type="button" disabled title="Saving spots isn't available yet" style={{ background: "none", border: "none", cursor: "not-allowed", padding: 2, flexShrink: 0, opacity: 0.45 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                   </button>
                 </div>
                 {/* Stars */}
@@ -2432,6 +2285,7 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
         ))}
 
         {/* Community CTA card */}
+        {picks.length === 0 ? null : (
         <div style={{
           backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
           backgroundSize: "200px 200px, 80px 80px",
@@ -2445,10 +2299,11 @@ function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "#8A6A4A", lineHeight: 1.6, marginBottom: 14 }}>
             Every save shapes this list.<br/>Your favorites become the city&apos;s favorites.
           </p>
-          <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0C08", display: "inline-flex", borderRadius: 999, padding: "9px 22px" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>✦ SAVE A SPOT</span>
+          <div style={{ backgroundImage: `${DARK_GRAIN}`, backgroundSize: "160px 160px", backgroundColor: "#1A0C08", display: "inline-flex", borderRadius: 999, padding: "9px 22px", opacity: 0.55 }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, color: PINK, letterSpacing: "0.1em" }}>✦ SAVE A SPOT — COMING SOON</span>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

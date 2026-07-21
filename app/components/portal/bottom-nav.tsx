@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 import { BBLogo } from "./bb-logo";
+import { shouldHideBottomNav } from "@/lib/member-nav";
 import "@/app/styles/bloom-entrance.css";
 
 const PINK  = "#FF1F7D";
@@ -207,6 +208,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
   const [slab, setSlab] = useState<Slab>("afternoon");
   useEffect(() => { setSlab(getSlab()); }, []);
+  const hideBottomStem = shouldHideBottomNav(pathname);
   // Dark/coloured pages — use light icons
   const isDarkPage = pathname.startsWith("/member/avenue") ||
                      pathname.startsWith("/member/happenings");
@@ -308,10 +310,9 @@ export function BottomNav({ user }: { user?: NavUser }) {
       </div>
 
       {/* ══════ ROSE STEM NAVIGATION ══════
-          No container. No pill. No background.
-          A horizontal rose stem with one open rose at the left end.
-          Each destination grows from the stem like a bud.
+          Hidden on focused flows (chat, create) so composers aren't covered.
       */}
+      {!hideBottomStem && (
       <div
         className="fixed z-50 md:hidden"
         style={{
@@ -452,6 +453,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           })}
         </div>
       </div>
+      )}
     </>
   );
 }

@@ -84,6 +84,7 @@ export async function GET() {
     date: p.date_time ? new Date(p.date_time).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD",
     venue: p.venue ?? undefined,
     time: p.date_time ? new Date(p.date_time).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : undefined,
+    date_time: p.date_time ?? undefined,
     plan_type: p.plan_type,
     description: p.description ?? undefined,
     status: p.status,

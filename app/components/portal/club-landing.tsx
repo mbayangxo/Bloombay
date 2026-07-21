@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { BBLogo } from "./bb-logo";
 import { Tape, WashiTape } from "./scrapbook";
@@ -82,6 +82,7 @@ export interface ClubLandingData {
   mamaTitle: string;
   mamaBio: string;
   mamaVoiceSeconds?: number;
+  mamaVoiceUrl?: string;
   accessType: ClubAccessType;
   entryStyle: ClubEntryStyle;
   price?: number;
@@ -154,58 +155,28 @@ function PeonyDecor({ style }: { style?: React.CSSProperties }) {
 
 // ─── Voice Note Card ──────────────────────────────────────────────────────────
 
-const WAVEFORM = [18, 28, 22, 36, 42, 30, 48, 38, 52, 40, 34, 46, 28, 44, 36, 26, 40, 32, 48, 22, 36, 42, 28, 38, 30];
-
-function VoiceNoteCard({ mama, seconds, color }: { mama: string; seconds: number; color: string }) {
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (playing) {
-      intervalRef.current = setInterval(() => {
-        setProgress(p => { if (p >= 100) { setPlaying(false); return 0; } return p + (100 / (seconds * 10)); });
-      }, 100);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [playing, seconds]);
-
-  const played = Math.round((progress / 100) * WAVEFORM.length);
-  const elapsed = Math.round((progress / 100) * seconds);
-  const remaining = seconds - elapsed;
-  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-
+function VoiceNoteUnavailable({ mama, color }: { mama: string; color: string }) {
   return (
-    <div style={{ margin: "0 20px", borderRadius: 24, overflow: "hidden", background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`, boxShadow: `0 8px 32px ${color}44` }}>
-      <div style={{ padding: "16px 20px 8px" }}>
-        <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>A MESSAGE FROM YOUR CLUB MAMA</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "white", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.3)" }}>{mama[0]}</div>
-          <div>
-            <p style={{ fontWeight: 700, fontSize: 14, color: "white" }}>{mama}</p>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)" }}>Voice note · {fmt(seconds)}</p>
-          </div>
-        </div>
+    <div style={{ margin: "0 20px", borderRadius: 24, overflow: "hidden", background: `${color}12`, border: `1px solid ${color}25`, padding: "18px 20px" }}>
+      <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: `${color}99`, marginBottom: 10 }}>A MESSAGE FROM YOUR CLUB MAMA</p>
+      <p style={{ fontWeight: 700, fontSize: 14, color: DARK, marginBottom: 6 }}>{mama}</p>
+      <p style={{ fontSize: 12, color: "rgba(0,0,0,0.45)", lineHeight: 1.55 }}>
+        Mama voice note isn&apos;t available yet. Check back soon.
+      </p>
+    </div>
+  );
+}
+
+function VoiceNotePlayer({ mama, url, color }: { mama: string; url: string; color: string }) {
+  return (
+    <div style={{ margin: "0 20px", borderRadius: 24, overflow: "hidden", background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`, boxShadow: `0 8px 32px ${color}44`, padding: "16px 20px 18px" }}>
+      <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>A MESSAGE FROM YOUR CLUB MAMA</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "white", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.3)" }}>{mama[0]}</div>
+        <p style={{ fontWeight: 700, fontSize: 14, color: "white" }}>{mama}</p>
       </div>
-      <div style={{ padding: "0 20px 20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setPlaying(p => !p)} style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "white", border: "none", cursor: "pointer" }}>
-            {playing ? (
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><rect x="0" y="0" width="4" height="14" rx="1.5" fill={color} /><rect x="8" y="0" width="4" height="14" rx="1.5" fill={color} /></svg>
-            ) : (
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill={color} /></svg>
-            )}
-          </button>
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: 2, height: 40 }}>
-            {WAVEFORM.map((h, i) => (
-              <div key={i} style={{ width: 3, height: h, borderRadius: 2, flexShrink: 0, background: i < played ? "white" : "rgba(255,255,255,0.3)", transition: "background 0.1s" }} />
-            ))}
-          </div>
-          <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", flexShrink: 0, minWidth: 28 }}>{playing ? fmt(remaining) : fmt(seconds)}</span>
-        </div>
-      </div>
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <audio controls src={url} style={{ width: "100%", height: 36 }} />
     </div>
   );
 }
@@ -255,24 +226,11 @@ const ZONE_REQUEST_MIN_DAYS = 14;
 
 function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandingData; isMember: boolean; daysInClub?: number }) {
   const canRequestZone = isMember && daysInClub >= ZONE_REQUEST_MIN_DAYS && !!club.allowZoneRequests;
-  const [joined, setJoined] = useState<Set<string>>(new Set());
-  const [requested, setRequested] = useState<Set<string>>(new Set());
   const [showRequest, setShowRequest] = useState(false);
   const [zoneName, setZoneName] = useState("");
   const [zoneDesc, setZoneDesc] = useState("");
   const [zonePrice, setZonePrice] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const zones = club.zones ?? [];
-
-  function toggle(id: string) {
-    setJoined(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  }
-  function requestJoin(id: string) { setRequested(prev => new Set([...prev, id])); }
-  function submitRequest() {
-    if (!zoneName.trim()) return;
-    setSubmitted(true);
-    setTimeout(() => { setShowRequest(false); setZoneName(""); setZoneDesc(""); setZonePrice(""); setSubmitted(false); }, 1800);
-  }
 
   return (
     <>
@@ -288,7 +246,6 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
         <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
           {zones.map((zone, i) => {
             const isBlurred = !isMember && i > 1;
-            const isJoined = joined.has(zone.id);
             return (
               <div key={zone.id} style={{ padding: "14px 20px", display: "flex", alignItems: "center", gap: 14, borderBottom: i < zones.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none", filter: isBlurred ? "blur(3px)" : "none", userSelect: isBlurred ? "none" : "auto", pointerEvents: isBlurred ? "none" : "auto" }}>
                 <div style={{ width: 40, height: 40, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, background: `${club.color}10` }}>{zone.emoji}</div>
@@ -300,17 +257,11 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
                   <p style={{ fontSize: 11, color: "rgba(0,0,0,0.45)", marginTop: 2, lineHeight: 1.45 }}>{zone.desc}</p>
                   <p style={{ fontSize: 10, fontWeight: 600, marginTop: 3, color: club.color }}>{zone.memberCount} members</p>
                 </div>
-                {isMember && (() => {
-                  const isReq = zone.joinType === "request";
-                  const hasPending = requested.has(zone.id);
-                  if (isJoined) return <span style={{ flexShrink: 0, padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: `${club.color}15`, color: club.color, border: `1.5px solid ${club.color}40` }}>Joined ✓</span>;
-                  if (isReq && hasPending) return <span style={{ flexShrink: 0, padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: "#FFF9E6", color: "#b45309" }}>Requested · pending</span>;
-                  return (
-                    <button onClick={() => isReq ? requestJoin(zone.id) : toggle(zone.id)} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: club.color, color: "white", border: "none", cursor: "pointer" }}>
-                      {isReq ? (zone.price ? `Request · $${zone.price}/mo` : "Request to join") : (zone.price ? `Join · $${zone.price}/mo` : "Join")}
-                    </button>
-                  );
-                })()}
+                {isMember && (
+                  <Link href={`/member/clubs/${club.id}/zones/${zone.id}`} style={{ flexShrink: 0, padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: club.color, color: "white", textDecoration: "none" }}>
+                    Enter zone →
+                  </Link>
+                )}
               </div>
             );
           })}
@@ -346,14 +297,10 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="#888" strokeWidth="1.8" strokeLinecap="round" /></svg>
               </button>
             </div>
-            {submitted ? (
-              <div style={{ textAlign: "center", padding: "24px 0" }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>✦</div>
-                <p style={{ fontWeight: 700, fontSize: 16, color: "#111", fontFamily: "var(--font-playfair)" }}>Suggestion sent!</p>
-                <p style={{ fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>The Club Mama will review your idea.</p>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <p style={{ fontSize: 12, color: "rgba(0,0,0,0.45)", lineHeight: 1.5, margin: 0 }}>
+                  Zone suggestions aren&apos;t saved yet — we&apos;re still building this flow.
+                </p>
                 <div>
                   <label style={{ display: "block", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(0,0,0,0.4)", marginBottom: 8 }}>ZONE NAME</label>
                   <input type="text" value={zoneName} onChange={e => setZoneName(e.target.value)} placeholder="e.g. Coding Girls, Sunday Bakers…" style={{ width: "100%", background: "#F8F8F8", borderRadius: 16, padding: "12px 16px", fontSize: 14, outline: "none", border: `2px solid ${zoneName ? club.color : "transparent"}`, color: "#111", boxSizing: "border-box" }} onFocus={e => (e.target.style.borderColor = club.color)} onBlur={e => (e.target.style.borderColor = "transparent")} />
@@ -395,12 +342,11 @@ function GirlZonesSection({ club, isMember, daysInClub = 0 }: { club: ClubLandin
                     </div>
                   )}
                 </div>
-                <button onClick={submitRequest} disabled={!zoneName.trim()} style={{ width: "100%", padding: "14px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: club.color, border: "none", cursor: zoneName.trim() ? "pointer" : "default", opacity: zoneName.trim() ? 1 : 0.4 }}>
-                  Submit to Club Mama →
+                <button type="button" disabled style={{ width: "100%", padding: "14px 0", borderRadius: 32, fontWeight: 700, fontSize: 14, color: "white", background: `${club.color}88`, border: "none", cursor: "not-allowed", opacity: 0.7 }}>
+                  Submit to Club Mama — coming soon
                 </button>
-                <p style={{ textAlign: "center", fontSize: 10, color: "rgba(0,0,0,0.35)", marginTop: -8 }}>The Club Mama approves or denies all zone suggestions.</p>
+                <p style={{ textAlign: "center", fontSize: 10, color: "rgba(0,0,0,0.35)", marginTop: -8 }}>The Club Mama will review suggestions when this is live.</p>
               </div>
-            )}
           </div>
         </div>
       )}
@@ -841,7 +787,7 @@ export function ClubLandingPage({ club, isMember = false, daysInClub = 0, isOwne
             <section style={{ padding: "0 20px 24px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", color: DARK, opacity: 0.38 }}>PAST EVENTS</p>
-                <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK }}>see more memories →</span>
+                <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: PINK, opacity: 0.55 }}>memories coming soon</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                 {(club.photos ?? []).slice(0, 4).map((photo, i) => (
@@ -855,11 +801,13 @@ export function ClubLandingPage({ club, isMember = false, daysInClub = 0, isOwne
           )}
 
           {/* ── VOICE NOTE ───────────────────────────────────────────────── */}
-          {club.mamaVoiceSeconds && (
-            <div style={{ paddingBottom: 28 }}>
-              <VoiceNoteCard mama={club.mamaName} seconds={club.mamaVoiceSeconds} color={club.color} />
-            </div>
-          )}
+          <div style={{ paddingBottom: 28 }}>
+            {club.mamaVoiceUrl ? (
+              <VoiceNotePlayer mama={club.mamaName} url={club.mamaVoiceUrl} color={club.color} />
+            ) : (
+              <VoiceNoteUnavailable mama={club.mamaName} color={club.color} />
+            )}
+          </div>
 
           {/* ── OUR MOMENTS TOGETHER ─────────────────────────────────────── */}
           {(club.photos ?? []).length > 0 && (
@@ -921,8 +869,7 @@ export function ClubLandingPage({ club, isMember = false, daysInClub = 0, isOwne
                     <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.55)" }}>right now, inside ♡</p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "#22C55E" }}>live</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>{(club.zones ?? []).length} zones</span>
                   </div>
                 </div>
 
@@ -1170,8 +1117,8 @@ export function ClubLandingPage({ club, isMember = false, daysInClub = 0, isOwne
                 <div style={{ background: `${club.color}08`, border: `1.5px dashed ${club.color}30`, borderRadius: 22, padding: "20px 18px", textAlign: "center" }}>
                   <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: DARK, marginBottom: 6 }}>Have an idea for a zone?</p>
                   <p style={{ fontSize: 12, color: "rgba(0,0,0,0.45)", marginBottom: 14, lineHeight: 1.5 }}>Zone suggestions open after 2 weeks. Your ideas shape this club.</p>
-                  <button onClick={() => setClubTab("about")} style={{ padding: "8px 20px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: club.color, color: "white", border: "none", cursor: "pointer" }}>
-                    Suggest a zone →
+                  <button type="button" disabled style={{ padding: "8px 20px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: `${club.color}55`, color: "white", border: "none", cursor: "not-allowed", opacity: 0.7 }}>
+                    Zone suggestions — coming soon
                   </button>
                 </div>
               )}

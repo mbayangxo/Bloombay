@@ -1,16 +1,30 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { BloomiesPlanner } from "@/app/components/portal/bloomies-planner";
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
 interface PlanRoom {
-  id: number; name: string; emoji: string; bg: string; accent: string;
+  id: string; name: string; emoji: string; bg: string; accent: string;
   unread: number; members: number; date: string; venue?: string; time?: string;
-  eventId?: number; poster?: string;
+  eventId?: number; poster?: string; date_time?: string;
 }
+
+function planTicketCode(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return `BB-${id.slice(0, 8).toUpperCase()}-${(h % 9000) + 1000}`;
+}
+
+function planQrSeed(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return h;
+}
+type BloomieFriend = { id: string; display_name: string | null; avatar_url: string | null };
+type CalendarEvent = { emoji: string; name: string; time: string; color: string };
 interface DayContent { text: string; stickers: string[]; photos: string[]; voiceCount: number; }
 type View = "list" | "room";
 type NewPlanStep = "choose" | "room" | "bloomie" | "club";
@@ -35,87 +49,44 @@ const THEME = {
 
 const PINK = "#FF1F7D";
 
-const PLAN_ROOMS: PlanRoom[] = [
-  { id: 1, name: "Morocco October",     emoji: "🇲🇦", bg: "#1A0E0A", accent: "#FF69B4", unread: 7,  members: 14, date: "Oct 2026", venue: "Marrakech · Private Villa",       time: "Oct 10–17, 2026",   poster: "/happenings/posters/10_Ladies_First_Road_Trip.png" },
-  { id: 2, name: "Afrobeats Night",     emoji: "🎵",  bg: "#0F0818", accent: "#FF1F7D", unread: 3,  members: 8,  date: "Jun 14",  venue: "SOB's, 204 Varick St",            time: "Sat Jun 14 · 10PM", poster: "/happenings/posters/06_Dance_All_Night.png",          eventId: 6 },
-  { id: 3, name: "Sunday Walk Circle",  emoji: "🌿",  bg: "#0A120F", accent: "#FFB3D1", unread: 0,  members: 6,  date: "Jun 8",   venue: "Prospect Park, Grand Army Plaza", time: "Sun Jun 8 · 9AM",   poster: "/happenings/posters/09_Bagels_And_Books.png",         eventId: 4 },
-  { id: 4, name: "Women in Lens",       emoji: "🎨",  bg: "#1A0A14", accent: "#FF1F7D", unread: 2,  members: 5,  date: "Tonight", venue: "The Parlor Gallery, Bushwick",    time: "Tonight · 7PM",     poster: "/happenings/posters/05_Film_Club.png",                eventId: 1 },
-  { id: 5, name: "Wheel Throwing",      emoji: "🏺",  bg: "#0A1518", accent: "#FFB3D1", unread: 1,  members: 4,  date: "Tonight", venue: "Brooklyn Clay, Williamsburg",     time: "Tonight · 6:30PM",  poster: "/happenings/posters/07_Sunday_Brunch_Club.png",       eventId: 2 },
-  { id: 6, name: "Golden Hour Rooftop", emoji: "🌅",  bg: "#180A06", accent: "#FF1F7D", unread: 0,  members: 6,  date: "Tonight", venue: "Westlight Hotel, Williamsburg",   time: "Tonight · 8PM",     poster: "/happenings/posters/08_Rooftop_Sessions.png",         eventId: 3 },
-];
+const AVATAR_COLORS = ["#FF1F7D", "#FF69B4", "#A855F7", "#0EA5E9", "#83C5A0", "#D4A853", "#E8006A", "#C4005A"];
+function avatarColor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function bloomieInitials(name: string | null) {
+  if (!name) return "?";
+  return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+}
+function BloomieAvatar({ friend, size = 40 }: { friend: BloomieFriend; size?: number }) {
+  const color = avatarColor(friend.id);
+  return friend.avatar_url ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={friend.avatar_url} alt={friend.display_name ?? ""} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+  ) : (
+    <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg,${color},${color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.32, fontWeight: 800, color: "white", flexShrink: 0 }}>
+      {bloomieInitials(friend.display_name)}
+    </div>
+  );
+}
+function buildEventDatesFromPlanRooms(rooms: PlanRoom[]): Record<string, CalendarEvent[]> {
+  const out: Record<string, CalendarEvent[]> = {};
+  for (const room of rooms) {
+    if (!room.date_time) continue;
+    const d = new Date(room.date_time);
+    if (Number.isNaN(d.getTime())) continue;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const ev: CalendarEvent = { emoji: room.emoji, name: room.name, time, color: room.accent || PINK };
+    out[key] = [...(out[key] ?? []), ev];
+  }
+  return out;
+}
 
-const BLOOMIES_LIST = [
-  { id: 1, name: "Aaliyah M.", initial: "A", color: "#FF1F7D", status: "Active now" },
-  { id: 2, name: "Zara F.",    initial: "Z", color: "#FF69B4", status: "Online"     },
-  { id: 3, name: "Temi A.",    initial: "T", color: "#FF1F7D", status: "3h ago"     },
-  { id: 4, name: "Jade K.",    initial: "J", color: "#FF5FA5", status: "Yesterday"  },
-  { id: 5, name: "Sofia W.",   initial: "S", color: "#FFB3D1", status: "Online"     },
-  { id: 6, name: "Naomi B.",   initial: "N", color: "#FF1F7D", status: "2d ago"     },
-];
-
-const CLUBS_LIST = [
-  { id: 1, name: "Women & Lens",         emoji: "📸", members: 42 },
-  { id: 2, name: "Sunday Walkers",       emoji: "🌿", members: 28 },
-  { id: 3, name: "Afrobeats Collective", emoji: "🎵", members: 67 },
-];
-
-const PLAN_TODOS: Record<number, { id: number; text: string; done: boolean }[]> = {
-  1: [
-    { id: 1, text: "Book flights JFK → RAK",              done: false },
-    { id: 2, text: "Reserve riad (Nadia's link)",         done: false },
-    { id: 3, text: "Check Morocco visa requirements",     done: true  },
-    { id: 4, text: "Travel insurance",                   done: false },
-    { id: 5, text: "Group flight coordination call",     done: false },
-    { id: 6, text: "Shared packing list",                done: false },
-  ],
-  2: [
-    { id: 1, text: "Get tickets (3 left!)",              done: false },
-    { id: 2, text: "Pregame at mine — 9PM",              done: true  },
-    { id: 3, text: "Rideshare to SOB's",                 done: false },
-    { id: 4, text: "Outfit check ✔️",                   done: true  },
-  ],
-  3: [
-    { id: 1, text: "Meet at Grand Army Plaza 9AM",       done: true  },
-    { id: 2, text: "Naomi bringing matcha 🍵",           done: true  },
-    { id: 3, text: "Wear comfy shoes",                   done: false },
-  ],
-  4: [
-    { id: 1, text: "Get there by 6:45 (talk at 7:15)",  done: false },
-    { id: 2, text: "Free champagne reception!",          done: false },
-    { id: 3, text: "Meet Sofía at Wyckoff corner",       done: true  },
-  ],
-  5: [
-    { id: 1, text: "Wear old clothes (clay splatter!)",  done: false },
-    { id: 2, text: "Brooklyn Clay, Williamsburg",        done: true  },
-    { id: 3, text: "Session starts 6:30PM sharp",       done: false },
-  ],
-  6: [
-    { id: 1, text: "Wear something gold 🌟",            done: false },
-    { id: 2, text: "Arrive before sunset (8PM)",        done: false },
-    { id: 3, text: "Reserve Westlight rooftop bar",     done: true  },
-  ],
-};
-
-const PLAN_NOTES: Record<number, { id: number; text: string }[]> = {
-  1: [
-    { id: 1, text: "Riad has private pool 🌴 link in group" },
-    { id: 2, text: "Oct 10-17 works for everyone" },
-    { id: 3, text: "Budget ~$2,200 per person all in" },
-  ],
-  2: [{ id: 1, text: "SOB's fills up — arrive by 10 latest" }],
-  3: [{ id: 1, text: "Route: Grand Army → Boathouse → Vale" }],
-  4: [{ id: 1, text: "Artist talk starts 7:15. Don't be late!" }, { id: 2, text: "Champagne reception is FREE 🥂" }],
-  5: [{ id: 1, text: "First-timers: centering clay takes 20 min to learn, be patient!" }],
-  6: [{ id: 1, text: "Sunset is 8:24PM — arrive early for good spots" }],
-};
-
-const EVENT_DATES: Record<string, { emoji: string; name: string; time: string; color: string }[]> = {
-  "2026-06-07": [{ emoji: "🌿", name: "Sunday Walk Circle",  time: "9AM",    color: "#FFB3D1" }],
-  "2026-06-08": [{ emoji: "🎨", name: "Women in Lens",       time: "7PM",    color: "#FF1F7D" }, { emoji: "🏺", name: "Wheel Throwing", time: "6:30PM", color: "#FFB3D1" }],
-  "2026-06-14": [{ emoji: "🎵", name: "Afrobeats Night",     time: "10PM",   color: "#FF69B4" }],
-  "2026-06-20": [{ emoji: "🌅", name: "Golden Hour Rooftop", time: "8PM",    color: "#FF1F7D" }],
-  "2026-10-10": [{ emoji: "🇲🇦", name: "Morocco October",   time: "10AM",   color: "#FF69B4" }],
-};
+const CLUBS_LIST: { id: number; name: string; emoji: string; members: number }[] = [];
+const TICKET_IMAGES: Record<string, string> = {};
+const MEMORY_EVENTS: { id: string; name: string; date: string; poster: string; note: string; color: string }[] = [];
 
 type StickerPackId = "bloom" | "hearts" | "glam" | "stars" | "nyc";
 const STICKER_PACKS: Record<StickerPackId, string[]> = {
@@ -173,9 +144,44 @@ function QRCodeVisual({ seed }: { seed: number }) {
 // ── INVITE BLOOMIE SHEET ──────────────────────────────────────────────────────
 
 function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose: () => void; onBack: () => void }) {
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sent, setSent] = useState(false);
-  function toggle(id: number) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [friends, setFriends] = useState<BloomieFriend[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    void import("@/lib/actions/bloomies-planner")
+      .then(m => m.getBloomiesFriends())
+      .then(setFriends)
+      .finally(() => setLoaded(true));
+  }, []);
+
+  function toggle(id: string) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+
+  async function sendInvites() {
+    if (selected.size === 0 || sending) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      const res = await fetch(`/api/member/plans/${encodeURIComponent(room.id)}/invites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invitee_ids: [...selected] }),
+      });
+      const json = await res.json() as { error?: string };
+      if (!res.ok) {
+        setSendError(json.error ?? "Couldn't send invites");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setSendError("Couldn't send invites. Try again.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   if (sent) return (
     <>
@@ -213,14 +219,19 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {BLOOMIES_LIST.map(b => {
+          {!loaded && (
+            <p className="text-center py-10 text-sm" style={{ color: "#aaa", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Loading Bloomies…</p>
+          )}
+          {loaded && friends.length === 0 && (
+            <p className="text-center py-10 text-sm" style={{ color: "#aaa", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>No Bloomies yet</p>
+          )}
+          {friends.map(b => {
             const on = selected.has(b.id);
             return (
               <button key={b.id} onClick={() => toggle(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid #F5F5F5", background: on ? "#FFF5F8" : "white" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
+                <BloomieAvatar friend={b} size={40} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.name}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{b.status}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.display_name ?? "Unknown"}</p>
                 </div>
                 <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
                   {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -230,9 +241,10 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
           })}
         </div>
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid #F0F0F0", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
-          <button onClick={() => setSent(true)} disabled={selected.size === 0} className="w-full py-4 rounded-full text-sm font-bold"
-            style={selected.size > 0 ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-            {selected.size > 0 ? `Send invite to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : "Select Bloomies to invite"}
+          {sendError && <p className="text-xs mb-2 text-center" style={{ color: "#ef4444" }}>{sendError}</p>}
+          <button onClick={() => { void sendInvites(); }} disabled={selected.size === 0 || sending} className="w-full py-4 rounded-full text-sm font-bold"
+            style={selected.size > 0 && !sending ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
+            {sending ? "Sending…" : selected.size > 0 ? `Send invite to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : "Select Bloomies to invite"}
           </button>
         </div>
       </div>
@@ -244,7 +256,7 @@ function InviteBloomieSheet({ room, onClose, onBack }: { room: PlanRoom; onClose
 
 function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClose: () => void; onOpenRoom: () => void }) {
   const [showInvite, setShowInvite] = useState(false);
-  const ticketCode = `BB-${room.id.toString().padStart(2, "0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+  const ticketCode = planTicketCode(room.id);
   if (showInvite) return <InviteBloomieSheet room={room} onClose={onClose} onBack={() => setShowInvite(false)} />;
   return (
     <>
@@ -270,14 +282,10 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
             <div className="px-6 pb-6 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <p className="text-[8px] font-mono tracking-widest" style={{ color: "#bbb" }}>{ticketCode}</p>
-                <div className="flex items-center gap-1 py-0.5 px-2 rounded-full w-fit" style={{ background: "linear-gradient(135deg,#111,#1A0010)", border: "1px solid rgba(255,31,125,0.35)" }}>
-                  <span style={{ fontSize: "7px", color: "#FF1F7D" }}>✦</span>
-                  <span className="text-[7px] font-bold tracking-[0.12em] uppercase" style={{ color: "#FF1F7D" }}>Founding Mother #47</span>
-                </div>
                 <p className="text-[9px] font-semibold" style={{ color: "#999" }}>{room.members} women · Show at door</p>
               </div>
               <div className="flex-shrink-0 rounded-xl overflow-hidden p-2" style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)" }}>
-                <QRCodeVisual seed={room.id * 13 + 42} />
+                <QRCodeVisual seed={planQrSeed(room.id)} />
               </div>
             </div>
           </div>
@@ -387,9 +395,10 @@ function StickerKeyboard({ onAdd }: { onAdd: (s: string) => void }) {
 
 // ── DAY EDITOR SHEET (POLAROID CALENDAR STYLE) ────────────────────────────────
 
-function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
+function DayEditorSheet({ dayKey, content, onUpdate, onClose, eventDates }: {
   dayKey: string; content: DayContent;
   onUpdate: (c: DayContent) => void; onClose: () => void;
+  eventDates: Record<string, CalendarEvent[]>;
 }) {
   const [tab, setTab] = useState<DayEditorTab>("write");
   const [text, setText] = useState(content.text);
@@ -408,7 +417,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
   const dayNum   = date.getDate();
   const dayLabel = DAY_FULL[date.getDay()];
   const monthLabel = MONTH_NAMES[date.getMonth()];
-  const eventsToday = EVENT_DATES[dayKey] ?? [];
+  const eventsToday = eventDates[dayKey] ?? [];
 
   function save(overrides: Partial<DayContent> = {}) {
     onUpdate({ text: textRef.current, stickers: stickersRef.current, photos: photosRef.current, voiceCount: voiceRef.current, ...overrides });
@@ -597,7 +606,7 @@ function DayEditorSheet({ dayKey, content, onUpdate, onClose }: {
 
 // ── PAPER CALENDAR VIEW — EDITORIAL, PER-MONTH THEMED ────────────────────────
 
-function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; selectedDay: string | null; }) {
+function PaperCalendarView({ dayContents, onSelectDay, selectedDay, eventDates }: { dayContents: Record<string, DayContent>; onSelectDay: (d: string) => void; selectedDay: string | null; eventDates: Record<string, CalendarEvent[]>; }) {
   const today = new Date();
   const [year, setYear]   = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -675,7 +684,7 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
             const key = dateKey(day);
             const isToday = key === todayKey;
             const isSel   = key === selectedDay;
-            const dots    = EVENT_DATES[key];
+            const dots    = eventDates[key];
             const dc      = dayContents[key];
             const hasSticker = dc?.stickers?.length > 0;
             const hasNote    = dc && (dc.text || dc.photos.length > 0 || dc.voiceCount > 0);
@@ -742,17 +751,18 @@ function PaperCalendarView({ dayContents, onSelectDay, selectedDay }: { dayConte
 
 // ── DAY SCHEDULE VIEW — TIME-SLOTTED AGENDA ───────────────────────────────────
 
-function DayScheduleView({ dayKey, dayContent, onEdit }: {
+function DayScheduleView({ dayKey, dayContent, onEdit, eventDates }: {
   dayKey: string;
   dayContent: DayContent | undefined;
   onEdit: () => void;
+  eventDates: Record<string, CalendarEvent[]>;
 }) {
   const date       = new Date(dayKey + "T12:00:00");
   const T          = MONTH_THEMES[date.getMonth()];
   const dayNum     = date.getDate();
   const dayLabel   = DAY_FULL[date.getDay()];
   const monthLabel = MONTH_NAMES[date.getMonth()];
-  const events     = EVENT_DATES[dayKey] ?? [];
+  const events     = eventDates[dayKey] ?? [];
 
   function parseHour(t: string): number {
     const m = t.match(/(\d+)(?::\d+)?\s*(AM|PM)/i);
@@ -905,10 +915,9 @@ function PlanDoorCard({ room, isRead, onPress }: { room: PlanRoom; isRead: boole
 // ── PLAN ROOM BOARD (NOT CHAT) ────────────────────────────────────────────────
 
 function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => void; theme: typeof THEME }) {
-  const initialTodos = PLAN_TODOS[room.id] ?? [];
-  const [todos, setTodos] = useState(initialTodos);
+  const [todos, setTodos] = useState<{ id: number; text: string; done: boolean }[]>([]);
+  const [notes] = useState<{ id: number; text: string }[]>([]);
   const [showTicket, setShowTicket] = useState(false);
-  const notes = PLAN_NOTES[room.id] ?? [];
 
   function toggleTodo(id: number) {
     setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
@@ -973,17 +982,10 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
 
         {/* Who's in */}
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: theme.label, marginBottom: 10, paddingLeft: 2 }}>WHO'S IN</p>
-          <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
-            {BLOOMIES_LIST.map(b => (
-              <div key={b.id} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white", border: "2.5px solid rgba(255,255,255,0.7)", boxShadow: `0 2px 10px ${b.color}44` }}>
-                  {b.initial}
-                </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: theme.subText, maxWidth: 44, textAlign: "center", lineHeight: 1.2 }}>{b.name.split(" ")[0]}</p>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.18em", color: theme.label, marginBottom: 10, paddingLeft: 2 }}>WHO&apos;S IN</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: theme.subText, paddingLeft: 2 }}>
+            {room.members > 1 ? `${room.members} women joining` : "Just you so far — invite Bloomies from your ticket"}
+          </p>
         </div>
 
         {/* Checklist */}
@@ -998,7 +1000,9 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {todos.map(t => (
+            {todos.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: theme.subText, padding: "8px 0" }}>No checklist items yet</p>
+            ) : todos.map(t => (
               <button key={t.id} onClick={() => toggleTodo(t.id)}
                 style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                 <div style={{ width: 22, height: 22, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: t.done ? PINK : "transparent", border: t.done ? "none" : "2px solid rgba(0,0,0,0.15)", transition: "all 0.15s" }}>
@@ -1038,25 +1042,76 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
   const [name, setName]         = useState("");
   const [details, setDetails]   = useState("");
   const [message, setMessage]   = useState("");
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [clubId, setClubId]     = useState<number | null>(null);
   const [done, setDone]         = useState(false);
   const [creating, setCreating] = useState(false);
-  function toggleBloomie(id: number) { setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [friends, setFriends]   = useState<BloomieFriend[]>([]);
+  const [friendsLoaded, setFriendsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (step === "bloomie") {
+      void import("@/lib/actions/bloomies-planner")
+        .then(m => m.getBloomiesFriends())
+        .then(setFriends)
+        .finally(() => setFriendsLoaded(true));
+    }
+  }, [step]);
+
+  function toggleBloomie(id: string) { setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
 
   async function createRoom() {
     if (!name.trim() || creating) return;
     setCreating(true);
+    setCreateError(null);
     try {
-      await fetch("/api/member/plans", {
+      const res = await fetch("/api/member/plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: name.trim(), description: details.trim() || undefined, plan_type: "hangout" }),
       });
+      if (!res.ok) {
+        const json = await res.json() as { error?: string };
+        setCreateError(json.error ?? "Couldn't create plan room");
+        return;
+      }
       onCreated?.();
-    } catch { /* ignore — plan created locally */ }
-    setCreating(false);
-    setDone(true);
+      setDone(true);
+    } catch {
+      setCreateError("Couldn't create plan room. Try again.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function sendToBloomies() {
+    if (!message.trim() || selected.size === 0 || creating) return;
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const res = await fetch("/api/member/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: message.trim(),
+          description: details.trim() || undefined,
+          plan_type: "hangout",
+          invitee_ids: [...selected],
+        }),
+      });
+      if (!res.ok) {
+        const json = await res.json() as { error?: string };
+        setCreateError(json.error ?? "Couldn't send plan");
+        return;
+      }
+      onCreated?.();
+      setDone(true);
+    } catch {
+      setCreateError("Couldn't send plan. Try again.");
+    } finally {
+      setCreating(false);
+    }
   }
 
   if (done) return (
@@ -1108,7 +1163,9 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
             {([
               { s: "room" as NewPlanStep, emoji: "🗓", label: "Plan Room", sub: "Collaborative planning board for an event or trip" },
               { s: "bloomie" as NewPlanStep, emoji: "🌸", label: "Invite Bloomies", sub: "Send a plan directly to specific friends" },
-              { s: "club" as NewPlanStep, emoji: "💫", label: "Post to Club", sub: "Open invite — let club members say they're down" },
+              ...(CLUBS_LIST.length > 0
+                ? [{ s: "club" as NewPlanStep, emoji: "💫", label: "Post to Club", sub: "Open invite — let club members say they're down" }]
+                : []),
             ]).map(opt => (
               <button key={opt.s} onClick={() => setStep(opt.s)}
                 className="flex items-center gap-4 p-5 rounded-2xl text-left active:scale-[0.98] transition-transform"
@@ -1128,16 +1185,17 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>Room name</p>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Morocco October, Brunch Girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Summer trip, Brunch with the girls…" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
             </div>
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
               <input value={details} onChange={e => setDetails(e.target.value)} placeholder="Event, trip, outing… add a date or venue" className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
             </div>
             <button onClick={createRoom} disabled={!name.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold mt-2"
-              style={name.trim() ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
+              style={name.trim() && !creating ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
               {creating ? "Creating…" : name.trim() ? "Create Plan Room →" : "Add a room name first"}
             </button>
+            {createError && <p className="text-xs mt-2 text-center" style={{ color: "#ef4444" }}>{createError}</p>}
           </div>
         )}
 
@@ -1149,14 +1207,19 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
             </div>
             <div className="flex-1 overflow-y-auto">
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase px-6 pt-3 pb-1" style={{ color: "#bbb" }}>Who to invite</p>
-              {BLOOMIES_LIST.map(b => {
+              {!friendsLoaded && (
+                <p className="text-center py-10 text-sm" style={{ color: "#aaa", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Loading Bloomies…</p>
+              )}
+              {friendsLoaded && friends.length === 0 && (
+                <p className="text-center py-10 text-sm" style={{ color: "#aaa", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>No Bloomies yet</p>
+              )}
+              {friends.map(b => {
                 const on = selected.has(b.id);
                 return (
                   <button key={b.id} onClick={() => toggleBloomie(b.id)} className="w-full flex items-center gap-4 px-6 py-3.5 text-left" style={{ borderBottom: "1px solid #F5F5F5", background: on ? "#FFF5F8" : "white" }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-sm" style={{ background: `linear-gradient(135deg,${b.color},${b.color}BB)` }}>{b.initial}</div>
+                    <BloomieAvatar friend={b} size={40} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.name}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "#aaa" }}>{b.status}</p>
+                      <p className="font-semibold text-sm" style={{ color: "#111" }}>{b.display_name ?? "Unknown"}</p>
                     </div>
                     <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={on ? { background: "#FF1F7D" } : { background: "transparent", border: "2px solid #E5E5E5" }}>
                       {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -1166,9 +1229,10 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
               })}
             </div>
             <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid #F0F0F0", paddingBottom: "max(16px,env(safe-area-inset-bottom))" }}>
-              <button onClick={() => setDone(true)} disabled={selected.size === 0 || !message.trim()} className="w-full py-4 rounded-full text-sm font-bold"
-                style={selected.size > 0 && message.trim() ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-                {selected.size > 0 && message.trim() ? `Send to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : selected.size === 0 ? "Select Bloomies" : "Add a plan description"}
+              {createError && <p className="text-xs mb-2 text-center" style={{ color: "#ef4444" }}>{createError}</p>}
+              <button onClick={() => { void sendToBloomies(); }} disabled={selected.size === 0 || !message.trim() || creating} className="w-full py-4 rounded-full text-sm font-bold"
+                style={selected.size > 0 && message.trim() && !creating ? { background: "#FF1F7D", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
+                {creating ? "Sending…" : selected.size > 0 && message.trim() ? `Send to ${selected.size} Bloomie${selected.size !== 1 ? "s" : ""} →` : selected.size === 0 ? "Select Bloomies" : "Add a plan description"}
               </button>
             </div>
           </>
@@ -1178,10 +1242,13 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
           <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>What&apos;s the plan?</p>
-              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm going to Afrobeats Night at SOB's — who's coming?" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
+              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Share your plan with club members…" autoFocus rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#FFF5F8", border: "1.5px solid #FFE0EE", color: "#111" }} />
             </div>
             <div>
               <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color: "#bbb" }}>Post to which club?</p>
+              {CLUBS_LIST.length === 0 ? (
+                <p className="text-sm py-6 text-center" style={{ color: "#aaa", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>No clubs yet</p>
+              ) : (
               <div className="flex flex-col gap-2">
                 {CLUBS_LIST.map(club => {
                   const on = clubId === club.id;
@@ -1199,10 +1266,11 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
                   );
                 })}
               </div>
+              )}
             </div>
-            <button onClick={() => setDone(true)} disabled={!message.trim() || clubId === null} className="w-full py-4 rounded-full text-sm font-bold"
-              style={message.trim() && clubId !== null ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-              {message.trim() && clubId !== null ? `Post to ${CLUBS_LIST.find(c => c.id === clubId)?.name} →` : !message.trim() ? "Write your plan first" : "Choose a club"}
+            <button onClick={() => setDone(true)} disabled={!message.trim() || clubId === null || CLUBS_LIST.length === 0} className="w-full py-4 rounded-full text-sm font-bold"
+              style={message.trim() && clubId !== null && CLUBS_LIST.length > 0 ? { background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", color: "white" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
+              {CLUBS_LIST.length === 0 ? "No clubs available" : message.trim() && clubId !== null ? `Post to ${CLUBS_LIST.find(c => c.id === clubId)?.name} →` : !message.trim() ? "Write your plan first" : "Choose a club"}
             </button>
           </div>
         )}
@@ -1211,153 +1279,15 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
   );
 }
 
-// ── TICKET IMAGE MAP ──────────────────────────────────────────────────────────
-
-const TICKET_IMAGES: Record<number, string> = {
-  2: "/tickets templates/Ticket_Girls_Night.png",       // Afrobeats Night → Girls Night ticket
-  4: "/tickets templates/Ticket_Museum_Exhibition.png", // Women in Lens → Museum ticket
-  6: "/tickets templates/Ticket_Dinner_Society.png",    // Golden Hour → Dinner Society ticket
-  1: "/tickets templates/Ticket_NYC_Marrakech.png",     // Morocco → NYC Marrakech ticket
-};
-
-// ── MEMORY EVENTS ─────────────────────────────────────────────────────────────
-
-const MEMORY_EVENTS = [
-  { id: 10, name: "Gallery Hop BK",   date: "May 3",  poster: "/happenings/posters/05_Film_Club.png",               note: "what a night ✦",   color: "#FF1F7D" },
-  { id: 11, name: "Brunch at Lola's", date: "Apr 20", poster: "/happenings/posters/07_Sunday_Brunch_Club.png",      note: "always her 🌸",    color: "#FFB3D1" },
-  { id: 20, name: "Jazz at Small's",  date: "May 28", poster: "/happenings/posters/09_Bagels_And_Books.png",        note: "iconic ✦",         color: "#FF1F7D" },
-  { id: 21, name: "Rooftop Pilates",  date: "May 15", poster: "/happenings/posters/08_Rooftop_Sessions.png",        note: "girls that slay",  color: "#FF69B4" },
-  { id: 22, name: "Film Club Night",  date: "Apr 5",  poster: "/happenings/posters/06_Dance_All_Night.png",         note: "loved this 💕",    color: "#FF1F7D" },
-  { id: 23, name: "Sunday Walk",      date: "Mar 28", poster: "/happenings/posters/10_Ladies_First_Road_Trip.png",  note: "so peaceful 🌿",  color: "#FFB3D1" },
-];
-
-const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
-
-// ── EVENT CONFIRMATION CARD ───────────────────────────────────────────────────
-
-function EventConfirmationCard({ room, onViewRoom }: { room: PlanRoom; onViewRoom: () => void }) {
-  return (
-    <div style={{ margin: "0 16px 6px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)" }}>YOUR CONFIRMATION</p>
-        <button onClick={onViewRoom} style={{ background: "none", border: "none", cursor: "pointer" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: PINK, letterSpacing: "0.06em" }}>OPEN ROOM →</p>
-        </button>
-      </div>
-
-      <div style={{ background: "#FAF5EE", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.09)" }}>
-
-        {/* Top: event info + tilted ticket */}
-        <div style={{ padding: "16px 14px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-
-          {/* Left: event text */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.32)", marginBottom: 6 }}>SEAT DETAIL ❋</p>
-            <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(17px,5vw,21px)", color: "#1A1A1A", lineHeight: 1.05, marginBottom: 6 }}>{room.name}</h2>
-            {room.venue && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 500, color: PINK, marginBottom: 2 }}>📍 {room.venue}</p>}
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 600, color: PINK, marginBottom: 10 }}>{room.time}</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, color: "rgba(0,0,0,0.38)", lineHeight: 1.4 }}>
-              see you there,<br/>gorgeous ♡
-            </p>
-          </div>
-
-          {/* Right: tilted pink ticket stub */}
-          <div style={{
-            width: 128, flexShrink: 0,
-            background: "linear-gradient(150deg, #FF1F7D 0%, #E0006A 100%)",
-            borderRadius: 11,
-            padding: "10px 11px 12px",
-            transform: "rotate(4.5deg) translateY(-4px)",
-            boxShadow: "0 10px 30px rgba(255,31,125,0.42), 0 2px 0 rgba(120,0,45,0.5)",
-            position: "relative", overflow: "hidden",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.6)" }}>BLOOMBAY ❋</p>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.72)", marginBottom: 5 }}>ADMITS ONE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: 15, color: "white", lineHeight: 1.05, marginBottom: 8 }}>{room.name}</p>
-            <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
-              {[{ l: "DATE", v: room.date }, { l: "TIME", v: room.time?.split("·")[1]?.trim() ?? "8PM" }].map(({ l, v }) => (
-                <div key={l}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "5px", fontWeight: 700, color: "rgba(255,255,255,0.48)", letterSpacing: "0.15em" }}>{l}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700, color: "white" }}>{v}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ borderTop: "1.5px dashed rgba(255,255,255,0.28)", paddingTop: 7 }}>
-              <div style={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
-                {[2,1,3,1,2,1,3,2,1,2,1,3,1,2,3,1,2].map((w, j) => (
-                  <div key={j} style={{ width: w, height: j % 3 === 0 ? 17 : 11, background: "rgba(255,255,255,0.72)", borderRadius: 0.5 }} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Middle: dark confirmed bar */}
-        <div style={{ background: "#111", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,31,125,0.8)", marginBottom: 3 }}>YOUR BOOKING</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>
-              {room.members} women
-            </p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 11, color: "rgba(255,105,180,0.8)", marginTop: 1 }}>xoxo</p>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "5.5px", fontWeight: 800, letterSpacing: "0.2em", color: "#666", marginBottom: 5 }}>RSVP STATUS</p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1.5px solid ${PINK}`, borderRadius: 999, padding: "4px 10px", marginBottom: 3 }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: PINK }} />
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: PINK, letterSpacing: "0.06em" }}>Confirmed ✓</p>
-            </div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "#666", letterSpacing: "0.08em" }}>Paid in full ❋</p>
-          </div>
-        </div>
-
-        {/* Bottom: who you'll be with */}
-        <div style={{ padding: "12px 14px 14px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.28)", marginBottom: 8 }}>WHO YOU&apos;LL BE WITH</p>
-              <div style={{ display: "flex" }}>
-                {BLOOMIES_LIST.slice(0, 5).map((b, i) => (
-                  <div key={b.id} style={{ width: 32, height: 32, borderRadius: "50%", background: `linear-gradient(135deg,${b.color},${b.color}BB)`, border: "2px solid #FAF5EE", marginLeft: i > 0 ? -9 : 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800, color: "white", flexShrink: 0, position: "relative", zIndex: 5 - i, boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
-                    {b.initial}
-                  </div>
-                ))}
-                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#F0E8E0", border: "2px solid #FAF5EE", marginLeft: -9, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "#888" }}>+{room.members > 5 ? room.members - 5 : 1}</p>
-                </div>
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 2 }}>CHEMISTRY</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 24, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>94%</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "#888", marginTop: 1 }}>Great energy ❋</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
-const RETIRED_ROOMS: PlanRoom[] = [
-  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#1A0A14", accent: "#FF1F7D", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
-  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#0A100A", accent: "#FFB3D1", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",       time: "Sun Apr 20 · 11AM" },
-];
-
-const EXPIRED_ROOMS: PlanRoom[] = [
-  { id: 20, name: "Jazz at Small's",   emoji: "🎷",  bg: "#0A0810", accent: "#FF1F7D", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV",  time: "Wed May 28 · 8PM" },
-  { id: 21, name: "Rooftop Pilates",   emoji: "🧘‍♀️", bg: "#0A1018", accent: "#FFB3D1", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",    time: "Thu May 15 · 7AM" },
-];
+const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
 
 // ── Ticket card (shared render) ───────────────────────────────────────────────
 
 function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active" | "used" | "expired"; onOpen: () => void }) {
-  const img = TICKET_IMAGES[room.id];
-  const ticketCode = `BB-${room.id.toString().padStart(2,"0")}-${(room.id * 7841 + 3301) % 9000 + 1000}`;
+  const img = room.poster ?? TICKET_IMAGES[room.id];
+  const ticketCode = planTicketCode(room.id);
   const TH = 148;
   const isClickable = status === "active";
   const overlay = status === "used" ? "USED ✓" : status === "expired" ? "MISSED" : null;
@@ -1483,7 +1413,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
             {/* ══ LAYER 2 — tickets peeking from slot, back-to-front ══ */}
             {stackItems.map((room, i) => {
               const s = STACK[Math.min(i, STACK.length - 1)];
-              const img = TICKET_IMAGES[room.id];
+              const img = room.poster ?? TICKET_IMAGES[room.id];
               const isFront = i === stackItems.length - 1;
               return (
                 <div key={room.id} style={{
@@ -1691,7 +1621,8 @@ function PlansPageInner() {
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>(PLAN_ROOMS);
+  const [planRooms, setPlanRooms]     = useState<PlanRoom[]>([]);
+  const [plansLoaded, setPlansLoaded] = useState(false);
 
   useEffect(() => {
     void import("@/lib/supabase/client").then(({ createClient }) => {
@@ -1700,14 +1631,17 @@ function PlansPageInner() {
     fetch("/api/member/plans")
       .then(r => r.ok ? r.json() : null)
       .then((json: { plans?: PlanRoom[] } | null) => {
-        if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+        if (json?.plans) setPlanRooms(json.plans);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setPlansLoaded(true));
   }, []);
-  const [read, setRead]               = useState<Set<number>>(new Set());
+  const [read, setRead]               = useState<Set<string>>(new Set());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editorDay, setEditorDay]     = useState<string | null>(null);
   const [dayContents, setDayContents] = useState<Record<string, DayContent>>({});
+
+  const eventDates = useMemo(() => buildEventDatesFromPlanRooms(planRooms), [planRooms]);
 
   useEffect(() => {
     const eventId = searchParams.get("event");
@@ -1808,7 +1742,7 @@ function PlansPageInner() {
                     const d = new Date(monday);
                     d.setDate(monday.getDate() + i);
                     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-                    return { date: d.getDate(), events: EVENT_DATES[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
+                    return { date: d.getDate(), events: eventDates[key] ?? [], isToday: key === todayKey, label: ["Mo","Tu","We","Th","Fr","Sa","Su"][i] };
                   });
                   return (
                     <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: 16, padding: "10px 10px 8px", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
@@ -1844,12 +1778,15 @@ function PlansPageInner() {
               {planRooms.map(room => (
                 <PlanDoorCard key={room.id} room={room} isRead={read.has(room.id)} onPress={() => openRoom(room)} />
               ))}
+              {plansLoaded && planRooms.length === 0 && (
+                <div style={{ flexShrink: 0, width: 220, padding: "20px 16px", borderRadius: 16, border: "1px dashed rgba(255,31,125,0.2)", background: "rgba(255,255,255,0.6)", display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 14, fontWeight: 700, color: "#1A1A1A", lineHeight: 1.3 }}>No plan rooms yet</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#888", lineHeight: 1.5 }}>RSVP to a happening or start a plan with your Bloomies.</p>
+                </div>
+              )}
             </div>
 
             <RecentConfirmationsStrip />
-
-            {/* Confirmation card — most recent upcoming event */}
-            {planRooms[1] && <EventConfirmationCard room={planRooms[1]} onViewRoom={() => openRoom(planRooms[1])} />}
 
             {/* Ornamental divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18, marginTop: 18 }}>
@@ -1885,8 +1822,15 @@ function PlansPageInner() {
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
                   <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
                 </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>{MEMORY_EVENTS.length} moments ✦</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>
+                  {MEMORY_EVENTS.length > 0 ? `${MEMORY_EVENTS.length} moments ✦` : "No memories yet"}
+                </p>
               </div>
+              {MEMORY_EVENTS.length === 0 ? (
+                <div style={{ borderRadius: 16, border: "1px dashed rgba(255,31,125,0.2)", background: "rgba(255,255,255,0.6)", padding: "28px 20px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888", lineHeight: 1.5 }}>No memories yet — past plans will show up here.</p>
+                </div>
+              ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
                 {MEMORY_EVENTS.map((ev, i) => (
                   <div key={ev.id} style={{ transform: `rotate(${POLAROID_ROTS[i]}deg)`, transformOrigin: "center bottom", transition: "transform 0.2s" }}>
@@ -1902,6 +1846,7 @@ function PlansPageInner() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
         </div>
       </div>
@@ -1926,6 +1871,7 @@ function PlansPageInner() {
                 dayContents={dayContents}
                 onSelectDay={key => setSelectedDay(prev => prev === key ? null : key)}
                 selectedDay={selectedDay}
+                eventDates={eventDates}
               />
             </div>
             {selectedDay && (
@@ -1933,6 +1879,7 @@ function PlansPageInner() {
                 dayKey={selectedDay}
                 dayContent={dayContents[selectedDay]}
                 onEdit={() => setEditorDay(selectedDay)}
+                eventDates={eventDates}
               />
             )}
           </div>
@@ -1945,6 +1892,7 @@ function PlansPageInner() {
           content={dayContents[editorDay] ?? { text: "", stickers: [], photos: [], voiceCount: 0 }}
           onUpdate={c => updateDayContent(editorDay, c)}
           onClose={() => setEditorDay(null)}
+          eventDates={eventDates}
         />
       )}
 
@@ -1958,7 +1906,7 @@ function PlansPageInner() {
 
       {showNewPlan && <NewPlanSheet onClose={() => setShowNewPlan(false)} onCreated={() => {
         fetch("/api/member/plans").then(r => r.ok ? r.json() : null).then((json: { plans?: PlanRoom[] } | null) => {
-          if (json?.plans && json.plans.length > 0) setPlanRooms(json.plans);
+          if (json?.plans) setPlanRooms(json.plans);
         }).catch(() => {});
       }} />}
 

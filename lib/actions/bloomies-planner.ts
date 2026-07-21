@@ -232,16 +232,26 @@ export async function getBloomiesFriends(): Promise<{ id: string; display_name: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
-  // Friends = people in shared gathering_attendance or bloomies connections
-  // For now, return active members (users who have profiles with display names)
-  const { data } = await supabase
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data } = await admin
     .from("profiles")
-    .select("id, display_name, avatar_url")
+    .select("id, full_name, first_name, avatar_url")
     .neq("id", user.id)
-    .not("display_name", "is", null)
-    .limit(50);
+    .limit(80);
 
-  return (data ?? []) as { id: string; display_name: string | null; avatar_url: string | null }[];
+  return (data ?? [])
+    .map((p) => {
+      const row = p as {
+        id: string;
+        full_name: string | null;
+        first_name: string | null;
+        avatar_url: string | null;
+      };
+      const display_name = (row.full_name ?? row.first_name ?? "").trim() || null;
+      return { id: row.id, display_name, avatar_url: row.avatar_url };
+    })
+    .filter((p) => !!p.display_name);
 }
 
 export const PLAN_TYPE_LABELS: Record<PlanType, string> = {

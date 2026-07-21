@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -8,6 +8,10 @@ import {
   getMessages,
   sendMessage as dbSendMessage,
   markConversationRead,
+  startConversation,
+  createNamedGroupConversation,
+  listChatMembers,
+  addMembersToConversation,
 } from "@/lib/actions/direct-messages";
 import type { ConversationSummary, DirectMessage } from "@/lib/actions/direct-messages";
 
@@ -15,7 +19,7 @@ type ConvoType = "plan" | "club" | "direct" | "group" | "event";
 type View = "list" | "thread";
 
 interface Convo {
-  id: number;
+  id: string;
   type: ConvoType;
   name: string;
   initial: string;
@@ -25,114 +29,242 @@ interface Convo {
   time: string;
   unread: number;
   subtitle?: string;
-  online?: boolean;
-  bio?: string;
   memberCount?: number;
-  // Real DB conversation id (if this came from DB)
-  dbConvoId?: string;
+  dbConvoId: string;
 }
 
 interface Message {
-  id: number;
+  id: string;
   sender: string;
   initial: string;
   color: string;
   text: string;
   time: string;
   isMe?: boolean;
-  imageUrl?: string;
   isSticker?: boolean;
+  mediaUrl?: string | null;
+  mediaType?: "text" | "image" | "audio" | "gif";
+}
+
+interface ChatMember {
+  id: string;
+  name: string;
+  avatar_url: string | null;
 }
 
 const WALLPAPERS = [
-  { id: "none",    label: "None",    value: "#FFFFFF" },
-  { id: "bloom",   label: "Bloom",   value: "radial-gradient(ellipse at 30% 20%, #FF69B4 0%, #FFDCEA 40%, #FFFFFF 100%)" },
-  { id: "blush",   label: "Blush",   value: "radial-gradient(ellipse at 70% 30%, #FFB3D9 0%, #FFEAF4 50%, #FFFFFF 100%)" },
-  { id: "petal",   label: "Petal",   value: "radial-gradient(ellipse at 50% 0%, #FF3A8C 0%, #FFB3D9 40%, #FFFFFF 100%)" },
-  { id: "powder",  label: "Powder",  value: "radial-gradient(ellipse at 20% 80%, #E8B4FA 0%, #F5DAFF 50%, #FFFFFF 100%)" },
-  { id: "rose",    label: "Rose",    value: "radial-gradient(ellipse at 80% 20%, #FF1F7D 0%, #FFB3D9 50%, #FFFFFF 100%)" },
-  { id: "candy",   label: "Candy",   value: "radial-gradient(ellipse at 40% 60%, #FF69B4 0%, #FFDCEA 50%, #FFFFFF 100%)" },
+  { id: "none", label: "None", value: "#FFFFFF" },
+  { id: "bloom", label: "Bloom", value: "radial-gradient(ellipse at 30% 20%, #FF69B4 0%, #FFDCEA 40%, #FFFFFF 100%)" },
+  { id: "blush", label: "Blush", value: "radial-gradient(ellipse at 70% 30%, #FFB3D9 0%, #FFEAF4 50%, #FFFFFF 100%)" },
+  { id: "petal", label: "Petal", value: "radial-gradient(ellipse at 50% 0%, #FF3A8C 0%, #FFB3D9 40%, #FFFFFF 100%)" },
+  { id: "powder", label: "Powder", value: "radial-gradient(ellipse at 20% 80%, #E8B4FA 0%, #F5DAFF 50%, #FFFFFF 100%)" },
+  { id: "rose", label: "Rose", value: "radial-gradient(ellipse at 80% 20%, #FF1F7D 0%, #FFB3D9 50%, #FFFFFF 100%)" },
+  { id: "candy", label: "Candy", value: "radial-gradient(ellipse at 40% 60%, #FF69B4 0%, #FFDCEA 50%, #FFFFFF 100%)" },
 ];
 
-const PINK  = "#FF1F7D";
+const PINK = "#FF1F7D";
 const CREAM = "#FFFFFF";
-const PAPER = "#FFFFFF";
-const DARK  = "#111111";
 const LOUNGE_BG = "linear-gradient(160deg, #FF1F7D 0%, #FF3A8C 50%, #FF69B4 100%)";
-
-const CONVOS: Convo[] = [
-  { id: 1, type: "plan",   name: "Morocco October",  initial: "M",  color: "#FF1F7D", bgGradient: "radial-gradient(ellipse at 60% 20%, #FF1F7D 0%, #FFB3D9 35%, #FFEAF4 70%, #FFFFFF 100%)", preview: "Aaliyah: Who's booking flights?",         time: "2m",  unread: 3, subtitle: "Plan Room · 6 women" },
-  { id: 2, type: "direct", name: "Sophia",            initial: "S",  color: "#E85C8A", bgGradient: "radial-gradient(ellipse at 30% 30%, #FF3A8C 0%, #FFB3D9 40%, #FFFFFF 100%)", preview: "Are you going to the rooftop?",     time: "18m", unread: 1, subtitle: "Direct · Bloomie", online: true,  bio: "NYC girl. Museums, late dinners & strong coffee ✨" },
-  { id: 3, type: "group",  name: "Travel Girls",      initial: "TG", color: "#FF69B4", bgGradient: "radial-gradient(ellipse at 70% 10%, #FF69B4 0%, #FFDCEA 50%, #FFF5F8 100%)", preview: "Jade: New date — Sept 12",                time: "1h",  unread: 2, subtitle: "Group · 8 women",     memberCount: 8  },
-  { id: 4, type: "direct", name: "Maya",               initial: "Ma", color: "#BF7AC5", bgGradient: "radial-gradient(ellipse at 50% 40%, #C084FC 0%, #E8D0FA 40%, #FFF8FF 100%)", preview: "So ready for Saturday!",           time: "3h",  unread: 0, subtitle: "Direct · Bloomie", online: false, bio: "Art director. Always finding the best brunch spot 🎨" },
-  { id: 5, type: "club",   name: "Tech Women NYC",    initial: "TW", color: "#FF1F7D", bgGradient: "radial-gradient(ellipse at 80% 50%, #FF1F7D 0%, #FFB3D9 50%, #FFF5F8 100%)", preview: "New post in #founders",                  time: "4h",  unread: 0, subtitle: "Club · 112 members"  },
-  { id: 6, type: "group",  name: "Book Girls",        initial: "BG", color: "#A855F7", bgGradient: "radial-gradient(ellipse at 20% 70%, #A855F7 0%, #DDB3FA 50%, #FFFFFF 100%)", preview: "Priya: Great conversation last night 🌙", time: "1d",  unread: 0, subtitle: "Group · 5 women",     memberCount: 5  },
-];
-
-const THREAD_MESSAGES: Record<number, Message[]> = {
-  1: [
-    { id: 1, sender: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Who's booking flights? We should probably coordinate", time: "9:12 AM" },
-    { id: 2, sender: "Jade K.",    initial: "J", color: "#FF69B4", text: "Better prices on group deals tbh", time: "9:14 AM" },
-    { id: 3, sender: "Me", initial: "Y", color: "#FF1F7D", text: "Yes! Let's pick a weekend. Thinking first week of Oct", time: "9:17 AM", isMe: true },
-    { id: 4, sender: "Aaliyah M.", initial: "A", color: "#FF1F7D", text: "Oct 3rd works for me. Flying from JFK", time: "9:18 AM" },
-    { id: 5, sender: "Me", initial: "Y", color: "#FF1F7D", text: "Same ✈️ Should we do a quick call this week?", time: "9:20 AM", isMe: true },
-  ],
-  2: [
-    { id: 1, sender: "Sophia", initial: "S", color: "#E85C8A", text: "Are you going to the rooftop thing tonight?", time: "7:42 PM" },
-    { id: 2, sender: "Me",     initial: "Y", color: "#FF1F7D", text: "I was thinking about it! Are you?", time: "7:45 PM", isMe: true },
-    { id: 3, sender: "Sophia", initial: "S", color: "#E85C8A", text: "100% going. Meet there at 9?", time: "7:46 PM" },
-    { id: 4, sender: "Me",     initial: "Y", color: "#FF1F7D", text: "Perfect 🌙 See you there", time: "7:48 PM", isMe: true },
-    { id: 5, sender: "Sophia", initial: "S", color: "#E85C8A", text: "Can't wait! It's going to be such a good night ✨", time: "7:49 PM" },
-  ],
-  3: [
-    { id: 1, sender: "Jade K.",  initial: "J", color: "#FF69B4", text: "New date — Sept 12. Does that work for everyone?", time: "2:30 PM" },
-    { id: 2, sender: "Temi A.",  initial: "T", color: "#FF1F7D", text: "Works for me!", time: "2:35 PM" },
-    { id: 3, sender: "Sofia W.", initial: "S", color: "#A855F7", text: "I'm in 🙌", time: "2:38 PM" },
-    { id: 4, sender: "Me",       initial: "Y", color: "#FF1F7D", text: "Sept 12 is perfect. Adding it now", time: "2:40 PM", isMe: true },
-  ],
-  4: [
-    { id: 1, sender: "Maya", initial: "Ma", color: "#BF7AC5", text: "Confirmed ✓ So excited for Saturday", time: "10:00 AM" },
-    { id: 2, sender: "Me",   initial: "Y",  color: "#FF1F7D", text: "Same!! Ladurée SoHo 🌸", time: "10:05 AM", isMe: true },
-    { id: 3, sender: "Maya", initial: "Ma", color: "#BF7AC5", text: "So ready for Saturday!", time: "10:06 AM" },
-  ],
-  5: [
-    { id: 1, sender: "Tech Women NYC", initial: "TW", color: "#FF1F7D", text: "New post in #founders — 'Pitching without apology'", time: "3h ago" },
-    { id: 2, sender: "Naomi B.",       initial: "N",  color: "#FF69B4", text: "Bookmarking this", time: "2h ago" },
-    { id: 3, sender: "Me",             initial: "Y",  color: "#FF1F7D", text: "Exactly what I needed today 🙏", time: "1h ago", isMe: true },
-  ],
-  6: [
-    { id: 1, sender: "Priya R.", initial: "P", color: "#A855F7", text: "Great conversation last night 🌙", time: "Yesterday" },
-    { id: 2, sender: "Me",       initial: "Y", color: "#FF1F7D", text: "Such a good one. Sequel 📚", time: "Yesterday", isMe: true },
-  ],
-};
 
 type Filter = "all" | ConvoType;
 const FILTERS: { label: string; value: Filter }[] = [
-  { label: "All",    value: "all"    },
-  { label: "DMs",    value: "direct" },
-  { label: "Groups", value: "group"  },
-  { label: "Clubs",  value: "club"   },
+  { label: "All", value: "all" },
+  { label: "DMs", value: "direct" },
+  { label: "Groups", value: "group" },
+  { label: "Clubs", value: "club" },
 ];
 
 type ChatMode = "choose" | "dm" | "group";
-const SUGGESTIONS = [
-  { name: "Aaliyah M.", initial: "A",  color: "#FF1F7D" },
-  { name: "Maya S.",    initial: "Ma", color: "#FF69B4" },
-  { name: "Jade K.",    initial: "J",  color: "#FF1F7D" },
-  { name: "Sofia W.",   initial: "S",  color: "#FF69B4" },
-  { name: "Naomi B.",   initial: "N",  color: "#FF1F7D" },
-  { name: "Temi A.",    initial: "T",  color: "#FF69B4" },
+
+const STICKER_CATEGORIES = [
+  {
+    id: "girl_culture",
+    label: "Girl ✦",
+    stickers: [
+      "✨ Main Character Energy", "🌸 Soft Life", "💅 Girl Math",
+      "👑 Rich Aunt Energy", "🚀 Founder Mode", "🥂 Romanticizing My Life",
+      "🔥 Hot Girl Shit", "💫 Delusional & Thriving", "📖 Book It",
+      "✈️ Buy the Ticket", "🌍 Solo Trip", "💖 For the Girls",
+    ],
+  },
+  {
+    id: "lifestyle",
+    label: "Life 🌿",
+    stickers: ["🍵 Matcha", "🥐 Croissant", "👓 Sunglasses", "👜 Tote Bag", "💄 Lipstick", "🌸 Flowers", "📚 Books", "☕ Coffee"],
+  },
+  {
+    id: "travel",
+    label: "Travel ✈️",
+    stickers: ["🗼 Paris", "🗽 NYC", "🌊 Lisbon", "🌴 Palm Springs", "🎭 Rome", "🌺 Bali", "🏖️ Tulum", "🌃 Tokyo"],
+  },
+  {
+    id: "wellness",
+    label: "Wellness 🧘",
+    stickers: ["🧘 Pilates Princess", "🏃 Run Club", "🌿 Yoga Therapy", "🥗 Salad Bar", "🛁 Self Care", "🌙 Rest Day"],
+  },
+  {
+    id: "status",
+    label: "Status 🌟",
+    stickers: ["✅ Bloom Approved", "🔒 Plan Locked", "🛂 Added to Passport", "🎫 Booked It", "🔥 Burning Lots", "💌 Sent Sweet"],
+  },
+  {
+    id: "expressions",
+    label: "Mood 😌",
+    stickers: ["🫶 IDYKIK", "✔️ okay", "💫 slay the day", "⚡ do it anyway", "🍽️ eat", "🎯 focus"],
+  },
 ];
 
+function mapDbMessage(m: DirectMessage, myId: string | null): Message {
+  const name = m.sender?.full_name ?? m.sender?.first_name ?? "Someone";
+  const mediaType = m.media_type ?? "text";
+  return {
+    id: m.id,
+    sender: name,
+    initial: name.charAt(0).toUpperCase(),
+    color: PINK,
+    text: m.content,
+    time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    isMe: !!myId && m.sender_id === myId,
+    isSticker: false,
+    mediaUrl: m.media_url ?? null,
+    mediaType,
+  };
+}
+
+async function uploadChatMedia(file: File, kind: "image" | "audio" | "gif"): Promise<string> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const maxBytes = kind === "audio" ? 10 * 1024 * 1024 : 6 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    throw new Error(kind === "audio" ? "Voice note must be under 10MB" : "File must be under 6MB");
+  }
+
+  const ext =
+    kind === "gif"
+      ? "gif"
+      : kind === "image"
+        ? (file.name.split(".").pop()?.toLowerCase() || "jpg")
+        : (file.type.includes("webm") ? "webm" : file.type.includes("mp4") || file.type.includes("m4a") ? "m4a" : "webm");
+
+  const folder = kind === "audio" ? "audio" : kind === "gif" ? "gif" : "image";
+  const path = `${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const contentType =
+    file.type ||
+    (kind === "gif" ? "image/gif" : kind === "image" ? "image/jpeg" : "audio/webm");
+  const { data, error } = await supabase.storage
+    .from("chat-media")
+    .upload(path, file, { upsert: false, contentType });
+  if (error) throw new Error(error.message);
+
+  const { data: urlData } = supabase.storage.from("chat-media").getPublicUrl(data.path);
+  return urlData.publicUrl;
+}
+
+function dbConvoToUI(c: ConversationSummary): Convo {
+  const other = c.participants[0];
+  const name =
+    c.name?.trim() ||
+    other?.full_name ||
+    other?.first_name ||
+    "Conversation";
+  const timeAgo = (() => {
+    if (!c.last_message_at) return "";
+    const diff = Date.now() - new Date(c.last_message_at).getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    if (m < 60) return `${Math.max(0, m)}m`;
+    if (h < 24) return `${h}h`;
+    return `${Math.floor(diff / 86400000)}d`;
+  })();
+  const typeLabel = c.type.charAt(0).toUpperCase() + c.type.slice(1);
+  return {
+    id: c.id,
+    type: c.type,
+    name,
+    initial: name.slice(0, c.type === "group" || c.type === "club" ? 2 : 1).toUpperCase(),
+    color: PINK,
+    preview: c.last_preview ?? "Start a conversation",
+    time: timeAgo,
+    unread: c.unread_count,
+    subtitle: `${typeLabel}${c.participants.length ? ` · ${c.participants.length + 1}` : ""}`,
+    memberCount: c.participants.length + 1,
+    dbConvoId: c.id,
+  };
+}
+
 // ── New Chat Sheet ─────────────────────────────────────────────────────────────
-function NewChatSheet({ onClose }: { onClose: () => void }) {
+function NewChatSheet({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: (convoId: string) => void;
+}) {
   const [mode, setMode] = useState<ChatMode>("choose");
+  const [members, setMembers] = useState<ChatMember[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dmPick, setDmPick] = useState<string | null>(null);
   const [groupName, setGroupName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function toggleGroup(name: string) {
-    setSelected(prev => { const n = new Set(prev); n.has(name) ? n.delete(name) : n.add(name); return n; });
+  useEffect(() => {
+    if (mode !== "dm" && mode !== "group") return;
+    setLoadingMembers(true);
+    listChatMembers()
+      .then(setMembers)
+      .catch(() => setMembers([]))
+      .finally(() => setLoadingMembers(false));
+  }, [mode]);
+
+  function toggleGroup(id: string) {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  }
+
+  async function createDm() {
+    if (!dmPick || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const id = await startConversation(dmPick);
+      onCreated(id);
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn’t start conversation");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function createGroup() {
+    if (busy) return;
+    const name = groupName.trim();
+    if (!name) {
+      setError("Name your chat");
+      return;
+    }
+    if (selected.size < 1) {
+      setError("Add at least one woman");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const id = await createNamedGroupConversation(name, [...selected]);
+      onCreated(id);
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn’t create group");
+    } finally {
+      setBusy(false);
+    }
   }
 
   const Backdrop = () => (
@@ -146,93 +278,172 @@ function NewChatSheet({ onClose }: { onClose: () => void }) {
   const SheetHeader = ({ title, onBack }: { title: string; onBack?: () => void }) => (
     <div className="px-6 pt-2 pb-4 flex items-center gap-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
       {onBack && (
-        <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,31,125,0.08)", border: "none" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button type="button" onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,31,125,0.08)", border: "none" }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
       )}
       <p className="text-[10px] font-bold tracking-[0.22em] uppercase flex-1" style={{ color: PINK }}>{title}</p>
-      <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,31,125,0.08)", border: "none" }}>
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+      <button type="button" onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,31,125,0.08)", border: "none" }}>
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="2" strokeLinecap="round"><path d="M1 1l10 10M11 1L1 11" /></svg>
       </button>
     </div>
   );
 
-  if (mode === "choose") return (
-    <>
-      <Backdrop />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
-        <Handle /><SheetHeader title="✦ NEW CONVERSATION" />
-        <div className="px-6 pt-5 pb-8 flex flex-col gap-3">
-          {[
-            { label: "Send a message", sub: "One-on-one with someone", grad: "linear-gradient(135deg,#FF1F7D,#FF69B4)", shadow: "rgba(255,31,125,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setMode("dm") },
-            { label: "Group message",  sub: "Chat with multiple women", grad: "linear-gradient(135deg,#FF69B4,#C084FC)", shadow: "rgba(255,105,180,0.3)", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>, action: () => setMode("group") },
-          ].map(({ label, sub, grad, shadow, icon, action }) => (
-            <button key={label} onClick={action} className="w-full flex items-center gap-4 p-4 rounded-2xl text-left" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)" }}>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: grad, boxShadow: `0 3px 10px ${shadow}` }}>{icon}</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm" style={{ color: "#111111" }}>{label}</p>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.4)" }}>{sub}</p>
+  const MemberList = ({
+    modePick,
+  }: {
+    modePick: "dm" | "group";
+  }) => {
+    if (loadingMembers) {
+      return <p className="text-sm py-8 text-center" style={{ color: "rgba(0,0,0,0.4)" }}>Loading members…</p>;
+    }
+    if (members.length === 0) {
+      return (
+        <p className="text-sm py-8 text-center" style={{ color: "rgba(0,0,0,0.4)" }}>
+          No other members to message yet.
+        </p>
+      );
+    }
+    return (
+      <>
+        {members.map((m) => {
+          const active = modePick === "dm" ? dmPick === m.id : selected.has(m.id);
+          const initial = m.name.charAt(0).toUpperCase();
+          return (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => (modePick === "dm" ? setDmPick(m.id) : toggleGroup(m.id))}
+              className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl mb-1"
+              style={{
+                background: active ? "rgba(255,31,125,0.15)" : "transparent",
+                border: active ? "1.5px solid rgba(255,31,125,0.35)" : "1.5px solid rgba(255,31,125,0.08)",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
+                style={{ background: `linear-gradient(135deg,${PINK},${PINK}BB)` }}
+              >
+                {initial}
               </div>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <p className="flex-1 text-sm font-semibold text-left" style={{ color: "#111111" }}>{m.name}</p>
+              <div
+                className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: active ? PINK : "#DDD", background: active ? PINK : "transparent" }}
+              >
+                {active && (
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2 6 5 9 10 3" /></svg>
+                )}
+              </div>
             </button>
-          ))}
-        </div>
-      </div>
-    </>
-  );
+          );
+        })}
+      </>
+    );
+  };
 
-  if (mode === "dm") return (
-    <>
-      <Backdrop />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "75vh", display: "flex", flexDirection: "column" }}>
-        <Handle /><SheetHeader title="SEND A MESSAGE" onBack={() => { setMode("choose"); setDmPick(null); }} />
-        <div className="flex-1 overflow-y-auto px-6 py-3">
-          <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(0,0,0,0.4)" }}>Choose someone</p>
-          {SUGGESTIONS.map(s => {
-            const active = dmPick === s.name;
-            return (
-              <button key={s.name} onClick={() => setDmPick(s.name)} className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl mb-1" style={{ background: active ? "rgba(255,31,125,0.15)" : "transparent", border: active ? "1.5px solid rgba(255,31,125,0.35)" : "1.5px solid rgba(255,31,125,0.08)" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0" style={{ background: `linear-gradient(135deg,${s.color},${s.color}BB)` }}>{s.initial}</div>
-                <p className="flex-1 text-sm font-semibold text-left" style={{ color: "#111111" }}>{s.name}</p>
-                <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center" style={{ borderColor: active ? PINK : "#DDD", background: active ? PINK : "transparent" }}>
-                  {active && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2 6 5 9 10 3"/></svg>}
+  if (mode === "choose") {
+    return (
+      <>
+        <Backdrop />
+        <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+          <Handle /><SheetHeader title="✦ NEW CONVERSATION" />
+          <div className="px-6 pt-5 pb-8 flex flex-col gap-3">
+            {[
+              { label: "Send a message", sub: "One-on-one with someone", action: () => setMode("dm") },
+              { label: "Group message", sub: "Name your chat · invite women", action: () => setMode("group") },
+            ].map(({ label, sub, action }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={action}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left"
+                style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)" }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm" style={{ color: "#111111" }}>{label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.4)" }}>{sub}</p>
                 </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
-        <div className="px-6 pb-8 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #F0EBE4" }}>
-          <button onClick={() => { if (dmPick) onClose(); }} disabled={!dmPick} className="w-full py-4 rounded-full text-sm font-bold" style={dmPick ? { background: PINK, color: "white", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-            {dmPick ? `Message ${dmPick.split(" ")[0]} →` : "Choose someone first"}
-          </button>
+      </>
+    );
+  }
+
+  if (mode === "dm") {
+    const pickName = members.find((m) => m.id === dmPick)?.name;
+    return (
+      <>
+        <Backdrop />
+        <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "75vh", display: "flex", flexDirection: "column" }}>
+          <Handle />
+          <SheetHeader title="SEND A MESSAGE" onBack={() => { setMode("choose"); setDmPick(null); setError(null); }} />
+          <div className="flex-1 overflow-y-auto px-6 py-3">
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(0,0,0,0.4)" }}>Choose someone</p>
+            <MemberList modePick="dm" />
+          </div>
+          {error && <p className="px-6 text-xs pb-2" style={{ color: PINK }}>{error}</p>}
+          <div className="px-6 pb-8 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #F0EBE4" }}>
+            <button
+              type="button"
+              onClick={createDm}
+              disabled={!dmPick || busy}
+              className="w-full py-4 rounded-full text-sm font-bold"
+              style={dmPick && !busy ? { background: PINK, color: "white", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" } : { background: "#F5E8EE", color: "#C8A0B0" }}
+            >
+              {busy ? "Opening…" : pickName ? `Message ${pickName.split(" ")[0]} →` : "Choose someone first"}
+            </button>
+          </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 
   return (
     <>
       <Backdrop />
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "82vh", display: "flex", flexDirection: "column" }}>
-        <Handle /><SheetHeader title="GROUP MESSAGE" onBack={() => { setMode("choose"); setSelected(new Set()); setGroupName(""); }} />
+        <Handle />
+        <SheetHeader title="NAME YOUR CHAT" onBack={() => { setMode("choose"); setSelected(new Set()); setGroupName(""); setError(null); }} />
         <div className="px-6 py-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
-          <input value={groupName} onChange={e => setGroupName(e.target.value)} placeholder="Group name (e.g. Morocco Girls)" autoFocus className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }} />
+          <input
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            placeholder="Chat name (e.g. Museum Sundays)"
+            autoFocus
+            maxLength={60}
+            className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+            style={{ background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.25)", color: "#111111" }}
+          />
+          <p className="text-[10px] mt-2" style={{ color: "rgba(0,0,0,0.35)" }}>This is what everyone will see in The Lounge.</p>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-3">
-          <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(0,0,0,0.4)" }}>Add women · {selected.size} selected</p>
-          {SUGGESTIONS.map(s => (
-            <button key={s.name} onClick={() => toggleGroup(s.name)} className="w-full flex items-center gap-3 py-2.5 mb-1">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0" style={{ background: `linear-gradient(135deg,${s.color},${s.color}BB)` }}>{s.initial}</div>
-              <p className="flex-1 text-sm font-semibold text-left" style={{ color: "#111111" }}>{s.name}</p>
-              <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center" style={{ borderColor: selected.has(s.name) ? PINK : "rgba(255,31,125,0.2)", background: selected.has(s.name) ? PINK : "transparent" }}>
-                {selected.has(s.name) && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2 6 5 9 10 3"/></svg>}
-              </div>
-            </button>
-          ))}
+          <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: "rgba(0,0,0,0.4)" }}>
+            Add women · {selected.size} selected
+          </p>
+          <MemberList modePick="group" />
         </div>
+        {error && <p className="px-6 text-xs pb-2" style={{ color: PINK }}>{error}</p>}
         <div className="px-6 pb-8 pt-3 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,31,125,0.1)" }}>
-          <button onClick={() => { if (selected.size >= 2 && groupName.trim()) onClose(); }} disabled={selected.size < 2 || !groupName.trim()} className="w-full py-4 rounded-full text-sm font-bold" style={selected.size >= 2 && groupName.trim() ? { background: `linear-gradient(135deg,${PINK},#FF69B4)`, color: "white", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" } : { background: "#F5E8EE", color: "#C8A0B0" }}>
-            {selected.size >= 2 && groupName.trim() ? `Create group · ${selected.size} women →` : selected.size < 2 ? "Add at least 2 women" : "Add a group name"}
+          <button
+            type="button"
+            onClick={createGroup}
+            disabled={selected.size < 1 || !groupName.trim() || busy}
+            className="w-full py-4 rounded-full text-sm font-bold"
+            style={selected.size >= 1 && groupName.trim() && !busy
+              ? { background: `linear-gradient(135deg,${PINK},#FF69B4)`, color: "white", boxShadow: "0 4px 16px rgba(255,31,125,0.3)" }
+              : { background: "#F5E8EE", color: "#C8A0B0" }}
+          >
+            {busy
+              ? "Creating…"
+              : !groupName.trim()
+                ? "Name your chat"
+                : selected.size < 1
+                  ? "Add at least one woman"
+                  : `Create “${groupName.trim()}” →`}
           </button>
         </div>
       </div>
@@ -240,20 +451,31 @@ function NewChatSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Conversation Row ───────────────────────────────────────────────────────────
 function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread: boolean; isLast: boolean; onClick: () => void }) {
   const isDM = convo.type === "direct";
   return (
-    <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", textAlign: "left", cursor: "pointer", background: isUnread ? "#FFF5F8" : "#FFFFFF", borderBottom: isLast ? "none" : "1px solid rgba(255,31,125,0.08)", gap: 14, padding: "14px 16px", WebkitTapHighlightColor: "transparent" }}>
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: "100%", display: "flex", alignItems: "center", textAlign: "left", cursor: "pointer",
+        background: isUnread ? "#FFF5F8" : "#FFFFFF",
+        borderBottom: isLast ? "none" : "1px solid rgba(255,31,125,0.08)",
+        gap: 14, padding: "14px 16px", WebkitTapHighlightColor: "transparent",
+      }}
+    >
       <div style={{ position: "relative", flexShrink: 0 }}>
-        <div style={{ width: 50, height: 50, borderRadius: isDM ? "50%" : "16px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", background: convo.bgGradient ?? `linear-gradient(135deg,${convo.color},${convo.color}BB)`, fontSize: convo.initial.length > 1 ? "12px" : "18px", boxShadow: isUnread ? `0 0 0 2.5px ${convo.color},0 0 0 5px rgba(255,255,255,0.05)` : "0 2px 8px rgba(0,0,0,0.3)" }}>
+        <div style={{
+          width: 50, height: 50, borderRadius: isDM ? "50%" : "16px",
+          display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white",
+          background: convo.bgGradient ?? `linear-gradient(135deg,${convo.color},${convo.color}BB)`,
+          fontSize: convo.initial.length > 1 ? "12px" : "18px",
+          boxShadow: isUnread ? `0 0 0 2.5px ${convo.color},0 0 0 5px rgba(255,255,255,0.05)` : "0 2px 8px rgba(0,0,0,0.3)",
+        }}>
           {convo.initial}
         </div>
-        {isDM && convo.online && (
-          <div style={{ position: "absolute", bottom: 2, right: 2, width: 12, height: 12, borderRadius: "50%", background: "#22C55E", border: "2px solid #FFFFFF" }}/>
-        )}
         {isUnread && convo.unread > 0 && (
-          <div style={{ position: "absolute", top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: PINK, boxShadow: "0 1px 4px rgba(255,31,125,0.55)" }}>
+          <div style={{ position: "absolute", top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", background: PINK }}>
             <span style={{ fontSize: "9px", fontWeight: 900, color: "white", padding: "0 3px" }}>{convo.unread}</span>
           </div>
         )}
@@ -263,131 +485,212 @@ function ConvoRow({ convo, isUnread, isLast, onClick }: { convo: Convo; isUnread
           <p style={{ flex: 1, minWidth: 0, fontSize: "14px", fontWeight: isUnread ? 700 : 500, color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.2 }}>{convo.name}</p>
           <span style={{ fontSize: "10px", flexShrink: 0, color: "rgba(0,0,0,0.4)" }}>{convo.time}</span>
         </div>
-        <p style={{ fontSize: "12px", color: isUnread ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.4)", fontWeight: isUnread ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4 }}>{convo.preview}</p>
+        <p style={{ fontSize: "12px", color: isUnread ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{convo.preview}</p>
         {convo.subtitle && <p style={{ fontSize: "10px", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{convo.subtitle}</p>}
       </div>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,31,125,0.3)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
     </button>
   );
 }
 
-const STICKER_CATEGORIES = [
-  {
-    id: "girl_culture", label: "Girl ✦", stickers: [
-      "✨ Main Character Energy", "🌸 Soft Life", "💅 Girl Math",
-      "👑 Rich Aunt Energy", "🚀 Founder Mode", "🥂 Romanticizing My Life",
-      "🔥 Hot Girl Shit", "💫 Delusional & Thriving", "📖 Book It",
-      "✈️ Buy the Ticket", "🌍 Solo Trip", "💖 For the Girls",
-    ],
-  },
-  {
-    id: "lifestyle", label: "Life 🌿", stickers: [
-      "🍵 Matcha", "🥐 Croissant", "👓 Sunglasses", "👜 Tote Bag",
-      "💄 Lipstick", "🌸 Flowers", "📚 Books", "☕ Coffee",
-    ],
-  },
-  {
-    id: "travel", label: "Travel ✈️", stickers: [
-      "🗼 Paris", "🗽 NYC", "🌊 Lisbon", "🌴 Palm Springs",
-      "🎭 Rome", "🌺 Bali", "🏖️ Tulum", "🌃 Tokyo",
-    ],
-  },
-  {
-    id: "wellness", label: "Wellness 🧘", stickers: [
-      "🧘 Pilates Princess", "🏃 Run Club", "🌿 Yoga Therapy",
-      "🥗 Salad Bar", "🛁 Self Care", "🌙 Rest Day",
-    ],
-  },
-  {
-    id: "status", label: "Status 🌟", stickers: [
-      "✅ Bloom Approved", "🔒 Plan Locked", "🛂 Added to Passport",
-      "🎫 Booked It", "🔥 Burning Lots", "💌 Sent Sweet",
-    ],
-  },
-  {
-    id: "expressions", label: "Mood 😌", stickers: [
-      "🫶 IDYKIK", "✔️ okay", "💫 slay the day",
-      "⚡ do it anyway", "🍽️ eat", "🎯 focus",
-    ],
-  },
-];
-
-// ── Composer Bar ───────────────────────────────────────────────────────────────
-function ComposerBar({ draft, setDraft, onSend, onPhotoSend, onStickerSend }: {
+function ComposerBar({
+  draft,
+  setDraft,
+  onSend,
+  onStickerSend,
+  onPhotoSend,
+  onGifSend,
+  onVoiceSend,
+  sending,
+}: {
   draft: string;
   setDraft: (v: string) => void;
   onSend: () => void;
-  onPhotoSend?: (url: string) => void;
   onStickerSend?: (text: string) => void;
+  onPhotoSend?: (file: File) => void;
+  onGifSend?: (file: File) => void;
+  onVoiceSend?: (file: File) => void;
+  sending?: boolean;
 }) {
-  const photoInputRef = useRef<HTMLInputElement>(null);
   const [showStickers, setShowStickers] = useState(false);
   const [stickerTab, setStickerTab] = useState("girl_culture");
+  const [recording, setRecording] = useState(false);
+  const [recSecs, setRecSecs] = useState(0);
+  const photoRef = useRef<HTMLInputElement>(null);
+  const gifRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !onPhotoSend) return;
-    const url = URL.createObjectURL(file);
-    onPhotoSend(url);
-    e.target.value = "";
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      mediaRecorderRef.current?.stream.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
+
+  async function toggleVoice() {
+    if (sending) return;
+    if (recording) {
+      mediaRecorderRef.current?.stop();
+      setRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : MediaRecorder.isTypeSupported("audio/mp4")
+          ? "audio/mp4"
+          : "";
+      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        if (blob.size < 500) return;
+        const ext = (recorder.mimeType || "").includes("mp4") ? "m4a" : "webm";
+        const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: blob.type });
+        onVoiceSend?.(file);
+        setRecSecs(0);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+      setRecSecs(0);
+      timerRef.current = setInterval(() => setRecSecs((s) => s + 1), 1000);
+    } catch {
+      alert("Microphone access is needed to send a voice note.");
+    }
   }
 
-  const actions = [
-    { icon: "📅", label: "Plan",     onClick: undefined as (() => void) | undefined },
-    { icon: "🖼️", label: "Photos",   onClick: () => photoInputRef.current?.click() },
-    { icon: "🎤", label: "Voice",    onClick: undefined as (() => void) | undefined },
-    { icon: "📍", label: "Location", onClick: undefined as (() => void) | undefined },
-    { icon: "😊", label: "Stickers", onClick: () => setShowStickers(v => !v) },
-  ];
-
   return (
-    <div style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,31,125,0.12)", paddingBottom: "max(12px,env(safe-area-inset-bottom))" }}>
-      <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
+    <div style={{
+      background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)",
+      borderTop: "1px solid rgba(255,31,125,0.12)",
+      paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+    }}>
+      <input
+        ref={photoRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onPhotoSend?.(file);
+        }}
+      />
+      <input
+        ref={gifRef}
+        type="file"
+        accept="image/gif"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onGifSend?.(file);
+        }}
+      />
       {showStickers && (
         <div style={{ borderBottom: "1px solid rgba(255,31,125,0.12)", background: "rgba(255,255,255,0.97)" }}>
-          {/* Category tabs */}
           <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none", padding: "10px 12px 6px" }}>
-            {STICKER_CATEGORIES.map(cat => (
-              <button key={cat.id} onClick={() => setStickerTab(cat.id)} style={{
-                flexShrink: 0, padding: "5px 10px", borderRadius: 999, border: "none",
-                background: stickerTab === cat.id ? PINK : "#FFF5F8",
-                color: stickerTab === cat.id ? "white" : "rgba(0,0,0,0.4)",
-                fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                cursor: "pointer", letterSpacing: "0.04em",
-              }}>{cat.label}</button>
+            {STICKER_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setStickerTab(cat.id)}
+                style={{
+                  flexShrink: 0, padding: "5px 10px", borderRadius: 999, border: "none",
+                  background: stickerTab === cat.id ? PINK : "#FFF5F8",
+                  color: stickerTab === cat.id ? "white" : "rgba(0,0,0,0.4)",
+                  fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, cursor: "pointer",
+                }}
+              >
+                {cat.label}
+              </button>
             ))}
           </div>
-          {/* Sticker grid */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "6px 12px 12px", maxHeight: 140, overflowY: "auto" }}>
-            {STICKER_CATEGORIES.find(c => c.id === stickerTab)?.stickers.map(s => (
-              <button key={s} onClick={() => { onStickerSend?.(s); setShowStickers(false); }} style={{
-                padding: "6px 10px", borderRadius: 999,
-                background: "rgba(255,31,125,0.15)", border: "1px solid rgba(255,31,125,0.25)",
-                fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: PINK,
-                cursor: "pointer", flexShrink: 0,
-              }}>{s}</button>
+            {STICKER_CATEGORIES.find((c) => c.id === stickerTab)?.stickers.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => { onStickerSend?.(s); setShowStickers(false); }}
+                style={{
+                  padding: "6px 10px", borderRadius: 999,
+                  background: "rgba(255,31,125,0.15)", border: "1px solid rgba(255,31,125,0.25)",
+                  fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 600, color: PINK, cursor: "pointer",
+                }}
+              >
+                {s}
+              </button>
             ))}
           </div>
         </div>
       )}
+      {recording && (
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 10, background: "rgba(255,31,125,0.08)" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: PINK, animation: "pulse 1s infinite" }} />
+          <p style={{ fontSize: 12, fontWeight: 700, color: PINK, flex: 1 }}>Recording… {recSecs}s · tap Voice to send</p>
+        </div>
+      )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", padding: "10px 20px 4px" }}>
-        {actions.map(({ icon, label, onClick }) => (
-          <button key={label} onClick={onClick} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 6px", background: "transparent", border: "none", cursor: onClick ? "pointer" : "default" }}>
+        {[
+          { icon: "😊", label: "Stickers", onClick: () => setShowStickers((v) => !v), active: showStickers },
+          { icon: recording ? "⏹" : "🎤", label: recording ? "Stop" : "Voice", onClick: () => { void toggleVoice(); }, active: recording },
+          { icon: "🖼️", label: "Photo", onClick: () => photoRef.current?.click(), active: false },
+          { icon: "🎞️", label: "GIF", onClick: () => gifRef.current?.click(), active: false },
+        ].map(({ icon, label, onClick, active }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={onClick}
+            disabled={sending}
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "4px 6px",
+              background: "transparent", border: "none", cursor: "pointer",
+              opacity: sending ? 0.4 : 1,
+            }}
+          >
             <span style={{ fontSize: 18 }}>{icon}</span>
-            <span style={{ fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.35)", letterSpacing: "0.05em" }}>{label}</span>
+            <span style={{ fontSize: "8px", fontWeight: 700, color: active ? PINK : "rgba(0,0,0,0.35)" }}>{label}</span>
           </button>
         ))}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px 8px" }}>
         <div style={{ flex: 1, borderRadius: 24, background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)", overflow: "hidden" }}>
-          <input value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }} placeholder="Message…" style={{ width: "100%", padding: "10px 16px", fontSize: "14px", color: "#111111", background: "transparent", outline: "none", border: "none" }} />
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSend();
+              }
+            }}
+            placeholder="Message…"
+            disabled={sending || recording}
+            style={{ width: "100%", padding: "10px 16px", fontSize: "14px", color: "#111111", background: "transparent", outline: "none", border: "none" }}
+          />
         </div>
-        <button onClick={onSend} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: draft.trim() ? PINK : "rgba(255,255,255,0.12)", boxShadow: draft.trim() ? "0 2px 10px rgba(255,31,125,0.35)" : "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={onSend}
+          disabled={!draft.trim() || sending || recording}
+          style={{
+            width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            background: draft.trim() && !sending ? PINK : "rgba(255,255,255,0.12)",
+            boxShadow: draft.trim() && !sending ? "0 2px 10px rgba(255,31,125,0.35)" : "none",
+            border: "none", cursor: draft.trim() && !sending ? "pointer" : "default", flexShrink: 0,
+          }}
+        >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={draft.trim() ? "white" : "rgba(255,31,125,0.4)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
           </svg>
         </button>
       </div>
@@ -395,25 +698,65 @@ function ComposerBar({ draft, setDraft, onSend, onPhotoSend, onStickerSend }: {
   );
 }
 
-// ── Message Bubble ─────────────────────────────────────────────────────────────
 function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
   return (
     <div style={{ display: "flex", gap: 10, flexDirection: msg.isMe ? "row-reverse" : "row", alignItems: "flex-end" }}>
       {!msg.isMe && (
-        <div style={{ width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: "10px", background: `linear-gradient(135deg,${msg.color},${msg.color}BB)`, flexShrink: 0 }}>{msg.initial}</div>
+        <div style={{
+          width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+          fontWeight: 700, color: "white", fontSize: "10px",
+          background: `linear-gradient(135deg,${msg.color},${msg.color}BB)`, flexShrink: 0,
+        }}>
+          {msg.initial}
+        </div>
       )}
       <div style={{ maxWidth: "72%", display: "flex", flexDirection: "column", gap: 3, alignItems: msg.isMe ? "flex-end" : "flex-start" }}>
-        {showName && !msg.isMe && <span style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 600, padding: "0 2px" }}>{msg.sender}</span>}
-        {msg.isSticker ? (
-          <div style={{ fontSize: 48, lineHeight: 1.1, padding: "4px 2px" }}>
+        {showName && !msg.isMe && (
+          <span style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 600, padding: "0 2px" }}>{msg.sender}</span>
+        )}
+        {(msg.mediaType === "image" || msg.mediaType === "gif") && msg.mediaUrl ? (
+          <div style={{
+            borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+            overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", maxWidth: 240,
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={msg.mediaUrl}
+              alt={msg.mediaType === "gif" ? "GIF" : "Photo"}
+              style={{ width: "100%", display: "block", maxHeight: 320, objectFit: "cover" }}
+            />
+            {msg.text && msg.text !== "📷 Photo" && msg.text !== "GIF" && (
+              <p style={{
+                margin: 0, padding: "8px 12px", fontSize: 13,
+                background: msg.isMe ? PINK : "#FFFFFF", color: msg.isMe ? "white" : "#111",
+              }}>
+                {msg.text}
+              </p>
+            )}
+          </div>
+        ) : msg.mediaType === "audio" && msg.mediaUrl ? (
+          <div style={{
+            padding: "10px 12px", minWidth: 200,
+            borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+            background: msg.isMe ? PINK : "#FFFFFF",
+            border: msg.isMe ? "none" : "1px solid rgba(255,31,125,0.1)",
+            boxShadow: msg.isMe ? "0 2px 12px rgba(255,31,125,0.28)" : "none",
+          }}>
+            <audio controls src={msg.mediaUrl} style={{ width: "100%", height: 36, accentColor: msg.isMe ? "#fff" : PINK }} />
+          </div>
+        ) : msg.isSticker ? (
+          <div style={{ fontSize: 22, lineHeight: 1.3, padding: "8px 12px", borderRadius: 16, background: msg.isMe ? PINK : "#FFF5F8", color: msg.isMe ? "white" : PINK, fontWeight: 600 }}>
             {msg.text}
           </div>
-        ) : msg.imageUrl ? (
-          <div style={{ borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px", overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", maxWidth: 220 }}>
-            <img src={msg.imageUrl} alt="photo" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
-          </div>
         ) : (
-          <div style={{ padding: "10px 14px", borderRadius: msg.isMe ? "18px 18px 4px 18px / 20px 20px 4px 20px" : "18px 18px 18px 4px / 20px 20px 20px 4px", fontSize: "13px", lineHeight: 1.5, ...(msg.isMe ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" } : { background: "#FFFFFF", color: "#111111", border: "1px solid rgba(255,31,125,0.1)" }) }}>
+          <div style={{
+            padding: "10px 14px",
+            borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+            fontSize: "13px", lineHeight: 1.5,
+            ...(msg.isMe
+              ? { background: PINK, color: "white", boxShadow: "0 2px 12px rgba(255,31,125,0.28)" }
+              : { background: "#FFFFFF", color: "#111111", border: "1px solid rgba(255,31,125,0.1)" }),
+          }}>
             {msg.text}
           </div>
         )}
@@ -423,7 +766,6 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
   );
 }
 
-// ── Wallpaper Picker Sheet ─────────────────────────────────────────────────────
 function WallpaperPicker({ current, onChange, onClose }: { current: string; onChange: (v: string) => void; onClose: () => void }) {
   return (
     <>
@@ -435,9 +777,18 @@ function WallpaperPicker({ current, onChange, onClose }: { current: string; onCh
         <div style={{ padding: "8px 20px 24px" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", color: "#111111", marginBottom: 16 }}>CHAT WALLPAPER</p>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-            {WALLPAPERS.map(w => (
-              <button key={w.id} onClick={() => { onChange(w.value); onClose(); }} style={{ flexShrink: 0, display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}>
-                <div style={{ width: 64, height: 96, borderRadius: 14, background: w.value, border: current === w.value ? `3px solid ${PINK}` : "3px solid transparent", boxShadow: current === w.value ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)", transition: "all 0.15s" }} />
+            {WALLPAPERS.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                onClick={() => { onChange(w.value); onClose(); }}
+                style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
+              >
+                <div style={{
+                  width: 64, height: 96, borderRadius: 14, background: w.value,
+                  border: current === w.value ? `3px solid ${PINK}` : "3px solid transparent",
+                  boxShadow: current === w.value ? `0 0 0 2px white, 0 0 0 4px ${PINK}` : "0 2px 10px rgba(0,0,0,0.1)",
+                }} />
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: current === w.value ? PINK : "#AAA" }}>{w.label}</span>
               </button>
             ))}
@@ -448,407 +799,394 @@ function WallpaperPicker({ current, onChange, onClose }: { current: string; onCh
   );
 }
 
-// ── Direct DM Profile Thread ───────────────────────────────────────────────────
-function DirectProfileThread({ convo, messages, onBack }: { convo: Convo; messages: Message[]; onBack: () => void }) {
+function useThreadMessages(convoId: string) {
+  const [msgs, setMsgs] = useState<Message[]>([]);
+  const [myId, setMyId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const supabase = createClient();
+    setLoading(true);
+
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (cancelled) return;
+      setMyId(user?.id ?? null);
+      const dbMsgs = await getMessages(convoId);
+      if (cancelled) return;
+      setMsgs(dbMsgs.map((m) => mapDbMessage(m, user?.id ?? null)));
+      setLoading(false);
+    })().catch(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    const channel = supabase
+      .channel(`dm:${convoId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "direct_messages", filter: `conversation_id=eq.${convoId}` },
+        async (payload) => {
+          const row = payload.new as DirectMessage;
+          const { data: { user } } = await supabase.auth.getUser();
+          setMsgs((prev) => {
+            if (prev.some((p) => p.id === row.id)) return prev;
+            // Optimistic local messages use temp ids — drop matching pending text from me
+            const withoutOptimistic = prev.filter(
+              (p) => !(p.id.startsWith("temp:") && p.isMe && (
+                p.text === row.content ||
+                (row.media_url && p.mediaUrl === row.media_url)
+              )),
+            );
+            return [...withoutOptimistic, mapDbMessage({
+              ...row,
+              media_url: row.media_url ?? null,
+              media_type: row.media_type ?? "text",
+            }, user?.id ?? null)];
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [convoId]);
+
+  const send = useCallback(
+    async (
+      text: string,
+      opts?: { asSticker?: boolean; media?: { url: string; type: "image" | "audio" | "gif" } },
+    ) => {
+      const trimmed = text.trim();
+      const media = opts?.media;
+      if ((!trimmed && !media) || sending) return;
+      setSending(true);
+      setSendError(null);
+      const tempId = `temp:${Date.now()}`;
+      const label =
+        trimmed ||
+        (media?.type === "image"
+          ? "📷 Photo"
+          : media?.type === "gif"
+            ? "GIF"
+            : media?.type === "audio"
+              ? "🎤 Voice note"
+              : "");
+      setMsgs((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          sender: "Me",
+          initial: "Y",
+          color: PINK,
+          text: label,
+          time: "now",
+          isMe: true,
+          isSticker: !!opts?.asSticker,
+          mediaUrl: media?.url ?? null,
+          mediaType: media?.type ?? "text",
+        },
+      ]);
+      try {
+        await dbSendMessage(convoId, label, media);
+      } catch (e) {
+        setMsgs((prev) => prev.filter((m) => m.id !== tempId));
+        setSendError(e instanceof Error ? e.message : "Couldn’t send");
+      } finally {
+        setSending(false);
+      }
+    },
+    [convoId, sending],
+  );
+
+  const sendMediaFile = useCallback(
+    async (file: File, type: "image" | "audio" | "gif") => {
+      if (sending) return;
+      setSending(true);
+      setSendError(null);
+      const tempId = `temp:${Date.now()}`;
+      const label = type === "image" ? "📷 Photo" : type === "gif" ? "GIF" : "🎤 Voice note";
+      try {
+        const url = await uploadChatMedia(file, type);
+        setMsgs((prev) => [
+          ...prev,
+          {
+            id: tempId,
+            sender: "Me",
+            initial: "Y",
+            color: PINK,
+            text: label,
+            time: "now",
+            isMe: true,
+            mediaUrl: url,
+            mediaType: type,
+          },
+        ]);
+        await dbSendMessage(convoId, label, { url, type });
+      } catch (e) {
+        setMsgs((prev) => prev.filter((m) => m.id !== tempId));
+        setSendError(e instanceof Error ? e.message : "Upload failed");
+      } finally {
+        setSending(false);
+      }
+    },
+    [convoId, sending],
+  );
+
+  return { msgs, loading, sending, sendError, send, sendMediaFile };
+}
+
+function ThreadShell({
+  convo,
+  onBack,
+  headerExtra,
+  showNames,
+}: {
+  convo: Convo;
+  onBack: () => void;
+  headerExtra?: ReactNode;
+  showNames?: boolean;
+}) {
   const [draft, setDraft] = useState("");
-  const [msgs, setMsgs] = useState<Message[]>(messages);
   const [wallpaper, setWallpaper] = useState(convo.bgGradient ?? CREAM);
   const [showWallpaper, setShowWallpaper] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { msgs, loading, sending, sendError, send, sendMediaFile } = useThreadMessages(convo.dbConvoId);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
-
-  // Load real messages from DB if this is a real conversation
   useEffect(() => {
-    if (!convo.dbConvoId) return;
-    getMessages(convo.dbConvoId).then(dbMsgs => {
-      if (dbMsgs.length > 0) {
-        setMsgs(dbMsgs.map((m, i) => ({
-          id: i,
-          sender: m.sender?.full_name ?? m.sender?.first_name ?? "Someone",
-          initial: (m.sender?.full_name ?? m.sender?.first_name ?? "?").charAt(0).toUpperCase(),
-          color: PINK,
-          text: m.content,
-          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          isMe: false, // We'd need userId context here; treated as others for now
-        })));
-      }
-    });
-    // Realtime subscription
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`dm:${convo.dbConvoId}`)
-      .on("postgres_changes", {
-        event: "INSERT", schema: "public", table: "direct_messages",
-        filter: `conversation_id=eq.${convo.dbConvoId}`,
-      }, payload => {
-        const m = payload.new as DirectMessage;
-        setMsgs(prev => [...prev, {
-          id: prev.length + 1000,
-          sender: "Them", initial: "?", color: PINK,
-          text: m.content,
-          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          isMe: false,
-        }]);
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [convo.dbConvoId]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs]);
 
-  function sendMessage() {
-    const text = draft.trim();
-    if (!text) return;
-    setMsgs(prev => [...prev, { id: prev.length + 100, sender: "Me", initial: "Y", color: PINK, text, time: "now", isMe: true }]);
-    setDraft("");
-    if (convo.dbConvoId) {
-      dbSendMessage(convo.dbConvoId, text).catch(console.error);
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: wallpaper }}>
+      <div style={{
+        padding: "56px 18px 12px", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)",
+        display: "flex", alignItems: "center", gap: 12,
+        borderBottom: "1px solid rgba(255,31,125,0.12)", position: "sticky", top: 0, zIndex: 10,
+      }}>
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(255,31,125,0.08)", border: "none", cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div style={{
+          width: 38, height: 38, borderRadius: convo.type === "direct" ? "50%" : 12,
+          display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "white", fontSize: "14px",
+          background: `linear-gradient(135deg,${convo.color},${convo.color}BB)`, flexShrink: 0,
+        }}>
+          {convo.initial}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "17px", color: "#111111", lineHeight: 1.1 }}>{convo.name}</p>
+          {convo.subtitle && <p style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}>{convo.subtitle}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowWallpaper(true)}
+          title="Wallpaper"
+          style={{
+            width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(255,31,125,0.15)", border: "none", cursor: "pointer",
+          }}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+        </button>
+      </div>
+      {showWallpaper && <WallpaperPicker current={wallpaper} onChange={setWallpaper} onClose={() => setShowWallpaper(false)} />}
+
+      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 200 }}>
+        {headerExtra}
+        <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {loading && <p style={{ textAlign: "center", fontSize: 12, color: "rgba(0,0,0,0.4)" }}>Loading messages…</p>}
+          {!loading && msgs.length === 0 && (
+            <p style={{ textAlign: "center", fontSize: 13, color: "rgba(0,0,0,0.4)", padding: "24px 12px" }}>
+              No messages yet. Say hello.
+            </p>
+          )}
+          {msgs.map((msg) => <Bubble key={msg.id} msg={msg} showName={showNames} />)}
+          <div ref={bottomRef} />
+        </div>
+      </div>
+
+      {sendError && (
+        <p style={{ textAlign: "center", fontSize: 11, color: PINK, padding: "4px 12px" }}>{sendError}</p>
+      )}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20 }}>
+        <ComposerBar
+          draft={draft}
+          setDraft={setDraft}
+          sending={sending}
+          onSend={() => {
+            const t = draft;
+            setDraft("");
+            void send(t);
+          }}
+          onStickerSend={(text) => { void send(text, { asSticker: true }); }}
+          onPhotoSend={(file) => { void sendMediaFile(file, "image"); }}
+          onGifSend={(file) => { void sendMediaFile(file, "gif"); }}
+          onVoiceSend={(file) => { void sendMediaFile(file, "audio"); }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function AddPeopleSheet({
+  conversationId,
+  onClose,
+  onAdded,
+}: {
+  conversationId: string;
+  onClose: () => void;
+  onAdded: () => void;
+}) {
+  const [members, setMembers] = useState<ChatMember[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    listChatMembers()
+      .then(setMembers)
+      .catch(() => setMembers([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  }
+
+  async function submit() {
+    if (!selected.size || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await addMembersToConversation(conversationId, [...selected]);
+      onAdded();
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn’t add people");
+    } finally {
+      setBusy(false);
     }
   }
 
-  function sendPhoto(url: string) {
-    setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
-  }
-
-  function sendSticker(text: string) {
-    setMsgs(prev => [...prev, { id: prev.length + 300, sender: "Me", initial: "Y", color: PINK, text, isMe: true, isSticker: true, time: "now" }]);
-  }
-
-  const waveHeights = [10, 18, 8, 26, 14, 10, 30, 12, 22, 8, 20, 16, 10, 28, 14, 8, 18, 12, 24, 14];
-
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: wallpaper }}>
-      {/* Sticky top bar */}
-      <div style={{ padding: "56px 18px 12px", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,31,125,0.12)", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={onBack} style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.08)", border: "none", cursor: "pointer", flexShrink: 0 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "white", fontSize: "15px", background: `linear-gradient(135deg,${convo.color},${convo.color}BB)`, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{convo.initial}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "17px", color: "#111111", lineHeight: 1.1 }}>{convo.name}</p>
-          {convo.online !== undefined && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: convo.online ? "#22C55E" : "rgba(0,0,0,0.25)" }}/>
-              <span style={{ fontSize: "10px", color: convo.online ? "#22C55E" : "rgba(0,0,0,0.45)" }}>{convo.online ? "online" : "offline"}</span>
-            </div>
+    <>
+      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#fff", maxHeight: "75vh", display: "flex", flexDirection: "column", paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <div className="px-6 pt-4 pb-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>Add women</p>
+          <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", fontSize: 18, cursor: "pointer" }}>×</button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-3">
+          {loading && <p style={{ fontSize: 13, color: "#888", textAlign: "center", padding: 24 }}>Loading…</p>}
+          {!loading && members.length === 0 && (
+            <p style={{ fontSize: 13, color: "#888", textAlign: "center", padding: 24 }}>No other members to add yet.</p>
           )}
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setShowWallpaper(true)} style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.15)", border: "none", cursor: "pointer" }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </button>
-          {[
-            <svg key="call" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 12c1.68 2.83 3.58 4.73 6.41 6.41l.46-.81a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
-            <svg key="video" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
-          ].map((icon, i) => (
-            <button key={i} style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.08)", border: "none", cursor: "pointer" }}>{icon}</button>
-          ))}
-        </div>
-      </div>
-      {showWallpaper && <WallpaperPicker current={wallpaper} onChange={setWallpaper} onClose={() => setShowWallpaper(false)} />}
-
-      {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 148 }}>
-        {/* Profile hero */}
-        <div style={{ padding: "28px 20px 20px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", background: "rgba(255,255,255,0.6)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
-          <div style={{ position: "relative", marginBottom: 14 }}>
-            <div style={{ width: 96, height: 96, borderRadius: "50%", background: `linear-gradient(135deg,${convo.color},${convo.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 4px ${convo.color}30,0 0 0 8px ${convo.color}12,0 8px 32px rgba(0,0,0,0.4)` }}>
-              <span style={{ fontFamily: "var(--font-playfair)", fontWeight: 900, fontStyle: "italic", fontSize: "34px", color: "white" }}>{convo.initial}</span>
-            </div>
-            {convo.online !== undefined && (
-              <div style={{ position: "absolute", bottom: 5, right: 5, width: 16, height: 16, borderRadius: "50%", background: convo.online ? "#22C55E" : "rgba(0,0,0,0.25)", border: "2.5px solid rgba(255,255,255,0.9)" }}/>
-            )}
-          </div>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "26px", fontWeight: 900, fontStyle: "italic", color: "#111111", marginBottom: 3 }}>{convo.name}</h2>
-          {convo.online !== undefined && (
-            <p style={{ fontSize: "11px", color: convo.online ? "#22C55E" : "rgba(0,0,0,0.4)", marginBottom: 8 }}>{convo.online ? "● Active now" : "○ Last seen recently"}</p>
-          )}
-          {convo.bio && (
-            <p style={{ fontFamily: "var(--font-playfair)", fontSize: "13px", fontStyle: "italic", color: "rgba(0,0,0,0.6)", maxWidth: 240, lineHeight: 1.6, marginBottom: 18 }}>{convo.bio}</p>
-          )}
-          {/* Action icons */}
-          <div style={{ display: "flex", gap: 22 }}>
-            {[
-              { svg: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 12c1.68 2.83 3.58 4.73 6.41 6.41l.46-.81a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>, label: "Call" },
-              { svg: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>, label: "Video" },
-              { svg: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Location" },
-              { svg: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>, label: "More" },
-            ].map(({ svg, label }) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 50, height: 50, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.15)", color: PINK, border: "none", cursor: "pointer" }}>{svg}</div>
-                <span style={{ fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.4)", letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Upcoming Together */}
-        <div style={{ margin: "16px 16px 0", background: "#FFFFFF", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,31,125,0.15)" }}>
-          <div style={{ padding: "11px 16px", borderBottom: "1px solid rgba(255,31,125,0.08)", display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12 }}>✦</span>
-            <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: PINK }}>Upcoming Together</p>
-          </div>
-          <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg,rgba(255,31,125,0.3),rgba(255,31,125,0.15))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🥂</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "15px", color: "#111111", marginBottom: 2 }}>Girls Dinner</p>
-              <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.4)" }}>Fri, Sept 13 · Loring Place</p>
-            </div>
-            <button style={{ padding: "8px 14px", borderRadius: 20, background: PINK, color: "white", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em", border: "none", cursor: "pointer" }}>VIEW</button>
-          </div>
-        </div>
-
-        {/* Shared Interests */}
-        <div style={{ margin: "10px 16px 0", background: "#FFFFFF", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,31,125,0.15)" }}>
-          <div style={{ padding: "11px 16px", borderBottom: "1px solid rgba(255,31,125,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12 }}>♡</span>
-              <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: PINK }}>Shared Interests</p>
-            </div>
-            <button style={{ fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.4)", background: "none", border: "none", cursor: "pointer" }}>+ Add more</button>
-          </div>
-          <div style={{ padding: "12px 16px", display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {["📚 Book Girls Club", "🏛️ Museum Lovers"].map(c => (
-              <span key={c} style={{ padding: "6px 12px", borderRadius: 20, background: "rgba(255,31,125,0.15)", color: PINK, fontSize: "11px", fontWeight: 600 }}>{c}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Message thread */}
-        <div style={{ margin: "22px 0 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 20px", marginBottom: 14 }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.1)" }}/>
-            <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", textTransform: "uppercase" }}>Today</p>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.1)" }}/>
-          </div>
-          <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 12 }}>
-            {msgs.map(msg => <Bubble key={msg.id} msg={msg} />)}
-            <div ref={bottomRef} />
-          </div>
-        </div>
-
-        {/* Memories */}
-        <div style={{ margin: "26px 0 0" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", marginBottom: 10 }}>
-            <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#C0B5AD" }}>✦ Memories</p>
-            <button style={{ fontSize: "10px", color: PINK, fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>See all</button>
-          </div>
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 16px 4px", scrollbarWidth: "none" }}>
-            {[{ bg: "linear-gradient(135deg,#FFE0EE,#FFD0E8)", e: "🌊" }, { bg: "linear-gradient(135deg,#E0F0FF,#D0E8FF)", e: "🌅" }, { bg: "linear-gradient(135deg,#E0FFE8,#D0F0D8)", e: "🌿" }, { bg: "linear-gradient(135deg,#FFF0D0,#FFE8C0)", e: "🥂" }, { bg: "linear-gradient(135deg,#F0E0FF,#E8D0FF)", e: "🎨" }].map((m, i) => (
-              <div key={i} style={{ width: 80, height: 80, borderRadius: 16, flexShrink: 0, background: m.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>{m.e}</div>
-            ))}
-          </div>
-        </div>
-
-        {/* Voice Notes */}
-        <div style={{ margin: "16px 16px 0", background: "#FFFFFF", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,31,125,0.15)" }}>
-          <div style={{ padding: "11px 16px", borderBottom: "1px solid rgba(255,31,125,0.08)", display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12 }}>🎵</span>
-            <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: PINK }}>Voice Notes</p>
-          </div>
-          <div style={{ padding: "14px 16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button style={{ width: 40, height: 40, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: PINK, border: "none", cursor: "pointer", flexShrink: 0, boxShadow: "0 2px 10px rgba(255,31,125,0.3)" }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          {members.map((m) => {
+            const active = selected.has(m.id);
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => toggle(m.id)}
+                className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl mb-1"
+                style={{
+                  background: active ? "rgba(255,31,125,0.12)" : "transparent",
+                  border: active ? "1.5px solid rgba(255,31,125,0.35)" : "1.5px solid transparent",
+                }}
+              >
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: PINK }}>
+                  {m.name.charAt(0)}
+                </div>
+                <p className="flex-1 text-left text-sm font-semibold">{m.name}</p>
               </button>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 2, height: 38 }}>
-                {waveHeights.map((h, i) => (
-                  <div key={i} style={{ flex: 1, background: i < 9 ? PINK : "rgba(255,31,125,0.15)", borderRadius: 3, height: h }}/>
-                ))}
-              </div>
-              <span style={{ fontSize: "11px", color: "rgba(0,0,0,0.4)", flexShrink: 0 }}>0:24</span>
-            </div>
-            <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.4)", marginTop: 8, fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Saved from last Tuesday ✨</p>
-          </div>
+            );
+          })}
         </div>
-        <div style={{ height: 24 }}/>
-      </div>
-
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} onStickerSend={sendSticker} />
-      </div>
-    </div>
-  );
-}
-
-// ── Group Thread View ──────────────────────────────────────────────────────────
-function GroupThreadView({ convo, messages, onBack }: { convo: Convo; messages: Message[]; onBack: () => void }) {
-  const [draft, setDraft] = useState("");
-  const [msgs, setMsgs] = useState<Message[]>(messages);
-  const [wallpaper, setWallpaper] = useState(convo.bgGradient ?? CREAM);
-  const [showWallpaper, setShowWallpaper] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
-
-  function sendMessage() {
-    const text = draft.trim();
-    if (!text) return;
-    setMsgs(prev => [...prev, { id: prev.length + 100, sender: "Me", initial: "Y", color: PINK, text, time: "now", isMe: true }]);
-    setDraft("");
-  }
-
-  function sendPhoto(url: string) {
-    setMsgs(prev => [...prev, { id: prev.length + 200, sender: "Me", initial: "Y", color: PINK, text: "", imageUrl: url, time: "now", isMe: true }]);
-  }
-
-  function sendSticker(text: string) {
-    setMsgs(prev => [...prev, { id: prev.length + 300, sender: "Me", initial: "Y", color: PINK, text, isMe: true, isSticker: true, time: "now" }]);
-  }
-
-  const members = [
-    { initial: "J", color: "#FF69B4" }, { initial: "T", color: "#FF1F7D" },
-    { initial: "S", color: "#A855F7" }, { initial: "N", color: "#FF69B4" }, { initial: "L", color: "#FF1F7D" },
-  ];
-  const count = convo.memberCount ?? 5;
-
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: wallpaper }}>
-      {showWallpaper && <WallpaperPicker current={wallpaper} onChange={setWallpaper} onClose={() => setShowWallpaper(false)} />}
-      {/* Top bar */}
-      <div style={{ padding: "56px 18px 12px", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,31,125,0.12)", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={onBack} style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.08)", border: "none", cursor: "pointer", flexShrink: 0 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div style={{ display: "flex", flexShrink: 0 }}>
-          {members.slice(0, 3).map((m, i) => (
-            <div key={i} style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: "11px", background: `linear-gradient(135deg,${m.color},${m.color}BB)`, border: "2px solid rgba(255,255,255,0.15)", marginLeft: i === 0 ? 0 : -8, zIndex: 3 - i }}>{m.initial}</div>
-          ))}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontFamily: "var(--font-playfair)", fontWeight: 700, fontStyle: "italic", fontSize: "17px", color: "#111111", lineHeight: 1.1 }}>{convo.name}</p>
-          <p style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}>{count} women · Group</p>
-        </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button onClick={() => setShowWallpaper(true)} style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.15)", border: "none", cursor: "pointer" }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </button>
-          <button style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF0F5", border: "none", cursor: "pointer" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        {error && <p className="px-6 text-xs pb-2" style={{ color: PINK }}>{error}</p>}
+        <div className="px-6 pb-6 pt-2">
+          <button
+            type="button"
+            disabled={!selected.size || busy}
+            onClick={() => { void submit(); }}
+            className="w-full py-3.5 rounded-full text-sm font-bold"
+            style={selected.size && !busy ? { background: PINK, color: "#fff" } : { background: "#F5E8EE", color: "#C8A0B0" }}
+          >
+            {busy ? "Adding…" : selected.size ? `Add ${selected.size} →` : "Select women to add"}
           </button>
         </div>
       </div>
-
-      {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 148 }}>
-        {/* Group info */}
-        <div style={{ margin: "16px 16px 0", background: "#FFFFFF", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,31,125,0.15)" }}>
-          <div style={{ padding: "16px", background: "rgba(255,31,125,0.08)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-              <div style={{ width: 50, height: 50, borderRadius: 14, background: `linear-gradient(135deg,${convo.color},${convo.color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "white", fontSize: "14px" }}>{convo.initial}</div>
-              <div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", fontWeight: 900, fontStyle: "italic", color: "#111111" }}>{convo.name}</p>
-                <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.4)" }}>{count} women · Created by you</p>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 6 }}>
-              {members.map((m, i) => (
-                <div key={i} style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: "11px", background: `linear-gradient(135deg,${m.color},${m.color}BB)`, border: "2px solid rgba(255,255,255,0.15)" }}>{m.initial}</div>
-              ))}
-              {count > 5 && (
-                <div style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 700, background: "#FFF5F8", color: "rgba(0,0,0,0.5)", border: "2px solid rgba(255,31,125,0.15)" }}>+{count - 5}</div>
-              )}
-            </div>
-          </div>
-          <div style={{ padding: "10px 14px", display: "flex", gap: 8 }}>
-            <button style={{ flex: 1, padding: "10px", borderRadius: 14, background: "rgba(255,31,125,0.15)", border: "none", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: PINK }}>📅 Plan Together</button>
-            <button style={{ flex: 1, padding: "10px", borderRadius: 14, background: "rgba(139,92,246,0.15)", border: "none", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: "#C084FC" }}>➕ Add Women</button>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div style={{ margin: "22px 0 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 20px", marginBottom: 14 }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.1)" }}/>
-            <p style={{ fontSize: "9px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(0,0,0,0.35)", textTransform: "uppercase" }}>Today</p>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,31,125,0.1)" }}/>
-          </div>
-          <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 12 }}>
-            {msgs.map(msg => <Bubble key={msg.id} msg={msg} showName />)}
-            <div ref={bottomRef} />
-          </div>
-        </div>
-        <div style={{ height: 24 }}/>
-      </div>
-
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
-        <ComposerBar draft={draft} setDraft={setDraft} onSend={sendMessage} onPhotoSend={sendPhoto} onStickerSend={sendSticker} />
-      </div>
-    </div>
+    </>
   );
 }
 
-// ── Generic Thread (plans, clubs, events) ─────────────────────────────────────
-function GenericThreadView({ convo, messages, onBack }: { convo: Convo; messages: Message[]; onBack: () => void }) {
-  const [draft, setDraft] = useState("");
-  const [msgs, setMsgs] = useState<Message[]>(messages);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const TYPE_COLOR: Record<ConvoType, string> = { plan: "#FF1F7D", club: "#7C3AED", direct: "#16A34A", group: "#EA580C", event: "#0284C7" };
-  const accent = TYPE_COLOR[convo.type];
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
-
-  function sendMessage() {
-    const text = draft.trim();
-    if (!text) return;
-    setMsgs(prev => [...prev, { id: prev.length + 100, sender: "Me", initial: "Y", color: PINK, text, time: "now", isMe: true }]);
-    setDraft("");
-  }
+function GroupThreadView({ convo, onBack }: { convo: Convo; onBack: () => void }) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [memberCount, setMemberCount] = useState(convo.memberCount);
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: convo.bgGradient ?? CREAM }}>
-      <div style={{ padding: "56px 18px 12px", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: 14, borderBottom: `1px solid rgba(255,31,125,0.12)`, position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={onBack} style={{ width: 38, height: 38, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,31,125,0.08)", border: "none", cursor: "pointer" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF1F7D" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div style={{ width: 40, height: 40, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: "14px", background: `linear-gradient(135deg,${convo.color},${convo.color}BB)`, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{convo.initial}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: "14px", color: "#111111", lineHeight: 1.2 }}>{convo.name}</p>
-          {convo.subtitle && <p style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}>{convo.subtitle}</p>}
-        </div>
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px", display: "flex", flexDirection: "column", gap: 12, paddingBottom: 100 }}>
-        {msgs.map(msg => <Bubble key={msg.id} msg={msg} showName />)}
-        <div ref={bottomRef} />
-      </div>
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,31,125,0.12)", padding: "10px 14px", paddingBottom: "max(12px,env(safe-area-inset-bottom))", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ flex: 1, borderRadius: 24, background: "#FFF5F8", border: "1.5px solid rgba(255,31,125,0.2)", overflow: "hidden" }}>
-          <input value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder="Send a message…" style={{ width: "100%", padding: "10px 16px", fontSize: "14px", color: "#111111", background: "transparent", outline: "none", border: "none" }} />
-        </div>
-        <button onClick={sendMessage} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: draft.trim() ? PINK : "rgba(255,255,255,0.12)", boxShadow: draft.trim() ? "0 2px 10px rgba(255,31,125,0.35)" : "none", border: "none", cursor: "pointer" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={draft.trim() ? "white" : "rgba(255,31,125,0.4)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+    <>
+      <ThreadShell
+        convo={convo}
+        onBack={onBack}
+        showNames
+        headerExtra={
+          <div style={{ margin: "16px 16px 0", background: "#FFFFFF", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,31,125,0.15)" }}>
+            <div style={{ padding: "16px", background: "rgba(255,31,125,0.08)" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", fontWeight: 900, fontStyle: "italic", color: "#111111" }}>{convo.name}</p>
+              <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.4)", marginTop: 4 }}>
+                {memberCount ? `${memberCount} women · Group` : "Group chat"}
+              </p>
+            </div>
+            <div style={{ padding: "10px 14px", display: "flex", gap: 8 }}>
+              <Link
+                href="/member/plans"
+                style={{
+                  flex: 1, textAlign: "center", padding: "10px", borderRadius: 14,
+                  background: "rgba(255,31,125,0.15)", fontSize: "11px", fontWeight: 700, color: PINK, textDecoration: "none",
+                }}
+              >
+                Plan Together
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAdd(true)}
+                style={{
+                  flex: 1, padding: "10px", borderRadius: 14, border: "none", cursor: "pointer",
+                  background: "rgba(139,92,246,0.15)", fontSize: "11px", fontWeight: 700, color: "#7C3AED",
+                }}
+              >
+                + Add women
+              </button>
+            </div>
+          </div>
+        }
+      />
+      {showAdd && (
+        <AddPeopleSheet
+          conversationId={convo.dbConvoId}
+          onClose={() => setShowAdd(false)}
+          onAdded={() => setMemberCount((c) => (c ?? 1) + 1)}
+        />
+      )}
+    </>
   );
-}
-
-// ── Main Chat Page ─────────────────────────────────────────────────────────────
-function dbConvoToUI(c: ConversationSummary, idx: number): Convo {
-  const other = c.participants[0];
-  const name = c.name ?? other?.full_name ?? other?.first_name ?? "Conversation";
-  const timeAgo = (() => {
-    if (!c.last_message_at) return "";
-    const diff = Date.now() - new Date(c.last_message_at).getTime();
-    const m = Math.floor(diff / 60000);
-    const h = Math.floor(diff / 3600000);
-    if (m < 60) return `${m}m`;
-    if (h < 24) return `${h}h`;
-    return `${Math.floor(diff / 86400000)}d`;
-  })();
-  return {
-    id: 9000 + idx,
-    type: c.type,
-    name,
-    initial: name.charAt(0).toUpperCase(),
-    color: PINK,
-    preview: c.last_preview ?? "Start a conversation",
-    time: timeAgo,
-    unread: c.unread_count,
-    subtitle: `${c.type.charAt(0).toUpperCase() + c.type.slice(1)} · Bloomie`,
-    dbConvoId: c.id,
-  };
 }
 
 export default function ChatPage() {
@@ -856,22 +1194,35 @@ export default function ChatPage() {
   const [activeConvo, setActiveConvo] = useState<Convo | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [showNewChat, setShowNewChat] = useState(false);
-  const [read, setRead] = useState<Set<number>>(new Set());
+  const [read, setRead] = useState<Set<string>>(new Set());
   const [dbConvos, setDbConvos] = useState<Convo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isFoundingMother, setIsFoundingMother] = useState(false);
 
-  // Load real conversations from DB on mount
-  useEffect(() => {
-    getMyConversations().then(data => {
-      if (data.length > 0) setDbConvos(data.map(dbConvoToUI));
-    }).catch(console.error);
+  const reload = useCallback(async () => {
+    try {
+      const data = await getMyConversations();
+      setDbConvos(data.map(dbConvoToUI));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      supabase.from("profiles").select("is_founding_mother").eq("id", user.id).single()
+      supabase
+        .from("profiles")
+        .select("is_founding_mother")
+        .eq("id", user.id)
+        .single()
         .then(({ data }) => {
           if ((data as { is_founding_mother?: boolean } | null)?.is_founding_mother) {
             setIsFoundingMother(true);
@@ -881,60 +1232,101 @@ export default function ChatPage() {
   }, []);
 
   function openConvo(convo: Convo) {
-    setRead(prev => new Set([...prev, convo.id]));
+    setRead((prev) => new Set([...prev, convo.id]));
     setActiveConvo(convo);
     setView("thread");
-    if (convo.dbConvoId) markConversationRead(convo.dbConvoId).catch(console.error);
+    markConversationRead(convo.dbConvoId).catch(console.error);
   }
 
-  function backToList() { setView("list"); setActiveConvo(null); }
+  function backToList() {
+    setView("list");
+    setActiveConvo(null);
+    void reload();
+  }
 
-  // All conversations: real DB first, then demo
-  const allConvos = [...dbConvos, ...CONVOS];
+  async function openCreated(convoId: string) {
+    setLoading(true);
+    await reload();
+    const data = await getMyConversations();
+    const mapped = data.map(dbConvoToUI);
+    setDbConvos(mapped);
+    const found = mapped.find((c) => c.id === convoId);
+    if (found) openConvo(found);
+  }
 
   if (view === "thread" && activeConvo) {
-    if (activeConvo.type === "direct") return <DirectProfileThread convo={activeConvo} messages={THREAD_MESSAGES[activeConvo.id] ?? []} onBack={backToList} />;
-    if (activeConvo.type === "group")  return <GroupThreadView     convo={activeConvo} messages={THREAD_MESSAGES[activeConvo.id] ?? []} onBack={backToList} />;
-    return <GenericThreadView convo={activeConvo} messages={THREAD_MESSAGES[activeConvo.id] ?? []} onBack={backToList} />;
+    if (activeConvo.type === "group" || activeConvo.type === "club" || activeConvo.type === "plan") {
+      return <GroupThreadView convo={activeConvo} onBack={backToList} />;
+    }
+    return <ThreadShell convo={activeConvo} onBack={backToList} />;
   }
 
-  const shown = allConvos.filter(c => c.type !== "plan" && (filter === "all" || c.type === filter));
-  const totalUnread = allConvos.filter(c => c.type !== "plan").reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
+  const shown = dbConvos.filter((c) => c.type !== "plan" && (filter === "all" || c.type === filter));
+  const totalUnread = dbConvos
+    .filter((c) => c.type !== "plan")
+    .reduce((sum, c) => sum + (read.has(c.id) ? 0 : c.unread), 0);
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 112, background: LOUNGE_BG, position: "relative", overflow: "hidden" }}>
-      {/* Ambient pink glow behind header */}
-      <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "120%", height: 340, background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,31,125,0.22) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+    <div style={{ minHeight: "100vh", paddingBottom: 48, background: LOUNGE_BG, position: "relative", overflow: "hidden" }}>
+      <div style={{
+        position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "120%", height: 340,
+        background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,31,125,0.22) 0%, transparent 70%)",
+        pointerEvents: "none", zIndex: 0,
+      }} />
 
-      {/* Header */}
       <div style={{ padding: "70px 20px 18px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.85)", marginBottom: 6, textTransform: "uppercase" }}>✦ Members Lounge</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.85)", marginBottom: 6, textTransform: "uppercase" }}>
+              ✦ Members Lounge
+            </p>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-              <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(38px,10vw,54px)", fontWeight: 900, fontStyle: "italic", color: "#F6F1EB", lineHeight: 0.9 }}>The Lounge.</h1>
+              <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(38px,10vw,54px)", fontWeight: 900, fontStyle: "italic", color: "#F6F1EB", lineHeight: 0.9 }}>
+                The Lounge.
+              </h1>
               {totalUnread > 0 && (
-                <span style={{ fontSize: "9px", fontWeight: 800, color: "white", background: PINK, borderRadius: 999, padding: "3px 10px", boxShadow: "0 2px 8px rgba(255,31,125,0.5)", marginBottom: 4 }}>{totalUnread} new</span>
+                <span style={{ fontSize: "9px", fontWeight: 800, color: "white", background: PINK, borderRadius: 999, padding: "3px 10px", marginBottom: 4 }}>
+                  {totalUnread} new
+                </span>
               )}
             </div>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "15px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", marginTop: 6 }}>where conversations happen</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "15px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", marginTop: 6 }}>
+              where conversations happen
+            </p>
           </div>
-          <button onClick={() => setShowNewChat(true)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(135deg,${PINK},#FF69B4)`, boxShadow: "0 3px 16px rgba(255,31,125,0.5)", border: "none", cursor: "pointer", marginTop: 32, flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <button
+            type="button"
+            onClick={() => setShowNewChat(true)}
+            style={{
+              width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+              background: `linear-gradient(135deg,${PINK},#FF69B4)`, boxShadow: "0 3px 16px rgba(255,31,125,0.5)",
+              border: "none", cursor: "pointer", marginTop: 32, flexShrink: 0,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </button>
         </div>
       </div>
 
-      {/* Filter tabs */}
       <div style={{ padding: "0 20px 16px", display: "flex", gap: 7, overflowX: "auto", scrollbarWidth: "none", position: "relative", zIndex: 1 }}>
-        {FILTERS.map(f => (
-          <button key={f.value} onClick={() => setFilter(f.value)} style={{ padding: "7px 16px", borderRadius: 999, flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer", ...(filter === f.value ? { background: "white", color: PINK, border: "none", boxShadow: `0 2px 12px rgba(255,31,125,0.4)` } : { background: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.3)" }) }}>
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFilter(f.value)}
+            style={{
+              padding: "7px 16px", borderRadius: 999, flexShrink: 0,
+              fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer",
+              ...(filter === f.value
+                ? { background: "white", color: PINK, border: "none", boxShadow: "0 2px 12px rgba(255,31,125,0.4)" }
+                : { background: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.3)" }),
+            }}
+          >
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Founding Mothers Chat — pinned at top if member */}
       {isFoundingMother && (filter === "all" || filter === "group") && (
         <div style={{ margin: "0 16px 10px", position: "relative", zIndex: 1 }}>
           <Link href="/member/lounge/founding-chat" style={{ textDecoration: "none", display: "block" }}>
@@ -942,46 +1334,63 @@ export default function ChatPage() {
               borderRadius: 20, overflow: "hidden",
               background: "linear-gradient(135deg, rgba(212,168,83,0.15) 0%, rgba(212,168,83,0.08) 100%)",
               border: "1.5px solid rgba(212,168,83,0.35)",
-              boxShadow: "0 4px 24px rgba(212,168,83,0.12)",
               display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
             }}>
-              <div style={{ width: 50, height: 50, borderRadius: 16, background: "linear-gradient(135deg, #D4A853, #8A6010)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: "0 2px 12px rgba(212,168,83,0.4)" }}>
+              <div style={{
+                width: 50, height: 50, borderRadius: 16,
+                background: "linear-gradient(135deg, #D4A853, #8A6010)",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0,
+              }}>
                 🌺
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
-                  <p style={{ fontSize: "14px", fontWeight: 700, color: "rgba(255,238,200,0.95)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>Founding Mothers</p>
-                  <div style={{ background: "rgba(212,168,83,0.25)", border: "1px solid rgba(212,168,83,0.5)", borderRadius: 4, padding: "1px 6px", flexShrink: 0 }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#D4A853", letterSpacing: "0.1em" }}>PRIVATE</span>
-                  </div>
-                </div>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>Your exclusive founding mothers chat</p>
-                <p style={{ fontSize: "10px", color: "rgba(212,168,83,0.5)", marginTop: 2 }}>100 founding mothers · NYC</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "rgba(255,238,200,0.95)" }}>Founding Mothers</p>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)" }}>Your exclusive founding mothers chat</p>
               </div>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(212,168,83,0.4)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
             </div>
           </Link>
         </div>
       )}
 
-      {/* Conversation list */}
-      {shown.length > 0 ? (
-        <div style={{ margin: "0 16px", borderRadius: 20, overflow: "hidden", background: "#FFFFFF", boxShadow: "0 4px 40px rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1 }}>
+      {loading ? (
+        <div style={{ margin: "0 16px", borderRadius: 20, padding: "48px 24px", textAlign: "center", background: "#FFFFFF", position: "relative", zIndex: 1 }}>
+          <p style={{ fontSize: 13, color: "rgba(0,0,0,0.4)" }}>Loading conversations…</p>
+        </div>
+      ) : shown.length > 0 ? (
+        <div style={{
+          margin: "0 16px", borderRadius: 20, overflow: "hidden", background: "#FFFFFF",
+          boxShadow: "0 4px 40px rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1,
+        }}>
           {shown.map((convo, idx) => (
-            <ConvoRow key={convo.id} convo={convo} isUnread={convo.unread > 0 && !read.has(convo.id)} isLast={idx === shown.length - 1} onClick={() => openConvo(convo)} />
+            <ConvoRow
+              key={convo.id}
+              convo={convo}
+              isUnread={convo.unread > 0 && !read.has(convo.id)}
+              isLast={idx === shown.length - 1}
+              onClick={() => openConvo(convo)}
+            />
           ))}
         </div>
       ) : (
-        <div style={{ margin: "0 16px", borderRadius: 20, padding: "56px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "#FFFFFF", boxShadow: "0 4px 40px rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1 }}>
+        <div style={{
+          margin: "0 16px", borderRadius: 20, padding: "56px 24px", display: "flex", flexDirection: "column",
+          alignItems: "center", gap: 12, background: "#FFFFFF", boxShadow: "0 4px 40px rgba(255,31,125,0.12)",
+          border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1,
+        }}>
           <div style={{ width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", background: "rgba(255,31,125,0.15)" }}>💬</div>
-          <p style={{ fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.5)" }}>No conversations here yet</p>
-          <p style={{ fontSize: "12px", textAlign: "center", color: "rgba(0,0,0,0.35)", maxWidth: 220, lineHeight: 1.5 }}>Tap + to start a conversation.</p>
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.5)" }}>No conversations yet</p>
+          <p style={{ fontSize: "12px", textAlign: "center", color: "rgba(0,0,0,0.35)", maxWidth: 240, lineHeight: 1.5 }}>
+            Tap + to message someone or create a named group chat.
+          </p>
         </div>
       )}
 
-      {showNewChat && <NewChatSheet onClose={() => setShowNewChat(false)} />}
+      {showNewChat && (
+        <NewChatSheet
+          onClose={() => setShowNewChat(false)}
+          onCreated={(id) => { void openCreated(id); }}
+        />
+      )}
     </div>
   );
 }

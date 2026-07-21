@@ -52,6 +52,7 @@ const SIZE_LIMITS: Record<string, number> = {
   "hanger":         8  * 1024 * 1024,
   "avenue-media":   8  * 1024 * 1024,
   "girlmate-media": 8  * 1024 * 1024,
+  "chat-media":     10 * 1024 * 1024,
   "media":          8  * 1024 * 1024,
   "club-media":     8  * 1024 * 1024,
 };

@@ -70,14 +70,15 @@ export const MEMBER_BOTTOM_TABS: MemberNavItem[] = [
 export const MEMBER_UTILITY_NAV = [
   { id: "pin-drops", label: "Pin drops", href: "/member/pin-drops" },
   { id: "mailbox", label: "Mailbox", href: "/member/notifications" },
-  { id: "chats", label: "Chats", href: "/member/messages" },
+  { id: "chats", label: "Chats", href: "/member/chat" },
   { id: "apartment", label: "My apartment", href: "/member/lounge" },
 ] as const;
 
-/** Pages where mobile bottom nav is hidden (studio flows) */
+/** Pages where mobile bottom nav is hidden (studio + focused messaging) */
 export const HIDE_BOTTOM_NAV_PREFIXES = [
   "/member/clubs/create",
   "/member/happenings/create",
+  "/member/chat",
 ];
 
 export function shouldHideBottomNav(pathname: string): boolean {

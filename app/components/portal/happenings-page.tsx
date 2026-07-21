@@ -159,6 +159,42 @@ const CSS = `
     transition-duration: 0.01ms !important;
   }
 }
+.happenings-fixed-nav {
+  top: calc(54px + env(safe-area-inset-top, 0px));
+}
+@media (min-width: 768px) {
+  .happenings-fixed-nav { top: 60px; }
+}
+@media (min-width: 1024px) {
+  .happenings-fixed-nav { top: 0; }
+}
+.happenings-page-content {
+  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 50px);
+}
+@media (min-width: 768px) {
+  .happenings-page-content { padding-top: 110px; }
+}
+@media (min-width: 1024px) {
+  .happenings-page-content { padding-top: 50px; }
+}
+.happenings-page-content--search {
+  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 104px);
+}
+@media (min-width: 768px) {
+  .happenings-page-content--search { padding-top: 164px; }
+}
+@media (min-width: 1024px) {
+  .happenings-page-content--search { padding-top: 104px; }
+}
+.happenings-filter-pill {
+  top: calc(54px + env(safe-area-inset-top, 0px) + 60px);
+}
+@media (min-width: 768px) {
+  .happenings-filter-pill { top: 120px; }
+}
+@media (min-width: 1024px) {
+  .happenings-filter-pill { top: 60px; }
+}
 `;
 
 type HapTab = "happenings" | "intros" | "map" | "scene" | "calendar";
@@ -929,17 +965,17 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
 }
 
 /* ── Invitation RSVP sheet ─────────────────────────────────── */
-function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+function InvitationRsvpSheet({ ev, onClose, onGoing }: { ev: Event; onClose: () => void; onGoing: (id: string) => void }) {
   const [choice, setChoice] = useState<"going" | "maybe" | "cant" | null>(null);
   const [msg, setMsg] = useState("");
-  const [confettiSent, setConfettiSent] = useState(false);
   const [done, setDone] = useState(false);
-
-  function sendConfetti() {
-    setConfettiSent(true);
-  }
+  const [submitting, setSubmitting] = useState(false);
 
   function submit() {
+    if (choice !== "going" || submitting) return;
+    setSubmitting(true);
+    onGoing(ev.id);
+    setSubmitting(false);
     setDone(true);
   }
 
@@ -951,12 +987,12 @@ function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }
 
         {done ? (
           <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>{confettiSent ? "🎊" : choice === "going" ? "🌸" : choice === "maybe" ? "🤞" : "💌"}</div>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>{choice === "going" ? "🌸" : choice === "maybe" ? "🤞" : "💌"}</div>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "#111", marginBottom: 6 }}>
-              {confettiSent ? "Confetti sent!" : choice === "going" ? "You're going!" : choice === "maybe" ? "Noted!" : "They know you care."}
+              {choice === "going" ? "You're going!" : choice === "maybe" ? "Noted locally" : "They know you care."}
             </p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#999" }}>
-              {choice === "going" ? "She'll see you there." : "You can always send her confetti later."}
+              {choice === "going" ? "She'll see you there." : "Choose \"I'm going\" to save your RSVP."}
             </p>
           </div>
         ) : (
@@ -971,19 +1007,23 @@ function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }
             {/* 3-option picker */}
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               {([
-                { key: "going",  label: "I'm going",           emoji: "🌸" },
-                { key: "maybe",  label: "I'll try to make it", emoji: "🤞" },
-                { key: "cant",   label: "Can't make it",        emoji: "💌" },
-              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string }[]).map(opt => (
+                { key: "going",  label: "I'm going",           emoji: "🌸", enabled: true },
+                { key: "maybe",  label: "I'll try to make it", emoji: "🤞", enabled: false },
+                { key: "cant",   label: "Can't make it",        emoji: "💌", enabled: false },
+              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string; enabled: boolean }[]).map(opt => (
                 <button
                   key={opt.key}
-                  onClick={() => setChoice(opt.key)}
+                  type="button"
+                  disabled={!opt.enabled}
+                  onClick={() => opt.enabled && setChoice(opt.key)}
+                  title={opt.enabled ? undefined : "RSVP options beyond \"I'm going\" aren't saved yet"}
                   style={{
-                    flex: 1, padding: "12px 6px", borderRadius: 14, border: "none", cursor: "pointer",
+                    flex: 1, padding: "12px 6px", borderRadius: 14, border: "none",
+                    cursor: opt.enabled ? "pointer" : "not-allowed",
                     background: choice === opt.key ? `${PINK}18` : "white",
                     outline: choice === opt.key ? `2px solid ${PINK}` : "1px solid rgba(0,0,0,0.1)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
-                    transition: "all 0.15s",
+                    transition: "all 0.15s", opacity: opt.enabled ? 1 : 0.45,
                   }}
                 >
                   <span style={{ fontSize: 20 }}>{opt.emoji}</span>
@@ -1004,27 +1044,21 @@ function InvitationRsvpSheet({ ev, onClose }: { ev: Event; onClose: () => void }
               />
             </div>
 
-            {/* Send confetti option */}
-            <button
-              onClick={sendConfetti}
-              style={{ width: "100%", padding: "12px", borderRadius: 14, border: `1.5px solid ${confettiSent ? PINK : "rgba(255,31,125,0.25)"}`, background: confettiSent ? `${PINK}12` : "transparent", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, marginBottom: 12, transition: "all 0.15s" }}
-            >
+            {/* Confetti — not wired yet */}
+            <div style={{ width: "100%", padding: "12px", borderRadius: 14, border: "1px dashed rgba(255,31,125,0.25)", background: "rgba(255,31,125,0.04)", display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <span style={{ fontSize: 20 }}>🎊</span>
               <div style={{ flex: 1, textAlign: "left" as const }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: PINK }}>
-                  {confettiSent ? "Confetti sent! 🎊" : "Send her confetti"}
+                  Send confetti — coming soon
                 </p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#999", marginTop: 1 }}>A little celebration, whether you&apos;re going or not</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#999", marginTop: 1 }}>Celebration messages aren&apos;t live yet.</p>
               </div>
-              {confettiSent && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-              )}
-            </button>
+            </div>
 
             {/* Submit */}
             <button
               onClick={submit}
-              disabled={!choice}
+              disabled={!choice || submitting}
               style={{ width: "100%", padding: "15px", borderRadius: 18, background: choice ? PINK : "rgba(0,0,0,0.08)", border: "none", cursor: choice ? "pointer" : "default", fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", color: choice ? "white" : "rgba(0,0,0,0.3)", boxShadow: choice ? `0 6px 22px ${PINK}44` : "none", transition: "all 0.15s" }}
             >
               {choice === "going" ? "I'm going 🌸" : choice === "maybe" ? "I'll try to make it 🤞" : choice === "cant" ? "Send my love 💌" : "Choose one above"}
@@ -1058,7 +1092,7 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
 
   return (
     <div style={{ padding: "0 0 24px" }}>
-      {rsvpEv && <InvitationRsvpSheet ev={rsvpEv} onClose={() => setRsvpEv(null)} />}
+      {rsvpEv && <InvitationRsvpSheet ev={rsvpEv} onClose={() => setRsvpEv(null)} onGoing={onToggle} />}
 
       {/* Header */}
       <div style={{ padding: "18px 16px 14px" }}>
@@ -1121,15 +1155,16 @@ function CelebrationInvitationsView({ events, joined, onToggle }: {
         </div>
       )}
 
-      {/* Drop confetti CTA */}
-      <div style={{ margin: "14px 14px 0", padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}28`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ fontSize: 22 }}>🎊</span>
-        <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Drop confetti on her</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Birthdays, wins, new keys, new chapters</p>
+      <Link href="/member/happenings/confetti" style={{ textDecoration: "none", display: "block", margin: "14px 14px 0" }}>
+        <div style={{ padding: "14px 16px", background: `${PINK}18`, border: `1px solid ${PINK}28`, borderRadius: 16, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 22 }}>🎊</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>Drop confetti on her</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>Birthdays, wins, new keys, new chapters</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -1184,7 +1219,7 @@ function SceneBuilding({ cat, idx }: { cat: typeof SCENE_CATS[number]; idx: numb
 /* ── FAB ─────────────────────────────────────────────────── */
 function CreateFAB() {
   return (
-    <Link href="/member/host" style={{ textDecoration: "none" }}>
+    <Link href="/member/happenings/create" style={{ textDecoration: "none" }}>
       <div style={{
         position: "fixed",
         bottom: "calc(env(safe-area-inset-bottom, 0px) + 155px)",
@@ -1386,8 +1421,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
       {/* ── Fixed top bar ── */}
       {/* tablet: top-[60px] clears the fixed desktop top-nav; desktop: top-0 + left-60 clears the sidebar */}
-      {standalone && <div className="md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 51,
+      {standalone && <div className="happenings-fixed-nav md:top-[60px] lg:top-0 lg:left-60 lg:right-[280px]" style={{
+        position: "fixed", left: 0, right: 0, zIndex: 51,
         background: getNavBg(),
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
@@ -1425,8 +1460,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         <button
           onClick={() => setFilterOpen(o => !o)}
           aria-label="Toggle filters"
+          className="happenings-filter-pill lg:top-[60px]"
           style={{
-            position: "fixed", left: 0, top: 60, zIndex: 49,
+            position: "fixed", left: 0, zIndex: 49,
             background: filterOpen ? PINK : "rgba(20,8,32,0.72)",
             backdropFilter: "blur(12px)",
             border: `1.5px solid ${filterOpen ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.12)"}`,
@@ -1476,7 +1512,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       )}
 
       {/* ── Page content ── */}
-      <div style={{ paddingTop: standalone ? (searchOpen ? 104 : 50) : 0 }}>
+      <div className={standalone ? (searchOpen ? "happenings-page-content happenings-page-content--search" : "happenings-page-content") : undefined} style={{ paddingTop: standalone ? undefined : 0 }}>
 
         {/* ── HAPPENINGS TAB ── */}
         {(standalone ? tab === "happenings" : true) && (
@@ -1733,61 +1769,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
             <div style={{ height: 20 }}/>
 
-            {/* From your city — only when real gatherings exist */}
-            {!loading && events.length > 0 && (
-              <div style={{ padding: "0 0 8px" }}>
-                <div style={{ padding: "8px 14px 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 4, height: 4, borderRadius: "50%", background: PINK }}/>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)" }}>FROM YOUR CITY</span>
-                </div>
-                <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 14px 12px", scrollbarWidth: "none" as const }}>
-                  {[
-                    { name: "Sunset Walk",  sub: "Brooklyn Bridge · SUN 1PM", img: POSTER_IMGS[9], going: 7  },
-                    { name: "Natural Wine", sub: "West Village · TONIGHT",    img: POSTER_IMGS[1], going: 6  },
-                    { name: "Rooftop Girls",sub: "SAT 8PM",                   img: POSTER_IMGS[7], going: 12 },
-                    { name: "Dance All Night",sub: "SAT · 11PM",              img: POSTER_IMGS[5], going: 10 },
-                  ].map((item, i) => (
-                    <div key={i} style={{ flexShrink: 0, width: 140, borderRadius: 12, overflow: "hidden", position: "relative", height: 108, boxShadow: "0 4px 20px rgba(0,0,0,0.6)" }}>
-                      <Image src={item.img} alt={item.name} fill style={{ objectFit: "cover" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 25%, rgba(0,0,0,0.88) 100%)" }}/>
-                      {/* Going badge */}
-                      <div style={{ position: "absolute", top: 8, right: 8, background: PINK, borderRadius: 999, padding: "2px 7px" }}>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white" }}>{item.going} going</p>
-                      </div>
-                      <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
-                        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 12, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1 }}>{item.name}</p>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{item.sub}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             {/* ── TRADITIONS ── */}
             {!loading && traditions.length > 0 && (
               <TraditionsStrip traditions={traditions} onFollow={handleFollowTradition} />
-            )}
-
-            {/* ── INTRODUCTIONS link ── */}
-            {!loading && (
-              <div style={{ margin: "8px 14px 16px" }}>
-                <Link href="/member/introductions" style={{ textDecoration: "none" }}>
-                  <div style={{
-                    borderRadius: 18, overflow: "hidden",
-                    background: "linear-gradient(135deg, rgba(255,31,125,0.18) 0%, rgba(192,0,96,0.25) 100%)",
-                    border: "1px solid rgba(255,31,125,0.22)",
-                    padding: "14px 18px",
-                    display: "flex", alignItems: "center", gap: 14,
-                  }}>
-                    <div style={{ fontSize: 24 }}>👋</div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.1 }}>Introductions</p>
-                      <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Meet new arrivals, locals & women finding their people</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
-                </Link>
-              </div>
             )}
           </>
         )}
@@ -1844,9 +1828,9 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                       <span style={{ fontSize: 12 }}>🌸</span>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: intro.my_flower ? PINK : "rgba(255,255,255,0.5)" }}>{intro.flowers}</p>
                     </button>
-                    <button style={{ padding: "7px 16px", borderRadius: 999, border: "none", cursor: "pointer", background: `linear-gradient(135deg,${PINK},#FF69B4)`, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", boxShadow: `0 2px 10px ${PINK}33` }}>
+                    <Link href="/member/match" style={{ padding: "7px 16px", borderRadius: 999, background: `linear-gradient(135deg,${PINK},#FF69B4)`, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "white", boxShadow: `0 2px 10px ${PINK}33`, textDecoration: "none" }}>
                       Connect →
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -1856,61 +1840,42 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
         {/* ── MAP TAB ── */}
         {standalone && tab === "map" && (
-          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "20px 18px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>happening near you</p>
+          <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column", padding: "20px 18px 24px" }}>
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Gatherings with a location show up here</p>
+            </div>
+            {loading ? (
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "40px 0" }}>Loading…</p>
+            ) : events.filter(ev => ev.venue || ev.neighborhood).length === 0 ? (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "32px 24px", borderRadius: 24, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <p style={{ fontSize: 32, marginBottom: 12 }}>🗺</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>No map pins yet</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 260 }}>
+                  When gatherings are posted with a venue or neighborhood, you&apos;ll see them here. Check the Happenings tab for what&apos;s live now.
+                </p>
               </div>
-            </div>
-            <div style={{ flex: 1, margin: "0 16px", borderRadius: 24, overflow: "hidden", position: "relative", minHeight: 380 }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #DEEDF8 0%, #C8DFF5 40%, #D5E8EE 100%)" }}/>
-              {[10, 25, 40, 55, 70, 85].map(pct => (
-                <div key={`h${pct}`} style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-              ))}
-              {[15, 30, 45, 60, 75, 90].map(pct => (
-                <div key={`v${pct}`} style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, background: "rgba(80,130,180,0.22)", zIndex: 1 }}/>
-              ))}
-              <div style={{ position: "absolute", top: "6%", right: "8%", width: "24%", height: "32%", borderRadius: 14, background: "rgba(120,190,110,0.28)", border: "1px solid rgba(100,180,80,0.2)", zIndex: 1 }}/>
-              <div style={{ position: "absolute", top: 0, left: "-2%", width: "14%", height: "100%", background: "rgba(120,160,220,0.18)", borderRight: "1px solid rgba(100,140,200,0.2)", zIndex: 1 }}/>
-              {[
-                {x:"24%",y:"42%",label:"Girls Night",color:"#FF1F7D",going:12},
-                {x:"52%",y:"27%",label:"Rooftop",color:"#FF69B4",going:8},
-                {x:"68%",y:"56%",label:"Vinyl Night",color:"#C084FC",going:6},
-                {x:"36%",y:"68%",label:"Brunch Club",color:"#F97316",going:15},
-                {x:"79%",y:"35%",label:"Jazz Night",color:"#FF1F7D",going:4},
-                {x:"46%",y:"76%",label:"Dance All Night",color:"#C084FC",going:20},
-                {x:"60%",y:"50%",label:"Book Society",color:"#84CC16",going:9},
-              ].map((pin, i) => (
-                <div key={i} style={{ position: "absolute", left: pin.x, top: pin.y, transform: "translate(-50%, -100%)", zIndex: 3 }}>
-                  <div style={{ background: pin.color, borderRadius: 20, padding: "4px 10px 4px 8px", display: "flex", alignItems: "center", gap: 5, boxShadow: `0 3px 12px ${pin.color}66`, whiteSpace: "nowrap" as const }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.9)", animation: "livePulse 1.4s ease-in-out infinite", flexShrink: 0 }}/>
-                    <span style={{ fontSize: "9px", fontWeight: 800, color: "white", fontFamily: "var(--font-jost)", letterSpacing: "0.03em" }}>{pin.label}</span>
-                    <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-jost)", fontWeight: 700 }}>{pin.going}</span>
-                  </div>
-                  <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `7px solid ${pin.color}`, margin: "0 auto" }}/>
-                </div>
-              ))}
-              <div style={{ position: "absolute", bottom: 14, left: 14, right: 14, zIndex: 4, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(12px)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,31,125,0.12)" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK, marginBottom: 3 }}>🗺 LIVE MAP</p>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>Interactive map with real-time event locations near you.</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {events.filter(ev => ev.venue || ev.neighborhood).map(ev => (
+                  <Link key={ev.id} href={`/member/happenings/${ev.slug ?? ev.id}`} style={{ textDecoration: "none" }}>
+                    <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: `${PINK}22`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <span style={{ fontSize: 16 }}>📍</span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.15 }}>{ev.title}</p>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+                          {ev.venue ?? ev.neighborhood} · {fmtShort(ev.starts_at)}
+                          {ev.attending_count > 0 ? ` · ${ev.attending_count} going` : ""}
+                        </p>
+                      </div>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </div>
-            <div style={{ padding: "12px 16px 24px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" as const }}>
-              {[
-                { label: "Girls Night Out", time: "Tonight", color: "#FF1F7D" },
-                { label: "Rooftop Sessions", time: "Sat 8PM", color: "#FF69B4" },
-                { label: "Vinyl Night", time: "Sat 9PM", color: "#C084FC" },
-                { label: "Brunch Club", time: "Sun 11AM", color: "#F97316" },
-                { label: "Jazz Night", time: "Fri 9PM", color: "#FF1F7D" },
-                { label: "Dance All Night", time: "Sat 11PM", color: "#C084FC" },
-              ].map((chip, i) => (
-                <div key={i} style={{ flexShrink: 0, background: "rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 14px", border: `1.5px solid ${chip.color}44` }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: "white" }}>{chip.label}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{chip.time}</p>
-                </div>
-              ))}
-            </div>
+            )}
           </div>
         )}
 
