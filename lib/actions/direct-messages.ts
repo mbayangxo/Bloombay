@@ -38,7 +38,7 @@ function previewForMessage(content: string | null | undefined, mediaType?: strin
 }
 
 /** Encoded when media_* columns aren't migrated yet: BBMEDIA:image:https://... */
-export function parseLegacyMediaContent(content: string): {
+function parseLegacyMediaContent(content: string): {
   content: string;
   media_url: string | null;
   media_type: MessageMediaType;
