@@ -12,6 +12,7 @@ import {
   createNamedGroupConversation,
   listChatMembers,
   addMembersToConversation,
+  sendChatMediaMessage,
 } from "@/lib/actions/direct-messages";
 import type { ConversationSummary, DirectMessage } from "@/lib/actions/direct-messages";
 
@@ -129,37 +130,6 @@ function mapDbMessage(m: DirectMessage, myId: string | null): Message {
     mediaUrl: m.media_url ?? null,
     mediaType,
   };
-}
-
-async function uploadChatMedia(file: File, kind: "image" | "audio" | "gif"): Promise<string> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-
-  const maxBytes = kind === "audio" ? 10 * 1024 * 1024 : 6 * 1024 * 1024;
-  if (file.size > maxBytes) {
-    throw new Error(kind === "audio" ? "Voice note must be under 10MB" : "File must be under 6MB");
-  }
-
-  const ext =
-    kind === "gif"
-      ? "gif"
-      : kind === "image"
-        ? (file.name.split(".").pop()?.toLowerCase() || "jpg")
-        : (file.type.includes("webm") ? "webm" : file.type.includes("mp4") || file.type.includes("m4a") ? "m4a" : "webm");
-
-  const folder = kind === "audio" ? "audio" : kind === "gif" ? "gif" : "image";
-  const path = `${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const contentType =
-    file.type ||
-    (kind === "gif" ? "image/gif" : kind === "image" ? "image/jpeg" : "audio/webm");
-  const { data, error } = await supabase.storage
-    .from("chat-media")
-    .upload(path, file, { upsert: false, contentType });
-  if (error) throw new Error(error.message);
-
-  const { data: urlData } = supabase.storage.from("chat-media").getPublicUrl(data.path);
-  return urlData.publicUrl;
 }
 
 function dbConvoToUI(c: ConversationSummary): Convo {
@@ -576,7 +546,7 @@ function ComposerBar({
       <input
         ref={photoRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*,image/jpeg,image/png,image/webp,image/heic,image/heif"
         style={{ display: "none" }}
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -910,27 +880,40 @@ function useThreadMessages(convoId: string) {
       setSendError(null);
       const tempId = `temp:${Date.now()}`;
       const label = type === "image" ? "📷 Photo" : type === "gif" ? "GIF" : "🎤 Voice note";
+      // Optimistic local preview while uploading
+      const localPreview = URL.createObjectURL(file);
+      setMsgs((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          sender: "Me",
+          initial: "Y",
+          color: PINK,
+          text: label,
+          time: "now",
+          isMe: true,
+          mediaUrl: type === "audio" ? null : localPreview,
+          mediaType: type,
+        },
+      ]);
       try {
-        const url = await uploadChatMedia(file, type);
-        setMsgs((prev) => [
-          ...prev,
-          {
-            id: tempId,
-            sender: "Me",
-            initial: "Y",
-            color: PINK,
-            text: label,
-            time: "now",
-            isMe: true,
-            mediaUrl: url,
-            mediaType: type,
-          },
-        ]);
-        await dbSendMessage(convoId, label, { url, type });
+        const fd = new FormData();
+        fd.set("file", file);
+        fd.set("kind", type);
+        const result = await sendChatMediaMessage(convoId, fd);
+        if (!result.ok) throw new Error(result.error);
+        setMsgs((prev) =>
+          prev.map((m) =>
+            m.id === tempId
+              ? { ...m, mediaUrl: result.mediaUrl, mediaType: result.mediaType }
+              : m,
+          ),
+        );
       } catch (e) {
         setMsgs((prev) => prev.filter((m) => m.id !== tempId));
         setSendError(e instanceof Error ? e.message : "Upload failed");
       } finally {
+        URL.revokeObjectURL(localPreview);
         setSending(false);
       }
     },
@@ -1017,8 +1000,18 @@ function ThreadShell({
         </div>
       </div>
 
+      {sending && (
+        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(0,0,0,0.45)", padding: "4px 12px" }}>
+          Uploading…
+        </p>
+      )}
       {sendError && (
-        <p style={{ textAlign: "center", fontSize: 11, color: PINK, padding: "4px 12px" }}>{sendError}</p>
+        <p style={{
+          textAlign: "center", fontSize: 12, color: "#fff", background: PINK,
+          margin: "0 16px 8px", padding: "10px 12px", borderRadius: 12, fontWeight: 600,
+        }}>
+          {sendError}
+        </p>
       )}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20 }}>
         <ComposerBar

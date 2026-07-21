@@ -30,7 +30,29 @@ function previewForMessage(content: string | null | undefined, mediaType?: strin
   if (mediaType === "image") return content?.trim() || "📷 Photo";
   if (mediaType === "gif") return content?.trim() || "GIF";
   if (mediaType === "audio") return content?.trim() || "🎤 Voice note";
+  const legacy = parseLegacyMediaContent(content ?? "");
+  if (legacy.media_type === "image") return "📷 Photo";
+  if (legacy.media_type === "gif") return "GIF";
+  if (legacy.media_type === "audio") return "🎤 Voice note";
   return content?.trim() || "Start a conversation";
+}
+
+/** Encoded when media_* columns aren't migrated yet: BBMEDIA:image:https://... */
+export function parseLegacyMediaContent(content: string): {
+  content: string;
+  media_url: string | null;
+  media_type: MessageMediaType;
+} {
+  const m = content.match(/^BBMEDIA:(image|audio|gif):(https?:\/\/\S+)$/);
+  if (!m) {
+    return { content, media_url: null, media_type: "text" };
+  }
+  const media_type = m[1] as MessageMediaType;
+  return {
+    content: media_type === "image" ? "📷 Photo" : media_type === "gif" ? "GIF" : "🎤 Voice note",
+    media_url: m[2],
+    media_type,
+  };
 }
 
 async function loadProfilesByIds(ids: string[]) {
@@ -182,16 +204,19 @@ export async function getMessages(conversationId: string, limit = 50): Promise<D
   const senderIds = [...new Set(data.map(m => m.sender_id).filter(Boolean))] as string[];
   const profileMap = await loadProfilesByIds(senderIds);
 
-  return data.map(m => ({
-    id: m.id,
-    conversation_id: m.conversation_id,
-    sender_id: m.sender_id,
-    content: m.content ?? "",
-    media_url: m.media_url ?? null,
-    media_type: m.media_type ?? "text",
-    created_at: m.created_at,
-    sender: m.sender_id ? profileMap.get(m.sender_id) : undefined,
-  }));
+  return data.map(m => {
+    const legacy = parseLegacyMediaContent(m.content ?? "");
+    return {
+      id: m.id,
+      conversation_id: m.conversation_id,
+      sender_id: m.sender_id,
+      content: legacy.media_url ? legacy.content : (m.content ?? ""),
+      media_url: m.media_url ?? legacy.media_url,
+      media_type: (m.media_type && m.media_type !== "text" ? m.media_type : legacy.media_type) as MessageMediaType,
+      created_at: m.created_at,
+      sender: m.sender_id ? profileMap.get(m.sender_id) : undefined,
+    };
+  });
 }
 
 export async function sendMessage(
@@ -222,7 +247,8 @@ export async function sendMessage(
           ? "🎤 Voice note"
           : "");
 
-  const { error } = await supabase
+  // Prefer structured media columns; fall back to encoded content if migration not applied yet.
+  const withMedia = await supabase
     .from("direct_messages")
     .insert({
       conversation_id: conversationId,
@@ -231,14 +257,129 @@ export async function sendMessage(
       media_url: mediaUrl,
       media_type: mediaType,
     });
-  if (error) throw error;
 
-  // Mark last read
+  if (withMedia.error) {
+    const encoded =
+      mediaUrl && mediaType !== "text"
+        ? `BBMEDIA:${mediaType}:${mediaUrl}`
+        : body;
+    const { error } = await supabase
+      .from("direct_messages")
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        content: encoded,
+      });
+    if (error) throw new Error(error.message || withMedia.error.message);
+  }
+
   await supabase
     .from("conversation_participants")
     .update({ last_read_at: new Date().toISOString() })
     .eq("conversation_id", conversationId)
     .eq("user_id", user.id);
+}
+
+/** Upload photo/voice/gif via service role (survives missing client bucket / RLS), then save the message. */
+export async function sendChatMediaMessage(
+  conversationId: string,
+  formData: FormData,
+): Promise<{ ok: true; mediaUrl: string; mediaType: "image" | "audio" | "gif" } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in" };
+
+  const file = formData.get("file");
+  const kindRaw = String(formData.get("kind") ?? "image");
+  const kind = (kindRaw === "audio" || kindRaw === "gif" ? kindRaw : "image") as "image" | "audio" | "gif";
+
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "No file selected" };
+  }
+
+  const maxBytes = kind === "audio" ? 10 * 1024 * 1024 : 6 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    return { ok: false, error: kind === "audio" ? "Voice note must be under 10MB" : "Photo must be under 6MB" };
+  }
+
+  // Must be a participant
+  const { data: part } = await supabase
+    .from("conversation_participants")
+    .select("user_id")
+    .eq("conversation_id", conversationId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!part) return { ok: false, error: "You’re not in this chat" };
+
+  const admin = createAdminClient();
+
+  // Ensure chat-media exists; otherwise use a known public member bucket.
+  let bucket = "chat-media";
+  const { data: buckets } = await admin.storage.listBuckets();
+  const names = new Set((buckets ?? []).map((b) => b.id || b.name));
+  if (!names.has("chat-media")) {
+    const created = await admin.storage.createBucket("chat-media", {
+      public: true,
+      fileSizeLimit: 10485760,
+      allowedMimeTypes: [
+        "image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif",
+        "audio/webm", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/x-m4a", "audio/aac",
+      ],
+    });
+    if (created.error) {
+      if (names.has("member-memories")) bucket = "member-memories";
+      else if (names.has("profile-photos")) bucket = "profile-photos";
+      else if (names.has("avatars")) bucket = "avatars";
+      else return { ok: false, error: `Storage isn’t ready (${created.error.message}). Run migration 096 or create the chat-media bucket.` };
+    }
+  }
+
+  const mime = file.type || (kind === "gif" ? "image/gif" : kind === "audio" ? "audio/webm" : "image/jpeg");
+  const extFromName = file.name.includes(".") ? file.name.split(".").pop()!.toLowerCase() : "";
+  const ext =
+    kind === "gif"
+      ? "gif"
+      : kind === "audio"
+        ? (mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("mpeg") ? "mp3" : "webm")
+        : (["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(extFromName)
+          ? (extFromName === "jpeg" ? "jpg" : extFromName)
+          : mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : mime.includes("gif") ? "gif" : "jpg");
+
+  const path = `${user.id}/chat/${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { data: uploaded, error: upErr } = await admin.storage
+    .from(bucket)
+    .upload(path, file, { upsert: false, contentType: mime, cacheControl: "3600" });
+
+  if (upErr || !uploaded) {
+    // Last resort: try member-memories with user-scoped path (common existing bucket)
+    if (bucket !== "member-memories" && names.has("member-memories")) {
+      const fallbackPath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const retry = await admin.storage
+        .from("member-memories")
+        .upload(fallbackPath, file, { upsert: false, contentType: mime });
+      if (retry.error || !retry.data) {
+        return { ok: false, error: upErr?.message || retry.error?.message || "Upload failed" };
+      }
+      bucket = "member-memories";
+      const { data: urlData } = admin.storage.from(bucket).getPublicUrl(retry.data.path);
+      try {
+        await sendMessage(conversationId, "", { url: urlData.publicUrl, type: kind });
+      } catch (e) {
+        return { ok: false, error: e instanceof Error ? e.message : "Saved file but couldn’t send message" };
+      }
+      return { ok: true, mediaUrl: urlData.publicUrl, mediaType: kind };
+    }
+    return { ok: false, error: upErr?.message || "Upload failed" };
+  }
+
+  const { data: urlData } = admin.storage.from(bucket).getPublicUrl(uploaded.path);
+  try {
+    await sendMessage(conversationId, "", { url: urlData.publicUrl, type: kind });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Saved file but couldn’t send message" };
+  }
+
+  return { ok: true, mediaUrl: urlData.publicUrl, mediaType: kind };
 }
 
 export async function startConversation(otherUserId: string): Promise<string> {
