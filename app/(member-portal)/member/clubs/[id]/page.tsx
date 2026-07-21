@@ -18,7 +18,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
       id, slug, owner_id, name, tagline, description, welcome_line,
       primary_color, accent_color, category, membership_type,
       cover_url, crest_symbol, crest_accent, layout_key,
-      is_paid, price_cents, member_limit,
+      is_paid, price_cents, member_limit, member_count, neighborhood,
       landing_copy, inside_copy, logo_typography, brand_display_mode
     `);
 
@@ -84,6 +84,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     ?? (owner?.first_name as string | null)
     ?? "Club Mama";
 
+  const neighborhood = (club.neighborhood as string | null)?.trim() || "";
   const clubData: ClubLandingData = {
     id: club.id,
     name: club.name,
@@ -92,9 +93,9 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
     whoItsFor: (club.landing_copy as string | null) ?? (club.description as string | null) ?? "",
     whatMembersDo: [],
     tags: ([club.category] as (string | null)[]).filter(Boolean) as string[],
-    city: "New York",
-    neighborhood: "",
-    memberCount: (club.member_limit as number | null) ?? 0,
+    city: neighborhood || "New York",
+    neighborhood,
+    memberCount: (club.member_count as number | null) ?? 0,
     color: clubColor,
     crestBg: accentColor,
     darkBg: false,
