@@ -92,6 +92,25 @@ export function ClubsPage() {
       .then(({ data }) => { if (data) setHappenings(data as RealGathering[]); });
   }, []);
 
+
+  const filteredClubs = clubs.filter(c => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const hay = `${c.name} ${c.description ?? ""} ${c.neighborhood ?? ""} ${c.category ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    const cat = (c.category ?? "").toLowerCase();
+    const blob = `${c.name} ${c.description ?? ""} ${c.category ?? ""}`.toLowerCase();
+    if (activeFilter && activeFilter !== "Most Popular" && activeFilter !== "New") {
+      if (!cat.includes(activeFilter.toLowerCase()) && !blob.includes(activeFilter.toLowerCase())) return false;
+    }
+    if (activeVibe) {
+      const vibe = activeVibe.toLowerCase();
+      if (!blob.includes(vibe) && !cat.includes(vibe)) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="bloom-world-enter" style={{ background: BOARD, minHeight: "100vh", fontFamily: "var(--font-jost)", paddingBottom: 120 }}>
 
@@ -338,12 +357,11 @@ export function ClubsPage() {
             <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}>ALL CLUBS</p>
           </div>
           <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,31,125,0.7)" }}>
-            {searchQuery ? `${clubs.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).length} results` : `${clubs.length} spaces`}
+            {(searchQuery || activeFilter || activeVibe) ? `${filteredClubs.length} results` : `${clubs.length} spaces`}
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          {clubs
-            .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()) || (c.description ?? "").toLowerCase().includes(searchQuery.toLowerCase()))
+          {filteredClubs
             .map((club, idx) => {
               const href = club.slug ? `/member/clubs/${club.slug}` : `/member/clubs/${club.id}`;
               const grad = club.primary_color
@@ -385,6 +403,9 @@ export function ClubsPage() {
           })}
           {clubs.length === 0 && (
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0", gridColumn: "span 2" }}>Clubs loading…</p>
+          )}
+          {clubs.length > 0 && filteredClubs.length === 0 && (
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,255,255,0.35)", padding: "20px 0", gridColumn: "span 2" }}>No clubs match that filter yet.</p>
           )}
         </div>
       </section>
@@ -512,7 +533,7 @@ export function ClubsPage() {
                   {vibe}
                 </button>
               ))}
-              <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${PINK}`, background: PINK, color: "white" }}>
+              <button onClick={() => setActiveVibe(null)} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${PINK}`, background: activeVibe ? "rgba(255,31,125,0.06)" : PINK, color: activeVibe ? PINK : "white" }}>
                 all vibes →
               </button>
             </div>
