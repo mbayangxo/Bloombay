@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { startConversation } from "@/lib/actions/direct-messages";
 import { PostEventBloomiePrompt } from "./post-event-bloomie-prompt";
 import { GirlMatePage } from "./girlmate-page";
 import "@/app/styles/bloom-entrance.css";
@@ -396,9 +398,27 @@ function BloomRequestLetterPage({ req, onAccept, onDecline, onBack, accepting }:
 
 // ── Both Bloomies — celebration overlay ───────────────────────────────────────
 
-function BothBloomiesOverlay({ senderName, senderInitial, onDone }: {
-  senderName: string; senderInitial: string; onDone: () => void;
+function BothBloomiesOverlay({ senderName, senderInitial, fromUserId, onDone }: {
+  senderName: string; senderInitial: string; fromUserId: string; onDone: () => void;
 }) {
+  const router = useRouter();
+  const [messaging, setMessaging] = useState(false);
+  const [msgError, setMsgError] = useState<string | null>(null);
+
+  async function handleMessage() {
+    if (messaging) return;
+    setMessaging(true);
+    setMsgError(null);
+    try {
+      await startConversation(fromUserId);
+      onDone();
+      router.push("/member/chat");
+    } catch (e) {
+      setMsgError(e instanceof Error ? e.message : "Couldn’t open chat");
+      setMessaging(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8"
       style={{ background: "#FF1F7D" }}>
@@ -450,10 +470,14 @@ function BothBloomiesOverlay({ senderName, senderInitial, onDone }: {
       <div className="w-full flex flex-col gap-3" style={{ animation: "bloomIn 0.5s 0.3s cubic-bezier(0.34,1.56,0.64,1) both", opacity: 0 }}>
         <button
           className="w-full py-4 rounded-2xl font-bold text-[#FF1F7D] transition-all active:scale-[0.97]"
-          style={{ background: "white", fontSize: "15px", boxShadow: "0 6px 24px rgba(0,0,0,0.15)" }}
-          onClick={onDone}>
-          Message {senderName} →
+          style={{ background: "white", fontSize: "15px", boxShadow: "0 6px 24px rgba(0,0,0,0.15)", opacity: messaging ? 0.7 : 1 }}
+          disabled={messaging}
+          onClick={() => { void handleMessage(); }}>
+          {messaging ? "Opening chat…" : `Message ${senderName} →`}
         </button>
+        {msgError && (
+          <p className="text-center" style={{ color: "rgba(255,255,255,0.85)", fontSize: "12px" }}>{msgError}</p>
+        )}
         <button onClick={onDone} className="w-full py-3 font-semibold" style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px" }}>
           Maybe later
         </button>
@@ -471,7 +495,7 @@ export function IntroductionsPage() {
   const [acceptedBloom, setAcceptedBloom] = useState<RealBloomRequest[]>([]);
   const [openLetter, setOpenLetter] = useState<RealBloomRequest | null>(null);
   const [accepting, setAccepting] = useState(false);
-  const [bloomiesOf, setBloomiesOf] = useState<{ name: string; initial: string } | null>(null);
+  const [bloomiesOf, setBloomiesOf] = useState<{ name: string; initial: string; fromUserId: string } | null>(null);
 
   const [realIntros, setRealIntros] = useState<RealIntro[]>([]);
   const [comeWithPosts, setComeWithPosts] = useState<RealComeWith[]>([]);
@@ -509,7 +533,7 @@ export function IntroductionsPage() {
         setIncoming(prev => prev.filter(r => r.id !== req.id));
         setAcceptedBloom(prev => [{ ...req, status: "accepted" }, ...prev]);
         const name = reqDisplayName(req.sender);
-        setBloomiesOf({ name, initial: name.charAt(0).toUpperCase() });
+        setBloomiesOf({ name, initial: name.charAt(0).toUpperCase(), fromUserId: req.from_user_id });
         setOpenLetter(null);
       }
     } finally {
@@ -843,6 +867,7 @@ export function IntroductionsPage() {
         <BothBloomiesOverlay
           senderName={bloomiesOf.name}
           senderInitial={bloomiesOf.initial}
+          fromUserId={bloomiesOf.fromUserId}
           onDone={() => setBloomiesOf(null)}
         />
       )}
