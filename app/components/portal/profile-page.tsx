@@ -1223,6 +1223,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   // Delete account
   const [deleteConfirm,  setDeleteConfirm]  = useState("");
   const [deleteOpen,     setDeleteOpen]     = useState(false);
+  const [deleteRequested, setDeleteRequested] = useState(false);
 
   // Character stats
   const [stats, setStats] = useState<{ clubs: number; events: number } | null>(null);
@@ -2660,9 +2661,15 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                     onClick={async () => {
                       if (!contactMsg.trim()) return;
                       setContactBusy(true);
-                      await new Promise(r => setTimeout(r, 600));
+                      try {
+                        const res = await fetch("/api/member/safety-reports", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ category: "support", body: contactMsg.trim() }),
+                        });
+                        if (res.ok) setContactSent(true);
+                      } catch { /* stays on the form so the user can retry */ }
                       setContactBusy(false);
-                      setContactSent(true);
                     }}
                     disabled={contactBusy || !contactMsg.trim()}
                     style={{ ...pinkBtn, opacity: contactMsg.trim() ? 1 : 0.5 } as React.CSSProperties}
@@ -2704,7 +2711,20 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                     />
                   </Field>
                   <button
-                    onClick={() => { if (reportUser.trim() && reportReason.trim()) setReportSent(true); }}
+                    onClick={async () => {
+                      if (!reportUser.trim() || !reportReason.trim()) return;
+                      try {
+                        const res = await fetch("/api/member/safety-reports", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            category: "safety",
+                            body: `User report — subject: ${reportUser.trim()}\nWhat happened: ${reportReason.trim()}`,
+                          }),
+                        });
+                        if (res.ok) setReportSent(true);
+                      } catch { /* leave form for retry */ }
+                    }}
                     disabled={!reportUser.trim() || !reportReason.trim()}
                     style={{ ...outlineBtn, opacity: (reportUser.trim() && reportReason.trim()) ? 1 : 0.45 } as React.CSSProperties}
                   >
@@ -2718,7 +2738,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             <div style={cardStyle}>
               <p style={sectionLabel}>BLOCKED USERS</p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#aaa", marginBottom: 14, lineHeight: 1.5 }}>
-                Blocked women can&apos;t see your profile, message you, or invite you to events.
+                Blocking sends a request to our safety team, who review and action it. You&apos;ll stop seeing them in this list right away.
               </p>
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 <input
@@ -2729,13 +2749,21 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                   style={{ ...inputStyle, flex: 1 } as React.CSSProperties}
                   onKeyDown={e => {
                     if (e.key === "Enter" && blockInput.trim()) {
-                      setBlockedUsers(prev => [...prev, blockInput.trim()]);
+                      const name = blockInput.trim();
+                      setBlockedUsers(prev => [...prev, name]);
                       setBlockInput("");
+                      fetch("/api/member/safety-reports", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: "safety", body: `Block request: @${name}` }) }).catch(() => {});
                     }
                   }}
                 />
                 <button
-                  onClick={() => { if (blockInput.trim()) { setBlockedUsers(prev => [...prev, blockInput.trim()]); setBlockInput(""); } }}
+                  onClick={() => {
+                    if (!blockInput.trim()) return;
+                    const name = blockInput.trim();
+                    setBlockedUsers(prev => [...prev, name]);
+                    setBlockInput("");
+                    fetch("/api/member/safety-reports", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: "safety", body: `Block request: @${name}` }) }).catch(() => {});
+                  }}
                   style={{ ...outlineBtn, flexShrink: 0, padding: "12px 16px" } as React.CSSProperties}
                 >
                   Block
@@ -2764,7 +2792,11 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
             {/* ── Delete Account ── */}
             <div style={{ ...cardStyle, border: "1.5px solid rgba(239,68,68,0.18)" }}>
               <p style={{ ...sectionLabel, color: "rgba(239,68,68,0.6)" }}>DANGER ZONE</p>
-              {!deleteOpen ? (
+              {deleteRequested ? (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#22c55e", fontWeight: 600, lineHeight: 1.5 }}>
+                  Deletion requested ✦ Our team will permanently remove your account and confirm by email.
+                </p>
+              ) : !deleteOpen ? (
                 <button
                   onClick={() => setDeleteOpen(true)}
                   style={{ ...outlineBtn, color: "#ef4444", borderColor: "rgba(239,68,68,0.3)", width: "100%" } as React.CSSProperties}
@@ -2774,7 +2806,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "#ef4444", lineHeight: 1.5 }}>
-                    This permanently deletes your profile, club memberships, and all data. Type <strong>DELETE</strong> to confirm.
+                    This submits an account-deletion request. Our team will permanently remove your profile, club memberships, and all data, and confirm by email. Type <strong>DELETE</strong> to confirm.
                   </p>
                   <input
                     type="text"
@@ -2792,9 +2824,20 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                     </button>
                     <button
                       disabled={deleteConfirm !== "DELETE"}
+                      onClick={async () => {
+                        if (deleteConfirm !== "DELETE") return;
+                        try {
+                          await fetch("/api/member/safety-reports", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ category: "support", body: "Account deletion request — please permanently delete this account and all associated data." }),
+                          });
+                        } catch { /* still record intent locally */ }
+                        setDeleteOpen(false); setDeleteConfirm(""); setDeleteRequested(true);
+                      }}
                       style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", cursor: deleteConfirm === "DELETE" ? "pointer" : "default", background: deleteConfirm === "DELETE" ? "#ef4444" : "rgba(239,68,68,0.1)", color: deleteConfirm === "DELETE" ? "white" : "rgba(239,68,68,0.3)", fontFamily: "var(--font-jost)", fontSize: "12px", fontWeight: 700 }}
                     >
-                      Delete Forever
+                      Request Deletion
                     </button>
                   </div>
                 </div>
