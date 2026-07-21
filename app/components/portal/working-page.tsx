@@ -488,10 +488,19 @@ export function WorkingPage() {
         </div>
       </div>
 
-      {/* Tab content */}
-      {mode === "working"    && <GirlWorkingTab />}
-      {mode === "trepreneur" && <GirltrepreneurTab />}
-      {mode === "fluencer"   && <GirlFluencerTab />}
+      {/* Tab content — gated to an honest state: these feeds are not yet wired
+          to real data, so we do NOT show fabricated jobs/founders/creators. */}
+      <div style={{ padding: "72px 22px 48px", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 24, color: "#1A1A1A", marginBottom: 10 }}>Opening soon.</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", lineHeight: 1.65, maxWidth: 300, margin: "0 auto" }}>
+          {activeMeta.label} — real opportunities, founders, and creators from the BloomBay community — is being built. We&apos;ll open it the moment it&apos;s real, never with filler.
+        </p>
+      </div>
     </div>
   );
 }
+
+// Feed tabs below are retained but not rendered — they contained placeholder
+// content and will be re-enabled once wired to real data.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _UnusedWorkingTabs() { return <><GirlWorkingTab /><GirltrepreneurTab /><GirlFluencerTab /></>; }
