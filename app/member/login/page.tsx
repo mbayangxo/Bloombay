@@ -116,42 +116,26 @@ export default function MemberLoginPage() {
           </Link>
         </p>
 
-        {/* Social proof */}
+        {/* Location strip — no fabricated quotes or counts */}
         <div
-          className="mt-8 rounded-3xl p-4"
+          className="mt-8 rounded-3xl p-4 text-center"
           style={{ background: "var(--light-pink)" }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            {[
-              { i: "A", c: "#FF1F7D" },
-              { i: "S", c: "#FF69B4" },
-              { i: "P", c: "#FF1F7D" },
-              { i: "K", c: "#FF69B4" },
-              { i: "C", c: "#111111" },
-            ].map((a) => (
-              <div
-                key={a.i}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                style={{ background: a.c }}
-              >
-                {a.i}
-              </div>
-            ))}
-          </div>
           <p
             className="text-sm font-semibold"
             style={{ color: "var(--bb-black)" }}
           >
-            100 Founding Mothers · NYC
+            Members · New York
           </p>
           <p
-            className="text-xs italic mt-0.5"
+            className="text-xs mt-0.5"
             style={{
               fontFamily: "var(--font-playfair)",
+              fontStyle: "italic",
               color: "var(--bb-pink)",
             }}
           >
-            &ldquo;First birthday I actually celebrated.&rdquo; — Aaliyah
+            Where you bloom.
           </p>
         </div>
       </div>

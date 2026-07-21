@@ -54,104 +54,37 @@ function ClubCard({ name, dark, icon, outline }: { name: string; dark: boolean; 
 }
 
 const BABY_PINK = "#FFD6E7";
-const TESTIMONIALS = [
-  {
-    quote: "I moved to New York knowing nobody. Within three months of joining BloomBay, I had a book club, a dinner table, and five women I actually call friends now.",
-    name: "Sofia M.", location: "Upper East Side", tag: "Founding Member", color: "#FF1F7D",
-  },
-  {
-    quote: "I've lived in NYC for six years and never felt like I belonged. BloomBay changed that in one dinner. These women are my people.",
-    name: "Amara K.", location: "Crown Heights", tag: "Book Club · Museum Girls", color: "#C084FC",
-  },
-  {
-    quote: "As someone who doesn't drink, finding sober social spaces felt impossible. BloomBay has entire clubs built for women like me.",
-    name: "Jade T.", location: "West Village", tag: "Wellness Circle", color: "#34D399",
-  },
-  {
-    quote: "I joined for the dinners. I stayed for the friendships. I have a group chat with these women that is more active than any I've ever had.",
-    name: "Lena W.", location: "Williamsburg", tag: "Dinner Society", color: "#FF69B4",
-  },
-  {
-    quote: "BloomBay gave me a table in this city. Not just a seat — a whole table, full of women who actually show up for each other.",
-    name: "Yemi A.", location: "Harlem", tag: "Founding Member", color: "#F59E0B",
-  },
-  {
-    quote: "I was in my healing era and needed community without pressure. The women I met here felt that immediately. We protect each other's peace.",
-    name: "Zara O.", location: "Fort Greene", tag: "Sunday Walks · Wellness", color: "#FB7185",
-  },
-];
 
-function TestimonialsSection() {
-  const [idx, setIdx] = useState(0);
-  const touchStart = useState<number | null>(null);
-  const tx = { current: null as number | null };
-
-  function onTouchStart(e: React.TouchEvent) { tx.current = e.touches[0].clientX; }
-  function onTouchEnd(e: React.TouchEvent) {
-    if (tx.current === null) return;
-    const diff = tx.current - e.changedTouches[0].clientX;
-    if (diff > 40) setIdx(i => Math.min(i + 1, TESTIMONIALS.length - 1));
-    if (diff < -40) setIdx(i => Math.max(i - 1, 0));
-    tx.current = null;
-  }
-
-  const t = TESTIMONIALS[idx];
-
+/** Honest invite CTA — no fabricated quotes, names, or member counts. */
+function InviteCtaSection() {
   return (
-    <section style={{ padding: "72px 24px 60px", background: INK, position: "relative", overflow: "hidden" }}
-      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <section style={{ padding: "72px 24px 60px", background: INK, position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: -60, right: -60, width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,31,125,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-      <div style={{ maxWidth: 720, margin: "0 auto", position: "relative" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 28 }}>YOUR FRIENDS ARE HERE</p>
-
-        {/* Quote */}
-        <blockquote style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(20px,3.5vw,30px)", color: "white", lineHeight: 1.5, fontWeight: 300, margin: "0 0 40px" }}>
-          &ldquo;{t.quote}&rdquo;
-        </blockquote>
-
-        {/* Attribution with avatar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 36 }}>
-          <div style={{ width: 46, height: 46, borderRadius: "50%", background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 4px 16px ${t.color}44` }}>
-            <span style={{ color: "white", fontWeight: 800, fontSize: "16px" }}>{t.name[0]}</span>
-          </div>
-          <div>
-            <p style={{ color: "white", fontWeight: 700, fontSize: "14px", margin: 0 }}>{t.name}</p>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", margin: "2px 0 0" }}>{t.location} · <span style={{ color: t.color }}>{t.tag}</span></p>
-          </div>
-        </div>
-
-        {/* Dots */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 40 }}>
-          {TESTIMONIALS.map((_, i) => (
-            <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 20 : 6, height: 6, borderRadius: 99, background: i === idx ? PINK : "rgba(255,255,255,0.18)", border: "none", cursor: "pointer", padding: 0, transition: "all 0.3s ease" }} />
-          ))}
-        </div>
-
-        {/* Member cards horizontal scroll */}
-        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
-          {[
-            { name: "Amara", city: "Crown Heights", clubs: ["Book Club", "Museum Girls"], color: "#FF1F7D", bg: "#1e0a18" },
-            { name: "Jade",  city: "West Village",  clubs: ["Dinner Society", "Pilates"], color: "#C084FC", bg: "#0e0a1e" },
-            { name: "Sofia", city: "Upper East",    clubs: ["Gallery Girls", "Jazz Night"], color: "#34D399", bg: "#0a1e14" },
-            { name: "Lena",  city: "Williamsburg",  clubs: ["Sunday Walks", "Book Club"], color: "#FF69B4", bg: "#0a1220" },
-            { name: "Yemi",  city: "Harlem",        clubs: ["Dinner Society", "Travel"], color: "#F59E0B", bg: "#1e140a" },
-            { name: "Zara",  city: "Fort Greene",   clubs: ["Wellness", "Sunday Walks"], color: "#FB7185", bg: "#1e0a10" },
-          ].map((m) => (
-            <div key={m.name} style={{ flexShrink: 0, width: 140, borderRadius: 18, background: m.bg, border: `1px solid ${m.color}22`, padding: "14px 12px", boxShadow: `0 4px 24px ${m.color}18` }}>
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: `linear-gradient(135deg,${m.color},${m.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                <span style={{ color: "white", fontWeight: 900, fontSize: "14px" }}>{m.name[0]}</span>
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: "13px", color: "white", marginBottom: 2 }}>{m.name}</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>{m.city}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {m.clubs.map(c => (
-                  <span key={c} style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: m.color, background: `${m.color}18`, borderRadius: 999, padding: "2px 7px", letterSpacing: "0.06em" }}>{c}</span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div style={{ maxWidth: 560, margin: "0 auto", position: "relative", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 20 }}>NEW YORK CITY</p>
+        <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(24px,4vw,36px)", color: "white", lineHeight: 1.35, fontWeight: 300, margin: "0 0 16px" }}>
+          A social world for women, opening in New York.
+        </h2>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "14px", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, margin: "0 0 32px" }}>
+          Join the waitlist and we&apos;ll invite you when your city opens.
+        </p>
+        <Link
+          href="/waitlist"
+          style={{
+            display: "inline-block",
+            padding: "14px 32px",
+            borderRadius: 999,
+            background: PINK,
+            color: "white",
+            fontFamily: "var(--font-jost)",
+            fontWeight: 800,
+            fontSize: "12px",
+            letterSpacing: "0.14em",
+            textDecoration: "none",
+          }}
+        >
+          JOIN THE WAITLIST
+        </Link>
       </div>
     </section>
   );
@@ -768,9 +701,9 @@ export function LandingPage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════
-          YOUR FRIENDS ARE HERE — Swipeable testimonials
+          Honest invite CTA (no fabricated social proof)
       ══════════════════════════════════════════════════════ */}
-      <TestimonialsSection />
+      <InviteCtaSection />
 
       {/* ══════════════════════════════════════════════════════
           YOUR SOCIAL LIFE STARTS HERE — CLUBS

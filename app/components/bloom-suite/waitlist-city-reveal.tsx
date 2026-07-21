@@ -9,6 +9,18 @@ import {
 
 export function WaitlistProgressBar() {
   const { current, goal, pct } = nycProgress();
+  if (current <= 0) {
+    return (
+      <div className="bb-waitlist-meter" style={{ width: "100%", marginTop: 20 }}>
+        <p className="bb-field__label" style={{ textAlign: "center" }}>
+          Join the waitlist
+        </p>
+        <p className="bb-field__hint" style={{ textAlign: "center", marginTop: 8 }}>
+          New York City is opening first — we&apos;ll invite you when it&apos;s your turn.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="bb-waitlist-meter" style={{ width: "100%", marginTop: 20 }}>
       <p className="bb-field__label" style={{ textAlign: "center" }}>
@@ -56,7 +68,7 @@ export function WaitlistCityReveal() {
         ) ?? {
           city,
           country,
-          count: Math.floor(80 + Math.random() * 120),
+          count: 0,
         };
       setCityStat(match);
     } catch {
@@ -82,8 +94,9 @@ export function WaitlistCityReveal() {
         {cityStat.city}, {cityStat.country}
       </p>
       <p className="bb-field__hint">
-        {(cityStat.count + 1).toLocaleString()} women on the waitlist here — we&apos;ll email & text
-        you when your invite is ready.
+        {cityStat.count > 0
+          ? `${cityStat.count.toLocaleString()} women on the waitlist here — we\u2019ll email & text you when your invite is ready.`
+          : "Join the waitlist — we\u2019ll email & text you when your invite is ready."}
       </p>
       <a href="/invite" style={{ fontSize: 14, color: "#ff0055", fontWeight: 600 }}>
         Preview invite landing →

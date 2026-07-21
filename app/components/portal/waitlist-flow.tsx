@@ -25,22 +25,19 @@ const INTERESTS = [
 const AGE_RANGES = ["18–24", "25–30", "31–35", "36–40", "40+"];
 
 const CITIES = [
-  { city: "New York City", country: "USA", count: 1847 },
-  { city: "Los Angeles", country: "USA", count: 412 },
-  { city: "Chicago", country: "USA", count: 289 },
-  { city: "Atlanta", country: "USA", count: 201 },
-  { city: "Miami", country: "USA", count: 178 },
-  { city: "London", country: "UK", count: 634 },
-  { city: "Toronto", country: "Canada", count: 321 },
-  { city: "Paris", country: "France", count: 198 },
-  { city: "Lagos", country: "Nigeria", count: 445 },
-  { city: "Accra", country: "Ghana", count: 213 },
-  { city: "Dubai", country: "UAE", count: 167 },
-  { city: "Sydney", country: "Australia", count: 145 },
+  { city: "New York City", country: "USA" },
+  { city: "Los Angeles", country: "USA" },
+  { city: "Chicago", country: "USA" },
+  { city: "Atlanta", country: "USA" },
+  { city: "Miami", country: "USA" },
+  { city: "London", country: "UK" },
+  { city: "Toronto", country: "Canada" },
+  { city: "Paris", country: "France" },
+  { city: "Lagos", country: "Nigeria" },
+  { city: "Accra", country: "Ghana" },
+  { city: "Dubai", country: "UAE" },
+  { city: "Sydney", country: "Australia" },
 ];
-
-const WAITLIST_GOAL = 2500;
-const WAITLIST_CURRENT = 1847;
 
 function WaxSeal({ size = "lg" }: { size?: "sm" | "lg" }) {
   const outer = size === "lg" ? "w-24 h-24" : "w-14 h-14";
@@ -58,29 +55,6 @@ function WaxSeal({ size = "lg" }: { size?: "sm" | "lg" }) {
         className={`${inner} rounded-full border-2 border-white/30 flex items-center justify-center`}
       >
         <span className={`text-white font-black ${fontSize}`} style={{ fontFamily: "serif" }}>BB</span>
-      </div>
-    </div>
-  );
-}
-
-function ProgressBar({ current, goal }: { current: number; goal: number }) {
-  const pct = Math.min(100, (current / goal) * 100);
-  return (
-    <div className="w-full">
-      <div className="flex justify-between text-xs mb-2 font-semibold" style={{ color: "#888" }}>
-        <span>{current.toLocaleString()} women in</span>
-        <span>Goal: {goal.toLocaleString()}</span>
-      </div>
-      <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: "#FFE0EE" }}>
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${pct}%`,
-            background: "linear-gradient(90deg,#FF1F7D,#FF69B4)",
-            boxShadow: "0 0 10px rgba(255,31,125,0.6)",
-            transition: "width 1s ease",
-          }}
-        />
       </div>
     </div>
   );
@@ -161,8 +135,6 @@ export function WaitlistFlow() {
     setSubmitted(true);
     setStep(3);
   }
-
-  const cityCount = selectedCity?.count ?? WAITLIST_CURRENT;
 
   return (
     <div className="min-h-screen flex flex-col items-center" style={{ background: "#FFF5F8" }}>
@@ -257,10 +229,9 @@ export function WaitlistFlow() {
                 ))}
               </div>
 
-              {/* Progress bar with glow */}
-              <div className="w-full">
-                <ProgressBar current={WAITLIST_CURRENT} goal={WAITLIST_GOAL} />
-              </div>
+              <p className="text-xs text-center font-semibold" style={{ color: "#888" }}>
+                Join the waitlist — New York opens first.
+              </p>
             </div>
           </div>
 
@@ -555,17 +526,11 @@ export function WaitlistFlow() {
                             <p className="font-semibold text-sm" style={{ color: "#111111" }}>{c.city}</p>
                             <p className="text-xs text-gray-400">{c.country}</p>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs font-black" style={{ color: "#FF1F7D" }}>
-                              {c.count.toLocaleString()}
-                            </p>
-                            <p className="text-xs text-gray-400">waiting</p>
-                          </div>
                         </button>
                       ))}
                       {filteredCities.length === 0 && (
                         <button
-                          onMouseDown={() => setSelectedCity({ city: cityQuery, country: "Other", count: 12 })}
+                          onMouseDown={() => setSelectedCity({ city: cityQuery, country: "Other" })}
                           className="w-full px-4 py-3 text-left transition-colors hover:bg-pink-50"
                         >
                           <p className="font-semibold text-sm" style={{ color: "#111111" }}>"{cityQuery}"</p>
@@ -815,7 +780,7 @@ export function WaitlistFlow() {
             </div>
           </div>
 
-          {/* City waitlist count card */}
+          {/* City waitlist confirmation — no fabricated counts */}
           <div
             className="w-full rounded-3xl p-6 mb-5"
             style={{
@@ -827,12 +792,11 @@ export function WaitlistFlow() {
             <p className="text-xs font-black tracking-widest uppercase text-gray-400 mb-3">
               WAITLIST — {selectedCity?.city?.toUpperCase() ?? "NEW YORK CITY"}
             </p>
-            <ProgressBar
-              current={cityCount + 1}
-              goal={WAITLIST_GOAL}
-            />
-            <p className="text-xs font-semibold text-center mt-2.5" style={{ color: "#FF1F7D" }}>
-              You are #{(cityCount + 1).toLocaleString()} in your city
+            <p className="text-sm text-center font-semibold" style={{ color: "#111111" }}>
+              You&apos;re on the list.
+            </p>
+            <p className="text-xs text-center mt-2" style={{ color: "#888" }}>
+              We&apos;ll email you when BloomBay opens in your city.
             </p>
           </div>
 

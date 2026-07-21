@@ -1,4 +1,4 @@
-/** Waitlist social proof counters — prototype values; wire to Supabase aggregate later. */
+/** Waitlist city stats — counts start at 0 until wired to a real aggregate. No prototype fake progression. */
 
 export const WAITLIST_GOAL_NYC = 2500;
 
@@ -9,14 +9,14 @@ export type CityWaitlistStat = {
   goal?: number;
 };
 
-/** Demo progression toward 2,500 women in NYC */
+/** City list for waitlist UI; counts are zero until real data is available. */
 export const WAITLIST_CITY_STATS: CityWaitlistStat[] = [
-  { city: "New York", country: "United States", count: 1847, goal: WAITLIST_GOAL_NYC },
-  { city: "Los Angeles", country: "United States", count: 412 },
-  { city: "Toronto", country: "Canada", count: 318 },
-  { city: "London", country: "United Kingdom", count: 276 },
-  { city: "Paris", country: "France", count: 198 },
-  { city: "Mumbai", country: "India", count: 164 },
+  { city: "New York", country: "United States", count: 0, goal: WAITLIST_GOAL_NYC },
+  { city: "Los Angeles", country: "United States", count: 0 },
+  { city: "Toronto", country: "Canada", count: 0 },
+  { city: "London", country: "United Kingdom", count: 0 },
+  { city: "Paris", country: "France", count: 0 },
+  { city: "Mumbai", country: "India", count: 0 },
 ];
 
 export function totalWomenOnWaitlist(): number {
@@ -29,6 +29,6 @@ export function nycProgress(): { current: number; goal: number; pct: number } {
     goal: WAITLIST_GOAL_NYC,
   };
   const goal = nyc.goal ?? WAITLIST_GOAL_NYC;
-  const pct = Math.min(100, Math.round((nyc.count / goal) * 100));
+  const pct = goal > 0 ? Math.min(100, Math.round((nyc.count / goal) * 100)) : 0;
   return { current: nyc.count, goal, pct };
 }
