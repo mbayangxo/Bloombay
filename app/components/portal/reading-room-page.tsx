@@ -36,45 +36,6 @@ interface BookPost {
   timeAgo: string;
 }
 
-const MOCK_POSTS: BookPost[] = [
-  {
-    id: "1", author_name: "Amara T.", author_initial: "A", author_color: GOLD,
-    category: "afrolit", book_title: "Americanah", book_author: "Chimamanda Ngozi Adichie",
-    text: "Re-read this for the 4th time and noticed something completely new. The way she writes race, identity, and love — nothing compares. Required reading.",
-    rating: 5, blooms: 267, spine_color: "#FF9A00", spine_color2: "#E65C00", timeAgo: "1h ago",
-  },
-  {
-    id: "2", author_name: "Nia B.", author_initial: "N", author_color: "#6A1B9A",
-    category: "self-growth", book_title: "The Body Keeps the Score", book_author: "Bessel van der Kolk",
-    text: "Hard read but essential. Changed how I understand my own reactions to stress. Would pair with therapy though — don't go it alone.",
-    rating: 4, blooms: 178, spine_color: "#1565C0", spine_color2: "#0D47A1", timeAgo: "3h ago",
-  },
-  {
-    id: "3", author_name: "Kezia M.", author_initial: "K", author_color: PINK,
-    category: "romance", book_title: "Beach Read", book_author: "Emily Henry",
-    text: "I don't even like romance novels. I read this in one sitting. The banter is actually funny, the chemistry is real. Started Book Lovers immediately after.",
-    rating: 5, blooms: 312, spine_color: "#FF6B9D", spine_color2: PINK, timeAgo: "6h ago",
-  },
-  {
-    id: "4", author_name: "Sofia W.", author_initial: "S", author_color: "#FF69B4",
-    category: "nonfiction", book_title: "Invisible Women", book_author: "Caroline Criado Perez",
-    text: "Every woman should read this. The world is designed by men for men and the data proves it. Made me angry in the most productive way.",
-    rating: 5, blooms: 201, spine_color: "#4A148C", spine_color2: "#7B1FA2", timeAgo: "1d ago",
-  },
-  {
-    id: "5", author_name: "Zara F.", author_initial: "Z", author_color: "#E8A050",
-    category: "fiction", book_title: "Purple Hibiscus", book_author: "Chimamanda Ngozi Adichie",
-    text: "Beautifully quiet writing that builds to something devastating. The way she handles domestic violence without it ever feeling exploitative.",
-    rating: 5, blooms: 145, spine_color: "#7C4DFF", spine_color2: "#651FFF", timeAgo: "2d ago",
-  },
-  {
-    id: "6", author_name: "Temi A.", author_initial: "T", author_color: "#83C5A0",
-    category: "self-growth", book_title: "You Are a Badass", book_author: "Jen Sincero",
-    text: "Hear me out — I know the cover looks like it's for a girlboss LinkedIn post. But the chapter on money mindset hit different at 2am.",
-    rating: 3, blooms: 89, spine_color: "#FDD835", spine_color2: "#F9A825", timeAgo: "3d ago",
-  },
-];
-
 // ── Book card ─────────────────────────────────────────────────────────────────
 
 function BookCard({ post }: { post: BookPost }) {
@@ -146,34 +107,30 @@ function BookCard({ post }: { post: BookPost }) {
 
 export function ReadingRoomPage() {
   const [activeCategory, setActiveCategory] = useState<BookCategory>("all");
-  const [posts, setPosts] = useState<BookPost[]>(MOCK_POSTS);
+  const [posts, setPosts] = useState<BookPost[]>([]);
 
   useEffect(() => {
     fetch("/api/avenue/reading")
       .then(r => r.json())
       .then(d => {
-        if (d.content?.length) {
-          setPosts(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            d.content.map((row: any): BookPost => ({
-              id: row.id,
-              book_title: row.title,
-              book_author: row.meta?.book_author ?? "",
-              category: (row.meta?.category ?? "fiction") as BookCategory,
-              rating: row.meta?.rating ?? 0,
-              spine_color: row.meta?.spine_color ?? "#333",
-              spine_color2: row.meta?.spine_color2 ?? "#555",
-              text: row.body ?? "",
-              author_name: row.author ?? "",
-              author_initial: (row.author ?? "?")[0],
-              author_color: GOLD,
-              blooms: 0,
-              timeAgo: "",
-            }))
-          );
-        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setPosts((d.content ?? []).map((row: any): BookPost => ({
+          id: row.id,
+          book_title: row.title,
+          book_author: row.meta?.book_author ?? "",
+          category: (row.meta?.category ?? "fiction") as BookCategory,
+          rating: row.meta?.rating ?? 0,
+          spine_color: row.meta?.spine_color ?? "#333",
+          spine_color2: row.meta?.spine_color2 ?? "#555",
+          text: row.body ?? "",
+          author_name: row.author ?? "",
+          author_initial: (row.author ?? "?")[0],
+          author_color: GOLD,
+          blooms: 0,
+          timeAgo: "",
+        })));
       })
-      .catch(() => {/* keep mock */});
+      .catch(() => setPosts([]));
   }, []);
 
   const cats = Object.entries(CAT_META) as [BookCategory, { label: string; color: string }][];
@@ -214,6 +171,11 @@ export function ReadingRoomPage() {
       </div>
 
       <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", gap: 14 }}>
+        {filtered.length === 0 && (
+          <p style={{ textAlign: "center", color: "rgba(0,0,0,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
+            Nothing published yet
+          </p>
+        )}
         {filtered.map(post => <BookCard key={post.id} post={post} />)}
       </div>
     </div>

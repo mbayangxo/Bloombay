@@ -38,71 +38,6 @@ interface Article {
   label?: string;
 }
 
-const MOCK_ARTICLES: Article[] = [
-  {
-    id: "1",
-    section: "culture",
-    headline: "The Quiet Power of Taking Up Space",
-    dek: "On learning to stop apologising for wanting the seat at the table — and what happens when we finally sit down.",
-    author: "Amara T.", author_initial: "A", author_color: GOLD,
-    readTime: "6 min read",
-    cover_a: "#4A148C", cover_b: "#7B1FA2",
-    featured: true, blooms: 512, timeAgo: "2h ago",
-    label: "COVER STORY",
-  },
-  {
-    id: "2",
-    section: "wellness",
-    headline: "Your Body Isn't the Problem",
-    dek: "A conversation with nutritionist Dr. Funmi Adeyemi on why diet culture was never about health.",
-    author: "Nia B.", author_initial: "N", author_color: "#C084FC",
-    readTime: "4 min read",
-    cover_a: "#1B5E20", cover_b: "#2E7D32",
-    blooms: 289, timeAgo: "5h ago",
-  },
-  {
-    id: "3",
-    section: "love",
-    headline: "The Soft Life Is a Political Act",
-    dek: "Rest, pleasure, and choosing ease — Black women reclaim the right to do nothing.",
-    author: "Kezia M.", author_initial: "K", author_color: PINK,
-    readTime: "5 min read",
-    cover_a: "#AD1457", cover_b: PINK,
-    blooms: 401, timeAgo: "1d ago",
-    label: "EDITOR'S PICK",
-  },
-  {
-    id: "4",
-    section: "career",
-    headline: "On Being the Only One in the Room",
-    dek: "Six women on navigating workplaces that weren't built for them — and building their own anyway.",
-    author: "Temi A.", author_initial: "T", author_color: "#83C5A0",
-    readTime: "8 min read",
-    cover_a: "#0D47A1", cover_b: "#1565C0",
-    blooms: 176, timeAgo: "2d ago",
-  },
-  {
-    id: "5",
-    section: "style",
-    headline: "Dressing Without Permission",
-    dek: "The return of maximalism and why personal style has nothing to do with other people's comfort.",
-    author: "Zara F.", author_initial: "Z", author_color: "#E8A050",
-    readTime: "3 min read",
-    cover_a: "#880E4F", cover_b: "#C4005A",
-    blooms: 234, timeAgo: "3d ago",
-  },
-  {
-    id: "6",
-    section: "opinion",
-    headline: "We Need to Talk About 'Networking'",
-    dek: "Community is not leverage. A pushback on hustle culture's colonisation of our relationships.",
-    author: "Sofia W.", author_initial: "S", author_color: "#FF69B4",
-    readTime: "5 min read",
-    cover_a: "#BF360C", cover_b: "#E64A19",
-    blooms: 143, timeAgo: "4d ago",
-  },
-];
-
 // ── Featured article ──────────────────────────────────────────────────────────
 
 function FeaturedCard({ article }: { article: Article }) {
@@ -208,35 +143,31 @@ function ArticleCard({ article }: { article: Article }) {
 
 export function MagazinePage() {
   const [activeSection, setActiveSection] = useState<MagSection>("all");
-  const [articles, setArticles] = useState<Article[]>(MOCK_ARTICLES);
+  const [articles, setArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     fetch("/api/avenue/magazine")
       .then(r => r.json())
       .then(d => {
-        if (d.content?.length) {
-          setArticles(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            d.content.map((row: any): Article => ({
-              id: row.id,
-              headline: row.title ?? "",
-              dek: row.meta?.dek ?? "",
-              section: (row.meta?.section ?? "culture") as MagSection,
-              readTime: row.meta?.read_time ?? "",
-              author: row.author ?? "",
-              author_initial: (row.author ?? "?")[0],
-              author_color: GOLD,
-              cover_a: row.meta?.cover_a ?? "#333",
-              cover_b: row.meta?.cover_b ?? "#555",
-              featured: row.meta?.featured ?? false,
-              blooms: 0,
-              timeAgo: "",
-              label: undefined,
-            }))
-          );
-        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setArticles((d.content ?? []).map((row: any): Article => ({
+          id: row.id,
+          headline: row.title ?? "",
+          dek: row.meta?.dek ?? "",
+          section: (row.meta?.section ?? "culture") as MagSection,
+          readTime: row.meta?.read_time ?? "",
+          author: row.author ?? "",
+          author_initial: (row.author ?? "?")[0],
+          author_color: GOLD,
+          cover_a: row.meta?.cover_a ?? "#333",
+          cover_b: row.meta?.cover_b ?? "#555",
+          featured: row.meta?.featured ?? false,
+          blooms: 0,
+          timeAgo: "",
+          label: undefined,
+        })));
       })
-      .catch(() => {/* keep mock */});
+      .catch(() => setArticles([]));
   }, []);
 
   const sections = Object.entries(SECTION_META) as [MagSection, { label: string; color: string }][];
@@ -284,6 +215,11 @@ export function MagazinePage() {
       </div>
 
       <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", gap: 14 }}>
+        {filtered.length === 0 && (
+          <p style={{ textAlign: "center", color: "rgba(0,0,0,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
+            Nothing published yet
+          </p>
+        )}
         {featured && <FeaturedCard article={featured} />}
         {rest.map(article => <ArticleCard key={article.id} article={article} />)}
       </div>
