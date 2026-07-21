@@ -1,23 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { applyToClub } from "@/lib/actions/clubs";
 
 const PINK = "#FF1F7D";
 const CREAM = "#FAF6F0";
 
-// Mock club data — real data layer comes later via Supabase
-const MOCK_CLUB = {
-  name: "Museum Girls",
-  membershipType: "Application Only" as "Free" | "Application Only",
-  isPaid: false,
-  price: null as number | null,
-  rules: [
-    "Respect every woman's story — no unsolicited advice",
-    "What's shared in the club stays in the club",
-    "Show up with intention. Quality over quantity.",
-  ],
+type ClubInfo = {
+  id: string;
+  name: string;
+  membershipType: "Free" | "Application Only";
+  isPaid: boolean;
+  price: number | null;
+  rules: string[];
 };
+
+const DEFAULT_RULES = [
+  "Respect every woman's story — no unsolicited advice",
+  "What's shared in the club stays in the club",
+  "Show up with intention. Quality over quantity.",
+];
 
 type Step = 1 | 2 | 3;
 
@@ -61,8 +65,43 @@ export default function ClubApplyPage() {
   const router = useRouter();
   const clubId = params.id;
 
+  const [club, setClub] = useState<ClubInfo | null>(null);
+  const [clubLoading, setClubLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>(1);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setClubLoading(true);
+      const supabase = createClient();
+      const isUuid = /^[0-9a-f-]{36}$/i.test(clubId);
+      const q = supabase.from("clubs").select("id, name, membership_type, is_paid, price_cents");
+      const { data } = isUuid
+        ? await q.eq("id", clubId).maybeSingle()
+        : await q.eq("slug", clubId).maybeSingle();
+      if (cancelled) return;
+      if (data) {
+        const mt = (data.membership_type as string | null) ?? "";
+        setClub({
+          id: data.id as string,
+          name: (data.name as string) || "Club",
+          membershipType: mt.toLowerCase().includes("free") || mt === "open" ? "Free" : "Application Only",
+          isPaid: !!(data.is_paid as boolean | null),
+          price: data.price_cents != null ? Math.round(Number(data.price_cents) / 100) : null,
+          rules: DEFAULT_RULES,
+        });
+      } else {
+        setClub(null);
+      }
+      setClubLoading(false);
+    })().catch(() => {
+      if (!cancelled) { setClub(null); setClubLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [clubId]);
   const [form, setForm] = useState<FormData>({
     name: "",
     location: "",
@@ -86,6 +125,23 @@ export default function ClubApplyPage() {
 
   const canProceed2 =
     form.whyJoin.trim() !== "" && form.whatBring.trim() !== "";
+
+  if (clubLoading) {
+    return (
+      <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "Jost, sans-serif", fontSize: 14, color: "#888" }}>Loading club…</p>
+      </div>
+    );
+  }
+
+  if (!club) {
+    return (
+      <div style={{ minHeight: "100vh", background: CREAM, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, gap: 12 }}>
+        <p style={{ fontFamily: "Playfair Display, Georgia, serif", fontStyle: "italic", fontSize: 22, color: "#111" }}>Club not found</p>
+        <Link href="/member/clubs" style={{ color: PINK, fontFamily: "Jost, sans-serif", fontSize: 13 }}>← Back to clubs</Link>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -275,7 +331,7 @@ export default function ClubApplyPage() {
             lineHeight: 1.1,
           }}
         >
-          {MOCK_CLUB.name}
+          {club.name}
         </h1>
       </div>
 
@@ -604,17 +660,17 @@ export default function ClubApplyPage() {
                   margin: "0 0 4px",
                 }}
               >
-                {MOCK_CLUB.name}
+                {club.name}
               </h2>
               <span
                 style={{
                   display: "inline-block",
                   background:
-                    MOCK_CLUB.membershipType === "Free"
+                    club.membershipType === "Free"
                       ? "#E8F8F0"
                       : "#FFF0E8",
                   color:
-                    MOCK_CLUB.membershipType === "Free"
+                    club.membershipType === "Free"
                       ? "#1A9A5A"
                       : "#C44B00",
                   fontFamily: "Jost, sans-serif",
@@ -627,11 +683,11 @@ export default function ClubApplyPage() {
                   marginBottom: 16,
                 }}
               >
-                {MOCK_CLUB.membershipType}
+                {club.membershipType}
               </span>
 
               <div style={{ marginBottom: 20 }}>
-                {MOCK_CLUB.rules.map((rule, i) => (
+                {club.rules.map((rule, i) => (
                   <div
                     key={i}
                     style={{
@@ -719,7 +775,7 @@ export default function ClubApplyPage() {
             </div>
 
             {/* Paid club price card */}
-            {MOCK_CLUB.isPaid && MOCK_CLUB.price !== null && (
+            {club.isPaid && club.price !== null && (
               <div
                 style={{
                   background: "#fff",
@@ -751,7 +807,7 @@ export default function ClubApplyPage() {
                     margin: "0 0 8px",
                   }}
                 >
-                  ${MOCK_CLUB.price}
+                  ${club.price}
                   <span
                     style={{
                       fontFamily: "Jost, sans-serif",
@@ -776,6 +832,11 @@ export default function ClubApplyPage() {
             )}
 
             {/* Action buttons */}
+            {submitError && (
+              <p style={{ fontFamily: "Jost, sans-serif", fontSize: 12, color: "#c0392b", marginBottom: 10, textAlign: "center" }}>
+                {submitError}
+              </p>
+            )}
             <div style={{ display: "flex", gap: 12 }}>
               <button
                 onClick={() => setStep(2)}
@@ -795,8 +856,21 @@ export default function ClubApplyPage() {
                 ← Back
               </button>
               <button
-                onClick={() => setSubmitted(true)}
-                disabled={!form.agreed}
+                onClick={async () => {
+                  if (!club || submitting) return;
+                  setSubmitting(true);
+                  setSubmitError(null);
+                  try {
+                    const message = [form.whyJoin, form.whatBring, form.communityMeaning].filter(Boolean).join("\n\n");
+                    await applyToClub(club.id, message);
+                    setSubmitted(true);
+                  } catch (e) {
+                    setSubmitError(e instanceof Error ? e.message : "Couldn’t submit application");
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+                disabled={!form.agreed || submitting}
                 style={{
                   flex: 2,
                   padding: "14px 0",
@@ -810,11 +884,12 @@ export default function ClubApplyPage() {
                   fontSize: 13,
                   fontWeight: 600,
                   letterSpacing: "0.1em",
-                  cursor: form.agreed ? "pointer" : "not-allowed",
+                  cursor: form.agreed && !submitting ? "pointer" : "not-allowed",
                   transition: "all 0.2s",
+                  opacity: submitting ? 0.8 : 1,
                 }}
               >
-                Submit Application ♡
+                {submitting ? "Submitting…" : "Submit Application ♡"}
               </button>
             </div>
           </div>
