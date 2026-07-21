@@ -18,23 +18,13 @@ const TICKET_IMAGES: Record<number, string> = {
   1: "/tickets templates/Ticket_NYC_Marrakech.png",
 };
 
-const ACTIVE_ROOMS: PlanRoom[] = [
-  { id: 1, name: "Afrobeats Night",      emoji: "🎶", bg: "#18080F", accent: "#FF69B4", unread: 2, members: 24, date: "Jun 10", venue: "SOBs, 204 Varick St",    time: "Sat Jun 10 · 10PM" },
-  { id: 2, name: "Sunday Walk Circle",   emoji: "🌿", bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 9,  date: "Jun 8",  venue: "Prospect Park, GArmy", time: "Sun Jun 8 · 9AM"  },
-  { id: 4, name: "Women in Lens",        emoji: "📸", bg: "#18080F", accent: "#FF5FA5", unread: 1, members: 18, date: "Jun 12", venue: "The Parlor Gallery, BK", time: "Tonight · 7PM"    },
-  { id: 3, name: "Wheel Throwing",       emoji: "🏺", bg: "#18080F", accent: "#FF1F7D", unread: 0, members: 8,  date: "Jun 15", venue: "Brooklyn Clay, WB",    time: "Tonight · 6:30PM" },
-  { id: 6, name: "Golden Hour Rooftop",  emoji: "🌅", bg: "#18080F", accent: "#FF1F7D", unread: 3, members: 31, date: "Jun 18", venue: "Arlo Hotel",           time: "Jun 18 · 7PM"     },
-];
-
-const RETIRED_ROOMS: PlanRoom[] = [
-  { id: 10, name: "Gallery Hop BK",   emoji: "🖼️", bg: "#18080F", accent: "#FF69B4", unread: 0, members: 8,  date: "May 3",  venue: "Bushwick Collective", time: "Sat May 3 · 6PM"  },
-  { id: 11, name: "Brunch at Lola's", emoji: "🥂",  bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 5,  date: "Apr 20", venue: "Lola Taverna, WV",    time: "Sun Apr 20 · 11AM" },
-];
-
-const EXPIRED_ROOMS: PlanRoom[] = [
-  { id: 20, name: "Jazz at Small's",  emoji: "🎷",  bg: "#18080F", accent: "#FF69B4", unread: 0, members: 7,  date: "May 28", venue: "Smalls Jazz Club, WV", time: "Wed May 28 · 8PM" },
-  { id: 21, name: "Rooftop Pilates",  emoji: "🧘‍♀️", bg: "#18080F", accent: "#FFB3D1", unread: 0, members: 12, date: "May 15", venue: "Arlo Hotel Rooftop",   time: "Thu May 15 · 7AM" },
-];
+// Tickets/wallet is not yet wired to real confirmed happenings. Rather than
+// render fabricated tickets with fake "Paid in full" credentials and fake QR
+// codes, show the honest empty state until the real ticket data is wired to
+// /api/member/plans/confirmations.
+const ACTIVE_ROOMS: PlanRoom[] = [];
+const RETIRED_ROOMS: PlanRoom[] = [];
+const EXPIRED_ROOMS: PlanRoom[] = [];
 
 function TicketCard({ room, status }: { room: PlanRoom; status: "active" | "used" | "expired" }) {
   const img = TICKET_IMAGES[room.id];
