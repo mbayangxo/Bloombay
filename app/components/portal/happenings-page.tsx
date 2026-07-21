@@ -1219,28 +1219,55 @@ function SceneBuilding({ cat, idx }: { cat: typeof SCENE_CATS[number]; idx: numb
 /* ── FAB ─────────────────────────────────────────────────── */
 function CreateFAB() {
   return (
-    <Link href="/member/happenings/create" style={{ textDecoration: "none" }}>
-      <div style={{
+    <div
+      style={{
         position: "fixed",
         bottom: "calc(env(safe-area-inset-bottom, 0px) + 155px)",
         right: 18,
         zIndex: 60,
-        width: 52,
-        height: 52,
-        borderRadius: "50%",
-        background: PINK,
-        boxShadow: `0 4px 20px ${PINK}77, 0 2px 8px rgba(0,0,0,0.3)`,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        animation: "fabPop 3s ease-in-out infinite",
-      }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </div>
-    </Link>
+        flexDirection: "column",
+        alignItems: "flex-end",
+        gap: 10,
+      }}
+    >
+      <Link
+        href="/member/happenings/submit-night"
+        style={{
+          textDecoration: "none",
+          background: "white",
+          color: PINK,
+          border: `1.5px solid ${PINK}`,
+          borderRadius: 999,
+          padding: "10px 14px",
+          fontFamily: "var(--font-jost)",
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: "0.04em",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+        }}
+      >
+        Submit a night
+      </Link>
+      <Link href="/member/happenings/create" style={{ textDecoration: "none" }}>
+        <div style={{
+          width: 52,
+          height: 52,
+          borderRadius: "50%",
+          background: PINK,
+          boxShadow: `0 4px 20px ${PINK}77, 0 2px 8px rgba(0,0,0,0.3)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          animation: "fabPop 3s ease-in-out infinite",
+        }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+      </Link>
+    </div>
   );
 }
 

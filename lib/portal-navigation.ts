@@ -61,6 +61,7 @@ export const MC_NAV: {
       { label: "Cities", path: "/cities", cap: "cities" },
       { label: "Clubs", path: "/clubs", cap: "clubs" },
       { label: "Happenings", path: "/events", cap: "happenings" },
+      { label: "Nights queue", path: "/nights", cap: "happenings" },
       { label: "Bloom requests", path: "/bloom-requests", cap: "bloom_requests" },
     ],
   },

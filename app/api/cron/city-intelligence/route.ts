@@ -10,6 +10,7 @@
 //   APIFY_API_KEY        — TikTok hashtag scraper (apify.com, ~$5/month)
 //   EVENTBRITE_API_KEY   — Eventbrite event search (free tier)
 //   SUPABASE_SERVICE_ROLE_KEY — bypasses RLS for server inserts
+//   AUTO_APPROVE_EXTERNAL_NIGHTS — default on; set to "false" to require founder Approve in /founder/nights
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -42,13 +43,14 @@ export async function GET(req: NextRequest) {
     scrapeTimeOut(),         // Time Out NYC: curated weekly picks
   ]);
 
-  const [ti, yi, gi, ei, eati, toi] = await Promise.all([
+  const [ti, yi, gi, ei, eati, toi, nights] = await Promise.all([
     insertSpots(supabase, tiktokItems,     "TikTok NYC"),
     insertSpots(supabase, yelpItems,       "Yelp"),
     insertSpots(supabase, googleItems,     "Google Places"),
     insertSpots(supabase, eventbriteItems, "Eventbrite"),
     insertSpots(supabase, eaterItems,      "Eater NYC"),
     insertSpots(supabase, timeoutItems,    "Time Out NYC"),
+    ingestEventbriteNights(supabase, eventbriteItems),
   ]);
 
   results.push(
@@ -58,9 +60,16 @@ export async function GET(req: NextRequest) {
     { source: "Eventbrite",    found: eventbriteItems.length,  inserted: ei   },
     { source: "Eater NYC",     found: eaterItems.length,       inserted: eati },
     { source: "Time Out NYC",  found: timeoutItems.length,     inserted: toi  },
+    { source: "Nights (Eventbrite→Happenings queue)", found: eventbriteItems.length, inserted: nights.queued },
   );
 
-  return NextResponse.json({ ok: true, results, week_of: currentMonday() });
+  return NextResponse.json({
+    ok: true,
+    results,
+    nights,
+    auto_approve: nights.autoApprove,
+    week_of: currentMonday(),
+  });
 }
 
 // ── TikTok via Apify ─────────────────────────────────────────────────────────
@@ -257,15 +266,15 @@ async function scrapeEventbrite(): Promise<RawSpot[]> {
 
   try {
     const now = new Date();
-    const weekOut = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const weekOut = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000);
 
     const res = await fetch(
       `https://www.eventbriteapi.com/v3/events/search/?` +
       `location.address=New York City&` +
-      `location.within=10mi&` +
+      `location.within=12mi&` +
       `start_date.range_start=${now.toISOString()}&` +
       `start_date.range_end=${weekOut.toISOString()}&` +
-      `categories=110,113,116&` + // food/drink, fashion, music
+      `categories=110,113,116,105,108,119&` + // food, fashion, music, performing+visual arts, hobbies, health
       `sort_by=best&` +
       `expand=venue&` +
       `token=${process.env.EVENTBRITE_API_KEY}`,
@@ -274,21 +283,30 @@ async function scrapeEventbrite(): Promise<RawSpot[]> {
 
     if (!res.ok) return [];
     const data = await res.json() as { events: Array<{
+      id: string;
       name: { text: string };
       description: { text: string };
-      venue: { address: { localized_area_display: string } } | null;
-      start: { local: string };
+      venue: {
+        name?: string;
+        address?: { localized_area_display?: string; city?: string };
+      } | null;
+      start: { utc?: string; local?: string };
       url: string;
       is_free: boolean;
+      logo?: { url?: string } | null;
     }> };
 
-    return (data.events ?? []).slice(0, 15).map(ev => ({
+    return (data.events ?? []).slice(0, 25).map(ev => ({
       name: ev.name.text,
       category: categorizeEventbrite(ev.name.text),
-      neighborhood: ev.venue?.address?.localized_area_display ?? null,
-      description: (ev.description?.text ?? "").slice(0, 120) || null,
+      neighborhood: ev.venue?.address?.localized_area_display ?? ev.venue?.address?.city ?? null,
+      description: (ev.description?.text ?? "").slice(0, 220) || null,
       badge: ev.is_free ? "FREE" : null,
       source_url: ev.url,
+      starts_at: ev.start?.utc ?? ev.start?.local ?? null,
+      venue: ev.venue?.name ?? null,
+      image_url: ev.logo?.url ?? null,
+      external_id: ev.id,
     }));
   } catch (e) {
     console.error("[CityIntel] Eventbrite scrape failed:", e);
@@ -598,6 +616,84 @@ async function insertSpots(supabase: Supabase, spots: RawSpot[], source: string)
   return inserted;
 }
 
+/** Eventbrite → night_submissions queue → (optionally) auto-publish to Happenings */
+async function ingestEventbriteNights(
+  supabase: Supabase,
+  spots: RawSpot[],
+): Promise<{ queued: number; approved: number; skipped: number; autoApprove: boolean }> {
+  const { scoreNightAesthetic, promoteNightToGathering } = await import("@/lib/nights/promote");
+  const autoApprove = process.env.AUTO_APPROVE_EXTERNAL_NIGHTS !== "false";
+  let queued = 0;
+  let approved = 0;
+  let skipped = 0;
+
+  for (const spot of spots) {
+    const externalId = spot.external_id ?? spot.source_url;
+    if (!externalId) {
+      skipped++;
+      continue;
+    }
+
+    const aesthetic = scoreNightAesthetic(spot.name, spot.description);
+    if (!aesthetic.keep && aesthetic.score < 40) {
+      skipped++;
+      continue;
+    }
+
+    const row = {
+      title: spot.name,
+      description: spot.description ?? null,
+      starts_at: spot.starts_at ?? null,
+      venue: spot.venue ?? null,
+      neighborhood: spot.neighborhood ?? null,
+      city: "New York",
+      image_url: spot.image_url ?? null,
+      external_url: spot.source_url ?? null,
+      external_source: "eventbrite" as const,
+      external_id: externalId,
+      category: spot.category ?? "event",
+      aesthetic_score: aesthetic.score,
+      aesthetic_note: aesthetic.note,
+      status: "pending" as const,
+    };
+
+    const { data: inserted, error: insertErr } = await supabase
+      .from("night_submissions")
+      .insert(row)
+      .select("*")
+      .maybeSingle();
+
+    let night = inserted;
+    if (insertErr) {
+      if (insertErr.code === "23505") {
+        const { data: existing } = await supabase
+          .from("night_submissions")
+          .select("*")
+          .eq("external_source", "eventbrite")
+          .eq("external_id", externalId)
+          .maybeSingle();
+        if (!existing || existing.status === "approved" || existing.status === "rejected") {
+          skipped++;
+          continue;
+        }
+        night = existing;
+      } else {
+        skipped++;
+        continue;
+      }
+    } else if (night) {
+      queued++;
+    }
+
+    if (autoApprove && night && night.status === "pending") {
+      const result = await promoteNightToGathering(supabase, night);
+      if (!result.error) approved++;
+    }
+  }
+
+  return { queued, approved, skipped, autoApprove };
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 interface RawSpot {
@@ -608,6 +704,10 @@ interface RawSpot {
   badge?: string | null;
   source_url?: string | null;
   yande_note?: string | null;
+  starts_at?: string | null;
+  venue?: string | null;
+  image_url?: string | null;
+  external_id?: string | null;
 }
 
 function currentMonday(): string {
