@@ -3,7 +3,6 @@
  */
 
 import { CLUBS } from "@/app/member/clubs/club-data";
-import { DEMO_HOST_EVENTS } from "@/lib/qr-codes";
 import { MEMBER_UI_REFS } from "@/lib/member-ui-assets";
 import { getHostOwnerName, listPings } from "@/lib/club-host-store";
 
@@ -164,33 +163,9 @@ export function saveClubBranding(clubId: string, branding: Partial<ClubBranding>
   }
 }
 
-function seedMembers(clubId: string): ClubMemberRecord[] {
-  const names = [
-    { name: "Maya R.", city: "SoHo", g: "linear-gradient(135deg,#ffb7ce,#ff2d8a)" },
-    { name: "Zara L.", city: "Brooklyn", g: "linear-gradient(135deg,#121212,#ff2d8a)" },
-    { name: "Priya S.", city: "UES", g: "linear-gradient(135deg,#ff2d8a,#ffb7ce)" },
-    { name: "Monique T.", city: "Harlem", g: "linear-gradient(135deg,#ffe4ec,#121212)" },
-    { name: "Rina K.", city: "Hoboken", g: "linear-gradient(135deg,#ffb7ce,#121212)" },
-    { name: "Simone W.", city: "Williamsburg", g: "linear-gradient(135deg,#121212,#ffb7ce)" },
-  ];
-  return names.map((m, i) => ({
-    id: `mem-${clubId}-${i}`,
-    clubId,
-    name: m.name,
-    city: m.city,
-    joinedAt: new Date(Date.now() - 86400000 * (i + 3)).toISOString(),
-    status: "active" as const,
-    photoGradient: m.g,
-    lastActive: i < 2 ? "Today" : `${i}d ago`,
-  }));
-}
-
 export function listClubMembers(clubId: string, opts?: { q?: string; includeBlocked?: boolean }) {
+  // Never seed fabricated members — empty until real club-portal APIs feed this UI.
   let list = readJson<ClubMemberRecord[]>(MEMBERS_KEY, []);
-  if (!list.some((m) => m.clubId === clubId)) {
-    list = [...list, ...seedMembers(clubId)];
-    writeJson(MEMBERS_KEY, list);
-  }
   list = list.filter((m) => m.clubId === clubId && m.status !== "removed");
   if (!opts?.includeBlocked) list = list.filter((m) => m.status !== "blocked");
   if (opts?.q?.trim()) {
@@ -248,24 +223,8 @@ export function exportMembersCsv(clubId: string): string {
 }
 
 export function listGatherings(clubId: string): HostGathering[] {
-  let list = readJson<HostGathering[]>(GATHERINGS_KEY, []);
-  if (!list.some((g) => g.clubId === clubId)) {
-    const seeded = DEMO_HOST_EVENTS.map((ev) => ({
-      id: ev.id,
-      clubId,
-      title: ev.title,
-      date: ev.date,
-      location: "NYC",
-      capacity: 40,
-      waitlist: 3,
-      paid: ev.title.includes("Wine"),
-      price: ev.title.includes("Wine") ? 25 : undefined,
-      status: "scheduled" as const,
-      createdAt: new Date().toISOString(),
-    }));
-    list = [...list, ...seeded];
-    writeJson(GATHERINGS_KEY, list);
-  }
+  // Never seed DEMO_HOST_EVENTS — empty until real club-portal gatherings load.
+  const list = readJson<HostGathering[]>(GATHERINGS_KEY, []);
   return list
     .filter((g) => g.clubId === clubId && g.status !== "cancelled")
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -348,29 +307,6 @@ export function listCheckIns(clubId: string, eventId?: string) {
     .slice(0, 100);
 }
 
-function seedNotifications(clubId: string): HostNotification[] {
-  return [
-    {
-      id: "n1",
-      clubId,
-      type: "application",
-      title: "New application",
-      body: "Jordan K. wants to join",
-      read: false,
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: "n2",
-      clubId,
-      type: "zone",
-      title: "Zone request",
-      body: "Sunrise Hoboken chapter pending",
-      read: false,
-      createdAt: new Date(Date.now() - 7200000).toISOString(),
-    },
-  ];
-}
-
 export function pushNotification(
   clubId: string,
   type: HostNotification["type"],
@@ -392,12 +328,7 @@ export function pushNotification(
 }
 
 export function listNotifications(clubId: string) {
-  let list = readJson<HostNotification[]>(NOTIFS_KEY, []);
-  if (!list.some((n) => n.clubId === clubId)) {
-    list = [...seedNotifications(clubId), ...list];
-    writeJson(NOTIFS_KEY, list);
-  }
-  return list.filter((n) => n.clubId === clubId);
+  return readJson<HostNotification[]>(NOTIFS_KEY, []).filter((n) => n.clubId === clubId);
 }
 
 export function markNotificationRead(id: string) {
@@ -440,26 +371,8 @@ export function savePaymentSettings(clubId: string, settings: PaymentSettings) {
   writeJson(`${PAYMENTS_PREFIX}${clubId}`, settings);
 }
 
-function seedModeration(clubId: string): ModerationItem[] {
-  return [
-    {
-      id: "mod-1",
-      clubId,
-      author: "Anonymous",
-      excerpt: "Spam link in zone chat — needs review",
-      status: "open",
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-  ];
-}
-
 export function listModeration(clubId: string) {
-  let list = readJson<ModerationItem[]>(MOD_KEY, []);
-  if (!list.some((m) => m.clubId === clubId)) {
-    list = [...seedModeration(clubId), ...list];
-    writeJson(MOD_KEY, list);
-  }
-  return list.filter((m) => m.clubId === clubId);
+  return readJson<ModerationItem[]>(MOD_KEY, []).filter((m) => m.clubId === clubId);
 }
 
 export function resolveModeration(id: string, status: "dismissed" | "removed") {

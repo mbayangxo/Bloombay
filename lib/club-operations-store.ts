@@ -199,35 +199,8 @@ export function getMemberAttendanceHistory(memberId: string, clubId: string) {
 
 // ── Teams ────────────────────────────────────────────────────
 
-const DEFAULT_TEAM_PERMS: Record<ClubTeamKind, string[]> = {
-  events: ["planner", "gatherings", "volunteers", "finances"],
-  marketing: ["planner", "comms", "branding"],
-  volunteer: ["volunteers", "checkin"],
-  finance: ["finances", "reports"],
-  custom: ["planner"],
-};
-
-function seedTeams(clubId: string): ClubTeam[] {
-  const teams: ClubTeam[] = [
-    { id: `team-${clubId}-events`, clubId, name: "Events team", kind: "events", permissions: DEFAULT_TEAM_PERMS.events, memberIds: [] },
-    { id: `team-${clubId}-mkt`, clubId, name: "Marketing team", kind: "marketing", permissions: DEFAULT_TEAM_PERMS.marketing, memberIds: [] },
-    { id: `team-${clubId}-vol`, clubId, name: "Volunteer team", kind: "volunteer", permissions: DEFAULT_TEAM_PERMS.volunteer, memberIds: [] },
-    { id: `team-${clubId}-fin`, clubId, name: "Finance team", kind: "finance", permissions: DEFAULT_TEAM_PERMS.finance, memberIds: [] },
-  ];
-  const members = listClubMembers(clubId);
-  if (members[1]) teams[0].memberIds.push(members[1].id);
-  if (members[2]) teams[1].memberIds.push(members[2].id);
-  if (members[3]) teams[2].memberIds.push(members[3].id);
-  return teams;
-}
-
 export function listTeams(clubId: string): ClubTeam[] {
-  let all = readJson<ClubTeam[]>(TEAMS_KEY, []);
-  if (!all.some((t) => t.clubId === clubId)) {
-    all = [...all, ...seedTeams(clubId)];
-    writeJson(TEAMS_KEY, all);
-  }
-  return all.filter((t) => t.clubId === clubId);
+  return readJson<ClubTeam[]>(TEAMS_KEY, []).filter((t) => t.clubId === clubId);
 }
 
 export function saveTeam(team: Omit<ClubTeam, "id"> & { id?: string }): ClubTeam {
@@ -256,34 +229,8 @@ export function assignMemberToTeam(teamId: string, memberId: string) {
 
 // ── Planner rooms & tasks ───────────────────────────────────
 
-function seedPlannerRooms(clubId: string): PlannerRoom[] {
-  const fallTasks: PlannerTask[] = [
-    { id: uid(), title: "Book venue", status: "done", assigneeName: "Maya R.", dueDate: "2026-08-01", notes: "Rooftop confirmed" },
-    { id: uid(), title: "Order supplies", status: "in_progress", assigneeName: "Zara L.", dueDate: "2026-09-15" },
-    { id: uid(), title: "Recruit volunteers", status: "todo", dueDate: "2026-09-20" },
-    { id: uid(), title: "Create flyer", status: "todo", dueDate: "2026-09-25" },
-    { id: uid(), title: "Publish event", status: "todo", dueDate: "2026-10-01" },
-  ];
-  return [
-    {
-      id: `room-${clubId}-fall`,
-      clubId,
-      name: "Fall festival planner",
-      eventLabel: "Fall festival",
-      teamId: `team-${clubId}-events`,
-      tasks: fallTasks,
-      createdAt: new Date().toISOString(),
-    },
-  ];
-}
-
 export function listPlannerRooms(clubId: string): PlannerRoom[] {
-  let all = readJson<PlannerRoom[]>(ROOMS_KEY, []);
-  if (!all.some((r) => r.clubId === clubId)) {
-    all = [...all, ...seedPlannerRooms(clubId)];
-    writeJson(ROOMS_KEY, all);
-  }
-  return all.filter((r) => r.clubId === clubId);
+  return readJson<PlannerRoom[]>(ROOMS_KEY, []).filter((r) => r.clubId === clubId);
 }
 
 export function getPlannerRoom(roomId: string): PlannerRoom | null {

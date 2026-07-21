@@ -70,7 +70,25 @@ export function ClubOwnerShell({
             {title ? <span className="co-header__title">{title}</span> : null}
           </div>
         ) : null}
-        <div className="co-content">{children}</div>
+        <div className="co-content">
+          <div
+            style={{
+              margin: "0 0 16px",
+              padding: "12px 14px",
+              borderRadius: 12,
+              background: "rgba(255,31,125,0.08)",
+              border: "1px solid rgba(255,31,125,0.2)",
+              fontFamily: "var(--font-jost)",
+              fontSize: 12,
+              color: "#555",
+              lineHeight: 1.45,
+            }}
+          >
+            <strong style={{ color: "#FF1F7D" }}>Pilot note:</strong> Some Club Mama tools still save only on this device.
+            Approvals, member adds, and pings may not reach members until they&apos;re wired to the live club APIs.
+          </div>
+          {children}
+        </div>
         <nav className="co-bottom-nav" aria-label="Clubhouse portal">
           {CLUB_OWNER_NAV.slice(0, 6).map((item) => {
             const tourId = NAV_TOUR_IDS[item.href];

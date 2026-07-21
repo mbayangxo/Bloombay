@@ -1,8 +1,7 @@
 /**
- * Club owner portal — demo analytics, moderators, zone requests (localStorage).
+ * Club owner portal — moderators, zone requests (localStorage).
  */
 
-import { getHostClubId } from "@/lib/club-host-store";
 import { getClubProfile } from "@/lib/club-world-data";
 
 export type ZoneRequestStatus = "pending" | "approved" | "denied";
@@ -67,42 +66,15 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function seedZoneRequests(clubId: string): ZoneRequest[] {
-  return [
-    {
-      id: "zr-1",
-      clubId,
-      zoneName: "Sunrise Hoboken",
-      requestedBy: "Rina M.",
-      reason: "We have 40+ runners in Hoboken asking for their own chapter.",
-      status: "pending",
-      submittedAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: "zr-2",
-      clubId,
-      zoneName: "Recovery & stretch",
-      requestedBy: "Alex P.",
-      reason: "Post-run mobility sessions — low lift, high retention.",
-      status: "pending",
-      submittedAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-    },
-  ];
-}
-
 function readZones(): ZoneRequest[] {
-  if (!canUseStorage()) return seedZoneRequests(getHostClubId());
+  if (!canUseStorage()) return [];
   const raw = localStorage.getItem(ZONES_KEY);
-  if (!raw) {
-    const seeded = seedZoneRequests(getHostClubId());
-    localStorage.setItem(ZONES_KEY, JSON.stringify(seeded));
-    return seeded;
-  }
+  if (!raw) return [];
   try {
     const list = JSON.parse(raw) as ZoneRequest[];
-    return Array.isArray(list) ? list : seedZoneRequests(getHostClubId());
+    return Array.isArray(list) ? list : [];
   } catch {
-    return seedZoneRequests(getHostClubId());
+    return [];
   }
 }
 
@@ -132,40 +104,15 @@ export function decideZoneRequest(id: string, decision: "approved" | "denied"): 
   return updated;
 }
 
-function seedModerators(clubId: string): ClubModerator[] {
-  return [
-    {
-      id: "mod-1",
-      clubId,
-      name: "Zoe Hart",
-      handle: "@zoehart",
-      role: "admin",
-      permissions: ["applications", "zones", "gatherings", "scan", "ping"],
-    },
-    {
-      id: "mod-2",
-      clubId,
-      name: "Priya N.",
-      handle: "@priya_nyc",
-      role: "moderator",
-      permissions: ["applications", "scan", "gatherings"],
-    },
-  ];
-}
-
 function readModerators(): ClubModerator[] {
-  if (!canUseStorage()) return seedModerators(getHostClubId());
+  if (!canUseStorage()) return [];
   const raw = localStorage.getItem(MODS_KEY);
-  if (!raw) {
-    const seeded = seedModerators(getHostClubId());
-    localStorage.setItem(MODS_KEY, JSON.stringify(seeded));
-    return seeded;
-  }
+  if (!raw) return [];
   try {
     const list = JSON.parse(raw) as ClubModerator[];
-    return Array.isArray(list) ? list : seedModerators(getHostClubId());
+    return Array.isArray(list) ? list : [];
   } catch {
-    return seedModerators(getHostClubId());
+    return [];
   }
 }
 

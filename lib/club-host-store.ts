@@ -104,49 +104,18 @@ export function saveJoinSettings(clubId: string, settings: ClubJoinSettings) {
 function readApplications(): ClubApplication[] {
   if (!canUseStorage()) return [];
   const raw = localStorage.getItem(APPS_KEY);
-  if (!raw) return seedApplications();
+  if (!raw) return [];
   try {
     const list = JSON.parse(raw) as ClubApplication[];
-    return Array.isArray(list) ? list : seedApplications();
+    return Array.isArray(list) ? list : [];
   } catch {
-    return seedApplications();
+    return [];
   }
 }
 
 function writeApplications(list: ClubApplication[]) {
   if (!canUseStorage()) return;
   localStorage.setItem(APPS_KEY, JSON.stringify(list));
-}
-
-function seedApplications(): ClubApplication[] {
-  const seeded: ClubApplication[] = [
-    {
-      id: "app-demo-1",
-      clubId: DEFAULT_HOST_CLUB,
-      applicantName: "Jordan K.",
-      city: "Hoboken",
-      instagram: "@jordank",
-      why: "I run 3x a week and want a crew that holds me accountable. I've done half-marathons and love sunrise miles by the river.",
-      status: "pending",
-      submittedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      photoGradient: "linear-gradient(135deg,#ffb7ce,#ff2d8a)",
-      interests: ["Running", "Wellness", "Hoboken"],
-    },
-    {
-      id: "app-demo-2",
-      clubId: DEFAULT_HOST_CLUB,
-      applicantName: "Simone T.",
-      city: "Brooklyn",
-      instagram: "@simone_moves",
-      why: "Moving to NYC — looking for morning run friends and a soft community that feels like home.",
-      status: "pending",
-      submittedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-      photoGradient: "linear-gradient(135deg,#121212,#ff2d8a)",
-      interests: ["Running", "New in city"],
-    },
-  ];
-  if (canUseStorage()) localStorage.setItem(APPS_KEY, JSON.stringify(seeded));
-  return seeded;
 }
 
 export function listApplications(clubId: string, status?: ApplicationStatus): ClubApplication[] {
