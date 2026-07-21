@@ -230,7 +230,7 @@ function DetailView({
               margin: "0 0 4px",
             }}
           >
-            BEAUTY STUDIO
+            {(listing.category || "Listing").toUpperCase()}
           </p>
           <h1
             style={{
