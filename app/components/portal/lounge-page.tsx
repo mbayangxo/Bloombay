@@ -131,27 +131,10 @@ const ALL_FLOWERS = [
 
 type FlowerId = typeof ALL_FLOWERS[number]["id"];
 
-const USER_EARNED_FLOWER_IDS: FlowerId[] = ["founding", "connector", "culture", "explorer"];
+const USER_EARNED_FLOWER_IDS: FlowerId[] = [];
 
-const BLOOMIE_FLOWER_IDS: Record<string, FlowerId[]> = {
-  "Aaliyah M.": ["host", "community"],
-  "Sofia K.":   ["connector", "adventure"],
-  "Kelechi O.": ["culture", "wisdom"],
-  "Naomi B.":   ["explorer"],
-  "Temi A.":    ["community"],
-  "Zara F.":    ["adventure", "connector"],
-};
+const BLOOMIE_FLOWER_IDS: Record<string, FlowerId[]> = {};
 
-const MEMORIES = [
-  { emoji: "🌅", title: "Williamsburg morning", date: "May 12", color: "#FFF0F5", rotate: "-2.5deg" },
-  { emoji: "🍷", title: "Rooftop wine hour",    date: "May 8",  color: "#FFE8F3", rotate:  "2deg"   },
-  { emoji: "🎨", title: "Paint + sip night",    date: "Apr 30", color: "#FFF5F8", rotate: "-1.5deg" },
-  { emoji: "🏃‍♀️", title: "Run club Sunday",  date: "Apr 27", color: "#FFE0EE", rotate:  "3deg"   },
-  { emoji: "🧘", title: "Pilates morning",      date: "Apr 20", color: "#FFF0F5", rotate: "-2deg"   },
-  { emoji: "☕", title: "Matcha café crawl",    date: "Apr 14", color: "#FFF5F8", rotate:  "1.5deg" },
-];
-
-const INTEREST_TAGS = ["Soft Life", "Art", "Wellness", "Food", "Music", "Travel"];
 
 const BLOOMIE_COLORS = ["#FF1F7D", "#FF69B4", "#C084FC", "#E07040", "#5070C8"];
 
@@ -173,126 +156,10 @@ function mapBloomie(m: { id: string; first_name: string | null; full_name: strin
   };
 }
 
-function getMemberNumber(name: string) {
-  const s = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return (((s * 31 + 17) % 900) + 100).toString().padStart(4, "0");
-}
-function getReferralCode(name: string) {
-  const s = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return `BB-NYC-${((s * 17 + 23) % 9000) + 1000}`;
-}
-
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
 interface LoungeUser { id?: string; name: string; initial: string; neighborhood: string; bio?: string; }
 interface BloomieProfile { id: string; name: string; neighborhood: string; color: string; initial: string; since: string; }
-
-// ── MEMBERSHIP CARD ───────────────────────────────────────────────────────────
-
-function MembershipCard({ name, memberNum, tier = "FOUNDING" }: {
-  name: string; memberNum: string; tier?: string;
-}) {
-  return (
-    <div style={{
-      width: "100%",
-      maxWidth: 340,
-      margin: "0 auto",
-      aspectRatio: "85.6 / 54",
-      borderRadius: 14,
-      position: "relative",
-      overflow: "hidden",
-      background: "linear-gradient(138deg, #0D0008 0%, #2A0820 28%, #580035 58%, #A40050 82%, #C4005A 100%)",
-      boxShadow: "0 24px 60px rgba(0,0,0,0.55), 0 8px 24px rgba(196,0,90,0.22), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
-    }}>
-      {/* Holographic shimmer stripe */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: 2,
-        background: "linear-gradient(90deg, transparent 5%, #FF1F7D 25%, #FF69B4 45%, #FFB3D9 60%, #FF5BAD 78%, #FF1F7D 88%, transparent 98%)",
-      }} />
-
-      {/* Light streak */}
-      <div style={{
-        position: "absolute", top: 0, left: "15%", width: "38%", height: "100%",
-        background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.035) 50%, transparent 72%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Paper grain texture */}
-      <div style={{
-        position: "absolute", inset: 0, opacity: 0.04,
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
-        pointerEvents: "none",
-      }} />
-
-      {/* Large bloom watermark */}
-      <div style={{ position: "absolute", right: -10, bottom: -10, width: 110, height: 110, opacity: 0.08, pointerEvents: "none" }}>
-        <svg viewBox="0 0 100 100" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="50" cy="22" rx="11" ry="22"/>
-          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(60 50 50)"/>
-          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(120 50 50)"/>
-          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(180 50 50)"/>
-          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(240 50 50)"/>
-          <ellipse cx="50" cy="22" rx="11" ry="22" transform="rotate(300 50 50)"/>
-          <circle cx="50" cy="50" r="12"/>
-        </svg>
-      </div>
-
-      {/* Card content */}
-      <div style={{
-        position: "relative", zIndex: 1,
-        display: "flex", flexDirection: "column", justifyContent: "space-between",
-        height: "100%", padding: "14px 18px 12px",
-        boxSizing: "border-box",
-      }}>
-        {/* Top row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "white", lineHeight: 1 }}>BloomBay</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.28em", color: "rgba(255,255,255,0.32)", marginTop: 2 }}>NEW YORK CITY</p>
-          </div>
-          <div style={{
-            background: "rgba(255,31,125,0.18)", border: "1px solid rgba(255,31,125,0.5)",
-            borderRadius: 3, padding: "2px 8px",
-          }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 800, letterSpacing: "0.18em", color: "#FFB3D1" }}>{tier}</p>
-          </div>
-        </div>
-
-        {/* Chip */}
-        <div style={{
-          width: 30, height: 21, borderRadius: 3,
-          background: "linear-gradient(135deg, #C4005A 0%, #FF1F7D 38%, #C4005A 65%, #8A003A 100%)",
-          boxShadow: "0 1px 5px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
-          position: "relative", overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", inset: "3px 3px",
-            border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: 1,
-            background: "linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 30%, rgba(0,0,0,0.06) 70%, transparent 100%)",
-          }} />
-        </div>
-
-        {/* Name + number */}
-        <div>
-          <p style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700,
-            fontSize: 16, color: "white", letterSpacing: "0.03em", marginBottom: 5,
-            textShadow: "0 1px 8px rgba(0,0,0,0.6)",
-          }}>{name || "Member"}</p>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)" }}>
-              ●●●● ●●●● ●●●● {memberNum}
-            </p>
-            <div style={{ textAlign: "right" as const }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.28)" }}>SINCE</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>2026</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── APARTMENT DOOR ────────────────────────────────────────────────────────────
 
@@ -691,8 +558,6 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const displayName    = localName || user?.name || "";
   const displayInitial = displayName[0]?.toUpperCase() ?? "✦";
   const displayHandle  = localName.split(" ")[0].toLowerCase();
-  const memberNum      = getMemberNumber(localName);
-  const referralCode   = getReferralCode(localName);
   const earnedFlowers  = ALL_FLOWERS.filter(f => (USER_EARNED_FLOWER_IDS as readonly string[]).includes(f.id));
 
   void displayInitial;
@@ -828,8 +693,6 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
           }}>{displayName.split(" ")[0] || "You"}.</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{localNbhd} · NYC</p>
-            <div style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.06em" }}>#{memberNum}</p>
           </div>
         </div>
       </div>
@@ -904,28 +767,21 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
       {contentTab === "vibes" && (
         <div style={{ padding: "20px 20px 0" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>VIBES</p>
-          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 22 }}>
-            {INTEREST_TAGS.map(t => (
-              <div key={t} style={{ background: "#FFF0F5", border: "1px solid rgba(255,31,125,0.18)", borderRadius: 999, padding: "6px 14px" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK }}>{t}</p>
-              </div>
-            ))}
-            <div style={{ background: "transparent", border: "1.5px dashed rgba(255,31,125,0.25)", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
-            </div>
+          <div style={{
+            background: "rgba(255,31,125,0.04)", border: "1px dashed rgba(255,31,125,0.2)",
+            borderRadius: 16, padding: "20px 16px", marginBottom: 22, textAlign: "center",
+          }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888", marginBottom: 4 }}>No vibes set yet</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb" }}>Interest tags will show here when profile vibes ship.</p>
           </div>
 
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>YOUR PHOTOS</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 22 }}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ aspectRatio: "1", borderRadius: 14, background: i === 0 ? "rgba(255,31,125,0.06)" : "#F5F5F5", border: i === 0 ? "1.5px dashed rgba(255,31,125,0.25)" : "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {i === 0 ? (
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: "rgba(255,31,125,0.4)" }}>+ add</p>
-                ) : (
-                  <span style={{ fontSize: 20, opacity: 0.15 }}>🌸</span>
-                )}
-              </div>
-            ))}
+          <div style={{
+            background: "rgba(255,31,125,0.04)", border: "1px dashed rgba(255,31,125,0.2)",
+            borderRadius: 16, padding: "28px 16px", marginBottom: 22, textAlign: "center",
+          }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888" }}>No photos yet</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb", marginTop: 4 }}>Photo grid coming soon.</p>
           </div>
         </div>
       )}
@@ -956,16 +812,12 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
             </button>
           </div>
 
-          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative" as const, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative" as const, overflow: "hidden" }}>
             <div style={{ position: "absolute" as const, top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
-            <div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 4 }}>GIRL CODE</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 18, color: "white" }}>{referralCode}</p>
-            </div>
-            <button onClick={() => { navigator.clipboard?.writeText(referralCode); showToast("Code copied!"); }}
-              style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK, background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "8px 14px", cursor: "pointer" }}>
-              Copy
-            </button>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 6 }}>GIRL CODE</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.55)" }}>
+              Your invite code isn’t available yet.
+            </p>
           </div>
         </div>
       )}
@@ -1065,15 +917,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
                 </div>
               </div>
 
-              <div style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {["🌹","🌸","🌷"].map((f, i) => (
-                    <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{f}</div>
-                  ))}
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px dashed rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 700 }}>+</p>
-                  </div>
-                </div>
+              <div style={{ marginTop: 16, display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,31,125,0.22)", borderRadius: 999, padding: "6px 14px", border: "1px solid rgba(255,31,125,0.35)" }}>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#FF80D0" }}>Open Passport</p>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF80D0" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
