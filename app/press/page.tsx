@@ -1,28 +1,4 @@
 import { MarketingLayout } from "@/app/components/marketing-layout";
-import Link from "next/link";
-
-const COVERAGE = [
-  {
-    outlet: "The New York Times",
-    headline: "The App Helping Women Reclaim the Art of Gathering",
-    date: "May 2026",
-  },
-  {
-    outlet: "Refinery29",
-    headline: "BloomBay Is What Happens When Women Build Social Media for Themselves",
-    date: "April 2026",
-  },
-  {
-    outlet: "Fast Company",
-    headline: "Inside the NYC Startup Proving Real-World Community Beats the Algorithm",
-    date: "March 2026",
-  },
-  {
-    outlet: "Essence",
-    headline: "BloomBay Wants to Be the Place Every Woman in the City Calls Home",
-    date: "February 2026",
-  },
-];
 
 export default function PressPage() {
   return (
@@ -60,22 +36,6 @@ export default function PressPage() {
               <div key={f.n} className="text-center">
                 <p className="text-2xl font-bold mb-1" style={{ color: "#FF1F7D" }}>{f.n}</p>
                 <p className="text-white/50 text-xs leading-snug">{f.l}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent coverage */}
-        <div className="mb-16">
-          <p className="text-xs font-bold tracking-[0.25em] uppercase mb-8" style={{ color: "#FF1F7D" }}>AS SEEN IN</p>
-          <div className="flex flex-col gap-3">
-            {COVERAGE.map((c) => (
-              <div key={c.outlet} className="bg-white rounded-2xl p-6 flex flex-col md:flex-row md:items-center gap-3 justify-between" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-                <div>
-                  <p className="text-xs font-bold tracking-wider mb-1.5" style={{ color: "#FF1F7D" }}>{c.outlet}</p>
-                  <p className="font-semibold text-sm leading-snug" style={{ color: "#111111" }}>{c.headline}</p>
-                </div>
-                <span className="text-xs text-gray-400 flex-shrink-0">{c.date}</span>
               </div>
             ))}
           </div>
