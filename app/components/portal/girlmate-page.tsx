@@ -31,7 +31,7 @@ interface Listing {
   description: string;
   poster: { initial: string; color: string; name: string; showProfile: boolean; userId?: string; clubs?: string[] };
   compatibility: number | null;
-  yandeNote: string;
+  yandeNote?: string;
   ageRange?: string;
   lifestyleTags?: string[];
   personalityType?: string;
@@ -68,7 +68,7 @@ interface Seeker {
   clubs?: string[];
   note: string;
   compatibility: number | null;
-  yandeNote: string;
+  yandeNote?: string;
   ageRange?: string;
   lifestyleTags?: string[];
   personalityType?: string;
@@ -89,26 +89,6 @@ interface Seeker {
   voiceNoteUrl?: string;
   videoIntroUrl?: string;
 }
-
-// ── Demo data ─────────────────────────────────────────────────────────────────
-
-const QUIZ = [
-  { id: "sleep", q: "Sleep schedule?", opts: ["Early bird (in by 10pm)", "Night owl (up past midnight)", "Flexible"] },
-  { id: "guests", q: "Guests?", opts: ["Often (weekly)", "Sometimes (monthly)", "Rarely", "Never"] },
-  { id: "clean", q: "Cleanliness?", opts: ["Very tidy — everything in its place", "Clean and organized", "Relaxed", "I'm working on it"] },
-  { id: "noise", q: "Noise level?", opts: ["Very quiet — silence is important", "Moderate — music sometimes", "I like background noise"] },
-  { id: "pets", q: "Pets?", opts: ["I have pets", "I love pets — welcome", "No pets please", "Allergic"] },
-  { id: "smoking", q: "Smoking?", opts: ["I smoke inside", "Outside only", "No smoking please"] },
-  { id: "weed", q: "Weed / cannabis?", opts: ["Fine inside", "Outside only", "No please"] },
-  { id: "dietary", q: "Kitchen needs?", opts: ["Halal kitchen (no pork/alcohol)", "No pork", "Vegan kitchen preferred", "No restrictions"] },
-  { id: "wfh", q: "Working from home?", opts: ["Always home", "Few days a week", "Rarely home"] },
-  { id: "partner", q: "Partner visits?", opts: ["Often — very present", "Sometimes", "Single / partner rarely here"] },
-  { id: "age", q: "Your age range?", opts: ["20–25", "26–30", "31–35", "36–40", "40+"] },
-  { id: "lifestyle", q: "Your daily rhythm?", opts: ["Early bird — up by 7, in by 10", "Night owl — alive after midnight", "Homebody — mostly at home", "Social butterfly — always out"] },
-  { id: "mom", q: "Family status?", opts: ["I'm a mom · kids at home", "Not a mom", "Open to living with moms", "Prefer child-free home"] },
-  { id: "religion", q: "Religion (helps with lifestyle fit)?", opts: ["Muslim", "Christian", "Jewish", "Hindu", "Buddhist", "Atheist/agnostic", "Spiritual", "Prefer not to say"] },
-  { id: "dealbreaker", q: "Biggest deal-breaker in a home?", opts: ["Messiness / uncleanliness", "Loud guests at night", "No personal space respected", "Misaligned values / lifestyle"] },
-];
 
 // ── Lifestyle & profile constants ─────────────────────────────────────────────
 
@@ -560,7 +540,7 @@ function ListingDetail({ l, onClose }: { l: Listing; onClose: () => void }) {
 
         <ProfileTags l={l} />
         <VoiceVideoDisplay voiceNoteUrl={l.voiceNoteUrl} videoIntroUrl={l.videoIntroUrl} />
-        <YandeNote note={l.yandeNote} />
+        {l.yandeNote ? <YandeNote note={l.yandeNote} /> : null}
         <MessageComposer
           toUserId={l.poster.userId}
           listingId={l.id}
@@ -613,7 +593,7 @@ function SeekerDetail({ s, onClose }: { s: Seeker; onClose: () => void }) {
 
         <ProfileTags l={s} />
         <VoiceVideoDisplay voiceNoteUrl={s.voiceNoteUrl} videoIntroUrl={s.videoIntroUrl} />
-        <YandeNote note={s.yandeNote} />
+        {s.yandeNote ? <YandeNote note={s.yandeNote} /> : null}
         <MessageComposer
           toUserId={s.userId}
           listingId={s.id}
@@ -621,60 +601,6 @@ function SeekerDetail({ s, onClose }: { s: Seeker; onClose: () => void }) {
         />
       </div>
     </DetailSheet>
-  );
-}
-
-// ── Roommate Quiz ─────────────────────────────────────────────────────────────
-
-function QuizSheet({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const q = QUIZ[step];
-
-  function pick(opt: string) {
-    const next = { ...answers, [q.id]: opt };
-    setAnswers(next);
-    if (step === QUIZ.length - 1) { setTimeout(onComplete, 250); }
-    else setStep(s => s + 1);
-  }
-
-  return (
-    <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(10px)" }} />
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 401, background: "white", borderRadius: "24px 24px 0 0", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 -12px 48px rgba(0,0,0,0.25)" }}>
-        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
-          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
-        </div>
-        <div style={{ padding: "12px 22px 48px" }}>
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>ROOMMATE PROFILE · {step + 1}/{QUIZ.length}</p>
-              <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", fontSize: 20, lineHeight: 1 }}>×</button>
-            </div>
-            <div style={{ height: 3, background: "#F0F0F0", borderRadius: 999 }}>
-              <div style={{ height: 3, background: PINK, borderRadius: 999, width: `${((step + 1) / QUIZ.length) * 100}%`, transition: "width 0.3s ease" }} />
-            </div>
-          </div>
-
-          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 22, color: INK, lineHeight: 1.25, marginBottom: 22 }}>{q.q}</p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {q.opts.map(opt => (
-              <button key={opt} onClick={() => pick(opt)} style={{
-                padding: "13px 16px", borderRadius: 14,
-                border: `1.5px solid ${answers[q.id] === opt ? PINK : "#F0EBE4"}`,
-                background: answers[q.id] === opt ? "#FFF0F5" : "white",
-                color: answers[q.id] === opt ? PINK : "#333",
-                fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 500,
-                textAlign: "left", cursor: "pointer", transition: "all 0.15s",
-              }}>
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
   );
 }
 
@@ -1251,7 +1177,7 @@ function apiToListing(r: any): Listing {
   return {
     id: r.id,
     type: r.listing_type === "co-search" ? "roommate-wanted" : r.listing_type,
-    city: r.city ?? "New York City",
+    city: r.city ?? "",
     neighborhood: r.neighborhood_name ?? "",
     price: r.price_cents ? Math.round(r.price_cents / 100) : 0,
     availableFrom: r.available_from ? new Date(r.available_from).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Soon",
@@ -1265,7 +1191,7 @@ function apiToListing(r: any): Listing {
     description: r.description ?? "",
     poster: { initial: name[0]?.toUpperCase() ?? "B", color: COLORS[colorIdx], name, showProfile: r.show_profile ?? true, userId: r.profile?.id ?? undefined },
     compatibility: null,
-    yandeNote: r.yande_note ?? "A fellow Bloomie looking for the right match.",
+    yandeNote: r.yande_note ?? undefined,
     ageRange: r.age_range ?? undefined,
     lifestyleTags: r.lifestyle_tags ?? [],
     momStatus: r.mom_status ?? undefined,
@@ -1281,8 +1207,6 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
   const [tab, setTab]                       = useState<Tab>("available");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedSeeker, setSelectedSeeker]   = useState<Seeker | null>(null);
-  const [showQuiz, setShowQuiz]               = useState(false);
-  const [quizDone, setQuizDone]               = useState(false);
   const [showPost, setShowPost]               = useState(false);
   const [realListings, setRealListings]       = useState<Listing[]>([]);
   const [realSeekers, setRealSeekers]         = useState<Listing[]>([]);
@@ -1351,20 +1275,12 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
           Rooms · Apartments · Subletting · Co-search · Worldwide
         </p>
 
-        {quizDone ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,31,125,0.15)", border: `1px solid ${PINK}44`, borderRadius: 12, padding: "10px 14px" }}>
-            <span style={{ color: PINK, fontSize: 13 }}>✦</span>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.65)" }}>Roommate profile complete — compatibility active</p>
-          </div>
-        ) : (
-          <button onClick={() => setShowQuiz(true)} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 12, padding: "11px 16px", cursor: "pointer", width: "100%" }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.7)", flex: 1, textAlign: "left" }}>
-              Complete your roommate profile to unlock compatibility scores
-            </p>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
-          </button>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 12, padding: "11px 16px", width: "100%" }}>
+          <div style={{ width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.35)", flexShrink: 0 }} />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.55)", flex: 1, textAlign: "left" }}>
+            Compatibility matching isn&apos;t available yet — browse listings and message Bloomies directly.
+          </p>
+        </div>
       </div>
 
       {/* ── Tabs ── */}
@@ -1411,7 +1327,6 @@ export function GirlMatePage({ onBack }: { onBack?: () => void } = {}) {
       {/* ── Sheets ── */}
       {selectedListing && <ListingDetail l={selectedListing} onClose={() => setSelectedListing(null)} />}
       {selectedSeeker  && <SeekerDetail  s={selectedSeeker}  onClose={() => setSelectedSeeker(null)} />}
-      {showQuiz && <QuizSheet onClose={() => setShowQuiz(false)} onComplete={() => { setQuizDone(true); setShowQuiz(false); }} />}
       {showPost && <PostSheet onClose={() => setShowPost(false)} onPosted={() => { loadListings(tab); }} />}
     </div>
   );
