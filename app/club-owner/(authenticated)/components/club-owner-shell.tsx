@@ -45,6 +45,7 @@ export function ClubOwnerShell({
         theme="light"
         items={MOBILE_NAV}
         userRole="Club Mama"
+        tourHref={portalTourHref("club_owner")}
       />
       <div className="co-main-wrap co-main-wrap--mobile-nav">
         <header className="co-header co-header--desktop">

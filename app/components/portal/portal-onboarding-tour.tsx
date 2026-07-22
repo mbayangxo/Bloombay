@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getOnboardingFlow } from "@/lib/portal-onboarding/steps";
 import {
   completePortalOnboarding,
+  isPortalOnboardingDone,
   shouldForceOnboarding,
 } from "@/lib/portal-onboarding/store";
 import type { PortalOnboardingId, PortalOnboardingStep } from "@/lib/portal-onboarding/types";
@@ -39,10 +40,13 @@ export function PortalOnboardingTour({ portalId }: { portalId: PortalOnboardingI
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
 
-  // Tour never auto-pops on first login — it only opens when explicitly
-  // requested (via ?tour=1, e.g. from the "Take the tour" menu link).
+  // Auto-pop exactly once per account, the first time this portal is
+  // visited (isPortalOnboardingDone flips to true as soon as the tour is
+  // finished/skipped, so it never shows again on later logins). After that,
+  // it only reopens when explicitly requested via ?tour=1 — e.g. the
+  // "Take the tour" link in the collapsible mobile menu.
   useEffect(() => {
-    if (shouldForceOnboarding()) {
+    if (!isPortalOnboardingDone(portalId) || shouldForceOnboarding()) {
       setOpen(true);
       setStep(0);
     }
