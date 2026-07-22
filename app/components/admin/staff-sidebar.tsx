@@ -50,17 +50,18 @@ export function StaffSidebar({
     return pathname === full || pathname.startsWith(`${full}/`);
   }
 
-  const mobileItems = useMemo(
+  const mobileSections = useMemo(
     () =>
-      MC_NAV.flatMap((section) =>
-        section.items
+      MC_NAV.map((section) => ({
+        title: section.title,
+        items: section.items
           .filter((item) => canMissionControl(role, item.cap))
           .map((item) => ({
             href: `${basePath}${item.path}`,
             label: item.label,
             n: ICONS[item.path] ?? "•",
-          }))
-      ),
+          })),
+      })).filter((section) => section.items.length > 0),
     [basePath, role]
   );
 
@@ -69,7 +70,8 @@ export function StaffSidebar({
       <MobilePortalNav
         portalLabel={portalTitle}
         theme="dark"
-        items={mobileItems}
+        items={mobileSections.flatMap((s) => s.items)}
+        sections={mobileSections}
         userRole={ROLE_DISPLAY[role]}
       />
     <aside className="bb-admin-sidebar bb-mission-sidebar hidden md:flex">

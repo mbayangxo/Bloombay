@@ -14,16 +14,23 @@ export interface MobileNavItem {
   n?: string;
 }
 
+export interface MobileNavSection {
+  title: string;
+  items: MobileNavItem[];
+}
+
 interface Props {
   portalLabel: string;
   items: MobileNavItem[];
+  /** When provided, the drawer renders grouped sections with headers instead of one flat list. */
+  sections?: MobileNavSection[];
   theme: "dark" | "light";
   userName?: string;
   userInitial?: string;
   userRole?: string;
 }
 
-export function MobilePortalNav({ portalLabel, items, theme, userName, userInitial = "?", userRole }: Props) {
+export function MobilePortalNav({ portalLabel, items, sections, theme, userName, userInitial = "?", userRole }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -148,43 +155,57 @@ export function MobilePortalNav({ portalLabel, items, theme, userName, userIniti
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
-          {items.map((item) => {
-            const base = item.href.split("?")[0];
-            const active = pathname === base || pathname.startsWith(`${base}/`);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all"
-                style={
-                  active
-                    ? { background: "#FF1F7D", color: "white" }
-                    : { color: dark ? "rgba(255,255,255,0.55)" : "rgba(17,17,17,0.6)" }
-                }
-              >
-                {item.n && (
-                  <span className="text-[9px] font-mono w-5 flex-shrink-0" style={{ color: active ? "rgba(255,255,255,0.7)" : "rgba(255,31,125,0.5)" }}>
-                    {item.n}
-                  </span>
-                )}
-                {item.icon && (
-                  <span className="flex-shrink-0 w-5 flex items-center justify-center" style={{ color: active ? "white" : (dark ? "rgba(255,255,255,0.4)" : "rgba(17,17,17,0.4)") }}>
-                    {item.icon}
-                  </span>
-                )}
-                <span className="flex-1">{item.label}</span>
-                {item.badge != null && item.badge > 0 && (
-                  <span
-                    className="text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"
-                    style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF1F7D", color: "white" }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 flex flex-col">
+          {(sections ?? [{ title: "", items }]).map((section, si) => (
+            <div key={section.title || si} className={si > 0 ? "mt-5" : undefined}>
+              {section.title && (
+                <p
+                  className="px-4 mb-1.5 text-[9px] font-extrabold uppercase"
+                  style={{ color: "#FF1F7D", letterSpacing: "0.2em" }}
+                >
+                  {section.title}
+                </p>
+              )}
+              <div className="flex flex-col gap-0.5">
+                {section.items.map((item) => {
+                  const base = item.href.split("?")[0];
+                  const active = pathname === base || pathname.startsWith(`${base}/`);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-2xl font-semibold text-sm transition-all"
+                      style={
+                        active
+                          ? { background: "#FF1F7D", color: "white" }
+                          : { color: dark ? "rgba(255,255,255,0.6)" : "rgba(17,17,17,0.6)" }
+                      }
+                    >
+                      {item.n && (
+                        <span className="text-[9px] font-mono w-5 flex-shrink-0" style={{ color: active ? "rgba(255,255,255,0.7)" : "rgba(255,31,125,0.5)" }}>
+                          {item.n}
+                        </span>
+                      )}
+                      {item.icon && (
+                        <span className="flex-shrink-0 w-5 flex items-center justify-center" style={{ color: active ? "white" : (dark ? "rgba(255,255,255,0.4)" : "rgba(17,17,17,0.4)") }}>
+                          {item.icon}
+                        </span>
+                      )}
+                      <span className="flex-1">{item.label}</span>
+                      {item.badge != null && item.badge > 0 && (
+                        <span
+                          className="text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"
+                          style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF1F7D", color: "white" }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User + logout */}

@@ -821,19 +821,19 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 16px", marginBottom: 40 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "36px 20px", marginBottom: 40 }}>
             {[
-              { title: "ABOUT US",     links: [{ l: "Our Story", h: "/about" }, { l: "Press", h: "/press" }, { l: "Careers", h: "/careers" }, { l: "Bloom Rights", h: "/girl-rights" }] },
-              { title: "COMMUNITY",    links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }] },
-              { title: "FOR PARTNERS", links: [{ l: "Become a Partner", h: "/partner" }, { l: "Partner Login", h: "/partner/login" }] },
-              { title: "CLUB OWNERS",  links: [{ l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }] },
-              { title: "SUPPORT",      links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Safety", h: "/safety" }] },
+              { title: "About Us",  links: [{ l: "Our Story", h: "/about" }, { l: "Press", h: "/press" }, { l: "Careers", h: "/careers" }, { l: "Bloom Rights", h: "/girl-rights" }] },
+              { title: "Community", links: [{ l: "BloomBay Mag", h: "/magazine" }, { l: "Events", h: "/events" }, { l: "Clubs", h: "/member/clubs" }, { l: "Safety", h: "/safety" }] },
+              { title: "Partners & Hosts", links: [{ l: "Become a Partner", h: "/partner" }, { l: "Partner Login", h: "/partner/login" }, { l: "Start a Club", h: "/start-a-club" }, { l: "Host Resources", h: "/host-resources" }] },
+              { title: "Support",   links: [{ l: "Help Center", h: "/help" }, { l: "Contact Us", h: "/contact" }, { l: "Privacy", h: "/privacy" }, { l: "Terms", h: "/terms" }] },
             ].map((col) => (
               <div key={col.title}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.22em", color: PINK, marginBottom: 14 }}>{col.title}</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "17px", fontWeight: 700, color: "#c4005a", marginBottom: 4 }}>{col.title}</p>
+                <div style={{ width: 22, height: 2, borderRadius: 2, background: "#FFB6D4", marginBottom: 12 }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
                   {col.links.map((link) => (
-                    <Link key={link.l} href={link.h} style={{ fontFamily: "var(--font-jost)", fontSize: "13px", color: "rgba(28,0,14,0.6)", textDecoration: "none" }}>{link.l}</Link>
+                    <Link key={link.l} href={link.h} style={{ fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 500, color: "rgba(28,0,14,0.62)", textDecoration: "none" }}>{link.l}</Link>
                   ))}
                 </div>
               </div>
