@@ -64,7 +64,7 @@ export default function PortalsPage() {
             className="text-xs font-bold tracking-[0.18em] uppercase"
             style={{ color: "#FF1F7D" }}
           >
-            BloomBay Members
+            Sign in
           </p>
         </div>
 

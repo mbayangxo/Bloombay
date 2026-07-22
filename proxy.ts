@@ -1,14 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ROLE_PORTAL: Record<string, string> = {
-  founder:    "/founder",
-  admin:      "/admin",
-  club_owner: "/club-owner",
-  partner:    "/partner",
-  curator:    "/curator",
-};
-
 export default async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -101,23 +93,25 @@ export default async function proxy(request: NextRequest) {
     );
   }
 
-  // ── Member portal: onboarding gate + role mismatch ────────────────────────
+  // ── Member portal: onboarding gate ─────────────────────────────────────────
+  // Note: this intentionally does NOT force staff/founder/admin/etc. accounts
+  // out of /member/* — an elevated-role account can freely browse the member
+  // app (e.g. for support or testing) without being bounced to their own
+  // portal. Each staff portal (/founder, /admin, /club-owner, /partner,
+  // /curator) remains independently protected above: it still requires that
+  // same account to be authenticated, so access is unaffected — only the
+  // "kick me out of /member" redirect is removed.
   if (user && pathname.startsWith("/member") &&
       !pathname.startsWith("/member/onboard") &&
       !pathname.startsWith("/member/login")) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("onboarding_completed, role")
+      .select("onboarding_completed")
       .eq("id", user.id)
       .single();
 
     if (profile && !profile.onboarding_completed) {
       return NextResponse.redirect(new URL("/member/onboard", request.url));
-    }
-
-    const role = profile?.role as string | undefined;
-    if (role && ROLE_PORTAL[role] && !pathname.startsWith(ROLE_PORTAL[role])) {
-      return NextResponse.redirect(new URL(`${ROLE_PORTAL[role]}/dashboard`, request.url));
     }
   }
 
