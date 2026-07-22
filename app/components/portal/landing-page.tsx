@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BBLogo, BBWordmark } from "./bb-logo";
@@ -20,9 +20,58 @@ const CLUBS = [
 
 function Sparkle({ color = PINK, size = 14 }: { color?: string; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", flexShrink: 0, animation: "bbTwinkle 2.4s ease-in-out infinite" }}>
       <path d="M7 1v12M1 7h12M2.5 2.5l9 9M11.5 2.5l-9 9" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
     </svg>
+  );
+}
+
+/** Fade-up scroll entrance — sections rise in as they enter the viewport. */
+function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { setInView(true); return; }
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={inView ? "bb-reveal bb-reveal--in" : "bb-reveal"} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
+/** Soft petals drifting up the pink hero. */
+function FloatingPetals() {
+  const petals = [
+    { left: "8%",  size: 16, delay: "0s",   dur: "9s",  o: 0.5 },
+    { left: "22%", size: 11, delay: "2.4s", dur: "11s", o: 0.35 },
+    { left: "40%", size: 14, delay: "5s",   dur: "10s", o: 0.45 },
+    { left: "58%", size: 10, delay: "1.2s", dur: "12s", o: 0.3 },
+    { left: "74%", size: 17, delay: "3.6s", dur: "9.5s", o: 0.5 },
+    { left: "88%", size: 12, delay: "6.2s", dur: "11.5s", o: 0.4 },
+  ];
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }} aria-hidden>
+      {petals.map((p, i) => (
+        <span
+          key={i}
+          style={{
+            position: "absolute", bottom: -30, left: p.left, fontSize: p.size, opacity: p.o,
+            animation: `bbPetalRise ${p.dur} linear ${p.delay} infinite`,
+          }}
+        >
+          🌸
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -273,6 +322,26 @@ function EnvelopeInvitation() {
           </div>
         </div>
       </div>
+
+      {/* Shimmering CTA — opens the invitation → waitlist */}
+      <div style={{ marginTop: 48, textAlign: "center" }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 10,
+          padding: "16px 28px", borderRadius: 999,
+          background: "linear-gradient(110deg, #0A0A0A 35%, #47102C 50%, #0A0A0A 65%)",
+          backgroundSize: "220% 100%",
+          animation: "bbShimmer 3s linear infinite",
+          boxShadow: "0 10px 34px rgba(60,0,26,0.45)",
+          color: "white", fontFamily: "var(--font-jost)", fontWeight: 900,
+          fontSize: "12px", letterSpacing: "0.14em",
+        }}>
+          JOIN THE LAUNCH LIST
+          <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" /></svg>
+        </div>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 17, color: "rgba(255,255,255,0.75)", marginTop: 10 }}>
+          your invitation is waiting inside
+        </p>
+      </div>
     </div>
   );
 }
@@ -296,6 +365,17 @@ export function LandingPage() {
         @keyframes float3 { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-12px) rotate(-2deg)} }
         @keyframes bb-marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
         .bb-marquee-track { display:flex; gap:0; animation:bb-marquee 22s linear infinite; width:max-content; }
+        @keyframes bbTwinkle { 0%,100%{opacity:.45; transform:scale(1)} 50%{opacity:1; transform:scale(1.25)} }
+        @keyframes bbPetalRise {
+          0% { transform: translateY(0) rotate(0deg); }
+          100% { transform: translateY(-115vh) rotate(300deg); }
+        }
+        @keyframes bbShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .bb-reveal { opacity:0; transform:translateY(28px); transition:opacity .75s ease, transform .75s cubic-bezier(.22,1,.36,1); }
+        .bb-reveal--in { opacity:1; transform:none; }
+        @media (prefers-reduced-motion: reduce) {
+          .bb-reveal { opacity:1; transform:none; transition:none; }
+        }
       `}</style>
 
       {/* ── DESKTOP NAV ── */}
@@ -356,10 +436,13 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE HERO — full editorial cover
       ══════════════════════════════════════════════════════ */}
-      <section className="bb-mobile-only" style={{ minHeight: "100svh", background: PINK, flexDirection: "column", overflow: "hidden", position: "relative" }}>
+      <section className="bb-mobile-only" style={{ background: PINK, flexDirection: "column", overflow: "hidden", position: "relative" }}>
 
         {/* Noise/grain texture */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 85% 15%, rgba(255,255,255,0.12) 0%, transparent 45%), radial-gradient(circle at 15% 85%, rgba(0,0,0,0.1) 0%, transparent 45%)", pointerEvents: "none", zIndex: 0 }} />
+
+        {/* Petals drifting up */}
+        <FloatingPetals />
 
         {/* Decorative blob */}
         <div style={{ position: "absolute", bottom: -80, left: -80, width: 280, height: 280, borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none", zIndex: 0 }} />
