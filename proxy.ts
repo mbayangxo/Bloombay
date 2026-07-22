@@ -73,8 +73,15 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`${loginPath}?redirect=${redirectTo}`, request.url));
   }
 
-  // ── Authenticated user on login page → redirect to their portal ───────────
+  // ── Authenticated user on login page → redirect ───────────────────────────
   if (user && isLoginPath) {
+    // /member/login is the one door everyone (any role) should be able to
+    // walk through to see the member app — never bounce it to a different
+    // portal, even if the account also holds a staff role elsewhere.
+    if (pathname === "/member/login") {
+      return NextResponse.redirect(new URL("/member/home", request.url));
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")

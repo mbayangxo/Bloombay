@@ -69,6 +69,17 @@
   overflow-y: auto;
 }
 
+/* This unconditional `display: flex` above has the same specificity as
+   Tailwind's `.hidden` utility (the JSX applies `hidden md:flex`), so which
+   one wins depends on stylesheet load order — unreliable. Force it hidden
+   below the desktop breakpoint here, in the same file/cascade position, so
+   the desktop sidebar never renders on top of the mobile drawer. */
+@media (max-width: 767px) {
+  .bb-admin-sidebar {
+    display: none !important;
+  }
+}
+
 .bb-admin-mark {
   font-family: var(--font-playfair), Georgia, serif;
   font-size: 1.65rem;

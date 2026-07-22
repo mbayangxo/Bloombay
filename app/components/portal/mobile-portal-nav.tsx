@@ -28,9 +28,11 @@ interface Props {
   userName?: string;
   userInitial?: string;
   userRole?: string;
+  /** Reopens the illustrated portal tour (?tour=1) — shown as a menu item, never auto-popped. */
+  tourHref?: string;
 }
 
-export function MobilePortalNav({ portalLabel, items, sections, theme, userName, userInitial = "?", userRole }: Props) {
+export function MobilePortalNav({ portalLabel, items, sections, theme, userName, userInitial = "?", userRole, tourHref }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -210,6 +212,16 @@ export function MobilePortalNav({ portalLabel, items, sections, theme, userName,
 
         {/* User + logout */}
         <div className="px-4 py-5" style={{ borderTop: `1px solid ${border}` }}>
+          {tourHref && (
+            <Link
+              href={tourHref}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 mb-4 text-xs font-bold"
+              style={{ color: "#FF1F7D" }}
+            >
+              <span aria-hidden>✦</span> Take the tour
+            </Link>
+          )}
           {userName && (
             <div className="flex items-center gap-3 mb-4">
               <div

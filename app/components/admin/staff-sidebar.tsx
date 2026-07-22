@@ -8,6 +8,7 @@ import { canMissionControl, ROLE_DISPLAY } from "@/lib/auth/mission-control";
 import { MC_NAV } from "@/lib/portal-navigation";
 import { MobilePortalNav } from "../portal/mobile-portal-nav";
 import { useMissionControlRole } from "./mission-control-provider";
+import { portalTourHref } from "@/lib/portal-tour";
 
 const ICONS: Record<string, string> = {
   "/dashboard": "✦",
@@ -73,6 +74,7 @@ export function StaffSidebar({
         items={mobileSections.flatMap((s) => s.items)}
         sections={mobileSections}
         userRole={ROLE_DISPLAY[role]}
+        tourHref={portalTourHref(basePath === "/founder" ? "founder" : "admin")}
       />
     <aside className="bb-admin-sidebar bb-mission-sidebar hidden md:flex">
       <div className="bb-admin-mark bb-admin-mark--logo">

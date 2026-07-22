@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { getOnboardingFlow } from "@/lib/portal-onboarding/steps";
 import {
   completePortalOnboarding,
-  isPortalOnboardingDone,
   shouldForceOnboarding,
 } from "@/lib/portal-onboarding/store";
 import type { PortalOnboardingId, PortalOnboardingStep } from "@/lib/portal-onboarding/types";
@@ -40,8 +39,10 @@ export function PortalOnboardingTour({ portalId }: { portalId: PortalOnboardingI
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
 
+  // Tour never auto-pops on first login — it only opens when explicitly
+  // requested (via ?tour=1, e.g. from the "Take the tour" menu link).
   useEffect(() => {
-    if (!isPortalOnboardingDone(portalId) || shouldForceOnboarding()) {
+    if (shouldForceOnboarding()) {
       setOpen(true);
       setStep(0);
     }
