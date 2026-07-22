@@ -101,14 +101,18 @@ function EnvelopeInvitation() {
   }
 
   return (
-    <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 0 52px", maxWidth: 370, margin: "0 auto", width: "100%" }}>
-      {/* Handwritten "tap to open" prompt */}
-      <p style={{ textAlign: "center", fontFamily: "var(--font-caveat)", fontSize: "30px", fontWeight: 700, color: "rgba(255,255,255,0.92)", marginBottom: 16 }}>
+    <div onClick={handleOpen} style={{ cursor: "pointer", userSelect: "none", padding: "0 0 24px", maxWidth: 310, margin: "0 auto", width: "100%" }}>
+      <style>{`
+        @keyframes bbEnvFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+        @keyframes bbTapPulse { 0%,100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.08); opacity: 1; } }
+      `}</style>
+      {/* Handwritten "tap to open" prompt — animated */}
+      <p style={{ textAlign: "center", fontFamily: "var(--font-caveat)", fontSize: "30px", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: 14, animation: "bbTapPulse 1.6s ease-in-out infinite", transformOrigin: "center" }}>
         tap to open ♡
       </p>
 
-      {/* Envelope wrapper — perspective container */}
-      <div style={{ position: "relative", perspective: "1100px" }}>
+      {/* Envelope wrapper — perspective container, gently floating */}
+      <div style={{ position: "relative", perspective: "1100px", animation: opening ? "none" : "bbEnvFloat 3.4s ease-in-out infinite" }}>
 
         {/* Depth shadow layers — mimics paper stack */}
         <div style={{ position: "absolute", bottom: -16, left: 12, right: -12, height: "85%", background: "rgba(150,0,55,0.18)", borderRadius: 20, filter: "blur(14px)", zIndex: 0 }} />
@@ -161,6 +165,12 @@ function EnvelopeInvitation() {
                   <span style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 10, color: "rgba(196,0,90,0.5)", letterSpacing: "0.04em" }}>BB</span>
                 </div>
               </div>
+            </div>
+
+            {/* ── FRONT OF ENVELOPE — handwritten note, fades when opening ── */}
+            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, textAlign: "center", zIndex: 4, opacity: opening ? 0 : 1, transition: "opacity 0.2s ease", pointerEvents: "none" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 25, fontWeight: 700, color: "rgba(196,0,90,0.8)", lineHeight: 1, marginBottom: 5 }}>open me ♡</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(196,0,90,0.42)" }}>YOUR INVITATION TO THE WAITLIST</p>
             </div>
 
             {/* ── INNER INVITATION CARD — hidden until flap opens ── */}
@@ -359,19 +369,23 @@ export function LandingPage() {
         <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", padding: "calc(env(safe-area-inset-top, 0px) + 28px) 22px 0" }}>
 
           {/* Headline — "Women" is black on the hot pink background */}
-          <div style={{ marginBottom: 22 }}>
+          <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 10.5vw, 52px)", lineHeight: 0.9, letterSpacing: "-0.035em" }}>
-              <span style={{ color: "#0A0A0A" }}>Women</span><span style={{ color: "rgba(255,255,255,0.82)" }}> are</span>
+              <span style={{ color: "#0A0A0A" }}>Women</span>
+              <span style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontWeight: 400, color: "rgba(255,255,255,0.85)", letterSpacing: "0" }}> are</span>
             </div>
-            <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: "clamp(46px, 13vw, 68px)", color: "white", lineHeight: 0.88, letterSpacing: "-0.02em", marginTop: 6 }}>
-              gathering…
+            <div style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: "clamp(50px, 14.5vw, 76px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.02em", marginTop: 8, textShadow: "0 2px 30px rgba(255,255,255,0.35)" }}>
+              gathering<span style={{ color: "#0A0A0A" }}>…</span>
             </div>
           </div>
 
           {/* Descriptor line */}
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.75)", marginBottom: 28 }}>
-            Happenings · Clubs · Plans
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 26 }}>
+            <div style={{ width: 26, height: 1.5, background: "rgba(255,255,255,0.5)", borderRadius: 2 }} />
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(255,255,255,0.85)", margin: 0 }}>
+              HAPPENINGS · CLUBS · PLANS
+            </p>
+          </div>
 
           {/* Envelope invitation — tappable, opens and navigates to waitlist */}
           <EnvelopeInvitation />
@@ -516,7 +530,7 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           THE PROBLEM — social stats narrative
       ══════════════════════════════════════════════════════ */}
-      <section style={{ padding: "72px 22px 64px", background: IVORY }}>
+      <section style={{ padding: "72px 22px 28px", background: IVORY }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
@@ -563,31 +577,31 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           YOUR TABLE IS HERE — Event cards
       ══════════════════════════════════════════════════════ */}
-      <section style={{ padding: "72px 22px", background: "white" }}>
+      <section style={{ padding: "36px 22px 64px", background: "white" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 36 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 10 }}>YOUR TABLE IS HERE</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, color: INK, margin: 0, lineHeight: 1 }}>
-              Tonight on{" "}
+              Nights on{" "}
               <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>BloomBay</span>
               {" "}<Sparkle />
             </h2>
-            <p style={{ fontSize: "13px", color: "#aaa", fontWeight: 500, marginTop: 8 }}>Real plans. Real women. Real memories.</p>
+            <p style={{ fontSize: "13px", color: "#aaa", fontWeight: 500, marginTop: 8 }}>The kinds of nights our clubs host, every week.</p>
           </div>
 
           <div style={{ display: "flex", gap: 18, overflowX: "auto", paddingBottom: 8 }}>
             {[
-              { tag: "2 SEATS LEFT", title: "Girls Dinner", location: "Carbone · West Village", time: "7:30 PM", grad: `linear-gradient(160deg,${PINK} 0%,#111111 100%)` },
-              { tag: "3 SPOTS LEFT", title: "Museum Girls", location: "The Met · Upper East Side", time: "2:00 PM", grad: "linear-gradient(160deg,#1A0A2E 0%,#FF1F7D 100%)" },
-              { tag: "1 SEAT LEFT",  title: "Book Club", location: "McNally Jackson · Nolita", time: "7:00 PM", grad: "linear-gradient(160deg,#FF69B4 0%,#111111 100%)" },
-              { tag: "OPEN",         title: "Sunday Walk", location: "Brooklyn Bridge Park", time: "10:00 AM", grad: "linear-gradient(160deg,#111 0%,#c4005a 100%)" },
+              { tag: "DINNERS",  title: "Girls Dinner", location: "West Village", time: "Dinner Society", grad: `linear-gradient(160deg,${PINK} 0%,#111111 100%)` },
+              { tag: "CULTURE",  title: "Museum Girls", location: "Upper East Side", time: "Gallery days", grad: "linear-gradient(160deg,#1A0A2E 0%,#FF1F7D 100%)" },
+              { tag: "BOOKS",    title: "Book Club", location: "Nolita", time: "Book nights", grad: "linear-gradient(160deg,#FF69B4 0%,#111111 100%)" },
+              { tag: "OUTDOORS", title: "Sunday Walk", location: "Brooklyn Bridge Park", time: "Sunday walks", grad: "linear-gradient(160deg,#111 0%,#c4005a 100%)" },
             ].map((ev, i) => (
               <div key={i} style={{ flexShrink: 0, width: 210, borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", background: "white", position: "relative" }}>
                 <div style={{ height: 200, background: ev.grad, position: "relative" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 30% 20%, white 0%, transparent 60%)", opacity: 0.15, pointerEvents: "none" }} />
                   <div style={{ position: "absolute", top: 14, left: 14, padding: "5px 11px", borderRadius: 999, background: "rgba(255,255,255,0.95)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.1em", color: PINK }}>{ev.tag}</div>
-                  <div style={{ position: "absolute", bottom: 14, left: 14 }}>
-                    <p style={{ fontWeight: 900, color: "white", fontSize: "21px", lineHeight: 1 }}>{ev.time}</p>
+                  <div style={{ position: "absolute", bottom: 14, left: 14, right: 14 }}>
+                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 400, color: "white", fontSize: "19px", lineHeight: 1.1 }}>{ev.time}</p>
                   </div>
                   {/* Decorative element */}
                   <div style={{ position: "absolute", top: "50%", right: 12, transform: "translateY(-50%)", opacity: 0.15 }}>
@@ -606,7 +620,7 @@ export function LandingPage() {
               </div>
             ))}
             <div style={{ flexShrink: 0, width: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", color: "#ccc", fontSize: "18px", lineHeight: 1.3, textAlign: "center" }}>And more tonight.</p>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", color: "#ccc", fontSize: "18px", lineHeight: 1.3, textAlign: "center" }}>And more every week.</p>
               <Link href="/member/happenings" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "10px", fontWeight: 800, color: PINK, textDecoration: "none", letterSpacing: "0.06em" }}>
                 See all <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke={PINK} strokeWidth="1.5" strokeLinecap="round" /></svg>
               </Link>
