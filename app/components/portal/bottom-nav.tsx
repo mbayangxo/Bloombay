@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
+import { hasUnreadMessages } from "@/lib/actions/direct-messages";
 import { BBLogo } from "./bb-logo";
 import { shouldHideBottomNav } from "@/lib/member-nav";
 import "@/app/styles/bloom-entrance.css";
@@ -208,6 +209,12 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const pathname   = usePathname();
   const [slab, setSlab] = useState<Slab>("afternoon");
   useEffect(() => { setSlab(getSlab()); }, []);
+  const [chatUnread, setChatUnread] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void hasUnreadMessages().then((v) => { if (!cancelled) setChatUnread(v); });
+    return () => { cancelled = true; };
+  }, [pathname]);
   const hideBottomStem = shouldHideBottomNav(pathname);
   // Dark/coloured pages — use light icons
   const isDarkPage = pathname.startsWith("/member/avenue") ||
@@ -244,8 +251,8 @@ export function BottomNav({ user }: { user?: NavUser }) {
   const stemC   = isDarkPage ? "rgba(255,190,210,0.70)" : "rgba(160,60,95,0.45)";
   const branchC = isDarkPage ? "rgba(255,190,210,0.80)" : "rgba(160,60,95,0.55)";
 
-  function TopTile({ href, label, children, badge }: {
-    href: string; label: string; children: React.ReactNode; badge?: "dot" | "number";
+  function TopTile({ href, label, children, showDot }: {
+    href: string; label: string; children: React.ReactNode; showDot?: boolean;
   }) {
     const active = pathname === href || pathname.startsWith(`${href}/`);
     return (
@@ -258,17 +265,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
         }}>
           {children}
         </div>
-        {badge === "number" && (
-          <div style={{
-            position: "absolute", top: 1, right: 1,
-            width: 16, height: 16, borderRadius: "50%",
-            background: PINK, border: "2px solid rgba(253,251,247,0.97)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "7.5px", fontWeight: 900, color: "white", fontFamily: "var(--font-jost)",
-            animation: "pinkPulse 2s ease-in-out infinite",
-          }}>3</div>
-        )}
-        {badge === "dot" && (
+        {showDot && (
           <span style={{
             position: "absolute", top: 3, right: 3,
             width: 8, height: 8, borderRadius: "50%",
@@ -296,13 +293,17 @@ export function BottomNav({ user }: { user?: NavUser }) {
               <TopTile href="/member/pin-drops" label="Pin Drops">
                 <IconPin c={isDarkPage ? "white" : PINK} />
               </TopTile>
-              <TopTile href="/member/messages" label="Mailbox" badge="number">
+              <TopTile href="/member/messages" label="Mailbox">
                 <IconMail c={isDarkPage ? "white" : PINK} />
               </TopTile>
-              <TopTile href="/member/chat" label="Chat" badge="dot">
-                <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
+              <TopTile href="/member/chat" label="Chat" showDot={chatUnread}>
+                {chatUnread ? (
+                  <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
+                    <IconChatBubble c={isDarkPage ? "white" : PINK} />
+                  </span>
+                ) : (
                   <IconChatBubble c={isDarkPage ? "white" : PINK} />
-                </span>
+                )}
               </TopTile>
             </div>
           )}

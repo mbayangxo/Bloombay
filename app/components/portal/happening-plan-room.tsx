@@ -11,7 +11,7 @@ export function HappeningPlanRoom({ gathering }: { gathering: DbGathering }) {
   const router = useRouter();
   const plan = getGatheringPlan(gathering.id);
   const poster = gatheringToPoster(gathering);
-  const chatHref = plan?.chatHref ?? `/member/messages?plan=${gathering.slug}`;
+  const chatHref = plan?.chatHref ?? "/member/chat";
 
   if (!plan || plan.commitment !== "going") {
     return (
@@ -75,7 +75,7 @@ export function HappeningPlanRoom({ gathering }: { gathering: DbGathering }) {
           </p>
           <ul className="text-sm leading-relaxed space-y-2" style={{ color: "#444" }}>
             <li>✦ Meet at {gathering.venue ?? "the venue"} — look for BloomBay women at the host table.</li>
-            <li>✦ Check the group chat for last-minute updates from the host.</li>
+            <li>✦ Message the host directly for last-minute updates.</li>
             <li>✦ Your ticket stays in Plans — pull it up at the door if needed.</li>
           </ul>
           {gathering.description ? (
@@ -91,7 +91,7 @@ export function HappeningPlanRoom({ gathering }: { gathering: DbGathering }) {
             className="w-full py-4 rounded-2xl font-bold text-white text-center"
             style={{ background: poster.accentColor ?? "#FF1F7D" }}
           >
-            Open plan group chat →
+            Go to Chats →
           </Link>
           <Link
             href="/member/plans"

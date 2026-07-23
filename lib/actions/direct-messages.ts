@@ -162,6 +162,30 @@ export async function getMyConversations(): Promise<ConversationSummary[]> {
   return results;
 }
 
+export async function hasUnreadMessages(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data: participations } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id, last_read_at")
+    .eq("user_id", user.id);
+  if (!participations?.length) return false;
+
+  for (const p of participations) {
+    if (!p.last_read_at) continue;
+    const { count } = await supabase
+      .from("direct_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("conversation_id", p.conversation_id)
+      .gt("created_at", p.last_read_at)
+      .neq("sender_id", user.id);
+    if ((count ?? 0) > 0) return true;
+  }
+  return false;
+}
+
 export async function getMessages(conversationId: string, limit = 50): Promise<DirectMessage[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

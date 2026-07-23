@@ -20,15 +20,21 @@ export type NightRow = {
   gathering_id?: string | null;
 };
 
+// Only the 6 real Happenings poster types (lib/happenings/event-type-templates.ts)
+// belong here. "aperitivo" and "cafe" are NOT top-level Happenings event types —
+// aperitivo is a variant *within* "dinner" and cafe/coffee fits "walk" ("coffee
+// after" is literally in its description) — mapping to either nonexistent key
+// silently fell back to "party" + dinner-poster art for every drinks/coffee/
+// shopping night.
 const CATEGORY_TO_EVENT_TYPE: Record<string, string> = {
   dining: "dinner",
   brunch: "dinner",
-  drinks: "aperitivo",
+  drinks: "dinner",
   nightlife: "party",
   art: "museum",
   wellness: "wellness",
-  shopping: "cafe",
-  coffee: "cafe",
+  shopping: "walk",
+  coffee: "walk",
   "pop-up": "party",
   event: "party",
   other: "party",

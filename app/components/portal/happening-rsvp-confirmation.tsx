@@ -35,7 +35,7 @@ export function HappeningRsvpConfirmation({
           You&apos;re going.
         </h1>
         <p className="text-sm mb-6 leading-relaxed" style={{ color: "#888" }}>
-          Your ticket is in Plans. Plan room and group chat are unlocked for this happening.
+          Your ticket is in Plans. The plan room is unlocked for this happening.
         </p>
 
         <div className="mx-auto w-full max-w-[200px] mb-6">
@@ -78,7 +78,7 @@ export function HappeningRsvpConfirmation({
             className="w-full py-3.5 rounded-2xl font-bold text-center"
             style={{ border: "1.5px solid #FFE0EE", color: "#FF1F7D" }}
           >
-            Open plan group chat
+            Go to Chats
           </Link>
         </div>
       </div>

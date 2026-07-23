@@ -69,7 +69,7 @@ export function gatheringPlanFromDb(
     createdAt: new Date().toISOString(),
     planRoomHref: `/member/plan/${g.slug}`,
     ticketHref: `/member/plans?ticket=${g.slug}`,
-    chatHref: `/member/messages?plan=${g.slug}`,
+    chatHref: `/member/chat`,
   };
 }
 

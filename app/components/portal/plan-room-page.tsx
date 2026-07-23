@@ -61,7 +61,7 @@ export function PlanRoomPage({ gatheringId }: { gatheringId?: string }) {
   }, [gatheringId]);
 
   const plan = gathering ? getGatheringPlan(gathering.id) : null;
-  const chatHref = plan?.chatHref ?? (gathering ? `/member/messages?plan=${gathering.slug}` : "/member/messages");
+  const chatHref = plan?.chatHref ?? "/member/chat";
 
   const when = gathering
     ? new Date(gathering.starts_at).toLocaleString("en-US", {
@@ -273,7 +273,7 @@ export function PlanRoomPage({ gatheringId }: { gatheringId?: string }) {
           padding: "12px 14px 14px",
         }}
       >
-        <EmptyBlock title="Plan chat lives in Messages" body="Group chat for this plan isn't in this screen yet." />
+        <EmptyBlock title="Group chat isn't built yet" body="Message people going to this plan one-on-one for now." />
         <Link
           href={chatHref}
           style={{
@@ -292,7 +292,7 @@ export function PlanRoomPage({ gatheringId }: { gatheringId?: string }) {
             boxShadow: `0 6px 24px ${PINK}44`,
           }}
         >
-          Open plan group chat →
+          Go to Chats →
         </Link>
       </div>
     </div>
