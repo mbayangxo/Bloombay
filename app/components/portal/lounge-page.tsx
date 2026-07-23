@@ -3,8 +3,10 @@
 import "@/app/styles/bloom-entrance.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { updateProfile } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/client";
+import { startConversation } from "@/lib/actions/direct-messages";
 import { FriendshipHealthSection } from "./friendship-health-section";
 import { SocialProofSection } from "./social-proof-section";
 
@@ -253,6 +255,21 @@ function ApartmentDoor({ label, icon, href, num, accentColor = PINK }: {
 // ── BLOOMIE SHEET ─────────────────────────────────────────────────────────────
 
 function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: () => void }) {
+  const router = useRouter();
+  const [messaging, setMessaging] = useState(false);
+
+  async function handleMessage() {
+    if (messaging) return;
+    setMessaging(true);
+    try {
+      await startConversation(bloomie.id);
+      onClose();
+      router.push("/member/chat");
+    } catch {
+      setMessaging(false);
+    }
+  }
+
   return (
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
@@ -273,10 +290,10 @@ function BloomieSheet({ bloomie, onClose }: { bloomie: BloomieProfile; onClose: 
           </button>
         </div>
         <div className="px-6 pb-8">
-          <Link href={`/member/messages?with=${bloomie.id}`} onClick={onClose} className="block w-full py-3.5 rounded-2xl text-center text-sm font-bold"
-            style={{ background: PINK, color: "white", textDecoration: "none" }}>
-            Message {bloomie.name.split(" ")[0]} →
-          </Link>
+          <button onClick={() => void handleMessage()} disabled={messaging} className="block w-full py-3.5 rounded-2xl text-center text-sm font-bold disabled:opacity-60"
+            style={{ background: PINK, color: "white", border: "none" }}>
+            {messaging ? "Opening…" : `Message ${bloomie.name.split(" ")[0]} →`}
+          </button>
         </div>
         {(BLOOMIE_FLOWER_IDS[bloomie.name]?.length ?? 0) > 0 && (
           <div className="px-6 pb-8">

@@ -68,19 +68,6 @@ export function ClosetPage() {
               </p>
             </div>
           </div>
-
-          {/* Members badge */}
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            background: `${PINK}12`, borderRadius: 12, padding: "6px 10px",
-          }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: PINK, lineHeight: 1 }}>
-              2.1k
-            </span>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(28,27,28,0.45)", lineHeight: 1.3 }}>
-              members
-            </span>
-          </div>
         </div>
       </header>
 

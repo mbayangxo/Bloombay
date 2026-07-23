@@ -591,22 +591,6 @@ export function ClubsPage() {
       </section>
       )}
 
-      {/* Club rankings — real data TBD */}
-      <section style={{ padding: "0 18px 24px" }}>
-        <Link href="/member/clubs/rankings" style={{ textDecoration: "none" }}>
-          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 18, padding: "16px 18px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 42, height: 42, borderRadius: 14, background: `linear-gradient(135deg, #D4A85344, #D4A853)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 20 }}>🏆</span>
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 16, color: "white", lineHeight: 1 }}>Club Rankings</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.38)", marginTop: 4 }}>Top clubs by activity, retention & love</p>
-            </div>
-            <svg width="6" height="11" viewBox="0 0 6 11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l4 4.5-4 4.5"/></svg>
-          </div>
-        </Link>
-      </section>
-
     </div>
   );
 }

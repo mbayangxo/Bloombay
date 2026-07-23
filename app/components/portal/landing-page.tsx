@@ -889,7 +889,7 @@ export function LandingPage() {
             Your social life{" "}
             <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>is waiting.</span>
           </p>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. Womanhood worldwide.</p>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>Founding mothers. Womanhood worldwide.</p>
           <Link href="/waitlist" className="bb-cta-pulse" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
             ACCEPT INVITATION
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
