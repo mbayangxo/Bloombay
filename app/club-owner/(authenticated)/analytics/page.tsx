@@ -52,6 +52,12 @@ export default function ClubOwnerAnalyticsPage() {
         sub="Revenue, health, activity, and what to watch this week."
       />
 
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> health score, growth, event analytics, revenue, engagement, and the members list
+        below are demo numbers, not yet computed from your real club. Applications pending count above is the only
+        figure on this page wired to a live source.
+      </p>
+
       <div className="co-health-strip">
         <div className="co-health-strip__score">
           <span>Club health</span>

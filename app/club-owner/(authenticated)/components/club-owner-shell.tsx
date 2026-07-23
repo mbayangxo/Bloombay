@@ -85,8 +85,9 @@ export function ClubOwnerShell({
               lineHeight: 1.45,
             }}
           >
-            <strong style={{ color: "#FF1F7D" }}>Pilot note:</strong> Some Club Mama tools still save only on this device.
-            Approvals, member adds, and pings may not reach members until they&apos;re wired to the live club APIs.
+            <strong style={{ color: "#FF1F7D" }}>Pilot note:</strong> Applications, your member roster, and Bloom pings
+            are wired to the live club APIs and reach real members. Teams, planner rooms, volunteer shifts, resources,
+            event templates, and the growth/analytics numbers elsewhere in this portal still save only on this device.
           </div>
           {children}
         </div>

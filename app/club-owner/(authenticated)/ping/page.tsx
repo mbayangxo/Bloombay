@@ -18,7 +18,7 @@ export default function ClubOwnerPingPage() {
           One message to every member in {club?.name ?? "your club"} — instantly.
         </p>
       </header>
-      <BloomPingPanel clubId={clubId} memberCount={club?.members ?? 200} />
+      <BloomPingPanel clubId={clubId} />
     </ClubOwnerShell>
   );
 }

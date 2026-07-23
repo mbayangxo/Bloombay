@@ -17,6 +17,10 @@ export default function ClubOwnerPortfolioPage() {
         title="Multi-club portfolio"
         sub="For owners managing multiple clubs — upcoming events, growth, members needing attention, and pending approvals."
       />
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> the current club data model is one owner per club, so there&apos;s no real
+        multi-club roster to show yet. The clubs and numbers below are sample data, not your real club(s).
+      </p>
       <section className="co-stack">
         <h2 className="co-section__title">Upcoming across clubs</h2>
         <ul className="co-app-list">
