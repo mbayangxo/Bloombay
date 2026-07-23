@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { applyToClub } from "@/lib/actions/clubs";
+import { applyToClub, getClubApplicationQuestions, type ClubApplicationQuestion } from "@/lib/actions/clubs";
+import { uploadClubApplicationPhoto } from "@/lib/storage/upload";
 
 const PINK = "#FF1F7D";
 const CREAM = "#FAF6F0";
@@ -71,6 +72,35 @@ export default function ClubApplyPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>(1);
   const [submitted, setSubmitted] = useState(false);
+  const [questions, setQuestions] = useState<ClubApplicationQuestion[]>([]);
+  const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void getClubApplicationQuestions(clubId).then(setQuestions);
+  }, [clubId]);
+
+  async function handlePhotoFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Please select an image file.");
+      return;
+    }
+    setPhotoError(null);
+    setPhotoUploading(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in.");
+      const url = await uploadClubApplicationPhoto(file, user.id, clubId);
+      setPhotoUrl(url);
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : "Upload failed. Please try again.");
+    } finally {
+      setPhotoUploading(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -774,6 +804,98 @@ export default function ClubApplyPage() {
               </label>
             </div>
 
+            {/* Photo upload */}
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 20,
+                padding: 20,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+                marginBottom: 16,
+              }}
+            >
+              <p style={labelStyle}>Add a photo (optional)</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    background: "#F3ECE4",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoUrl} alt="Your photo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontSize: 22, color: "#C8BEB4" }}>＋</span>
+                  )}
+                </div>
+                <label
+                  style={{
+                    padding: "10px 18px",
+                    borderRadius: 999,
+                    border: `1.5px solid ${PINK}`,
+                    color: PINK,
+                    fontFamily: "Jost, sans-serif",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {photoUploading ? "Uploading…" : photoUrl ? "Change photo" : "Upload photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    disabled={photoUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handlePhotoFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+              {photoError && (
+                <p style={{ fontFamily: "Jost, sans-serif", fontSize: 11, color: "#c0392b", marginTop: 8 }}>{photoError}</p>
+              )}
+            </div>
+
+            {/* Club Mama's custom questions */}
+            {questions.length > 0 && (
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: 20,
+                  padding: 20,
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+                  marginBottom: 16,
+                }}
+              >
+                <p style={{ ...labelStyle, marginTop: 0 }}>From the Club Mama</p>
+                {questions.map((q) => (
+                  <div key={q.id} style={{ marginBottom: 16 }}>
+                    <label style={{ ...labelStyle, marginTop: 0 }}>
+                      {q.question}
+                      {q.required ? " *" : ""}
+                    </label>
+                    <textarea
+                      value={customAnswers[q.question] ?? ""}
+                      onChange={(e) => setCustomAnswers((prev) => ({ ...prev, [q.question]: e.target.value }))}
+                      rows={2}
+                      style={{ ...inputStyle, resize: "vertical" as const }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Paid club price card */}
             {club.isPaid && club.price !== null && (
               <div
@@ -862,7 +984,10 @@ export default function ClubApplyPage() {
                   setSubmitError(null);
                   try {
                     const message = [form.whyJoin, form.whatBring, form.communityMeaning].filter(Boolean).join("\n\n");
-                    await applyToClub(club.id, message);
+                    await applyToClub(club.id, message, {
+                      answers: Object.keys(customAnswers).length ? customAnswers : undefined,
+                      photoUrl: photoUrl ?? undefined,
+                    });
                     setSubmitted(true);
                   } catch (e) {
                     setSubmitError(e instanceof Error ? e.message : "Couldn’t submit application");
@@ -870,7 +995,11 @@ export default function ClubApplyPage() {
                     setSubmitting(false);
                   }
                 }}
-                disabled={!form.agreed || submitting}
+                disabled={
+                  !form.agreed ||
+                  submitting ||
+                  questions.some((q) => q.required && !customAnswers[q.question]?.trim())
+                }
                 style={{
                   flex: 2,
                   padding: "14px 0",

@@ -56,6 +56,17 @@ export async function uploadPartnerPhoto(file: File, partnerId: string): Promise
   return supabase.storage.from("club-covers").getPublicUrl(path).data.publicUrl;
 }
 
+export async function uploadClubApplicationPhoto(file: File, userId: string, clubSlug: string): Promise<string> {
+  const compressed = await prepare(file, 800, 250);
+  const supabase = createClient();
+  const path = `${userId}/club-application-${clubSlug}-${Date.now()}.webp`;
+  const { error } = await supabase.storage
+    .from("profile-photos")
+    .upload(path, compressed, { upsert: false, contentType: "image/webp" });
+  if (error) throw error;
+  return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
+}
+
 export async function uploadProfilePhoto(file: File, userId: string): Promise<string> {
   const compressed = await prepare(file, 800, 250);
   const supabase = createClient();

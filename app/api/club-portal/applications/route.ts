@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabase
     .from("club_applications")
-    .select("id, user_id, status, why, applicant_name, city, instagram, created_at")
+    .select("id, user_id, status, why, applicant_name, city, instagram, created_at, photo_url, answers")
     .eq("club_slug", club.slug)
     .order("created_at", { ascending: false });
 
@@ -63,6 +63,8 @@ export async function GET(req: NextRequest) {
       created_at: a.created_at,
       name: a.applicant_name,
       applied_at: a.created_at,
+      photo_url: a.photo_url ?? null,
+      answers: (a.answers as Record<string, string> | null) ?? null,
       profile: pm.get(a.user_id) ?? null,
     })),
   );

@@ -104,7 +104,72 @@ export async function updateApplicationStatus(
   }
 }
 
-export async function applyToClub(clubId: string, message?: string): Promise<void> {
+export type ClubApplicationQuestion = {
+  id: string;
+  question: string;
+  required: boolean;
+  position: number;
+};
+
+/** Public — used by the apply page to render a club's custom questions, if any. */
+export async function getClubApplicationQuestions(clubId: string): Promise<ClubApplicationQuestion[]> {
+  const supabase = await createClient();
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) return [];
+
+  const { data } = await supabase
+    .from("club_application_questions")
+    .select("id, question, required, position")
+    .eq("club_slug", slug)
+    .order("position", { ascending: true });
+
+  return (data ?? []) as ClubApplicationQuestion[];
+}
+
+/** Owner-only — manage a club's custom application questions. */
+export async function listOwnApplicationQuestions(clubId: string): Promise<ClubApplicationQuestion[]> {
+  return getClubApplicationQuestions(clubId);
+}
+
+export async function addApplicationQuestion(
+  clubId: string,
+  question: string,
+  required: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const slug = await resolveClubSlug(supabase, clubId);
+  if (!slug) return { ok: false, error: "Club not found" };
+
+  const { data: existing } = await supabase
+    .from("club_application_questions")
+    .select("position")
+    .eq("club_slug", slug)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextPosition = ((existing as { position: number } | null)?.position ?? -1) + 1;
+
+  const { error } = await supabase.from("club_application_questions").insert({
+    club_slug: slug,
+    question: question.trim(),
+    required,
+    position: nextPosition,
+  });
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+export async function removeApplicationQuestion(questionId: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("club_application_questions").delete().eq("id", questionId);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+export async function applyToClub(
+  clubId: string,
+  message?: string,
+  extra?: { answers?: Record<string, string>; photoUrl?: string },
+): Promise<void> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
@@ -129,6 +194,8 @@ export async function applyToClub(clubId: string, message?: string): Promise<voi
     applicant_name: applicantName,
     why: message ?? "",
     status: "pending",
+    answers: extra?.answers ?? null,
+    photo_url: extra?.photoUrl ?? null,
   });
   if (error) throw error;
 }

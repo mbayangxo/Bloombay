@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { logAudit } from "@/lib/club-owner-store";
 import type { ClubApplication } from "@/lib/club-host-store";
 import { ApplicationDetail } from "./application-detail";
+import { ApplicationQuestionsEditor } from "./application-questions-editor";
 
 type ApiApplication = {
   id: string;
@@ -14,10 +15,14 @@ type ApiApplication = {
   city: string | null;
   instagram: string | null;
   created_at: string;
+  photo_url: string | null;
+  answers: Record<string, string> | null;
   profile: { avatar_url: string | null } | null;
 };
 
-function mapApplication(a: ApiApplication): ClubApplication {
+export type ApplicationRow = ClubApplication & { answers?: Record<string, string> | null };
+
+function mapApplication(a: ApiApplication): ApplicationRow {
   const status = a.status === "approved" || a.status === "denied" ? a.status : "pending";
   return {
     id: a.id,
@@ -28,7 +33,8 @@ function mapApplication(a: ApiApplication): ClubApplication {
     why: a.message,
     status,
     submittedAt: a.created_at,
-    photoUrl: a.profile?.avatar_url ?? undefined,
+    photoUrl: a.photo_url ?? a.profile?.avatar_url ?? undefined,
+    answers: a.answers,
   };
 }
 
@@ -49,7 +55,7 @@ function previewWhy(text: string, max = 72) {
 export function ApplicationsPanel({ clubId }: { clubId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [allApps, setAllApps] = useState<ClubApplication[]>([]);
+  const [allApps, setAllApps] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
@@ -115,6 +121,8 @@ export function ApplicationsPanel({ clubId }: { clubId: string }) {
         Tap an applicant to see their photo and full application. We use a <strong>vertical list</strong> so you can
         scan one person at a time — best on phone and desktop.
       </p>
+
+      <ApplicationQuestionsEditor clubId={clubId} />
 
       <div className="co-tabs">
         <button

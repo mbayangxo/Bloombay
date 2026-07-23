@@ -2,6 +2,8 @@
 
 import type { ClubApplication } from "@/lib/club-host-store";
 
+type ApplicationDetailData = ClubApplication & { answers?: Record<string, string> | null };
+
 function initials(name: string) {
   return name
     .split(/\s+/)
@@ -27,7 +29,7 @@ export function ApplicationDetail({
   onDecide,
   onClose,
 }: {
-  app: ClubApplication;
+  app: ApplicationDetailData;
   busy?: boolean;
   onDecide: (id: string, decision: "approved" | "denied") => void | Promise<void>;
   onClose: () => void;
@@ -93,6 +95,18 @@ export function ApplicationDetail({
         <h3>Why they want in</h3>
         <p>&ldquo;{app.why}&rdquo;</p>
       </section>
+
+      {app.answers && Object.keys(app.answers).length > 0 ? (
+        <section className="co-application-detail__why">
+          <h3>Her answers</h3>
+          {Object.entries(app.answers).map(([question, answer]) => (
+            <div key={question} style={{ marginBottom: 10 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#888" }}>{question}</p>
+              <p>&ldquo;{answer}&rdquo;</p>
+            </div>
+          ))}
+        </section>
+      ) : null}
 
       {app.status === "pending" ? (
         <div className="co-application-detail__actions">
