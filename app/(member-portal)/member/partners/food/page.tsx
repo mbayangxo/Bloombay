@@ -171,20 +171,6 @@ export default function FoodTemplatesPage() {
   const [dish, setDish] = useState("");
   const [price, setPrice] = useState("");
   const [note, setNote] = useState("");
-  const [posted, setPosted] = useState(false);
-
-  if (posted) {
-    return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF5EC 0%, #FFF0E8 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 38, color: PINK, marginBottom: 12 }}>posted ✦</p>
-        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#1C1B1C", marginBottom: 8 }}>Your menu is live.</p>
-        <p style={{ fontFamily: "var(--font-instrument)", fontStyle: "italic", fontSize: 13, color: "#888", marginBottom: 28 }}>Bloomies are seeing your special now.</p>
-        <Link href="/member/happenings" style={{ textDecoration: "none" }}>
-          <div style={{ background: PINK, color: "white", borderRadius: 999, padding: "12px 28px", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em" }}>BACK TO THE CITY →</div>
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAFAF8", paddingBottom: 100, fontFamily: "var(--font-jost)" }}>
@@ -255,9 +241,12 @@ export default function FoodTemplatesPage() {
                 <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #E8E4DC", background: "white", fontFamily: "var(--font-jost)", fontSize: 13, color: "#1C1B1C", outline: "none", boxSizing: "border-box" }} />
               </div>
             ))}
-            <button onClick={() => setPosted(true)} style={{ width: "100%", padding: "16px", borderRadius: 999, border: "none", background: "#F97316", color: "white", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer", boxShadow: "0 4px 20px rgba(249,115,22,0.55)", marginTop: 8, marginBottom: 20 }}>
-              POST TO THE CITY ✦
+            <button disabled style={{ width: "100%", padding: "16px", borderRadius: 999, border: "none", background: "#EEE", color: "#CCC", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.08em", cursor: "not-allowed", marginTop: 8, marginBottom: 8 }}>
+              POSTING ISN'T LIVE YET
             </button>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", textAlign: "center", marginBottom: 20 }}>
+              Partner posting to The City is still being built — this preview isn't published anywhere yet.
+            </p>
           </div>
         )}
       </div>

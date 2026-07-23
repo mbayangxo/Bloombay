@@ -609,11 +609,11 @@ const GIRL_GEMS = [
 ];
 
 const GIRL_FAVS = [
-  { name: "Cha Cha Matcha", neighborhood: "Multiple locations", saves: 847, emoji: "🍵" },
-  { name: "Bar Pisellino", neighborhood: "West Village", saves: 623, emoji: "🍸" },
-  { name: "The Strand", neighborhood: "Flatiron", saves: 541, emoji: "📚" },
-  { name: "Café Kitsuné", neighborhood: "West Village", saves: 488, emoji: "☕" },
-  { name: "Russ & Daughters", neighborhood: "LES", saves: 412, emoji: "🥯" },
+  { name: "Cha Cha Matcha", neighborhood: "Multiple locations", emoji: "🍵" },
+  { name: "Bar Pisellino", neighborhood: "West Village", emoji: "🍸" },
+  { name: "The Strand", neighborhood: "Flatiron", emoji: "📚" },
+  { name: "Café Kitsuné", neighborhood: "West Village", emoji: "☕" },
+  { name: "Russ & Daughters", neighborhood: "LES", emoji: "🥯" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2421,14 +2421,14 @@ function GirlFavsPage({ onBack }: { onBack: () => void }) {
         <BackBtn onBack={onBack} label="CITY" />
         <div style={{ position: "absolute", bottom: 20, left: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: PINK, marginBottom: 5 }}>GIRL FAVS · NYC</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Most saved<br />this month.</p>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 5 }}>by the bloomies community ♡</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1 }}>Our favorite<br />spots.</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 5 }}>curated by BloomBay ♡</p>
         </div>
       </div>
 
       {/* Ranked list */}
       <div style={{ padding: "20px 16px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 14 }}>THE RANKING</p>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 14 }}>OUR PICKS</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {GIRL_FAVS.map((fav, i) => (
             <div key={i} style={{
@@ -2454,10 +2454,6 @@ function GirlFavsPage({ onBack }: { onBack: () => void }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 700, color: "white", marginBottom: 2 }}>{fav.name}</p>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>{fav.neighborhood}</p>
-              </div>
-              <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: i === 0 ? PINK : "rgba(255,255,255,0.55)" }}>{fav.saves.toLocaleString()}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.06em" }}>SAVES</p>
               </div>
             </div>
           ))}
