@@ -53,6 +53,22 @@ export async function POST(req: NextRequest) {
     link: "/member/lounge",
   });
 
+  // Notify the venue partner too, so requests show up in their Messages/Requests
+  const { data: venueOwner } = await db
+    .from("restaurant_partners")
+    .select("owner_id")
+    .eq("id", body.restaurant_id)
+    .maybeSingle();
+  if (venueOwner?.owner_id) {
+    void db.from("notifications").insert({
+      user_id: venueOwner.owner_id,
+      type: "reservation_requested",
+      title: "New booking request",
+      body: `${body.party_size} guests requested a table for ${body.date} at ${body.time}.`,
+      link: "/partner/requests",
+    });
+  }
+
   // Fetch user phone for SMS confirmation
   const { data: profile } = await db
     .from("profiles")

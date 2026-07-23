@@ -30,7 +30,7 @@ export const CLUB_OWNER_NAV: NavLink[] = [
 ];
 
 export const PARTNER_NAV: NavLink[] = [
-  { label: "Dashboard", href: "/partner" },
+  { label: "Dashboard", href: "/partner/dashboard" },
   { label: "Brand", href: "/partner/brand" },
   { label: "Boom drops", href: "/partner/drops" },
   { label: "Profile", href: "/partner/profile" },

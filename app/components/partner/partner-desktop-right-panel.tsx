@@ -31,7 +31,7 @@ const QUICK_ACCESS = [
   { href: "/partner/bookings", label: "Full Schedule" },
   { href: "/partner/requests", label: "Booking Requests" },
   { href: "/partner/analytics", label: "Analytics" },
-  { href: "/partner/settings", label: "Venue Settings" },
+  { href: "/partner/profile", label: "Venue Settings" },
 ];
 
 function isToday(dateStr: string): boolean {

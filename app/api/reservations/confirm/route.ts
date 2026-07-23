@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendSMS } from "@/lib/notifications/sms";
+import { getAuthUser } from "@/lib/auth/get-user";
 
 function admin() {
   return createClient(
@@ -9,16 +10,44 @@ function admin() {
   );
 }
 
+// Confirm/decline a reservation. Two callers are allowed:
+//  1. Internal ops tooling, authenticated with the shared ADMIN_PASSWORD header.
+//  2. The venue partner who owns the reservation's restaurant, authenticated
+//     via their normal session (used by the partner portal's Confirm/Decline
+//     buttons).
 export async function PATCH(req: NextRequest) {
   const secret = req.headers.get("x-admin-password");
-  if (secret !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const isAdmin = secret === process.env.ADMIN_PASSWORD;
+
+  const db = admin();
+  let partnerId: string | null = null;
+
+  if (!isAdmin) {
+    const user = await getAuthUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    partnerId = user.id;
   }
 
   const body = await req.json() as { id: string; status: "confirmed" | "cancelled" };
   if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
-  const db = admin();
+  if (partnerId) {
+    const { data: reservation } = await db
+      .from("table_reservations")
+      .select("restaurant_id")
+      .eq("id", body.id)
+      .maybeSingle();
+    if (!reservation) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const { data: venue } = await db
+      .from("restaurant_partners")
+      .select("id")
+      .eq("id", (reservation as { restaurant_id: string }).restaurant_id)
+      .eq("owner_id", partnerId)
+      .maybeSingle();
+    if (!venue) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const update: Record<string, unknown> = { status: body.status };
   if (body.status === "confirmed") update.confirmed_at = new Date().toISOString();
   if (body.status === "cancelled") update.cancelled_at = new Date().toISOString();

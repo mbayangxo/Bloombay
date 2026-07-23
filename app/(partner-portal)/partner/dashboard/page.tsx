@@ -8,6 +8,17 @@ interface VenueInfo { id: string; name: string; type: string; neighborhood: stri
 interface VenueReservation { id: string; guest: string; date: string; time: string; party_size: number; notes?: string | null; }
 interface VenueReview { author: string; text: string; rating: number; }
 interface VenueStats { total_upcoming: number; total_past: number; pending_requests: number; avg_rating: number; }
+interface PartnerNotification { id: string; title: string; body: string | null; read: boolean; created_at: string; }
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -20,92 +31,6 @@ type Tab =
   | "mailbox"
   | "perks"
   | "templates";
-
-// ── Mock data ──────────────────────────────────────────────────────────────
-
-const UPCOMING_GATHERINGS = [
-  {
-    title: "Girls Brunch",
-    club: "Soft Life Club NYC",
-    date: "Jun 7, 2025",
-    time: "11:00 AM",
-    guests: 12,
-    status: "Confirmed",
-  },
-  {
-    title: "Book Club Evening",
-    club: "The Lit Circle",
-    date: "Jun 13, 2025",
-    time: "7:00 PM",
-    guests: 8,
-    status: "Confirmed",
-  },
-  {
-    title: "Sunday Brunch",
-    club: "Uptown Girls",
-    date: "Jun 22, 2025",
-    time: "12:00 PM",
-    guests: 16,
-    status: "Pending",
-  },
-];
-
-const RECENT_VISITORS = [
-  { name: "Aaliyah M.", club: "Soft Life Club NYC", date: "Jun 1", guests: 1 },
-  { name: "Sofia K.", club: "Soft Life Club NYC", date: "May 29", guests: 4 },
-  { name: "Priya R.", club: "Soft Life Club NYC", date: "May 28", guests: 2 },
-  { name: "Camille T.", club: "The Lit Circle", date: "May 27", guests: 6 },
-  { name: "Zara F.", club: "Uptown Girls", date: "May 26", guests: 3 },
-];
-
-const REVIEWS = [
-  {
-    author: "Aaliyah M.",
-    club: "Soft Life Club NYC",
-    rating: 5,
-    text: "Perfect for a girl brunch. The space is intimate and the staff made us feel so welcome. We'll be back.",
-    date: "May 2025",
-  },
-  {
-    author: "Sofia K.",
-    club: "Soft Life Club NYC",
-    rating: 5,
-    text: "The macarons are unreal. Honestly the whole experience was like being in Paris for two hours.",
-    date: "Apr 2025",
-  },
-  {
-    author: "Camille T.",
-    club: "The Lit Circle",
-    rating: 4,
-    text: "Beautiful venue. Slightly loud on a Saturday but the food made up for it completely.",
-    date: "Apr 2025",
-  },
-];
-
-const BOOKING_REQUESTS = [
-  {
-    club: "The Bloom Collective",
-    contact: "Nadia K.",
-    event: "Afternoon Tea Gathering",
-    requestedDate: "Jul 5, 2025",
-    guests: 10,
-    message: "We'd love to book a private corner for 10 women. Prefer the garden seating area.",
-  },
-  {
-    club: "SoHo Sisterhood",
-    contact: "Lena O.",
-    event: "Birthday Brunch",
-    requestedDate: "Jul 12, 2025",
-    guests: 14,
-    message: "Celebrating our founder's birthday. Can you accommodate a birthday arrangement?",
-  },
-];
-
-const MESSAGES = [
-  { from: "BloomBay Team", preview: "Your venue was featured in our weekly digest", time: "1h ago", unread: true },
-  { from: "Nadia K.", preview: "Quick follow-up on our July request", time: "4h ago", unread: true },
-  { from: "Aaliyah M.", preview: "Thank you for the lovely afternoon!", time: "2d ago", unread: false },
-];
 
 // ── SVG Icons ──────────────────────────────────────────────────────────────
 
@@ -839,8 +764,44 @@ function RatingSection({ reviews, avgRating, reviewCount }: { reviews: VenueRevi
   );
 }
 
-function RequestsSection({ pending_requests }: { pending_requests: VenueReservation[] }) {
+function RequestsSection({
+  pending_requests,
+  onDecided,
+  showToast,
+}: {
+  pending_requests: VenueReservation[];
+  onDecided: (id: string) => void;
+  showToast: (msg: string) => void;
+}) {
   const [handled, setHandled] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState<Set<string>>(new Set());
+
+  async function decide(id: string, status: "confirmed" | "cancelled") {
+    setBusy(prev => new Set([...prev, id]));
+    try {
+      const res = await fetch("/api/reservations/confirm", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast((data as { error?: string }).error ?? "Couldn't update that request. Try again.");
+        return;
+      }
+      setHandled(prev => new Set([...prev, id]));
+      onDecided(id);
+      showToast(status === "confirmed" ? "Reservation confirmed" : "Reservation declined");
+    } catch {
+      showToast("Couldn't reach the server. Try again.");
+    } finally {
+      setBusy(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
 
   return (
     <div>
@@ -870,16 +831,18 @@ function RequestsSection({ pending_requests }: { pending_requests: VenueReservat
               {!handled.has(r.id) && (
                 <div className="flex gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setHandled(prev => new Set([...prev, r.id]))}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                    onClick={() => decide(r.id, "confirmed")}
+                    disabled={busy.has(r.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white disabled:opacity-50"
                     style={{ background: "#111111" }}
                   >
                     <IconCheck size={12} />
-                    Confirm
+                    {busy.has(r.id) ? "Confirming…" : "Confirm"}
                   </button>
                   <button
-                    onClick={() => setHandled(prev => new Set([...prev, r.id]))}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                    onClick={() => decide(r.id, "cancelled")}
+                    disabled={busy.has(r.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold disabled:opacity-50"
                     style={{ background: "#F5F5F5", color: "#999" }}
                   >
                     Decline
@@ -907,8 +870,8 @@ function RequestsSection({ pending_requests }: { pending_requests: VenueReservat
   );
 }
 
-function MailboxSection() {
-  const unread = MESSAGES.filter(m => m.unread).length;
+function MailboxSection({ notifications }: { notifications: PartnerNotification[] }) {
+  const unread = notifications.filter(m => !m.read).length;
 
   return (
     <div>
@@ -918,38 +881,43 @@ function MailboxSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {MESSAGES.map((m, i) => (
+        {notifications.map((m) => (
           <div
-            key={i}
-            className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 cursor-pointer"
+            key={m.id}
+            className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4"
             style={{
               boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-              borderLeft: m.unread ? "3px solid #111111" : "3px solid transparent",
+              borderLeft: !m.read ? "3px solid #111111" : "3px solid transparent",
             }}
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-              style={{ background: m.unread ? "#111111" : "#FFE0EE" }}
+              style={{ background: !m.read ? "#111111" : "#FFE0EE" }}
             >
-              {m.from[0]}
+              {m.title[0]}
             </div>
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm truncate"
-                style={{ color: "#111111", fontWeight: m.unread ? 700 : 500 }}
+                style={{ color: "#111111", fontWeight: !m.read ? 700 : 500 }}
               >
-                {m.from}
+                {m.title}
               </p>
-              <p className="text-xs text-gray-400 truncate mt-0.5">{m.preview}</p>
+              <p className="text-xs text-gray-400 truncate mt-0.5">{m.body}</p>
             </div>
             <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
-              <p className="text-xs text-gray-400">{m.time}</p>
-              {m.unread && (
+              <p className="text-xs text-gray-400">{timeAgo(m.created_at)}</p>
+              {!m.read && (
                 <div className="w-2 h-2 rounded-full" style={{ background: "#FF1F7D" }} />
               )}
             </div>
           </div>
         ))}
+        {notifications.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+            <p className="text-sm text-gray-400">No messages yet — new booking requests will show up here.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1111,6 +1079,7 @@ export default function YourVenue() {
   const [pendingRequests, setPendingRequests] = useState<VenueReservation[]>([]);
   const [reviews, setReviews] = useState<VenueReview[]>([]);
   const [stats, setStats] = useState<VenueStats | null>(null);
+  const [notifications, setNotifications] = useState<PartnerNotification[]>([]);
 
   useEffect(() => {
     fetch("/api/partner-portal/my-venue")
@@ -1125,9 +1094,14 @@ export default function YourVenue() {
         setStats(data.stats ?? null);
       })
       .catch(() => {});
+
+    fetch("/api/partner-portal/messages")
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setNotifications(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }, []);
 
-  const unreadMessages = MESSAGES.filter(m => m.unread).length;
+  const unreadMessages = notifications.filter(m => !m.read).length;
   const venueName = venueInfo?.name ?? "Your Venue";
   const venueInitial = venueName[0] ?? "V";
   const totalGuestsHosted = past.reduce((sum, r) => sum + r.party_size, 0);
@@ -1238,8 +1212,14 @@ export default function YourVenue() {
         {activeTab === "gatherings" && <GatheringsSection upcoming={upcoming} />}
         {activeTab === "women-hosted" && <WomenHostedSection past={past} stats={stats} />}
         {activeTab === "rating" && <RatingSection reviews={reviews} avgRating={venueInfo?.avg_rating ?? 0} reviewCount={venueInfo?.review_count ?? 0} />}
-        {activeTab === "requests" && <RequestsSection pending_requests={pendingRequests} />}
-        {activeTab === "mailbox" && <MailboxSection />}
+        {activeTab === "requests" && (
+          <RequestsSection
+            pending_requests={pendingRequests}
+            onDecided={(id) => setPendingRequests(prev => prev.filter(r => r.id !== id))}
+            showToast={showToast}
+          />
+        )}
+        {activeTab === "mailbox" && <MailboxSection notifications={notifications} />}
         {activeTab === "perks" && <PerksSection />}
         {activeTab === "templates" && <TemplatesSection />}
       </div>

@@ -11,7 +11,7 @@ export async function GET() {
 
   const { data: venue } = await supabase
     .from("restaurant_partners")
-    .select("id, slug, name, restaurant_type, neighborhood, city, tagline, about, bloom_notes, bloom_rating, reviews, brand_color, cover_url, photo_urls, instagram, address")
+    .select("id, slug, name, restaurant_type, neighborhood, city, tagline, about, bloom_notes, bloom_rating, reviews, brand_color, cover_url, photo_urls, instagram, address, hours")
     .eq("owner_id", user.id)
     .maybeSingle();
 
@@ -92,6 +92,7 @@ export async function GET() {
       bloom_notes: venue.bloom_notes ?? 0,
       avg_rating: Math.round(avgRating * 10) / 10,
       review_count: reviews.length,
+      hours: (venue.hours as Record<string, string> | null) ?? null,
     },
     upcoming: (upcomingRes.data ?? []).map(r => ({
       id: r.id,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BBLogo } from "../portal/bb-logo";
@@ -17,21 +18,33 @@ function IconDollar() { return <svg width="15" height="15" viewBox="0 0 16 16" f
 function IconSettings() { return <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>; }
 function IconHelp() { return <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" /><path d="M6 6.5a2 2 0 0 1 4 0c0 1.5-2 1.5-2 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="8" cy="12" r="0.75" fill="currentColor" /></svg>; }
 
-const NAV = [
+const NAV: { href: string; label: string; Icon: () => React.JSX.Element; badge?: number }[] = [
   { href: "/partner/dashboard",  label: "Dashboard",   Icon: IconGrid      },
   { href: "/partner/bookings",   label: "Bookings",    Icon: IconCalendar  },
-  { href: "/partner/events",     label: "Events",      Icon: IconStar      },
+  { href: "/partner/requests",   label: "Requests",    Icon: IconStar      },
   { href: "/partner/women",      label: "Women",       Icon: IconUsers     },
   { href: "/partner/analytics",  label: "Analytics",   Icon: IconBarChart  },
-  { href: "/partner/promotions", label: "Promotions",  Icon: IconMegaphone },
-  { href: "/partner/messages",   label: "Messages",    Icon: IconInbox,    badge: 2 },
-  { href: "/partner/payouts",    label: "Payouts",     Icon: IconDollar    },
-  { href: "/partner/settings",   label: "Settings",    Icon: IconSettings  },
+  { href: "/partner/drops",      label: "Boom drops",  Icon: IconMegaphone },
+  { href: "/partner/messages",   label: "Messages",    Icon: IconInbox     },
+  { href: "/partner/profile",    label: "Settings",    Icon: IconSettings  },
   { href: "/partner/help",       label: "Help Center", Icon: IconHelp      },
 ];
 
 export function PartnerSidebar() {
   const pathname = usePathname();
+  const [venueName, setVenueName] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/partner-portal/my-venue")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.venue?.name) setVenueName(data.venue.name as string);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayName = venueName ?? "Your Venue";
+  const initial = displayName[0]?.toUpperCase() ?? "V";
 
   return (
     <>
@@ -40,8 +53,8 @@ export function PartnerSidebar() {
         portalLabel="Partner Portal"
         theme="light"
         items={NAV.map(i => ({ href: i.href, label: i.label, icon: <i.Icon />, badge: "badge" in i ? i.badge as number : undefined }))}
-        userInitial="L"
-        userName="Ladurée SoHo"
+        userInitial={initial}
+        userName={displayName}
         userRole="Verified Partner"
       />
 
@@ -117,9 +130,9 @@ export function PartnerSidebar() {
         <div className="px-4 py-5 border-t" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)" }}>L</div>
+              style={{ background: "linear-gradient(135deg, #FF1F7D, #FF69B4)" }}>{initial}</div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold leading-none" style={{ color: "#111111" }}>Ladurée SoHo</p>
+              <p className="text-sm font-semibold leading-none" style={{ color: "#111111" }}>{displayName}</p>
               <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(17,17,17,0.4)" }}>Verified Partner</p>
             </div>
           </div>

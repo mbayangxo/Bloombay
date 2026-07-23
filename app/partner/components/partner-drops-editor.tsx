@@ -65,6 +65,9 @@ export function PartnerDropsEditor() {
 
   return (
     <div className="pp-drops">
+      <p className="pb-builder__proto" role="status">
+        Prototype — Boom drops save on this device until partner sync is live.
+      </p>
       {msg ? <p className="pb-builder__msg">{msg}</p> : null}
 
       <form onSubmit={createDrop} className="pp-card pp-drops__form">

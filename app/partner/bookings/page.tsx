@@ -1,38 +1,76 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { PartnerShell } from "../components/partner-shell";
-import { PARTNER_BOOKINGS_PAST, PARTNER_BOOKINGS_UPCOMING } from "@/lib/partner-portal-data";
+
+interface Reservation {
+  id: string;
+  guest: string;
+  date: string;
+  time: string;
+  party_size: number;
+}
 
 export default function PartnerBookingsPage() {
+  const [upcoming, setUpcoming] = useState<Reservation[]>([]);
+  const [past, setPast] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/partner-portal/my-venue")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          setUpcoming(data.upcoming ?? []);
+          setPast(data.past ?? []);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <PartnerShell title="Bookings" sub="Upcoming BloomBay bookings and past events.">
+    <PartnerShell title="Bookings" sub="Upcoming BloomBay reservations and past visits.">
       <div className="pp-card">
         <h2>Upcoming</h2>
-        {PARTNER_BOOKINGS_UPCOMING.map((b) => (
-          <div key={b.id} className="pp-list-row">
-            <div>
-              <strong>{b.event}</strong>
-              <br />
-              <span style={{ color: "var(--pp-muted)" }}>
-                {b.date} · {b.host} · {b.women} women
-              </span>
+        {loading ? (
+          <p className="pp-dash__empty">Loading…</p>
+        ) : upcoming.length === 0 ? (
+          <p className="pp-dash__empty">No upcoming bookings yet.</p>
+        ) : (
+          upcoming.map((b) => (
+            <div key={b.id} className="pp-list-row">
+              <div>
+                <strong>{b.guest}</strong>
+                <br />
+                <span style={{ color: "var(--pp-muted)" }}>
+                  {b.date}{b.time ? ` · ${b.time}` : ""} · {b.party_size} guests
+                </span>
+              </div>
             </div>
-            <span>{b.status}</span>
-          </div>
-        ))}
+          ))
+        )}
       </div>
       <div className="pp-card">
         <h2>Past</h2>
-        {PARTNER_BOOKINGS_PAST.map((b) => (
-          <div key={b.id} className="pp-list-row">
-            <div>
-              <strong>{b.event}</strong>
-              <br />
-              <span style={{ color: "var(--pp-muted)" }}>
-                {b.date} · {b.women} women
-              </span>
+        {loading ? (
+          <p className="pp-dash__empty">Loading…</p>
+        ) : past.length === 0 ? (
+          <p className="pp-dash__empty">No past visits yet.</p>
+        ) : (
+          past.map((b) => (
+            <div key={b.id} className="pp-list-row">
+              <div>
+                <strong>{b.guest}</strong>
+                <br />
+                <span style={{ color: "var(--pp-muted)" }}>
+                  {b.date}{b.time ? ` · ${b.time}` : ""}
+                </span>
+              </div>
+              <span>{b.party_size} guests</span>
             </div>
-            <span>${b.revenue}</span>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </PartnerShell>
   );
