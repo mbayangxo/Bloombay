@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { slugifyPartnerName } from "@/lib/partner-brand/paths";
 
 const PINK = "#FF1F7D";
 
@@ -241,11 +242,20 @@ export default function FoodTemplatesPage() {
                 <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #E8E4DC", background: "white", fontFamily: "var(--font-jost)", fontSize: 13, color: "#1C1B1C", outline: "none", boxSizing: "border-box" }} />
               </div>
             ))}
-            <button disabled style={{ width: "100%", padding: "16px", borderRadius: 999, border: "none", background: "#EEE", color: "#CCC", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.08em", cursor: "not-allowed", marginTop: 8, marginBottom: 8 }}>
-              POSTING ISN'T LIVE YET
-            </button>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", textAlign: "center", marginBottom: 20 }}>
-              Partner posting to The City is still being built — this preview isn't published anywhere yet.
+            {restaurantName.trim() ? (
+              <Link
+                href={`/member/city/partners/${slugifyPartnerName(restaurantName)}/edit`}
+                style={{ display: "block", width: "100%", padding: "16px", borderRadius: 999, border: "none", background: "#F97316", color: "white", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.08em", textAlign: "center", textDecoration: "none", boxSizing: "border-box", marginTop: 8, marginBottom: 8, boxShadow: "0 4px 20px rgba(249,115,22,0.35)" }}
+              >
+                SET UP YOUR REAL LISTING →
+              </Link>
+            ) : (
+              <button disabled style={{ width: "100%", padding: "16px", borderRadius: 999, border: "none", background: "#EEE", color: "#CCC", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.08em", cursor: "not-allowed", marginTop: 8, marginBottom: 8 }}>
+                ENTER YOUR RESTAURANT NAME ABOVE
+              </button>
+            )}
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa", textAlign: "center", marginBottom: 20, lineHeight: 1.5 }}>
+              This template is just a look — it doesn&apos;t post anywhere on its own. &ldquo;Set up your real listing&rdquo; takes you to your actual BloomBay Eats page, where you (as the owner) can add hours, photos and a menu.
             </p>
           </div>
         )}

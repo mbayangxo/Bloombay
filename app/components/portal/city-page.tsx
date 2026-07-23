@@ -599,22 +599,24 @@ function BuildingLabelsPanel({ onSelect, onSwipeToMenu }: { onSelect: (c: CityCa
   );
 }
 
-// ── Girl Gems + Girl Favorites data ──────────────────────────────────────────
-const GIRL_GEMS = [
-  { name: "Caffe Reggio", neighborhood: "Greenwich Village", type: "café", note: "Oldest espresso machine in NYC. Order the cappuccino.", emoji: "☕", color: "#8B4513" },
-  { name: "Corner Bar", neighborhood: "NoHo", type: "bar", note: "No sign outside. Tiny, perfect, intimate.", emoji: "🍷", color: "#722F37" },
-  { name: "Bluestockings", neighborhood: "LES", type: "bookshop", note: "Radical feminist bookshop. Buy something.", emoji: "📚", color: "#1A4A1A" },
-  { name: "Lucien", neighborhood: "East Village", type: "restaurant", note: "Always full but worth the wait. Order the steak frites.", emoji: "🥩", color: "#8B1A1A" },
-  { name: "Housing Works", neighborhood: "SoHo", type: "shop", note: "The best thrift store in NYC. Everything is $5–$40.", emoji: "🛍", color: "#2A4A7F" },
-];
-
-const GIRL_FAVS = [
-  { name: "Cha Cha Matcha", neighborhood: "Multiple locations", emoji: "🍵" },
-  { name: "Bar Pisellino", neighborhood: "West Village", emoji: "🍸" },
-  { name: "The Strand", neighborhood: "Flatiron", emoji: "📚" },
-  { name: "Café Kitsuné", neighborhood: "West Village", emoji: "☕" },
-  { name: "Russ & Daughters", neighborhood: "LES", emoji: "🥯" },
-];
+// ── Girl Gems + Girl Favorites — real restaurant_partners rows ──────────────
+// Girl Gems: partners with editorial "poem" or "bloom_tips" content (hidden-gem material).
+// Girl Favs: partners ranked by bloom_rating (highest-rated real spots).
+interface GirlGemRow {
+  id: string; name: string; neighborhood: string | null; restaurant_type: string;
+  poem: string | null; bloom_tips: string[] | null; brand_color: string | null;
+}
+interface GirlFavRow {
+  id: string; name: string; neighborhood: string | null; restaurant_type: string; bloom_rating: number | null;
+}
+const TYPE_EMOJI: Record<string, string> = {
+  café: "☕", cafe: "☕", coffee: "☕", bar: "🍸", cocktail: "🍸",
+  bakery: "🥐", fine_dining: "🍽️", casual: "🍴", restaurant: "🍴",
+};
+function emojiForType(t: string | null | undefined) {
+  return TYPE_EMOJI[(t ?? "").toLowerCase()] ?? "✦";
+}
+const GEM_COLORS = ["#8B4513", "#722F37", "#1A4A1A", "#8B1A1A", "#2A4A7F", "#6A3A6A"];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CITY MENU PANEL  (landing slide 1)
@@ -2324,6 +2326,18 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
 // GIRL GEMS PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
 function GirlGemsPage({ onBack }: { onBack: () => void }) {
+  const [gems, setGems] = useState<GirlGemRow[] | null>(null); // null = loading
+
+  useEffect(() => {
+    createClient()
+      .from("restaurant_partners")
+      .select("id, name, neighborhood, restaurant_type, poem, bloom_tips, brand_color")
+      .or("poem.not.is.null,bloom_tips.not.is.null")
+      .order("bloom_notes", { ascending: false })
+      .limit(8)
+      .then(({ data }) => setGems((data as GirlGemRow[] | null) ?? []));
+  }, []);
+
   return (
     <div style={{
       backgroundImage: `${DARK_GRAIN}, linear-gradient(160deg, #1A0810 0%, #2A1018 50%, #1A0C10 100%)`,
@@ -2349,34 +2363,47 @@ function GirlGemsPage({ onBack }: { onBack: () => void }) {
       <div style={{ padding: "20px 16px 0" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>THE LIST</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {GIRL_GEMS.map((gem, i) => (
-            <div key={i} style={{
-              backgroundImage: `${DARK_GRAIN}`,
-              backgroundSize: "160px 160px",
-              backgroundColor: "#1E0E14",
-              borderRadius: 20,
-              padding: "16px 16px 18px",
-              border: "1px solid rgba(255,255,255,0.06)",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-              overflow: "hidden",
-              position: "relative",
-            }}>
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${gem.color}99, transparent)` }} />
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: gem.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: `0 4px 16px ${gem.color}66` }}>
-                  {gem.emoji}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white" }}>{gem.name}</p>
-                    <span style={{ fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{gem.type}</span>
+          {gems === null && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "20px 0" }}>Loading gems…</p>
+          )}
+          {gems !== null && gems.length === 0 && (
+            <div style={{ textAlign: "center", padding: "32px 20px", color: "rgba(255,255,255,0.3)" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>No gems yet</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>CHECK BACK SOON</p>
+            </div>
+          )}
+          {gems !== null && gems.map((gem, i) => {
+            const color = gem.brand_color || GEM_COLORS[i % GEM_COLORS.length];
+            const note = gem.poem ?? gem.bloom_tips?.[0] ?? "";
+            return (
+              <div key={gem.id} style={{
+                backgroundImage: `${DARK_GRAIN}`,
+                backgroundSize: "160px 160px",
+                backgroundColor: "#1E0E14",
+                borderRadius: 20,
+                padding: "16px 16px 18px",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                overflow: "hidden",
+                position: "relative",
+              }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}99, transparent)` }} />
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: `0 4px 16px ${color}66` }}>
+                    {emojiForType(gem.restaurant_type)}
                   </div>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginBottom: 8, letterSpacing: "0.04em" }}>{gem.neighborhood}</p>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,220,200,0.7)", lineHeight: 1.6 }}>"{gem.note}"</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white" }}>{gem.name}</p>
+                      <span style={{ fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{gem.restaurant_type}</span>
+                    </div>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500, marginBottom: 8, letterSpacing: "0.04em" }}>{gem.neighborhood ?? "NYC"}</p>
+                    {note && <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "rgba(255,220,200,0.7)", lineHeight: 1.6 }}>&quot;{note}&quot;</p>}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Submit CTA */}
@@ -2392,7 +2419,11 @@ function GirlGemsPage({ onBack }: { onBack: () => void }) {
         }}>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>know a hidden gem? ✦</p>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions</p>
-          <button style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "pointer" }}>
+          <button
+            type="button"
+            disabled
+            title="Gem submissions aren't available yet"
+            style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "not-allowed", opacity: 0.55 }}>
             SUBMIT A GEM →
           </button>
         </div>
@@ -2405,6 +2436,18 @@ function GirlGemsPage({ onBack }: { onBack: () => void }) {
 // GIRL FAVORITES PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
 function GirlFavsPage({ onBack }: { onBack: () => void }) {
+  const [favs, setFavs] = useState<GirlFavRow[] | null>(null); // null = loading
+
+  useEffect(() => {
+    createClient()
+      .from("restaurant_partners")
+      .select("id, name, neighborhood, restaurant_type, bloom_rating")
+      .order("bloom_rating", { ascending: false })
+      .order("bloom_notes", { ascending: false })
+      .limit(5)
+      .then(({ data }) => setFavs((data as GirlFavRow[] | null) ?? []));
+  }, []);
+
   return (
     <div style={{
       backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
@@ -2430,8 +2473,17 @@ function GirlFavsPage({ onBack }: { onBack: () => void }) {
       <div style={{ padding: "20px 16px 0" }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#9A7A6A", marginBottom: 14 }}>OUR PICKS</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {GIRL_FAVS.map((fav, i) => (
-            <div key={i} style={{
+          {favs === null && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "20px 0" }}>Loading favs…</p>
+          )}
+          {favs !== null && favs.length === 0 && (
+            <div style={{ textAlign: "center", padding: "32px 20px", color: "rgba(255,255,255,0.3)" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>No favs yet</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>CHECK BACK SOON</p>
+            </div>
+          )}
+          {favs !== null && favs.map((fav, i) => (
+            <div key={fav.id} style={{
               backgroundImage: `${DARK_GRAIN}`,
               backgroundSize: "160px 160px",
               backgroundColor: i === 0 ? "#200C18" : "#1C0C14",
@@ -2450,10 +2502,10 @@ function GirlFavsPage({ onBack }: { onBack: () => void }) {
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: i === 0 ? `rgba(255,31,125,0.15)` : "rgba(255,255,255,0.05)", border: `1px solid ${i === 0 ? "rgba(255,31,125,0.3)" : "rgba(255,255,255,0.08)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: i === 0 ? PINK : "rgba(255,255,255,0.4)" }}>{i + 1}</span>
               </div>
-              <span style={{ fontSize: 20, flexShrink: 0 }}>{fav.emoji}</span>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{emojiForType(fav.restaurant_type)}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 700, color: "white", marginBottom: 2 }}>{fav.name}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>{fav.neighborhood}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>{fav.neighborhood ?? "NYC"}</p>
               </div>
             </div>
           ))}
