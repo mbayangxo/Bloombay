@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 async function getOwnerClub(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   const { data } = await supabase
@@ -109,7 +110,10 @@ export async function PATCH(req: NextRequest) {
       },
       { onConflict: "user_id,club_slug", ignoreDuplicates: true },
     );
-    await supabase.from("yande_messages").insert({
+    // System notification to the applicant, not the calling owner — needs
+    // the service-role client since yande_messages RLS only allows a user
+    // to read/update their own rows (see 101_yande_tables_rls.sql).
+    await createAdminClient().from("yande_messages").insert({
       user_id: app.user_id,
       message_type: "club_accepted",
       subject: "You're in.",
