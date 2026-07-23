@@ -842,29 +842,6 @@ export function LandingPage() {
       </Reveal>
 
       {/* ══════════════════════════════════════════════════════
-          STATEMENT — It's a woman's world.
-      ══════════════════════════════════════════════════════ */}
-      <Reveal>
-      <div style={{ background: INK, padding: "40px 22px 56px", overflow: "hidden" }}>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
-          <Link href="/onboard" style={{ display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "14px 32px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", boxShadow: "0 8px 32px rgba(255,31,125,0.4)" }}>
-            JOIN NOW →
-          </Link>
-          <Link href="/login" style={{ display: "inline-block", background: "transparent", color: "rgba(255,255,255,0.7)", borderRadius: 999, padding: "14px 28px", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.25)" }}>
-            LOG IN
-          </Link>
-        </div>
-        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(36px, 9vw, 92px)", color: "white", lineHeight: 0.9, letterSpacing: "-0.03em", margin: 0 }}>
-          It&apos;s a woman&apos;s world.
-        </p>
-        <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontStyle: "italic", fontSize: "clamp(40px, 10vw, 100px)", color: PINK, lineHeight: 0.9, letterSpacing: "-0.04em", margin: "6px 0 0" }}>
-          We&apos;re it.
-        </p>
-      </div>
-      </Reveal>
-
-
-      {/* ══════════════════════════════════════════════════════
           HOW IT WORKS (light, editorial steps)
       ══════════════════════════════════════════════════════ */}
       <Reveal>
