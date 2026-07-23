@@ -23,11 +23,13 @@ function formatWhen(iso: string) {
 
 export function ApplicationDetail({
   app,
+  busy,
   onDecide,
   onClose,
 }: {
   app: ClubApplication;
-  onDecide: (id: string, decision: "approved" | "denied") => void;
+  busy?: boolean;
+  onDecide: (id: string, decision: "approved" | "denied") => void | Promise<void>;
   onClose: () => void;
 }) {
   const gradient = app.photoGradient ?? "linear-gradient(135deg,#ffe4ec,#ffb7ce)";
@@ -94,11 +96,21 @@ export function ApplicationDetail({
 
       {app.status === "pending" ? (
         <div className="co-application-detail__actions">
-          <button type="button" className="co-btn co-btn--primary" onClick={() => onDecide(app.id, "approved")}>
-            Accept into club
+          <button
+            type="button"
+            className="co-btn co-btn--primary"
+            disabled={busy}
+            onClick={() => onDecide(app.id, "approved")}
+          >
+            {busy ? "Accepting…" : "Accept into club"}
           </button>
-          <button type="button" className="co-btn co-btn--ghost" onClick={() => onDecide(app.id, "denied")}>
-            Deny
+          <button
+            type="button"
+            className="co-btn co-btn--ghost"
+            disabled={busy}
+            onClick={() => onDecide(app.id, "denied")}
+          >
+            {busy ? "Denying…" : "Deny"}
           </button>
         </div>
       ) : (

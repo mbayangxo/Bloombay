@@ -2,22 +2,34 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  decideApplication,
-  getApplicationById,
-  listApplications,
-  type ClubApplication,
-} from "@/lib/club-host-store";
-import { addClubMember, logAudit } from "@/lib/club-owner-store";
+import { logAudit } from "@/lib/club-owner-store";
+import type { ClubApplication } from "@/lib/club-host-store";
 import { ApplicationDetail } from "./application-detail";
 
-function formatWhen(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+type ApiApplication = {
+  id: string;
+  status: string;
+  message: string;
+  applicant_name: string;
+  city: string | null;
+  instagram: string | null;
+  created_at: string;
+  profile: { avatar_url: string | null } | null;
+};
+
+function mapApplication(a: ApiApplication): ClubApplication {
+  const status = a.status === "approved" || a.status === "denied" ? a.status : "pending";
+  return {
+    id: a.id,
+    clubId: "",
+    applicantName: a.applicant_name,
+    city: a.city ?? "",
+    instagram: a.instagram ?? undefined,
+    why: a.message,
+    status,
+    submittedAt: a.created_at,
+    photoUrl: a.profile?.avatar_url ?? undefined,
+  };
 }
 
 function initials(name: string) {
@@ -37,18 +49,29 @@ function previewWhy(text: string, max = 72) {
 export function ApplicationsPanel({ clubId }: { clubId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [apps, setApps] = useState<ClubApplication[]>([]);
+  const [allApps, setAllApps] = useState<ClubApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
 
   const selectedId = searchParams.get("id");
-  const selected = selectedId ? getApplicationById(selectedId) : undefined;
+  const selected = selectedId ? allApps.find((a) => a.id === selectedId) : undefined;
 
-  const refresh = useCallback(() => {
-    setApps(filter === "pending" ? listApplications(clubId, "pending") : listApplications(clubId));
-  }, [clubId, filter]);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/club-portal/applications?status=all");
+      if (res.ok) {
+        const data = (await res.json()) as ApiApplication[];
+        setAllApps(data.map(mapApplication));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
 
   function openApplication(id: string) {
@@ -64,24 +87,27 @@ export function ApplicationsPanel({ clubId }: { clubId: string }) {
     router.push(q ? `/club-owner/applications?${q}` : "/club-owner/applications", { scroll: false });
   }
 
-  function decide(id: string, decision: "approved" | "denied") {
-    const app = getApplicationById(id);
-    decideApplication(id, decision);
-    if (decision === "approved" && app) {
-      addClubMember(clubId, {
-        name: app.applicantName,
-        city: app.city,
-        instagram: app.instagram,
+  async function decide(id: string, decision: "approved" | "denied") {
+    const app = allApps.find((a) => a.id === id);
+    setBusyId(id);
+    try {
+      const res = await fetch("/api/club-portal/applications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ application_id: id, status: decision }),
       });
-      logAudit(clubId, "Accepted application", app.applicantName);
-    } else if (app) {
-      logAudit(clubId, "Denied application", app.applicantName);
+      if (res.ok && app) {
+        logAudit(clubId, decision === "approved" ? "Accepted application" : "Denied application", app.applicantName);
+      }
+      await refresh();
+      closeDetail();
+    } finally {
+      setBusyId(null);
     }
-    refresh();
-    closeDetail();
   }
 
-  const pendingCount = listApplications(clubId, "pending").length;
+  const pendingCount = allApps.filter((a) => a.status === "pending").length;
+  const apps = filter === "pending" ? allApps.filter((a) => a.status === "pending") : allApps;
 
   return (
     <div>
@@ -113,7 +139,11 @@ export function ApplicationsPanel({ clubId }: { clubId: string }) {
         </button>
       </div>
 
-      {apps.length === 0 ? (
+      {loading ? (
+        <p className="co-hint" style={{ marginTop: "1rem" }}>
+          Loading applications…
+        </p>
+      ) : apps.length === 0 ? (
         <p className="co-hint" style={{ marginTop: "1rem" }}>
           No {filter === "pending" ? "pending " : ""}applications right now.
         </p>
@@ -166,7 +196,12 @@ export function ApplicationsPanel({ clubId }: { clubId: string }) {
           </ul>
 
           {selected ? (
-            <ApplicationDetail app={selected} onDecide={decide} onClose={closeDetail} />
+            <ApplicationDetail
+              app={selected}
+              busy={busyId === selected.id}
+              onDecide={decide}
+              onClose={closeDetail}
+            />
           ) : (
             <div className="co-application-placeholder" aria-hidden>
               <p>Select an application to review photo, story, and approve or deny.</p>
@@ -176,4 +211,13 @@ export function ApplicationsPanel({ clubId }: { clubId: string }) {
       )}
     </div>
   );
+}
+
+function formatWhen(iso: string) {
+  return new Date(iso).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

@@ -1,7 +1,7 @@
-// GET /api/club-portal/members
-// Returns member list for the authenticated club owner's club.
+// GET    /api/club-portal/members – member list for the authenticated club owner's club
+// DELETE /api/club-portal/members – remove a member from the owner's club
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -40,4 +40,25 @@ export async function GET() {
       joined_label: joinedAt ? new Date(joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "",
     };
   }));
+}
+
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: club } = await supabase.from("clubs").select("slug").eq("owner_id", user.id).maybeSingle();
+  if (!club?.slug) return NextResponse.json({ error: "No club" }, { status: 404 });
+
+  const { user_id } = (await req.json()) as { user_id?: string };
+  if (!user_id) return NextResponse.json({ error: "user_id required" }, { status: 400 });
+
+  const { error } = await supabase
+    .from("club_memberships")
+    .delete()
+    .eq("club_slug", club.slug)
+    .eq("user_id", user_id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
