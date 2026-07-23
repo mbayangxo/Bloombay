@@ -282,7 +282,7 @@ export default function VenuePage() {
       </div>
 
       {/* ── SAVE TO MY WORLD (sticky bottom) ────────────────────────── */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "12px 18px", paddingBottom: "max(14px, env(safe-area-inset-bottom))", background: `linear-gradient(to top, ${CREAM} 60%, transparent)`, zIndex: 40 }}>
+      <div style={{ position: "fixed", bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)", left: 0, right: 0, padding: "12px 18px", background: `linear-gradient(to top, ${CREAM} 60%, transparent)`, zIndex: 60 }}>
         <button onClick={() => setSaved(s => !s)}
           style={{
             width: "100%", padding: "15px", borderRadius: 999,

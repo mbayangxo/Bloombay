@@ -152,7 +152,7 @@ export default function BloomiesPage() {
       {selected && (
         <>
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)", zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "20px 24px 48px", boxShadow: "0 -8px 40px rgba(255,31,125,0.15)" }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "20px 24px 48px", boxShadow: "0 -8px 40px rgba(255,31,125,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
               <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(255,31,125,0.2)" }} />
             </div>

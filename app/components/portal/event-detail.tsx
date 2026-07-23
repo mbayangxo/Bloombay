@@ -331,7 +331,7 @@ function InviteSheet({ event, onClose }: { event: EventData; onClose: () => void
     <>
       <div className="fixed inset-0 z-50" onClick={onClose}
         style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-y-auto"
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl overflow-y-auto"
         style={{ background: "#FDFAF5", maxHeight: "85vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />

@@ -17,7 +17,7 @@ function ShareMomentSheet({ onClose, onShared }: { onClose: () => void; onShared
   return (
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "80vh", overflowY: "auto" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", maxHeight: "80vh", overflowY: "auto" }}>
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} />
         </div>

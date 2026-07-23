@@ -289,7 +289,7 @@ export default function FoundingChatPage() {
 
       {/* ── Input ── */}
       <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0,
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60,
         paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
         paddingTop: 12,
         paddingLeft: 16, paddingRight: 16,

@@ -148,7 +148,7 @@ export default function BouquetPage() {
       {selected && (
         <>
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)", zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "20px 24px 40px" }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60, background: "#FFFFFF", borderRadius: "24px 24px 0 0", padding: "20px 24px 40px" }}>
             <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: "#111111", margin: 0 }}>{selected.name}</h2>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>{selected.neighborhood}</p>
           </div>

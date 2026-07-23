@@ -1160,7 +1160,7 @@ export default function PassportPage() {
       {editingName && (
         <>
           <div style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.48)", backdropFilter: "blur(4px)" }} onClick={() => setEditingName(false)}/>
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, borderRadius: "24px 24px 0 0", background: "#FEFCF7", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", padding: "0 24px calc(env(safe-area-inset-bottom,0px) + 28px)" }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60, borderRadius: "24px 24px 0 0", background: "#FEFCF7", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)", padding: "0 24px calc(env(safe-area-inset-bottom,0px) + 28px)" }}>
             <div style={{ display: "flex", justifyContent: "center", paddingTop: 12, paddingBottom: 8 }}>
               <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }}/>
             </div>

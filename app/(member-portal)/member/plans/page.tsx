@@ -261,7 +261,7 @@ function PlanTicketSheet({ room, onClose, onOpenRoom }: { room: PlanRoom; onClos
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl overflow-hidden" style={{ background: "#FDFAF5", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }}>
         <div className="flex justify-center pt-3 pb-1"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.1)" }} /></div>
         <div className="px-5 pb-2">
           <div className="rounded-3xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
@@ -927,7 +927,7 @@ function PlanRoomBoard({ room, onBack, theme }: { room: PlanRoom; onBack: () => 
   const pct  = todos.length > 0 ? Math.round((done / todos.length) * 100) : 0;
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: theme.pageBg, paddingBottom: 96 }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: theme.pageBg, paddingBottom: 130 }}>
 
       {/* Sticky header */}
       <div style={{ background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, paddingTop: 54, position: "sticky", top: 0, zIndex: 40 }}>
@@ -1117,7 +1117,7 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
   if (done) return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "white", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "white", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
         <div className="flex flex-col items-center py-10 px-6 text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg,#FF1F7D,#FF69B4)", boxShadow: "0 4px 20px rgba(255,31,125,0.35)" }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1135,7 +1135,7 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
   return (
     <>
       <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col" style={{ background: "white", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl flex flex-col" style={{ background: "white", maxHeight: "92vh", boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} /></div>
         <div className="px-6 pb-4 pt-2 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
           <div className="flex items-center gap-3">
@@ -1674,7 +1674,7 @@ function PlansPageInner() {
   const todayStr = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <div style={{ minHeight: "100vh", background: theme.pageBg, paddingBottom: 96, transition: "background 0.8s" }}>
+    <div style={{ minHeight: "100vh", background: theme.pageBg, paddingBottom: 130, transition: "background 0.8s" }}>
 
       {/* Custom top bar */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 54, zIndex: 51, background: theme.topBar, borderBottom: `1px solid ${theme.topBarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
@@ -1857,7 +1857,7 @@ function PlansPageInner() {
 
       {/* Calendar full-screen overlay */}
       {showCalendar && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "var(--bb-bg, #FFF0F8)", overflowY: "auto" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "var(--bb-bg, #FFF0F8)", overflowY: "auto" }}>
           {/* Header with close button */}
           <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(255,240,248,0.97)", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backdropFilter: "blur(12px)" }}>
             <div>

@@ -265,7 +265,7 @@ function ComposeSheet({
         onClick={onClose}
       />
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl"
+        className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl"
         style={{ background: "#FDFAF6", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)", maxHeight: "88vh", overflowY: "auto" }}
       >
         {/* Drag handle */}
@@ -382,7 +382,7 @@ function ExpandedNoteSheet({
         onClick={onClose}
       />
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl"
+        className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl"
         style={{ background: "#FDFAF6", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)", maxHeight: "88vh", overflowY: "auto" }}
       >
         {/* Drag handle */}

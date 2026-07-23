@@ -121,7 +121,7 @@ function AddEventSheet({ defaultDay, defaultMonth, defaultYear, onClose, onAdd }
   return (
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl"
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl"
         style={{ background: "#FFF8F5", boxShadow: "0 -8px 48px rgba(0,0,0,0.6)", maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
 
         {/* Handle */}

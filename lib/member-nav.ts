@@ -79,6 +79,7 @@ export const HIDE_BOTTOM_NAV_PREFIXES = [
   "/member/clubs/create",
   "/member/happenings/create",
   "/member/chat",
+  "/member/lounge/founding-chat",
 ];
 
 export function shouldHideBottomNav(pathname: string): boolean {

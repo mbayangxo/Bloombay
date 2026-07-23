@@ -316,7 +316,7 @@ function NewChatSheet({
     return (
       <>
         <Backdrop />
-        <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+        <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
           <Handle /><SheetHeader title="✦ NEW CONVERSATION" />
           <div className="px-6 pt-5 pb-8 flex flex-col gap-3">
             {[
@@ -348,7 +348,7 @@ function NewChatSheet({
     return (
       <>
         <Backdrop />
-        <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "75vh", display: "flex", flexDirection: "column" }}>
+        <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "75vh", display: "flex", flexDirection: "column" }}>
           <Handle />
           <SheetHeader title="SEND A MESSAGE" onBack={() => { setMode("choose"); setDmPick(null); setError(null); }} />
           <div className="flex-1 overflow-y-auto px-6 py-3">
@@ -375,7 +375,7 @@ function NewChatSheet({
   return (
     <>
       <Backdrop />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "82vh", display: "flex", flexDirection: "column" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", maxHeight: "82vh", display: "flex", flexDirection: "column" }}>
         <Handle />
         <SheetHeader title="NAME YOUR CHAT" onBack={() => { setMode("choose"); setSelected(new Set()); setGroupName(""); setError(null); }} />
         <div className="px-6 py-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
@@ -740,7 +740,7 @@ function WallpaperPicker({ current, onChange, onClose }: { current: string; onCh
   return (
     <>
       <div style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.5)" }} onClick={onClose} />
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50, borderRadius: "28px 28px 0 0", background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60, borderRadius: "28px 28px 0 0", background: "#FFFFFF", boxShadow: "0 -8px 40px rgba(255,31,125,0.12)", paddingBottom: "env(safe-area-inset-bottom,24px)" }}>
         <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
           <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.1)" }} />
         </div>
@@ -1013,7 +1013,7 @@ function ThreadShell({
           {sendError}
         </p>
       )}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20 }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 60 }}>
         <ComposerBar
           draft={draft}
           setDraft={setDraft}
@@ -1081,7 +1081,7 @@ function AddPeopleSheet({
   return (
     <>
       <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl" style={{ background: "#fff", maxHeight: "75vh", display: "flex", flexDirection: "column", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl" style={{ background: "#fff", maxHeight: "75vh", display: "flex", flexDirection: "column", paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div className="px-6 pt-4 pb-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,31,125,0.1)" }}>
           <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>Add women</p>
           <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", fontSize: 18, cursor: "pointer" }}>×</button>
