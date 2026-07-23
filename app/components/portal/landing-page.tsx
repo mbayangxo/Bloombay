@@ -217,9 +217,9 @@ function EnvelopeInvitation() {
             </div>
 
             {/* ── FRONT OF ENVELOPE — handwritten note, fades when opening ── */}
-            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, textAlign: "center", zIndex: 4, opacity: opening ? 0 : 1, transition: "opacity 0.2s ease", pointerEvents: "none" }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 25, fontWeight: 700, color: "rgba(196,0,90,0.8)", lineHeight: 1, marginBottom: 5 }}>open me ♡</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, letterSpacing: "0.3em", color: "rgba(196,0,90,0.42)" }}>YOUR INVITATION TO THE WAITLIST</p>
+            <div style={{ position: "absolute", bottom: 130, left: 0, right: 0, textAlign: "center", zIndex: 4, opacity: opening ? 0 : 1, transition: "opacity 0.2s ease", pointerEvents: "none" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 34, fontWeight: 700, color: "rgba(196,0,90,0.85)", lineHeight: 1, marginBottom: 8 }}>open me ♡</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 900, letterSpacing: "0.28em", color: "rgba(196,0,90,0.5)" }}>YOUR INVITATION TO THE WAITLIST</p>
             </div>
 
             {/* ── INNER INVITATION CARD — hidden until flap opens ── */}
@@ -371,10 +371,18 @@ export function LandingPage() {
           100% { transform: translateY(-115vh) rotate(300deg); }
         }
         @keyframes bbShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        .bb-reveal { opacity:0; transform:translateY(28px); transition:opacity .75s ease, transform .75s cubic-bezier(.22,1,.36,1); }
+        .bb-reveal { opacity:0; transform:translateY(28px) scale(0.98); transition:opacity .75s ease, transform .75s cubic-bezier(.22,1,.36,1); }
         .bb-reveal--in { opacity:1; transform:none; }
+        .bb-card-pop:hover { transform: translateY(-6px) scale(1.025); background: rgba(255,31,125,0.06); border-color: rgba(255,31,125,0.35) !important; }
+        @keyframes bbCtaGlow {
+          0%,100% { box-shadow: 0 8px 40px rgba(255,31,125,0.5); }
+          50% { box-shadow: 0 8px 56px rgba(255,31,125,0.85), 0 0 0 6px rgba(255,31,125,0.12); }
+        }
+        .bb-cta-pulse { animation: bbCtaGlow 2.6s ease-in-out infinite; }
+        .bb-cta-pulse:hover { animation-play-state: paused; }
         @media (prefers-reduced-motion: reduce) {
           .bb-reveal { opacity:1; transform:none; transition:none; }
+          .bb-cta-pulse { animation:none; }
         }
       `}</style>
 
@@ -595,6 +603,7 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           MARQUEE — animated phrase strip
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <div style={{ background: INK, overflow: "hidden", padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="bb-marquee-track">
           {[...Array(2)].map((_, rep) => (
@@ -609,6 +618,7 @@ export function LandingPage() {
           ))}
         </div>
       </div>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           THE PROBLEM — social stats narrative
@@ -617,41 +627,41 @@ export function LandingPage() {
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <Reveal><div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
               <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: "20px" }}>🏙️</span>
               </div>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
                 Over <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>100,000 women</strong> move to a new city every year — and most of them know almost nobody.
               </p>
-            </div>
+            </div></Reveal>
 
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <Reveal delay={80}><div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
               <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: "20px" }}>💔</span>
               </div>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
                 <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>3 in 5 women</strong> in major cities report feeling lonely. After 25, making real friends gets harder every year.
               </p>
-            </div>
+            </div></Reveal>
 
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <Reveal delay={160}><div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
               <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg,${PINK},#c4005a)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: "20px" }}>📱</span>
               </div>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(18px,3vw,24px)", color: INK, lineHeight: 1.5, margin: 0 }}>
                 <strong style={{ fontStyle: "normal", fontFamily: "var(--font-jost)", fontWeight: 900, color: PINK }}>1 in 3 women</strong> says she has no close friends outside her family. The group chats go quiet. The plans stop happening.
               </p>
-            </div>
+            </div></Reveal>
 
-            <div style={{ marginTop: 8, paddingTop: 28, borderTop: `2px solid ${PINK}` }}>
+            <Reveal delay={240}><div style={{ marginTop: 8, paddingTop: 28, borderTop: `2px solid ${PINK}` }}>
               <p style={{ fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "clamp(18px,3vw,22px)", color: INK, letterSpacing: "0.04em", margin: 0 }}>
                 BloomBay is here to change that. <span style={{ color: PINK }}>✦</span>
               </p>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "clamp(15px,2.5vw,18px)", color: "#999", marginTop: 8, lineHeight: 1.6 }}>
                 A real community. Real women. Real plans that actually happen.
               </p>
-            </div>
+            </div></Reveal>
 
           </div>
         </div>
@@ -660,6 +670,7 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           YOUR TABLE IS HERE — Event cards
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <section style={{ padding: "36px 22px 64px", background: "white" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 36 }}>
@@ -679,7 +690,7 @@ export function LandingPage() {
               { tag: "BOOKS",    title: "Book Club", location: "Nolita", time: "Book nights", grad: "linear-gradient(160deg,#FF69B4 0%,#111111 100%)" },
               { tag: "OUTDOORS", title: "Sunday Walk", location: "Brooklyn Bridge Park", time: "Sunday walks", grad: "linear-gradient(160deg,#111 0%,#c4005a 100%)" },
             ].map((ev, i) => (
-              <div key={i} style={{ flexShrink: 0, width: 210, borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", background: "white", position: "relative" }}>
+              <Reveal key={i} delay={i * 70}><div className="bb-card-pop" style={{ flexShrink: 0, width: 210, borderRadius: 22, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", background: "white", position: "relative" }}>
                 <div style={{ height: 200, background: ev.grad, position: "relative" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 30% 20%, white 0%, transparent 60%)", opacity: 0.15, pointerEvents: "none" }} />
                   <div style={{ position: "absolute", top: 14, left: 14, padding: "5px 11px", borderRadius: 999, background: "rgba(255,255,255,0.95)", fontSize: "9px", fontWeight: 900, letterSpacing: "0.1em", color: PINK }}>{ev.tag}</div>
@@ -700,7 +711,7 @@ export function LandingPage() {
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
                   </Link>
                 </div>
-              </div>
+              </div></Reveal>
             ))}
             <div style={{ flexShrink: 0, width: 120, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
               <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", color: "#ccc", fontSize: "18px", lineHeight: 1.3, textAlign: "center" }}>And more every week.</p>
@@ -711,10 +722,12 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           EVERYTHING BLOOMBAY — full feature showcase
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <section style={{ padding: "80px 22px", background: INK }}>
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -766,12 +779,13 @@ export function LandingPage() {
                 desc: "Dinner Society, Museum Girls, Book Club, Sunday Walks — join the ones that feel like home.",
                 color: PINK, href: "/member/clubs",
               },
-            ].map(f => (
-              <Link key={f.name} href={f.href} style={{ textDecoration: "none" }}>
-                <div style={{
+            ].map((f, i) => (
+              <Reveal key={f.name} delay={i * 60}>
+              <Link href={f.href} style={{ textDecoration: "none" }}>
+                <div className="bb-card-pop" style={{
                   borderRadius: 20, padding: "24px 22px", width: 240, flexShrink: 0, boxSizing: "border-box",
                   background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-                  transition: "border-color 0.15s", cursor: "pointer",
+                  transition: "border-color 0.15s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s", cursor: "pointer",
                 }}>
                   <div style={{ fontSize: 28, marginBottom: 14 }}>{f.emoji}</div>
                   <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.22em", color: f.color, marginBottom: 6 }}>✦ {f.label}</p>
@@ -779,14 +793,17 @@ export function LandingPage() {
                   <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>{f.desc}</p>
                 </div>
               </Link>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           STATEMENT — Women are gathering.
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <div style={{ background: IVORY, padding: "48px 22px 40px", borderTop: "1px solid #ecddd4", overflow: "hidden" }}>
         <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 9vw, 88px)", color: INK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: 0, maxWidth: 860 }}>
           Women are{" "}
@@ -796,15 +813,17 @@ export function LandingPage() {
           NEW YORK CITY &nbsp;·&nbsp; EST. 2025 &nbsp;·&nbsp; BLOOMBAY
         </p>
       </div>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           Honest invite CTA (no fabricated social proof)
       ══════════════════════════════════════════════════════ */}
-      <InviteCtaSection />
+      <Reveal><InviteCtaSection /></Reveal>
 
       {/* ══════════════════════════════════════════════════════
           YOUR SOCIAL LIFE STARTS HERE — CLUBS
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <section style={{ padding: "80px 22px", background: IVORY }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: 40 }}>
@@ -816,14 +835,16 @@ export function LandingPage() {
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: "20px", color: "#aaa", transform: "rotate(-1deg)" }}>find your people. build your world.</p>
           </div>
           <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, flexWrap: "nowrap" }}>
-            {CLUBS.map((club, i) => <ClubCard key={i} name={club.name} dark={club.dark} outline={club.outline} icon={club.icon} />)}
+            {CLUBS.map((club, i) => <Reveal key={i} delay={i * 60}><ClubCard name={club.name} dark={club.dark} outline={club.outline} icon={club.icon} /></Reveal>)}
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           STATEMENT — It's a woman's world.
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <div style={{ background: INK, padding: "40px 22px 56px", overflow: "hidden" }}>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
           <Link href="/onboard" style={{ display: "inline-block", background: PINK, color: "white", borderRadius: 999, padding: "14px 32px", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: "11px", letterSpacing: "0.14em", textDecoration: "none", boxShadow: "0 8px 32px rgba(255,31,125,0.4)" }}>
@@ -840,11 +861,13 @@ export function LandingPage() {
           We&apos;re it.
         </p>
       </div>
+      </Reveal>
 
 
       {/* ══════════════════════════════════════════════════════
           HOW IT WORKS (light, editorial steps)
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <section style={{ padding: "80px 22px", background: PINK }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.7)", marginBottom: 12, textAlign: "center" }}>HOW IT WORKS</p>
@@ -860,21 +883,25 @@ export function LandingPage() {
               { step: "02", title: "Pick your clubs", body: "Dinner Society. Museum Girls. Book Club. There's a table for you here." },
               { step: "03", title: "Show up", body: "Attend IRL events with real women who actually show up. No flaking, no randos." },
               { step: "04", title: "Make it yours", body: "Start your own club, host your first gathering, build something that lasts." },
-            ].map((item) => (
-              <div key={item.step} style={{ textAlign: "left", padding: "22px 20px", background: "rgba(255,255,255,0.15)", borderRadius: 18, position: "relative", overflow: "hidden", backdropFilter: "blur(8px)" }}>
+            ].map((item, i) => (
+              <Reveal key={item.step} delay={i * 70}>
+              <div className="bb-card-pop" style={{ textAlign: "left", padding: "22px 20px", background: "rgba(255,255,255,0.15)", borderRadius: 18, position: "relative", overflow: "hidden", backdropFilter: "blur(8px)" }}>
                 <div style={{ position: "absolute", top: -8, right: 8, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "64px", fontWeight: 300, color: "rgba(255,255,255,0.12)", lineHeight: 1 }}>{item.step}</div>
                 <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "28px", fontWeight: 300, color: "rgba(255,255,255,0.7)", marginBottom: 8, lineHeight: 1, position: "relative" }}>{item.step}</p>
                 <p style={{ fontWeight: 800, fontSize: "13px", color: "white", marginBottom: 6, position: "relative" }}>{item.title}</p>
                 <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, position: "relative" }}>{item.body}</p>
               </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ══════════════════════════════════════════════════════
           BOTTOM CTA
       ══════════════════════════════════════════════════════ */}
+      <Reveal>
       <section style={{ background: INK, padding: "88px 22px", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ position: "absolute", top: 0, right: 0, width: 400, height: 400, background: "radial-gradient(circle, rgba(255,31,125,0.28) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, width: 300, height: 300, background: "radial-gradient(circle, rgba(255,105,180,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -886,14 +913,16 @@ export function LandingPage() {
             <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>is waiting.</span>
           </p>
           <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", fontFamily: "var(--font-fraunces)", fontStyle: "italic", marginBottom: 36 }}>100 founding mothers. Womanhood worldwide.</p>
-          <Link href="/waitlist" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
+          <Link href="/waitlist" className="bb-cta-pulse" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "20px 44px", borderRadius: 999, fontWeight: 900, fontSize: "13px", letterSpacing: "0.14em", background: `linear-gradient(135deg,${PINK},#c4005a)`, color: "white", textDecoration: "none", boxShadow: "0 8px 40px rgba(255,31,125,0.5)" }}>
             ACCEPT INVITATION
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </Link>
         </div>
       </section>
+      </Reveal>
 
       {/* ══ FOOTER ══ */}
+      <Reveal>
       <footer style={{ background: "#FFF0F6", borderTop: "1px solid #FFD6E7" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 22px 36px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 28, marginBottom: 48, paddingBottom: 40, borderBottom: "1px solid #FFD6E7" }}>
@@ -947,6 +976,7 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
+      </Reveal>
     </div>
   );
 }
