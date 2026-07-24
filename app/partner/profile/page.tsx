@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PartnerShell } from "../components/partner-shell";
 import { partnerMemberHref } from "@/lib/partner-brand/paths";
-import { SESSION_PARTNER_SLUG } from "@/lib/partner-brand/store";
 
 interface Venue {
+  slug: string;
   name: string;
   type: string;
   neighborhood: string;
@@ -52,14 +52,16 @@ export default function PartnerProfilePage() {
         <Link href="/partner/brand" className="pp-btn pp-btn--primary">
           Edit brand identity →
         </Link>
-        <Link
-          href={partnerMemberHref(SESSION_PARTNER_SLUG)}
-          className="pp-btn"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Preview member page →
-        </Link>
+        {venue?.slug ? (
+          <Link
+            href={partnerMemberHref(venue.slug)}
+            className="pp-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Preview member page →
+          </Link>
+        ) : null}
       </div>
     </PartnerShell>
   );

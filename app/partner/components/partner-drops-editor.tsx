@@ -11,6 +11,24 @@ import {
 import type { BoomDrop, BoomDropKind } from "@/lib/partner-drops/types";
 import { SESSION_PARTNER_SLUG } from "@/lib/partner-brand/store";
 
+function useActivePartnerSlug(): string {
+  const [slug, setSlug] = useState(SESSION_PARTNER_SLUG);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/partner-portal/my-venue")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const realSlug = data?.venue?.slug as string | undefined;
+        if (!cancelled && realSlug) setSlug(realSlug);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return slug;
+}
+
 const KIND_LABELS: Record<BoomDropKind, string> = {
   percent_off: "% off",
   bogo: "Buy one · get one",
@@ -18,7 +36,7 @@ const KIND_LABELS: Record<BoomDropKind, string> = {
 };
 
 export function PartnerDropsEditor() {
-  const slug = SESSION_PARTNER_SLUG;
+  const slug = useActivePartnerSlug();
   const [drops, setDrops] = useState<BoomDrop[]>([]);
   const [kind, setKind] = useState<BoomDropKind>("percent_off");
   const [title, setTitle] = useState("");

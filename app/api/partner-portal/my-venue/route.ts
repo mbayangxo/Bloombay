@@ -79,6 +79,7 @@ export async function GET() {
   return NextResponse.json({
     venue: {
       id: venue.id,
+      slug: venue.slug,
       name: venue.name,
       type: venue.restaurant_type ?? "",
       neighborhood: venue.neighborhood ?? "",

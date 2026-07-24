@@ -394,7 +394,7 @@ export function getHealthAlerts(clubId: string) {
       level: "warn",
       message: "Several members inactive 7+ days — send a Bloom ping?",
       action: "Open ping",
-      href: "/club-owner/ping",
+      href: "/club-owner/comms",
     });
   }
   alerts.push({
@@ -432,7 +432,7 @@ export function getOnboardingSteps(clubId: string): OnboardingStep[] {
       href: "/club-owner/gatherings",
     },
     { id: "mods", label: "Invite a moderator", done: false, href: "/club-owner/moderators" },
-    { id: "ping", label: "Send your first Bloom ping", done: pings > 0, href: "/club-owner/ping" },
+    { id: "ping", label: "Send your first Bloom ping", done: pings > 0, href: "/club-owner/comms" },
   ];
 }
 

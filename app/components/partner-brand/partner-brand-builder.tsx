@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PartnerBrandView } from "./partner-brand-view";
 import {
@@ -39,6 +39,23 @@ export function PartnerBrandBuilder() {
   const [brand, setBrand] = useState<PartnerBrandProfile>(() => getActivePartnerBrand());
   const [preview, setPreview] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  // Re-resolve against the signed-in partner's real venue slug once it
+  // loads — without this every partner falls back to the same demo brand.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/partner-portal/my-venue")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const realSlug = data?.venue?.slug as string | undefined;
+        if (cancelled || !realSlug) return;
+        setBrand(getActivePartnerBrand(realSlug));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function update(patch: Partial<PartnerBrandProfile>) {
     setBrand((b) => ({ ...b, ...patch }));

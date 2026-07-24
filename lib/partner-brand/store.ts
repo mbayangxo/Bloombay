@@ -171,14 +171,21 @@ export function getPartnerBrandByName(name: string): PartnerBrandProfile | null 
   return getPartnerBrandBySlug(slug) ?? readAll().find((p) => p.name === name) ?? null;
 }
 
-/** Logged-in partner portal session — demo anchors to The Rose Room. */
-export function getActivePartnerBrand(): PartnerBrandProfile {
-  const existing = getPartnerBrandBySlug(SESSION_PARTNER_SLUG);
+/**
+ * Logged-in partner portal session. Pass the signed-in partner's real venue
+ * slug (from GET /api/partner-portal/my-venue) once it's loaded — every
+ * partner otherwise falls back to the same demo slug/profile, which means
+ * two different partners in the same browser would see and edit the same
+ * brand page.
+ */
+export function getActivePartnerBrand(realSlug?: string): PartnerBrandProfile {
+  const slug = realSlug || SESSION_PARTNER_SLUG;
+  const existing = getPartnerBrandBySlug(slug);
   if (existing) return existing;
   const tpl = getBrandTemplate("restaurant");
   return {
     id: uid(),
-    slug: SESSION_PARTNER_SLUG,
+    slug,
     name: PARTNER_PROFILE.name,
     businessType: PARTNER_PROFILE.type,
     tagline: tpl.taglineStarter,

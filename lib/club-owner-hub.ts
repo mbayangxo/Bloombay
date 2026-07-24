@@ -37,7 +37,6 @@ export const CLUB_OWNER_HUB: HubCard[] = [
   { title: "Event archive", desc: "Memory · lessons learned", href: "/club-owner/archive", accent: "ink" },
   { title: "Multi-club portfolio", desc: "All clubs · pending · performance", href: "/club-owner/portfolio", accent: "hot" },
   { title: "Co-hosts & mods", desc: "Legacy staff roles", href: "/club-owner/team", accent: "ink" },
-  { title: "Announcements", desc: "Quick Bloom ping", href: "/club-owner/ping", accent: "hot" },
   { title: "Notifications", desc: "Alerts & email prefs", href: "/club-owner/notifications", accent: "barbie", badgeKey: "notifs" },
   { title: "Zone requests", desc: "New chapters", href: "/club-owner/zones", accent: "barbie", badgeKey: "zones" },
   { title: "Moderation", desc: "Flagged posts", href: "/club-owner/moderation", accent: "ink" },
