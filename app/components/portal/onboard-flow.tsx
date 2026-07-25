@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -507,9 +507,12 @@ function IntroSlides({ onDone }: { onDone: () => void }) {
   );
 }
 
-const LEGAL_DOCS: Record<"terms" | "privacy" | "rules", { title: string; body: string[] }> = {
+type LegalDocKey = "terms" | "privacy" | "rules" | "woman";
+
+const LEGAL_DOCS: Record<LegalDocKey, { title: string; acceptLabel: string; body: string[] }> = {
   terms: {
     title: "Terms of Service",
+    acceptLabel: "I ACCEPT THE TERMS",
     body: [
       "Welcome to BloomBay. By joining, you agree to use BloomBay to build genuine community with other women and girls, and to treat every member with kindness and respect.",
       "BloomBay is a space for women and girls everywhere. You agree that the information you provide is truthful, and that you will not impersonate anyone or misrepresent who you are.",
@@ -521,6 +524,7 @@ const LEGAL_DOCS: Record<"terms" | "privacy" | "rules", { title: string; body: s
   },
   privacy: {
     title: "Privacy Policy",
+    acceptLabel: "I ACCEPT THE PRIVACY POLICY",
     body: [
       "Your privacy matters. BloomBay collects only what we need to give you a safe, personal experience — your name, contact details, city, and the preferences you choose to share.",
       "We use your information to match you to clubs, gatherings, and women near you, and to keep the community safe. We do not sell your personal information.",
@@ -532,6 +536,7 @@ const LEGAL_DOCS: Record<"terms" | "privacy" | "rules", { title: string; body: s
   },
   rules: {
     title: "Community Guidelines",
+    acceptLabel: "I ACCEPT THE GUIDELINES",
     body: [
       "BloomBay only works because of how we treat each other. These are the promises every member makes.",
       "Lead with warmth. Assume good intent, welcome new women, and celebrate one another. Petals and flowers are for lifting each other up.",
@@ -541,6 +546,16 @@ const LEGAL_DOCS: Record<"terms" | "privacy" | "rules", { title: string; body: s
       "By tapping “I accept,” you agree to uphold these Community Guidelines.",
     ],
   },
+  woman: {
+    title: "Women & girls only",
+    acceptLabel: "I CERTIFY I AM A WOMAN AND A GIRL",
+    body: [
+      "BloomBay is a site only for women and girls.",
+      "This is a private social world built for women — friendships, clubs, gatherings, and community that feel safe because everyone here belongs.",
+      "Men cannot join BloomBay. Accounts that misrepresent gender will be removed.",
+      "By continuing, you certify that you are a woman or a girl, and that you understand BloomBay is women-only.",
+    ],
+  },
 };
 
 function LegalModal({
@@ -548,7 +563,7 @@ function LegalModal({
   onAccept,
   onClose,
 }: {
-  docKey: "terms" | "privacy" | "rules";
+  docKey: LegalDocKey;
   onAccept: () => void;
   onClose: () => void;
 }) {
@@ -557,9 +572,13 @@ function LegalModal({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const el = scrollRef.current;
-    if (el && el.scrollHeight <= el.clientHeight + 24) setAtBottom(true);
-  }, []);
+    setAtBottom(false);
+    const id = window.requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (el && el.scrollHeight <= el.clientHeight + 24) setAtBottom(true);
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [docKey]);
 
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     const el = e.currentTarget;
@@ -568,38 +587,54 @@ function LegalModal({
 
   return (
     <div
-      onClick={onClose}
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end" }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="legal-modal-title"
+      style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end" }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{ width: "100%", maxHeight: "86vh", background: "white", borderRadius: "24px 24px 0 0", display: "flex", flexDirection: "column", overflow: "hidden" }}
       >
         <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
           <div style={{ width: 40, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
         </div>
-        <div style={{ padding: "8px 24px 12px" }}>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 26, color: "#1C1B1C", margin: 0 }}>{doc.title}</h2>
+        <div style={{ padding: "8px 24px 12px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <h2 id="legal-modal-title" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 400, fontSize: 26, color: "#1C1B1C", margin: 0 }}>{doc.title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              flexShrink: 0, width: 32, height: 32, borderRadius: "50%", border: "none",
+              background: "rgba(0,0,0,0.06)", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
+          </button>
         </div>
-        <div ref={scrollRef} onScroll={onScroll} style={{ flex: 1, overflowY: "auto", padding: "0 24px 16px" }}>
+        <div ref={scrollRef} onScroll={onScroll} style={{ flex: 1, overflowY: "auto", padding: "0 24px 16px", WebkitOverflowScrolling: "touch" }}>
           {doc.body.map((p, i) => (
             <p key={i} style={{ fontFamily: "var(--font-jost)", fontSize: 13.5, lineHeight: 1.7, color: "rgba(0,0,0,0.66)", marginBottom: 14 }}>{p}</p>
           ))}
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.3)", textAlign: "center", marginTop: 4 }}>Scroll to the end to accept</p>
+          {!atBottom && (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.3)", textAlign: "center", marginTop: 4 }}>Scroll to the end to accept</p>
+          )}
         </div>
         <div style={{ padding: "12px 24px calc(env(safe-area-inset-bottom,0px) + 20px)", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <button
+            type="button"
             onClick={() => { onAccept(); onClose(); }}
             disabled={!atBottom}
             style={{
               width: "100%", padding: "15px 0", borderRadius: 999, border: "none",
               background: atBottom ? "#FF1F7D" : "rgba(255,31,125,0.18)",
               color: atBottom ? "white" : "rgba(255,31,125,0.5)",
-              fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 13, letterSpacing: "0.1em",
+              fontFamily: "var(--font-jost)", fontWeight: 800, fontSize: 12, letterSpacing: "0.08em",
               cursor: atBottom ? "pointer" : "default",
             }}
           >
-            {atBottom ? "I ACCEPT" : "SCROLL DOWN TO ACCEPT"}
+            {atBottom ? doc.acceptLabel : "SCROLL DOWN TO ACCEPT"}
           </button>
         </div>
       </div>
@@ -613,7 +648,7 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
   const [agreeRules, setAgreeRules]     = useState(false);
   const [agreeWoman, setAgreeWoman]     = useState(false);
   const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeWoman;
-  const [openDoc, setOpenDoc] = useState<null | "terms" | "privacy" | "rules">(null);
+  const [openDoc, setOpenDoc] = useState<LegalDocKey | null>(null);
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden"
@@ -786,15 +821,20 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
           zIndex: 2,
         }}>
 
-        {/* Agreements — tap a policy to read it in full, then accept */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
+        {/* Agreements — tap each to read the full popup, then accept */}
+        <div className="flex flex-col gap-2.5 mb-4">
           {([
             { key: "terms" as const,   label: "Terms of Service",    val: agreeTerms },
             { key: "privacy" as const, label: "Privacy Policy",       val: agreePrivacy },
             { key: "rules" as const,   label: "Community Guidelines", val: agreeRules },
+            { key: "woman" as const,   label: "I certify I am a woman and a girl", val: agreeWoman },
           ]).map(item => (
-            <button key={item.key} onClick={() => setOpenDoc(item.key)}
-              className="flex items-center gap-2.5 text-left py-0.5">
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setOpenDoc(item.key)}
+              className="flex items-center gap-2.5 text-left py-0.5"
+            >
               <div className="flex-shrink-0 flex items-center justify-center"
                 style={{
                   width: 18, height: 18, borderRadius: 5,
@@ -807,26 +847,16 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
                   </svg>
                 )}
               </div>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)", textDecoration: "underline", textUnderlineOffset: 2 }}>{item.label}</span>
+              <span style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: "11px",
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.7)",
+                textDecoration: "underline",
+                textUnderlineOffset: 2,
+              }}>{item.label}</span>
             </button>
           ))}
-          {/* I am a woman/girl — direct affirmation */}
-          <button onClick={() => setAgreeWoman(!agreeWoman)}
-            className="flex items-center gap-2.5 text-left py-0.5">
-            <div className="flex-shrink-0 flex items-center justify-center"
-              style={{
-                width: 18, height: 18, borderRadius: 5,
-                background: agreeWoman ? "white" : "rgba(255,255,255,0.12)",
-                border: `1.5px solid ${agreeWoman ? "white" : "rgba(255,255,255,0.28)"}`,
-              }}>
-              {agreeWoman && (
-                <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4l3 3 5-6" stroke="#FF1F7D" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
-            </div>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>I am a woman/girl</span>
-          </button>
         </div>
 
         <button
@@ -858,7 +888,8 @@ function WelcomeSplash({ onStart }: { onStart: () => void }) {
           onAccept={() => {
             if (openDoc === "terms") setAgreeTerms(true);
             else if (openDoc === "privacy") setAgreePrivacy(true);
-            else setAgreeRules(true);
+            else if (openDoc === "rules") setAgreeRules(true);
+            else if (openDoc === "woman") setAgreeWoman(true);
           }}
         />
       )}
@@ -915,20 +946,79 @@ export function OnboardFlow() {
 
   // Step 8 – invites
   const [inviteEmails, setInviteEmails] = useState(["", "", ""]);
-
-  // Agreements – required before joining
-  const [agreeTerms,   setAgreeTerms]   = useState(false);
-  const [agreePrivacy, setAgreePrivacy] = useState(false);
-  const [agreeRules,   setAgreeRules]   = useState(false);
-  const [agreeAge,     setAgreeAge]     = useState(false);
-  const allAgreed = agreeTerms && agreePrivacy && agreeRules && agreeAge;
+  const [booting, setBooting] = useState(true);
+  const [resumeEmail, setResumeEmail] = useState<string | null>(null);
+  const isResume = searchParams.get("resume") === "1";
 
   // ── helpers ──────────────────────────────────────────────────────
   function advance() { setStep((s) => s + 1); setError(null); }
-  function goBack()  { setStep((s) => s - 1); setError(null); }
+  function goBack()  { setStep((s) => Math.max(isResume || resumeEmail ? 2 : 0, s - 1)); setError(null); }
+
+  // Already signed in (login → incomplete onboarding): never ask them to create an account again.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (!user) {
+          setBooting(false);
+          return;
+        }
+
+        setResumeEmail(user.email ?? null);
+        setShowIntro(false);
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("first_name, bio, age, neighborhood, borough, goals, interests, onboarding_completed")
+          .eq("id", user.id)
+          .single();
+
+        if (cancelled) return;
+
+        if (profile?.onboarding_completed) {
+          router.replace(returnPath);
+          return;
+        }
+
+        if (profile?.first_name) setFirstName(profile.first_name);
+        if (profile?.bio) setBio(profile.bio);
+        if (profile?.age != null) setAge(String(profile.age));
+        if (profile?.neighborhood) setNeighborhood(profile.neighborhood);
+        if (profile?.borough) setBorough(profile.borough);
+
+        // Pick the first unfinished step (skip account creation entirely).
+        if (!profile?.first_name?.trim()) setStep(2);
+        else if (!profile?.neighborhood?.trim()) setStep(5);
+        else if (!profile?.goals || (Array.isArray(profile.goals) && profile.goals.length === 0)) setStep(6);
+        else setStep(8);
+      } finally {
+        if (!cancelled) setBooting(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- boot once on mount
+  }, []);
+
+  if (booting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--pale-pink-bg)" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888" }}>Loading…</p>
+      </div>
+    );
+  }
 
   if (showIntro) return <IntroSlides onDone={() => setShowIntro(false)} />;
-  if (step === 0 && !emailVerificationSent) return <WelcomeSplash onStart={advance} />;
+  if (step === 0 && !emailVerificationSent && !resumeEmail) return <WelcomeSplash onStart={advance} />;
+
+  // Logged-in resume must never see "Create your account"
+  useEffect(() => {
+    if (resumeEmail && step < 2) setStep(2);
+  }, [resumeEmail, step]);
+
+  const activeStep = resumeEmail && step < 2 ? 2 : step;
 
   async function getUser() {
     const supabase = createClient();
@@ -938,6 +1028,11 @@ export function OnboardFlow() {
 
   // ── STEP 1 – create account ───────────────────────────────────────
   async function handleCreateAccount() {
+    // Already authenticated (resume) — never call signUp again
+    if (resumeEmail) {
+      setStep(2);
+      return;
+    }
     if (!email.includes("@")) return setError("Enter a valid email address.");
     if (password.length < 8) return setError("Password must be at least 8 characters.");
     if (password !== confirmPassword) return setError("Passwords don't match.");
@@ -945,8 +1040,20 @@ export function OnboardFlow() {
     setError(null);
     try {
       const supabase = createClient();
+      const { data: existing } = await supabase.auth.getUser();
+      if (existing.user) {
+        setResumeEmail(existing.user.email ?? email);
+        setStep(2);
+        return;
+      }
       const { data, error: err } = await supabase.auth.signUp({ email, password });
-      if (err) throw err;
+      if (err) {
+        const msg = err.message.toLowerCase();
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+          throw new Error("You already have an account. Please log in instead.");
+        }
+        throw err;
+      }
       if (!data.user) throw new Error("Sign-up failed — please try again.");
       if (!data.session) {
         // Email confirmation required
@@ -965,8 +1072,8 @@ export function OnboardFlow() {
   async function handleSaveProfile() {
     if (!firstName.trim()) return setError("Enter your first name.");
     const ageNum = age ? parseInt(age, 10) : null;
-    if (age && (isNaN(ageNum!) || ageNum! < 18 || ageNum! > 100)) {
-      return setError("You must be 18 or older to join BloomBay.");
+    if (age && (isNaN(ageNum!) || ageNum! < 1 || ageNum! > 120)) {
+      return setError("Enter a valid age.");
     }
     setLoading(true);
     setError(null);
@@ -1186,7 +1293,7 @@ export function OnboardFlow() {
   return (
     <div className="min-h-screen" style={{ background: "var(--pale-pink-bg)" }}>
       <div className="max-w-md mx-auto w-full px-5 pt-12 pb-20">
-        {step > 0 && !emailVerificationSent && (
+        {activeStep > 0 && !emailVerificationSent && !(resumeEmail && activeStep <= 2) && (
           <button
             onClick={goBack}
             className="mb-5 text-sm font-medium text-gray-400 flex items-center gap-1 hover:text-gray-600 transition-colors"
@@ -1195,7 +1302,7 @@ export function OnboardFlow() {
           </button>
         )}
 
-        <Progress step={step} />
+        <Progress step={activeStep} />
 
 
 
@@ -1239,7 +1346,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 1: Create Account ───────────────────────────────────── */}
-        {step === 1 && !emailVerificationSent && (
+        {activeStep === 1 && !emailVerificationSent && !resumeEmail && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 1 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Create your account.</h2>
@@ -1264,7 +1371,7 @@ export function OnboardFlow() {
             </PinkBtn>
             <p className="text-center text-xs text-gray-400 mt-4">
               Already a member?{" "}
-              <Link href="/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
+              <Link href="/member/login" className="font-semibold" style={{ color: "var(--bb-pink)" }}>
                 Log in
               </Link>
             </p>
@@ -1272,11 +1379,22 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 2: Basic Profile ────────────────────────────────────── */}
-        {step === 2 && (
+        {activeStep === 2 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 2 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Tell us about you.</h2>
             <p className="text-gray-400 text-sm mb-7">This is how women will know you inside BloomBay.</p>
+
+            {resumeEmail && (
+              <div className="mb-5 rounded-2xl px-4 py-3" style={{ background: "var(--light-pink)" }}>
+                <p className="text-sm font-semibold" style={{ color: "var(--bb-black)" }}>
+                  You&apos;re signed in as {resumeEmail}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: "#9e6070" }}>
+                  Finish your profile — no need to create another account.
+                </p>
+              </div>
+            )}
 
             {error && <ErrorBanner msg={error} />}
 
@@ -1284,7 +1402,7 @@ export function OnboardFlow() {
               <Field label="Your first name">
                 <TextInput value={firstName} onChange={setFirstName} placeholder="Maya" />
               </Field>
-              <Field label="Age" hint="Must be 18+">
+              <Field label="Age" hint="Optional">
                 <TextInput value={age} onChange={setAge} placeholder="28" type="number" />
               </Field>
               <Field label="About you" hint="Optional — 200 characters max">
@@ -1310,7 +1428,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 3: Upload Photo ──────────────────────────────────────── */}
-        {step === 3 && (
+        {activeStep === 3 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 3 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Add your photo.</h2>
@@ -1367,7 +1485,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 4: Selfie Verification ───────────────────────────────── */}
-        {step === 4 && (
+        {activeStep === 4 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 4 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Verify it&apos;s you.</h2>
@@ -1420,7 +1538,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 5: City & Neighborhood ──────────────────────────────── */}
-        {step === 5 && (
+        {activeStep === 5 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 5 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Where in NYC?</h2>
@@ -1464,7 +1582,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 6: Vibe & Interests ──────────────────────────────────── */}
-        {step === 6 && (
+        {activeStep === 6 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 6 OF 8</p>
             {error && <ErrorBanner msg={error} />}
@@ -1546,7 +1664,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 7: Choose Clubs ──────────────────────────────────────── */}
-        {step === 7 && (
+        {activeStep === 7 && (
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">STEP 7 OF 8</p>
             <h2 className="text-3xl font-bold mb-1" style={{ color: "var(--bb-black)" }}>Join some clubs.</h2>
@@ -1609,7 +1727,7 @@ export function OnboardFlow() {
         )}
 
         {/* ── STEP 8: Invite Friends ────────────────────────────────────── */}
-        {step === 8 && (
+        {activeStep === 8 && (
           <div>
             <div className="flex flex-col items-center text-center mb-8">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--light-pink)" }}>

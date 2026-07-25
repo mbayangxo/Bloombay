@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosterRenderer } from "@/app/components/poster-templates/poster-renderer";
@@ -15,9 +15,16 @@ import {
   saveGatheringPlan,
   type GatheringCommitment,
 } from "@/lib/member-gathering-plans";
+import { isGatheringSaved, toggleGatheringSave } from "@/lib/actions/member-saves";
+import { giveGatheringGift, takeBackGatheringGift, getGatheringFlowersForUser } from "@/lib/actions/happenings";
+import { FlowerButton } from "@/app/components/shared/flower-button";
+import type { GiftKind } from "@/lib/bloom-gifts";
+import { unitsForKind } from "@/lib/bloom-gifts";
+import { BloomNotesBoard } from "@/app/components/portal/bloom-notes-board";
 import { HappeningRsvpConfirmation } from "./happening-rsvp-confirmation";
 import { RoomBriefCard } from "@/app/components/portal/room-brief-card";
 import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
+import { useGatheringAnalytics } from "@/app/components/portal/host-event-analytics";
 
 type RsvpPhase = "choose" | "confirm" | "done";
 
@@ -28,6 +35,13 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
   const [rsvpBusy, setRsvpBusy] = useState(false);
   const [phase, setPhase] = useState<RsvpPhase>("choose");
   const [existing, setExisting] = useState<GatheringCommitment | null>(null);
+  const [gemSaved, setGemSaved] = useState(false);
+  const [savePending, startSaveTransition] = useTransition();
+  const [flowerUnits, setFlowerUnits] = useState(0);
+  const [myGiftKind, setMyGiftKind] = useState<GiftKind | null>(null);
+  const [canEngage, setCanEngage] = useState(false);
+
+  useGatheringAnalytics(gathering?.id);
 
   useEffect(() => {
     void (async () => {
@@ -42,11 +56,72 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
             setExisting(saved.commitment);
             if (saved.commitment === "going") setPhase("done");
           }
+          setGemSaved(await isGatheringSaved(g.id));
+          const flowers = await getGatheringFlowersForUser([g.id]);
+          const fl = flowers[g.id] ?? { units: 0, count: 0, gave: false, myKind: null };
+          setFlowerUnits(fl.units ?? fl.count ?? 0);
+          setMyGiftKind(fl.myKind ?? null);
+          const eng = await fetch(`/api/happenings/can-engage?gatheringId=${encodeURIComponent(g.id)}`);
+          if (eng.ok) {
+            const ej = await eng.json();
+            setCanEngage(!!ej.allowed);
+          }
         }
       }
       setLoading(false);
     })();
   }, [slug]);
+
+  // Refresh engage gate after RSVP going
+  useEffect(() => {
+    if (!gathering || existing !== "going") return;
+    setCanEngage(true);
+  }, [gathering, existing]);
+
+  function onToggleGem() {
+    if (!gathering) return;
+    const next = !gemSaved;
+    setGemSaved(next);
+    startSaveTransition(async () => {
+      const result = await toggleGatheringSave(gathering.id);
+      if (result.error) setGemSaved(!next);
+      else setGemSaved(result.saved);
+    });
+  }
+
+  async function onGiveGift(kind: GiftKind) {
+    if (!gathering) return;
+    const prevUnits = flowerUnits;
+    const prevKind = myGiftKind;
+    const prevGave = prevKind ? unitsForKind(prevKind) : 0;
+    const nextUnits = unitsForKind(kind);
+
+    if (prevKind === kind) {
+      setMyGiftKind(null);
+      setFlowerUnits(Math.max(0, prevUnits - prevGave));
+    } else {
+      setMyGiftKind(kind);
+      setFlowerUnits(Math.max(0, prevUnits - prevGave + nextUnits));
+    }
+
+    const result = await giveGatheringGift(gathering.id, kind);
+    if (result.gave) {
+      setMyGiftKind(result.kind);
+    } else {
+      setMyGiftKind(null);
+      setFlowerUnits(Math.max(0, prevUnits - prevGave));
+    }
+  }
+
+  async function onTakeBackGift() {
+    if (!gathering) return;
+    const prevUnits = flowerUnits;
+    const prevKind = myGiftKind;
+    const prevGave = prevKind ? unitsForKind(prevKind) : 0;
+    setMyGiftKind(null);
+    setFlowerUnits(Math.max(0, prevUnits - prevGave));
+    await takeBackGatheringGift(gathering.id);
+  }
 
   if (loading) {
     return (
@@ -115,14 +190,55 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen pb-24" style={{ background: "#FDFAF5" }}>
       <div className="px-5 pt-12 max-w-md mx-auto">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-sm font-semibold mb-6"
-          style={{ color: "#FF1F7D" }}
-        >
-          ← Happenings
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-sm font-semibold"
+            style={{ color: "#FF1F7D" }}
+          >
+            ← Happenings
+          </button>
+          <div className="flex items-center gap-2">
+            <FlowerButton
+              size="sm"
+              units={flowerUnits}
+              myKind={myGiftKind}
+              onGive={onGiveGift}
+              onTakeBack={onTakeBackGift}
+              disabled={!canEngage}
+            />
+            <Link
+              href="/member/gems"
+              className="text-[11px] font-bold tracking-wide"
+              style={{ color: "#888", textDecoration: "none" }}
+            >
+              My gems
+            </Link>
+            <button
+              type="button"
+              onClick={onToggleGem}
+              disabled={savePending}
+              aria-label={gemSaved ? "Remove from My gems" : "Save to My gems"}
+              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-50"
+              style={{
+                background: gemSaved ? "rgba(255,31,125,0.1)" : "white",
+                border: `1.5px solid ${gemSaved ? "#FF1F7D" : "#E8E8E8"}`,
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill={gemSaved ? "#FF1F7D" : "none"}
+                stroke="#FF1F7D"
+                strokeWidth="2.2"
+              >
+                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         <div className="mb-6">
           <PosterRenderer data={{ ...poster, ctaLabel: undefined, href: undefined }} />
@@ -156,6 +272,15 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
             </p>
           ) : null}
         </div>
+
+        <BloomNotesBoard
+          placeSlug={`happening-${gathering.slug}`}
+          placeName={gathering.title}
+          gatheringId={gathering.id}
+          brand={poster.accentColor ?? "#FF1F7D"}
+          accent="#FF69B4"
+          seeAllHref={null}
+        />
 
         {existing === "going" ? (
           <div className="flex flex-col gap-2.5">

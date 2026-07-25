@@ -79,11 +79,21 @@ export async function POST(req: NextRequest) {
       }
 
       if (type === "event_ticket") {
+        const amountPaid = amountCents;
+        const platformFee = Number(meta.platform_fee_cents ?? 0);
+        const hostReceives = Math.max(0, amountPaid - platformFee);
+
         await supabase.from("tickets").upsert({
           user_id: meta.user_id,
           event_id: meta.event_id,
           stripe_session_id: session.id,
-          amount_paid: amountCents,
+          stripe_payment_intent:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id ?? null,
+          amount_paid: amountPaid,
+          platform_fee_cents: platformFee,
+          host_receives_cents: hostReceives,
           currency,
           status: "confirmed",
           purchased_at: new Date().toISOString(),
@@ -96,12 +106,31 @@ export async function POST(req: NextRequest) {
           type: "event_ticket",
           stripe_session_id: session.id,
           stripe_payment_intent: typeof session.payment_intent === "string" ? session.payment_intent : null,
-          amount_cents: amountCents,
+          amount_cents: amountPaid,
+          platform_fee_cents: platformFee,
           currency,
           item_name: ev?.title ?? "Event ticket",
           item_id: meta.event_id ?? null,
+          host_id: meta.host_id || null,
+          stripe_destination_account: meta.destination_account || null,
           status: "completed",
         }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+
+        // Confirm seat so they can leave Bloom Notes / flowers
+        const { data: existingSeat } = await supabase
+          .from("seat_reservations")
+          .select("id")
+          .eq("gathering_id", meta.event_id)
+          .eq("user_id", meta.user_id)
+          .eq("status", "reserved")
+          .maybeSingle();
+        if (!existingSeat) {
+          await supabase.from("seat_reservations").insert({
+            gathering_id: meta.event_id,
+            user_id: meta.user_id,
+            status: "reserved",
+          });
+        }
 
         await supabase.from("notifications").insert({
           user_id: meta.user_id,
@@ -236,6 +265,33 @@ export async function POST(req: NextRequest) {
           .from("profiles")
           .update({ is_member: false, membership_type: null })
           .eq("id", subMeta.user_id);
+      }
+      break;
+    }
+
+    case "account.updated": {
+      const account = event.data.object as Stripe.Account;
+      const bloombayUserId = account.metadata?.bloombay_user_id;
+      if (bloombayUserId) {
+        await supabase
+          .from("profiles")
+          .update({
+            stripe_account_id: account.id,
+            stripe_charges_enabled: !!account.charges_enabled,
+            stripe_payouts_enabled: !!account.payouts_enabled,
+            stripe_details_submitted: !!account.details_submitted,
+            is_host: true,
+          })
+          .eq("id", bloombayUserId);
+      } else {
+        await supabase
+          .from("profiles")
+          .update({
+            stripe_charges_enabled: !!account.charges_enabled,
+            stripe_payouts_enabled: !!account.payouts_enabled,
+            stripe_details_submitted: !!account.details_submitted,
+          })
+          .eq("stripe_account_id", account.id);
       }
       break;
     }

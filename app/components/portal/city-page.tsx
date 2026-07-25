@@ -8,9 +8,17 @@ import { PushPin } from "./scrapbook";
 import { ReserveTableSheet } from "./reserve-table-sheet";
 import { createClient } from "@/lib/supabase/client";
 import {
-  getNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
-  getNoteCountsByPlace, type BloomNote,
+  getNoteCountsByPlace,
 } from "@/lib/actions/bloom-notes";
+import { BloomNotesBoard } from "@/app/components/portal/bloom-notes-board";
+import { FlowerButton } from "@/app/components/shared/flower-button";
+import {
+  getPlaceGiftsForUser,
+  givePlaceGift,
+  takeBackPlaceGift,
+} from "@/lib/actions/place-gifts";
+import type { GiftKind } from "@/lib/bloom-gifts";
+import { unitsForKind } from "@/lib/bloom-gifts";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -932,6 +940,7 @@ type RestaurantType = "fine_dining" | "café" | "bar" | "bakery" | "casual";
 
 interface EatsPartner {
   id: number;
+  slug: string;
   name: string;
   type: RestaurantType;
   hood: string;
@@ -971,7 +980,7 @@ function filterEatsPartners(partners: EatsPartner[], filter: string): EatsPartne
 
 // Real partner row from restaurant_partners table
 interface RealPartnerRow {
-  id: string; name: string; restaurant_type: string; neighborhood: string | null;
+  id: string; slug: string | null; name: string; restaurant_type: string; neighborhood: string | null;
   tagline: string | null; about: string | null; bloom_notes: number; bloom_rating: number;
   price_range: string | null; brand_color: string; cover_url: string | null;
   poem: string | null; polaroid_caption: string | null; host_note: string | null;
@@ -988,8 +997,10 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
   };
   const heroColors = ["#C84A18","#3A6A38","#5A1A0A","#1A3A6A","#6A1A5A","#3A1A6A"];
   const heroColor = r.brand_color || heroColors[idx % heroColors.length];
+  const slug = r.slug || toSlug(r.name);
   return {
     id: idx + 100,
+    slug,
     name: r.name,
     type: typeMap[r.restaurant_type?.toLowerCase() ?? ""] ?? "casual",
     hood: r.neighborhood ?? "NYC",
@@ -1036,7 +1047,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
           if (data && data.length > 0) {
             const mapped = (data as RealPartnerRow[]).map((r, i) => realToEatsPartner(r, i));
             setRealPartners(mapped);
-            getNoteCountsByPlace(mapped.map(p => toSlug(p.name))).then(setNoteCounts).catch(() => {});
+            getNoteCountsByPlace(mapped.map(p => p.slug)).then(setNoteCounts).catch(() => {});
           }
         });
     });
@@ -1169,7 +1180,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
           {allPartners.map(p => (
-            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[toSlug(p.name)] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
+            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[p.slug] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
           ))}
         </div>
       </div>
@@ -1383,125 +1394,46 @@ function toSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const NOTE_TONES = ["#FFF6D8", "#FDE8EE", "#E8F2E4"];
-
-function BloomNotesBoard({ placeSlug, placeName, brand, accent }: { placeSlug: string; placeName: string; brand: string; accent: string }) {
-  const [notes, setNotes]     = useState<BloomNote[]>([]);
-  const [draft, setDraft]     = useState("");
-  const [posting, setPosting] = useState(false);
-
-  useEffect(() => {
-    getNotesForPlace(placeSlug).then(setNotes).catch(() => {});
-  }, [placeSlug]);
-
-  async function post() {
-    const text = draft.trim();
-    if (!text || posting) return;
-    setPosting(true);
-    const res = await leaveBloomNote(placeSlug, placeName, text);
-    if (res.ok) {
-      setDraft("");
-      setNotes(await getNotesForPlace(placeSlug));
-    }
-    setPosting(false);
-  }
-
-  async function onFlower(id: string) {
-    setNotes(ns => ns.map(n => n.id === id
-      ? { ...n, gave_flower: !n.gave_flower, flower_count: n.flower_count + (n.gave_flower ? -1 : 1) }
-      : n));
-    await toggleFlower(id);
-  }
-
-  async function onSave(id: string) {
-    setNotes(ns => ns.map(n => n.id === id ? { ...n, saved: !n.saved } : n));
-    await toggleSaveNote(id);
-  }
-
-  return (
-    <div style={{
-      backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px",
-      backgroundColor: "#F8F0E0", borderRadius: 14, padding: "16px 14px", marginBottom: 12,
-      boxShadow: "0 6px 24px rgba(0,0,0,0.4)", position: "relative",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <div style={{ display: "inline-flex", background: brand, borderRadius: 4, padding: "3px 9px" }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.14em" }}>BLOOM NOTES</span>
-        </div>
-        <span style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#B0A090" }}>left behind, for you ✿</span>
-      </div>
-
-      {/* Composer — leave one behind */}
-      <div style={{ background: "#FFF8E6", borderRadius: 4, padding: "12px 12px 10px", marginBottom: 14, boxShadow: "0 3px 12px rgba(0,0,0,0.15)", transform: "rotate(-0.6deg)", position: "relative" }}>
-        <PushPin color="gold" size={13} style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}/>
-        <textarea
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          placeholder="Leave a little note for the next girl…"
-          rows={2}
-          maxLength={500}
-          style={{
-            width: "100%", border: "none", outline: "none", background: "transparent", resize: "none",
-            fontFamily: "var(--font-caveat)", fontSize: 16, color: "#4A3A2A", lineHeight: 1.4,
-          }}
-        />
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={post} disabled={posting || !draft.trim()} style={{
-            background: draft.trim() ? PINK : "rgba(0,0,0,0.08)",
-            color: draft.trim() ? "white" : "#AAA",
-            border: "none", borderRadius: 999, padding: "6px 16px", cursor: draft.trim() ? "pointer" : "default",
-            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em",
-            boxShadow: draft.trim() ? `0 3px 12px ${PINK}55` : "none",
-          }}>
-            {posting ? "PINNING…" : "PIN IT ✿"}
-          </button>
-        </div>
-      </div>
-
-      {/* The notes — only real ones, nothing shown until they exist */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {notes.length === 0 && (
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#B0A090", textAlign: "center", padding: "8px 0 4px", fontStyle: "italic" }}>
-            Be the first to leave a note here ✿
-          </p>
-        )}
-
-        {notes.map((n, i) => (
-          <div key={n.id} style={{ background: NOTE_TONES[i % 3], borderRadius: 4, padding: "12px 12px 10px", boxShadow: "0 3px 12px rgba(0,0,0,0.14)", transform: `rotate(${i % 2 === 0 ? -0.8 : 1}deg)`, position: "relative" }}>
-            <PushPin color={i % 2 === 0 ? "pink" : "red"} size={12} style={{ position: "absolute", top: -7, left: `${30 + (i % 4) * 14}%`, zIndex: 2 }}/>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15.5, color: "#4A3A2A", lineHeight: 1.45, marginBottom: 8 }}>{n.content}</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              {n.author_avatar ? (
-                <Image src={n.author_avatar} alt="" width={20} height={20} unoptimized style={{ borderRadius: "50%", objectFit: "cover" }} />
-              ) : (
-                <div style={{ width: 20, height: 20, borderRadius: "50%", background: `linear-gradient(135deg, ${accent}, ${brand})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, color: "white" }}>{(n.author_name ?? "B").charAt(0)}</span>
-                </div>
-              )}
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#2A1A10" }}>{n.author_name ?? "A Bloomie"}</p>
-              <button onClick={() => onSave(n.id)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill={n.saved ? "#C0185F" : "none"} stroke="#C0185F" strokeWidth="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-              </button>
-              <button onClick={() => onFlower(n.id)} style={{
-                background: n.gave_flower ? "#C0185F" : "rgba(192,24,95,0.1)",
-                color: n.gave_flower ? "white" : "#C0185F",
-                border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer",
-                fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800,
-              }}>
-                ✿ {n.flower_count}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: EatsPartner; onBack: () => void; isOwner?: boolean }) {
   // Brand palette derived from the partner
   const BRAND  = p.heroColor;
   const ACCENT = p.accentColor;
+  const [placeGift, setPlaceGift] = useState<{ units: number; myKind: GiftKind | null }>({
+    units: 0,
+    myKind: null,
+  });
+
+  useEffect(() => {
+    void getPlaceGiftsForUser([p.slug]).then((map) => {
+      const fl = map[p.slug] ?? { units: 0, myKind: null };
+      setPlaceGift(fl);
+    });
+  }, [p.slug]);
+
+  async function onGivePlaceGift(kind: GiftKind) {
+    const prev = placeGift;
+    const prevGave = prev.myKind ? unitsForKind(prev.myKind) : 0;
+    const nextUnits = unitsForKind(kind);
+    if (prev.myKind === kind) {
+      setPlaceGift({ units: Math.max(0, prev.units - prevGave), myKind: null });
+    } else {
+      setPlaceGift({
+        units: Math.max(0, prev.units - prevGave + nextUnits),
+        myKind: kind,
+      });
+    }
+    const result = await givePlaceGift(p.slug, kind);
+    if (!result.gave) {
+      setPlaceGift({ units: Math.max(0, prev.units - prevGave), myKind: null });
+    }
+  }
+
+  async function onTakeBackPlaceGift() {
+    const prev = placeGift;
+    const prevGave = prev.myKind ? unitsForKind(prev.myKind) : 0;
+    setPlaceGift({ units: Math.max(0, prev.units - prevGave), myKind: null });
+    await takeBackPlaceGift(p.slug);
+  }
 
   // Toned "photo" placeholder — gradient tile standing in for real imagery
   function PhotoTile({ tone, h = 70, br = 6 }: { tone: string; h?: number; br?: number }) {
@@ -1562,7 +1494,14 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
             <Tape rotate={-4} left="30%"/>
             <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,7.5vw,34px)", fontWeight: 900, fontStyle: "italic", color: BRAND, lineHeight: 1.0, marginBottom: 6 }}>{p.name}</h1>
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: ACCENT, marginBottom: 10 }}>{p.hood}, NYC</p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#5A4A3A", lineHeight: 1.4 }}>{p.poem} <span style={{ color: "#E8336E" }}>♡</span></p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "#5A4A3A", lineHeight: 1.4, marginBottom: 10 }}>{p.poem} <span style={{ color: "#E8336E" }}>♡</span></p>
+            <FlowerButton
+              size="sm"
+              units={placeGift.units}
+              myKind={placeGift.myKind}
+              onGive={onGivePlaceGift}
+              onTakeBack={onTakeBackPlaceGift}
+            />
           </PaperCard>
 
           {/* Polaroid + notes column */}
@@ -1580,7 +1519,7 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10.5, color: "#8A7A6A", textAlign: "center", marginTop: 5, lineHeight: 1 }}>{p.polaroidCaption}</p>
             </div>
             {/* Bloom notes — tap to see all */}
-            <Link href={`/member/city/bloom-notes/${toSlug(p.name)}`} style={{ textDecoration: "none" }}>
+            <Link href={`/member/city/bloom-notes/${p.slug}`} style={{ textDecoration: "none" }}>
               <PaperCard rotate={1} style={{ padding: "10px 12px", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 800, letterSpacing: "0.18em", color: "#C0185F", marginBottom: 5 }}>BLOOM NOTES</p>
                 <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#5A4A3A", lineHeight: 1.4 }}>What women left behind here ✿</p>
@@ -1707,31 +1646,7 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
         </div>
 
         {/* ── Bloom notes board — read them all, leave one ── */}
-        <BloomNotesBoard placeSlug={toSlug(p.name)} placeName={p.name} brand={BRAND} accent={ACCENT} />
-
-        {/* ── What Bloomies are saying ── */}
-        <div style={{
-          backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px",
-          backgroundColor: "#F6EFE4", borderRadius: 14, padding: "14px", marginBottom: 12,
-          boxShadow: "0 6px 24px rgba(0,0,0,0.4)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: BRAND, marginBottom: 11 }}>WHAT BLOOMIES ARE SAYING</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {p.reviews.map((r, i) => (
-              <div key={i}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 5 }}>
-                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: `linear-gradient(135deg, ${ACCENT}, ${BRAND})`, flexShrink: 0 }}/>
-                  <div>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "#2A1A10", lineHeight: 1 }}>{r.name}</p>
-                    <StarRow size={6}/>
-                  </div>
-                </div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", color: "#6A5A4A", lineHeight: 1.5 }}>{r.text}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", color: "#B0A090", marginTop: 4 }}>{r.ago}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <BloomNotesBoard placeSlug={p.slug} placeName={p.name} brand={BRAND} accent={ACCENT} />
 
         {/* ── Quick info + save CTA ── */}
         <div style={{

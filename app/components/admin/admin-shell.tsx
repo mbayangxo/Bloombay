@@ -46,7 +46,21 @@ export function AdminShell({
                 <h1>{title}</h1>
                 {subtitle && !compactHeader ? <p>{subtitle}</p> : null}
               </div>
-              <PortalSignOutButton portal={portal} className="bb-admin-logout" />
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <a
+                  href="/member/home"
+                  style={{
+                    fontFamily: "var(--font-jost)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#FF1F7D",
+                    textDecoration: "none",
+                  }}
+                >
+                  ← BloomBay app
+                </a>
+                <PortalSignOutButton portal={portal} className="bb-admin-logout" />
+              </div>
             </header>
             {children}
             <PortalFooter

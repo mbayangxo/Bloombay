@@ -6,6 +6,7 @@ import type {
   ClubMembershipParams,
   TicketParams,
 } from "./types";
+import { calcPlatformFeeCents } from "./stripe-connect";
 
 // Lazily initialised so the module can be imported without STRIPE_SECRET_KEY
 // being set at build time.
@@ -59,7 +60,8 @@ export async function stripeMembershipCheckout(
 export async function stripeTicketCheckout(
   params: TicketParams
 ): Promise<CheckoutResult> {
-  const session = await getStripe().checkout.sessions.create({
+  const quantity = params.quantity ?? 1;
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
     customer_email: params.userEmail,
     line_items: [
@@ -69,17 +71,41 @@ export async function stripeTicketCheckout(
           unit_amount: params.amountCents,
           product_data: { name: params.eventName },
         },
-        quantity: params.quantity ?? 1,
+        quantity,
       },
     ],
     metadata: {
       user_id: params.userId,
       event_id: params.eventId,
       type: "event_ticket",
+      host_id: params.hostId ?? "",
+      destination_account: params.destinationAccountId ?? "",
+      platform_fee_cents: String(params.platformFeeCents ?? 0),
     },
     success_url: `${baseUrl()}/member/thank-you?type=ticket&name=${encodeURIComponent(params.eventName)}&back=${encodeURIComponent('/member/happenings/' + params.eventId)}`,
     cancel_url: `${baseUrl()}/member/happenings/${params.eventId}`,
-  });
+  };
+
+  // Destination charge → host/Club Mama Stripe account; BloomBay keeps application fee
+  if (params.destinationAccountId) {
+    const fee =
+      params.platformFeeCents ??
+      Math.round((params.amountCents * quantity * Number(process.env.STRIPE_PLATFORM_FEE_BPS ?? "1000")) / 10000);
+    sessionParams.payment_intent_data = {
+      application_fee_amount: params.platformFeeCents ?? calcPlatformFeeCents(params.amountCents * quantity),
+      transfer_data: {
+        destination: params.destinationAccountId,
+      },
+      metadata: {
+        user_id: params.userId,
+        event_id: params.eventId,
+        host_id: params.hostId ?? "",
+        type: "event_ticket",
+      },
+    };
+  }
+
+  const session = await getStripe().checkout.sessions.create(sessionParams);
 
   return { url: session.url!, sessionId: session.id };
 }
@@ -89,7 +115,7 @@ export async function stripeTicketCheckout(
 export async function stripeClubCheckout(
   params: ClubMembershipParams
 ): Promise<CheckoutResult> {
-  const session = await getStripe().checkout.sessions.create({
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
     customer_email: params.userEmail,
     line_items: [
@@ -106,11 +132,23 @@ export async function stripeClubCheckout(
       user_id: params.userId,
       club_id: params.clubId,
       type: "club_membership",
+      host_id: params.hostId ?? "",
+      destination_account: params.destinationAccountId ?? "",
+      platform_fee_cents: String(params.platformFeeCents ?? 0),
     },
     success_url: `${baseUrl()}/member/thank-you?type=club&name=${encodeURIComponent(params.clubName)}&back=${encodeURIComponent('/member/clubs/' + params.clubId)}`,
     cancel_url: `${baseUrl()}/member/clubs/${params.clubId}`,
-  });
+  };
 
+  if (params.destinationAccountId) {
+    sessionParams.payment_intent_data = {
+      application_fee_amount:
+        params.platformFeeCents ?? calcPlatformFeeCents(params.priceCents),
+      transfer_data: { destination: params.destinationAccountId },
+    };
+  }
+
+  const session = await getStripe().checkout.sessions.create(sessionParams);
   return { url: session.url!, sessionId: session.id };
 }
 

@@ -49,12 +49,12 @@ export const ROLE_HOME: Record<UserRole, string> = {
   curator: PORTAL_HOME.curator,
 };
 
-/** Each portal is isolated — separate login URL per portal. */
+/** Each portal is isolated — but personal member app is always available. */
 export const PORTAL_ALLOWED: Record<PortalId, UserRole[]> = {
-  member: ["member"],
+  member: ["member", "founder", "admin", "club_owner", "partner", "moderator", "curator"],
   founder: ["founder"],
   admin: ["admin", "moderator"],
-  club_owner: ["club_owner"],
+  club_owner: ["club_owner", "founder"],
   partner: ["partner"],
   curator: ["curator"],
 };

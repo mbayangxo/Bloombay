@@ -21,6 +21,9 @@ export interface ClubMembershipParams {
   clubId: string;
   clubName: string;
   priceCents: number;
+  destinationAccountId?: string;
+  platformFeeCents?: number;
+  hostId?: string;
 }
 
 export interface TicketParams {
@@ -30,6 +33,10 @@ export interface TicketParams {
   eventName: string;
   amountCents: number;
   quantity?: number;
+  /** Stripe Connect Express account that receives the funds (minus platform fee). */
+  destinationAccountId?: string;
+  platformFeeCents?: number;
+  hostId?: string;
 }
 
 export interface HostPayoutParams {

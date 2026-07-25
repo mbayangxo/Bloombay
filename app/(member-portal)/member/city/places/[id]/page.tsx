@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { BloomNotesBoard } from "@/app/components/portal/bloom-notes-board";
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const BLUE  = "#1E4A8C";
@@ -12,6 +13,7 @@ const CREAM = "#FAF6F0";
 // ── Real venue type ────────────────────────────────────────────────────────────
 interface VenueDetail {
   id: string;
+  slug: string;
   name: string;
   location: string;
   tagline: string;
@@ -22,13 +24,8 @@ interface VenueDetail {
   photo_urls: string[];
   instagram: string;
   address: string;
-  reviews: { author: string; text: string; rating: number }[];
 }
 
-
-const AVATAR_COLORS = ["#FF1F7D", "#FF69B4", "#A855F7", "#E87040", "#2E6B9E", "#D4A853"];
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
 
 function Stars({ n, size = 12 }: { n: number; size?: number }) {
   return (
@@ -96,9 +93,7 @@ export default function VenuePage() {
   const address    = venue?.address ?? "";
   const instagram  = venue?.instagram ?? "";
   const moreImgs   = venue?.photo_urls?.slice(0, 3) ?? [];
-  const displayReviews = (venue?.reviews ?? []).map((r, i) => ({
-    name: r.author, initial: r.author[0] ?? "?", color: AVATAR_COLORS[i % AVATAR_COLORS.length], rating: r.rating, text: r.text,
-  }));
+  const placeSlug  = venue?.slug || params.id;
 
   const PAPER_TEX = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='80' height='80' filter='url(%23n)' opacity='0.04'/></svg>")`;
   const LINED     = "repeating-linear-gradient(transparent, transparent 23px, rgba(0,0,0,0.05) 24px)";
@@ -161,11 +156,14 @@ export default function VenuePage() {
         </div>
 
         {/* Bloom Notes counter — overlapping card */}
-        <div style={{ position: "absolute", top: 14, right: 14, background: "white", borderRadius: 16, padding: "10px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", textAlign: "center", minWidth: 80 }}>
+        <Link
+          href={`/member/city/bloom-notes/${encodeURIComponent(placeSlug)}`}
+          style={{ position: "absolute", top: 14, right: 14, background: "white", borderRadius: 16, padding: "10px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", textAlign: "center", minWidth: 80, textDecoration: "none" }}
+        >
           <p style={{ fontFamily: "var(--font-playfair)", fontSize: 34, fontWeight: 900, color: BLUE, lineHeight: 1 }}>{bloomNotes}</p>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", color: "#bbb", marginTop: 2 }}>BLOOM NOTES</p>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: PINK, marginTop: 3 }}>See all →</p>
-        </div>
+        </Link>
       </div>
 
       {/* ── RATING ───────────────────────────────────────────────────── */}
@@ -244,25 +242,14 @@ export default function VenuePage() {
         </div>
       </div>
 
-      {/* ── WHAT BLOOMIES ARE SAYING ──────────────────────────────────── */}
+      {/* ── BLOOM NOTES — real member notes + photos ────────────────── */}
       <div style={{ padding: "20px 18px 0" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "#bbb", marginBottom: 14 }}>WHAT BLOOMIES ARE SAYING 🌸</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {displayReviews.map((rev, i) => (
-            <div key={i} style={{ background: "white", borderRadius: 18, padding: "14px 14px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: `linear-gradient(135deg, ${rev.color}, ${rev.color}99)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "white", flexShrink: 0 }}>{rev.initial}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111" }}>{rev.name}</p>
-                    <Stars n={rev.rating} size={10} />
-                  </div>
-                </div>
-              </div>
-              <p style={{ fontFamily: "var(--font-playfair)", fontSize: 13, fontStyle: "italic", color: "#555", lineHeight: 1.55 }}>{rev.text}</p>
-            </div>
-          ))}
-        </div>
+        <BloomNotesBoard
+          placeSlug={placeSlug}
+          placeName={name}
+          brand={BLUE}
+          accent={PINK}
+        />
       </div>
 
       {/* ── QUICK INFO ───────────────────────────────────────────────── */}

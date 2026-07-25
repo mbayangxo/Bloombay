@@ -69,15 +69,27 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   // Get role and onboarding status from profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, onboarding_completed")
+    .select("role, onboarding_completed, first_name, neighborhood")
     .eq("id", data.user.id)
     .single();
 
   const role = (profile?.role ?? "member") as UserRole;
   revalidatePath("/", "layout");
+
+  // Existing members often have onboarding_completed=false from defaults.
+  // If they already have a profile, don't force them through "create account."
   if (role === "member" && !profile?.onboarding_completed) {
-    redirect("/onboard");
+    const looksEstablished = Boolean(profile?.first_name?.trim());
+    if (looksEstablished) {
+      await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", data.user.id);
+      redirect(getPortalHomeForRole(role));
+    }
+    redirect("/onboard?resume=1");
   }
+
   redirect(getPortalHomeForRole(role));
 }
 

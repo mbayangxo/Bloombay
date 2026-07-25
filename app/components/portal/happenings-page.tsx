@@ -9,11 +9,14 @@ import { EventCard, type EventCardData, type EventType } from "@/app/components/
 import {
   joinWaitlist, leaveWaitlist, getWaitlistCounts, getMyWaitlistIds,
   leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
-  toggleGatheringFlower, getGatheringFlowersForUser,
+  giveGatheringGift, takeBackGatheringGift, getGatheringFlowersForUser,
 } from "@/lib/actions/happenings";
 import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 import { coverUrl } from "@/lib/images/supabase-transform";
 import { getIntros, postIntro, flowerIntro, type IntroPost } from "@/lib/actions/introductions";
+import { FlowerButton } from "@/app/components/shared/flower-button";
+import type { GiftKind } from "@/lib/bloom-gifts";
+import { unitsForKind } from "@/lib/bloom-gifts";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -897,7 +900,7 @@ function StaticPosterCard({ img, title, sub }: { img: string; title: string; sub
 }
 
 /* ── Event templates strip (real events) ────────────────── */
-function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onToggle, onWaitlist, onInvite, flowers, onFlower }: {
+function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onToggle, onWaitlist, onInvite, flowers, onGiveGift, onTakeBackGift }: {
   events: Event[];
   joined: Set<string>;
   waitlistCounts: Record<string, number>;
@@ -905,8 +908,9 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
   onToggle: (id: string) => void;
   onWaitlist: (id: string) => void;
   onInvite: (ev: Event) => void;
-  flowers: Record<string, { count: number; gave: boolean }>;
-  onFlower: (id: string) => void;
+  flowers: Record<string, { units: number; myKind: GiftKind | null }>;
+  onGiveGift: (id: string, kind: GiftKind) => void;
+  onTakeBackGift: (id: string) => void;
 }) {
   if (events.length === 0) return null;
   return (
@@ -927,19 +931,16 @@ function EventTemplatesStrip({ events, joined, waitlistCounts, myWaitlist, onTog
               <div style={{ display: "flex", gap: 5, marginTop: 6, alignItems: "center" }}>
                 {/* Flower button */}
                 {(() => {
-                  const fl = flowers[ev.id] ?? { count: 0, gave: false };
+                  const fl = flowers[ev.id] ?? { units: 0, myKind: null };
                   return (
-                    <button onClick={() => onFlower(ev.id)} style={{
-                      display: "flex", alignItems: "center", gap: 3,
-                      background: fl.gave ? "rgba(255,31,125,0.3)" : "rgba(255,255,255,0.1)",
-                      border: `1px solid ${fl.gave ? "rgba(255,31,125,0.5)" : "rgba(255,255,255,0.15)"}`,
-                      borderRadius: 999, padding: "4px 9px", cursor: "pointer",
-                      color: "white", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800,
-                      transition: "all 0.18s",
-                    }}>
-                      <span style={{ fontSize: 11 }}>🌸</span>
-                      {fl.count > 0 && <span>{fl.count}</span>}
-                    </button>
+                    <FlowerButton
+                      size="sm"
+                      light
+                      units={fl.units}
+                      myKind={fl.myKind}
+                      onGive={(kind) => onGiveGift(ev.id, kind)}
+                      onTakeBack={() => onTakeBackGift(ev.id)}
+                    />
                   );
                 })()}
                 <button onClick={() => onInvite(ev)} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "4px 9px", color: "rgba(255,255,255,0.65)", fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, cursor: "pointer" }}>
@@ -1321,7 +1322,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   const [filterOpen,     setFilterOpen]    = useState(false);
   const [searchOpen,     setSearchOpen]    = useState(false);
   const [searchQuery,    setSearchQuery]   = useState("");
-  const [gatheringFlowers, setGatheringFlowers] = useState<Record<string, { count: number; gave: boolean }>>({});
+  const [gatheringFlowers, setGatheringFlowers] = useState<Record<string, { units: number; myKind: GiftKind | null }>>({});
   const [traditions,   setTraditions]   = useState<Tradition[]>([]);
   const [events,     setEvents]    = useState<Event[]>([]);
   const [joined,     setJoined]    = useState<Set<string>>(new Set());
@@ -1370,7 +1371,11 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         setMyWaitlist(new Set(wIds));
         setHostedCount(hCount);
         setReviewedIds(new Set(rIds));
-        setGatheringFlowers(flowers as Record<string, { count: number; gave: boolean }>);
+        const next: Record<string, { units: number; myKind: GiftKind | null }> = {};
+        for (const [id, fl] of Object.entries(flowers)) {
+          next[id] = { units: fl.units ?? fl.count ?? 0, myKind: fl.myKind ?? null };
+        }
+        setGatheringFlowers(next);
         setTraditions(trads as Tradition[]);
       }).catch(() => {});
     }
@@ -1423,12 +1428,30 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
       (ev.host_name ?? "").toLowerCase().includes(q);
   });
 
-  function toggleEventFlower(eventId: string) {
+  function giveEventGift(eventId: string, kind: GiftKind) {
     setGatheringFlowers(prev => {
-      const cur = prev[eventId] ?? { count: 0, gave: false };
-      return { ...prev, [eventId]: { count: cur.count + (cur.gave ? -1 : 1), gave: !cur.gave } };
+      const cur = prev[eventId] ?? { units: 0, myKind: null };
+      const prevGave = cur.myKind ? unitsForKind(cur.myKind) : 0;
+      const nextUnits = unitsForKind(kind);
+      // Same kind again → take back (matches server)
+      if (cur.myKind === kind) {
+        return { ...prev, [eventId]: { units: Math.max(0, cur.units - prevGave), myKind: null } };
+      }
+      return {
+        ...prev,
+        [eventId]: { units: Math.max(0, cur.units - prevGave + nextUnits), myKind: kind },
+      };
     });
-    void toggleGatheringFlower(eventId);
+    void giveGatheringGift(eventId, kind);
+  }
+
+  function takeBackEventGift(eventId: string) {
+    setGatheringFlowers(prev => {
+      const cur = prev[eventId] ?? { units: 0, myKind: null };
+      const prevGave = cur.myKind ? unitsForKind(cur.myKind) : 0;
+      return { ...prev, [eventId]: { units: Math.max(0, cur.units - prevGave), myKind: null } };
+    });
+    void takeBackGatheringGift(eventId);
   }
 
   function handleFollowTradition(id: string) {
@@ -1473,12 +1496,33 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
               </button>
             ))}
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <a
+              href="/member/gems"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "5px 10px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.85)",
+                fontFamily: "var(--font-jost)",
+                fontSize: "9px",
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                textDecoration: "none",
+              }}
+            >
+              My gems
+            </a>
           {/* Search icon */}
           <button onClick={() => setSearchOpen(o => !o)} style={{ display: "flex", padding: 6, background: searchOpen ? "rgba(255,255,255,0.15)" : "none", border: "none", cursor: "pointer", borderRadius: 999 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? PINK : "rgba(255,255,255,0.75)"} strokeWidth="2" strokeLinecap="round">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
           </button>
+          </div>
         </div>
       </div>}
 
@@ -1752,7 +1796,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                 onWaitlist={toggleWaitlist}
                 onInvite={setInviteEv}
                 flowers={gatheringFlowers}
-                onFlower={toggleEventFlower}
+                onGiveGift={giveEventGift}
+                onTakeBackGift={takeBackEventGift}
               />
             )}
 

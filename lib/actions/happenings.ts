@@ -281,49 +281,85 @@ export async function checkAndNotifyStreak(): Promise<void> {
 // ── Gathering flowers ─────────────────────────────────────────────────────────
 
 export async function toggleGatheringFlower(gatheringId: string): Promise<{ gave: boolean }> {
+  const result = await giveGatheringGift(gatheringId, "flower");
+  return { gave: result.gave };
+}
+
+export async function giveGatheringGift(
+  gatheringId: string,
+  kind: "flower" | "bouquet"
+): Promise<{ gave: boolean; kind: "flower" | "bouquet" | null; units: number; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { gave: false };
+  if (!user) return { gave: false, kind: null, units: 0, error: "Sign in to continue." };
 
+  const { requireConfirmedGatheringParticipant } = await import(
+    "@/lib/happenings/attendee-gate"
+  );
+  const gate = await requireConfirmedGatheringParticipant(gatheringId);
+  if (!gate.ok) return { gave: false, kind: null, units: 0, error: gate.error };
+
+  const units = kind === "bouquet" ? 12 : 1;
   const { data: existing } = await supabase
     .from("gathering_flowers")
-    .select("gathering_id")
+    .select("gathering_id, gift_kind")
     .eq("gathering_id", gatheringId)
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (existing) {
-    await supabase.from("gathering_flowers").delete().eq("gathering_id", gatheringId).eq("user_id", user.id);
-    return { gave: false };
+    if ((existing as { gift_kind?: string }).gift_kind === kind) {
+      await supabase.from("gathering_flowers").delete().eq("gathering_id", gatheringId).eq("user_id", user.id);
+      return { gave: false, kind: null, units: 0 };
+    }
+    await supabase
+      .from("gathering_flowers")
+      .update({ gift_kind: kind, units })
+      .eq("gathering_id", gatheringId)
+      .eq("user_id", user.id);
+    return { gave: true, kind, units };
   }
-  await supabase.from("gathering_flowers").insert({ gathering_id: gatheringId, user_id: user.id });
-  return { gave: true };
+
+  await supabase.from("gathering_flowers").insert({
+    gathering_id: gatheringId,
+    user_id: user.id,
+    gift_kind: kind,
+    units,
+  });
+  return { gave: true, kind, units };
 }
 
-export async function getGatheringFlowersForUser(gatheringIds: string[]): Promise<Record<string, { count: number; gave: boolean }>> {
+export async function takeBackGatheringGift(gatheringId: string): Promise<{ gave: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { gave: false };
+  await supabase.from("gathering_flowers").delete().eq("gathering_id", gatheringId).eq("user_id", user.id);
+  return { gave: false };
+}
+
+export async function getGatheringFlowersForUser(
+  gatheringIds: string[]
+): Promise<Record<string, { count: number; units: number; gave: boolean; myKind: "flower" | "bouquet" | null }>> {
   if (!gatheringIds.length) return {};
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: counts } = await supabase
+  const { data: rows } = await supabase
     .from("gathering_flowers")
-    .select("gathering_id")
+    .select("gathering_id, user_id, gift_kind, units")
     .in("gathering_id", gatheringIds);
 
-  const result: Record<string, { count: number; gave: boolean }> = {};
-  for (const row of (counts ?? []) as { gathering_id: string }[]) {
-    result[row.gathering_id] = { count: (result[row.gathering_id]?.count ?? 0) + 1, gave: false };
-  }
-
-  if (user) {
-    const { data: mine } = await supabase
-      .from("gathering_flowers")
-      .select("gathering_id")
-      .in("gathering_id", gatheringIds)
-      .eq("user_id", user.id);
-    for (const row of (mine ?? []) as { gathering_id: string }[]) {
-      if (result[row.gathering_id]) result[row.gathering_id].gave = true;
+  const result: Record<string, { count: number; units: number; gave: boolean; myKind: "flower" | "bouquet" | null }> = {};
+  for (const row of (rows ?? []) as { gathering_id: string; user_id: string; gift_kind?: string; units?: number }[]) {
+    const u = row.units ?? (row.gift_kind === "bouquet" ? 12 : 1);
+    const cur = result[row.gathering_id] ?? { count: 0, units: 0, gave: false, myKind: null };
+    cur.units += u;
+    cur.count = cur.units; // legacy alias = flower-units
+    if (user && row.user_id === user.id) {
+      cur.gave = true;
+      cur.myKind = row.gift_kind === "bouquet" ? "bouquet" : "flower";
     }
+    result[row.gathering_id] = cur;
   }
 
   return result;
@@ -334,38 +370,70 @@ export async function getGatheringFlowersForUser(gatheringIds: string[]): Promis
 export async function sendProfileFlower(
   profileId: string,
   flowerType: "general" | "witness" | "host" | "club" = "general",
-  message?: string
-): Promise<{ gave: boolean }> {
+  message?: string,
+  kind: "flower" | "bouquet" = "flower"
+): Promise<{ gave: boolean; kind: "flower" | "bouquet" | null; units: number }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.id === profileId) return { gave: false };
+  if (!user || user.id === profileId) return { gave: false, kind: null, units: 0 };
 
+  const units = kind === "bouquet" ? 12 : 1;
   const { data: existing } = await supabase
     .from("profile_flowers")
-    .select("profile_id")
+    .select("profile_id, gift_kind")
     .eq("profile_id", profileId)
     .eq("user_id", user.id)
     .eq("flower_type", flowerType)
     .maybeSingle();
 
   if (existing) {
-    await supabase.from("profile_flowers").delete()
-      .eq("profile_id", profileId).eq("user_id", user.id).eq("flower_type", flowerType);
-    return { gave: false };
+    if ((existing as { gift_kind?: string }).gift_kind === kind) {
+      await supabase.from("profile_flowers").delete()
+        .eq("profile_id", profileId).eq("user_id", user.id).eq("flower_type", flowerType);
+      return { gave: false, kind: null, units: 0 };
+    }
+    await supabase
+      .from("profile_flowers")
+      .update({ gift_kind: kind, units, message: message ?? null })
+      .eq("profile_id", profileId)
+      .eq("user_id", user.id)
+      .eq("flower_type", flowerType);
+    return { gave: true, kind, units };
   }
   await supabase.from("profile_flowers").insert({
-    profile_id: profileId, user_id: user.id, flower_type: flowerType, message: message ?? null,
+    profile_id: profileId,
+    user_id: user.id,
+    flower_type: flowerType,
+    message: message ?? null,
+    gift_kind: kind,
+    units,
   });
-  return { gave: true };
+  return { gave: true, kind, units };
 }
 
+export async function takeBackProfileGift(
+  profileId: string,
+  flowerType: "general" | "witness" | "host" | "club" = "general"
+): Promise<{ gave: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { gave: false };
+  await supabase.from("profile_flowers").delete()
+    .eq("profile_id", profileId).eq("user_id", user.id).eq("flower_type", flowerType);
+  return { gave: false };
+}
+
+/** Sum of flower-units received (flower=1, bouquet=12). */
 export async function getProfileFlowerCount(profileId: string): Promise<number> {
   const supabase = await createClient();
-  const { count } = await supabase
+  const { data } = await supabase
     .from("profile_flowers")
-    .select("profile_id", { count: "exact", head: true })
+    .select("units, gift_kind")
     .eq("profile_id", profileId);
-  return count ?? 0;
+  return ((data ?? []) as { units?: number; gift_kind?: string }[]).reduce(
+    (sum, row) => sum + (row.units ?? (row.gift_kind === "bouquet" ? 12 : 1)),
+    0
+  );
 }
 
 // ── Host Reputation ───────────────────────────────────────────────────────────

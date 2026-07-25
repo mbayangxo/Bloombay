@@ -12,12 +12,15 @@ import {
   createTradition, getMyTraditions, linkGatheringToTradition,
   type Tradition,
 } from "@/lib/actions/traditions";
+import { EventImportPanel } from "@/app/components/portal/event-import-panel";
+import { StripeConnectCard } from "@/app/components/portal/stripe-connect-card";
+import { HostEventAnalytics } from "@/app/components/portal/host-event-analytics";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
 const BG   = "#FBF6F0";
 
-type Tab = "host" | "dashboard" | "traditions";
+type Tab = "host" | "dashboard" | "traditions" | "payments";
 
 const HOST_KINDS = [
   { kind: "dinner",    label: "Dinner",     emoji: "🍷", whisper: "Six girls, one table" },
@@ -413,28 +416,33 @@ export function HostPage() {
 
       {/* ── Tab bar ── */}
       <div style={{ display: "flex", gap: 0, margin: "20px 22px 0", background: "rgba(0,0,0,0.05)", borderRadius: 12, padding: 4 }}>
-        {(["host", "dashboard", "traditions"] as Tab[]).map(t => (
+        {(["host", "dashboard", "traditions", "payments"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1, padding: "9px 0", border: "none", borderRadius: 9, cursor: "pointer",
-            fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.12em",
+            fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.08em",
             background: tab === t ? "white" : "transparent",
             color: tab === t ? PINK : "#999",
             boxShadow: tab === t ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
             transition: "all 0.15s",
           }}>
-            {t === "host" ? "HOST" : t === "dashboard" ? "DASHBOARD" : "TRADITIONS"}
+            {t === "host" ? "HOST" : t === "dashboard" ? "DASH" : t === "traditions" ? "TRADITIONS" : "PAYOUTS"}
           </button>
         ))}
       </div>
 
       {/* ══════════════ HOST TAB ══════════════ */}
       {tab === "host" && (
-        <HostTabContent
-          showOther={showOther} setShowOther={setShowOther}
-          otherText={otherText} setOtherText={setOtherText}
-          goCustom={goCustom}
-          onTradition={() => { setTab("traditions"); setShowCreate(true); }}
-        />
+        <>
+          <div style={{ padding: "16px 18px 0" }}>
+            <EventImportPanel publishByDefault compact />
+          </div>
+          <HostTabContent
+            showOther={showOther} setShowOther={setShowOther}
+            otherText={otherText} setOtherText={setOtherText}
+            goCustom={goCustom}
+            onTradition={() => { setTab("traditions"); setShowCreate(true); }}
+          />
+        </>
       )}
 
       {/* ══════════════ DASHBOARD TAB ══════════════ */}
@@ -506,6 +514,9 @@ export function HostPage() {
                           }}>
                             SEE WHO&apos;S COMING →
                           </button>
+                          <div style={{ marginTop: 10 }}>
+                            <HostEventAnalytics gatheringId={g.id} />
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -567,6 +578,15 @@ export function HostPage() {
       )}
 
       {/* ══════════════ TRADITIONS TAB ══════════════ */}
+      {tab === "payments" && (
+        <div style={{ padding: "20px 18px 0" }}>
+          <StripeConnectCard returnPath="/member/host?tab=payments" />
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#888", marginTop: 14, lineHeight: 1.5 }}>
+            Paid tickets route to your connected bank (minus BloomBay’s platform fee). Free events don’t need Stripe.
+          </p>
+        </div>
+      )}
+
       {tab === "traditions" && (
         <div style={{ padding: "20px 18px 0" }}>
           {/* Create button */}

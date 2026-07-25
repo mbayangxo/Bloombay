@@ -9,6 +9,7 @@ import { cancelGathering, listGatherings, logAudit, saveGathering } from "@/lib/
 import { getClubProfile } from "@/lib/club-world-data";
 import { HostPostMortemCard } from "@/app/components/portal/host-post-mortem-card";
 import { BloomCardsDeck } from "@/app/components/portal/bloom-cards-deck";
+import { EventImportPanel } from "@/app/components/portal/event-import-panel";
 
 type PastGathering = { id: string; title: string; date: string; venue: string };
 
@@ -66,6 +67,10 @@ export default function ClubOwnerGatheringsPage() {
         title="Gatherings"
         sub="Plan events, set capacity and paid tickets, cancel if needed. QR + scan for check-in."
       />
+
+      <section className="co-section co-section--full" style={{ marginBottom: "1.25rem" }}>
+        <EventImportPanel publishByDefault clubId={clubId} />
+      </section>
 
       <section className="co-section co-section--full">
         <h2 className="co-section__title">Scheduled</h2>

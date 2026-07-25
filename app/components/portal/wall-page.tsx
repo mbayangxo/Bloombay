@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { SectionHeader } from "@/app/components/shared/section-header";
 import { PAGE_BG, PINK as _PINK, INK } from "@/app/components/shared/design-tokens";
+import { FlowerButton } from "@/app/components/shared/flower-button";
+import type { GiftKind } from "@/lib/bloom-gifts";
+import { unitsForKind } from "@/lib/bloom-gifts";
 
 const PINK  = _PINK;
 const CREAM = PAGE_BG;
@@ -62,30 +65,80 @@ function avatarColor(id: string, isSeed?: boolean): string {
 }
 
 // ── PostCard ──────────────────────────────────────────────────────────────────
-function PostCard({ post, bloomed, onBloom }: { post: WallPost; bloomed: boolean; onBloom: () => void }) {
+function PostCard({
+  post,
+  myKind,
+  onGiftChange,
+}: {
+  post: WallPost;
+  myKind: GiftKind | null;
+  onGiftChange: (id: string, kind: GiftKind | null, units: number) => void;
+}) {
   const meta = CATEGORY_META[post.category] ?? CATEGORY_META.mood;
-  const [localBlooms, setLocalBlooms] = useState(post.blooms);
-  const [busy, setBusy] = useState(false);
+  const [localUnits, setLocalUnits] = useState(post.blooms);
+  const [localKind, setLocalKind] = useState<GiftKind | null>(myKind);
   const color = avatarColor(post.author?.id ?? post.id, post.is_seed);
 
-  async function handleBloom() {
-    if (busy) return;
-    setBusy(true);
-    const next = !bloomed;
-    setLocalBlooms(n => next ? n + 1 : Math.max(0, n - 1));
-    onBloom();
+  useEffect(() => {
+    setLocalKind(myKind);
+  }, [myKind]);
+
+  useEffect(() => {
+    setLocalUnits(post.blooms);
+  }, [post.blooms]);
+
+  async function onGive(kind: GiftKind) {
+    const prevKind = localKind;
+    const prevUnits = localUnits;
+    const prevGave = prevKind ? unitsForKind(prevKind) : 0;
+    const nextUnits = unitsForKind(kind);
+
+    if (prevKind === kind) {
+      setLocalKind(null);
+      setLocalUnits(Math.max(0, prevUnits - prevGave));
+      onGiftChange(post.id, null, Math.max(0, prevUnits - prevGave));
+    } else {
+      setLocalKind(kind);
+      setLocalUnits(Math.max(0, prevUnits - prevGave + nextUnits));
+      onGiftChange(post.id, kind, Math.max(0, prevUnits - prevGave + nextUnits));
+    }
+
     try {
-      const res = await fetch("/api/wall/bloom", {
+      const res = await fetch("/api/flowers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, bloomed: next }),
+        body: JSON.stringify({ wall_post_id: post.id, kind }),
       });
       if (res.ok) {
         const d = await res.json();
-        setLocalBlooms(d.blooms);
+        setLocalUnits(d.count ?? 0);
+        setLocalKind(d.kind ?? null);
+        onGiftChange(post.id, d.kind ?? null, d.count ?? 0);
       }
-    } catch { /* optimistic, ignore */ }
-    setBusy(false);
+    } catch {
+      setLocalKind(prevKind);
+      setLocalUnits(prevUnits);
+      onGiftChange(post.id, prevKind, prevUnits);
+    }
+  }
+
+  async function onTakeBack() {
+    const prevKind = localKind;
+    const prevUnits = localUnits;
+    const prevGave = prevKind ? unitsForKind(prevKind) : 0;
+    setLocalKind(null);
+    setLocalUnits(Math.max(0, prevUnits - prevGave));
+    onGiftChange(post.id, null, Math.max(0, prevUnits - prevGave));
+    try {
+      await fetch("/api/flowers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wall_post_id: post.id, take_back: true }),
+      });
+    } catch {
+      setLocalKind(prevKind);
+      setLocalUnits(prevUnits);
+    }
   }
 
   return (
@@ -110,10 +163,13 @@ function PostCard({ post, bloomed, onBloom }: { post: WallPost; bloomed: boolean
           </div>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: DARK, lineHeight: 1.55, margin: "0 0 14px" }}>{post.text}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 16, borderTop: "1px solid rgba(28,27,28,0.07)", padding: "10px 0 12px" }}>
-            <button onClick={handleBloom} style={{ display: "flex", alignItems: "center", gap: 5, background: bloomed ? `${PINK}14` : "transparent", border: bloomed ? `1.5px solid ${PINK}40` : "1.5px solid rgba(28,27,28,0.1)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", transition: "all 0.15s" }}>
-              <span style={{ fontSize: 13 }}>🌸</span>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: bloomed ? PINK : "rgba(28,27,28,0.45)" }}>{localBlooms.toLocaleString()}</span>
-            </button>
+            <FlowerButton
+              size="sm"
+              units={localUnits}
+              myKind={localKind}
+              onGive={onGive}
+              onTakeBack={onTakeBack}
+            />
           </div>
         </div>
       </div>
@@ -194,14 +250,35 @@ export function WallPage() {
   const [posts, setPosts] = useState<WallPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<Category>("all");
-  const [bloomedIds, setBloomedIds] = useState<Set<string>>(new Set());
+  const [myGifts, setMyGifts] = useState<Record<string, GiftKind | null>>({});
   const [showCreate, setShowCreate] = useState(false);
 
   const loadPosts = useCallback(async (cat: Category) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/wall/posts?category=${cat}&limit=30`);
-      if (res.ok) setPosts(await res.json());
+      if (res.ok) {
+        const data = (await res.json()) as WallPost[];
+        setPosts(data);
+        // Load viewer's gifts for visible posts (batched sequentially for simplicity)
+        const gifts: Record<string, GiftKind | null> = {};
+        await Promise.all(
+          data.slice(0, 30).map(async (p) => {
+            try {
+              const fr = await fetch(`/api/flowers?wall_post_id=${p.id}`);
+              if (fr.ok) {
+                const fj = await fr.json();
+                gifts[p.id] = (fj.myKind as GiftKind | null) ?? null;
+                if (typeof fj.units === "number") p.blooms = fj.units;
+              }
+            } catch {
+              /* ignore */
+            }
+          }),
+        );
+        setMyGifts(gifts);
+        setPosts([...data]);
+      }
     } catch { /* ignore */ }
     setLoading(false);
   }, []);
@@ -212,12 +289,9 @@ export function WallPage() {
     setActiveCategory(cat);
   }
 
-  function toggleBloom(id: string) {
-    setBloomedIds(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  function onGiftChange(id: string, kind: GiftKind | null, units: number) {
+    setMyGifts((prev) => ({ ...prev, [id]: kind }));
+    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, blooms: units } : p)));
   }
 
   function handlePosted(post: WallPost) {
@@ -264,7 +338,12 @@ export function WallPage() {
           <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>Nothing here yet. Be first ✦</p>
         )}
         {posts.map(post => (
-          <PostCard key={post.id} post={post} bloomed={bloomedIds.has(post.id)} onBloom={() => toggleBloom(post.id)} />
+          <PostCard
+            key={post.id}
+            post={post}
+            myKind={myGifts[post.id] ?? null}
+            onGiftChange={onGiftChange}
+          />
         ))}
       </div>
 

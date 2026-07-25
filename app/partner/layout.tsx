@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: "Venue partner portal — bookings and revenue. Not the Clubhouse (club host) portal.",
 };
 
+/** Auth for /partner/* (except login) is enforced in proxy.ts via canAccessPortal. */
 export default function PartnerLayout({ children }: { children: React.ReactNode }) {
   return (
     <div

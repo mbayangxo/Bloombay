@@ -60,6 +60,19 @@ export function ClubOwnerShell({
           </div>
           <div className="co-header__right">
             {title ? <span className="co-header__title">{title}</span> : null}
+            <Link
+              href="/member/home"
+              style={{
+                fontFamily: "var(--font-jost)",
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#FF1F7D",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              ← BloomBay app
+            </Link>
             <PortalSignOutButton portal="club_owner" className="co-header__signout" />
           </div>
         </header>

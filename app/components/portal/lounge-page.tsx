@@ -9,6 +9,10 @@ import { createClient } from "@/lib/supabase/client";
 import { startConversation } from "@/lib/actions/direct-messages";
 import { FriendshipHealthSection } from "./friendship-health-section";
 import { SocialProofSection } from "./social-proof-section";
+import { MyPortalsCard } from "@/app/components/portal/my-portals-card";
+import { portalLinksForAccount } from "@/lib/auth/portal-access";
+import type { UserRole } from "@/lib/auth/roles";
+import { normalizeRole } from "@/lib/auth/roles";
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────────
 
@@ -386,8 +390,11 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
 
   return (
     <>
-      <div className="fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-[60] rounded-t-3xl overflow-hidden" style={{ background: PAPER, maxHeight: "85vh", overflowY: "auto" }}>
+      <div className="fixed inset-0 z-[90]" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+      <div
+        className="fixed bottom-0 left-0 right-0 z-[100] rounded-t-3xl overflow-hidden"
+        style={{ background: PAPER, maxHeight: "85vh", overflowY: "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
+      >
         <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
         <div className="px-6 pb-2 flex items-center justify-between">
           <div>
@@ -577,8 +584,6 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const displayHandle  = localName.split(" ")[0].toLowerCase();
   const earnedFlowers  = ALL_FLOWERS.filter(f => (USER_EARNED_FLOWER_IDS as readonly string[]).includes(f.id));
 
-  void displayInitial;
-
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2400); }
   function copyLink() {
     navigator.clipboard?.writeText(`https://bloombay.app/${displayHandle}`);
@@ -587,6 +592,9 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   }
 
   const [isFoundingMother, setIsFoundingMother] = useState(false);
+  const [memberRole, setMemberRole] = useState<UserRole>("member");
+  const [hasHosted, setHasHosted] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const [contentTab, setContentTab] = useState<"about" | "vibes" | "bloom_code">("about");
   const [templateId, setTemplateId] = useState<string>(() => {
     if (typeof window === "undefined") return "bloom";
@@ -613,11 +621,18 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (!u) return;
-      supabase.from("profiles").select("is_founding_mother").eq("id", u.id).single()
+      supabase.from("profiles").select("is_founding_mother, role, is_host").eq("id", u.id).single()
         .then(({ data }) => {
-          if ((data as { is_founding_mother?: boolean } | null)?.is_founding_mother) {
-            setIsFoundingMother(true);
-          }
+          const row = data as { is_founding_mother?: boolean; role?: string; is_host?: boolean } | null;
+          if (row?.is_founding_mother) setIsFoundingMother(true);
+          if (row?.role) setMemberRole(normalizeRole(row.role));
+          if (row?.is_host) setIsHost(true);
+        });
+      supabase.from("gatherings").select("id", { count: "exact", head: true }).eq("host_id", u.id)
+        .then(({ count }) => {
+          const n = count ?? 0;
+          setHasHosted(n > 0);
+          if (n > 0) setIsHost(true);
         });
     });
   }, []);
@@ -631,7 +646,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: PAPER, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ minHeight: "100vh", background: PAPER, paddingTop: "calc(env(safe-area-inset-top, 0px) + 54px)", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
       {/* ══════════ PROFILE PHOTO HERO ══════════ */}
       <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
@@ -661,41 +676,20 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
           </div>
         </div>
 
-        {/* Top bar — apt label + icon buttons */}
+        {/* Apt label only — edit/template actions live below the hero so portal top icons never cover them */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
-          padding: "calc(env(safe-area-inset-top, 0px) + 14px) 16px 0",
+          padding: "14px 16px 0",
           display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10,
+          pointerEvents: "none",
         }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,255,255,0.5)" }}>✦ THE APARTMENT</p>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setShowTemplatePicker(true)} title="Templates" style={{
-              width: 34, height: 34, borderRadius: "50%",
-              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)",
-              border: "1.5px solid rgba(255,255,255,0.3)", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-            </button>
-            <button onClick={() => setShowEdit(true)} title="Edit profile" style={{
-              width: 34, height: 34, borderRadius: "50%",
-              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)",
-              border: "1.5px solid rgba(255,255,255,0.3)", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Founding Mother — tiny badge, upper-right corner of photo area */}
-        {isFoundingMother && (
-          <div style={{ position: "absolute", top: "calc(env(safe-area-inset-top, 0px) + 54px)", right: 16, zIndex: 10 }}>
+          {isFoundingMother && (
             <div style={{ background: PINK, borderRadius: 6, padding: "3px 8px", boxShadow: "0 2px 10px rgba(255,31,125,0.5)" }}>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white", letterSpacing: "0.12em", whiteSpace: "nowrap" as const }}>✦ FOUNDING</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Name + info overlay at bottom of photo */}
         <div style={{
@@ -712,6 +706,53 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{localNbhd} · NYC</p>
           </div>
         </div>
+      </div>
+
+      {/* Edit + Templates — below hero, clear of fixed portal top icons */}
+      <div style={{
+        display: "flex", gap: 8, padding: "12px 16px 4px",
+        background: PAPER,
+      }}>
+        <button
+          type="button"
+          onClick={() => setShowTemplatePicker(true)}
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "12px 14px", borderRadius: 14, cursor: "pointer",
+            background: "white", border: "1.5px solid rgba(255,31,125,0.18)",
+            boxShadow: "0 2px 10px rgba(255,31,125,0.06)",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#1C1B1C" }}>TEMPLATES</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowEdit(true)}
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "12px 14px", borderRadius: 14, cursor: "pointer",
+            background: PINK, border: "none",
+            boxShadow: "0 4px 14px rgba(255,31,125,0.28)",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "white" }}>EDIT PROFILE</span>
+        </button>
+      </div>
+
+      {/* Work portals linked to this personal account */}
+      <div style={{ padding: "12px 16px 0", background: PAPER }}>
+        <MyPortalsCard
+          links={portalLinksForAccount({
+            role: memberRole,
+            ownsClub: !!ownedClub,
+            hasHosted,
+            isHost,
+          })}
+        />
       </div>
 
       {/* ══════════ FLOWERS — small chips under hero ══════════ */}

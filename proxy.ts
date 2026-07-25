@@ -1,5 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  canAccessPortal,
+  normalizeRole,
+  portalFromPath,
+  type UserRole,
+} from "@/lib/auth/roles";
 
 export default async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -30,7 +36,6 @@ export default async function proxy(request: NextRequest) {
     "/city": "/member/happenings",
     "/clubs": "/member/clubs",
     "/lounge": "/member/lounge",
-    "/member/you": "/member/lounge",
   };
   if (oldToNew[pathname]) {
     return NextResponse.redirect(new URL(oldToNew[pathname], request.url));
@@ -73,21 +78,18 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`${loginPath}?redirect=${redirectTo}`, request.url));
   }
 
-  // ── Authenticated user on login page → redirect ───────────────────────────
+  // ── Authenticated on login page ───────────────────────────────────────────
+  // /member/login is the one door everyone (any role) can use for the member app.
   if (user && isLoginPath) {
-    // /member/login is the one door everyone (any role) should be able to
-    // walk through to see the member app — never bounce it to a different
-    // portal, even if the account also holds a staff role elsewhere.
     if (pathname === "/member/login") {
       return NextResponse.redirect(new URL("/member/home", request.url));
     }
-
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
-    const role = profile?.role ?? "member";
+    const role = normalizeRole(profile?.role as string | undefined);
     const homes: Record<string, string> = {
       founder:    "/founder/dashboard",
       admin:      "/admin/dashboard",
@@ -95,30 +97,91 @@ export default async function proxy(request: NextRequest) {
       partner:    "/partner/dashboard",
       curator:    "/curator/dashboard",
     };
+    if (pathname.startsWith("/founder") && role === "founder") {
+      return NextResponse.redirect(new URL("/founder/dashboard", request.url));
+    }
+    if (pathname.startsWith("/club-owner") && (role === "club_owner" || role === "founder")) {
+      return NextResponse.redirect(new URL("/club-owner/dashboard", request.url));
+    }
     return NextResponse.redirect(
       new URL(homes[role] ?? "/member/home", request.url)
     );
   }
 
-  // ── Member portal: onboarding gate ─────────────────────────────────────────
-  // Note: this intentionally does NOT force staff/founder/admin/etc. accounts
-  // out of /member/* — an elevated-role account can freely browse the member
-  // app (e.g. for support or testing) without being bounced to their own
-  // portal. Each staff portal (/founder, /admin, /club-owner, /partner,
-  // /curator) remains independently protected above: it still requires that
-  // same account to be authenticated, so access is unaffected — only the
-  // "kick me out of /member" redirect is removed.
+  // ── Member portal: onboarding (staff keep member access) ──────────────────
   if (user && pathname.startsWith("/member") &&
-      !pathname.startsWith("/member/onboard") &&
       !pathname.startsWith("/member/login")) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("onboarding_completed")
+      .select("onboarding_completed, role, first_name, is_host")
       .eq("id", user.id)
       .single();
 
     if (profile && !profile.onboarding_completed) {
-      return NextResponse.redirect(new URL("/member/onboard", request.url));
+      if (profile.first_name?.trim()) {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_completed: true })
+          .eq("id", user.id);
+      } else {
+        return NextResponse.redirect(new URL("/onboard?resume=1", request.url));
+      }
+    }
+
+    // Host desk — only hosts (or staff who host). Become-host is the exception.
+    if (
+      pathname.startsWith("/member/host") &&
+      !pathname.startsWith("/member/host/become")
+    ) {
+      const role = normalizeRole(profile?.role as string | undefined);
+      const isStaffHost =
+        role === "founder" || role === "club_owner" || role === "admin";
+      let allowed = !!(profile as { is_host?: boolean } | null)?.is_host || isStaffHost;
+      if (!allowed) {
+        const { count } = await supabase
+          .from("gatherings")
+          .select("id", { count: "exact", head: true })
+          .eq("host_id", user.id);
+        allowed = (count ?? 0) > 0;
+        if (allowed) {
+          await supabase.from("profiles").update({ is_host: true }).eq("id", user.id);
+        }
+      }
+      if (!allowed) {
+        return NextResponse.redirect(new URL("/member/host/become", request.url));
+      }
+    }
+  }
+
+  // ── Work portals: role entitlement (not just “logged in”) ─────────────────
+  if (user) {
+    const portal = portalFromPath(pathname);
+    if (portal && portal !== "member" && !isLoginPath) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      const role = normalizeRole(profile?.role as string | undefined) as UserRole;
+
+      let allowed = canAccessPortal(role, portal);
+
+      // Club Mama: ownership grants access even if role is still member
+      if (!allowed && portal === "club_owner") {
+        const { data: club } = await supabase
+          .from("clubs")
+          .select("id")
+          .eq("owner_id", user.id)
+          .limit(1)
+          .maybeSingle();
+        allowed = !!club;
+      }
+
+      if (!allowed) {
+        return NextResponse.redirect(
+          new URL(`/member/home?notice=portal_denied&tried=${portal}`, request.url),
+        );
+      }
     }
   }
 

@@ -12,11 +12,13 @@ import { SocialProofSection } from "./social-proof-section";
 import { QuestionSheCaries } from "./question-she-carries";
 import { FoundingFlower } from "@/app/components/shared/founding-flower";
 import { CreateMomentSheet } from "@/app/components/portal/create-moment-sheet";
+import { ProfileGemsPanel } from "@/app/components/portal/profile-gems-panel";
+import { portalLinksForAccount } from "@/lib/auth/portal-access";
 
 const PINK = "#FF1F7D";
 
 type Photo = { id: string; url: string };
-type TabId = "profile" | "moments" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
+type TabId = "profile" | "moments" | "gems" | "world" | "bloomcode" | "bloomlink" | "links" | "settings";
 type TemplateId = "id" | "board" | "zine" | "collage" | "dossier" | "beauty_table" | "notebook" | "magazine" | "solo" | "billboard" | "lookbook" | "moodboard" | "polaroid4" | "fridge" | "about_me" | "photo_dir";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
@@ -1465,6 +1467,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
   const tabs: { id: TabId; label: string }[] = [
     { id: "profile",   label: "Profile" },
     { id: "moments",   label: "Moments" },
+    { id: "gems",      label: "My gems" },
     { id: "world",     label: "World" },
     { id: "bloomcode", label: "Bloom Code" },
     { id: "bloomlink", label: "Bloom Link" },
@@ -1474,13 +1477,12 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
 
   const neighborhood = user.neighborhood || user.borough || "";
 
-  // Portal links based on role
-  const portalLinks: { label: string; href: string }[] = [];
-  if (user.role === "club_owner" || user.role === "founder") portalLinks.push({ label: "Club Mama Portal", href: "/club-owner/dashboard" });
-  if (user.role === "partner") portalLinks.push({ label: "Partner Portal", href: "/partner/dashboard" });
-  if (user.role === "curator") portalLinks.push({ label: "Curator Portal", href: "/curator/dashboard" });
-  if (user.role === "admin") portalLinks.push({ label: "Admin Portal", href: "/admin/dashboard" });
-  if (user.role === "founder") portalLinks.push({ label: "Founder Dashboard", href: "/admin/dashboard" });
+  // Portal links from personal account → work desks
+  const portalLinks = portalLinksForAccount({
+    role: user.role,
+    ownsClub: user.role === "club_owner",
+    hasHosted: true,
+  }).map((p) => ({ label: p.label, href: p.href }));
 
   const templateProps: TemplateProps = {
     displayName,
@@ -1896,7 +1898,7 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
       })()}
 
       {/* ══════════════════════════ TABS ══════════════════════════ */}
-      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(253,244,236,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
+      <div style={{ position: "sticky", top: "calc(env(safe-area-inset-top, 0px) + 54px)", zIndex: 40, background: "rgba(253,244,236,0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
         <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, WebkitOverflowScrolling: "touch" as unknown as undefined, paddingLeft: 14, paddingRight: 14 }}>
           {tabs.map(tab => (
             <button
@@ -2080,6 +2082,13 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
                 onPosted={() => setShowMomentSheet(false)}
               />
             )}
+          </div>
+        )}
+
+        {/* ─── MY GEMS TAB ─── */}
+        {activeTab === "gems" && (
+          <div>
+            <ProfileGemsPanel compact showHeader />
           </div>
         )}
 

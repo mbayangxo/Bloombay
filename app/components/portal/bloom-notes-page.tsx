@@ -1,16 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PushPin } from "./scrapbook";
 import { BBStickerPicker } from "./bb-sticker-picker";
 import {
-  getTopNotesForPlace, leaveBloomNote, toggleFlower, toggleSaveNote,
+  getTopNotesForPlace, leaveBloomNote, giveNoteGift, takeBackNoteGift, toggleSaveNote,
   getPlaceTagCounts, addNoteTags,
-  type BloomNote, type CityTag,
-  CITY_TAG_LABELS, CITY_TAG_EMOJIS,
 } from "@/lib/actions/bloom-notes";
+import {
+  type BloomNote,
+  type CityTag,
+  CITY_TAG_LABELS,
+  CITY_TAG_EMOJIS,
+} from "@/lib/bloom-notes/shared";
+import { FlowerButton } from "@/app/components/shared/flower-button";
+import type { GiftKind } from "@/lib/bloom-gifts";
+import { formatBloomGiftLabel, unitsForKind } from "@/lib/bloom-gifts";
 
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
@@ -50,7 +57,7 @@ function BloomScoreBadge({ score }: { score: number }) {
         <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
       </svg>
       <div>
-        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 900, color: PINK, lineHeight: 1 }}>{score.toLocaleString()}</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, color: PINK, lineHeight: 1.1 }}>{formatBloomGiftLabel(score)}</p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#C0185F", marginTop: 1 }}>BLOOM SCORE</p>
       </div>
     </div>
@@ -81,11 +88,12 @@ function AuthorChip({ note }: { note: BloomNote }) {
 
 // ── Single note card — Polaroid style ────────────────────────────────────────
 function NoteCard({
-  note, index, onFlower, onSave, top,
+  note, index, onGiveGift, onTakeBackGift, onSave, top,
 }: {
   note: BloomNote;
   index: number;
-  onFlower: (id: string) => void;
+  onGiveGift: (id: string, kind: GiftKind) => void;
+  onTakeBackGift: (id: string) => void;
   onSave: (id: string) => void;
   top: boolean;
 }) {
@@ -113,14 +121,23 @@ function NoteCard({
               <span style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>MOST LOVED</span>
             </div>
           )}
-          {/* Note text as photo content */}
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.65)", lineHeight: 1.55, padding: "10px 12px", textAlign: "center" as const }}>
-            {note.content}
-          </p>
+          {note.photo_urls?.[0] ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={note.photo_urls[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(0,0,0,0.65)", lineHeight: 1.55, padding: "10px 12px", textAlign: "center" as const }}>
+              {note.content}
+            </p>
+          )}
         </div>
 
         {/* Polaroid caption area */}
         <div style={{ paddingTop: 6 }}>
+          {note.photo_urls?.[0] && note.content && note.content !== "✦" ? (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#4A3A2A", lineHeight: 1.35, marginBottom: 6 }}>
+              {note.content}
+            </p>
+          ) : null}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
             <AuthorChip note={note} />
             <span style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "#A09080" }}>
@@ -140,19 +157,14 @@ function NoteCard({
               </svg>
             </button>
 
-            {/* Flower */}
-            <button
-              onClick={() => onFlower(note.id)}
-              style={{
-                background: note.gave_flower ? "#C0185F" : "rgba(192,24,95,0.08)",
-                color: note.gave_flower ? "white" : "#C0185F",
-                border: "none", borderRadius: 999, padding: "3px 9px", cursor: "pointer",
-                fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
-                display: "flex", alignItems: "center", gap: 3,
-              }}
-            >
-              ✿ {note.flower_count}
-            </button>
+            {/* Flower / bouquet */}
+            <FlowerButton
+              size="sm"
+              units={note.flower_count}
+              myKind={note.my_gift_kind}
+              onGive={(kind) => onGiveGift(note.id, kind)}
+              onTakeBack={() => onTakeBackGift(note.id)}
+            />
           </div>
         </div>
       </div>
@@ -166,9 +178,11 @@ const ALL_TAGS = Object.keys(CITY_TAG_LABELS) as CityTag[];
 function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; placeName: string; onPosted: () => void }) {
   const [draft, setDraft]         = useState("");
   const [selectedTags, setTags]   = useState<CityTag[]>([]);
+  const [photos, setPhotos]       = useState<File[]>([]);
   const [posting, setPosting]     = useState(false);
   const [error, setError]         = useState("");
   const [showStickers, setShowStickers] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function toggleTag(tag: CityTag) {
     setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag].slice(0, 3));
@@ -176,16 +190,44 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
 
   async function post() {
     const text = draft.trim();
-    if (!text || posting) return;
+    if ((!text && photos.length === 0) || posting) return;
     setPosting(true);
     setError("");
-    const res = await leaveBloomNote(placeSlug, placeName, text, selectedTags);
-    if (res.ok) {
-      setDraft("");
-      setTags([]);
-      onPosted();
-    } else {
-      setError(res.error ?? "Something went wrong.");
+    try {
+      const { MEDIA_BUCKETS } = await import("@/lib/media/buckets");
+      const { uploadImageFile } = await import("@/lib/media/upload-client");
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Not signed in.");
+        setPosting(false);
+        return;
+      }
+      const photoUrls: string[] = [];
+      for (const file of photos) {
+        const path = `${user.id}/bloom-notes/${placeSlug}/${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const result = await uploadImageFile(MEDIA_BUCKETS.memberMemories, path, file);
+        if (!result.ok) {
+          setError(result.error);
+          setPosting(false);
+          return;
+        }
+        photoUrls.push(result.publicUrl);
+      }
+      const res = await leaveBloomNote(placeSlug, placeName, text, selectedTags, { photoUrls });
+      if (res.ok) {
+        setDraft("");
+        setTags([]);
+        setPhotos([]);
+        onPosted();
+      } else {
+        setError(res.error ?? "Something went wrong.");
+      }
+    } catch {
+      setError("Something went wrong.");
     }
     setPosting(false);
   }
@@ -240,9 +282,37 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
         </div>
       )}
       {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#E53E3E", marginBottom: 6 }}>{error}</p>}
+      {photos.length > 0 && (
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#888", marginBottom: 6 }}>
+          {photos.length} photo{photos.length > 1 ? "s" : ""} ready
+        </p>
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "#B0A090" }}>{draft.length}/500</span>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"));
+              setPhotos((prev) => [...prev, ...files].slice(0, 4));
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            style={{
+              background: "rgba(0,0,0,0.05)", border: "none", borderRadius: 999,
+              padding: "5px 10px", fontFamily: "var(--font-jost)", fontSize: "8px",
+              fontWeight: 800, color: "#666", cursor: "pointer",
+            }}
+          >
+            + Photo
+          </button>
           <button
             onClick={() => setShowStickers(prev => !prev)}
             style={{
@@ -266,14 +336,14 @@ function Composer({ placeSlug, placeName, onPosted }: { placeSlug: string; place
         </div>
         <button
           onClick={post}
-          disabled={posting || !draft.trim()}
+          disabled={posting || (!draft.trim() && photos.length === 0)}
           style={{
-            background: draft.trim() ? PINK : "rgba(0,0,0,0.08)",
-            color: draft.trim() ? "white" : "#AAA",
+            background: draft.trim() || photos.length ? PINK : "rgba(0,0,0,0.08)",
+            color: draft.trim() || photos.length ? "white" : "#AAA",
             border: "none", borderRadius: 999, padding: "7px 18px",
-            cursor: draft.trim() ? "pointer" : "default",
+            cursor: draft.trim() || photos.length ? "pointer" : "default",
             fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em",
-            boxShadow: draft.trim() ? `0 3px 14px ${PINK}55` : "none",
+            boxShadow: draft.trim() || photos.length ? `0 3px 14px ${PINK}55` : "none",
           }}
         >
           {posting ? "PINNING…" : "PIN IT ✿"}
@@ -301,12 +371,36 @@ export function BloomNotesPage({ placeSlug }: { placeSlug: string }) {
 
   useEffect(() => { load(); }, [placeSlug]);
 
-  function onFlower(id: string) {
-    setNotes(ns => ns.map(n => n.id === id
-      ? { ...n, gave_flower: !n.gave_flower, flower_count: n.flower_count + (n.gave_flower ? -1 : 1) }
-      : n
-    ).sort((a, b) => b.flower_count - a.flower_count));
-    toggleFlower(id);
+  function onGiveGift(id: string, kind: GiftKind) {
+    setNotes(ns => ns.map(n => {
+      if (n.id !== id) return n;
+      const prevGave = n.my_gift_kind ? unitsForKind(n.my_gift_kind) : 0;
+      const nextUnits = unitsForKind(kind);
+      if (n.my_gift_kind === kind) {
+        return { ...n, gave_flower: false, my_gift_kind: null, flower_count: Math.max(0, n.flower_count - prevGave) };
+      }
+      return {
+        ...n,
+        gave_flower: true,
+        my_gift_kind: kind,
+        flower_count: Math.max(0, n.flower_count - prevGave + nextUnits),
+      };
+    }).sort((a, b) => b.flower_count - a.flower_count));
+    void giveNoteGift(id, kind);
+  }
+
+  function onTakeBackGift(id: string) {
+    setNotes(ns => ns.map(n => {
+      if (n.id !== id) return n;
+      const prevGave = n.my_gift_kind ? unitsForKind(n.my_gift_kind) : 0;
+      return {
+        ...n,
+        gave_flower: false,
+        my_gift_kind: null,
+        flower_count: Math.max(0, n.flower_count - prevGave),
+      };
+    }).sort((a, b) => b.flower_count - a.flower_count));
+    void takeBackNoteGift(id);
   }
 
   function onSave(id: string) {
@@ -398,7 +492,8 @@ export function BloomNotesPage({ placeSlug }: { placeSlug: string }) {
                 key={note.id}
                 note={note}
                 index={i}
-                onFlower={onFlower}
+                onGiveGift={onGiveGift}
+                onTakeBackGift={onTakeBackGift}
                 onSave={onSave}
                 top={i === 0 && note.flower_count > 0}
               />

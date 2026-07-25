@@ -55,6 +55,19 @@
   transform: scale(1.02);
 }
 
+/* Flower send — jumps up, spins lightly, lands */
+@keyframes bbFlowerJump {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); }
+  28%  { transform: translateY(-18px) scale(1.22) rotate(-12deg); }
+  55%  { transform: translateY(-6px) scale(1.08) rotate(8deg); }
+  78%  { transform: translateY(-14px) scale(1.14) rotate(-4deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); }
+}
+.bb-flower-jump {
+  animation: bbFlowerJump 0.62s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  transform-origin: 50% 90%;
+}
+
 /* ─── Scroll reveal ─────────────────────────────────── */
 @keyframes bloomSlideRight {
   from { opacity: 0; transform: translateX(-20px); }

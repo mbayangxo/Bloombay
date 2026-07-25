@@ -62,16 +62,11 @@ export async function refundTicket(
 // ── Host payout (Phase 2 — requires Stripe Connect) ──────────────────────────
 
 export async function payHost(params: HostPayoutParams): Promise<PaymentResult> {
-  // TODO Phase 2: onboard host via Stripe Connect (Express account), then:
-  //   await stripe.transfers.create({
-  //     amount: params.amountCents,
-  //     currency: params.currency ?? "gbp",
-  //     destination: connectedAccountId,
-  //     description: params.description,
-  //   });
+  // Ticket money uses destination charges at checkout (Connect).
+  // Manual transfers remain available for edge cases.
   void params;
   throw new Error(
-    "payHost is not yet implemented. Host payouts require Stripe Connect onboarding."
+    "Manual payHost transfers are unused — paid tickets pay out via Stripe Connect destination charges. Hosts must finish Connect onboarding first.",
   );
 }
 
