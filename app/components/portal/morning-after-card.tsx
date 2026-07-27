@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { giveGatheringGift } from "@/lib/actions/happenings";
+import { createTradition } from "@/lib/actions/traditions";
 
 const PINK = "#FF1F7D";
 
@@ -55,30 +56,33 @@ function BloomCupSilhouette() {
   );
 }
 
+type Companion = { userId: string; name: string; avatarUrl: string | null };
+
+const COMPANION_COLORS = ["#FF5BAD", "#C96EE0", "#FF9CC8", "#FFB07C"];
+
 interface MorningAfterCardProps {
-  happeningTitle?: string;
-  happeningVenue?: string;
-  women?: { name: string; initial: string; color: string }[];
+  gatheringId: string;
+  happeningTitle: string;
+  happeningVenue?: string | null;
+  women: Companion[];
   onDismiss?: () => void;
 }
 
-const DEFAULT_WOMEN = [
-  { name: "Amara", initial: "A", color: "#FF5BAD" },
-  { name: "Bea",   initial: "B", color: "#C96EE0" },
-  { name: "Leila", initial: "L", color: "#FF9CC8" },
-];
-
 export function MorningAfterCard({
-  happeningTitle = "Girls Dinner",
-  happeningVenue = "Carbone · West Village",
-  women = DEFAULT_WOMEN,
+  gatheringId,
+  happeningTitle,
+  happeningVenue,
+  women,
   onDismiss,
 }: MorningAfterCardProps) {
   const [showTraditionSheet, setShowTraditionSheet] = useState(false);
   const [flowerSent, setFlowerSent] = useState(false);
+  const [sendingFlower, setSendingFlower] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [tradName, setTradName] = useState("");
   const [tradFreq, setTradFreq] = useState("monthly");
+  const [tradSaving, setTradSaving] = useState(false);
+  const [tradError, setTradError] = useState<string | null>(null);
 
   if (dismissed) return null;
 
@@ -87,9 +91,34 @@ export function MorningAfterCard({
     onDismiss?.();
   }
 
-  function handleSendFlower() {
-    setFlowerSent(true);
-    setTimeout(() => handleDismiss(), 1400);
+  async function handleSendFlower() {
+    if (sendingFlower || flowerSent) return;
+    setSendingFlower(true);
+    try {
+      const result = await giveGatheringGift(gatheringId, "flower");
+      if (result.gave) {
+        setFlowerSent(true);
+        setTimeout(() => handleDismiss(), 1400);
+      }
+    } finally {
+      setSendingFlower(false);
+    }
+  }
+
+  async function handleStartTradition() {
+    if (!tradName.trim() || tradSaving) return;
+    setTradSaving(true);
+    setTradError(null);
+    try {
+      const result = await createTradition({ name: tradName.trim(), frequency: tradFreq });
+      if (result.ok) {
+        setShowTraditionSheet(false);
+      } else {
+        setTradError(result.error ?? "Couldn't start the tradition. Try again.");
+      }
+    } finally {
+      setTradSaving(false);
+    }
   }
 
   return (
@@ -147,40 +176,48 @@ export function MorningAfterCard({
             }}>
               Last night&apos;s {happeningTitle.toLowerCase()}.
             </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.38)", marginTop: 3 }}>
-              {happeningVenue}
-            </p>
+            {happeningVenue && (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "rgba(0,0,0,0.38)", marginTop: 3 }}>
+                {happeningVenue}
+              </p>
+            )}
           </div>
 
           {/* Women avatars + names */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 0" }}>
             <div style={{ display: "flex" }}>
-              {women.map((w, i) => (
-                <div
-                  key={i}
-                  title={w.name}
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${w.color}, ${w.color}cc)`,
-                    border: "2.5px solid white",
-                    marginLeft: i > 0 ? -10 : 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "var(--font-jost)",
-                    fontSize: "12px",
-                    fontWeight: 800,
-                    color: "white",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                    zIndex: women.length - i,
-                    position: "relative",
-                  }}
-                >
-                  {w.initial}
-                </div>
-              ))}
+              {women.map((w, i) => {
+                const color = COMPANION_COLORS[i % COMPANION_COLORS.length];
+                return (
+                  <div
+                    key={w.userId}
+                    title={w.name}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      background: w.avatarUrl ? undefined : `linear-gradient(135deg, ${color}, ${color}cc)`,
+                      backgroundImage: w.avatarUrl ? `url(${w.avatarUrl})` : undefined,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      border: "2.5px solid white",
+                      marginLeft: i > 0 ? -10 : 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "var(--font-jost)",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      color: "white",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                      zIndex: women.length - i,
+                      position: "relative",
+                    }}
+                  >
+                    {!w.avatarUrl && w.name[0]?.toUpperCase()}
+                  </div>
+                );
+              })}
             </div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 500 }}>
               You were in a room with{" "}
@@ -217,7 +254,8 @@ export function MorningAfterCard({
               Start a tradition →
             </button>
             <button
-              onClick={handleSendFlower}
+              onClick={() => void handleSendFlower()}
+              disabled={sendingFlower || flowerSent}
               style={{
                 flex: 1,
                 background: flowerSent ? "#FFF0F5" : "white",
@@ -229,11 +267,11 @@ export function MorningAfterCard({
                 fontSize: "11px",
                 fontWeight: 800,
                 letterSpacing: "0.06em",
-                cursor: "pointer",
+                cursor: sendingFlower || flowerSent ? "default" : "pointer",
                 transition: "all 0.25s ease",
               }}
             >
-              {flowerSent ? "Flowers sent ✦" : "Send a flower"}
+              {flowerSent ? "Flowers sent ✦" : sendingFlower ? "Sending…" : "Send a flower"}
             </button>
           </div>
         </div>
@@ -330,44 +368,55 @@ export function MorningAfterCard({
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.15em", color: "#aaa", marginBottom: 10, textTransform: "uppercase" as const }}>Starting with</p>
                 <div style={{ display: "flex", gap: 10 }}>
-                  {women.map((w, i) => (
-                    <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                      <div style={{
-                        width: 38, height: 38, borderRadius: "50%",
-                        background: `linear-gradient(135deg, ${w.color}, ${w.color}bb)`,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 800, color: "white",
-                      }}>
-                        {w.initial}
+                  {women.map((w, i) => {
+                    const color = COMPANION_COLORS[i % COMPANION_COLORS.length];
+                    return (
+                      <div key={w.userId} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                        <div style={{
+                          width: 38, height: 38, borderRadius: "50%",
+                          background: w.avatarUrl ? undefined : `linear-gradient(135deg, ${color}, ${color}bb)`,
+                          backgroundImage: w.avatarUrl ? `url(${w.avatarUrl})` : undefined,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontFamily: "var(--font-jost)", fontSize: "14px", fontWeight: 800, color: "white",
+                        }}>
+                          {!w.avatarUrl && w.name[0]?.toUpperCase()}
+                        </div>
+                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#888" }}>{w.name}</p>
                       </div>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "#888" }}>{w.name}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
-              <Link
-                href="/member/happenings"
-                onClick={() => setShowTraditionSheet(false)}
+              {tradError && (
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#c0392b", margin: 0 }}>{tradError}</p>
+              )}
+              <button
+                type="button"
+                onClick={() => void handleStartTradition()}
+                disabled={!tradName.trim() || tradSaving}
                 style={{
                   display: "block",
+                  width: "100%",
                   textAlign: "center",
                   padding: "16px",
                   borderRadius: 14,
+                  border: "none",
                   background: tradName.trim() ? PINK : "#eee",
                   color: tradName.trim() ? "white" : "#bbb",
                   fontFamily: "var(--font-jost)",
                   fontSize: "13px",
                   fontWeight: 800,
                   letterSpacing: "0.04em",
-                  textDecoration: "none",
-                  pointerEvents: tradName.trim() ? "auto" : "none",
+                  cursor: tradName.trim() && !tradSaving ? "pointer" : "not-allowed",
                   boxShadow: tradName.trim() ? `0 2px 0 rgba(150,0,55,0.8), 0 6px 18px ${PINK}44` : "none",
                   transition: "all 0.2s",
                 }}
               >
-                Start the tradition →
-              </Link>
+                {tradSaving ? "Starting…" : "Start the tradition →"}
+              </button>
             </div>
           </div>
         </>

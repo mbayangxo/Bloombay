@@ -551,6 +551,72 @@ export interface AttendeePreview {
   avatar_url: string | null;
 }
 
+export interface LastNightRecap {
+  gatheringId: string;
+  title: string;
+  venue: string | null;
+  companions: { userId: string; name: string; avatarUrl: string | null }[];
+}
+
+/**
+ * The most recent gathering the current user actually checked into
+ * (within the last 48h), plus real co-attendees — backs the "Morning
+ * After" home card. Returns null if nothing real happened recently, so
+ * the card can honestly stay hidden rather than fabricate one.
+ */
+export async function getMyLastNightRecap(): Promise<LastNightRecap | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const cutoff = new Date(Date.now() - 48 * 3600000).toISOString();
+
+  const { data: mine } = await supabase
+    .from("gathering_attendance")
+    .select("gathering_id, checked_in_at")
+    .eq("user_id", user.id)
+    .gte("checked_in_at", cutoff)
+    .order("checked_in_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!mine) return null;
+  const gatheringId = (mine as { gathering_id: string }).gathering_id;
+
+  const { data: gathering } = await supabase
+    .from("gatherings")
+    .select("title, venue")
+    .eq("id", gatheringId)
+    .maybeSingle();
+
+  if (!gathering) return null;
+
+  const { data: others } = await supabase
+    .from("gathering_attendance")
+    .select("user_id, profiles!user_id(full_name, first_name, avatar_url)")
+    .eq("gathering_id", gatheringId)
+    .neq("user_id", user.id)
+    .limit(4);
+
+  const companions = (others ?? []).map((r: Record<string, unknown>) => {
+    const p = r.profiles as { full_name?: string | null; first_name?: string | null; avatar_url?: string | null } | null;
+    return {
+      userId: r.user_id as string,
+      name: p?.first_name ?? p?.full_name?.split(" ")[0] ?? "A Bloomie",
+      avatarUrl: p?.avatar_url ?? null,
+    };
+  });
+
+  if (companions.length === 0) return null;
+
+  return {
+    gatheringId,
+    title: (gathering as { title: string }).title,
+    venue: (gathering as { venue: string | null }).venue,
+    companions,
+  };
+}
+
 export async function getGatheringAttendeesForHost(gatheringId: string): Promise<AttendeePreview[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

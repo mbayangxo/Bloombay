@@ -11,6 +11,7 @@ import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 import { HostDashCard } from "./host-dash-card";
 import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
+import { getMyLastNightRecap, type LastNightRecap } from "@/lib/actions/happenings";
 import { EventObjectCard } from "./event-object-cards";
 import { BloomRecapCard } from "./bloom-recap-card";
 import { MorningAfterCard } from "./morning-after-card";
@@ -155,6 +156,7 @@ export function HomePage() {
   const [showEdit,              setShowEdit]              = useState(false);
   const [upNextIdx,             setUpNextIdx]             = useState(0);
   const [events,                setEvents]                = useState<Event[]>([]);
+  const [recap,                 setRecap]                 = useState<LastNightRecap | null>(null);
   const [showPreferencesBanner, setShowPreferencesBanner] = useState(false);
   const [weather, setWeather] = useState<{ temp: number; icon: string; desc: string } | null>(null);
 
@@ -162,6 +164,7 @@ export function HomePage() {
     const currentTod = getTimeOfDay(new Date().getHours());
     setTod(currentTod);
     getEvents().then(evs => setEvents(evs));
+    getMyLastNightRecap().then(r => setRecap(r)).catch(() => setRecap(null));
 
     // Fetch weather via Open-Meteo (free, no API key)
     if (typeof navigator !== "undefined" && navigator.geolocation) {
@@ -330,25 +333,27 @@ export function HomePage() {
             </p>
           </div>
 
-          {/* Right — Recommendation card */}
-          <div style={{ width: 118, background: PINK, borderRadius: 16, padding: "12px 10px", boxShadow: `0 12px 36px ${PINK}44, 0 3px 0 rgba(180,0,70,0.4)`, flexShrink: 0 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", marginBottom: 6 }}>RECOMMENDED</p>
-            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "white", lineHeight: 1.2, marginBottom: 4 }}>
-              {events[0]?.title ?? "Museum Girls"}
-            </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", marginBottom: 6 }}>
-              {events[0]?.starts_at ? new Date(events[0].starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "6:30 PM"}
-              {events[0]?.venue ? ` · ${events[0].venue.split(",")[0]}` : " · The Met"}
-            </p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>
-              Because you&apos;ve attended similar events this month.
-            </p>
-            <div style={{ marginTop: 10 }}>
-              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", display: "inline-block" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.12em" }}>VIEW →</span>
+          {/* Right — Next up card (real: the soonest published gathering; no
+              personalization claim since attendance-similarity isn't computed) */}
+          {events[0] && (
+            <Link href={`/member/happenings/${events[0].id}`} style={{ textDecoration: "none" }}>
+              <div style={{ width: 118, background: PINK, borderRadius: 16, padding: "12px 10px", boxShadow: `0 12px 36px ${PINK}44, 0 3px 0 rgba(180,0,70,0.4)`, flexShrink: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,255,255,0.65)", marginBottom: 6 }}>COMING UP</p>
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 15, color: "white", lineHeight: 1.2, marginBottom: 4 }}>
+                  {events[0].title}
+                </p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.75)", marginBottom: 6 }}>
+                  {new Date(events[0].starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                  {events[0].venue ? ` · ${events[0].venue.split(",")[0]}` : ""}
+                </p>
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, padding: "4px 10px", display: "inline-block" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "white", letterSpacing: "0.12em" }}>VIEW →</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -393,11 +398,14 @@ export function HomePage() {
         <ThisOrThatCard />
       </div>
 
-      {/* ══ MORNING AFTER — only in the morning ══════════════════════════════ */}
-      {(tod === "morning") && (
+      {/* ══ MORNING AFTER — only in the morning, and only if she actually
+          checked into something in the last 48h with real co-attendees ══ */}
+      {tod === "morning" && recap && (
         <MorningAfterCard
-          happeningTitle={events[0]?.title ?? "Girls Dinner"}
-          happeningVenue={events[0]?.venue ?? "Carbone · West Village"}
+          gatheringId={recap.gatheringId}
+          happeningTitle={recap.title}
+          happeningVenue={recap.venue}
+          women={recap.companions.map(c => ({ userId: c.userId, name: c.name, avatarUrl: c.avatarUrl }))}
         />
       )}
 
@@ -617,42 +625,33 @@ export function HomePage() {
         </div>
       )}
 
-      {/* ══ LAST NIGHT memory card ═════════════════════════════════════════════ */}
-      <div style={{ margin: "8px 16px 0" }}>
-        <div style={{
-          borderRadius: 20, background: "#1A0010",
-          border: "1px solid rgba(255,31,125,0.15)",
-          padding: "20px",
-          boxShadow: "0 10px 36px rgba(0,0,0,0.22)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>LAST NIGHT</p>
+      {/* ══ LAST NIGHT memory card — only when she actually attended
+          something recently; stats are real (recap.companions), no
+          fabricated hours/friendship counts or invented quotes ══ */}
+      {recap && (
+        <div style={{ margin: "8px 16px 0" }}>
+          <div style={{
+            borderRadius: 20, background: "#1A0010",
+            border: "1px solid rgba(255,31,125,0.15)",
+            padding: "20px",
+            boxShadow: "0 10px 36px rgba(0,0,0,0.22)",
+          }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, letterSpacing: "0.22em", color: `${PINK}BB`, marginBottom: 8 }}>LAST NIGHT</p>
 
-          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-            {/* Stats */}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
-                {events[0]?.title ?? "Carbone Girls Dinner"} ♡
+            <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 18, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
+              {recap.title} ♡
+            </p>
+            <div>
+              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>
+                {recap.companions.length + 1}
               </p>
-              <div style={{ display: "flex", gap: 16 }}>
-                {[["4","WOMEN"],["3","HOURS"],["1","FRIENDSHIP"]].map(([n, lbl]) => (
-                  <div key={lbl}>
-                    <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 26, color: PINK, lineHeight: 1 }}>{n}</p>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{lbl}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Memory text */}
-            <div style={{ flex: 1, borderLeft: "1px solid rgba(255,31,125,0.1)", paddingLeft: 14 }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, marginBottom: 8 }}>
-                &ldquo;Last night felt intimate and alive — the kind of evening you carry home.&rdquo;
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>
+                WOMEN IN THE ROOM
               </p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: PINK, fontWeight: 700 }}>— Yande</p>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Safety */}
       {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}
