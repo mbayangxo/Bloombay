@@ -43,10 +43,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.type === "ticket") {
-    const { eventId, eventName, amountCents, quantity } = body;
+    const { eventId, eventName, quantity } = body;
     if (!eventId) return NextResponse.json({ error: "eventId required" }, { status: 400 });
     if (!eventName) return NextResponse.json({ error: "eventName required" }, { status: 400 });
-    if (!amountCents) return NextResponse.json({ error: "amountCents required" }, { status: 400 });
 
     const supabase = await createClient();
     const { data: gathering } = await supabase
@@ -57,6 +56,14 @@ export async function POST(req: NextRequest) {
 
     if (!gathering) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    // The price is always derived from the gathering's own record, never
+    // trusted from the client — otherwise a caller could set their own
+    // ticket price by editing the request body.
+    const amountCents = (gathering as { price_cents?: number | null }).price_cents ?? 0;
+    if (amountCents <= 0) {
+      return NextResponse.json({ error: "This event has no ticket price set." }, { status: 400 });
     }
 
     const hostId = (gathering as { host_id?: string | null }).host_id;
