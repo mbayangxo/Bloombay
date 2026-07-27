@@ -41,10 +41,11 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_host")
     .eq("id", user.id)
     .maybeSingle();
   const role = normalizeRole(profile?.role as string | undefined);
+  const isHost = !!(profile as { is_host?: boolean } | null)?.is_host;
 
   const { data: ownedClub } = await supabase
     .from("clubs")
@@ -55,7 +56,12 @@ export async function POST(req: NextRequest) {
 
   const isClubMama =
     canAccessPortal(role, "club_owner") || role === "founder" || !!ownedClub;
-  const canPublish = body.publish === true && (isClubMama || role === "founder" || role === "member");
+  // A plain "member" role is NOT enough to self-publish — that let any
+  // signed-in account skip review entirely by sending publish:true. Only
+  // real hosts (is_host, set once they've actually hosted a gathering —
+  // see proxy.ts) or club mamas/founders can publish directly; everyone
+  // else's import still lands as a pending night_submission for review.
+  const canPublish = body.publish === true && (isClubMama || isHost);
 
   const aesthetic = scoreNightAesthetic(parsed.title, parsed.description);
 

@@ -188,12 +188,31 @@ export async function toggleFlower(noteId: string): Promise<{ gave: boolean }> {
 export async function giveNoteGift(
   noteId: string,
   kind: "flower" | "bouquet"
-): Promise<{ gave: boolean; kind: "flower" | "bouquet" | null; units: number }> {
+): Promise<{ gave: boolean; kind: "flower" | "bouquet" | null; units: number; error?: string }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { gave: false, kind: null, units: 0 };
+  if (!user) return { gave: false, kind: null, units: 0, error: "Not signed in." };
+
+  const { data: note } = await supabase
+    .from("bloom_notes")
+    .select("author_id, gathering_id")
+    .eq("id", noteId)
+    .maybeSingle();
+  if (!note) return { gave: false, kind: null, units: 0, error: "Note not found." };
+  if ((note as { author_id: string }).author_id === user.id) {
+    return { gave: false, kind: null, units: 0, error: "You can't flower your own note." };
+  }
+
+  const gatheringId = (note as { gathering_id: string | null }).gathering_id;
+  if (gatheringId) {
+    const { requireConfirmedGatheringParticipant } = await import(
+      "@/lib/happenings/attendee-gate"
+    );
+    const gate = await requireConfirmedGatheringParticipant(gatheringId);
+    if (!gate.ok) return { gave: false, kind: null, units: 0, error: gate.error };
+  }
 
   const units = kind === "bouquet" ? 12 : 1;
   const { data: existing } = await supabase
