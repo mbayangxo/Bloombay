@@ -174,7 +174,7 @@ export function BecomeHostActions() {
       window.location.href = "/member/login?redirect=/member/host/become";
       return;
     }
-    const { error: err } = await supabase.from("profiles").update({ is_host: true }).eq("id", user.id);
+    const { error: err } = await supabase.rpc("activate_host_desk");
     if (err) {
       setError(err.message);
       setBusy(false);
