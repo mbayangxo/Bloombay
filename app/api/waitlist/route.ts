@@ -23,13 +23,28 @@ export async function POST(req: NextRequest) {
   }
 
   const db = admin();
+  const phone = body.phone?.trim();
+
+  // This endpoint is unauthenticated, so dedup by email alone isn't enough —
+  // without also checking the phone number, someone could POST unlimited
+  // distinct emails all pointing at the same real phone number and trigger
+  // an unlimited number of SMS sends to it. Check before the upsert so we
+  // know whether this phone has already been texted.
+  let phoneAlreadyTexted = false;
+  if (phone) {
+    const { count } = await db
+      .from("waitlist")
+      .select("id", { count: "exact", head: true })
+      .eq("phone_number", phone);
+    phoneAlreadyTexted = (count ?? 0) > 0;
+  }
 
   // Upsert into waitlist table (or profiles with waitlisted flag)
   const { error } = await db.from("waitlist").upsert(
     {
       first_name: body.first_name?.trim() ?? null,
       email: body.email.trim().toLowerCase(),
-      phone_number: body.phone?.trim() ?? null,
+      phone_number: phone ?? null,
       city: body.city ?? null,
       goals: body.goals ?? [],
       status: "waiting",
@@ -42,11 +57,11 @@ export async function POST(req: NextRequest) {
     console.error("[waitlist] insert error:", error.message);
   }
 
-  // Send welcome SMS if phone provided
-  if (body.phone?.trim()) {
+  // Send welcome SMS only the first time we've seen this phone number.
+  if (phone && !phoneAlreadyTexted) {
     const name = body.first_name?.trim() ?? "";
     const smsBody = `Hey ${name || "Bloomie"} 🌸\n\nYou're on the BloomBay waitlist! We'll text you the moment your city opens.\n\nWomen are gathering ✿\n\nbloombay.app`;
-    await sendSMS(body.phone.trim(), smsBody);
+    await sendSMS(phone, smsBody);
   }
 
   return NextResponse.json({ ok: true });
