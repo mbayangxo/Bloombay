@@ -45,12 +45,16 @@ const CLUB_CATEGORIES = [
 
 const CLUBS_WAITING_COMPACT: { name: string; women: number; status: string }[] = [];
 
+// Only "Waiting verification" is overridden with a real count below
+// (from the live waitlist rows) — the rest have no live source wired yet,
+// so they're explicitly labeled (demo) rather than presented as real
+// operational counts a founder could act on.
 const ATTENTION_PILLS = [
   { count: 127, label: "Waiting verification", href: "/admin/verification" },
-  { count: 34, label: "Waiting approval", href: "/admin/applications?type=member" },
-  { count: 89, label: "Waiting for club", href: "/admin/clubs" },
-  { count: 412, label: "Waiting for city launch", href: "/admin/dashboard#nyc-launch" },
-  { count: 18, label: "Waiting for response", href: "/admin/inbox" },
+  { count: 34, label: "Waiting approval (demo)", href: "/admin/applications?type=member" },
+  { count: 89, label: "Waiting for club (demo)", href: "/admin/clubs" },
+  { count: 412, label: "Waiting for city launch (demo)", href: "/admin/dashboard#nyc-launch" },
+  { count: 18, label: "Waiting for response (demo)", href: "/admin/inbox" },
 ] as const;
 
 export function OverviewDashboard({
@@ -154,6 +158,14 @@ export function OverviewDashboard({
       <TodaysBloom lines={bloomLines} />
 
       <NycLaunchHero hero={hero} />
+
+      <section className="fp-card">
+        <p className="fp-sub">
+          <strong>Demo data —</strong> the NYC launch ring above, Future curators, Top cities, Top clubs, and
+          Referral sources below are not wired to live waitlist or club data yet. Use the KPI row and live
+          waitlist total further down this page for real numbers.
+        </p>
+      </section>
 
       <section className="fp-overview-card fp-overview-curators fp-surface-barbie">
         <h3 className="fp-overview-card__title">Future curators</h3>
