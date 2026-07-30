@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Start a Club — BloomBay",
+  description:
+    "BloomBay gives club owners the infrastructure to bring women together at scale — seat management, revenue, and a dedicated Clubhouse.",
+};
 
 export default function StartAClubPage() {
   return (

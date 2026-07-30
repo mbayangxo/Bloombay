@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — BloomBay",
+  description: "BloomBay's privacy policy — what we collect, how we use it, and your rights.",
+};
 
 const SECTIONS = [
   {

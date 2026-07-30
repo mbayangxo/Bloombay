@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Our Story — BloomBay",
+  description:
+    "BloomBay started with a question: why is it so hard for women in a city of eight million people to find their people? Read our story.",
+};
 
 export default function AboutPage() {
   return (

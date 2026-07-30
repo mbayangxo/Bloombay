@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
+
+export const metadata: Metadata = {
+  title: "Terms of Service — BloomBay",
+  description: "BloomBay's terms of service — who can use BloomBay and the rules of the platform.",
+};
 
 const SECTIONS = [
   {

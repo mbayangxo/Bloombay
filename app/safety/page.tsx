@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Safety at BloomBay",
+  description: "How BloomBay keeps members safe — verification, reporting, and community standards.",
+};
 
 export default function SafetyPage() {
   return (

@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Venue Directory — BloomBay",
+  description:
+    "Browse BloomBay-approved venues across New York City for club gatherings and events — reviewed spaces for the kind of gatherings BloomBay hosts deserve.",
+};
 
 const VENUES = [
   {

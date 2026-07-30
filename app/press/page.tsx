@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
+
+export const metadata: Metadata = {
+  title: "Media & Press — BloomBay",
+  description:
+    "Press inquiries, media assets, and interview requests for BloomBay — a social world for women in New York City.",
+};
 
 export default function PressPage() {
   return (
