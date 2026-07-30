@@ -58,7 +58,7 @@ export function ClubWorldObject({
       onClick={() => trackClubPicked(club.id)}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={heroSrc} alt="" className="bb-club-world-object__photo" />
+      <img src={heroSrc} alt={club.name} className="bb-club-world-object__photo" />
       <div className="bb-club-world-object__veil" aria-hidden />
       <div className="bb-club-world-object__crest">
         <BloomBayCrest clubName={club.name} config={crestConfig} clubId={club.id} size="sm" />

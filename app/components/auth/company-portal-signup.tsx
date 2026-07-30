@@ -118,6 +118,7 @@ function SignupInner() {
             <input
               className="bb-login__input"
               placeholder="Full name"
+              aria-label="Full name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -127,6 +128,7 @@ function SignupInner() {
               type="email"
               className="bb-login__input"
               placeholder="Email"
+              aria-label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -137,6 +139,7 @@ function SignupInner() {
               type="password"
               className="bb-login__input"
               placeholder="Choose a password"
+              aria-label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"

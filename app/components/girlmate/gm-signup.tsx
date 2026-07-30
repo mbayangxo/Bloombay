@@ -81,8 +81,9 @@ export function GMSignupPage() {
         {/* Form */}
         <form onSubmit={(e) => void handleSignup(e)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>FIRST NAME</p>
+            <label htmlFor="gm-signup-name" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>FIRST NAME</label>
             <input
+              id="gm-signup-name"
               className="gm-input"
               type="text"
               placeholder="Your first name"
@@ -94,8 +95,9 @@ export function GMSignupPage() {
           </div>
 
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>EMAIL</p>
+            <label htmlFor="gm-signup-email" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>EMAIL</label>
             <input
+              id="gm-signup-email"
               className="gm-input"
               type="email"
               placeholder="your@email.com"
@@ -107,8 +109,9 @@ export function GMSignupPage() {
           </div>
 
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>PASSWORD</p>
+            <label htmlFor="gm-signup-password" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>PASSWORD</label>
             <input
+              id="gm-signup-password"
               className="gm-input"
               type="password"
               placeholder="6+ characters"

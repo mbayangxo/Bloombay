@@ -224,6 +224,7 @@ export function BloomBayLogin({
               type="email"
               className="bb-login__input"
               placeholder={variant === "founder" ? "founder@bloombay.app (optional)" : "you@email.com"}
+              aria-label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -233,6 +234,7 @@ export function BloomBayLogin({
               type="password"
               className="bb-login__input"
               placeholder="Password"
+              aria-label="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"

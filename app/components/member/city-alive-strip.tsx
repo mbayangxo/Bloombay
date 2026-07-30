@@ -63,7 +63,7 @@ export function CityAliveStrip() {
             style={{ "--bb-tilt": `${i % 2 === 0 ? -0.4 : 0.5}deg` } as React.CSSProperties}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={rec.photo} alt="" className="bb-city-rec__photo" />
+            <img src={rec.photo} alt={rec.place} className="bb-city-rec__photo" />
             <div className="bb-city-rec__body">
               <p className="bb-city-rec__place">{rec.place}</p>
               <p className="bb-city-rec__who">{rec.who} recommends</p>

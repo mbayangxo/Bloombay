@@ -72,7 +72,7 @@ function ProfileBubble({ author, size = 30 }: { author: CommentAuthor | null; si
       >
         {author?.avatar_url
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={author.avatar_url} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+          ? <img src={author.avatar_url} alt={author.display_name ?? "Member"} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
           : initials
         }
       </div>

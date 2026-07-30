@@ -64,7 +64,7 @@ export function PartnerBrandView({
       <header className="pb-view__hero">
         {brand.heroImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={brand.heroImageUrl} alt="" className="pb-view__hero-img" />
+          <img src={brand.heroImageUrl} alt={brand.name} className="pb-view__hero-img" />
         ) : (
           <div className="pb-view__hero-fallback" aria-hidden />
         )}
@@ -74,7 +74,7 @@ export function PartnerBrandView({
           </Link>
           {brand.logoImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={brand.logoImageUrl} alt="" className="pb-view__logo" />
+            <img src={brand.logoImageUrl} alt={`${brand.name} logo`} className="pb-view__logo" />
           ) : null}
           <span className="pb-view__type">{templateLabel(brand.templateId)} · {brand.neighborhood}</span>
           <h1>{brand.name}</h1>
@@ -138,10 +138,10 @@ export function PartnerBrandView({
           <section className="pb-view__slideshow">
             {slide?.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={slide.imageUrl} alt="" className="pb-view__slide-img" />
+              <img src={slide.imageUrl} alt={slide.headline} className="pb-view__slide-img" />
             ) : brand.heroImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={brand.heroImageUrl} alt="" className="pb-view__slide-img" />
+              <img src={brand.heroImageUrl} alt={brand.name} className="pb-view__slide-img" />
             ) : (
               <div className="pb-view__slide-fallback" aria-hidden />
             )}
@@ -198,7 +198,7 @@ export function PartnerBrandView({
                     <li key={item.id} className="pb-view__menu-item">
                       {item.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.imageUrl} alt="" className="pb-view__menu-thumb" />
+                        <img src={item.imageUrl} alt={item.name} className="pb-view__menu-thumb" />
                       ) : null}
                       <div>
                         <div className="pb-view__menu-row">

@@ -76,8 +76,9 @@ export function GMLoginPage() {
         {/* Form */}
         <form onSubmit={(e) => void handleLogin(e)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>EMAIL</p>
+            <label htmlFor="gm-login-email" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>EMAIL</label>
             <input
+              id="gm-login-email"
               className="gm-input"
               type="email"
               placeholder="your@email.com"
@@ -89,8 +90,9 @@ export function GMLoginPage() {
           </div>
 
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>PASSWORD</p>
+            <label htmlFor="gm-login-password" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em", marginBottom: 7 }}>PASSWORD</label>
             <input
+              id="gm-login-password"
               className="gm-input"
               type="password"
               placeholder="Your password"
