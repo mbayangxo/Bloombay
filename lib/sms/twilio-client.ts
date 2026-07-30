@@ -9,7 +9,11 @@ type TwilioConfig = {
 export function getTwilioConfig(): TwilioConfig | null {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+  // lib/notifications/sms.ts (used by the webhook, waitlist, reservations)
+  // reads TWILIO_FROM_NUMBER for the same purpose; .env.example only
+  // documents that name. Accept both so this file works regardless of
+  // which one is actually set in the deployed environment.
+  const fromNumber = process.env.TWILIO_FROM_NUMBER || process.env.TWILIO_PHONE_NUMBER;
   if (!accountSid || !authToken || !fromNumber) return null;
   return { accountSid, authToken, fromNumber };
 }
