@@ -1,7 +1,22 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { CuratorShell } from "@/app/components/curator/curator-shell";
-import { CURATOR_GATHERINGS } from "@/lib/curator-portal-data";
+
+type Gathering = { id: string; name: string; club: string; date: string; venue: string; total: number };
 
 export default function CuratorGatheringsPage() {
+  const [gatherings, setGatherings] = useState<Gathering[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/curator/overview")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setGatherings(d?.gatherings ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <CuratorShell
       title="Gatherings"
@@ -9,40 +24,35 @@ export default function CuratorGatheringsPage() {
     >
       <div className="cu-stat-row">
         <div className="cu-stat">
-          <strong>{CURATOR_GATHERINGS.length}</strong>
+          <strong>{gatherings.length}</strong>
           <span>On your calendar</span>
-        </div>
-        <div className="cu-stat">
-          <strong>{CURATOR_GATHERINGS.filter((g) => g.status === "confirmed").length}</strong>
-          <span>Confirmed</span>
         </div>
       </div>
 
       <article className="cu-card">
-        <h2>All gatherings</h2>
-        {CURATOR_GATHERINGS.length === 0 ? (
+        <h2>Upcoming gatherings</h2>
+        {loading ? (
+          <p className="cu-note">Loading…</p>
+        ) : gatherings.length === 0 ? (
           <p className="cu-note">No gatherings on your calendar yet.</p>
         ) : (
-        <ul className="cu-list">
-          {CURATOR_GATHERINGS.map((g) => (
-            <li key={g.id} className="cu-list__row">
-              <div>
-                <strong>{g.title}</strong>
-                <p className="cu-note">
-                  {g.date} · {g.venue}
-                </p>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <span className={`cu-badge ${g.status === "draft" ? "cu-badge--draft" : ""}`}>
-                  {g.status}
-                </span>
-                <p className="cu-note" style={{ marginTop: "0.35rem" }}>
-                  {g.women} women
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+          <ul className="cu-list">
+            {gatherings.map((g) => (
+              <li key={g.id} className="cu-list__row">
+                <div>
+                  <strong>{g.name}</strong>
+                  <p className="cu-note">
+                    {g.date}
+                    {g.venue ? ` · ${g.venue}` : ""}
+                    {g.club ? ` · ${g.club}` : ""}
+                  </p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p className="cu-note">{g.total} capacity</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </article>
 
