@@ -154,7 +154,7 @@ export function ClubSidebar() {
             <p className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>CLUB MAMA</p>
           </div>
           <form action={logout}>
-            <button type="submit" title="Sign out" style={{ color: "rgba(255,255,255,0.2)" }} className="transition-colors hover:text-white/40">
+            <button type="submit" title="Sign out" aria-label="Sign out" style={{ color: "rgba(255,255,255,0.2)" }} className="transition-colors hover:text-white/40">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
               </svg>

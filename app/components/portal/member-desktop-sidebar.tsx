@@ -177,7 +177,7 @@ export function MemberDesktopSidebar({ initial, name, role }: Props) {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(0,0,0,0.3)", letterSpacing: "0.1em", marginTop: 1 }}>{role.toUpperCase()}</p>
         </div>
         <form action={logout}>
-          <button type="submit" title="Sign out" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex" }}>
+          <button type="submit" title="Sign out" aria-label="Sign out" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.22)" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>

@@ -147,7 +147,7 @@ export function DesktopTopNav({ initial = "M" }: { initial?: string }) {
 
         {/* Sign out */}
         <form action={logout}>
-          <button type="submit" title="Sign out" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex" }}>
+          <button type="submit" title="Sign out" aria-label="Sign out" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>

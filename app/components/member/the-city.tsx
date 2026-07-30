@@ -81,7 +81,7 @@ export function TheCity() {
           {/* Top-right icons */}
           <div style={{ display: "flex", gap: 8, marginTop: 32 }}>
             {/* Notification bell */}
-            <button style={{ width: 38, height: 38, borderRadius: "50%", background: "white", border: "1.5px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flexShrink: 0 }}>
+            <button aria-label="Notifications" style={{ width: 38, height: 38, borderRadius: "50%", background: "white", border: "1.5px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flexShrink: 0 }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
@@ -89,6 +89,8 @@ export function TheCity() {
             {/* Filter button */}
             <button
               onClick={() => setShowFilters(v => !v)}
+              aria-label="Filters"
+              aria-pressed={showFilters}
               style={{ width: 38, height: 38, borderRadius: "50%", background: showFilters ? PINK : "white", border: showFilters ? "none" : "1.5px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flexShrink: 0, transition: "background 0.15s" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={showFilters ? "white" : "#1A1A1A"} strokeWidth="2" strokeLinecap="round">
                 <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />

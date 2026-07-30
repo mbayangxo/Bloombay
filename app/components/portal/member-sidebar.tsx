@@ -116,7 +116,7 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
           </p>
         </div>
         <form action={logout}>
-          <button type="submit" title="Sign out">
+          <button type="submit" title="Sign out" aria-label="Sign out">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={logoutStroke} strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>
