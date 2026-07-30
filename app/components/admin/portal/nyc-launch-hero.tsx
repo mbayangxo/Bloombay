@@ -45,7 +45,7 @@ export function NycLaunchHero({ hero }: { hero: LaunchHeroData }) {
 
       <div className="fp-nyc-hero__stats">
         <div className="fp-nyc-hero__stat">
-          <TickerNumber value={hero.women} live className="fp-nyc-hero__stat-num" />
+          <TickerNumber value={hero.women} className="fp-nyc-hero__stat-num" />
           <span>women in NYC</span>
         </div>
         <div className="fp-nyc-hero__stat">

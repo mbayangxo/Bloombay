@@ -5,12 +5,10 @@ import { useEffect, useRef, useState } from "react";
 export function TickerNumber({
   value,
   className,
-  live = false,
   duration = 1400,
 }: {
   value: number;
   className?: string;
-  live?: boolean;
   duration?: number;
 }) {
   const [display, setDisplay] = useState(0);
@@ -51,38 +49,6 @@ export function TickerNumber({
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [value, duration]);
-
-  useEffect(() => {
-    if (!live) return;
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-
-    const id = window.setInterval(() => {
-      setDisplay((d) => {
-        const base = target.current;
-        const drift = Math.floor(Math.random() * 28) - 10;
-        const next = d + drift;
-        if (Math.abs(next - base) > 120) return base + Math.sign(drift) * 8;
-        return next;
-      });
-    }, 2400);
-
-    const settle = window.setInterval(() => {
-      setDisplay((d) => {
-        const base = target.current;
-        if (d === base) return d;
-        const step = Math.sign(base - d) * Math.max(1, Math.round(Math.abs(base - d) * 0.15));
-        return Math.abs(base - d) <= 2 ? base : d + step;
-      });
-    }, 800);
-
-    return () => {
-      clearInterval(id);
-      clearInterval(settle);
-    };
-  }, [live, value]);
 
   return (
     <span className={className} aria-label={value.toLocaleString()}>

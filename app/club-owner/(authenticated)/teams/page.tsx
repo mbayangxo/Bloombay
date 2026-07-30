@@ -45,6 +45,10 @@ export default function ClubOwnerTeamsPage() {
         title="Committee & teams"
         sub="Events, marketing, volunteer, and finance teams — assign members and team-only planner rooms."
       />
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> teams and assignments save only on this device, not to your real members.
+        Nothing here is visible to co-hosts or synced across devices yet.
+      </p>
       <div className="co-stack">
         {teams.map((team) => (
           <article key={team.id} className="co-app-card">

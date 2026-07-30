@@ -18,7 +18,7 @@ export function KpiRow({ items }: { items: KpiItem[] }) {
         <article key={k.label} className="fp-overview-kpi fp-surface-white">
           <p className="fp-overview-kpi__label">{k.label}</p>
           <p className="fp-overview-kpi__value">
-            <TickerNumber value={k.total} live className="fp-ticker-hero" />
+            <TickerNumber value={k.total} className="fp-ticker-hero" />
           </p>
           <div className="fp-overview-kpi__chips">
             <GrowthChip value={k.today} period="today" />

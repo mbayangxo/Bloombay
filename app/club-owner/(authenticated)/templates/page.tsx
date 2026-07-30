@@ -19,6 +19,10 @@ export default function ClubOwnerTemplatesPage() {
         title="Event templates"
         sub="Duplicate successful events — timeline, budget, checklist, cover, tax and volunteer requirements."
       />
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> templates save only on this device and aren&apos;t linked to your real past
+        events yet.
+      </p>
       {templates.map((t) => (
         <article key={t.id} className="co-app-card" style={{ marginBottom: "0.75rem" }}>
           <strong>{t.name}</strong>

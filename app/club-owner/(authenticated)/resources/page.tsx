@@ -21,6 +21,10 @@ export default function ClubOwnerResourcesPage() {
         title="Resource library"
         sub="Past flyers, event covers, templates, documents, photos, and sponsor info — reuse every year."
       />
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> resources save only on this device (title/kind only, no real file upload yet)
+        and aren&apos;t shared with co-hosts.
+      </p>
       <div className="co-resource-grid">
         {items.map((r) => (
           <div key={r.id} className="co-resource-card">

@@ -33,6 +33,10 @@ export default function ClubOwnerPlannerPage() {
         title="Planner rooms"
         sub="Turn ideas into tasks — assignee, due date, status, and notes per event."
       />
+      <p className="co-hint" style={{ background: "rgba(255,31,125,0.06)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 10, padding: "0.6rem 0.75rem", marginBottom: "1rem" }}>
+        <strong>Prototype —</strong> planner rooms and tasks save only on this device. Co-hosts and teammates
+        won&apos;t see any of this until it's wired to a real, shared backend.
+      </p>
       <ul className="co-app-list">
         {rooms.map((room) => (
           <li key={room.id}>
