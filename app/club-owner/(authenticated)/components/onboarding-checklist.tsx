@@ -1,10 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getOnboardingSteps } from "@/lib/club-owner-store";
 
 export function OnboardingChecklist({ clubId }: { clubId: string }) {
-  const steps = getOnboardingSteps(clubId);
+  const [hasSentBroadcast, setHasSentBroadcast] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/club-portal/broadcasts")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setHasSentBroadcast((d?.broadcasts?.length ?? 0) > 0))
+      .catch(() => {});
+  }, []);
+
+  const steps = getOnboardingSteps(clubId, hasSentBroadcast);
   const done = steps.filter((s) => s.done).length;
 
   return (

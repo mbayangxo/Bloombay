@@ -1,12 +1,13 @@
 import { CuratorShell } from "@/app/components/curator/curator-shell";
-import { CURATOR_PROFILE } from "@/lib/curator-portal-data";
+import { getAuthUser } from "@/lib/auth/get-user";
 import Link from "next/link";
 
 /**
  * Curator dashboard — no fabricated Amanda R. / gathering demo stats.
  * Wire to /api/curator/overview when ready; until then, honest empty.
  */
-export default function CuratorDashboardPage() {
+export default async function CuratorDashboardPage() {
+  const user = await getAuthUser();
   return (
     <CuratorShell
       title="Curator"
@@ -45,9 +46,9 @@ export default function CuratorDashboardPage() {
         </Link>
       </article>
 
-      {CURATOR_PROFILE.email ? (
+      {user?.email ? (
         <p className="cu-note" style={{ marginTop: 16 }}>
-          Signed in as {CURATOR_PROFILE.email}
+          Signed in as {user.email}
         </p>
       ) : null}
     </CuratorShell>

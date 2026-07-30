@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { CuratorShell } from "@/app/components/curator/curator-shell";
+import { createClient } from "@/lib/supabase/client";
 import {
   findTeamMemberByEmail,
   listPayoutsForMember,
   type FounderTeamMember,
   type TeamPayout,
 } from "@/lib/founder-team-store";
-import { CURATOR_PROFILE } from "@/lib/curator-portal-data";
 import Link from "next/link";
 
 export default function CuratorPayPage() {
@@ -16,12 +16,19 @@ export default function CuratorPayPage() {
   const [payouts, setPayouts] = useState<TeamPayout[]>([]);
 
   useEffect(() => {
-    function load() {
-      const m = findTeamMemberByEmail(CURATOR_PROFILE.email);
+    let email = "";
+
+    async function load() {
+      if (!email) {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        email = user?.email ?? "";
+      }
+      const m = findTeamMemberByEmail(email);
       setMember(m);
       setPayouts(m ? listPayoutsForMember(m.id) : []);
     }
-    load();
+    void load();
     window.addEventListener("bb-team-payouts", load);
     return () => window.removeEventListener("bb-team-payouts", load);
   }, []);

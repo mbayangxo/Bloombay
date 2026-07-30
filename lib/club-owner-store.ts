@@ -4,7 +4,7 @@
 
 import { CLUBS } from "@/app/member/clubs/club-data";
 import { MEMBER_UI_REFS } from "@/lib/member-ui-assets";
-import { getHostOwnerName, listPings } from "@/lib/club-host-store";
+import { getHostOwnerName } from "@/lib/club-host-store";
 
 export type MemberStatus = "active" | "blocked" | "removed";
 
@@ -413,10 +413,9 @@ export type OnboardingStep = {
   href: string;
 };
 
-export function getOnboardingSteps(clubId: string): OnboardingStep[] {
+export function getOnboardingSteps(clubId: string, hasSentBroadcast = false): OnboardingStep[] {
   const branding = getClubBranding(clubId);
   const gatherings = listGatherings(clubId).length;
-  const pings = listPings(clubId).length;
   return [
     { id: "join", label: "Set join & paywall rules", done: true, href: "/club-owner/settings" },
     {
@@ -432,7 +431,7 @@ export function getOnboardingSteps(clubId: string): OnboardingStep[] {
       href: "/club-owner/gatherings",
     },
     { id: "mods", label: "Invite a moderator", done: false, href: "/club-owner/moderators" },
-    { id: "ping", label: "Send your first Bloom ping", done: pings > 0, href: "/club-owner/comms" },
+    { id: "ping", label: "Send your first Bloom ping", done: hasSentBroadcast, href: "/club-owner/comms" },
   ];
 }
 
