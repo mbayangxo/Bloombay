@@ -1396,7 +1396,7 @@ function WalletTickets({ rooms, theme, onOpen }: { rooms: PlanRoom[]; theme: typ
   return (
     <div style={{ paddingBottom: 20 }}>
 
-        /* ── WALLET — tapping navigates to /member/plans/tickets ── */
+        {/* ── WALLET — tapping navigates to /member/plans/tickets ── */}
         <button
           onClick={() => router.push("/member/plans/tickets")}
           className="active:scale-[0.985] transition-transform"
