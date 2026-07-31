@@ -1,3 +1,4 @@
+import "@/app/styles/bb-poster-templates.css";
 import type { PosterTemplateData, PosterTemplateProps, PosterTemplateType } from "@/lib/poster-templates/types";
 import { ClubPosterTemplate } from "./club-poster-template";
 import { DinnerPosterTemplate } from "./dinner-poster-template";
