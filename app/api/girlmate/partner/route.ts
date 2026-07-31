@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { requireAdmin } from "@/lib/auth/require-role";
+import { clientIp, isRateLimited } from "@/lib/rate-limit";
 
 function admin() {
   return createClient(
@@ -26,6 +27,10 @@ async function sessionUser(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (await isRateLimited(`girlmate-partner:${clientIp(req)}`, { max: 5, windowSeconds: 600 })) {
+    return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const body = await req.json() as {
     contact_name: string;
     email: string;

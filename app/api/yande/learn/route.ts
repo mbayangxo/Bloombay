@@ -14,11 +14,13 @@ function admin() {
 // updates compatibility weights, refreshes user memories, and
 // queues proactive match suggestions.
 
-const CRON_SECRET = process.env.CRON_SECRET;
-
 export async function POST(req: NextRequest) {
+  // Fail closed: if CRON_SECRET isn't configured, reject rather than allow
+  // (the inverse — `if (CRON_SECRET && ...)` — would skip the check entirely
+  // and run this DB-scanning job with no auth at all if the env var was ever
+  // left unset).
   const auth = req.headers.get("authorization");
-  if (CRON_SECRET && auth !== `Bearer ${CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

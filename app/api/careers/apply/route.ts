@@ -5,12 +5,17 @@ import {
   type CareerRoleCategory,
 } from "@/lib/careers-admin";
 import { insertCareerApplication } from "@/lib/supabase-admin";
+import { clientIp, isRateLimited } from "@/lib/rate-limit";
 
 function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export async function POST(request: Request) {
+  if (await isRateLimited(`careers-apply:${clientIp(request)}`, { max: 5, windowSeconds: 600 })) {
+    return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const body = (await request.json().catch(() => ({}))) as Partial<CareerApplicationInput>;
 
   const first_name = String(body.first_name ?? "").trim();

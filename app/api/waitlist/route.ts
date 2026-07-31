@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendSMS } from "@/lib/notifications/sms";
+import { clientIp, isRateLimited } from "@/lib/rate-limit";
 
 function admin() {
   return createClient(
@@ -10,6 +11,10 @@ function admin() {
 }
 
 export async function POST(req: NextRequest) {
+  if (await isRateLimited(`waitlist:${clientIp(req)}`, { max: 5, windowSeconds: 600 })) {
+    return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const body = await req.json() as {
     first_name: string;
     email: string;
