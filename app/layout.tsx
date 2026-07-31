@@ -38,6 +38,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: "BloomBay — Where you bloom.",
   description:
     "BloomBay is a social world for women — friends, clubs, gatherings, and real-life connection. Join the waitlist.",
@@ -49,6 +50,19 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: "/icons/icon-192.svg",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "BloomBay",
+    title: "BloomBay — Where you bloom.",
+    description:
+      "BloomBay is a social world for women — friends, clubs, gatherings, and real-life connection.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BloomBay — Where you bloom.",
+    description:
+      "BloomBay is a social world for women — friends, clubs, gatherings, and real-life connection.",
   },
 };
 
