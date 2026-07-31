@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Host Resources — BloomBay",
+  description: "Everything you need to host well on BloomBay — guides for club hosts and gathering leaders.",
+};
 
 const GUIDES = [
   {

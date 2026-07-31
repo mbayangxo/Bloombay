@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BBLogo } from "@/app/components/portal/bb-logo";
+
+export const metadata: Metadata = {
+  title: "Portals — BloomBay",
+  description: "Sign in to your BloomBay portal — member, club owner, partner, curator, or founder.",
+};
 
 export default function PortalsPage() {
   return (

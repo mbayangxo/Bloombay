@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingLayout } from "@/app/components/marketing-layout";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Member Rights — BloomBay",
+  description: "Your rights as a BloomBay member.",
+};
 
 const RIGHTS = [
   {
