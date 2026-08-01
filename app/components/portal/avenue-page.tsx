@@ -14,7 +14,7 @@ interface AvenueConfig {
   tagline: string;
   href: string;
   accent: string;
-  count: number | null;
+  roomKey: string;
   icon?: "magazine";
 }
 
@@ -26,7 +26,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Post. Share. Vibe.",
     href: "/member/avenue/wall",
     accent: "#FF1F7D",
-    count: 247,
+    roomKey: "wall",
   },
   {
     signLine1: "FASHION AVE.",
@@ -35,7 +35,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Fits. Advice. Style.",
     href: "/member/avenue/closet",
     accent: "#E8007A",
-    count: 183,
+    roomKey: "closet",
   },
   {
     signLine1: "BLOOM BLVD.",
@@ -44,7 +44,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Beauty. Glow. You.",
     href: "/member/avenue/vanity",
     accent: "#FF1F7D",
-    count: 76,
+    roomKey: "vanity",
   },
   {
     signLine1: "LIBRARY LANE",
@@ -53,7 +53,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Books. Discuss. Share.",
     href: "/member/avenue/reading-room",
     accent: "#D4A853",
-    count: 54,
+    roomKey: "reading-room",
   },
   {
     signLine1: "CINEMA ROW",
@@ -62,7 +62,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Film. Watch. Review.",
     href: "/member/avenue/screening-room",
     accent: "#FF1F7D",
-    count: 38,
+    roomKey: "screening",
   },
   {
     signLine1: "FITNESS ROW",
@@ -71,7 +71,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Move. Eat. Glow.",
     href: "/member/avenue/wellness",
     accent: "#4A7C59",
-    count: 156,
+    roomKey: "wellness",
   },
   {
     signLine1: "CAREER BLVD.",
@@ -80,7 +80,7 @@ const AVENUES: AvenueConfig[] = [
     tagline: "Jobs. Money. Hot Takes.",
     href: "/member/avenue/working",
     accent: "#1A0A2E",
-    count: 94,
+    roomKey: "working",
   },
 ];
 
@@ -125,7 +125,7 @@ function getPostDisplay(post: WallPost, idx: number) {
 }
 
 // ── AvenueArrow ────────────────────────────────────────────────────────────────
-function AvenueArrow({ avenue, flip = false }: { avenue: AvenueConfig; flip?: boolean }) {
+function AvenueArrow({ avenue, count, flip = false }: { avenue: AvenueConfig; count: number | null; flip?: boolean }) {
   const TIP = 32;
   const clipRight = `polygon(0 0, calc(100% - ${TIP}px) 0, 100% 50%, calc(100% - ${TIP}px) 100%, 0 100%)`;
   const clipLeft  = `polygon(${TIP}px 0, 100% 0, 100% 100%, ${TIP}px 100%, 0 50%)`;
@@ -169,14 +169,14 @@ function AvenueArrow({ avenue, flip = false }: { avenue: AvenueConfig; flip?: bo
           }}>{avenue.tagline}</p>
         </div>
 
-        {avenue.count !== null && (
+        {count !== null && count > 0 && (
           <div style={{
             background: "rgba(255,31,125,0.08)",
             borderRadius: 999, padding: "2px 9px",
             border: "1px solid rgba(255,31,125,0.2)",
             flexShrink: 0,
           }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: PINK }}>{avenue.count}</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: PINK }}>{count}</span>
           </div>
         )}
 
@@ -241,11 +241,19 @@ function TopPostCard({ post }: { post: PostDisplay }) {
 // ── AvenuePage ──────────────────────────────────────────────────────────────────
 export function AvenuePage() {
   const [topPosts, setTopPosts] = useState<PostDisplay[]>([]);
+  const [topPostsLoading, setTopPostsLoading] = useState(true);
+  const [roomCounts, setRoomCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     fetch("/api/avenue/top-posts")
       .then(r => r.ok ? r.json() : [])
       .then((data: WallPost[]) => setTopPosts((data ?? []).map((p, i) => getPostDisplay(p, i))))
+      .catch(() => {})
+      .finally(() => setTopPostsLoading(false));
+
+    fetch("/api/avenue/room-counts")
+      .then(r => r.json())
+      .then(d => setRoomCounts(d.counts ?? {}))
       .catch(() => {});
   }, []);
 
@@ -258,6 +266,7 @@ export function AvenuePage() {
     }}>
       <style>{`
         .lscroll::-webkit-scrollbar { display: none; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
       `}</style>
 
       {/* ══ HEADER ═══════════════════════════════════════════════════════════════ */}
@@ -340,16 +349,26 @@ export function AvenuePage() {
             <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, color: "rgba(26,26,26,0.35)" }}>all →</span>
           </Link>
         </div>
-        <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
-          {topPosts.length === 0
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ width: 180, height: 130, background: "rgba(26,26,26,0.06)", borderRadius: 18, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
-              ))
-            : topPosts.map((post, i) => (
-                <TopPostCard key={i} post={post} />
-              ))
-          }
-        </div>
+        {topPostsLoading ? (
+          <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} style={{ width: 180, height: 130, background: "rgba(26,26,26,0.06)", borderRadius: 18, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
+            ))}
+          </div>
+        ) : topPosts.length === 0 ? (
+          <div style={{ padding: "0 24px" }}>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(26,26,26,0.4)" }}>
+              Nothing trending yet — be the first to post on{" "}
+              <Link href="/member/avenue/wall" style={{ color: PINK, textDecoration: "none", fontWeight: 700 }}>The Wall ✦</Link>
+            </p>
+          </div>
+        ) : (
+          <div className="lscroll" style={{ display: "flex", gap: 12, overflowX: "auto", padding: "0 24px 8px", scrollbarWidth: "none" as const }}>
+            {topPosts.map((post, i) => (
+              <TopPostCard key={i} post={post} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ══ THE AVENUE — arrow list ════════════════════════════════════════ */}
@@ -357,7 +376,7 @@ export function AvenuePage() {
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.22em", marginBottom: 16, padding: "0 24px" }}>THE AVENUE</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {AVENUES.map((avenue, i) => (
-            <AvenueArrow key={avenue.href} avenue={avenue} flip={i % 2 === 1} />
+            <AvenueArrow key={avenue.href} avenue={avenue} count={roomCounts[avenue.roomKey] ?? null} flip={i % 2 === 1} />
           ))}
         </div>
       </div>

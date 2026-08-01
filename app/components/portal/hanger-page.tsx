@@ -14,9 +14,16 @@ import { SectionHeader, HeaderBtn } from "@/app/components/shared/section-header
 import { HangerCardSkeleton } from "@/app/components/shared/skeleton";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
+// Page chrome matches the app-wide cream/pink convention — only individual
+// listing photo-cards keep their own dark boutique-card look.
 const PINK  = "#FF1F7D";
 const DARK  = "#1C1B1C";
-const PAPER = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")`;
+const CREAM = "#F6F1EB";
+const INK_04 = "rgba(28,27,28,0.04)";
+const INK_08 = "rgba(28,27,28,0.08)";
+const INK_35 = "rgba(28,27,28,0.4)";
+const INK_55 = "rgba(28,27,28,0.6)";
+const PAPER = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix type='saturate' values='0' in='t'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`;
 
 // ─── Category icons ────────────────────────────────────────────────────────────
 const CATEGORY_ICONS: Record<string, string> = {
@@ -121,6 +128,7 @@ export function HangerPage() {
   const [detailListing,  setDetailListing]     = useState<ListingDetail | null>(null);
   const [searchQuery,    setSearchQuery]       = useState("");
   const [showSearch,     setShowSearch]        = useState(false);
+  const [showFilters,    setShowFilters]       = useState(false);
   const [activeSize,     setActiveSize]        = useState<string | null>(null);
   const [activeTab,      setActiveTab]         = useState<HangerTab>("browse");
   const [myListings,     setMyListings]        = useState<HangerListing[]>([]);
@@ -266,11 +274,11 @@ export function HangerPage() {
     width: "100%",
     padding: "11px 12px",
     borderRadius: 10,
-    border: "1.5px solid rgba(255,255,255,0.12)",
-    background: "rgba(255,255,255,0.06)",
+    border: `1.5px solid ${INK_08}`,
+    background: "white",
     fontFamily: "var(--font-jost), sans-serif",
     fontSize: 14,
-    color: "#fff",
+    color: DARK,
     outline: "none",
     boxSizing: "border-box",
   };
@@ -282,7 +290,7 @@ export function HangerPage() {
     fontWeight: 700,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-    color: "rgba(255,255,255,0.4)",
+    color: INK_35,
     marginBottom: 8,
   };
 
@@ -290,12 +298,12 @@ export function HangerPage() {
     <div
       style={{
         minHeight: "100dvh",
-        background: "#0D0D0D",
+        background: CREAM,
         paddingBottom: 120,
         backgroundImage: PAPER,
         backgroundRepeat: "repeat",
         fontFamily: "var(--font-jost), sans-serif",
-        color: "#fff",
+        color: DARK,
         overflowX: "hidden",
       }}
     >
@@ -304,15 +312,15 @@ export function HangerPage() {
         title="The Hanger"
         subtitle="women-only closet ✦"
         backHref="/member/match"
-        theme="dark"
+        theme="light"
         actions={
           <>
             <button
               onClick={() => setShowSearch(v => !v)}
               style={{
-                background: showSearch ? `${PINK}22` : "rgba(255,255,255,0.08)",
-                color: showSearch ? PINK : "rgba(255,255,255,0.7)",
-                border: showSearch ? `1.5px solid ${PINK}44` : "1.5px solid rgba(255,255,255,0.12)",
+                background: showSearch ? `${PINK}18` : INK_08,
+                color: showSearch ? PINK : INK_55,
+                border: showSearch ? `1.5px solid ${PINK}44` : `1.5px solid ${INK_08}`,
                 borderRadius: "50%", width: 34, height: 34,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 15, cursor: "pointer",
@@ -340,11 +348,11 @@ export function HangerPage() {
               width: "100%",
               padding: "11px 14px",
               borderRadius: 12,
-              border: "1.5px solid rgba(255,255,255,0.12)",
-              background: "rgba(255,255,255,0.07)",
+              border: `1.5px solid ${INK_08}`,
+              background: "white",
               fontFamily: "var(--font-jost), sans-serif",
               fontSize: 14,
-              color: "#fff",
+              color: DARK,
               outline: "none",
               boxSizing: "border-box",
             }}
@@ -357,7 +365,7 @@ export function HangerPage() {
         display: "flex",
         padding: "10px 12px 0",
         gap: 0,
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        borderBottom: `1px solid ${INK_08}`,
       }}>
         {(["browse", "my-listings"] as HangerTab[]).map((tab) => (
           <button
@@ -368,7 +376,7 @@ export function HangerPage() {
               background: "transparent",
               border: "none",
               borderBottom: activeTab === tab ? `2px solid ${PINK}` : "2px solid transparent",
-              color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.4)",
+              color: activeTab === tab ? DARK : INK_35,
               fontFamily: "var(--font-jost), sans-serif",
               fontSize: 11,
               fontWeight: 700,
@@ -385,25 +393,25 @@ export function HangerPage() {
 
       {/* ── Seller balance strip ───────────────────────────────────────────────── */}
       <div style={{ padding: "10px 12px 0" }}>
-        <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 14px" }}>
+        <div style={{ background: "white", border: `1px solid ${INK_08}`, borderRadius: 12, padding: "10px 14px", boxShadow: "0 2px 10px rgba(28,27,28,0.05)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)" }}>
+              <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INK_35 }}>
                 Your Earnings
               </p>
-              <p style={{ margin: "2px 0 0", fontSize: 18, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: "#fff" }}>
+              <p style={{ margin: "2px 0 0", fontSize: 18, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: DARK }}>
                 £{((balance?.pending_cents ?? 0) / 100).toFixed(2)}{" "}
-                <span style={{ fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontStyle: "normal", fontWeight: 400, color: "rgba(255,255,255,0.35)" }}>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontStyle: "normal", fontWeight: 400, color: INK_35 }}>
                   pending · £{((balance?.paid_out_cents ?? 0) / 100).toFixed(2)} paid out
                 </span>
               </p>
-              <p style={{ margin: "2px 0 0", fontSize: 12, fontFamily: "var(--font-caveat), cursive", color: "rgba(255,255,255,0.3)" }}>
+              <p style={{ margin: "2px 0 0", fontSize: 12, fontFamily: "var(--font-caveat), cursive", color: INK_35 }}>
                 {earnings.length > 0 ? `${earnings.length} sale${earnings.length === 1 ? "" : "s"} · you keep 90%` : "paid out when your item sells ✦"}
               </p>
             </div>
             <button
               onClick={() => setShowEarnings(v => !v)}
-              style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, padding: "6px 14px", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", color: "rgba(255,255,255,0.65)", cursor: "pointer", whiteSpace: "nowrap" as const }}
+              style={{ background: "transparent", border: `1px solid ${INK_08}`, borderRadius: 20, padding: "6px 14px", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", color: INK_55, cursor: "pointer", whiteSpace: "nowrap" as const }}
             >
               {showEarnings ? "Hide" : "Sales →"}
             </button>
@@ -411,19 +419,19 @@ export function HangerPage() {
 
           {/* Earnings history panel */}
           {showEarnings && (
-            <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 12 }}>
+            <div style={{ marginTop: 12, borderTop: `1px solid ${INK_08}`, paddingTop: 12 }}>
               {earnings.length === 0 ? (
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "8px 0" }}>No sales yet — list something to get started ✦</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: INK_35, textAlign: "center" as const, padding: "8px 0" }}>No sales yet — list something to get started ✦</p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {earnings.map(e => {
                     const date = new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
                     return (
                       <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>👗</div>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,31,125,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>👗</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.85)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{e.item_name ?? "Item sold"}</p>
-                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{date} · you keep £{(e.seller_receives_cents / 100).toFixed(2)}</p>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{e.item_name ?? "Item sold"}</p>
+                          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: INK_35 }}>{date} · you keep £{(e.seller_receives_cents / 100).toFixed(2)}</p>
                         </div>
                         <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: PINK, flexShrink: 0 }}>£{(e.amount_cents / 100).toFixed(2)}</p>
                       </div>
@@ -436,11 +444,10 @@ export function HangerPage() {
         </div>
       </div>
 
-      {/* ── Category + size filters (only on Browse tab) ──────────────────────── */}
+      {/* ── Category row + a single Filters button (only on Browse tab) ───────── */}
       {activeTab === "browse" && (
-        <>
-          {/* Category row */}
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "12px 12px 0", scrollbarWidth: "none" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "12px 12px 12px" }}>
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", flex: 1, minWidth: 0 }}>
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
@@ -448,8 +455,8 @@ export function HangerPage() {
                 style={{
                   flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
                   padding: "6px 14px", borderRadius: 20, border: "none",
-                  background: activeCategory === cat ? PINK : "rgba(255,255,255,0.08)",
-                  color: activeCategory === cat ? "#fff" : "rgba(255,255,255,0.6)",
+                  background: activeCategory === cat ? PINK : INK_08,
+                  color: activeCategory === cat ? "#fff" : INK_55,
                   fontSize: 12, fontFamily: "var(--font-jost), sans-serif",
                   fontWeight: 600, letterSpacing: "0.03em", cursor: "pointer",
                 }}
@@ -459,38 +466,71 @@ export function HangerPage() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setShowFilters(true)}
+            style={{
+              flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
+              padding: "6px 12px", borderRadius: 20,
+              border: `1.5px solid ${activeSize ? PINK : INK_08}`,
+              background: activeSize ? `${PINK}12` : "white",
+              color: activeSize ? PINK : INK_55,
+              fontSize: 12, fontFamily: "var(--font-jost), sans-serif",
+              fontWeight: 700, cursor: "pointer",
+            }}
+          >
+            ⚲ {activeSize ? `Size ${activeSize}` : "Filters"}
+          </button>
+        </div>
+      )}
 
-          {/* Size filter row */}
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", padding: "8px 12px 12px", scrollbarWidth: "none", alignItems: "center" }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", flexShrink: 0 }}>Size</span>
-            <button
-              onClick={() => setActiveSize(null)}
-              style={{
-                flexShrink: 0, padding: "4px 12px", borderRadius: 20, border: "none",
-                background: activeSize === null ? "rgba(255,255,255,0.15)" : "transparent",
-                color: activeSize === null ? "#fff" : "rgba(255,255,255,0.4)",
-                fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
-                letterSpacing: "0.04em", cursor: "pointer",
-              }}
-            >
-              All
-            </button>
-            {SIZES.map((sz) => (
+      {/* ── Size filter sheet ──────────────────────────────────────────────────── */}
+      {showFilters && (
+        <>
+          <div onClick={() => setShowFilters(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 90 }} />
+          <div style={{
+            position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 91,
+            background: CREAM, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+            boxShadow: "0 -8px 40px rgba(0,0,0,0.16)", padding: "8px 18px 32px",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+          }}>
+            <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 8px" }}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: INK_08 }} />
+            </div>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 19, color: DARK, marginBottom: 14 }}>Filter by size</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
               <button
-                key={sz}
-                onClick={() => setActiveSize(activeSize === sz ? null : sz)}
+                onClick={() => setActiveSize(null)}
                 style={{
-                  flexShrink: 0, padding: "4px 10px", borderRadius: 20,
-                  border: `1.5px solid ${activeSize === sz ? PINK : "rgba(255,255,255,0.12)"}`,
-                  background: activeSize === sz ? `${PINK}22` : "transparent",
-                  color: activeSize === sz ? PINK : "rgba(255,255,255,0.5)",
-                  fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700,
-                  letterSpacing: "0.03em", cursor: "pointer",
+                  padding: "8px 16px", borderRadius: 20, border: "none",
+                  background: activeSize === null ? DARK : INK_08,
+                  color: activeSize === null ? "#fff" : INK_55,
+                  fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, cursor: "pointer",
                 }}
               >
-                {sz}
+                All sizes
               </button>
-            ))}
+              {SIZES.map((sz) => (
+                <button
+                  key={sz}
+                  onClick={() => setActiveSize(activeSize === sz ? null : sz)}
+                  style={{
+                    padding: "8px 16px", borderRadius: 20,
+                    border: `1.5px solid ${activeSize === sz ? PINK : INK_08}`,
+                    background: activeSize === sz ? `${PINK}14` : "white",
+                    color: activeSize === sz ? PINK : INK_55,
+                    fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  }}
+                >
+                  {sz}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowFilters(false)}
+              style={{ width: "100%", padding: "14px 0", borderRadius: 14, background: PINK, color: "white", border: "none", fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
+            >
+              Show results →
+            </button>
           </div>
         </>
       )}
@@ -505,8 +545,8 @@ export function HangerPage() {
           ) : myListings.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <p style={{ fontSize: 32, marginBottom: 12 }}>🧺</p>
-              <p style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontSize: 18, color: "#fff", marginBottom: 6 }}>Nothing listed yet</p>
-              <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 14, color: "rgba(255,255,255,0.35)" }}>Tap <strong>List +</strong> to post your first item ✦</p>
+              <p style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontSize: 18, color: DARK, marginBottom: 6 }}>Nothing listed yet</p>
+              <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 14, color: INK_35 }}>Tap <strong>List +</strong> to post your first item ✦</p>
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -550,7 +590,7 @@ export function HangerPage() {
         ) : filtered.length === 0 ? (
           <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "48px 0" }}>
             <p style={{ fontSize: 28, marginBottom: 8 }}>🔍</p>
-            <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: "rgba(255,255,255,0.35)" }}>Nothing matching — try a different filter ✦</p>
+            <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: INK_35 }}>Nothing matching — try a different filter ✦</p>
           </div>
         ) : null}
         {!listingsLoading && filtered.map((listing) => {
@@ -797,12 +837,12 @@ export function HangerPage() {
           left: 0,
           right: 0,
           zIndex: 80,
-          background: "#181818",
+          background: CREAM,
           backgroundImage: PAPER,
           backgroundRepeat: "repeat",
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
-          boxShadow: "0 -8px 40px rgba(0,0,0,0.6)",
+          boxShadow: "0 -8px 40px rgba(0,0,0,0.25)",
           transform: sellSheetOpen ? "translateY(0)" : "translateY(100%)",
           transition: "transform 0.32s cubic-bezier(0.32,0.72,0,1)",
           maxHeight: "92dvh",
@@ -817,7 +857,7 @@ export function HangerPage() {
               width: 36,
               height: 4,
               borderRadius: 2,
-              background: "rgba(255,255,255,0.15)",
+              background: INK_08,
             }}
           />
         </div>
@@ -829,7 +869,7 @@ export function HangerPage() {
               fontStyle: "italic",
               fontSize: 22,
               fontWeight: 700,
-              color: "#fff",
+              color: DARK,
               margin: "0 0 4px",
             }}
           >
@@ -839,7 +879,7 @@ export function HangerPage() {
             style={{
               fontFamily: "var(--font-caveat), cursive",
               fontSize: 14,
-              color: "rgba(255,255,255,0.35)",
+              color: INK_35,
               margin: "0 0 16px",
             }}
           >
@@ -847,7 +887,7 @@ export function HangerPage() {
           </p>
 
           {/* Listing type pill selector */}
-          <div style={{ display: "flex", gap: 0, marginBottom: 20, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, overflow: "hidden" }}>
+          <div style={{ display: "flex", gap: 0, marginBottom: 20, border: `1px solid ${INK_08}`, borderRadius: 20, overflow: "hidden" }}>
             {(["sell", "swap", "sell_or_swap", "give_away"] as const).map((type, idx) => {
               const labels: Record<string, string> = { sell: "Sell", swap: "Swap ↔", sell_or_swap: "Both", give_away: "Free 🎁" };
               const active = listingType === type;
@@ -861,9 +901,9 @@ export function HangerPage() {
                     padding: "10px 4px",
                     borderRadius: 0,
                     border: "none",
-                    borderLeft: idx > 0 ? "1px solid rgba(255,255,255,0.15)" : "none",
+                    borderLeft: idx > 0 ? `1px solid ${INK_08}` : "none",
                     background: active ? activeColor : "transparent",
-                    color: active ? "#fff" : "rgba(255,255,255,0.5)",
+                    color: active ? "#fff" : INK_35,
                     fontFamily: "var(--font-jost), sans-serif",
                     fontSize: 11,
                     fontWeight: 700,
@@ -902,7 +942,7 @@ export function HangerPage() {
           >
             <option value="" disabled>Select a category</option>
             {CATEGORIES.filter((c) => c !== "All").map((c) => (
-              <option key={c} value={c} style={{ background: "#181818", color: "#fff" }}>
+              <option key={c} value={c} style={{ background: "white", color: DARK }}>
                 {c}
               </option>
             ))}
@@ -935,10 +975,10 @@ export function HangerPage() {
                 }}
               >
                 <option value="" disabled>Pick one</option>
-                <option value="new with tags" style={{ background: "#181818", color: "#fff" }}>New with tags</option>
-                <option value="like new" style={{ background: "#181818", color: "#fff" }}>Like new</option>
-                <option value="good" style={{ background: "#181818", color: "#fff" }}>Good</option>
-                <option value="fair" style={{ background: "#181818", color: "#fff" }}>Fair</option>
+                <option value="new with tags" style={{ background: "white", color: DARK }}>New with tags</option>
+                <option value="like new" style={{ background: "white", color: DARK }}>Like new</option>
+                <option value="good" style={{ background: "white", color: DARK }}>Good</option>
+                <option value="fair" style={{ background: "white", color: DARK }}>Fair</option>
               </select>
             </div>
           </div>
@@ -947,7 +987,7 @@ export function HangerPage() {
           {listingType !== "swap" && listingType !== "give_away" && (
             <>
               <label style={fieldLabelStyle}>
-                Price ($){listingType === "sell_or_swap" && <span style={{ color: "rgba(255,255,255,0.3)", fontWeight: 400, marginLeft: 4 }}>optional if swap</span>}
+                Price ($){listingType === "sell_or_swap" && <span style={{ color: INK_35, fontWeight: 400, marginLeft: 4 }}>optional if swap</span>}
               </label>
               <input
                 type="number"
@@ -1011,7 +1051,7 @@ export function HangerPage() {
             style={{
               fontFamily: "var(--font-caveat), cursive",
               fontSize: 13,
-              color: "rgba(255,255,255,0.3)",
+              color: INK_35,
               margin: "0 0 18px",
               lineHeight: 1.4,
             }}
@@ -1036,9 +1076,9 @@ export function HangerPage() {
               disabled={listSubmitting}
               style={{
                 flex: 1,
-                background: "rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.55)",
-                border: "1.5px solid rgba(255,255,255,0.12)",
+                background: INK_04,
+                color: INK_55,
+                border: `1.5px solid ${INK_08}`,
                 borderRadius: 14,
                 padding: "14px 0",
                 fontSize: 12,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { FashionPostSheet } from "@/app/components/portal/fashion-post-sheet";
 
@@ -21,10 +21,77 @@ const CATEGORY_META: Record<Category, { label: string; emoji: string; color: str
   tips:   { label: "Tips",   emoji: "💡",  color: PINK },
 };
 
+type ClosetPost = {
+  id: string;
+  author_id: string;
+  category: string;
+  title: string | null;
+  caption: string | null;
+  photo_urls: string[];
+  blooms: number;
+  created_at: string;
+  profiles: { display_name: string | null; avatar_url: string | null } | null;
+};
+
+// ── Post tile (masonry-style photo card) ─────────────────────────────────────
+function ClosetTile({ post }: { post: ClosetPost }) {
+  const meta = CATEGORY_META[post.category as Category] ?? CATEGORY_META.fits;
+  const authorName = post.profiles?.display_name ?? "A member";
+  const cover = post.photo_urls[0];
+
+  return (
+    <div style={{
+      borderRadius: 16, overflow: "hidden", background: "white",
+      boxShadow: "0 3px 16px rgba(28,27,28,0.08)", breakInside: "avoid", marginBottom: 12,
+    }}>
+      {cover ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={cover} alt="" style={{ width: "100%", display: "block" }} />
+      ) : (
+        <div style={{ width: "100%", aspectRatio: "3/4", background: `${meta.color}14`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 28 }}>{meta.emoji}</span>
+        </div>
+      )}
+      <div style={{ padding: "10px 12px 12px" }}>
+        <span style={{
+          fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800,
+          letterSpacing: "0.14em", color: meta.color, background: `${meta.color}14`,
+          borderRadius: 20, padding: "2px 7px", display: "inline-block", marginBottom: 6,
+        }}>{meta.emoji} {meta.label.toUpperCase()}</span>
+        {post.title && (
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 13, color: DARK, lineHeight: 1.25, marginBottom: 4 }}>{post.title}</p>
+        )}
+        {post.caption && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(28,27,28,0.6)", lineHeight: 1.4, marginBottom: 6 }}>{post.caption}</p>
+        )}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(28,27,28,0.4)" }}>{authorName}</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: PINK, fontWeight: 700 }}>🌸 {post.blooms}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ClosetPage ───────────────────────────────────────────────────────────────────
 export function ClosetPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [posts, setPosts] = useState<ClosetPost[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+
+  const loadPosts = useCallback((cat: Category) => {
+    setLoading(true);
+    const qs = new URLSearchParams({ context: "avenue" });
+    if (cat !== "all") qs.set("category", cat);
+    fetch(`/api/avenue/post?${qs.toString()}`)
+      .then(r => r.json())
+      .then(d => setPosts(d.posts ?? []))
+      .catch(() => setPosts([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { loadPosts(activeCategory); }, [activeCategory, loadPosts]);
 
   return (
     <div style={{
@@ -92,15 +159,34 @@ export function ClosetPage() {
         })}
       </div>
 
-      {/* Feed */}
-      <div style={{ padding: "0 18px 120px" }}>
-        <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
-          Nothing published yet
-        </p>
+      {/* Feed — photo-forward masonry, like a real style board */}
+      <div style={{ padding: "6px 18px 0" }}>
+        {loading ? (
+          <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
+            Loading…
+          </p>
+        ) : posts.length === 0 ? (
+          <div style={{
+            borderRadius: 20, border: "1.5px dashed rgba(255,31,125,0.25)",
+            padding: "40px 24px", textAlign: "center", marginTop: 12,
+          }}>
+            <p style={{ fontSize: 30, marginBottom: 8 }}>👗</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 17, color: DARK, marginBottom: 6 }}>
+              Nothing shared yet
+            </p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)" }}>
+              Post a fit, ask for advice, or drop some inspo — be the first ✦
+            </p>
+          </div>
+        ) : (
+          <div style={{ columnCount: 2, columnGap: 12 }}>
+            {posts.map(post => <ClosetTile key={post.id} post={post} />)}
+          </div>
+        )}
       </div>
 
       {/* The Hanger — sell & swap banner */}
-      <div style={{ padding: "4px 18px 120px" }}>
+      <div style={{ padding: "16px 18px 0" }}>
         <Link href="/member/hanger" style={{ textDecoration: "none", display: "block" }}>
           <div style={{
             background: "linear-gradient(135deg, #1C1B1C 0%, #2E0A1C 100%)",
@@ -159,9 +245,9 @@ export function ClosetPage() {
       {showCreate && (
         <FashionPostSheet
           context="avenue"
-          category="fits"
+          category={activeCategory === "all" ? "fits" : activeCategory}
           onClose={() => setShowCreate(false)}
-          onPosted={() => setShowCreate(false)}
+          onPosted={() => { setShowCreate(false); loadPosts(activeCategory); }}
         />
       )}
     </div>

@@ -17,7 +17,7 @@ const PAPER_TEX = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 type Category = "all" | "mood" | "connects" | "wins" | "questions" | "rant";
 
 const CATEGORY_META: Record<Category, { label: string; icon: string; color: string }> = {
-  all:       { label: "All",       icon: "all",  color: DARK },
+  all:       { label: "All",       icon: "✦",    color: DARK },
   mood:      { label: "Mood",      icon: "✦",    color: "#9C27B0" },
   connects:  { label: "Connects",  icon: "🤝",   color: "#1565C0" },
   wins:      { label: "Wins",      icon: "✨",   color: "#2E7D32" },
@@ -299,7 +299,7 @@ export function WallPage() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: CREAM, fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, backgroundImage: PAPER_TEX, backgroundRepeat: "repeat", fontFamily: "var(--font-jost), sans-serif", color: DARK, overflowX: "hidden", paddingBottom: 120 }}>
       {/* ── Header ── */}
       <SectionHeader
         title="The Wall"
@@ -335,7 +335,20 @@ export function WallPage() {
           <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>Loading…</p>
         )}
         {!loading && posts.length === 0 && (
-          <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>Nothing here yet. Be first ✦</p>
+          <div style={{ position: "relative", marginTop: 32 }}>
+            <div style={{
+              position: "absolute", top: -6, left: "50%", transform: "translateX(-50%) rotate(-2deg)",
+              width: 44, height: 14, background: "rgba(255,252,195,0.85)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", zIndex: 1,
+            }} />
+            <div style={{
+              position: "relative", background: "#fff", borderRadius: 16, transform: "rotate(-0.6deg)",
+              boxShadow: "0 6px 24px rgba(28,27,28,0.09)", padding: "32px 24px", textAlign: "center",
+            }}>
+              <p style={{ fontSize: 26, marginBottom: 8 }}>📌</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: DARK, marginBottom: 6 }}>Nothing pinned yet</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(28,27,28,0.5)" }}>Tap + to share the first mood, win, or question ✦</p>
+            </div>
+          </div>
         )}
         {posts.map(post => (
           <PostCard

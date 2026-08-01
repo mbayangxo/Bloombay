@@ -1,15 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import {
+  getVanityPosts,
+  getMyVanitySaveIds,
+  createVanityPost,
+  saveVanityPost,
+  unsaveVanityPost,
+  type VanityPost as RealVanityPost,
+} from "@/lib/actions/vanity";
 
 const PINK  = "#FF1F7D";
 const ROSE  = "#E8007A";
+const GOLD  = "#C9A24B";
+const BLUSH = "#F6E9DE";
+const PLUM  = "#3A1A2E";
 const CREAM = "#FAF6F2";
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`;
 
 type VanityCategory = "all" | "skincare" | "makeup" | "haircare" | "fragrance" | "nails";
-type SavedSet = Set<string>;
+type PostGradient = { gradientA: string; gradientB: string };
+type VanityPost = RealVanityPost & PostGradient;
 
 const CATEGORY_META: Record<VanityCategory, { label: string; color: string }> = {
   all:       { label: "All",       color: "#1C1B1C" },
@@ -20,26 +32,43 @@ const CATEGORY_META: Record<VanityCategory, { label: string; color: string }> = 
   nails:     { label: "Nails",     color: ROSE },
 };
 
-interface VanityPost {
-  id: string;
-  author_name: string;
-  author_initial: string;
-  author_color: string;
-  category: VanityCategory;
-  title: string;
-  text: string;
-  products: string[];
-  saves: number;
-  gradientA: string;
-  gradientB: string;
-  timeAgo: string;
+const CATEGORY_GRADIENTS: Record<Exclude<VanityCategory, "all">, PostGradient> = {
+  skincare:  { gradientA: "#E8C9A0", gradientB: "#A0522D" },
+  makeup:    { gradientA: "#FF9A9E", gradientB: PINK },
+  haircare:  { gradientA: "#C79EE8", gradientB: "#6A1B9A" },
+  fragrance: { gradientA: "#F0A8C8", gradientB: "#C2185B" },
+  nails:     { gradientA: "#FFB3D0", gradientB: ROSE },
+};
+
+function gradientForCategory(category: string): PostGradient {
+  return CATEGORY_GRADIENTS[category as Exclude<VanityCategory, "all">] ?? CATEGORY_GRADIENTS.skincare;
+}
+
+// A small hand-mirror mark — the Vanity's own signature, not reused elsewhere.
+function MirrorMark({ size = 88, opacity = 0.16 }: { size?: number; opacity?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" style={{ opacity }}>
+      <ellipse cx="50" cy="40" rx="30" ry="34" stroke="white" strokeWidth="2.5" />
+      <ellipse cx="50" cy="40" rx="22" ry="26" stroke="white" strokeWidth="1" opacity="0.6" />
+      <path d="M50 74 L50 96" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M36 96 L64 96" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function Sparkle({ x, y, size, opacity }: { x: number; y: number; size: number; opacity: number }) {
+  return (
+    <text x={x} y={y} fontSize={size} fill="white" opacity={opacity} style={{ fontFamily: "serif" }}>✦</text>
+  );
 }
 
 // ── Post card ─────────────────────────────────────────────────────────────────
 
 function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean; onSave: () => void }) {
   const [expanded, setExpanded] = useState(false);
-  const meta = CATEGORY_META[post.category];
+  const meta = CATEGORY_META[post.category as VanityCategory] ?? CATEGORY_META.skincare;
+  const authorName = post.author_name ?? "A member";
+  const authorInitial = authorName[0]?.toUpperCase() ?? "?";
 
   return (
     <div style={{ position: "relative" }}>
@@ -60,13 +89,12 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{
                 width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                background: `linear-gradient(135deg, ${post.author_color}, ${post.author_color}AA)`,
+                background: `linear-gradient(135deg, ${post.gradientA}, ${post.gradientB})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 11, fontWeight: 800, color: "white",
-              }}>{post.author_initial}</div>
+              }}>{authorInitial}</div>
               <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "#1C1B1C" }}>{post.author_name}</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#bbb" }}>{post.timeAgo}</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: "#1C1B1C" }}>{authorName}</p>
               </div>
             </div>
             <span style={{
@@ -80,7 +108,9 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
           <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "#1C1B1C", lineHeight: 1.3, marginBottom: 6 }}>{post.title}</p>
 
           {/* Text */}
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.58)", lineHeight: 1.55, marginBottom: 12 }}>{post.text}</p>
+          {post.content && (
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.58)", lineHeight: 1.55, marginBottom: 12 }}>{post.content}</p>
+          )}
 
           {/* Products */}
           {post.products.length > 0 && (
@@ -108,7 +138,7 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ fontSize: 13 }}>🌸</span>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK }}>{post.saves}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK }}>{post.saves_count}</p>
             </div>
             <button
               onClick={onSave}
@@ -131,38 +161,101 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
   );
 }
 
+// ── Create sheet ──────────────────────────────────────────────────────────────
+
+function CreateSheet({ onClose, onPosted }: { onClose: () => void; onPosted: () => void }) {
+  const [category, setCategory] = useState<Exclude<VanityCategory, "all">>("skincare");
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [productsInput, setProductsInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    if (!title.trim() || saving) return;
+    setSaving(true);
+    setError(null);
+    const res = await createVanityPost({
+      category,
+      title: title.trim(),
+      content: text.trim() || undefined,
+      products: productsInput.split(",").map(s => s.trim()).filter(Boolean),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      setError(res.error ?? "Couldn't post. Try again.");
+      return;
+    }
+    onPosted();
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "flex-end" }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", background: CREAM, borderRadius: "22px 22px 0 0", padding: "24px 20px 40px", boxShadow: "0 -12px 48px rgba(0,0,0,0.16)", maxHeight: "88dvh", overflowY: "auto" }}>
+        <div style={{ width: 36, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.12)", margin: "0 auto 18px" }} />
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: "#1C1B1C", marginBottom: 14 }}>Share to The Vanity</p>
+        <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, gap: 6, marginBottom: 14 }}>
+          {(Object.entries(CATEGORY_META).filter(([k]) => k !== "all") as [Exclude<VanityCategory, "all">, { label: string; color: string }][]).map(([id, meta]) => (
+            <button key={id} onClick={() => setCategory(id)} style={{
+              flexShrink: 0, padding: "5px 12px", borderRadius: 99,
+              background: category === id ? meta.color : "white",
+              border: `1.5px solid ${category === id ? meta.color : "rgba(0,0,0,0.1)"}`,
+              color: category === id ? "white" : "#888",
+              fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, cursor: "pointer",
+            }}>{meta.label}</button>
+          ))}
+        </div>
+        <input
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Title — e.g. My pre-wash routine for natural hair"
+          style={{ width: "100%", boxSizing: "border-box", borderRadius: 12, border: "1.5px solid rgba(0,0,0,0.1)", padding: "10px 14px", fontFamily: "var(--font-jost)", fontSize: 14, color: "#1C1B1C", outline: "none", marginBottom: 10, background: "white" }}
+        />
+        <textarea
+          value={text}
+          onChange={e => setText(e.target.value)}
+          placeholder="Share your routine, tip, or recommendation…"
+          style={{
+            width: "100%", minHeight: 100, borderRadius: 14, border: "1.5px solid rgba(255,31,125,0.15)",
+            padding: "12px 14px", fontFamily: "var(--font-caveat)", fontSize: 16, color: "#1C1B1C",
+            background: "white", outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 10,
+          }}
+        />
+        <input
+          value={productsInput}
+          onChange={e => setProductsInput(e.target.value)}
+          placeholder="Products used, comma-separated (optional)"
+          style={{ width: "100%", boxSizing: "border-box", borderRadius: 12, border: "1.5px solid rgba(0,0,0,0.1)", padding: "10px 14px", fontFamily: "var(--font-jost)", fontSize: 13, color: "#1C1B1C", outline: "none", background: "white" }}
+        />
+        {error && <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#C0392B", marginTop: 10 }}>{error}</p>}
+        <button
+          onClick={() => void submit()}
+          disabled={!title.trim() || saving}
+          style={{ width: "100%", marginTop: 14, padding: "15px 0", borderRadius: 50, background: `linear-gradient(135deg, ${PINK}, ${ROSE})`, color: "white", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", border: "none", cursor: !title.trim() || saving ? "default" : "pointer", opacity: !title.trim() || saving ? 0.6 : 1, boxShadow: `0 6px 20px ${PINK}44` }}
+        >{saving ? "POSTING…" : "Post to The Vanity ✦"}</button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function VanityPage() {
   const [activeCategory, setActiveCategory] = useState<VanityCategory>("all");
   const [posts, setPosts] = useState<VanityPost[]>([]);
-  const [saved, setSaved] = useState<SavedSet>(new Set());
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [showCreate, setShowCreate] = useState(false);
-  const [newText, setNewText] = useState("");
-  const [newCategory, setNewCategory] = useState<VanityCategory>("skincare");
 
-  useEffect(() => {
-    fetch("/api/avenue/vanity")
-      .then(r => r.json())
-      .then(d => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setPosts((d.content ?? []).map((row: any): VanityPost => ({
-          id: row.id,
-          title: row.title ?? "",
-          text: row.body ?? "",
-          category: (row.meta?.category ?? "skincare") as VanityCategory,
-          products: row.meta?.products ?? [],
-          gradientA: row.meta?.gradient_a ?? "#FF9A9E",
-          gradientB: row.meta?.gradient_b ?? PINK,
-          author_name: row.author ?? "",
-          author_initial: (row.author ?? "?")[0],
-          author_color: PINK,
-          saves: 0,
-          timeAgo: "",
-        })));
-      })
+  const loadPosts = useCallback(() => {
+    getVanityPosts()
+      .then(rows => setPosts(rows.map((r): VanityPost => ({ ...r, ...gradientForCategory(r.category) }))))
       .catch(() => setPosts([]));
   }, []);
+
+  useEffect(() => {
+    loadPosts();
+    getMyVanitySaveIds().then(ids => setSavedIds(new Set(ids))).catch(() => {});
+  }, [loadPosts]);
 
   const filtered = activeCategory === "all"
     ? posts
@@ -170,23 +263,39 @@ export function VanityPage() {
 
   const cats = Object.entries(CATEGORY_META) as [VanityCategory, { label: string; color: string }][];
 
-  return (
-    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+  function toggleSave(id: string) {
+    const wasSaved = savedIds.has(id);
+    setSavedIds(prev => {
+      const next = new Set(prev);
+      wasSaved ? next.delete(id) : next.add(id);
+      return next;
+    });
+    setPosts(prev => prev.map(p => p.id === id ? { ...p, saves_count: Math.max(0, p.saves_count + (wasSaved ? -1 : 1)) } : p));
+    void (wasSaved ? unsaveVanityPost(id) : saveVanityPost(id));
+  }
 
-      {/* Header */}
+  return (
+    <div style={{ background: `linear-gradient(160deg, ${BLUSH} 0%, #FDF7EF 45%, #FFF5F0 100%)`, minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+
+      {/* Header — Vanity's own look: deep plum + gold, mirror + sparkles, not the reused hot-pink hero */}
       <div style={{
-        padding: "56px 22px 24px",
-        background: `linear-gradient(150deg, ${PINK} 0%, #FF5BAD 60%, ${ROSE} 100%)`,
+        padding: "56px 22px 30px",
+        background: `linear-gradient(160deg, ${PLUM} 0%, #4A2440 55%, #5C1F3E 100%)`,
         position: "relative", overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: -30, right: -30, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.08), transparent)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: -10, right: 8 }}><MirrorMark size={110} opacity={0.14} /></div>
+        <svg width="100%" height="60" style={{ position: "absolute", top: 30, left: 0, pointerEvents: "none" }}>
+          <Sparkle x={40} y={20} size={12} opacity={0.5} />
+          <Sparkle x={220} y={45} size={8} opacity={0.35} />
+          <Sparkle x={150} y={8} size={9} opacity={0.4} />
+        </svg>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <Link href="/member/avenue" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+          <Link href="/member/avenue" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: `1px solid ${GOLD}55`, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </Link>
         </div>
         <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>The Vanity.</h1>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Beauty. Glow. You.</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: `${GOLD}CC` }}>Beauty. Glow. You.</p>
       </div>
 
       {/* Category filter */}
@@ -215,8 +324,8 @@ export function VanityPage() {
         {filtered.map(post => (
           <VanityCard
             key={post.id} post={post}
-            saved={saved.has(post.id)}
-            onSave={() => setSaved(prev => { const s = new Set(prev); s.has(post.id) ? s.delete(post.id) : s.add(post.id); return s; })}
+            saved={savedIds.has(post.id)}
+            onSave={() => toggleSave(post.id)}
           />
         ))}
       </div>
@@ -234,39 +343,11 @@ export function VanityPage() {
         }}
       >+</button>
 
-      {/* Create sheet */}
       {showCreate && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "flex-end" }} onClick={() => setShowCreate(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ width: "100%", background: CREAM, borderRadius: "22px 22px 0 0", padding: "24px 20px 40px", boxShadow: "0 -12px 48px rgba(0,0,0,0.16)" }}>
-            <div style={{ width: 36, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.12)", margin: "0 auto 18px" }} />
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: "#1C1B1C", marginBottom: 14 }}>Share to The Vanity</p>
-            <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, gap: 6, marginBottom: 14 }}>
-              {(Object.entries(CATEGORY_META).filter(([k]) => k !== "all") as [VanityCategory, { label: string; color: string }][]).map(([id, meta]) => (
-                <button key={id} onClick={() => setNewCategory(id)} style={{
-                  flexShrink: 0, padding: "5px 12px", borderRadius: 99,
-                  background: newCategory === id ? meta.color : "white",
-                  border: `1.5px solid ${newCategory === id ? meta.color : "rgba(0,0,0,0.1)"}`,
-                  color: newCategory === id ? "white" : "#888",
-                  fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, cursor: "pointer",
-                }}>{meta.label}</button>
-              ))}
-            </div>
-            <textarea
-              value={newText}
-              onChange={e => setNewText(e.target.value)}
-              placeholder="Share your routine, tip, or recommendation…"
-              style={{
-                width: "100%", minHeight: 100, borderRadius: 14, border: "1.5px solid rgba(255,31,125,0.15)",
-                padding: "12px 14px", fontFamily: "var(--font-caveat)", fontSize: 16, color: "#1C1B1C",
-                background: "white", outline: "none", resize: "none", boxSizing: "border-box",
-              }}
-            />
-            <button
-              onClick={() => { setShowCreate(false); setNewText(""); }}
-              style={{ width: "100%", marginTop: 12, padding: "15px 0", borderRadius: 50, background: `linear-gradient(135deg, ${PINK}, ${ROSE})`, color: "white", fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", border: "none", cursor: "pointer", boxShadow: `0 6px 20px ${PINK}44` }}
-            >Post to The Vanity ✦</button>
-          </div>
-        </div>
+        <CreateSheet
+          onClose={() => setShowCreate(false)}
+          onPosted={() => { setShowCreate(false); loadPosts(); }}
+        />
       )}
     </div>
   );
