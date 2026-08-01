@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import type { WellnessPost } from "@/lib/actions/wellness";
+import {
+  getWellnessPosts,
+  getMyWellnessSaveIds,
+  createWellnessPost,
+  saveWellnessPost,
+  unsaveWellnessPost,
+  type WellnessPost,
+} from "@/lib/actions/wellness";
 
 const PINK  = "#FF1F7D";
 const CREAM = "#F6F1EB";
@@ -23,7 +30,21 @@ const CATEGORY_META: Record<Category, { label: string; emoji: string; color: str
 };
 
 // ── Post shape ──────────────────────────────────────────────────────────────────
-type MockPost = WellnessPost & { gradientA: string; gradientB: string };
+type PostGradient = { gradientA: string; gradientB: string };
+type MockPost = WellnessPost & PostGradient;
+
+const CATEGORY_GRADIENTS: Record<Category, PostGradient> = {
+  all:      { gradientA: "#A8E063", gradientB: "#56AB2F" },
+  juice:    { gradientA: "#A8E063", gradientB: "#56AB2F" },
+  smoothie: { gradientA: "#8FD3A0", gradientB: "#3D9970" },
+  meal:     { gradientA: "#D7A86E", gradientB: "#8D5B3F" },
+  tip:      { gradientA: "#FF9BC0", gradientB: "#FF1F7D" },
+  skincare: { gradientA: "#C99BE0", gradientB: "#7B3F9E" },
+};
+
+function gradientForCategory(category: string): PostGradient {
+  return CATEGORY_GRADIENTS[category as Category] ?? CATEGORY_GRADIENTS.tip;
+}
 
 // ── PostCard ────────────────────────────────────────────────────────────────────
 function PostCard({ post, saved, onToggleSave }: { post: MockPost; saved: boolean; onToggleSave: () => void }) {
@@ -165,12 +186,33 @@ function PostCard({ post, saved, onToggleSave }: { post: MockPost; saved: boolea
 }
 
 // ── CreateSheet ─────────────────────────────────────────────────────────────────
-function CreateSheet({ onClose }: { onClose: () => void }) {
+function CreateSheet({ onClose, onPosted }: { onClose: () => void; onPosted: () => void }) {
   const [category, setCategory] = useState<Category>("juice");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [steps, setSteps] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    if (!title.trim() || saving) return;
+    setSaving(true);
+    setError(null);
+    const res = await createWellnessPost({
+      category,
+      title: title.trim(),
+      content: content.trim() || undefined,
+      ingredients: ingredients.split("\n").map(s => s.trim()).filter(Boolean),
+      steps: steps.split("\n").map(s => s.trim()).filter(Boolean),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      setError(res.error ?? "Couldn't post. Try again.");
+      return;
+    }
+    onPosted();
+  }
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 12px", borderRadius: 10,
@@ -246,15 +288,22 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           placeholder={"Wash and chop all produce\nFeed through juicer\nDrink immediately"}
           style={{ ...inputStyle, marginBottom: 24, resize: "none" }} />
 
+        {error && (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#C0392B", marginBottom: 12 }}>{error}</p>
+        )}
+
         <button
+          disabled={!title.trim() || saving}
           style={{
             width: "100%", background: PINK, color: "#fff", border: "none",
             borderRadius: 14, padding: "14px 0", fontSize: 14,
-            fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.05em", cursor: "pointer",
+            fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.05em",
+            cursor: !title.trim() || saving ? "default" : "pointer",
+            opacity: !title.trim() || saving ? 0.6 : 1,
           }}
-          onClick={onClose}
+          onClick={submit}
         >
-          Post to Girl Fit →
+          {saving ? "POSTING…" : "Post to Girl Fit →"}
         </button>
       </div>
     </>
@@ -268,41 +317,29 @@ export function HealthPage() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/avenue/health")
-      .then(r => r.json())
-      .then(d => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setPosts((d.content ?? []).map((row: any): MockPost => ({
-          id: row.id,
-          title: row.title ?? "",
-          content: row.body ?? "",
-          category: (row.meta?.category ?? "tip") as Category,
-          ingredients: row.meta?.ingredients ?? [],
-          steps: row.meta?.steps ?? [],
-          gradientA: row.meta?.gradient_a ?? "#A8E063",
-          gradientB: row.meta?.gradient_b ?? "#56AB2F",
-          author_name: row.author ?? "",
-          author_id: row.id,
-          author_avatar: null,
-          saves_count: 0,
-          created_at: row.created_at ?? new Date().toISOString(),
-          image_url: null,
-        })));
-      })
+  const loadPosts = useCallback(() => {
+    getWellnessPosts()
+      .then(rows => setPosts(rows.map((r): MockPost => ({ ...r, ...gradientForCategory(r.category) }))))
       .catch(() => setPosts([]));
   }, []);
+
+  useEffect(() => {
+    loadPosts();
+    getMyWellnessSaveIds().then(ids => setSavedIds(new Set(ids))).catch(() => {});
+  }, [loadPosts]);
 
   const filtered = activeCategory === "all"
     ? posts
     : posts.filter(p => p.category === activeCategory);
 
   function toggleSave(id: string) {
+    const wasSaved = savedIds.has(id);
     setSavedIds(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      wasSaved ? next.delete(id) : next.add(id);
       return next;
     });
+    void (wasSaved ? unsaveWellnessPost(id) : saveWellnessPost(id));
   }
 
   return (
@@ -406,7 +443,12 @@ export function HealthPage() {
         ))}
       </div>
 
-      {showCreate && <CreateSheet onClose={() => setShowCreate(false)} />}
+      {showCreate && (
+        <CreateSheet
+          onClose={() => setShowCreate(false)}
+          onPosted={() => { setShowCreate(false); loadPosts(); }}
+        />
+      )}
     </div>
   );
 }
