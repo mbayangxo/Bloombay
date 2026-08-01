@@ -17,7 +17,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("gatherings")
     .select(
-      "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_key, event_type, poster_variant, image_url, description, price_cents, host_name"
+      "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_key, event_type, poster_variant, image_url, description, price_cents, host_name, table_size, deposit_cents, experience_fee_cents, venue_fee_cents, dress_code, rsvp_deadline"
     )
     .gte("starts_at", now)
     .not("event_type", "is", null)
@@ -68,6 +68,12 @@ export async function POST(request: Request) {
     description?: string;
     priceCents?: number;
     hostName?: string;
+    tableSize?: number;
+    depositCents?: number;
+    experienceFeeCents?: number;
+    venueFeeCents?: number;
+    dressCode?: string;
+    rsvpDeadline?: string;
   };
   try {
     body = await request.json();
@@ -96,12 +102,19 @@ export async function POST(request: Request) {
     spots_left: capacity,
     club_slug: body.clubSlug ?? null,
     created_by: user.id,
+    host_id: user.id,
     event_type: body.eventType?.trim() || "dinner",
     poster_variant: body.posterVariant?.trim() || null,
     image_url: body.imageUrl?.trim() || null,
     description: body.description?.trim() || null,
     price_cents: Math.max(0, body.priceCents ?? 0),
     host_name: body.hostName?.trim() || null,
+    table_size: Math.min(20, Math.max(2, body.tableSize ?? 8)),
+    deposit_cents: Math.max(0, body.depositCents ?? 0),
+    experience_fee_cents: Math.max(0, body.experienceFeeCents ?? 0),
+    venue_fee_cents: Math.max(0, body.venueFeeCents ?? 0),
+    dress_code: body.dressCode?.trim() || null,
+    rsvp_deadline: body.rsvpDeadline || null,
     ...(eventKey ? { event_key: eventKey } : {}),
   };
 

@@ -21,7 +21,12 @@ type ClubBody = {
   clubId: string;
 };
 
-type RequestBody = MembershipBody | TicketBody | ClubBody;
+type GatheringDepositBody = {
+  type: "gathering_deposit";
+  gatheringId: string;
+};
+
+type RequestBody = MembershipBody | TicketBody | ClubBody | GatheringDepositBody;
 
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
@@ -109,6 +114,69 @@ export async function POST(req: NextRequest) {
       destinationAccountId,
       platformFeeCents,
       hostId: hostId ?? undefined,
+    });
+
+    return NextResponse.json({ url });
+  }
+
+  if (body.type === "gathering_deposit") {
+    const { gatheringId } = body;
+    if (!gatheringId) return NextResponse.json({ error: "gatheringId required" }, { status: 400 });
+
+    const supabase = await createClient();
+    const { data: gathering } = await supabase
+      .from("gatherings")
+      .select("id, host_id, deposit_cents, title, spots_left")
+      .eq("id", gatheringId)
+      .maybeSingle();
+
+    if (!gathering) return NextResponse.json({ error: "Gathering not found" }, { status: 404 });
+
+    // The deposit amount is always derived from the gathering's own record,
+    // never trusted from the client.
+    const depositCents = (gathering as { deposit_cents?: number | null }).deposit_cents ?? 0;
+    if (depositCents <= 0) {
+      return NextResponse.json({ error: "This happening has no deposit configured." }, { status: 400 });
+    }
+    if ((gathering as { spots_left?: number | null }).spots_left !== null && (gathering as { spots_left?: number }).spots_left! <= 0) {
+      return NextResponse.json({ error: "No seats left" }, { status: 409 });
+    }
+
+    const hostId = (gathering as { host_id?: string | null }).host_id;
+    if (!hostId) {
+      return NextResponse.json(
+        { error: "This happening has no host payout account. Contact the host." },
+        { status: 400 },
+      );
+    }
+
+    const { data: host } = await supabase
+      .from("profiles")
+      .select("stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled")
+      .eq("id", hostId)
+      .maybeSingle();
+
+    const acct = host as { stripe_account_id?: string | null; stripe_charges_enabled?: boolean; stripe_payouts_enabled?: boolean } | null;
+    if (!acct?.stripe_account_id || !acct.stripe_charges_enabled || !acct.stripe_payouts_enabled) {
+      return NextResponse.json(
+        { error: "The host hasn’t finished Stripe payout setup. Seats can’t be secured until their bank is connected." },
+        { status: 400 },
+      );
+    }
+
+    const { calcPlatformFeeCents } = await import("@/lib/payments/stripe-connect");
+    const platformFeeCents = calcPlatformFeeCents(depositCents);
+
+    const { url } = await chargeTicket({
+      eventId: gatheringId,
+      eventName: (gathering as { title: string }).title,
+      amountCents: depositCents,
+      quantity: 1,
+      userId: user.id,
+      userEmail: user.email ?? "",
+      destinationAccountId: acct.stripe_account_id,
+      platformFeeCents,
+      hostId,
     });
 
     return NextResponse.json({ url });

@@ -31,6 +31,12 @@ export interface CompatibilityScore {
   activity_match:       number;        // 0–1
   reasons:              string[];      // positive signals surfaced to members
   flags:                string[];      // internal only — potential friction points
+  breakdown: {
+    values_pct:    number;  // 0–100, from valuesScore (max 20 pts)
+    vibe_pct:      number;  // 0–100, from lifestyleScore (max 20 pts)
+    interests_pct: number;  // 0–100, from activityScore (max 15 pts)
+    energy_pct:    number;  // 0–100, from lifeStageScore (max 15 pts)
+  };
 }
 
 interface MemberPrefs {
@@ -378,6 +384,12 @@ export async function scoreCompatibility(userIdA: string, userIdB: string): Prom
     activity_match:      activityMatch,
     reasons:             reasons.filter(Boolean),
     flags,
+    breakdown: {
+      values_pct:    Math.round((values.pts / 20) * 100),
+      vibe_pct:      Math.round((lifestyle.pts / 20) * 100),
+      interests_pct: Math.round((activities.pts / 15) * 100),
+      energy_pct:    Math.round((lifeStage.pts / 15) * 100),
+    },
   };
 }
 

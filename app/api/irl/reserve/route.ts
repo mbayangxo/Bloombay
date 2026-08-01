@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   const { data: capRow } = await supabase
     .from("gatherings")
-    .select("spots_left")
+    .select("spots_left, deposit_cents")
     .eq("id", gatheringId)
     .maybeSingle();
   if (capRow && (capRow.spots_left as number) <= 0) {
@@ -53,6 +53,15 @@ export async function POST(request: Request) {
       .eq("id", gatheringId)
       .single();
     return NextResponse.json({ ok: true, gathering, alreadyReserved: true });
+  }
+
+  // Gatherings with a deposit configured are secured by payment, not a free
+  // reserve — the client kicks off /api/payments/stripe/checkout with
+  // type: "gathering_deposit" instead, and the seat is created by the
+  // webhook once Stripe confirms the charge.
+  const depositCents = (capRow as { deposit_cents?: number | null } | null)?.deposit_cents ?? 0;
+  if (depositCents > 0) {
+    return NextResponse.json({ ok: false, requiresDeposit: true, gatheringId, depositCents });
   }
 
   const phone = await getMemberPhone(supabase, user.id, user.phone);

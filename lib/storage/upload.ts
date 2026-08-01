@@ -112,6 +112,30 @@ export async function uploadEventVoiceNote(blob: Blob, eventId: string): Promise
   return supabase.storage.from("event-media").getPublicUrl(path).data.publicUrl;
 }
 
+// Per-attendee voice note left on a gathering (distinct from the host's
+// single voice_note_url — many members can each leave one).
+export async function uploadGatheringVoiceNote(blob: Blob, gatheringId: string, userId: string): Promise<string> {
+  const supabase = createClient();
+  const path = `${gatheringId}/voice-notes/${userId}-${Date.now()}.m4a`;
+  const { error } = await supabase.storage
+    .from("event-media")
+    .upload(path, blob, { upsert: false, contentType: "audio/mp4" });
+  if (error) throw error;
+  return supabase.storage.from("event-media").getPublicUrl(path).data.publicUrl;
+}
+
+// Outfit-check photo an attendee shares ahead of a gathering.
+export async function uploadGatheringOutfitPhoto(file: File, gatheringId: string, userId: string): Promise<string> {
+  const compressed = await prepare(file, 1000, 400);
+  const supabase = createClient();
+  const path = `${gatheringId}/outfits/${userId}-${Date.now()}.webp`;
+  const { error } = await supabase.storage
+    .from("event-media")
+    .upload(path, compressed, { upsert: true, contentType: "image/webp" });
+  if (error) throw error;
+  return supabase.storage.from("event-media").getPublicUrl(path).data.publicUrl;
+}
+
 // ── Club crest / customization ───────────────────────────────────────────────
 
 export async function uploadClubCrestBadge(svgString: string, clubId: string): Promise<string> {
