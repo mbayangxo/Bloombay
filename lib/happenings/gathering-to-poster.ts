@@ -27,6 +27,7 @@ export type DbGathering = {
   venue_fee_cents?: number | null;
   dress_code?: string | null;
   rsvp_deadline?: string | null;
+  curated_by_admin?: boolean | null;
 };
 
 function formatDate(iso: string): { date: string; time: string; timeLabel: string } {

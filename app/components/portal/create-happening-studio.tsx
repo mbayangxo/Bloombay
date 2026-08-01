@@ -41,6 +41,14 @@ export function CreateHappeningStudio() {
   const [description, setDescription] = useState("");
   const [hostName, setHostName] = useState("");
   const [clubSlug, setClubSlug] = useState("");
+  const [tableSize, setTableSize] = useState(8);
+  const [depositInput, setDepositInput] = useState("");
+  const [depositCents, setDepositCents] = useState(0);
+  const [experienceFeeInput, setExperienceFeeInput] = useState("");
+  const [experienceFeeCents, setExperienceFeeCents] = useState(0);
+  const [venueFeeInput, setVenueFeeInput] = useState("");
+  const [venueFeeCents, setVenueFeeCents] = useState(0);
+  const [dressCode, setDressCode] = useState("");
 
   const variants = useMemo(() => getVariantsForType(eventType), [eventType]);
   const variant = getVariant(eventType, variantId);
@@ -100,6 +108,11 @@ export function CreateHappeningStudio() {
         description: description.trim() || undefined,
         priceCents,
         hostName: hostName.trim() || undefined,
+        tableSize,
+        depositCents,
+        experienceFeeCents,
+        venueFeeCents,
+        dressCode: dressCode.trim() || undefined,
       }),
     });
     setBusy(false);
@@ -330,6 +343,83 @@ export function CreateHappeningStudio() {
                 />
               </label>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-xs font-bold uppercase" style={{ color: "#bbb" }}>
+                Table size
+                <input
+                  type="number"
+                  min={2}
+                  max={20}
+                  value={tableSize}
+                  onChange={(e) => setTableSize(Number(e.target.value))}
+                  className="w-full mt-1 rounded-xl px-3 py-2 text-sm bg-white"
+                  style={{ border: "1.5px solid #eee" }}
+                />
+              </label>
+              <label className="text-xs font-bold uppercase" style={{ color: "#bbb" }}>
+                Deposit ($)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={depositInput}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v !== "" && !/^\d*\.?\d{0,2}$/.test(v)) return;
+                    setDepositInput(v);
+                    setDepositCents(v === "" ? 0 : Math.round(parseFloat(v) * 100) || 0);
+                  }}
+                  className="w-full mt-1 rounded-xl px-3 py-2 text-sm bg-white"
+                  style={{ border: "1.5px solid #eee" }}
+                />
+              </label>
+            </div>
+            <p className="text-[11px] -mt-2" style={{ color: "#999" }}>
+              A deposit is charged now to secure a seat; the rest of the price is due before the event.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-xs font-bold uppercase" style={{ color: "#bbb" }}>
+                Experience fee ($)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={experienceFeeInput}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v !== "" && !/^\d*\.?\d{0,2}$/.test(v)) return;
+                    setExperienceFeeInput(v);
+                    setExperienceFeeCents(v === "" ? 0 : Math.round(parseFloat(v) * 100) || 0);
+                  }}
+                  className="w-full mt-1 rounded-xl px-3 py-2 text-sm bg-white"
+                  style={{ border: "1.5px solid #eee" }}
+                />
+              </label>
+              <label className="text-xs font-bold uppercase" style={{ color: "#bbb" }}>
+                Venue &amp; service ($)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={venueFeeInput}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v !== "" && !/^\d*\.?\d{0,2}$/.test(v)) return;
+                    setVenueFeeInput(v);
+                    setVenueFeeCents(v === "" ? 0 : Math.round(parseFloat(v) * 100) || 0);
+                  }}
+                  className="w-full mt-1 rounded-xl px-3 py-2 text-sm bg-white"
+                  style={{ border: "1.5px solid #eee" }}
+                />
+              </label>
+            </div>
+            <input
+              value={dressCode}
+              onChange={(e) => setDressCode(e.target.value)}
+              placeholder="Dress code (optional)"
+              className="w-full rounded-2xl px-4 py-3 text-sm bg-white outline-none"
+              style={{ border: "1.5px solid #FFE0EE" }}
+            />
             <input
               value={hostName}
               onChange={(e) => setHostName(e.target.value)}

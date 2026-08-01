@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 const SELECT =
-  "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_type, poster_variant, image_url, description, price_cents, host_name, host_id, photo_urls, voice_note_url, table_size, deposit_cents, experience_fee_cents, venue_fee_cents, dress_code, rsvp_deadline";
+  "id, slug, title, starts_at, area, venue, neighborhood, capacity, spots_left, club_slug, event_type, poster_variant, image_url, description, price_cents, host_name, host_id, photo_urls, voice_note_url, table_size, deposit_cents, experience_fee_cents, venue_fee_cents, dress_code, rsvp_deadline, curated_by_admin";
 
 export async function GET(
   _request: Request,
