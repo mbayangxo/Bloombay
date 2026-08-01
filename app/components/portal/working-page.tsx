@@ -53,11 +53,32 @@ export function WorkingPage() {
         </div>
       </div>
 
-      <div style={{ padding: "72px 22px 48px", textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 24, color: "#1A1A1A", marginBottom: 10 }}>Opening soon.</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#888", lineHeight: 1.65, maxWidth: 300, margin: "0 auto" }}>
-          {activeMeta.label} — real opportunities, founders, and creators from the BloomBay community — is being built. We&apos;ll open it the moment it&apos;s real, never with filler.
-        </p>
+      <div style={{ margin: "20px 16px 40px", borderRadius: 20, overflow: "hidden", position: "relative", background: `${GRAIN}, linear-gradient(165deg, ${DARK} 0%, ${INK} 55%, ${PLUM} 100%)`, backgroundSize: "200px 200px, auto", boxShadow: "0 20px 48px rgba(15,15,26,0.28)" }}>
+        <div style={{ position: "absolute", top: -40, left: -40, width: 180, height: 180, borderRadius: "50%", background: `radial-gradient(circle, ${PINK}14, transparent)`, pointerEvents: "none" }} />
+
+        <div style={{ position: "relative", padding: "44px 26px 40px", textAlign: "center" }}>
+          {/* Elevation mark: three ascending bars */}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 6, height: 34, marginBottom: 22 }}>
+            <span style={{ width: 6, height: 14, borderRadius: 3, background: "rgba(255,255,255,0.25)" }} />
+            <span style={{ width: 6, height: 22, borderRadius: 3, background: "rgba(255,255,255,0.45)" }} />
+            <span style={{ width: 6, height: 34, borderRadius: 3, background: `linear-gradient(180deg, ${PINK}, #FFD37A)` }} />
+          </div>
+
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginBottom: 16 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: PINK }} />
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,255,255,0.55)" }}>COMING SOON</span>
+          </div>
+
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 30, color: "white", marginBottom: 14, lineHeight: 1.05 }}>
+            Something worth<br />the wait.
+          </p>
+
+          <div style={{ width: 36, height: 1, background: `linear-gradient(90deg, transparent, ${PINK}, transparent)`, margin: "0 auto 18px" }} />
+
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 280, margin: "0 auto" }}>
+            {activeMeta.label} — real opportunities, founders, and creators from the BloomBay community — is being built. We&apos;ll open it the moment it&apos;s real, never with filler.
+          </p>
+        </div>
       </div>
     </div>
   );
