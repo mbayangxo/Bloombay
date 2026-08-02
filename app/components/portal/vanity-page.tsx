@@ -13,9 +13,6 @@ import {
 
 const PINK  = "#FF1F7D";
 const ROSE  = "#E8007A";
-const GOLD  = "#C9A24B";
-const BLUSH = "#F6E9DE";
-const PLUM  = "#3A1A2E";
 const CREAM = "#FAF6F2";
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`;
 
@@ -275,27 +272,28 @@ export function VanityPage() {
   }
 
   return (
-    <div style={{ background: `linear-gradient(160deg, ${BLUSH} 0%, #FDF7EF 45%, #FFF5F0 100%)`, minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
+    <div style={{ background: "linear-gradient(160deg, #FFF0F8 0%, #FFE8F4 40%, #FFF5F0 100%)", minHeight: "100vh", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)" }}>
 
-      {/* Header — Vanity's own look: deep plum + gold, mirror + sparkles, not the reused hot-pink hero */}
+      {/* Header — same brand pink as every other room; the mirror + sparkle
+          motif (not a new palette) is what makes this one read as Vanity. */}
       <div style={{
         padding: "56px 22px 30px",
-        background: `linear-gradient(160deg, ${PLUM} 0%, #4A2440 55%, #5C1F3E 100%)`,
+        background: `linear-gradient(150deg, ${PINK} 0%, #FF5BAD 60%, ${ROSE} 100%)`,
         position: "relative", overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: -10, right: 8 }}><MirrorMark size={110} opacity={0.14} /></div>
+        <div style={{ position: "absolute", top: -10, right: 8 }}><MirrorMark size={110} opacity={0.16} /></div>
         <svg width="100%" height="60" style={{ position: "absolute", top: 30, left: 0, pointerEvents: "none" }}>
           <Sparkle x={40} y={20} size={12} opacity={0.5} />
           <Sparkle x={220} y={45} size={8} opacity={0.35} />
           <Sparkle x={150} y={8} size={9} opacity={0.4} />
         </svg>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <Link href="/member/avenue" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: `1px solid ${GOLD}55`, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+          <Link href="/member/avenue" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </Link>
         </div>
         <h1 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(32px, 11vw, 44px)", color: "white", lineHeight: 1, marginBottom: 6 }}>The Vanity.</h1>
-        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: `${GOLD}CC` }}>Beauty. Glow. You.</p>
+        <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Beauty. Glow. You.</p>
       </div>
 
       {/* Category filter */}
