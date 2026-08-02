@@ -694,46 +694,31 @@ export function HangerPage() {
         </div>
       </div>
 
-      {/* ── Category row + a single Filters button (only on Browse tab) ───────── */}
+      {/* ── One Filters toggle (only on Browse tab) — nothing permanently on
+          screen; tapping it opens the panel, tapping again closes it ──────── */}
       {activeTab === "browse" && (
-        <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "12px 12px 12px" }}>
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", flex: 1, minWidth: 0 }}>
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
-                  padding: "6px 14px", borderRadius: 20, border: "none",
-                  background: activeCategory === cat ? PINK : INK_08,
-                  color: activeCategory === cat ? "#fff" : INK_55,
-                  fontSize: 12, fontFamily: "var(--font-jost), sans-serif",
-                  fontWeight: 600, letterSpacing: "0.03em", cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 14 }}>{CATEGORY_ICONS[cat]}</span>
-                {cat}
-              </button>
-            ))}
-          </div>
+        <div style={{ display: "flex", padding: "12px 12px 12px" }}>
           <button
-            onClick={() => setShowFilters(true)}
+            onClick={() => setShowFilters(v => !v)}
             style={{
-              flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
-              padding: "6px 12px", borderRadius: 20,
-              border: `1.5px solid ${activeSize ? PINK : INK_08}`,
-              background: activeSize ? `${PINK}12` : "white",
-              color: activeSize ? PINK : INK_55,
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "8px 14px", borderRadius: 20,
+              border: `1.5px solid ${showFilters || activeCategory !== "All" || activeSize ? PINK : INK_08}`,
+              background: showFilters || activeCategory !== "All" || activeSize ? `${PINK}12` : "white",
+              color: showFilters || activeCategory !== "All" || activeSize ? PINK : INK_55,
               fontSize: 12, fontFamily: "var(--font-jost), sans-serif",
               fontWeight: 700, cursor: "pointer",
             }}
           >
-            ⚲ {activeSize ? `Size ${activeSize}` : "Filters"}
+            ⚲ {activeCategory === "All" && !activeSize
+              ? "Filters"
+              : [activeCategory !== "All" ? activeCategory : null, activeSize ? `Size ${activeSize}` : null].filter(Boolean).join(" · ")}
+            <span style={{ fontSize: 10, transform: showFilters ? "rotate(180deg)" : undefined, transition: "transform 0.15s" }}>▾</span>
           </button>
         </div>
       )}
 
-      {/* ── Size filter sheet ──────────────────────────────────────────────────── */}
+      {/* ── Filters panel — category + size together, closed by default ───────── */}
       {showFilters && (
         <>
           <div onClick={() => setShowFilters(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 90 }} />
@@ -742,11 +727,33 @@ export function HangerPage() {
             background: CREAM, borderTopLeftRadius: 24, borderTopRightRadius: 24,
             boxShadow: "0 -8px 40px rgba(0,0,0,0.16)", padding: "8px 18px 32px",
             paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+            maxHeight: "80dvh", overflowY: "auto",
           }}>
             <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 8px" }}>
               <div style={{ width: 36, height: 4, borderRadius: 2, background: INK_08 }} />
             </div>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 19, color: DARK, marginBottom: 14 }}>Filter by size</p>
+
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: INK_35, marginBottom: 10 }}>CATEGORY</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 5,
+                    padding: "8px 14px", borderRadius: 20,
+                    border: `1.5px solid ${activeCategory === cat ? PINK : INK_08}`,
+                    background: activeCategory === cat ? `${PINK}14` : "white",
+                    color: activeCategory === cat ? PINK : INK_55,
+                    fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  }}
+                >
+                  <span>{CATEGORY_ICONS[cat]}</span>{cat}
+                </button>
+              ))}
+            </div>
+
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: INK_35, marginBottom: 10 }}>SIZE</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
               <button
                 onClick={() => setActiveSize(null)}
